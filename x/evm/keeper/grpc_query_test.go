@@ -471,7 +471,6 @@ func (suite *EvmKeeperTestSuite) TestQueryParams() {
 	suite.Require().Equal(expParams, res.Params)
 }
 
-// TODO: fix this issue
 func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
@@ -563,7 +562,7 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 }
 
 func (suite *EvmKeeperTestSuite) TestEstimateGas() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -572,7 +571,6 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 
 	gasHelper := hexutil.Uint64(20000)
 	higherGas := hexutil.Uint64(25000)
-	hexBigInt := hexutil.Big(*big.NewInt(1))
 
 	testCases := []struct {
 		msg             string
@@ -685,20 +683,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 			"erc20 transfer",
 			func() types.TransactionArgs {
 				key := keyring.GetKey(0)
-				constructorArgs := []interface{}{
-					key.Addr,
-					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-				}
-				compiledContract := types.ERC20Contract
-
-				contractAddr, err := txFactory.DeployContract(
-					key.Priv,
-					types.EvmTxArgs{}, // Default values
-					factory.ContractDeploymentData{
-						Contract:        compiledContract,
-						ConstructorArgs: constructorArgs,
-					},
-				)
+				contractAddr, err := deployErc20Contract(key, unitNetwork, txFactory)
 				suite.Require().NoError(err)
 
 				err = unitNetwork.NextBlock()
@@ -803,21 +788,9 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 		{
 			"erc20 transfer w/ enableFeemarket",
 			func() types.TransactionArgs {
-				key := keyring.GetKey(0)
-				constructorArgs := []interface{}{
-					key.Addr,
-					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-				}
-				compiledContract := types.ERC20Contract
+				key := keyring.GetKey(1)
 
-				contractAddr, err := txFactory.DeployContract(
-					key.Priv,
-					types.EvmTxArgs{}, // Default values
-					factory.ContractDeploymentData{
-						Contract:        compiledContract,
-						ConstructorArgs: constructorArgs,
-					},
-				)
+				contractAddr, err := deployErc20Contract(key, unitNetwork, txFactory)
 				suite.Require().NoError(err)
 
 				err = unitNetwork.NextBlock()
@@ -905,6 +878,8 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 		{
 			"invalid args - specified both gasPrice and maxFeePerGas",
 			func() types.TransactionArgs {
+				hexBigInt := hexutil.Big(*big.NewInt(1))
+
 				return types.TransactionArgs{
 					To:           &common.Address{},
 					GasPrice:     &hexBigInt,
@@ -919,30 +894,38 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			if tc.enableFeemarket {
+			// Start from a clean state
+			suite.Require().NoError(unitNetwork.NextBlock())
+
+			// Update feemarket params per test
+			evmParams := feemarkettypes.DefaultParams()
+			if !tc.enableFeemarket {
 				evmParams := unitNetwork.App.FeeMarketKeeper.GetParams(
 					unitNetwork.GetContext(),
 				)
-				evmParams.NoBaseFee = false
-
-				err := unitNetwork.App.FeeMarketKeeper.SetParams(
-					unitNetwork.GetContext(),
-					evmParams,
-				)
-				suite.Require().NoError(err)
+				evmParams.NoBaseFee = true
 			}
 
-			args := tc.getArgs()
+			err := unitNetwork.App.FeeMarketKeeper.SetParams(
+				unitNetwork.GetContext(),
+				evmParams,
+			)
+			suite.Require().NoError(err)
 
+			// Get call args
+			args := tc.getArgs()
 			marshalArgs, err := json.Marshal(args)
 			suite.Require().NoError(err)
+
 			req := types.EthCallRequest{
 				Args:            marshalArgs,
 				GasCap:          tc.gasCap,
 				ProposerAddress: unitNetwork.GetContext().BlockHeader().ProposerAddress,
 			}
 
+			// Function under test
 			rsp, err := unitNetwork.GetEvmClient().EstimateGas(
 				unitNetwork.GetContext(),
 				&req,
