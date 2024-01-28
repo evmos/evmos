@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -25,6 +26,7 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 // Not valid Ethereum address
@@ -1492,112 +1494,152 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestNonceInQuery() {
-	address := utiltx.GenerateAddress()
-	suite.Require().Equal(uint64(0), suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), address))
-	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
+func (suite *EvmKeeperTestSuite) TestNonceInQuery() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grcpHandler)
+
+	senderKey := keyring.GetKey(0)
+	nonce := unitNetwork.App.EvmKeeper.GetNonce(
+		unitNetwork.GetContext(),
+		senderKey.Addr,
+	)
+	suite.Require().Equal(uint64(0), nonce)
 
 	// accupy nonce 0
-	_ = suite.DeployTestContract(suite.T(), address, supply)
+	_, err := deployErc20Contract(keyring.GetKey(0), unitNetwork, txFactory)
+	suite.Require().NoError(err)
 
 	// do an EthCall/EstimateGas with nonce 0
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
+	ctorArgs, err := types.ERC20Contract.ABI.Pack("", senderKey.Addr, big.NewInt(1000))
 	suite.Require().NoError(err)
 
 	data := types.ERC20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&types.TransactionArgs{
-		From: &address,
+		From: &senderKey.Addr,
 		Data: (*hexutil.Bytes)(&data),
 	})
 	suite.Require().NoError(err)
-	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
-	_, err = suite.network.GetEvmClient().EstimateGas(suite.network.GetContext(), &types.EthCallRequest{
-		Args:            args,
-		GasCap:          config.DefaultGasCap,
-		ProposerAddress: proposerAddress,
-	})
+
+	proposerAddress := unitNetwork.GetContext().BlockHeader().ProposerAddress
+	_, err = unitNetwork.GetEvmClient().EstimateGas(
+		unitNetwork.GetContext(),
+		&types.EthCallRequest{
+			Args:            args,
+			GasCap:          config.DefaultGasCap,
+			ProposerAddress: proposerAddress,
+		},
+	)
 	suite.Require().NoError(err)
 
-	_, err = suite.network.GetEvmClient().EthCall(suite.network.GetContext(), &types.EthCallRequest{
-		Args:            args,
-		GasCap:          config.DefaultGasCap,
-		ProposerAddress: proposerAddress,
-	})
+	_, err = unitNetwork.GetEvmClient().EthCall(
+		unitNetwork.GetContext(),
+		&types.EthCallRequest{
+			Args:            args,
+			GasCap:          config.DefaultGasCap,
+			ProposerAddress: proposerAddress,
+		},
+	)
 	suite.Require().NoError(err)
 }
 
-func (suite *KeeperTestSuite) TestQueryBaseFee() {
-	var (
-		aux    sdkmath.Int
-		expRes *types.QueryBaseFeeResponse
+func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
 	testCases := []struct {
-		name            string
-		malleate        func()
-		expPass         bool
-		enableFeemarket bool
-		enableLondonHF  bool
+		name       string
+		getExpResp func() *types.QueryBaseFeeResponse
+		setParams  func()
+		expPass    bool
 	}{
 		{
 			"pass - default Base Fee",
-			func() {
+			func() *types.QueryBaseFeeResponse {
 				initialBaseFee := sdkmath.NewInt(ethparams.InitialBaseFee)
-				expRes = &types.QueryBaseFeeResponse{BaseFee: &initialBaseFee}
+				return &types.QueryBaseFeeResponse{BaseFee: &initialBaseFee}
 			},
-			true, true, true,
-		},
-		{
-			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdkmath.OneInt().BigInt()
-				suite.network.App.FeeMarketKeeper.SetBaseFee(suite.network.GetContext(), baseFee)
+				feemarketDefault := feemarkettypes.DefaultParams()
+				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
 
-				aux = sdkmath.NewIntFromBigInt(baseFee)
-				expRes = &types.QueryBaseFeeResponse{BaseFee: &aux}
+				evmDefault := types.DefaultParams()
+				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
 			},
-			true, true, true,
+
+			true,
 		},
 		{
 			"pass - nil Base Fee when london hardfork not activated",
-			func() {
-				baseFee := sdkmath.OneInt().BigInt()
-				suite.network.App.FeeMarketKeeper.SetBaseFee(suite.network.GetContext(), baseFee)
-
-				expRes = &types.QueryBaseFeeResponse{}
+			func() *types.QueryBaseFeeResponse {
+				return &types.QueryBaseFeeResponse{}
 			},
-			true, true, false,
+			func() {
+				feemarketDefault := feemarkettypes.DefaultParams()
+				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
+
+				evmDefault := types.DefaultParams()
+				maxInt := sdkmath.NewInt(math.MaxInt64)
+				evmDefault.ChainConfig.LondonBlock = &maxInt
+				evmDefault.ChainConfig.LondonBlock = &maxInt
+				evmDefault.ChainConfig.ArrowGlacierBlock = &maxInt
+				evmDefault.ChainConfig.GrayGlacierBlock = &maxInt
+				evmDefault.ChainConfig.MergeNetsplitBlock = &maxInt
+				evmDefault.ChainConfig.ShanghaiBlock = &maxInt
+				evmDefault.ChainConfig.CancunBlock = &maxInt
+				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
+			},
+			true,
 		},
 		{
 			"pass - zero Base Fee when feemarket not activated",
-			func() {
+			func() *types.QueryBaseFeeResponse {
 				baseFee := sdkmath.ZeroInt()
-				expRes = &types.QueryBaseFeeResponse{BaseFee: &baseFee}
+				return &types.QueryBaseFeeResponse{BaseFee: &baseFee}
 			},
-			true, false, true,
+			func() {
+				feemarketDefault := feemarkettypes.DefaultParams()
+				feemarketDefault.NoBaseFee = true
+				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
+
+				evmDefault := types.DefaultParams()
+				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
+			},
+			true,
 		},
 	}
 	for _, tc := range testCases {
+		tc := tc
 		suite.Run(tc.name, func() {
-			suite.enableFeemarket = tc.enableFeemarket
-			suite.enableLondonHF = tc.enableLondonHF
-			suite.SetupTest()
+			// Set necessary params
+			tc.setParams()
 
-			tc.malleate()
+			// Get the expected response
+			expResp := tc.getExpResp()
 
-			res, err := suite.network.GetEvmClient().BaseFee(suite.network.GetContext().Context(), &types.QueryBaseFeeRequest{})
+			// Function under test
+			res, err := unitNetwork.GetEvmClient().BaseFee(
+				unitNetwork.GetContext(),
+				&types.QueryBaseFeeRequest{},
+			)
+
 			if tc.expPass {
 				suite.Require().NotNil(res)
-				suite.Require().Equal(expRes, res, tc.name)
+				suite.Require().Equal(expResp, res, tc.name)
 				suite.Require().NoError(err)
 			} else {
 				suite.Require().Error(err)
 			}
+
+			suite.Require().NoError(unitNetwork.NextBlock())
 		})
 	}
-	suite.enableFeemarket = false
-	suite.enableLondonHF = true
 }
 
 func (suite *KeeperTestSuite) TestEthCall() {
