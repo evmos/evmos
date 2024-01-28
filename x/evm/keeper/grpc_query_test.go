@@ -19,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v16/server/config"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -477,74 +478,69 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
-	var (
-		req        *types.QueryValidatorAccountRequest
-		expAccount *types.QueryValidatorAccountResponse
-	)
-
 	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
+		msg           string
+		getReqAndResp func() (*types.QueryValidatorAccountRequest, *types.QueryValidatorAccountResponse)
+		expPass       bool
 	}{
 		{
 			"invalid address",
-			func() {
-				expAccount = &types.QueryValidatorAccountResponse{
-					AccountAddress: sdk.AccAddress(common.Address{}.Bytes()).String(),
-				}
-				req = &types.QueryValidatorAccountRequest{
+			func() (*types.QueryValidatorAccountRequest, *types.QueryValidatorAccountResponse) {
+				req := &types.QueryValidatorAccountRequest{
 					ConsAddress: "",
 				}
+				return req, nil
 			},
 			false,
 		},
 		{
 			"success",
-			func() {
+			func() (*types.QueryValidatorAccountRequest, *types.QueryValidatorAccountResponse) {
 				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
 
-				expAccount = &types.QueryValidatorAccountResponse{
-					AccountAddress: val.OperatorAddress,
+				req := &types.QueryValidatorAccountRequest{
+					ConsAddress: sdk.ConsAddress(consAddr).String(),
+				}
+
+				resp := &types.QueryValidatorAccountResponse{
+					AccountAddress: sdk.AccAddress(val.OperatorAddress).String(),
 					Sequence:       0,
 					AccountNumber:  0,
 				}
-				req = &types.QueryValidatorAccountRequest{
-					ConsAddress: sdk.ConsAddress(consAddr).String(),
-				}
+
+				return req, resp
 			},
 			true,
 		},
 		{
 			"success with seq and account number",
-			func() {
-				accNumber := uint64(100)
-				accSeq := uint64(10)
-
+			func() (*types.QueryValidatorAccountRequest, *types.QueryValidatorAccountResponse) {
 				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
+				valAddr := sdk.AccAddress(val.OperatorAddress)
 
-				acc := unitNetwork.App.AccountKeeper.GetAccount(
-					unitNetwork.GetContext(),
-					sdk.AccAddress(val.OperatorAddress).Bytes(),
-				)
+				// Create validator account and set sequence and account number
+				accNumber := uint64(100)
+				accSeq := uint64(10)
+				baseAcc := &authtypes.BaseAccount{Address: valAddr.String()}
+				acc := unitNetwork.App.AccountKeeper.NewAccount(unitNetwork.GetContext(), baseAcc)
 				suite.Require().NoError(acc.SetSequence(accSeq))
 				suite.Require().NoError(acc.SetAccountNumber(accNumber))
-
-				// Function under test
 				unitNetwork.App.AccountKeeper.SetAccount(unitNetwork.GetContext(), acc)
 
-				expAccount = &types.QueryValidatorAccountResponse{
-					AccountAddress: val.OperatorAddress,
+				resp := &types.QueryValidatorAccountResponse{
+					AccountAddress: valAddr.String(),
 					Sequence:       accSeq,
 					AccountNumber:  accNumber,
 				}
-				req = &types.QueryValidatorAccountRequest{
+				req := &types.QueryValidatorAccountRequest{
 					ConsAddress: sdk.ConsAddress(consAddr).String(),
 				}
+
+				return req, resp
 			},
 			true,
 		},
@@ -552,11 +548,11 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
+			req, resp := tc.getReqAndResp()
 			ctx := unitNetwork.GetContext()
 			res, err := unitNetwork.GetEvmClient().ValidatorAccount(ctx, req)
 
-			suite.Require().Equal(expAccount, res)
+			suite.Require().Equal(resp, res)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {
