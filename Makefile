@@ -34,9 +34,6 @@ DEPS_COSMOS_PROTO := $(shell cat go.sum | grep 'github.com/cosmos/cosmos-proto' 
 DEPS_COSMOS_GOGOPROTO := $(shell cat go.sum | grep 'github.com/cosmos/gogoproto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_COSMOS_ICS23 := go/$(shell cat go.sum | grep 'github.com/cosmos/ics23/go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 
-# Define a variable for the arguments passed to the make command
-ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-
 export GO111MODULE = on
 
 # Default target executed when no arguments are given to make.
@@ -383,7 +380,7 @@ test-solidity:
 .PHONY: run-tests test test-all test-import test-rpc $(TEST_TARGETS)
 
 run-nix-tests:
-	@export ARGS="$(ARGS)" && nix-shell ./tests/nix_tests/shell.nix --run ./scripts/run-nix-tests.sh
+	@nix-shell ./tests/nix_tests/shell.nix --run ./scripts/run-nix-tests.sh
 
 .PHONY: run-nix-tests
 
