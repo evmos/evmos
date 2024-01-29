@@ -67,8 +67,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		return
 	}
 
-	// per proposal 258, subtract 2/3 of the prev issuance
-
 	mintedCoin := sdk.Coin{
 		Denom:  params.MintDenom,
 		Amount: epochMintProvision.TruncateInt(),
