@@ -121,33 +121,44 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	fundedAccountBalances = addBondedModuleAccountToFundedBalances(fundedAccountBalances, sdktypes.NewCoin(n.cfg.denom, totalBonded))
+	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
+		fundedAccountBalances,
+		sdktypes.NewCoin(n.cfg.denom, totalBonded),
+	)
 
 	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)
 
-	// Configure Genesis state
-	genesisState := app.NewDefaultGenesisState()
-
-	genesisState = setAuthGenesisState(evmosApp, genesisState, genAccounts)
-
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
 		validators:  validators,
 		delegations: delegations,
 	}
-	genesisState = setStakingGenesisState(evmosApp, genesisState, stakingParams)
-
-	genesisState = setInflationGenesisState(evmosApp, genesisState)
 
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
-	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
+
+	// Configure Genesis state
+	genesisState := newDefaultGenesisState(
+		evmosApp,
+		defaultGenesisParams{
+			genAccounts: genAccounts,
+			staking:     stakingParams,
+			bank:        bankParams,
+		},
+	)
+
+	// modify genesis state if there're any custom genesis state
+	// for specific modules
+	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	if err != nil {
+		return err
+	}
 
 	// Init chain
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
