@@ -164,6 +164,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
 - (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
 - (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
+- (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 
 ### Bug Fixes
 
