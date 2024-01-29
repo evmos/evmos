@@ -147,8 +147,8 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 				tc.bondedRatio,
 			)
 
-            // Here we use a relative error because the expected values are computed with another
-            // software and can be slightly differences. Accepted error is less than 0.001%.
+			// Here we use a relative error because the expected values are computed with another
+			// software and can be slightly differences. Accepted error is less than 0.001%.
 			tol := math.LegacyNewDecWithPrec(1, 5)
 			relativeError := tc.expEpochProvision.Sub(epochMintProvisions).Abs().Quo(tc.expEpochProvision)
 			valid := relativeError.LTE(tol)

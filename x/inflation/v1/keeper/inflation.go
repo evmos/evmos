@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
-
 // 200M token at year 4 allocated to the team
 var teamAlloc = math.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
 

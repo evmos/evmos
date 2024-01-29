@@ -15,12 +15,12 @@ const (
 	ReductionFactor = 3
 )
 
-// CalculateEpochProvisions returns mint provision per epoch. The function used to compute the 
+// CalculateEpochProvisions returns mint provision per epoch. The function used to compute the
 // emission is the half life times a reduction factor:
-// 
+//
 // f(x) = { a * (1 -r ) ^ x * [1 + maxVariance * (1 - bondedRatio / bTarget)] + c} / reductionFactor
 //
-// where x represents years. This means that the equation is computed fixing the number of the 
+// where x represents years. This means that the equation is computed fixing the number of the
 // current year with respect to the starting year. Then, f(x) is computed and from this, the epoch
 // emission. For example, having x=0, the tokens minted for a specific epochs are proportional to
 // f(0) / numberOfEpochs.
@@ -52,7 +52,7 @@ func CalculateEpochMintProvision(
 
 	// reducedPeriodProvision = (exponentialDecay * bondingIncentive + c) / reductionFactor
 	periodProvision := exponentialDecay.Mul(bondingIncentive).Add(c)
-    reducedPeriodProvision := periodProvision.Quo(math.LegacyNewDec(ReductionFactor)) 
+	reducedPeriodProvision := periodProvision.Quo(math.LegacyNewDec(ReductionFactor))
 
 	// epochProvision = periodProvision / epochsPerPeriod
 	epochProvision := reducedPeriodProvision.Quo(math.LegacyNewDec(epochsPerPeriod))

@@ -297,7 +297,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						It("should recalculate the EpochMintProvision", func() {
 							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							Expect(provisionAfter).ToNot(Equal(provision))
-                            
+
 							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("53125000000000000000000000")))
 						})
 					})
