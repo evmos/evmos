@@ -76,7 +76,7 @@ jobs:
             tests/nix_tests/**
             .github/workflows/e2e-test*         
       - name: Run nix tests
-        run: make run-nix-test ${{ matrix.test_files }}
+        run: make run-nix-tests ${{ matrix.test_files }}
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
       # TODO: uncomment this once added the new PAT to commit the changes (when needed)
