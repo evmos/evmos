@@ -24,7 +24,7 @@ def pruned(tmp_path_factory):
     """
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("pruned"),
-        25210,
+        26900,
         Path(__file__).parent / "configs/pruned_node.jsonnet",
     )
 
@@ -37,7 +37,7 @@ def pruned_rocksdb(tmp_path_factory):
     """
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("pruned-rocksdb"),
-        26210,
+        26700,
         Path(__file__).parent / "configs/memiavl-pruned_node.jsonnet",
         chain_binary="evmosd-rocksdb",
         post_init=create_snapshots_dir,

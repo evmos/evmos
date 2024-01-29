@@ -4,20 +4,14 @@ import pytest
 from web3 import Web3
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import (
-    ADDRS,
-    eth_to_bech32,
-    memiavl_config,
-    wait_for_block,
-    wait_for_fn,
-)
+from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_fn
 
 
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("zero-fee"),
-        25290,
+        26900,
         Path(__file__).parent / "configs/zero-fee.jsonnet",
     )
 
@@ -27,7 +21,7 @@ def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("zero-fee-rocksdb")
     yield from setup_custom_evmos(
         path,
-        26290,
+        26810,
         memiavl_config(path, "zero-fee"),
         post_init=create_snapshots_dir,
         chain_binary="evmosd-rocksdb",

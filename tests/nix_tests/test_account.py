@@ -1,19 +1,15 @@
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
-from .utils import (
-    ADDRS,
-    derive_new_account,
-    w3_wait_for_new_blocks,
-)
+from .network import setup_evmos, setup_evmos_rocksdb
+from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
 
 
 # start a brand new chain for this test
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("account")
-    yield from setup_evmos(path, 25020, long_timeout_commit=True)
+    yield from setup_evmos(path, 26700, long_timeout_commit=True)
 
 
 @pytest.fixture(scope="module")
@@ -21,14 +17,8 @@ def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("account-rocksdb")
     yield from setup_evmos_rocksdb(
         path,
-        26020,
+        26777,
     )
-
-
-@pytest.fixture(scope="module")
-def geth(tmp_path_factory):
-    path = tmp_path_factory.mktemp("geth")
-    yield from setup_geth(path, 8555)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-ws", "evmos-rocksdb", "geth"])

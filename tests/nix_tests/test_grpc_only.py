@@ -25,7 +25,7 @@ def custom_evmos(tmp_path_factory):
     # reuse rollback-test config because it has an extra fullnode
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("grpc-only"),
-        25090,
+        26400,
         Path(__file__).parent / "configs/rollback-test.jsonnet",
     )
 
@@ -35,7 +35,7 @@ def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("grpc-only-rocksdb")
     yield from setup_custom_evmos(
         path,
-        26090,
+        26810,
         memiavl_config(path, "rollback-test"),
         post_init=create_snapshots_dir,
         chain_binary="evmosd-rocksdb",

@@ -41,7 +41,7 @@ def ibc(request, tmp_path_factory):
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections
-    network = prepare_network(path, name, 25150, [evmos_build, "osmosis"])
+    network = prepare_network(path, name, [evmos_build, "osmosis"])
     yield from network
 
 

@@ -22,7 +22,7 @@ def custom_evmos(tmp_path_factory):
     # init with genesis binary
     yield from setup_custom_evmos(
         path,
-        25230,
+        26300,
         Path(__file__).parent / "configs/rollback-test.jsonnet",
         post_init=update_evmos_bin(broken_binary, [1]),
         wait_port=False,

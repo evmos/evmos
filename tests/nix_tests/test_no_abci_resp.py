@@ -11,7 +11,7 @@ def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("no-abci-resp")
     yield from setup_custom_evmos(
         path,
-        25130,
+        26260,
         Path(__file__).parent / "configs/discard-abci-resp.jsonnet",
     )
 
@@ -21,7 +21,7 @@ def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("no-abci-resp-rocksdb")
     yield from setup_custom_evmos(
         path,
-        26130,
+        26810,
         memiavl_config(path, "discard-abci-resp"),
         post_init=create_snapshots_dir,
         chain_binary="evmosd-rocksdb",

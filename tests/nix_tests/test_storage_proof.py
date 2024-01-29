@@ -1,26 +1,19 @@
 import pytest
 
-
-from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
+from .network import setup_evmos, setup_evmos_rocksdb
 from .utils import CONTRACTS, deploy_contract, w3_wait_for_new_blocks
 
 
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("storage-proof")
-    yield from setup_evmos(path, 25250)
+    yield from setup_evmos(path, 26800)
 
 
 @pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("storage-proof-rocksdb")
-    yield from setup_evmos_rocksdb(path, 26250)
-
-
-@pytest.fixture(scope="module")
-def geth(tmp_path_factory):
-    path = tmp_path_factory.mktemp("geth")
-    yield from setup_geth(path, 8585)
+    yield from setup_evmos_rocksdb(path, 26810)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb", "geth"])

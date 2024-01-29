@@ -151,10 +151,6 @@ def setup_geth(path, base_port):
             str(base_port),
             "--port",
             str(base_port + 1),
-            "--authrpc.port",
-            str(base_port + 2),
-            "--ws.port",
-            str(base_port + 3),            
             "--http.api",
             "eth,net,web3,debug",
         ]

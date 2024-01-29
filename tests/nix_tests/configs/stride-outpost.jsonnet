@@ -21,13 +21,13 @@ config {
         coins: '2234240000000000000ustrd',
         staked: '10000000000000ustrd',
         mnemonic: '${VALIDATOR1_MNEMONIC}',
-        base_port: 28120,
+        base_port: 26800,
       },
       {
         coins: '987870000000000000ustrd',
         staked: '20000000000000ustrd',
         mnemonic: '${VALIDATOR2_MNEMONIC}',
-        base_port: 28140,
+        base_port: 26810,
       },
     ],
     accounts: [
@@ -107,7 +107,7 @@ config {
     rest: {
       enabled: true,
       host: '127.0.0.1',
-      port: 3030,
+      port: 3000,
     },
     chains: [
       {
