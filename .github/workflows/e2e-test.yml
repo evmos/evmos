@@ -94,6 +94,9 @@ jobs:
             *.toml
             tests/nix_tests/**
             .github/workflows/e2e-test*
+      - name: Setup Nix environment
+        run: |
+          export PATH=$HOME/.nix-profile/bin:$PATH            
       - name: Run nix tests
         run: make run-nix-tests ${{ matrix.test_files }}
         if: env.GIT_DIFF
