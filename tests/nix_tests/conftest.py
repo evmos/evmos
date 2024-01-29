@@ -6,13 +6,13 @@ from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
 @pytest.fixture(scope="session")
 def evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("evmos")
-    yield from setup_evmos(path, 26650)
+    yield from setup_evmos(path, 25000)
 
 
 @pytest.fixture(scope="session")
 def evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("evmos-rocksdb")
-    yield from setup_evmos_rocksdb(path, 20650)
+    yield from setup_evmos_rocksdb(path, 26000)
 
 
 @pytest.fixture(scope="session")

@@ -3,7 +3,13 @@ import sys
 import pytest
 
 from .network import setup_evmos, setup_evmos_rocksdb
-from .utils import ADDRS, KEYS, eth_to_bech32, sign_transaction, wait_for_new_blocks
+from .utils import (
+    ADDRS,
+    KEYS,
+    eth_to_bech32,
+    sign_transaction,
+    wait_for_new_blocks,
+)
 
 PRIORITY_REDUCTION = 1000000
 
@@ -13,7 +19,7 @@ def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority")
     # run with long timeout commit to ensure all
     # txs are included in the same block
-    yield from setup_evmos(path, 26800, long_timeout_commit=True)
+    yield from setup_evmos(path, 25190, long_timeout_commit=True)
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +27,7 @@ def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority-rocksdb")
     # run with long timeout commit to ensure all
     # txs are included in the same block
-    yield from setup_evmos_rocksdb(path, 26810, long_timeout_commit=True)
+    yield from setup_evmos_rocksdb(path, 26190, long_timeout_commit=True)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])

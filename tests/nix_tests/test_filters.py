@@ -5,7 +5,7 @@ from eth_abi import abi
 from hexbytes import HexBytes
 from web3 import Web3
 
-from .network import setup_custom_evmos, setup_evmos
+from .network import setup_custom_evmos, setup_evmos, setup_geth, setup_evmos_rocksdb
 from .utils import (
     ADDRS,
     CONTRACTS,
@@ -19,15 +19,27 @@ from .utils import (
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("filters")
-    yield from setup_evmos(path, 26200)
+    yield from setup_evmos(path, 25060)
 
 
 @pytest.fixture(scope="module")
 def evmos_indexer(tmp_path_factory):
     path = tmp_path_factory.mktemp("indexer")
     yield from setup_custom_evmos(
-        path, 26660, Path(__file__).parent / "configs/enable-indexer.jsonnet"
+        path, 27060, Path(__file__).parent / "configs/enable-indexer.jsonnet"
     )
+
+
+@pytest.fixture(scope="module")
+def evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("evmos-rocksdb")
+    yield from setup_evmos_rocksdb(path, 26060)
+
+
+@pytest.fixture(scope="module")
+def geth(tmp_path_factory):
+    path = tmp_path_factory.mktemp("geth")
+    yield from setup_geth(path, 8575)
 
 
 @pytest.fixture(

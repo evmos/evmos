@@ -35,13 +35,13 @@ config {
         coins: '2234240000000000000cro',
         staked: '10000000000000cro',
         mnemonic: '${VALIDATOR1_MNEMONIC}',
-        base_port: 26800,
+        base_port: 28000,
       },
       {
         coins: '987870000000000000cro',
         staked: '20000000000000cro',
         mnemonic: '${VALIDATOR2_MNEMONIC}',
-        base_port: 26810,
+        base_port: 28020,
       },
     ],
     accounts: [

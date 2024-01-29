@@ -23,7 +23,7 @@ def ibc(request, tmp_path_factory):
     name = "ibc-precompile"
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, [evmos_build, "chainmain"])
+    network = prepare_network(path, name, 25170, [evmos_build, "chainmain"])
     yield from network
 
 

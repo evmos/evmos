@@ -3,20 +3,26 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb
-from .utils import ADDRS, send_transaction
+from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
+from .utils import ADDRS, send_transaction, w3_wait_for_block
 
 
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("fee-history")
-    yield from setup_evmos(path, 26500)
+    yield from setup_evmos(path, 25040)
 
 
 @pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("fee-history-rocksdb")
-    yield from setup_evmos_rocksdb(path, 26510)
+    yield from setup_evmos_rocksdb(path, 26040)
+
+
+@pytest.fixture(scope="module")
+def geth(tmp_path_factory):
+    path = tmp_path_factory.mktemp("geth")
+    yield from setup_geth(path, 8565)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb", "geth"])
@@ -68,6 +74,9 @@ def test_basic(cluster):
         assert res[0] == res[1]
         assert len(res[0]) == tc["expect"]
 
+    # make sure that chain is at least at max height
+    # to avoid having an error on fee_history call
+    w3_wait_for_block(w3, max)
     for x in range(max):
         i = x + 1
         fee_history = call(method, [size, hex(i), percentiles])

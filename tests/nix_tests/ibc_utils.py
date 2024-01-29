@@ -72,6 +72,7 @@ class IBCNetwork(NamedTuple):
 def get_evmos_generator(
     tmp_path: Path,
     file: str,
+    base_port: int,
     is_rocksdb: bool = False,
     stride_included: bool = False,
     custom_scenario: str | None = None,
@@ -85,7 +86,7 @@ def get_evmos_generator(
         file = memiavl_config(tmp_path, file)
         gen = setup_custom_evmos(
             tmp_path,
-            26710,
+            base_port,
             Path(__file__).parent / file,
             chain_binary="evmosd-rocksdb",
             post_init=create_snapshots_dir,
@@ -100,7 +101,7 @@ def get_evmos_generator(
                 post_init_func = update_evmosd_and_setup_stride(modified_bin)
             gen = setup_custom_evmos(
                 tmp_path,
-                26700,
+                base_port,
                 Path(__file__).parent / file,
                 post_init=post_init_func,
                 chain_binary=modified_bin,
@@ -110,7 +111,7 @@ def get_evmos_generator(
                 post_init_func = setup_stride()
             gen = setup_custom_evmos(
                 tmp_path,
-                28700,
+                base_port,
                 Path(__file__).parent / file,
                 post_init=post_init_func,
             )
@@ -121,6 +122,7 @@ def get_evmos_generator(
 def prepare_network(
     tmp_path: Path,
     file: str,
+    base_port: int,
     chain_names: List[str],
     custom_scenario=None,
 ):
@@ -140,6 +142,7 @@ def prepare_network(
             gen = get_evmos_generator(
                 tmp_path,
                 file,
+                base_port,
                 "-rocksdb" in chain,
                 "stride" in chain_names,
                 custom_scenario,
