@@ -664,6 +664,7 @@ func (k *Keeper) traceTx(
 	// reset gas meter for tx
 	// to be consistent with tx execution gas meter
 	ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
+	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{})
 	res, err := k.ApplyMessageWithConfig(ctx, msg, tracer, commitMessage, cfg, txConfig)
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())
