@@ -30,6 +30,24 @@ jobs:
         if: env.GIT_DIFF
   test-nix:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_files: [
+          "test_filters.py",
+          "test_account.py",
+          "test_fee_history.py",
+          "test_grpc_only.py",
+          "test_ibc.py",
+          "test_no_abci_resp.py",
+          "test_osmosis_outpost.py",
+          "test_precompiles.py",
+          "test_priority.py",
+          "test_pruned_node.py",
+          "test_rollback.py",
+          "test_stride_outpost.py",
+          "test_storage_proof.py",
+          "test_zero_fee.py",
+        ]    
     steps:
       - uses: actions/checkout@v4
         # TODO: create a new PAT to use here
@@ -57,8 +75,11 @@ jobs:
             *.toml
             tests/nix_tests/**
             .github/workflows/e2e-test*
+      - name: Build nix environment
+        run: nix-shell ./tests/nix_tests/shell.nix
+        if: env.GIT_DIFF
       - name: Run nix tests
-        run: make run-nix-tests
+        run: ./scripts/run-nix-tests.sh ${{ matrix.test_files }}
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
       # TODO: uncomment this once added the new PAT to commit the changes (when needed)
