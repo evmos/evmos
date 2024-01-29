@@ -54,7 +54,6 @@ func CalculateEpochMintProvision(
 	periodProvision := exponentialDecay.Mul(bondingIncentive).Add(c)
     reducedPeriodProvision := periodProvision.Quo(math.LegacyNewDec(ReductionFactor)) 
 
-
 	// epochProvision = periodProvision / epochsPerPeriod
 	epochProvision := reducedPeriodProvision.Quo(math.LegacyNewDec(epochsPerPeriod))
 
