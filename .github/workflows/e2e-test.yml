@@ -93,12 +93,10 @@ jobs:
             go.sum
             *.toml
             tests/nix_tests/**
-            .github/workflows/e2e-test*
-      - name: Setup Nix environment
-        run: |
-          export PATH=$HOME/.nix-profile/bin:$PATH            
+            .github/workflows/e2e-test*         
       - name: Run nix tests
-        run: make run-nix-tests ${{ matrix.test_files }}
+        run: |
+          export ARGS="${{ matrix.test_files }}" && /nix/var/nix/profiles/default/bin/nix-shell --run ./scripts/run-nix-tests.sh
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
       # TODO: uncomment this once added the new PAT to commit the changes (when needed)
