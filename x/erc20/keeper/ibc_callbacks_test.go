@@ -112,6 +112,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			expectedError: false,
 		},
 		// TODO: Check why we do this
+		// Dont allow conversions from module accounts.
 		{
 			name: "no-op - sender is module account",
 			transferBytes: newTransferBytes(
@@ -142,7 +143,8 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			),
 			expectedError: false,
 		},
-		// If erc20 module is disabled its not possible to deploy
+		// If erc20 module is disabled its not possible to deploy any precompile
+		// or convert any coin
 		{
 			name: "no-op - erc20 module param disabled",
 			transferBytes: newTransferBytes(
@@ -162,7 +164,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			name: "success - is single hop. Should register erc20 extension",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					fakeOsmoDenomTrace.BaseDenom,
+					fakeOsmoDenomTrace.BaseDenom, // "uosmo"
 					amountValue,
 					keyring.GetAccAddr(0).String(),
 					keyring.GetAccAddr(1).String(),
@@ -173,6 +175,8 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			precompileAddr: contractAddr,
 		},
 		// Is double hop coin - It should not register an Evm extension
+		// The base denomination on the source chain, already has a hop
+		// Since we are not the origin if this coin, its a double hop
 		{
 			name: "no-op - is double hop coin",
 			transferBytes: newTransferBytes(
@@ -313,7 +317,6 @@ func (suite *Erc20KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 		},
 		// If coin is native, it should have been handled by the precompile
 		// No conversion necessary at this point
-		// TODO: Why are there two separate cases when the logic is the same
 		{
 			name: "noError - is native Coin",
 			transfer: transfertypes.NewFungibleTokenPacketData(
@@ -325,12 +328,7 @@ func (suite *Erc20KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			),
 			expectedError: nil,
 		},
-		// {
-		// 	name:          "noError - is native Erc20",
-		// 	transfer:      transfertypes.FungibleTokenPacketData{Denom: erc20TestPair.Denom},
-		// 	expectedError: nil,
-		// },
-		// TODO: Check why this logic is here
+
 		{
 			name: "no-op - is native Erc20 - sender is module address",
 			transfer: transfertypes.NewFungibleTokenPacketData(

@@ -121,7 +121,7 @@ func (k Keeper) OnRecvPacket(
 		}
 	}
 
-	// TODO: move to top
+	// For now the only case we are interested in adding telemetry is a successful conversion.
 	defer func() {
 		telemetry.IncrCounterWithLabels(
 			[]string{types.ModuleName, "ibc", "on_recv", "total"},
@@ -165,6 +165,11 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+	// Record the failed ibc attempt
+	defer func() {
+		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
+	}()
+
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
 	if err != nil {
 		return err
@@ -178,20 +183,15 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	}
 
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
 
 	switch {
-	// Case 1. if pair is native denomination -> no-op
-	case coin.Denom == bondDenom:
-		// no-op, received coin is the staking denomination
-		return nil
-	// Case 2. if pair is native coin -> no-op
+
+	// Case 1. if pair is native coin -> no-op
 	case pair.IsNativeCoin():
 		// no-op, received coin is a  native coin
 		return nil
 
-	// Case 3. if pair is native ERC20 -> unescrow
+	// Case 2. if pair is native ERC20 -> unescrow
 	case pair.IsNativeERC20():
 		// use a zero gas config to avoid extra costs for the relayers
 		ctx = ctx.
@@ -216,10 +216,6 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return err
 		}
 	}
-
-	defer func() {
-		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
-	}()
 
 	return nil
 }
