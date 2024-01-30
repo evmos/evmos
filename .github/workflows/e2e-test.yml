@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test_files: [${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}]   
+        test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}
     steps:
       - uses: actions/checkout@v4
         # TODO: create a new PAT to use here
