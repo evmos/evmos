@@ -21,4 +21,4 @@ cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..
-pytest "$ARGS" -vv -s
+pytest $ARGS -vv -s

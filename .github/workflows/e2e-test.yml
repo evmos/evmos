@@ -34,13 +34,13 @@ jobs:
       test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
     steps:      
       - uses: actions/checkout@v4
-      - name: Set up test file matrix
+      - name: Set up test file matrix to run nix tests in parallel
         id: set_matrix
         run: |
           cd ./tests/nix_tests
           PARALLEL_TESTS=(
-            "test_filters.py"
             "test_account.py"
+            "test_filters.py"
             "test_fee_history.py"
             "test_grpc_only.py"
             "test_ibc.py"
@@ -57,14 +57,14 @@ jobs:
 
           ALL_FILES=($(ls test_*.py))
           REMAINING_FILES=()
-          for file in "${ALL_FILES[@]}"; do
-            if ! [[ " ${PARALLEL_TESTS[@]} " =~ " $file " ]]; then
+          for file in "${ALL_FILES[*]}"; do
+            if ! [[ " ${PARALLEL_TESTS[*]} " =~  $file  ]]; then
               REMAINING_FILES+=("$file")
             fi
           done
-          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \""${REMAINING_FILES[@]}"\"]"
-          echo "test_matrix=${TEST_FILES}" >> $GITHUB_OUTPUT
-          echo "Test matrix: ${TEST_FILES}"
+          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \""${REMAINING_FILES[*]}"\"]"
+          echo "test_matrix="${TEST_FILES}"" >> $GITHUB_OUTPUT
+          echo "Test matrix: "${TEST_FILES}""
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
