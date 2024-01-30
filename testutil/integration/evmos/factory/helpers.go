@@ -35,11 +35,6 @@ func signMsgEthereumTx(msgEthereumTx evmtypes.MsgEthereumTx, privKey cryptotypes
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to sign transaction")
 	}
-
-	// Validate the transaction to avoid unrealistic behavior
-	if err = msgEthereumTx.ValidateBasic(); err != nil {
-		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to validate transaction")
-	}
 	return msgEthereumTx, nil
 }
 
