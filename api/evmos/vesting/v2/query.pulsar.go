@@ -1406,6 +1406,7 @@ var (
 		(*v1beta1.Coin)(nil),          // 2: cosmos.base.v1beta1.Coin
 	}
 )
+
 var file_evmos_vesting_v2_query_proto_depIdxs = []int32{
 	2, // 0: evmos.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
 	2, // 1: evmos.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin

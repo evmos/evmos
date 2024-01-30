@@ -10,13 +10,17 @@ import (
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	gethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	cmttypes "github.com/cometbft/cometbft/types"
+	"github.com/cometbft/cometbft/version"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -27,8 +31,6 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
-	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
-	"github.com/cometbft/cometbft/version"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -39,6 +41,7 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
+	GetEVMChainConfig() *gethparams.ChainConfig
 
 	// Clients
 	GetERC20Client() erc20types.QueryClient
@@ -47,6 +50,15 @@ type Network interface {
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
+
+	// Because to update the module params on a conventional manner governance
+	// would be required, we should provide an easier way to update the params
+	// TODO implement
+	// UpdateEvmParams(params evmtypes.Params) error
+	// UpdateGovParams(params govtypes.Params) error
+	// UpdateInflationParams(params infltypes.Params) error
+	// UpdateRevenueParams(params revtypes.Params) error
+	// UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -101,8 +113,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, append(n.cfg.otherCoinDenom, n.cfg.denom))
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -115,7 +126,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	fundedAccountBalances = addBondedModuleAccountToFundedBalances(fundedAccountBalances, sdktypes.NewCoin(n.cfg.denom, totalBonded))
+	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
+		fundedAccountBalances,
+		sdktypes.NewCoin(n.cfg.denom, totalBonded),
+	)
 
 	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
 
@@ -253,6 +267,12 @@ func (n *IntegrationNetwork) GetChainID() string {
 // GetEIP155ChainID returns the network EIp-155 chainID number
 func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 	return n.cfg.eip155ChainID
+}
+
+// GetChainConfig returns the network's chain config
+func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
+	params := n.app.EvmKeeper.GetParams(n.ctx)
+	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 
 // GetDenom returns the network's denom

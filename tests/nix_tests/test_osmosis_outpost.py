@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from web3 import Web3
 
 from .ibc_utils import (
     EVMOS_IBC_DENOM,
@@ -15,17 +16,20 @@ from .utils import (
     KEYS,
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
-    approve_proposal,
+    WEVMOS_ADDRESS,
     erc20_balance,
     eth_to_bech32,
     get_event_attribute_value,
     get_precompile_contract,
-    register_ibc_coin,
     send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
-    wrap_evmos,
 )
+
+# This contract address is provided in genesis
+# as registered token pair. If need to edit this
+# do so in 'osmosis-outpost.jsonnet' file
+WOSMO_ADDRESS = Web3.toChecksumAddress("0x5db67696C3c088DfBf588d3dd849f44266ff0ffa")
 
 
 @pytest.fixture(scope="module", params=["evmos"])
@@ -37,9 +41,7 @@ def ibc(request, tmp_path_factory):
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections
-    network = prepare_network(
-        path, name, [evmos_build, "osmosis"], custom_scenario=name
-    )
+    network = prepare_network(path, name, [evmos_build, "osmosis"])
     yield from network
 
 
@@ -57,17 +59,10 @@ def test_osmosis_swap(ibc):
     # 100aevmos is 98uosmo
     exp_swap_amount = 98
 
-    setup_osmos_chains(ibc)
-
-    # --------- Register Evmos token (this could be wrapevmos I think)
-    wevmos_addr = wrap_evmos(ibc.chains["evmos"], evmos_addr, amt)
+    xcs_contract = setup_osmos_chains(ibc)
 
     # --------- Transfer Osmo to Evmos
     transfer_osmo_to_evmos(ibc, osmosis_addr, evmos_addr)
-
-    # --------- Register Osmosis ERC20 token
-    osmo_erc20_addr = register_osmo_token(evmos)
-    print(f"osmo_erc20_addr: {osmo_erc20_addr}")
 
     # define TWAP parameters
     testSlippagePercentage = 20
@@ -77,16 +72,18 @@ def test_osmosis_swap(ibc):
     w3 = evmos.w3
     pc = get_precompile_contract(w3, "IOsmosisOutpost")
     evmos_gas_price = w3.eth.gas_price
-
-    tx = pc.functions.swap(
-        evmos_addr,
-        wevmos_addr,
-        osmo_erc20_addr,
-        amt,
-        testSlippagePercentage,
-        testWindowSeconds,
-        eth_to_bech32(evmos_addr),
-    ).build_transaction(
+    swap_params = {
+        "channelID": "channel-0",
+        "xcsContract": xcs_contract,
+        "sender": evmos_addr,
+        "input": WEVMOS_ADDRESS,
+        "output": WOSMO_ADDRESS,
+        "amount": amt,
+        "slippagePercentage": testSlippagePercentage,
+        "windowSeconds": testWindowSeconds,
+        "swapReceiver": eth_to_bech32(evmos_addr),
+    }
+    tx = pc.functions.swap(swap_params).build_transaction(
         {"from": evmos_addr, "gasPrice": evmos_gas_price, "gas": 30000000}
     )
     gas_estimation = evmos.w3.eth.estimate_gas(tx)
@@ -97,18 +94,19 @@ def test_osmosis_swap(ibc):
 
     # check balance increase after swap
     new_erc20_balance = 0
+    # the account has 200 uosmo transferred in the setup
+    # function transfer_osmo_to_evmos
+    initial_erc20_balance = 200
 
     def check_erc20_balance_change():
         nonlocal new_erc20_balance
-        new_erc20_balance = erc20_balance(w3, osmo_erc20_addr, evmos_addr)
+        new_erc20_balance = erc20_balance(w3, WOSMO_ADDRESS, evmos_addr)
         print(f"uosmo erc20 balance: {new_erc20_balance}")
-        return new_erc20_balance > 0
+        return new_erc20_balance > initial_erc20_balance
 
     wait_for_fn("balance change", check_erc20_balance_change)
 
-    # the account has 200 uosmo IBC coins from the setup
-    # previous to registering the uosmo token pair
-    exp_final_balance = 200 + exp_swap_amount
+    exp_final_balance = initial_erc20_balance + exp_swap_amount
     assert new_erc20_balance == exp_final_balance
 
 
@@ -146,7 +144,7 @@ def setup_osmos_chains(ibc):
 
     # ===== Deploy CrosschainSwap V1=====
     cross_swap_contract = WASM_CONTRACTS["CrosschainSwap"]
-    deploy_wasm_contract(
+    xcs_contract = deploy_wasm_contract(
         osmosis_cli,
         osmosis_addr,
         cross_swap_contract,
@@ -162,6 +160,8 @@ def setup_osmos_chains(ibc):
     set_swap_route(
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
+
+    return xcs_contract
 
 
 def send_evmos_to_osmos(ibc):
@@ -232,58 +232,15 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
 
     new_dst_balance = 0
 
+    # Osmo is registered as token pair since genesis.
+    # Check the ERC20 contract balance
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(dst_chain, bech_dst, OSMO_IBC_DENOM)
+        new_dst_balance = erc20_balance(dst_chain.w3, WOSMO_ADDRESS, dst_addr)
+        print(f"uosmo erc20 balance: {new_dst_balance}")
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
-
-
-def register_osmo_token(evmos):
-    """
-    Register Osmo token as ERC20 token pair.
-    Helper function that creates the corresponding
-    gov proposal, votes for it, and waits till it passes
-    """
-    evmos_cli = evmos.cosmos_cli()
-
-    # TODO - generate the osmos ibc denom
-    osmos_ibc_denom = OSMO_IBC_DENOM
-    ERC_OSMO_META = {
-        "description": "Generic IBC token description",
-        "denom_units": [
-            # TODO - generate the osmos ibc denom
-            {
-                "denom": osmos_ibc_denom,
-                "exponent": 0,
-            },
-        ],
-        # TODO - generate the osmos ibc denom
-        "base": osmos_ibc_denom,
-        "display": osmos_ibc_denom,
-        "name": "Generic IBC name",
-        "symbol": "IBC",
-    }
-
-    proposal = {
-        "title": "Register Osmosis ERC20 token",
-        "description": "The IBC representation of OSMO on Evmos chain",
-        "metadata": [ERC_OSMO_META],
-        "deposit": "1aevmos",
-    }
-    proposal_id = register_ibc_coin(evmos_cli, proposal)
-    assert (
-        int(proposal_id) > 0
-    ), "expected a non-zero proposal ID for the registration of the OSMO token."
-    print("proposal id: ", proposal_id)
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(evmos, proposal_id)
-    # query token pairs and get WEVMOS address
-    pairs = evmos_cli.get_token_pairs()
-    assert len(pairs) == 2
-    assert pairs[1]["denom"] == osmos_ibc_denom
-    return pairs[1]["erc20_address"]
 
 
 def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, label):

@@ -1040,6 +1040,7 @@ var (
 		(*Params)(nil),                  // 2: evmos.inflation.v1.Params
 	}
 )
+
 var file_evmos_inflation_v1_tx_proto_depIdxs = []int32{
 	2, // 0: evmos.inflation.v1.MsgUpdateParams.params:type_name -> evmos.inflation.v1.Params
 	0, // 1: evmos.inflation.v1.Msg.UpdateParams:input_type -> evmos.inflation.v1.MsgUpdateParams

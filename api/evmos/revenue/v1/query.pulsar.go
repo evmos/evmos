@@ -5432,6 +5432,7 @@ var (
 		(*Params)(nil),                          // 13: evmos.revenue.v1.Params
 	}
 )
+
 var file_evmos_revenue_v1_query_proto_depIdxs = []int32{
 	10, // 0: evmos.revenue.v1.QueryRevenuesRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	11, // 1: evmos.revenue.v1.QueryRevenuesResponse.revenues:type_name -> evmos.revenue.v1.Revenue

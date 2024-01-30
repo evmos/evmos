@@ -79,10 +79,6 @@ func NewConvertERC20Cmd() *cobra.Command {
 				Sender:          from.Hex(),
 			}
 
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}

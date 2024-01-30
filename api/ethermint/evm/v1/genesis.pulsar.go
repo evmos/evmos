@@ -1402,6 +1402,7 @@ var (
 		(*State)(nil),          // 3: ethermint.evm.v1.State
 	}
 )
+
 var file_ethermint_evm_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: ethermint.evm.v1.GenesisState.accounts:type_name -> ethermint.evm.v1.GenesisAccount
 	2, // 1: ethermint.evm.v1.GenesisState.params:type_name -> ethermint.evm.v1.Params

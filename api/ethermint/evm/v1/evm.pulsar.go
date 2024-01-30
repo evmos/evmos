@@ -8036,6 +8036,7 @@ var (
 		(*TraceConfig)(nil),     // 7: ethermint.evm.v1.TraceConfig
 	}
 )
+
 var file_ethermint_evm_v1_evm_proto_depIdxs = []int32{
 	1, // 0: ethermint.evm.v1.Params.chain_config:type_name -> ethermint.evm.v1.ChainConfig
 	4, // 1: ethermint.evm.v1.TransactionLogs.logs:type_name -> ethermint.evm.v1.Log

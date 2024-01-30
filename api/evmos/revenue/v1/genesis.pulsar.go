@@ -1304,6 +1304,7 @@ var (
 		(*Revenue)(nil),      // 2: evmos.revenue.v1.Revenue
 	}
 )
+
 var file_evmos_revenue_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: evmos.revenue.v1.GenesisState.params:type_name -> evmos.revenue.v1.Params
 	2, // 1: evmos.revenue.v1.GenesisState.revenues:type_name -> evmos.revenue.v1.Revenue

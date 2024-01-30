@@ -13,52 +13,11 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-// EthAccountVerificationDecorator validates an account balance checks
-type EthAccountVerificationDecorator struct {
-	ak        evmtypes.AccountKeeper
-	evmKeeper EVMKeeper
-}
-
-// NewEthAccountVerificationDecorator creates a new EthAccountVerificationDecorator
-func NewEthAccountVerificationDecorator(ak evmtypes.AccountKeeper, ek EVMKeeper) EthAccountVerificationDecorator {
-	return EthAccountVerificationDecorator{
-		ak:        ak,
-		evmKeeper: ek,
-	}
-}
-
-// AnteHandle validates checks that the sender balance is greater than the total transaction cost.
+// VerifyAccountBalance checks that the account balance is greater than the total transaction cost.
 // The account will be set to store if it doesn't exist, i.e. cannot be found on store.
-// This AnteHandler decorator will fail if:
-// - any of the msgs is not a MsgEthereumTx
-// - from address is empty
+// This method will fail if:
+// - from address is NOT an EOA
 // - account balance is lower than the transaction cost
-func (avd EthAccountVerificationDecorator) AnteHandle(
-	ctx sdk.Context,
-	tx sdk.Tx,
-	simulate bool,
-	next sdk.AnteHandler,
-) (newCtx sdk.Context, err error) {
-	if !ctx.IsCheckTx() {
-		return next(ctx, tx, simulate)
-	}
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		fromAddr := common.BytesToAddress(from)
-		account := avd.evmKeeper.GetAccount(ctx, fromAddr)
-		if err := VerifyAccountBalance(ctx, avd.ak, account, fromAddr, txData); err != nil {
-			return ctx, err
-		}
-	}
-	return next(ctx, tx, simulate)
-}
-
-// VerifyAccountBalance checks that the sender balance is greater than the total transaction cost.
 func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,

@@ -2671,6 +2671,7 @@ var (
 		(*Params)(nil),                // 6: ethermint.feemarket.v1.Params
 	}
 )
+
 var file_ethermint_feemarket_v1_query_proto_depIdxs = []int32{
 	6, // 0: ethermint.feemarket.v1.QueryParamsResponse.params:type_name -> ethermint.feemarket.v1.Params
 	0, // 1: ethermint.feemarket.v1.Query.Params:input_type -> ethermint.feemarket.v1.QueryParamsRequest

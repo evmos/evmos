@@ -1558,6 +1558,7 @@ var (
 		(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
 	}
 )
+
 var file_evmos_epochs_v1_genesis_proto_depIdxs = []int32{
 	2, // 0: evmos.epochs.v1.EpochInfo.start_time:type_name -> google.protobuf.Timestamp
 	3, // 1: evmos.epochs.v1.EpochInfo.duration:type_name -> google.protobuf.Duration

@@ -4,9 +4,6 @@ name: Lint
 # running if no *.{go, mod, sum} files have been changed.
 on:
   pull_request:
-  push:
-    branches:
-      - main
 jobs:
   golangci:
     name: Run golangci-lint
