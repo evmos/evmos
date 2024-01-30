@@ -55,8 +55,8 @@ jobs:
             "test_zero_fee.py"
           )
          
-          echo "test_matrix=$SUBSET_FILES" >> $GITHUB_OUTPUT
-          echo "Test matrix: $SUBSET_FILES"
+          echo "test_matrix=(${SUBSET_FILES[@]})" >> $GITHUB_OUTPUT
+          echo "Test matrix: (${SUBSET_FILES[@]})"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
