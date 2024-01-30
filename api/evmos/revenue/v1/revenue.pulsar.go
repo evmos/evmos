@@ -687,6 +687,7 @@ var (
 		(*Revenue)(nil), // 0: evmos.revenue.v1.Revenue
 	}
 )
+
 var file_evmos_revenue_v1_revenue_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

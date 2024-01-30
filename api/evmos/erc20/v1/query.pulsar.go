@@ -3050,6 +3050,7 @@ var (
 		(*Params)(nil),                  // 9: evmos.erc20.v1.Params
 	}
 )
+
 var file_evmos_erc20_v1_query_proto_depIdxs = []int32{
 	6, // 0: evmos.erc20.v1.QueryTokenPairsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	7, // 1: evmos.erc20.v1.QueryTokenPairsResponse.token_pairs:type_name -> evmos.erc20.v1.TokenPair

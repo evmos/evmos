@@ -1073,6 +1073,7 @@ var (
 		(*EventBlockGas)(nil),  // 1: ethermint.feemarket.v1.EventBlockGas
 	}
 )
+
 var file_ethermint_feemarket_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

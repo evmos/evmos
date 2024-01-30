@@ -648,6 +648,7 @@ var (
 		(*v1beta1.BaseAccount)(nil), // 1: cosmos.auth.v1beta1.BaseAccount
 	}
 )
+
 var file_ethermint_types_v1_account_proto_depIdxs = []int32{
 	1, // 0: ethermint.types.v1.EthAccount.base_account:type_name -> cosmos.auth.v1beta1.BaseAccount
 	1, // [1:1] is the sub-list for method output_type

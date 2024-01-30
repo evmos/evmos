@@ -6623,6 +6623,7 @@ var (
 		(*Params)(nil),                     // 11: ethermint.evm.v1.Params
 	}
 )
+
 var file_ethermint_evm_v1_tx_proto_depIdxs = []int32{
 	8,  // 0: ethermint.evm.v1.MsgEthereumTx.data:type_name -> google.protobuf.Any
 	9,  // 1: ethermint.evm.v1.AccessListTx.accesses:type_name -> ethermint.evm.v1.AccessTuple

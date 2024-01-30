@@ -4215,6 +4215,7 @@ var (
 		(*Params)(nil),                     // 8: evmos.revenue.v1.Params
 	}
 )
+
 var file_evmos_revenue_v1_tx_proto_depIdxs = []int32{
 	8, // 0: evmos.revenue.v1.MsgUpdateParams.params:type_name -> evmos.revenue.v1.Params
 	0, // 1: evmos.revenue.v1.Msg.RegisterRevenue:input_type -> evmos.revenue.v1.MsgRegisterRevenue

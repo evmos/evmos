@@ -881,6 +881,7 @@ var (
 		(*TxResult)(nil), // 0: ethermint.types.v1.TxResult
 	}
 )
+
 var file_ethermint_types_v1_indexer_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
