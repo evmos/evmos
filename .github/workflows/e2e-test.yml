@@ -38,25 +38,10 @@ jobs:
         id: set_matrix
         run: |
           cd ./tests/nix_tests
-          SUBSET_FILES=(
-            "test_filters.py"
-            "test_account.py"
-            "test_fee_history.py"
-            "test_grpc_only.py"
-            "test_ibc.py"
-            "test_no_abci_resp.py"
-            "test_osmosis_outpost.py"
-            "test_precompiles.py"
-            "test_priority.py"
-            "test_pruned_node.py"
-            "test_rollback.py"
-            "test_stride_outpost.py"
-            "test_storage_proof.py"
-            "test_zero_fee.py"
-          )
+          SUBSET_FILES='["test_filters.py", "test_account.py", "test_fee_history.py", "test_grpc_only.py", "test_ibc.py", "test_no_abci_resp.py", "test_osmosis_outpost.py", "test_precompiles.py", "test_priority.py", "test_pruned_node.py", "test_rollback.py", "test_stride_outpost.py", "test_storage_proof.py", "test_zero_fee.py"]'
          
-          echo "test_matrix=${SUBSET_FILES[@]}" >> $GITHUB_OUTPUT
-          echo "Test matrix: ${SUBSET_FILES[@]}"
+          echo "test_matrix=${SUBSET_FILES}" >> $GITHUB_OUTPUT
+          echo "Test matrix: ${SUBSET_FILES}"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
@@ -64,8 +49,6 @@ jobs:
       matrix:
         test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}
     steps:
-      - name: Debug test_matrix
-        run: echo "Test matrix value: ${{ needs.test-files-matrix.outputs.test_matrix }}"        
       - uses: actions/checkout@v4
         # TODO: create a new PAT to use here
         # with:
