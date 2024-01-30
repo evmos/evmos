@@ -38,10 +38,32 @@ jobs:
         id: set_matrix
         run: |
           cd ./tests/nix_tests
-          SUBSET_FILES='["test_filters.py", "test_account.py", "test_fee_history.py", "test_grpc_only.py", "test_ibc.py", "test_no_abci_resp.py", "test_osmosis_outpost.py", "test_precompiles.py", "test_priority.py", "test_pruned_node.py", "test_rollback.py", "test_stride_outpost.py", "test_storage_proof.py", "test_zero_fee.py"]'
-         
-          echo "test_matrix=${SUBSET_FILES}" >> $GITHUB_OUTPUT
-          echo "Test matrix: ${SUBSET_FILES}"
+          PARALLEL_TESTS=(
+            "test_filters.py"
+            "test_account.py"
+            "test_fee_history.py"
+            "test_grpc_only.py"
+            "test_ibc.py"
+            "test_no_abci_resp.py"
+            "test_osmosis_outpost.py"
+            "test_precompiles.py"
+            "test_priority.py"
+            "test_pruned_node.py"
+            "test_rollback.py"
+            "test_stride_outpost.py"
+            "test_storage_proof.py"
+            "test_zero_fee.py"
+          )
+
+          ALL_FILES=($(ls test_*.py))
+          REMAINING_FILES=()
+          for file in "${ALL_FILES[@]}"; do
+            if ! [[ " ${PARALLEL_TESTS[@]} " =~ " $file " ]]; then
+              REMAINING_FILES+=("$file")
+            fi
+          done
+          echo "test_matrix='[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'" >> $GITHUB_OUTPUT
+          echo "Test matrix: '[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
