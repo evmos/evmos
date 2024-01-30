@@ -175,14 +175,14 @@ schema = 3
     version = "v0.4.2"
     hash = "sha256-AjtQRoLKLSAbyKd8YlaXcYn0pek6oo5U3R28dvtKv14="
   [mod."github.com/crypto-org-chain/cronos/memiavl"]
-    version = "v0.0.5-0.20231027074119-c05c9c61c90e"
-    hash = "sha256-k5hola5/RYNclUT7tJfH0yhBbcXOcOpebZ3EmIojmlI="
+    version = "v0.0.5-0.20240129013154-12efd9b7643f"
+    hash = "sha256-9YpEfHwpr7MsJ38fSlqxOnbFd6GEkBHOEVPYI2Chm9w="
   [mod."github.com/crypto-org-chain/cronos/store"]
-    version = "v0.0.5-0.20231027074119-c05c9c61c90e"
-    hash = "sha256-4nY3GTFMcvw0y96kdD96+hC+i2fuLKp8lZv49hZBpRs="
+    version = "v0.0.5-0.20240129013154-12efd9b7643f"
+    hash = "sha256-Lay2qvu3+bI5eitVO7AJAH02v8kjHnEavSiRvUlQ6xA="
   [mod."github.com/crypto-org-chain/cronos/versiondb"]
-    version = "v0.0.0-20231027074119-c05c9c61c90e"
-    hash = "sha256-IIv9jQZHX5VCVhHDEUtKA86llIj15ujYvrQYsNujB8s="
+    version = "v0.0.0-20240129013154-12efd9b7643f"
+    hash = "sha256-lZVFHisnXlHoBO8meHI7Hw61ecZH56yKw2bFQ9E5FtY="
   [mod."github.com/danieljoos/wincred"]
     version = "v1.1.2"
     hash = "sha256-Nnklfg12vmWCOhELGyoRqEF4w4srp0WbPwreaChYLKs="
