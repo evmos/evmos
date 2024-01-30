@@ -55,21 +55,27 @@ jobs:
             "test_zero_fee.py"
           )
           ALL_FILES=($(ls test_*.py))
-          ALL_FILES=($(ls test_*.py))
           REMAINING_FILES=()
           for file in "${ALL_FILES[@]}"; do
             if ! [[ " ${SUBSET_FILES[@]} " =~ " $file " ]]; then
               REMAINING_FILES+=("$file")
             fi
           done
-          echo "test_matrix=['${REMAINING_FILES[*]}', ${SUBSET_FILES[*]}]" >> $GITHUB_OUTPUT
-          echo "Test matrix: ['${REMAINING_FILES[*]}', ${SUBSET_FILES[*]}]"
+          SUBSET_FILES_STRING=$(IFS=" "; echo "${SUBSET_FILES[*]}")
+          echo "REMAINING_FILES=${REMAINING_FILES[*]}"
+          echo "SUBSET_FILES_STRING=$SUBSET_FILES_STRING"
+          test_matrix=("${REMAINING_FILES[@]}")
+          for file in "${SUBSET_FILES[@]}"; do
+            test_matrix+=("$file")
+          done
+          echo "test_matrix=(${test_matrix[@]})"
+          echo "Test matrix: ${test_matrix[@]}"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test_files: ${{needs.test-files-matrix.outputs.test_matrix}}   
+        test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}   
     steps:
       - uses: actions/checkout@v4
         # TODO: create a new PAT to use here
