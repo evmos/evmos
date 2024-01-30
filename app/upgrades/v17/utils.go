@@ -113,12 +113,12 @@ func ConvertERC20Coins(
 		return false
 	})
 
+	// NOTE: if there are tokens left in the ERC-20 module account
+	// we return an error because this implies that the migration of native
+	// coins to ERC-20 tokens was not fully completed.
 	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
 	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
 	if !balances.IsZero() {
-		// NOTE: if there are tokens left in the ERC-20 module account
-		// we return an error because this implies that the migration of native
-		// coins to ERC-20 tokens was not fully completed.
 		return fmt.Errorf("there are still tokens in the erc-20 module account: %s", balances.String())
 	}
 

@@ -68,19 +68,28 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 		},
 	}
 
+	genesisState := createGenesisWithTokenPairs()
+
 	nw := network.NewUnitTestNetwork(
 		network.WithBalances(fundedBalances...),
 	)
 	handler := grpc.NewIntegrationHandler(nw)
 	txFactory := testfactory.New(nw, handler)
 
+	// TODO: Can these whole gov params adjustments be removed? Check if this is actually necessary
 	govParamsRes, err := handler.GetGovParams("voting")
 	require.NoError(t, err, "failed to get gov params")
 	govParams := govParamsRes.GetParams()
 	govParams.MinDeposit = sdk.Coins{}
-
 	err = nw.UpdateGovParams(*govParams)
 	require.NoError(t, err, "failed to update gov params")
+
+	// FIXME: this method is removed on the feature branch -> use custom genesis instead?
+	//
+	// Things to add in custom genesis:
+	// TODO: add token contract to EVM genesis
+	// TODO: add token pair to ERC20 genesis
+	// TODO: add some converted balances for the token pair (-> this should mean that there's a balance in the ERC20 module account)
 
 	// Register the coins
 	XMPLMetadata := banktypes.Metadata{
@@ -111,7 +120,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 
 	// Convert the native coins to the ERC20 representation
 	senderIdx := 0
-	// FIXME: this method is removed on the feature branch -> use custom genesis instead?
+
 	msgConvert := &erc20types.MsgConvertCoin{
 		Coin:     sdk.NewCoin(XMPL, sdk.NewInt(100)),
 		Receiver: kr.GetAddr(senderIdx).String(),
@@ -260,4 +269,18 @@ func GetERC20Balance(txFactory testfactory.TxFactory, addr, erc20Addr common.Add
 	}
 
 	return balance, nil
+}
+
+// createGenesisWithTokenPairs creates a genesis state with the token pairs registered.
+//
+// TODO: update doc comment once done with this method
+func createGenesisWithTokenPairs() {
+
+}
+
+func TestCreateGenesisWithTokenPairs(t *testing.T) {
+	keyring := testkeyring.New(1)
+	network := network.NewUnitTestNetwork(
+		network.WithCustomGenesis()...,
+	)
 }
