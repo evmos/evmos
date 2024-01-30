@@ -37,7 +37,9 @@ jobs:
       - name: Set up test file matrix to run nix tests in parallel
         id: set_matrix
         run: |
-          cd ./tests/nix_tests
+          cd ./tests/nix_tests || exit 1
+
+          # Define parallel test files
           PARALLEL_TESTS=(
             "test_account.py"
             "test_filters.py"
@@ -55,14 +57,20 @@ jobs:
             "test_zero_fee.py"
           )
 
+          # Get all test files
           ALL_FILES=($(ls test_*.py))
+
+          # Determine remaining test files
+          # (the test files that will run all together in one process)
           REMAINING_FILES=()
-          for file in "${ALL_FILES[*]}"; do
-            if ! [[ " ${PARALLEL_TESTS[*]} " =~  $file  ]]; then
+          for file in "${ALL_FILES[@]}"; do
+            if [[ ! " ${PARALLEL_TESTS[*]} " =~ " $file " ]]; then
               REMAINING_FILES+=("$file")
             fi
           done
-          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \""${REMAINING_FILES[*]}"\"]"
+          
+          # Construct test matrix          
+          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \""${REMAINING_FILES[@]}"\"]"
           echo "test_matrix="${TEST_FILES}"" >> $GITHUB_OUTPUT
           echo "Test matrix: "${TEST_FILES}""
   test-nix:

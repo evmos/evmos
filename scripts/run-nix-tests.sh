@@ -21,4 +21,6 @@ cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..
+
+# shellcheck disable=SC2086
 pytest $ARGS -vv -s
