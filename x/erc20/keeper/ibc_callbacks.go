@@ -4,6 +4,8 @@
 package keeper
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/armon/go-metrics"
@@ -38,6 +40,11 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
+	// If ERC20 module is disabled no-op
+	if !k.IsERC20Enabled(ctx) {
+		return ack
+	}
+
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		// NOTE: shouldn't happen as the packet has already
@@ -59,13 +66,13 @@ func (k Keeper) OnRecvPacket(
 
 	evmParams := k.evmKeeper.GetParams(ctx)
 
-	// if sender == recipient, and is not from an EVM Channel recovery was executed
-	// If we received an IBC from non EVM channel the account should be different
+	// If we received an IBC message from a non-EVM channel,
+	// the sender and receiver accounts should be different.
+	//
 	// If its the same, users can have their funds stuck since they dont have access
-	// to the same priv key
+	// to the same priv key. Return an error to prevent this from happening
 	if sender.Equals(recipient) && !evmParams.IsEVMChannel(packet.DestinationChannel) {
-		// Continue to the next IBC middleware by returning the original ACK.
-		return ack
+		return channeltypes.NewErrorAcknowledgement(types.ErrInvalidIBC)
 	}
 
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
@@ -88,16 +95,13 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// If ERC20 module is disabled, dont deploy new precompiles
-	if !k.IsERC20Enabled(ctx) {
-		return ack
-	}
-
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	pair, found := k.GetTokenPair(ctx, pairID)
 	switch {
 	// Case 1. token pair is not registered and is a single hop IBC Coin
-	case !found && ibc.IsSingleHop(data.Denom):
+	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
+	// IsSingleHop will check if the coin is native from the source chain.
+	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsSingleHop(data.Denom):
 		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)

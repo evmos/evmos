@@ -371,6 +371,14 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 	}
 }
 
+// On the OnRecv function there are two denominations
+// coin.Denom contains IBC denomination (e.g aevmos, IBC/hash)
+// data.Denom contains source chain denomination (e.g transfer/channel-x/aevmos, uosmo)
+
+// In this function we are checking the source chain denomination (2nd case).
+// On osmosis chain coins will look like:
+// uosmo <- less than 2 slashes is native from source chain
+// transfer/channel-xx/atom <- 2 slashes is not native. So its a hop coin.
 func TestIsSingleHop(t *testing.T) {
 	t.Parallel()
 
@@ -379,18 +387,21 @@ func TestIsSingleHop(t *testing.T) {
 		rawDenom string
 		exp      bool
 	}{
+		// Native from source chain
 		{
-			name:     "pass - evmos",
-			rawDenom: "aevmos",
+			name:     "pass - uosmo from osmosis",
+			rawDenom: "uosmo",
 			exp:      true,
 		},
+		// Non native from source chain
 		{
-			name:     "pass - single hop token",
-			rawDenom: "transfer/channel-0/uosmo",
-			exp:      true,
+			name:     "fail - double hop coin - uatom from osmosis",
+			rawDenom: "transfer/channel-0/uatom",
+			exp:      false,
 		},
+		// Non native from source chain
 		{
-			name:     "fail - 2x hop token",
+			name:     "fail - 3x hop coin - uatom ",
 			rawDenom: "transfer/channel-0/transfer/channel-1/uatom",
 			exp:      false,
 		},
@@ -403,6 +414,8 @@ func TestIsSingleHop(t *testing.T) {
 			t.Parallel()
 
 			require.Equal(t,
+				// Check if the coin is native from the source chain
+				// Source chain is the chain where the IBC tx arrived from.
 				IsSingleHop(tc.rawDenom),
 				tc.exp,
 				"expected different result checking single hop denom",

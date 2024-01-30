@@ -109,9 +109,8 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 					"",
 				),
 			),
-			expectedError: false,
+			expectedError: true,
 		},
-		// TODO: Check why we do this
 		// Dont allow conversions from module accounts.
 		{
 			name: "no-op - sender is module account",
@@ -158,8 +157,8 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			),
 			expectedError: false,
 		},
-		// Is single hop and not registered Evm Extension.
-		// Should register a new EVm extension
+		// Is single hop and not registered EVM Extension.
+		// Should register a new EVM extension
 		{
 			name: "success - is single hop. Should register erc20 extension",
 			transferBytes: newTransferBytes(
@@ -209,7 +208,6 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-
 			packet := channeltypes.NewPacket(
 				tc.transferBytes,
 				1,
@@ -289,7 +287,7 @@ func (suite *Erc20KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			transfer:      transfertypes.FungibleTokenPacketData{Sender: ""},
 			expectedError: errors.New("empty address string is not allowed"),
 		},
-		// If coin is not registerd, no conversion is attempted
+		// If coin is not registered, no conversion is attempted
 		// No error is returned
 		{
 			name: "noError - pair not registered",
@@ -343,7 +341,7 @@ func (suite *Erc20KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 		// Erc20 is registered but there is no balance on the account
 		// It should error when attempting to convert coin -> erc20
 		{
-			name: "error - is native Erc20 - no coin balance for convertion",
+			name: "error - is native Erc20 - no coin balance for conversion",
 			transfer: transfertypes.NewFungibleTokenPacketData(
 				erc20TestPair.Denom,
 				amountValue,
@@ -366,12 +364,10 @@ func (suite *Erc20KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			} else {
 				suite.Require().Equal(tc.expectedError, err)
 			}
-
 		})
 	}
 }
 
-// TODO: coverage? or delete?
 func (suite *Erc20KeeperTestSuite) TestOnTimeoutPacket() {
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
@@ -415,12 +411,11 @@ func (suite *Erc20KeeperTestSuite) TestOnTimeoutPacket() {
 			} else {
 				suite.Require().Equal(tc.expectedError, err)
 			}
-
 		})
 	}
 }
 
-func (suite *Erc20KeeperTestSuite) OnAcknowledgementPacket() {
+func (suite *Erc20KeeperTestSuite) TestOnAcknowledgementPacket() {
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -477,7 +472,6 @@ func (suite *Erc20KeeperTestSuite) OnAcknowledgementPacket() {
 			} else {
 				suite.Require().Equal(tc.expectedError, err)
 			}
-
 		})
 	}
 }
