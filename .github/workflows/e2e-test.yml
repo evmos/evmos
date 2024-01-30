@@ -62,9 +62,7 @@ jobs:
             fi
           done
           SUBSET_FILES_STRING=$(IFS=" "; echo "${SUBSET_FILES[*]}")
-          TEST_MATRIX=['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']
-          echo ${TEST_MATRIX}
-          echo "test_matrix=${TEST_MATRIX}" >> $GITHUB_OUTPUT
+          echo "test_matrix=['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']" >> $GITHUB_OUTPUT
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
