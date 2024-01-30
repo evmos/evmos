@@ -476,7 +476,9 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		txConfig.TxHash = ethTx.Hash()
 		txConfig.TxIndex = uint(i)
 		// reset gas meter for each transaction
-		ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
+		ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).
+			WithKVGasConfig(storetypes.GasConfig{}).
+			WithTransientKVGasConfig(storetypes.GasConfig{})
 		rsp, err := k.ApplyMessageWithConfig(ctx, msg, types.NewNoOpTracer(), true, cfg, txConfig)
 		if err != nil {
 			continue
@@ -667,7 +669,7 @@ func (k *Keeper) traceTx(
 	// 2. Setup an empty KV gas config for gas to be calculated by opcodes
 	// and not kvstore actions
 	// 3. Setup an empty transient KV gas config for transient gas to be
-    // calculated by opcodes
+	// calculated by opcodes
 	ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
