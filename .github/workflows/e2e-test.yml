@@ -58,21 +58,23 @@ jobs:
           )
 
           # Get all test files
+          # shellcheck disable=SC2207
           ALL_FILES=($(ls test_*.py))
 
           # Determine remaining test files
           # (the test files that will run all together in one process)
           REMAINING_FILES=()
           for file in "${ALL_FILES[@]}"; do
-            if [[ ! " ${PARALLEL_TESTS[*]} " =~ " $file " ]]; then
+            if [[ ! " ${PARALLEL_TESTS[*]} " =~ $file ]]; then
               REMAINING_FILES+=("$file")
             fi
           done
           
-          # Construct test matrix          
-          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \""${REMAINING_FILES[@]}"\"]"
-          echo "test_matrix="${TEST_FILES}"" >> $GITHUB_OUTPUT
-          echo "Test matrix: "${TEST_FILES}""
+          # Construct test matrix
+          # shellcheck disable=SC2076,SC2124,SC2048,SC2086,SC2089,SC2027  
+          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \"${REMAINING_FILES[*]}\"]"
+          echo "test_matrix=${TEST_FILES}" >> $GITHUB_OUTPUT
+          echo "Test matrix: ${TEST_FILES}"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
@@ -107,7 +109,9 @@ jobs:
             tests/nix_tests/**
             .github/workflows/e2e-test*         
       - name: Run nix tests
-        run: export ARGS="${{ matrix.test_files }}" && make run-nix-tests
+        env:
+          ARGS: "${{ matrix.test_files }}"   
+        run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
       # TODO: uncomment this once added the new PAT to commit the changes (when needed)
