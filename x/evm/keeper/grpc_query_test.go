@@ -17,8 +17,6 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/evmos/evmos/v16/server/config"
-	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
