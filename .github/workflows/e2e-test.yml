@@ -62,8 +62,9 @@ jobs:
               REMAINING_FILES+=("$file")
             fi
           done
-          echo "test_matrix='[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'" >> $GITHUB_OUTPUT
-          echo "Test matrix: '[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'"
+          TEST_FILES="'[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'"
+          echo "test_matrix=${TEST_FILES}" >> $GITHUB_OUTPUT
+          echo "Test matrix: ${TEST_FILES}"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
