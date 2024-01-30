@@ -32,36 +32,37 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
-    - uses: actions/checkout@v4
-    - name: Set up test file matrix
-      id: set_matrix
-      run: |
-        cd ./tests/nix_tests
-        SUBSET_FILES=(
-          "test_filters.py"
-          "test_account.py"
-          "test_fee_history.py"
-          "test_grpc_only.py"
-          "test_ibc.py"
-          "test_no_abci_resp.py"
-          "test_osmosis_outpost.py"
-          "test_precompiles.py"
-          "test_priority.py"
-          "test_pruned_node.py"
-          "test_rollback.py"
-          "test_stride_outpost.py"
-          "test_storage_proof.py"
-          "test_zero_fee.py"
-        )
-        ALL_FILES=($(ls test_*.py))
-        REMAINING_FILES=()
-        for file in "${ALL_FILES[@]}"; do
-          if ! [[ " ${SUBSET_FILES[@]} " =~ " $file " ]]; then
-            REMAINING_FILES+=("$file")
-          fi
-        done
-        SUBSET_FILES_STRING=$(IFS=" "; echo "${SUBSET_FILES[*]}")
-        echo "::set-output name=test_matrix::['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']"     
+    steps:      
+      - uses: actions/checkout@v4
+      - name: Set up test file matrix
+        id: set_matrix
+        run: |
+          cd ./tests/nix_tests
+          SUBSET_FILES=(
+            "test_filters.py"
+            "test_account.py"
+            "test_fee_history.py"
+            "test_grpc_only.py"
+            "test_ibc.py"
+            "test_no_abci_resp.py"
+            "test_osmosis_outpost.py"
+            "test_precompiles.py"
+            "test_priority.py"
+            "test_pruned_node.py"
+            "test_rollback.py"
+            "test_stride_outpost.py"
+            "test_storage_proof.py"
+            "test_zero_fee.py"
+          )
+          ALL_FILES=($(ls test_*.py))
+          REMAINING_FILES=()
+          for file in "${ALL_FILES[@]}"; do
+            if ! [[ " ${SUBSET_FILES[@]} " =~ " $file " ]]; then
+              REMAINING_FILES+=("$file")
+            fi
+          done
+          SUBSET_FILES_STRING=$(IFS=" "; echo "${SUBSET_FILES[*]}")
+          echo "::set-output name=test_matrix::['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']"     
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
