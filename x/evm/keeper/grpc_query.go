@@ -661,10 +661,16 @@ func (k *Keeper) traceTx(
 		}
 	}()
 
-	// reset gas meter for tx
-	// to be consistent with tx execution gas meter
-	ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
-	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{})
+	// In order to be on in sync with the tx execution gas meter,
+	// we need to:
+	// 1. Reset GasMeter with InfiniteGasMeterWithLimit
+	// 2. Setup an empty KV gas config for gas to be calculated by opcodes
+	// and not kvstore actions
+	// 3. Setup an empty transient KV gas config for transient gas to be
+    // calculated by opcodes
+	ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).
+		WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 	res, err := k.ApplyMessageWithConfig(ctx, msg, tracer, commitMessage, cfg, txConfig)
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())
