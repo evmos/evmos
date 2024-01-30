@@ -29,7 +29,8 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.ToggleTokenConversionProposal:
 			return handleToggleConversionProposal(ctx, k, c)
-
+		case *types.UpdateERC20MetadataProposal:
+			return handleUpdateERC20MetadataProposal(ctx, k, c)
 		default:
 			return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
@@ -79,6 +80,17 @@ func handleToggleConversionProposal(
 			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
 	)
+
+	return nil
+}
+
+// TODO:
+func handleUpdateERC20MetadataProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.UpdateERC20MetadataProposal,
+) error {
+	// TODO:
 
 	return nil
 }

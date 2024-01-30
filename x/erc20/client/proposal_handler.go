@@ -12,4 +12,5 @@ import (
 var (
 	RegisterERC20ProposalHandler         = govclient.NewProposalHandler(cli.NewRegisterERC20ProposalCmd)
 	ToggleTokenConversionProposalHandler = govclient.NewProposalHandler(cli.NewToggleTokenConversionProposalCmd)
+	UpdateERC20MetadataHandler           = govclient.NewProposalHandler(cli.NewUpdateERC20MetadataCmd)
 )

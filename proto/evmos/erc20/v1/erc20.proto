@@ -78,3 +78,21 @@ message ProposalMetadata {
   // metadata slice of the native Cosmos coins
   repeated cosmos.bank.v1beta1.Metadata metadata = 1 [(gogoproto.nullable) = false];
 }
+
+// UpdateERC20MetadataProposal is a gov Content type
+// it updates the bank metadata in case of incorrect automatic generation
+message UpdateERC20MetadataProposal {
+  // title of the proposal
+  string title = 1;
+  // description of the proposal
+  string description = 2;
+  // address of the erc20 extension contract
+  string contract = 3; 
+  // name of the token
+  string name = 4;
+  // symbol of the token
+  string symbol = 5;
+  // decimals places of the token
+  // supported options are 6 (micro), 9 (nano) and 18 (atto).
+  uint32 decimals = 6;
+}
