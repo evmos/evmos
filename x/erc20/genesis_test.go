@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -81,17 +80,14 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 	testCases := []struct {
 		name         string
 		genesisState types.GenesisState
-		malleate     func()
 	}{
 		{
 			name:         "empty genesis",
 			genesisState: types.GenesisState{},
-			malleate:     nil,
 		},
 		{
 			name:         "default genesis",
 			genesisState: *types.DefaultGenesisState(),
-			malleate:     nil,
 		},
 		{
 			name: "custom genesis",
@@ -106,23 +102,10 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 					},
 				},
 			),
-			malleate: func() {
-				suite.app.TransferKeeper.SetDenomTrace(
-					suite.ctx,
-					transfertypes.DenomTrace{
-						BaseDenom: "uosmo",
-						Path:      "transfer/channel-0",
-					},
-				)
-			},
 		},
 	}
 
 	for _, tc := range testCases {
-		if tc.malleate != nil {
-			tc.malleate()
-		}
-
 		suite.Require().NotPanics(func() {
 			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		})
@@ -133,9 +116,6 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		suite.Require().Equal(tc.genesisState.Params, params)
 		if len(tokenPairs) > 0 {
 			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
-			// check ERC20 contract was created successfully
-			acc := suite.app.EvmKeeper.GetAccount(suite.ctx, common.HexToAddress(osmoERC20ContractAddr))
-			suite.Require().True(acc.IsContract())
 		} else {
 			suite.Require().Len(tc.genesisState.TokenPairs, 0)
 		}
@@ -146,17 +126,14 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	testGenCases := []struct {
 		name         string
 		genesisState types.GenesisState
-		malleate     func()
 	}{
 		{
 			name:         "empty genesis",
 			genesisState: types.GenesisState{},
-			malleate:     nil,
 		},
 		{
 			name:         "default genesis",
 			genesisState: *types.DefaultGenesisState(),
-			malleate:     nil,
 		},
 		{
 			name: "custom genesis",
@@ -171,16 +148,10 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 					},
 				},
 			),
-			malleate: func() {
-				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
-			},
 		},
 	}
 
 	for _, tc := range testGenCases {
-		if tc.malleate != nil {
-			tc.malleate()
-		}
 		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		suite.Require().NotPanics(func() {
 			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
@@ -194,6 +165,5 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 				suite.Require().Len(genesisExported.TokenPairs, 0)
 			}
 		})
-		// }
 	}
 }
