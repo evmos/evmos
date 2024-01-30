@@ -61,6 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
 - (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
+- (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
