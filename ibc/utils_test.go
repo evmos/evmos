@@ -370,3 +370,43 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 		require.Equal(t, tc.expDec, dec)
 	}
 }
+
+func TestIsSingleHop(t *testing.T) {
+	t.Parallel()
+
+	testcases := []struct {
+		name     string
+		rawDenom string
+		exp      bool
+	}{
+		{
+			name:     "pass - evmos",
+			rawDenom: "aevmos",
+			exp:      true,
+		},
+		{
+			name:     "pass - single hop token",
+			rawDenom: "transfer/channel-0/uosmo",
+			exp:      true,
+		},
+		{
+			name:     "fail - 2x hop token",
+			rawDenom: "transfer/channel-0/transfer/channel-1/uatom",
+			exp:      false,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			require.Equal(t,
+				IsSingleHop(tc.rawDenom),
+				tc.exp,
+				"expected different result checking single hop denom",
+			)
+		})
+	}
+}
