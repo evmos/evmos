@@ -1147,6 +1147,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 		GasLimit:  100000,
 		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
 		GasTipCap: big.NewInt(1),
+		Input:     []byte("create bytes"),
 		Accesses:  &types.AccessList{},
 	}
 
@@ -1158,6 +1159,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
 		GasTipCap: big.NewInt(1),
 		Accesses:  &types.AccessList{},
+		Input:     []byte("call bytes"),
 		To:        &to,
 	}
 

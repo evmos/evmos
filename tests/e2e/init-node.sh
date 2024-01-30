@@ -75,15 +75,15 @@ jq '.app_state.evm.params.evm_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "
 jq '.app_state.inflation.params.mint_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # set gov proposing && voting period
-jq '.app_state.gov.deposit_params.max_deposit_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.gov.voting_params.voting_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
 # check if the 'params' field exists in the genesis file
 if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
   jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.max_deposit_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.voting_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+  jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+  jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 fi
 
 # Set gas limit in genesis

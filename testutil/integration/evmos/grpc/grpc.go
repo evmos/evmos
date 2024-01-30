@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package grpc
 
 import (
@@ -24,6 +25,7 @@ type Handler interface {
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
+	GetFeeMarketParams() (*feemarkettypes.QueryParamsResponse, error)
 
 	// Gov methods
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)

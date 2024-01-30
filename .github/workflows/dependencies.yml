@@ -22,7 +22,7 @@ jobs:
             go.sum
             *.toml
       - name: "Dependency Review"
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
         if: env.GIT_DIFF
       - name: "Go vulnerability check"
         run: make vulncheck

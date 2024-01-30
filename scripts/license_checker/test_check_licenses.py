@@ -57,3 +57,14 @@ def test_check_if_in_exempt_files_included():
 
     file = "/Users/malte/dev/go/evmos/evmos/x/evm/genesis.go"
     assert cl.check_if_in_exempt_files(file) is False
+
+
+def test_ignore():
+    assert cl.ignore("app/ante/ante.go", cl.IGNORED_FILETYPES) is False
+    assert cl.ignore("proto/ethermint/evm/v1/tx.proto", cl.IGNORED_FILETYPES) is False
+    assert cl.ignore(".go.mod", cl.IGNORED_FILETYPES) is True
+    assert cl.ignore(".markdownlint", cl.IGNORED_FILETYPES) is True
+    assert cl.ignore("README.md", cl.IGNORED_FILETYPES) is True
+    assert cl.ignore("app/ante/ante_test.go", cl.IGNORED_FILETYPES) is True
+    assert cl.ignore("x/evm/types/tx.pb.go", cl.IGNORED_FILETYPES) is True
+    assert cl.ignore("x/evm/types/tx.pb.gw.go", cl.IGNORED_FILETYPES) is True

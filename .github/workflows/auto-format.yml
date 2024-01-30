@@ -2,9 +2,6 @@ name: Auto Format
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 jobs:
   format-go-code:
