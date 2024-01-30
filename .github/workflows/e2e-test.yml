@@ -65,8 +65,9 @@ jobs:
           for file in "${SUBSET_FILES[@]}"; do
             test_matrix+=("$file")
           done
-          echo "test_matrix=['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']" >> $GITHUB_OUTPUT
-          echo "Test matrix: ['${REMAINING_FILES[*]}', '$SUBSET_FILES_STRING']"
+          echo "test_matrix=(${test_matrix[@]})" >> $GITHUB_OUTPUT
+          echo "Test matrix: ${test_matrix[@]}"
+          echo "Test matrix: ${{ steps.set_matrix.outputs.test_matrix }}"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
