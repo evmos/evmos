@@ -68,8 +68,8 @@ jobs:
           for file in "${SUBSET_FILES[@]}"; do
             test_matrix+=("$file")
           done
-          echo "test_matrix=(${test_matrix[@]})" >> $GITHUB_OUTPUT
-          echo "Test matrix: ${test_matrix[@]}"
+          echo "test_matrix=[${test_matrix[@]}]" >> $GITHUB_OUTPUT
+          echo "Test matrix: [${test_matrix[@]}]"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
