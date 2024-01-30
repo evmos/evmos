@@ -54,22 +54,9 @@ jobs:
             "test_storage_proof.py"
             "test_zero_fee.py"
           )
-          ALL_FILES=($(ls test_*.py))
-          REMAINING_FILES=()
-          for file in "${ALL_FILES[@]}"; do
-            if ! [[ " ${SUBSET_FILES[@]} " =~ " $file " ]]; then
-              REMAINING_FILES+=("$file")
-            fi
-          done
-          SUBSET_FILES_STRING=$(IFS=" "; echo "${SUBSET_FILES[*]}")
-          echo "REMAINING_FILES=${REMAINING_FILES[*]}"
-          echo "SUBSET_FILES_STRING=$SUBSET_FILES_STRING"
-          test_matrix=("${REMAINING_FILES[@]}")
-          for file in "${SUBSET_FILES[@]}"; do
-            test_matrix+=("$file")
-          done
-          echo "test_matrix=[${test_matrix[@]}]" >> $GITHUB_OUTPUT
-          echo "Test matrix: [${test_matrix[@]}]"
+         
+          echo "test_matrix=$SUBSET_FILES" >> $GITHUB_OUTPUT
+          echo "Test matrix: $SUBSET_FILES"
   test-nix:
     needs: test-files-matrix
     runs-on: ubuntu-latest
