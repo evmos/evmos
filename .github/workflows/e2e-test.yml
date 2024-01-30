@@ -62,7 +62,7 @@ jobs:
               REMAINING_FILES+=("$file")
             fi
           done
-          TEST_FILES="'[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]'"
+          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS}) \""${REMAINING_FILES[@]}"\"]"
           echo "test_matrix=${TEST_FILES}" >> $GITHUB_OUTPUT
           echo "Test matrix: ${TEST_FILES}"
   test-nix:
