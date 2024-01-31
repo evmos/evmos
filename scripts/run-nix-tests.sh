@@ -22,5 +22,6 @@ npm install
 npm run typechain
 cd ..
 
-# shellcheck disable=SC2086 -- we want to pass the arguments as separate words instead of one string
+# we want to pass the arguments as separate words instead of one string
+# shellcheck disable=SC2086
 pytest $ARGS -vv -s
