@@ -29,23 +29,25 @@ def pruned(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module")
-def pruned_rocksdb(tmp_path_factory):
-    """
-    setup evmos with memIAVL + versionDB
-    and 'pruning = everything'
-    """
-    yield from setup_custom_evmos(
-        tmp_path_factory.mktemp("pruned-rocksdb"),
-        26700,
-        Path(__file__).parent / "configs/memiavl-pruned_node.jsonnet",
-        chain_binary="evmosd-rocksdb",
-        post_init=create_snapshots_dir,
-    )
+# ATM rocksdb build is not supported for sdkv0.50
+# This is due to cronos dependencies (versionDB, memIAVL)
+# @pytest.fixture(scope="module")
+# def pruned_rocksdb(tmp_path_factory):
+#     """
+#     setup evmos with memIAVL + versionDB
+#     and 'pruning = everything'
+#     """
+#     yield from setup_custom_evmos(
+#         tmp_path_factory.mktemp("pruned-rocksdb"),
+#         26700,
+#         Path(__file__).parent / "configs/memiavl-pruned_node.jsonnet",
+#         chain_binary="evmosd-rocksdb",
+#         post_init=create_snapshots_dir,
+#     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def pruned_cluster(request, pruned, pruned_rocksdb):
+@pytest.fixture(scope="module", params=["evmos"])
+def pruned_cluster(request, pruned):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -53,8 +55,10 @@ def pruned_cluster(request, pruned, pruned_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield pruned
-    elif provider == "evmos-rocksdb":
-        yield pruned_rocksdb
+    # ATM rocksdb build is not supported for sdkv0.50
+    # This is due to cronos dependencies (versionDB, memIAVL)
+    # elif provider == "evmos-rocksdb":
+    #     yield pruned_rocksdb
     else:
         raise NotImplementedError
 

@@ -16,16 +16,18 @@ def custom_evmos(tmp_path_factory):
     yield from setup_evmos(path, 26800, long_timeout_commit=True)
 
 
-@pytest.fixture(scope="module")
-def custom_evmos_rocksdb(tmp_path_factory):
-    path = tmp_path_factory.mktemp("priority-rocksdb")
-    # run with long timeout commit to ensure all
-    # txs are included in the same block
-    yield from setup_evmos_rocksdb(path, 26810, long_timeout_commit=True)
+# ATM rocksdb build is not supported for sdkv0.50
+# This is due to cronos dependencies (versionDB, memIAVL)
+# @pytest.fixture(scope="module")
+# def custom_evmos_rocksdb(tmp_path_factory):
+#     path = tmp_path_factory.mktemp("priority-rocksdb")
+#     # run with long timeout commit to ensure all
+#     # txs are included in the same block
+#     yield from setup_evmos_rocksdb(path, 26810, long_timeout_commit=True)
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["evmos"])
+def evmos_cluster(request, custom_evmos):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -33,8 +35,10 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
-    elif provider == "evmos-rocksdb":
-        yield custom_evmos_rocksdb
+    # ATM rocksdb build is not supported for sdkv0.50
+    # This is due to cronos dependencies (versionDB, memIAVL)
+    # elif provider == "evmos-rocksdb":
+    #     yield custom_evmos_rocksdb
     else:
         raise NotImplementedError
 
