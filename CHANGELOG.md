@@ -35,7 +35,40 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+<<<<<<< HEAD
 ## [v16.0.2] - 2024-01-16
+=======
+## Unreleased
+
+### State Machine Breaking
+
+- (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
+- (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
+- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
+- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
+- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
+
+### Improvements
+
+- (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
+- (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
+- (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
+- (outposts) [#2236](https://github.com/evmos/evmos/pull/2236) Add default timeout timestamp for outpost transactions.
+- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
+- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
+- (tests) [#2235](https://github.com/evmos/evmos/pull/2235) Ensure voting has concluded in automated upgrade tests.
+- (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
+- (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
+- (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
+- (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
+- (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
+- (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
+- (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
+- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+
+## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
+>>>>>>> e09e55bd (imp(tests): add parallel execution on nix tests (#2301))
 
 ### Bug Fixes
 
