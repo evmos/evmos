@@ -416,7 +416,7 @@ func TestIsSingleHop(t *testing.T) {
 			require.Equal(t,
 				// Check if the coin is native from the source chain
 				// Source chain is the chain where the IBC tx arrived from.
-				IsSingleHop(tc.rawDenom),
+				IsNativeFromSourceChain(tc.rawDenom),
 				tc.exp,
 				"expected different result checking single hop denom",
 			)
