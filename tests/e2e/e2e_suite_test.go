@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -346,21 +347,30 @@ func (s *IntegrationTestSuite) executeTransactions() {
 	})
 	s.Require().NoError(err, "failed to create bank send tx command")
 
-	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoError(err, "failed to execute bank send tx")
-	s.Require().Empty(errBuf.String())
+	// NOTE: The only message in the errBuf that is allowed is `gas estimate: ...`
+	gasEstimateMatch, err := regexp.MatchString(`^\s*gas estimate: \d+\s*$`, errBuf.String())
+	s.Require().NoError(err, "failed to match gas estimate message")
+	s.Require().True(
+		gasEstimateMatch,
+		"expected message in errBuf to be `gas estimate: ...`; got: %q\n",
+		errBuf.String(),
+	)
+
+	fmt.Println("Out: ", outBuf.String())
 
 	// query the balances of the sending and receiving accounts to check the transaction was successful
 	exec, err = s.upgradeManager.CreateExec(
-		[]string{"evmosd", "q", "bank", "balances", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"},
+		[]string{"evmosd", "q", "bank", "balances", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq", "--output=json"},
 		s.upgradeManager.ContainerID(),
 	)
 	s.Require().NoError(err, "failed to create bank balances query command")
 
-	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	outBuf, errBuf, err = s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoError(err, "failed to execute bank balances query")
 	s.Require().Empty(errBuf.String())
-	s.Require().Contains(outBuf.String(), "10000000000aevmos")
+	s.Require().Contains(outBuf.String(), `"denom":"aevmos","amount":"10000000000"`)
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
