@@ -16,8 +16,8 @@ import (
 	ethlogger "github.com/ethereum/go-ethereum/eth/tracers/logger"
 	ethparams "github.com/ethereum/go-ethereum/params"
 
-	"github.com/evmos/evmos/v16/server/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/evmos/evmos/v16/server/config"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -583,6 +583,8 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 
 	gasHelper := hexutil.Uint64(20000)
 	higherGas := hexutil.Uint64(25000)
+	// Hardcode recipient address to avoid non determinism in tests
+	hardcodedRecipient := common.HexToAddress("0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101")
 
 	testCases := []struct {
 		msg             string
@@ -666,23 +668,23 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 			false,
 			20000,
 		},
-		// estimate gas of an erc20 contract deployment, the exact gas number is checked with geth
+		// // estimate gas of an erc20 contract deployment, the exact gas number is checked with geth
 		{
 			"contract deployment",
 			func() types.TransactionArgs {
-				addr := keyring.GetAddr(0)
 				ctorArgs, err := types.ERC20Contract.ABI.Pack(
 					"",
-					&addr,
+					&hardcodedRecipient,
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				)
 				suite.Require().NoError(err)
-
 				data := types.ERC20Contract.Bin
 				data = append(data, ctorArgs...)
+
+				addr := keyring.GetAddr(0)
 				return types.TransactionArgs{
-					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
+					From: &addr,
 				}
 			},
 			true,
@@ -701,18 +703,16 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				newIndex := keyring.AddKey()
-				recipient := keyring.GetAddr(newIndex)
 				transferData, err := types.ERC20Contract.ABI.Pack(
 					"transfer",
-					recipient,
+					hardcodedRecipient,
 					big.NewInt(1000),
 				)
 				suite.Require().NoError(err)
 				return types.TransactionArgs{
 					To:   &contractAddr,
-					From: &key.Addr,
 					Data: (*hexutil.Bytes)(&transferData),
+					From: &key.Addr,
 				}
 			},
 			true,
@@ -782,14 +782,19 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 		{
 			"contract deployment w/ enableFeemarket",
 			func() types.TransactionArgs {
-				addr := keyring.GetAddr(0)
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+					"",
+					&hardcodedRecipient,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				)
 				suite.Require().NoError(err)
 				data := types.ERC20Contract.Bin
 				data = append(data, ctorArgs...)
+
+				sender := keyring.GetAddr(0)
 				return types.TransactionArgs{
-					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
+					From: &sender,
 				}
 			},
 			true,
@@ -808,11 +813,9 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				newIndex := keyring.AddKey()
-				recipient := keyring.GetAddr(newIndex)
 				transferData, err := types.ERC20Contract.ABI.Pack(
 					"transfer",
-					recipient,
+					hardcodedRecipient,
 					big.NewInt(1000),
 				)
 				suite.Require().NoError(err)
@@ -971,6 +974,9 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grcpHandler)
 
+	// Hardcode recipient address to avoid non determinism in tests
+	hardcodedRecipient := common.HexToAddress("0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101")
+
 	testCases := []struct {
 		msg             string
 		malleate        func()
@@ -1042,7 +1048,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 					transferParams{
 						senderKey:     senderKey,
 						contractAddr:  contractAddr,
-						recipientAddr: keyring.GetAddr(0),
+						recipientAddr: hardcodedRecipient,
 					},
 					unitNetwork,
 					txFactory,
@@ -1184,7 +1190,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				transferParams{
 					senderKey:     senderKey,
 					contractAddr:  contractAddr,
-					recipientAddr: keyring.GetAddr(1),
+					recipientAddr: hardcodedRecipient,
 				},
 				unitNetwork,
 				txFactory,
@@ -1306,6 +1312,9 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grcpHandler)
 
+	// Hardcode recipient to make gas estimation deterministic
+	hardcodedTransferRecipient := common.HexToAddress("0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101")
+
 	testCases := []struct {
 		msg              string
 		getRequest       func() types.QueryTraceBlockRequest
@@ -1375,7 +1384,7 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 					transferParams{
 						senderKey:     keyring.GetKey(1),
 						contractAddr:  contractAddr,
-						recipientAddr: keyring.GetAddr(0),
+						recipientAddr: hardcodedTransferRecipient,
 					},
 					unitNetwork,
 					txFactory,
@@ -1452,7 +1461,7 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 				transferParams{
 					senderKey:     senderKey,
 					contractAddr:  contractAddr,
-					recipientAddr: keyring.GetAddr(1),
+					recipientAddr: hardcodedTransferRecipient,
 				},
 				unitNetwork,
 				txFactory,
