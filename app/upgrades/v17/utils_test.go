@@ -357,6 +357,11 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.Equal(t, 1, len(res.TokenPairs), "expected different number of token pairs")
 	require.Equal(t, XMPL, res.TokenPairs[0].Denom, fmt.Sprintf("expected different denom for %q token pair", XMPL))
 
+	// Test, that the account is registered correctly
+	accI, err := handler.GetAccount("evmos13cr2zcj848lss8dzer9tjz6wraz44qqw2mtata") // Bech32 equivalent of the contract address
+	require.NoError(t, err, "failed to get account")
+	require.NotNil(t, accI, "expected account to be not nil after genesis")
+
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 	balance, err := GetERC20Balance(tf, keyring.GetPrivKey(testAccount), res.TokenPairs[0].GetERC20Contract())
 	require.NoError(t, err, "failed to query ERC-20 balance")
