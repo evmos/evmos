@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
@@ -59,7 +59,9 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 func (s *PrecompileTestSuite) TestRedeemEvent() {
 	ctx := s.network.GetContext()
 	stateDB := s.network.GetStateDB()
-	bondDenom := s.network.App.StakingKeeper.BondDenom(ctx)
+	bondDenom, err := s.network.App.StakingKeeper.BondDenom(ctx)
+	s.Require().NoError(err)
+
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: "st" + bondDenom,

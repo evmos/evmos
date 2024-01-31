@@ -75,7 +75,8 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 				}
 			},
 			func() {
-				withdrawerAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				withdrawerAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				s.Require().NoError(err)
 				s.Require().Equal(withdrawerAddr.Bytes(), s.address.Bytes())
 			},
 			20000,
@@ -91,7 +92,8 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 				}
 			},
 			func() {
-				withdrawerAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				withdrawerAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				s.Require().NoError(err)
 				s.Require().Equal(withdrawerAddr.Bytes(), newWithdrawerAddr.Bytes())
 			},
 			20000,
@@ -272,7 +274,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
 				s.Require().Equal(coins[0].Amount, big.NewInt(100000000000000000))
 				// Check bank balance after the withdrawal of commission
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, []byte(s.validators[0].GetOperator()), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(100000000000000000))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
@@ -287,11 +289,11 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			s.SetupTest()
 
 			// Sanity check to make sure the starting balance is always 0
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, []byte(s.validators[0].GetOperator()), utils.BaseDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(0))
 			s.Require().Equal(balance.Denom, utils.BaseDenom)
 
-			validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+			validatorAddress := common.BytesToAddress([]byte(s.validators[0].GetOperator()))
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
 

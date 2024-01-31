@@ -6,10 +6,12 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	"github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
@@ -21,6 +23,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 	mockChannelKeeper.On("GetNextSequenceSend", mock.Anything, mock.Anything, mock.Anything).Return(1, true)
 	mockChannelKeeper.On("GetChannel", mock.Anything, mock.Anything, mock.Anything).Return(channeltypes.Channel{Counterparty: channeltypes.NewCounterparty("transfer", "channel-1")}, true)
 	mockICS4Wrapper.On("SendPacket", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	authAddr := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	testCases := []struct {
 		name     string
@@ -245,13 +248,14 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			suite.app.TransferKeeper = keeper.NewKeeper(
 				suite.app.AppCodec(), suite.app.GetKey(types.StoreKey), suite.app.GetSubspace(types.ModuleName),
 				&MockICS4Wrapper{}, // ICS4 Wrapper: claims IBC middleware
-				mockChannelKeeper, &suite.app.IBCKeeper.PortKeeper,
+				mockChannelKeeper, suite.app.IBCKeeper.PortKeeper,
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.ScopedTransferKeeper,
 				suite.app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+				authAddr,
 			)
 			msg := tc.malleate()
 
-			_, err = suite.app.TransferKeeper.Transfer(sdk.WrapSDKContext(suite.ctx), msg)
+			_, err = suite.app.TransferKeeper.Transfer(suite.ctx, msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {

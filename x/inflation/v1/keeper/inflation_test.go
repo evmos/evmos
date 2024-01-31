@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmostypes "github.com/evmos/evmos/v16/types"
@@ -59,7 +60,9 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 				denomMint,
 			)
 
-			balanceCommunityPool := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+			pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+			suite.Require().NoError(err)
+			balanceCommunityPool := pool.CommunityPool
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
@@ -174,7 +177,8 @@ func (suite *KeeperTestSuite) TestBondedRatio() {
 			}
 			tc.malleate()
 
-			bondRatio := suite.app.InflationKeeper.BondedRatio(suite.ctx)
+			bondRatio, err := suite.app.InflationKeeper.BondedRatio(suite.ctx)
+			suite.Require().NoError((err))
 			suite.Require().Equal(tc.expBondRatio, bondRatio)
 		})
 	}

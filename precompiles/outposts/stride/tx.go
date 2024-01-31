@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v16/utils"
@@ -66,7 +66,10 @@ func (p Precompile) LiquidStake(
 		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.wevmosAddress)
 	}
 
-	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
 	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
@@ -99,7 +102,7 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Execute the ICS20 Transfer
-	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +169,10 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
-	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
 	stToken := "st" + bondDenom
 
 	ibcDenom := utils.ComputeIBCDenom(transfertypes.PortID, channelID, stToken)
@@ -213,7 +219,7 @@ func (p Precompile) RedeemStake(
 	}
 
 	// Execute the ICS20 Transfer
-	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

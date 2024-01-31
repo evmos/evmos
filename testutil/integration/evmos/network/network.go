@@ -4,10 +4,11 @@
 package network
 
 import (
-	"encoding/json"
-	"math"
+	"fmt"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
@@ -15,8 +16,9 @@ import (
 	"github.com/evmos/evmos/v16/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -49,11 +51,12 @@ type Network interface {
 
 	// Because to update the module params on a conventional manner governance
 	// would be required, we should provide an easier way to update the params
-	UpdateEvmParams(params evmtypes.Params) error
-	UpdateGovParams(params govtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
-	UpdateRevenueParams(params revtypes.Params) error
-	UpdateFeeMarketParams(params feemarkettypes.Params) error
+	// TODO implement
+	// UpdateEvmParams(params evmtypes.Params) error
+	// UpdateGovParams(params govtypes.Params) error
+	// UpdateInflationParams(params infltypes.Params) error
+	// UpdateRevenueParams(params revtypes.Params) error
+	// UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -66,8 +69,8 @@ type IntegrationNetwork struct {
 	app        *app.Evmos
 
 	// This is only needed for IBC chain testing setup
-	valSet     *tmtypes.ValidatorSet
-	valSigners map[string]tmtypes.PrivValidator
+	valSet     *cmttypes.ValidatorSet
+	valSigners map[string]cmttypes.PrivValidator
 }
 
 // New configures and initializes a new integration Network instance with
@@ -100,7 +103,7 @@ var (
 	// bondedAmt is the amount of tokens that each validator will have initially bonded
 	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance = sdktypes.NewInt(int64(math.Pow10(18) * 4))
+	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100000000000000000000000") // 100k
 )
 
 // configureAndInitChain initializes the network with the given configuration.
@@ -113,7 +116,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := bondedAmt.Mul(sdktypes.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmt.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
 	validators, err := createStakingValidators(valSet.Validators, bondedAmt)
@@ -136,13 +139,11 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		validators:  validators,
 		delegations: delegations,
 	}
-
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
-
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
 		evmosApp,
@@ -161,39 +162,54 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	// Init chain
-	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
 	if err != nil {
 		return err
 	}
 
-	consensusParams := app.DefaultConsensusParams
-	evmosApp.InitChain(
-		abcitypes.RequestInitChain{
+	consnsusParams := app.DefaultConsensusParams
+	if _, err := evmosApp.InitChain(
+		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: app.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
-	)
-	// Commit genesis changes
-	evmosApp.Commit()
+	); err != nil {
+		return err
+	}
 
-	header := tmproto.Header{
-		ChainID:            n.cfg.chainID,
+	req := &abcitypes.RequestFinalizeBlock{
 		Height:             evmosApp.LastBlockHeight() + 1,
-		AppHash:            evmosApp.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
+		Hash:               evmosApp.LastCommitID().Hash,
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
-	evmosApp.BeginBlock(abcitypes.RequestBeginBlock{Header: header})
+
+	if _, err := evmosApp.FinalizeBlock(req); err != nil {
+		return err
+	}
+
+	header := cmtproto.Header{
+		ChainID:            n.cfg.chainID,
+		Height:             req.Height,
+		AppHash:            req.Hash,
+		ValidatorsHash:     req.NextValidatorsHash,
+		NextValidatorsHash: req.NextValidatorsHash,
+		ProposerAddress:    req.ProposerAddress,
+	}
+	// TODO - this might not be the best way to initilize the context
+	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
+
+	// Commit genesis changes
+	if _, err := evmosApp.Commit(); err != nil {
+		return err
+	}
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initialize the context
-	n.ctx = evmosApp.BaseApp.NewContext(false, header)
-	n.ctx = n.ctx.WithConsensusParams(consensusParams)
-	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
+	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
+	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
 	n.validators = validators
 	n.valSet = valSet
@@ -219,6 +235,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		Symbol:  "EVMOS",
 		Display: n.cfg.denom,
 	}
+
+	// FIXME this will have no effect cause this ctx is not
+	// within the current app state
 	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
 
 	return nil
@@ -250,6 +269,11 @@ func (n *IntegrationNetwork) GetDenom() string {
 	return n.cfg.denom
 }
 
+// GetOtherDenoms returns network's other supported denoms
+func (n *IntegrationNetwork) GetOtherDenoms() []string {
+	return n.cfg.otherCoinDenom
+}
+
 // GetValidators returns the network's validators
 func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 	return n.validators
@@ -257,9 +281,22 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
 // TODO - this should be change to gRPC
-func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error) {
-	req := abcitypes.RequestDeliverTx{Tx: txBytes}
-	return n.app.BaseApp.DeliverTx(req), nil
+func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
+	req := abcitypes.RequestFinalizeBlock{
+		Height:             n.app.LastBlockHeight() + 1,
+		Hash:               n.app.LastCommitID().Hash,
+		NextValidatorsHash: n.valSet.Hash(),
+		ProposerAddress:    n.valSet.Proposer.Address,
+		Txs:                [][]byte{txBytes},
+	}
+	blockRes, err := n.app.BaseApp.FinalizeBlock(&req)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, err
+	}
+	if len(blockRes.TxResults) != 1 {
+		return abcitypes.ExecTxResult{}, fmt.Errorf("Unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
+	}
+	return *blockRes.TxResults[0], nil
 }
 
 // Simulate simulates the given txBytes to the network and returns the simulated response.

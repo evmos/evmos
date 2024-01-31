@@ -11,7 +11,7 @@ import (
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -45,7 +45,7 @@ import (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -78,7 +78,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -123,7 +123,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
-		abci.RequestInitChain{
+		&abci.RequestInitChain{
 			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: evmosapp.DefaultConsensusParams,
@@ -132,30 +132,30 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	)
 
 	// create Context
-	s.ctx = app.BaseApp.NewContext(false, header)
+	s.ctx = app.BaseApp.NewContextLegacy(false, header)
 
 	// commit genesis changes
 	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+	app.BeginBlocker(s.ctx)
 
 	s.app = app
 }
 
 func (s *PrecompileTestSuite) DoSetupTest() {
 	nValidators := 3
-	signers := make(map[string]tmtypes.PrivValidator, nValidators)
-	validators := make([]*tmtypes.Validator, 0, nValidators)
+	signers := make(map[string]cmttypes.PrivValidator, nValidators)
+	validators := make([]*cmttypes.Validator, 0, nValidators)
 
 	for i := 0; i < nValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
 		signers[pubKey.Address().String()] = privVal
-		validator := tmtypes.NewValidator(pubKey, 1)
+		validator := cmttypes.NewValidator(pubKey, 1)
 		validators = append(validators, validator)
 	}
 
-	valSet := tmtypes.NewValidatorSet(validators)
+	valSet := cmttypes.NewValidatorSet(validators)
 
 	// generate genesis account
 	addr, priv := testutiltx.NewAddrKey()
@@ -180,13 +180,14 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash())))
 
 	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
+	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)
+	s.Require().NoError(err)
 	stakingParams.BondDenom = utils.BaseDenom
 	s.bondDenom = stakingParams.BondDenom
-	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -250,7 +251,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzT
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, validator.GetOperator())
+			validators = append(validators, sdk.ValAddress(validator.GetOperator()))
 			return
 		},
 	)

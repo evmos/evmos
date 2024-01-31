@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v16/app"
@@ -38,7 +38,7 @@ type PrecompileTestSuite struct {
 	address       common.Address
 	differentAddr common.Address
 	validators    []stakingtypes.Validator
-	valSet        *tmtypes.ValidatorSet
+	valSet        *cmttypes.ValidatorSet
 	ethSigner     ethtypes.Signer
 	privKey       cryptotypes.PrivKey
 	signer        keyring.Signer

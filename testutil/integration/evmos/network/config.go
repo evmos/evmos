@@ -25,6 +25,7 @@ type Config struct {
 	balances           []banktypes.Balance
 	denom              string
 	customGenesisState CustomGenesisState
+	otherCoinDenom     []string
 }
 
 type CustomGenesisState map[string]interface{}
@@ -55,9 +56,8 @@ func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccou
 		accounts := getAccAddrsFromBalances(balances)
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
-		coin := sdktypes.NewCoin(cfg.denom, PrefundedAccountInitialBalance)
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
-		balances = createBalances(cfg.preFundedAccounts, coin)
+		balances = createBalances(cfg.preFundedAccounts, []string{cfg.denom})
 	}
 
 	return
@@ -113,5 +113,12 @@ func WithDenom(denom string) ConfigOption {
 func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 	return func(cfg *Config) {
 		cfg.customGenesisState = customGenesis
+	}
+}
+
+// WithOtherDenoms sets other possible coin denominations for the network.
+func WithOtherDenoms(otherDenoms []string) ConfigOption {
+	return func(cfg *Config) {
+		cfg.otherCoinDenom = otherDenoms
 	}
 }

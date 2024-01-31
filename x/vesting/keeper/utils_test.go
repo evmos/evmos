@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -59,7 +60,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 
 	// Setup query helpers
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
@@ -69,6 +70,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	suite.govQueryClient = govv1types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module
@@ -100,14 +103,15 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(valAddr.String(), priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, valAddr)
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	validators, err := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	require.NoError(t, err)
 	suite.validator = validators[0]
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -121,11 +125,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 
 	// Set correct denom in govKeeper
-	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
+	govParams, err := suite.app.GovKeeper.Params.Get(suite.ctx)
+	suite.Require().NoError(err, "failed to get gov params")
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdkmath.NewInt(1e6)))
 	votingPeriod := time.Second
 	govParams.VotingPeriod = &votingPeriod
-	err = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
+	err = suite.app.GovKeeper.Params.Set(suite.ctx, govParams)
 	suite.Require().NoError(err, "failed to set gov params")
 }
 
@@ -221,7 +226,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 // delegate is a helper function which creates a message to delegate a given amount of tokens
 // to a validator and checks if the Cosmos vesting delegation decorator returns no error.
 func delegate(account TestClawbackAccount, coins sdk.Coins) (*stakingtypes.MsgDelegate, error) {
-	msg := stakingtypes.NewMsgDelegate(account.address, s.validator.GetOperator(), coins[0])
+	msg := stakingtypes.NewMsgDelegate(account.address.String(), s.validator.GetOperator(), coins[0])
 	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, s.app.BankKeeper, types.ModuleCdc)
 	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msg)
 	return msg, err

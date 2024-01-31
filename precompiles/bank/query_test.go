@@ -3,7 +3,8 @@ package bank_test
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
+
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
@@ -68,7 +69,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		{
 			"pass - EVMOS and XMPL balances present",
 			func() []interface{} {
-				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), math.NewInt(1e18))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 				}
@@ -125,7 +126,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
-				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), math.NewInt(1e18))
 			},
 			[]bank.Balance{{
 				ContractAddress: s.evmosAddr,

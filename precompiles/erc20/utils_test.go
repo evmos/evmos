@@ -56,6 +56,10 @@ func (is *IntegrationTestSuite) setupSendAuthz(
 		amount,
 	)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up send authorization")
+
+	// commit changes to chain state
+	err = is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 }
 
 func setupSendAuthz(
@@ -114,6 +118,10 @@ func (is *IntegrationTestSuite) setupSendAuthzForContract(
 	default:
 		panic("unknown contract call type")
 	}
+
+	// commit changes to the chain state
+	err := is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 }
 
 // setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
@@ -221,9 +229,8 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
-//
-// TODO: refactor
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
+	// TODO refactor this to do the proper setup
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	is.network.App.Erc20Keeper.SetTokenPair(is.network.GetContext(), tokenPair)
 
@@ -247,6 +254,8 @@ func setupERC20PrecompileForTokenPair(
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 	}
+
+	// TODO enable the new precompile via updateEVMParams proposal ??
 
 	err = unitNetwork.App.EvmKeeper.AddEVMExtensions(unitNetwork.GetContext(), precompile)
 	if err != nil {
@@ -342,6 +351,9 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 
 		_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
 		Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
+
+		is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 		var balance *big.Int
 		err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
@@ -480,7 +492,7 @@ func (is *IntegrationTestSuite) fundWithTokens(
 
 	switch {
 	case slices.Contains(nativeCallTypes, callType):
-		err = is.network.FundAccount(receiver.Bytes(), fundCoins)
+		err = is.factory.FundAccount(is.keyring.GetKey(0), receiver.Bytes(), fundCoins)
 	case slices.Contains(erc20CallTypes, callType):
 		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
 	default:
@@ -508,7 +520,10 @@ func (is *IntegrationTestSuite) MintERC20(callType CallType, contractData Contra
 		ExpPass:   true,
 	}
 
-	_, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck)
+	if _, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck); err != nil {
+		return err
+	}
 
-	return err
+	// commit changes to chain state
+	return is.network.NextBlock()
 }

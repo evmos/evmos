@@ -3,6 +3,7 @@
 package evm_test
 
 import (
+	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	evmante "github.com/evmos/evmos/v16/app/ante/evm"
@@ -109,7 +110,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			name:          "success: there are non zero fees, user has sufficient bank balances and event emitted",
 			expectedError: nil,
 			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+				sdktypes.NewCoin(unitNetwork.GetDenom(), math.NewInt(1000)),
 			},
 			getSender: func() sdktypes.AccAddress {
 				// Return prefunded sender
@@ -120,7 +121,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			name:          "fail: insufficient user balance, event is NOT emitted",
 			expectedError: sdkerrors.ErrInsufficientFee,
 			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+				sdktypes.NewCoin(unitNetwork.GetDenom(), math.NewInt(1000)),
 			},
 			getSender: func() sdktypes.AccAddress {
 				// Return unfunded account
@@ -169,7 +170,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				suite.Require().NoError(err)
 				expectedBalance := prevBalance.Balances.Sub(tc.fees...)
 				suite.Require().True(
-					expectedBalance.IsEqual(afterBalance.Balances),
+					expectedBalance.Equal(afterBalance.Balances),
 				)
 
 				// Event to be emitted

@@ -53,9 +53,12 @@ func (p Precompile) ClaimRewards(
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
-	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	res, err := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	if err != nil {
+		return nil, err
+	}
 	totalCoins := sdk.Coins{}
-	for _, validator := range validators {
+	for _, validator := range res.Validators {
 		// Convert the validator operator address into an ValAddress
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 		if err != nil {
@@ -100,7 +103,7 @@ func (p Precompile) SetWithdrawAddress(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	if _, err = msgSrv.SetWithdrawAddress(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.SetWithdrawAddress(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -133,7 +136,7 @@ func (p Precompile) WithdrawDelegatorRewards(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawDelegatorReward(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawDelegatorReward(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +176,7 @@ func (p Precompile) WithdrawValidatorCommission(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawValidatorCommission(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawValidatorCommission(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

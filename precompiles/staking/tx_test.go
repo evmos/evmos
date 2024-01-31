@@ -260,7 +260,8 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			bz, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
 			// query the validator in the staking keeper
-			validator := s.app.StakingKeeper.Validator(s.ctx, s.address.Bytes())
+			validator, err := s.app.StakingKeeper.Validator(s.ctx, s.address.Bytes())
+			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
@@ -278,7 +279,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				consPubKeyBase64 := base64.StdEncoding.EncodeToString(consPubKey.Bytes())
 				s.Require().Equal(pubkey, consPubKeyBase64, "expected validator pubkey to be %s; got %s", pubkey, consPubKeyBase64)
 
-				operator := validator.GetOperator().String()
+				operator := validator.GetOperator()
 				s.Require().Equal(sdk.ValAddress(validatorAddress.Bytes()).String(), operator, "expected validator operator to be %s; got %s", validatorAddress, operator)
 
 				commissionRate := validator.GetCommission()
@@ -488,7 +489,8 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			bz, err := s.precompile.Delegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
 			// query the delegation in the staking keeper
-			delegation := s.app.StakingKeeper.Delegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
+			delegation, err := s.app.StakingKeeper.Delegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].OperatorAddress))
+			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
@@ -592,7 +594,8 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				s.Require().NoError(err)
 				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 				// Check the event emitted
@@ -616,7 +619,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 			bz, err := s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
 			// query the unbonding delegations in the staking keeper
-			undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
+			undelegations, _ := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -741,7 +744,8 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				s.Require().NoError(err)
 				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 			},
@@ -762,7 +766,8 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			bz, err := s.precompile.Redelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress, s.validators[1].OperatorAddress))
 
 			// query the redelegations in the staking keeper
-			redelegations := s.app.StakingKeeper.GetRedelegations(s.ctx, s.address.Bytes(), 5)
+			redelegations, err := s.app.StakingKeeper.GetRedelegations(s.ctx, s.address.Bytes(), 5)
+			s.Require().NoError(err)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -934,8 +939,9 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				_, err = s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &undelegateMethod, undelegateArgs)
 				s.Require().NoError(err)
 
-				_, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-				s.Require().False(found)
+				_, err = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				s.Require().Error(err)
+				s.Require().Contains("not found", err.Error())
 
 				err = s.CreateAuthorization(s.address, staking.CancelUnbondingDelegationAuthz, nil)
 				s.Require().NoError(err)
@@ -944,8 +950,8 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				s.Require().NoError(err)
 				tc.postCheck(bz)
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-				s.Require().True(found)
+				delegation, err := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				s.Require().NoError(err)
 
 				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.address.Bytes())
 				s.Require().NoError(err)

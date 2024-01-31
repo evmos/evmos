@@ -5,15 +5,15 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"github.com/armon/go-metrics"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/hashicorp/go-metrics"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v16/ibc"
@@ -83,7 +83,10 @@ func (k Keeper) OnRecvPacket(
 	)
 
 	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
 		return ack
@@ -113,7 +116,7 @@ func (k Keeper) OnRecvPacket(
 	// the ICS20 packet data
 
 	// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = k.ConvertCoin(ctx, msg); err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
@@ -180,7 +183,10 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 
 	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
 		return nil
@@ -198,7 +204,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	// fields from the packet data
 
 	// convert Coin to ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = k.ConvertCoin(ctx, msg); err != nil {
 		return err
 	}
 

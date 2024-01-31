@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -21,10 +22,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -79,7 +80,7 @@ var (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -112,7 +113,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -148,7 +149,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
-		abci.RequestInitChain{
+		&abci.RequestInitChain{
 			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: evmosapp.DefaultConsensusParams,
@@ -169,10 +170,9 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 		tmhash.Sum([]byte("validators")),
 	)
 
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
-
 	// create Contexts
-	s.ctx = app.BaseApp.NewContext(false, header)
+	s.ctx = app.BaseApp.NewContextLegacy(false, header)
+	app.BeginBlocker(s.ctx)
 	s.app = app
 }
 
@@ -182,22 +182,22 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	// generate validators private/public key
 	var (
 		validatorsPerChain = 2
-		validators         []*tmtypes.Validator
-		signersByAddress   = make(map[string]tmtypes.PrivValidator, validatorsPerChain)
+		validators         []*cmttypes.Validator
+		signersByAddress   = make(map[string]cmttypes.PrivValidator, validatorsPerChain)
 	)
 
 	for i := 0; i < validatorsPerChain; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
-		validators = append(validators, tmtypes.NewValidator(pubKey, 1))
+		validators = append(validators, cmttypes.NewValidator(pubKey, 1))
 		signersByAddress[pubKey.Address().String()] = privVal
 	}
 
 	// construct validator set;
 	// Note that the validators are sorted by voting power
 	// or, if equal, by address lexical order
-	s.valSet = tmtypes.NewValidatorSet(validators)
+	s.valSet = cmttypes.NewValidatorSet(validators)
 
 	// Create a coordinator and 2 test chains that will be used in the testing suite
 	chains := make(map[string]*ibctesting.TestChain)
@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	}
 }
 
-func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, valSet *tmtypes.ValidatorSet, signers map[string]tmtypes.PrivValidator) *ibctesting.TestChain {
+func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, valSet *cmttypes.ValidatorSet, signers map[string]cmttypes.PrivValidator) *ibctesting.TestChain {
 	// generate genesis account
 	addr, priv := evmosutiltx.NewAddrKey()
 	s.privKey = priv
@@ -257,13 +257,14 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	txConfig := s.app.GetTxConfig()
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash())))
 
 	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
+	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)
+	s.Require().NoError(err)
 	stakingParams.BondDenom = utils.BaseDenom
 	s.bondDenom = stakingParams.BondDenom
-	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -283,7 +284,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
-		T:              s.T(),
+		TB:             s.T(),
 		Coordinator:    coord,
 		ChainID:        cmn.DefaultChainID,
 		App:            s.app,
@@ -308,7 +309,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 func (s *PrecompileTestSuite) NewPrecompileContract(gas uint64) *vm.Contract {
 	contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), gas)
 
-	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	initialGas := s.ctx.GasMeter().GasConsumed()
 	s.Require().Zero(initialGas)
 
@@ -405,10 +406,11 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().NoError(err)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
-	validators := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	validators, err := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	s.Require().NoError(err)
 	cons, err := validators[0].GetConsAddr()
 	s.Require().NoError(err)
-	s.chainA.CurrentHeader.ProposerAddress = cons.Bytes()
+	s.chainA.CurrentHeader.ProposerAddress = cons
 
 	err = s.app.StakingKeeper.SetValidatorByConsAddr(s.chainA.GetContext(), validators[0])
 	s.Require().NoError(err)

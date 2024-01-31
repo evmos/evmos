@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
@@ -55,7 +55,8 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	err = suite.app.RevenueKeeper.SetParams(suite.ctx, params)
 	require.NoError(t, err)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, err := suite.app.StakingKeeper.GetParams(suite.ctx)
+	require.NoError(t, err)
 	stakingParams.BondDenom = suite.denom
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
@@ -72,14 +73,15 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(valAddr.String(), privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, sdk.ValAddress(validator.GetOperator()))
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+	validators, err := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+	require.NoError(t, err)
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -108,7 +110,7 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 func calculateFees(
 	denom string,
 	params types.Params,
-	res abci.ResponseDeliverTx,
+	res abci.ExecTxResult,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
 	feeDistribution := math.NewInt(res.GasUsed).Mul(math.NewIntFromBigInt(gasPrice))
@@ -132,7 +134,7 @@ func registerFee(
 	contractAddress *common.Address,
 	withdrawerAddress sdk.AccAddress,
 	nonces []uint64,
-) abci.ResponseDeliverTx {
+) abci.ExecTxResult {
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address())
 	msg := types.NewMsgRegisterRevenue(*contractAddress, deployerAddress, withdrawerAddress, nonces)
 
@@ -158,7 +160,7 @@ func contractInteract(
 	gasTipCap *big.Int,
 	data []byte,
 	accesses *ethtypes.AccessList,
-) abci.ResponseDeliverTx {
+) abci.ExecTxResult {
 	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	Expect(err).To(BeNil())

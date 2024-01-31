@@ -87,6 +87,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bech32-precompile) [#2124](https://github.com/evmos/evmos/pull/2124) Activate `bech32` precompile.
 - (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Restrict transaction fee tokens.
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump cosmos-sdk version to `v0.50` and ibc-go version to `v8.0.0`.
 - (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
 - (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
 - (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.

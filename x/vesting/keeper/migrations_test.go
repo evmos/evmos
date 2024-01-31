@@ -20,7 +20,8 @@ func (suite *KeeperTestSuite) TestMigration() {
 
 	// create a base vesting account instead of a clawback vesting account at the vesting address
 	baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
-	acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	suite.Require().NoError(err)
 
 	oldAccount := &v1vestingtypes.ClawbackVestingAccount{
 		BaseVestingAccount: acc,

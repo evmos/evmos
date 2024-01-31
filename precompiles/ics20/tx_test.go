@@ -5,9 +5,10 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
@@ -334,7 +335,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 
 			contract := vm.NewContract(vm.AccountRef(common.BytesToAddress(sender)), s.precompile, big.NewInt(0), tc.gas)
 
-			s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+			s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 			initialGas := s.ctx.GasMeter().GasConsumed()
 			s.Require().Zero(initialGas)
 

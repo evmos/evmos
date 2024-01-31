@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
@@ -73,14 +74,14 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 				baseFee := s.app.FeeMarketKeeper.GetParams(s.ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
 				denom := s.app.EvmKeeper.GetParams(s.ctx).EvmDenom
-				fees := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(fee)))
+				fees := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
 
 				err := ethante.ConsumeFeesAndEmitEvent(
-					cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()),
+					cacheCtx.WithIsCheckTx(true).WithGasMeter(storetypes.NewInfiniteGasMeter()),
 					&keepers,
 					fees,
 					bechAddr,

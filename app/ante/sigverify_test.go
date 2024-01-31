@@ -5,14 +5,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256r1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -61,37 +60,37 @@ func TestConsumeSignatureVerificationGas(t *testing.T) {
 	}{
 		{
 			"PubKeyEd25519",
-			args{sdk.NewInfiniteGasMeter(), nil, ed25519.GenPrivKey().PubKey(), params},
+			args{storetypes.NewInfiniteGasMeter(), nil, ed25519.GenPrivKey().PubKey(), params},
 			p.SigVerifyCostED25519,
 			true,
 		},
 		{
 			"PubKeyEthsecp256k1",
-			args{sdk.NewInfiniteGasMeter(), nil, ethsecKey.PubKey(), params},
+			args{storetypes.NewInfiniteGasMeter(), nil, ethsecKey.PubKey(), params},
 			ante.Secp256k1VerifyCost,
 			false,
 		},
 		{
 			"PubKeySecp256k1",
-			args{sdk.NewInfiniteGasMeter(), nil, secp256k1.GenPrivKey().PubKey(), params},
+			args{storetypes.NewInfiniteGasMeter(), nil, secp256k1.GenPrivKey().PubKey(), params},
 			p.SigVerifyCostSecp256k1,
 			true,
 		},
 		{
 			"PubKeySecp256r1",
-			args{sdk.NewInfiniteGasMeter(), nil, skR1.PubKey(), params},
+			args{storetypes.NewInfiniteGasMeter(), nil, skR1.PubKey(), params},
 			p.SigVerifyCostSecp256r1(),
 			true,
 		},
 		{
 			"Multisig",
-			args{sdk.NewInfiniteGasMeter(), multisignature1, multisigKey1, params},
+			args{storetypes.NewInfiniteGasMeter(), multisignature1, multisigKey1, params},
 			expectedCost1,
 			false,
 		},
 		{
 			"unknown key",
-			args{sdk.NewInfiniteGasMeter(), nil, nil, params},
+			args{storetypes.NewInfiniteGasMeter(), nil, nil, params},
 			0,
 			true,
 		},

@@ -20,7 +20,10 @@ func ClaimStakingRewardsIfNecessary(
 	addr sdk.AccAddress,
 	amount sdk.Coins,
 ) error {
-	stakingDenom := stakingKeeper.BondDenom(ctx)
+	stakingDenom, err := stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	found, amountInStakingDenom := amount.Find(stakingDenom)
 	if !found {
 		return errortypes.ErrInsufficientFee.Wrapf(
@@ -68,11 +71,11 @@ func ClaimSufficientStakingRewards(
 
 	// Iterate through delegations and get the rewards if any are unclaimed.
 	// The loop stops once a sufficient amount was withdrawn.
-	stakingKeeper.IterateDelegations(
+	if err := stakingKeeper.IterateDelegations(
 		cacheCtx,
 		addr,
 		func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
-			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, delegation.GetValidatorAddr())
+			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, []byte(delegation.GetValidatorAddr()))
 			if err != nil {
 				return true
 			}
@@ -80,7 +83,9 @@ func ClaimSufficientStakingRewards(
 
 			return rewards.AmountOf(amount.Denom).GTE(amount.Amount)
 		},
-	)
+	); err != nil {
+		return errorsmod.Wrap(err, "error while iterating delegation rewards")
+	}
 
 	// check if there was an error while iterating delegations
 	if err != nil {

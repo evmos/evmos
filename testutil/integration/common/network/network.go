@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 )
 
 // Network is the interface that wraps the common methods to interact with integration test network.
@@ -25,6 +25,7 @@ type Network interface {
 	GetContext() sdktypes.Context
 	GetChainID() string
 	GetDenom() string
+	GetOtherDenoms() []string
 	GetValidators() []stakingtypes.Validator
 
 	NextBlock() error
@@ -36,7 +37,7 @@ type Network interface {
 	GetBankClient() banktypes.QueryClient
 	GetStakingClient() stakingtypes.QueryClient
 
-	BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error)
+	BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error)
 	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
 
 	// GetIBCChain returns the IBC test chain.

@@ -8,12 +8,11 @@ import (
 	"cosmossdk.io/math"
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
 	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
-
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -26,12 +25,13 @@ const (
 func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	// Register EVMOS ERC20 equivalent
 	ctx := s.network.GetContext()
-	bondDenom := s.network.App.StakingKeeper.BondDenom(ctx)
+	bondDenom, err := s.network.App.StakingKeeper.BondDenom(ctx)
+	s.Require().NoError(err)
 	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, bondDenom)
 	s.Require().True(found, "expected evmos denom metadata")
 
 	coin := sdk.NewCoin(evmosMetadata.Base, math.NewInt(2e18))
-	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
+	err = s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
 	// Register some Token Pairs

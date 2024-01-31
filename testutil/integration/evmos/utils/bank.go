@@ -6,6 +6,7 @@ package utils
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
 )
@@ -16,7 +17,7 @@ func CheckBalances(handler grpc.Handler, balances []banktypes.Balance) error {
 	for _, balance := range balances {
 		addr := balance.GetAddress()
 		for _, coin := range balance.GetCoins() {
-			balance, err := handler.GetBalance(addr, coin.Denom)
+			balance, err := handler.GetBalance(sdk.AccAddress(addr), coin.Denom)
 			if err != nil {
 				return err
 			}

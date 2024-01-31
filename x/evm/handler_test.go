@@ -10,12 +10,11 @@ import (
 	"github.com/evmos/evmos/v16/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/gogoproto/proto"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 
-	"cosmossdk.io/simapp"
+	storetypes "cosmossdk.io/store/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -31,14 +30,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/evm"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
 
@@ -49,11 +46,14 @@ import (
 	"github.com/cometbft/cometbft/version"
 )
 
+// TODO move these to msg_server_test.go
+// because Handler was deprecated
+
 type EvmTestSuite struct {
 	suite.Suite
 
 	ctx     sdk.Context
-	handler sdk.Handler
+	server  types.MsgServer
 	app     *app.Evmos
 	chainID *big.Int
 
@@ -80,7 +80,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis evmostypes.GenesisState) evmostypes.GenesisState {
 		if suite.dynamicTxFee {
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
 			feemarketGenesis.Params.EnableHeight = 1
@@ -120,9 +120,9 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 		ConsensusParams: app.DefaultConsensusParams,
 		AppStateBytes:   stateBytes,
 	}
-	suite.app.InitChain(req)
+	suite.app.InitChain(&req)
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         req.ChainId,
 		Time:            time.Now().UTC(),
@@ -157,7 +157,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	valAddr := sdk.ValAddress(address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(valAddr.String(), priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
@@ -167,7 +167,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-	suite.handler = evm.NewHandler(suite.app.EvmKeeper)
+	suite.server = suite.app.EvmKeeper
 }
 
 func (suite *EvmTestSuite) SetupTest() {
@@ -181,7 +181,7 @@ func (suite *EvmTestSuite) SignTx(tx *types.MsgEthereumTx) {
 }
 
 func (suite *EvmTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash())))
 }
 
 func TestEvmTestSuite(t *testing.T) {
@@ -257,7 +257,7 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			res, err := suite.handler(suite.ctx, tx)
+			res, err := suite.server.EthereumTx(suite.ctx, tx)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -306,16 +306,11 @@ func (suite *EvmTestSuite) TestHandlerLogs() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	result, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
 
-	var txResponse types.MsgEthereumTxResponse
-
-	err = proto.Unmarshal(result.Data, &txResponse)
-	suite.Require().NoError(err, "failed to decode result data")
-
-	suite.Require().Equal(len(txResponse.Logs), 1)
-	suite.Require().Equal(len(txResponse.Logs[0].Topics), 2)
+	suite.Require().Equal(len(result.Logs), 1)
+	suite.Require().Equal(len(result.Logs[0].Topics), 2)
 }
 
 func (suite *EvmTestSuite) TestDeployAndCallContract() {
@@ -389,13 +384,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	res, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	var res types.MsgEthereumTxResponse
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// store - changeOwner
@@ -418,11 +408,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx = types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err = suite.handler(suite.ctx, tx)
+	res, err = suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// query - getOwner
@@ -440,11 +427,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx = types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err = suite.handler(suite.ctx, tx)
+	res, err = suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// FIXME: correct owner?
@@ -468,7 +452,7 @@ func (suite *EvmTestSuite) TestSendTransaction() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	result, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(result)
 }
@@ -554,7 +538,7 @@ func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 		}
 	}()
 
-	_, err := suite.handler(suite.ctx, tx)
+	_, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err)
 
 	suite.Require().Fail("panic did not happen")
@@ -577,11 +561,7 @@ func (suite *EvmTestSuite) TestErrorWhenDeployContract() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, _ := suite.handler(suite.ctx, tx)
-	var res types.MsgEthereumTxResponse
-
-	_ = proto.Unmarshal(result.Data, &res)
-
+	res, _ := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().Equal("invalid opcode: opcode 0xa6 not defined", res.VmError, "correct evm error")
 
 	// TODO: snapshot checking
@@ -685,7 +665,7 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 			err = k.DeductTxCostsFromUserBalance(suite.ctx, fees, common.HexToAddress(tx.From))
 			suite.Require().NoError(err)
 
-			res, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
+			res, err := k.EthereumTx(suite.ctx, tx)
 			suite.Require().NoError(err)
 
 			suite.Require().True(res.Failed())
@@ -754,7 +734,7 @@ func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 			db.SetNonce(suite.from, nonce+1)
 			suite.Require().NoError(db.Commit())
 
-			rsp, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
+			rsp, err := k.EthereumTx(suite.ctx, tx)
 			suite.Require().NoError(err)
 			suite.Require().True(rsp.Failed())
 

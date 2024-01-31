@@ -12,7 +12,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -101,9 +100,11 @@ var _ = Describe("ERC20:", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
-		govParams := s.app.GovKeeper.GetParams(s.ctx)
+		govParams, err := s.app.GovKeeper.Params.Get(s.ctx)
+		Expect(err).To(BeNil())
+
 		govParams.Quorum = "0.0000000001"
-		err := s.app.GovKeeper.SetParams(s.ctx, govParams)
+		err = s.app.GovKeeper.Params.Set(s.ctx, govParams)
 		Expect(err).To(BeNil())
 	})
 
@@ -145,8 +146,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String()})
 					s.Require().NoError(err)
 
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
@@ -157,7 +158,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the contract deployer", func() {
@@ -171,8 +172,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// register with sufficient deposit
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String(), contract2.String()})
 					s.Require().NoError(err)
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
@@ -183,7 +184,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the contract deployer", func() {

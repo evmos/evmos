@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -58,7 +59,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 		s.SetupTest()
 
 		contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
@@ -128,7 +129,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 		s.SetupTest()
 
 		contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
@@ -193,9 +194,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	for _, tc := range testCases {
 		s.SetupTest()
 
-		validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+		validatorAddress := common.BytesToAddress([]byte(s.validators[0].GetOperator()))
 		contract := vm.NewContract(vm.AccountRef(validatorAddress), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 

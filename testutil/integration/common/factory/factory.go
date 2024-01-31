@@ -6,12 +6,15 @@ package factory
 import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 )
 
 const (
@@ -24,7 +27,13 @@ type TxFactory interface {
 	// BuildCosmosTx builds a Cosmos tx with the provided private key and txArgs
 	BuildCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (signing.Tx, error)
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
-	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
+
+	// FundAccount funds the given account with the given amount.
+	FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, amount sdktypes.Coins) error
+	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
+	// base denomination.
+	FundAccountWithBaseDenom(sender keyring.Key, receiver sdktypes.AccAddress, amount sdkmath.Int) error
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -59,15 +68,15 @@ func (tf *IntegrationTxFactory) BuildCosmosTx(privKey cryptotypes.PrivKey, txArg
 }
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
-func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error) {
 	signedTx, err := tf.BuildCosmosTx(privKey, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build tx")
 	}
 
 	txBytes, err := tf.encodeTx(signedTx)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
 
 	return tf.network.BroadcastTxSync(txBytes)

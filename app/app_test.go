@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"os"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -14,12 +13,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/ibc-go/v7/testing/mock"
+	"github.com/cosmos/ibc-go/v8/testing/mock"
 
-	dbm "github.com/cometbft/cometbft-db"
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/utils"
@@ -32,8 +31,8 @@ func TestEvmosExport(t *testing.T) {
 	require.NoError(t, err, "public key should be created without error")
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	validator := cmttypes.NewValidator(pubKey, 1)
+	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
@@ -45,8 +44,10 @@ func TestEvmosExport(t *testing.T) {
 
 	db := dbm.NewMemDB()
 	chainID := utils.MainnetChainID + "-1"
+	logger := log.NewTestLogger(t)
+
 	app := NewEvmos(
-		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger.With("instance", "first"),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),
@@ -60,18 +61,21 @@ func TestEvmosExport(t *testing.T) {
 	require.NoError(t, err)
 
 	// Initialize the chain
-	app.InitChain(
-		abci.RequestInitChain{
+	_, err = app.InitChain(
+		&abci.RequestInitChain{
 			ChainId:       chainID,
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},
 	)
-	app.Commit()
+	require.NoError(t, err)
+
+	_, err = app.Commit()
+	require.NoError(t, err)
 
 	// Making a new app object with the db, so that initchain hasn't been called
 	app2 := NewEvmos(
-		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger.With("instance", "second"),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),

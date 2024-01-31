@@ -198,7 +198,7 @@ func defaultVestingParams(network network.Network, funder, baseAddress sdktypes.
 			Length: 1000,
 			Amount: sdktypes.NewCoins(sdktypes.NewInt64Coin(network.GetDenom(), 1000)),
 		},
-		VestingAmount: sdktypes.NewInt(1e18),
+		VestingAmount: math.NewInt(1e18),
 	}
 }
 

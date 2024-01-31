@@ -13,13 +13,22 @@ import (
 	"github.com/cometbft/cometbft/libs/strings"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/crypto-org-chain/cronos/memiavl"
-	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
+
+	"github.com/cosmos/rosetta"
+	// NOT SUPPORTED IN SDK v0.50
+	// "github.com/crypto-org-chain/cronos/memiavl"
+	// memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
 const (
+	// ServerStartTime defines the time duration that the server need to stay running after startup
+	// for the startup be considered successful
+	ServerStartTime = 5 * time.Second
+
 	// DefaultAPIEnable is the default value for the parameter that defines if the cosmos REST API server is enabled
 	DefaultAPIEnable = false
 
@@ -95,6 +104,18 @@ const (
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
 
+	// DefaultRosettaBlockchain defines the default blockchain name for the rosetta server
+	DefaultRosettaBlockchain = "evmos"
+
+	// DefaultRosettaNetwork defines the default network name for the rosetta server
+	DefaultRosettaNetwork = "evmos"
+
+	// DefaultRosettaGasToSuggest defines the default gas to suggest for the rosetta server
+	DefaultRosettaGasToSuggest = 300_000
+
+	// DefaultRosettaDenomToSuggest defines the default denom for fee suggestion
+	DefaultRosettaDenomToSuggest = "aevmos"
+
 	// ============================
 	//           MemIAVL
 	// ============================
@@ -117,6 +138,9 @@ const (
 	DefaultSnapshotKeepRecent = 1
 )
 
+// DefaultRosettaGasPrices defines the default list of prices to suggest
+var DefaultRosettaGasPrices = sdk.NewDecCoins(sdk.NewDecCoin(DefaultRosettaDenomToSuggest, math.NewInt(4_000_000)))
+
 var evmTracers = []string{"json", "markdown", "struct", "access_list"}
 
 // Config defines the server's top level configuration. It includes the default app config
@@ -127,8 +151,10 @@ type Config struct {
 	EVM     EVMConfig     `mapstructure:"evm"`
 	JSONRPC JSONRPCConfig `mapstructure:"json-rpc"`
 	TLS     TLSConfig     `mapstructure:"tls"`
+	Rosetta RosettaConfig `mapstructure:"rosetta"`
 
-	MemIAVL MemIAVLConfig `mapstructure:"memiavl"`
+	// NOT SUPPORTED IN SDK v0.50
+	// MemIAVL MemIAVLConfig `mapstructure:"memiavl"`
 }
 
 // EVMConfig defines the application configuration values for the EVM.
@@ -190,10 +216,18 @@ type TLSConfig struct {
 	KeyPath string `mapstructure:"key-path"`
 }
 
-// MemIAVLConfig defines the configuration for memIAVL.
-type MemIAVLConfig struct {
-	memiavlcfg.MemIAVLConfig
+// RosettaConfig defines configuration for the Rosetta server.
+type RosettaConfig struct {
+	rosetta.Config
+	// Enable defines if the Rosetta server should be enabled.
+	Enable bool `mapstructure:"enable"`
 }
+
+// NOT SUPPORTED IN SDK v0.50
+// // MemIAVLConfig defines the configuration for memIAVL.
+// type MemIAVLConfig struct {
+// 	memiavlcfg.MemIAVLConfig
+// }
 
 // AppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
@@ -229,7 +263,6 @@ func DefaultConfig() *Config {
 	defaultSDKConfig.API.Enable = DefaultAPIEnable
 	defaultSDKConfig.GRPC.Enable = DefaultGRPCEnable
 	defaultSDKConfig.GRPCWeb.Enable = DefaultGRPCWebEnable
-	defaultSDKConfig.Rosetta.Enable = DefaultRosettaEnable
 	defaultSDKConfig.Telemetry.Enabled = DefaultTelemetryEnable
 
 	return &Config{
@@ -237,7 +270,9 @@ func DefaultConfig() *Config {
 		EVM:     *DefaultEVMConfig(),
 		JSONRPC: *DefaultJSONRPCConfig(),
 		TLS:     *DefaultTLSConfig(),
-		MemIAVL: *DefaultMemIAVLConfig(),
+		Rosetta: *DefaultRosettaConfig(),
+		// NOT SUPPORTED ON SDK v0.50
+		// MemIAVL: *DefaultMemIAVLConfig(),
 	}
 }
 
@@ -368,31 +403,52 @@ func (c TLSConfig) Validate() error {
 	return nil
 }
 
-// DefaultMemIAVLConfig returns the default MemIAVL configuration
-func DefaultMemIAVLConfig() *MemIAVLConfig {
-	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
-		Enable:             DefaultMemIAVLEnable,
-		ZeroCopy:           DefaultZeroCopy,
-		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
-		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
-		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
-		CacheSize:          memiavlcfg.DefaultCacheSize,
-	}}
+// DefaultEVMConfig returns the default EVM configuration
+func DefaultRosettaConfig() *RosettaConfig {
+	return &RosettaConfig{
+		Config: rosetta.Config{
+			Blockchain:          DefaultRosettaBlockchain,
+			Network:             DefaultRosettaNetwork,
+			TendermintRPC:       rosetta.DefaultCometEndpoint,
+			GRPCEndpoint:        rosetta.DefaultGRPCEndpoint,
+			Addr:                rosetta.DefaultAddr,
+			Retries:             rosetta.DefaultRetries,
+			Offline:             rosetta.DefaultOffline,
+			EnableFeeSuggestion: rosetta.DefaultEnableFeeSuggestion,
+			GasToSuggest:        DefaultRosettaGasToSuggest,
+			DenomToSuggest:      DefaultRosettaDenomToSuggest,
+			GasPrices:           DefaultRosettaGasPrices,
+		},
+		Enable: DefaultRosettaEnable,
+	}
 }
 
-// Validate returns an error if the MemIAVL configuration fields are invalid.
-func (c MemIAVLConfig) Validate() error {
-	// AsyncCommitBuffer can be -1, which means synchronous commit
-	if c.AsyncCommitBuffer < -1 {
-		return errors.New("AsyncCommitBuffer cannot be negative")
-	}
+// NOT SUPPORTED IN SDK v0.50
+// // DefaultMemIAVLConfig returns the default MemIAVL configuration
+// func DefaultMemIAVLConfig() *MemIAVLConfig {
+// 	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
+// 		Enable:             DefaultMemIAVLEnable,
+// 		ZeroCopy:           DefaultZeroCopy,
+// 		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
+// 		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
+// 		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
+// 		CacheSize:          memiavlcfg.DefaultCacheSize,
+// 	}}
+// }
 
-	if c.CacheSize < 0 {
-		return errors.New("CacheSize cannot be negative")
-	}
+// // Validate returns an error if the MemIAVL configuration fields are invalid.
+// func (c MemIAVLConfig) Validate() error {
+// 	// AsyncCommitBuffer can be -1, which means synchronous commit
+// 	if c.AsyncCommitBuffer < -1 {
+// 		return errors.New("AsyncCommitBuffer cannot be negative")
+// 	}
 
-	return nil
-}
+// 	if c.CacheSize < 0 {
+// 		return errors.New("CacheSize cannot be negative")
+// 	}
+
+// 	return nil
+// }
 
 // GetConfig returns a fully parsed Config object.
 func GetConfig(v *viper.Viper) (Config, error) {
@@ -417,9 +473,10 @@ func (c Config) ValidateBasic() error {
 		return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid tls config value: %s", err.Error())
 	}
 
-	if err := c.MemIAVL.Validate(); err != nil {
-		return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid memIAVL config value: %s", err.Error())
-	}
+	// NOT SUPPORTED ON SDK v0.50
+	// if err := c.MemIAVL.Validate(); err != nil {
+	// 	return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid memIAVL config value: %s", err.Error())
+	// }
 
 	return c.Config.ValidateBasic()
 }

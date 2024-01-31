@@ -38,7 +38,7 @@ func TestCheckBalances(t *testing.T) {
 		{
 			name:        "fail - wrong amount",
 			address:     keyring.GetAccAddr(0).String(),
-			expAmount:   sdk.NewInt(1),
+			expAmount:   math.NewInt(1),
 			errContains: "expected balance",
 		},
 	}

@@ -6,7 +6,7 @@ package ics20
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -54,7 +54,7 @@ func (p Precompile) Transfer(
 		return nil, err
 	}
 
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	res, err := p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

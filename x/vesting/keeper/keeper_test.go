@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
@@ -12,7 +13,7 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
-	storeKey := sdk.NewKVStoreKey(vestingtypes.StoreKey)
+	storeKey := storetypes.NewKVStoreKey(vestingtypes.StoreKey)
 
 	testcases := []struct {
 		name      string

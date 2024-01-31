@@ -71,7 +71,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 		err = authante.DeductFees(suite.app.BankKeeper, suite.ctx, suite.app.AccountKeeper.GetAccount(ctx, msg.GetFrom()), fees)
 		require.NoError(b, err)
 
-		rsp, err := suite.app.EvmKeeper.EthereumTx(sdk.WrapSDKContext(ctx), msg)
+		rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, msg)
 		require.NoError(b, err)
 		require.False(b, rsp.Failed())
 	}
@@ -183,7 +183,7 @@ func BenchmarkMessageCall(b *testing.B) {
 		err = authante.DeductFees(suite.app.BankKeeper, suite.ctx, suite.app.AccountKeeper.GetAccount(ctx, msg.GetFrom()), fees)
 		require.NoError(b, err)
 
-		rsp, err := suite.app.EvmKeeper.EthereumTx(sdk.WrapSDKContext(ctx), msg)
+		rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, msg)
 		require.NoError(b, err)
 		require.False(b, rsp.Failed())
 	}

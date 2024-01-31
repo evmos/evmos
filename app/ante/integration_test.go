@@ -3,7 +3,9 @@ package ante_test
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
@@ -12,7 +14,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/testutil"
 	"github.com/evmos/evmos/v16/utils"
@@ -27,8 +28,8 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 
 	Context("and the sender account has enough balance to pay for the transaction cost", Ordered, func() {
 		var (
-			rewardsAmt = sdkmath.NewInt(1e5)
-			balance    = sdkmath.NewInt(1e18)
+			rewardsAmt = math.NewInt(1e5)
+			balance    = math.NewInt(1e18)
 		)
 
 		BeforeEach(func() {
@@ -62,8 +63,8 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 
 	Context("and the sender account neither has enough balance nor sufficient staking rewards to pay for the transaction cost", func() {
 		var (
-			rewardsAmt = sdkmath.NewInt(0)
-			balance    = sdkmath.NewInt(0)
+			rewardsAmt = math.NewInt(0)
+			balance    = math.NewInt(0)
 		)
 
 		BeforeEach(func() {
@@ -99,8 +100,8 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
 		var (
-			rewardsAmt = sdkmath.NewInt(1e18)
-			balance    = sdkmath.NewInt(0)
+			rewardsAmt = math.NewInt(1e18)
+			balance    = math.NewInt(0)
 		)
 
 		BeforeEach(func() {
@@ -126,7 +127,7 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			Expect(rewards).To(Equal(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, rewardsAmt))))
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance.Amount).To(Equal(sdkmath.NewInt(0)))
+			Expect(balance.Amount).To(Equal(math.NewInt(0)))
 
 			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
 			Expect(res.IsOK()).To(BeTrue())

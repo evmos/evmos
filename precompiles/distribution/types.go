@@ -87,10 +87,6 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 		WithdrawAddress:  withdrawerAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -112,10 +108,6 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		ValidatorAddress: validatorAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -129,10 +121,6 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
 		ValidatorAddress: validatorAddress,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)

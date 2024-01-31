@@ -132,7 +132,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()),
+					common.BytesToAddress([]byte(s.network.GetValidators()[0].GetOperator())),
 					config.Bech32PrefixValAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -212,7 +212,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()), addr)
+				s.Require().Equal(common.BytesToAddress([]byte(s.network.GetValidators()[0].GetOperator())), addr)
 			},
 			true,
 			"",

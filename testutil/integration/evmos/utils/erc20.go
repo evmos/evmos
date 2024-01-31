@@ -8,7 +8,6 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
@@ -59,7 +58,7 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 	}
 
 	// Submit the proposal
-	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, &proposal)
+	proposalID, err := SubmitLegacyProposal(tf, network, data.ProposerPriv, &proposal)
 	if err != nil {
 		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to submit proposal")
 	}
@@ -69,38 +68,10 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after proposal")
 	}
 
-	// Vote on proposal
-	err = VoteOnProposal(tf, data.ProposerPriv, proposalID, govtypes.OptionYes)
+	// vote 'yes' and wait till proposal passes
+	err = ApproveProposal(tf, network, data.ProposerPriv, proposalID)
 	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to vote on proposal")
-	}
-
-	gq := network.GetGovClient()
-	params, err := gq.Params(network.GetContext(), &govtypes.QueryParamsRequest{ParamsType: "voting"})
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query voting params")
-	}
-
-	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after voting period ends")
-	}
-
-	err = network.NextBlock()
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after votes")
-	}
-
-	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
-	// context.
-	gq = network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query proposal")
-	}
-
-	if proposalRes.Proposal.Status != govtypes.StatusPassed {
-		return erc20types.TokenPair{}, fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to approve proposal")
 	}
 
 	// Check if token pair is registered

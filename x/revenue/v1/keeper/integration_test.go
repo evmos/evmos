@@ -499,7 +499,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should transfer all tx fees to the community pool", func() {
-					communityPoolBefore := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					communityPoolBefore := pool.CommunityPool
 					contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000800")
 					gasTipCap := big.NewInt(100000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
@@ -518,7 +520,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					Expect(res.IsOK()).To(BeTrue())
 					communityCoins, _ := calculateFees(denom, params, res, gasFeeCap)
 					communityCoinsDec := sdk.NewDecCoinFromCoin(communityCoins)
-					communityPoolAfter := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err = s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					communityPoolAfter := pool.CommunityPool
 					Expect(communityPoolAfter).To(Equal(communityPoolBefore.Add(communityCoinsDec)))
 					s.Commit()
 				})
