@@ -4,6 +4,8 @@
 package keeper
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/armon/go-metrics"
@@ -38,6 +40,11 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
+	// If ERC20 module is disabled no-op
+	if !k.IsERC20Enabled(ctx) {
+		return ack
+	}
+
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		// NOTE: shouldn't happen as the packet has already
@@ -59,10 +66,13 @@ func (k Keeper) OnRecvPacket(
 
 	evmParams := k.evmKeeper.GetParams(ctx)
 
-	// if sender == recipient, and is not from an EVM Channel recovery was executed
+	// If we received an IBC message from a non-EVM channel,
+	// the sender and receiver accounts should be different.
+	//
+	// If its the same, users can have their funds stuck since they dont have access
+	// to the same priv key. Return an error to prevent this from happening
 	if sender.Equals(recipient) && !evmParams.IsEVMChannel(packet.DestinationChannel) {
-		// Continue to the next IBC middleware by returning the original ACK.
-		return ack
+		return channeltypes.NewErrorAcknowledgement(types.ErrInvalidIBC)
 	}
 
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
@@ -89,15 +99,12 @@ func (k Keeper) OnRecvPacket(
 	pair, found := k.GetTokenPair(ctx, pairID)
 	switch {
 	// Case 1. token pair is not registered and is a single hop IBC Coin
-	case !found && ibc.IsSingleHop(coin.Denom):
+	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
+	// IsNativeFromSourceChain will check if the coin is native from the source chain.
+	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsNativeFromSourceChain(data.Denom):
 		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
-		}
-
-		found := evmParams.IsPrecompileRegistered(contractAddr.String())
-		if found {
-			return ack
 		}
 
 		if err := k.RegisterERC20Extension(ctx, coin.Denom, contractAddr); err != nil {
@@ -107,8 +114,8 @@ func (k Keeper) OnRecvPacket(
 
 	// Case 2. native ERC20 token
 	case pair.IsNativeERC20():
-		// ERC20 module or token pair is disabled -> return
-		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
+		// Token pair is disabled -> return
+		if !pair.Enabled {
 			return ack
 		}
 
@@ -118,6 +125,7 @@ func (k Keeper) OnRecvPacket(
 		}
 	}
 
+	// For now the only case we are interested in adding telemetry is a successful conversion.
 	defer func() {
 		telemetry.IncrCounterWithLabels(
 			[]string{types.ModuleName, "ibc", "on_recv", "total"},
@@ -160,7 +168,9 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 }
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
+// This function is only executed when IBC timeout or an Error ACK happens.
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
 	if err != nil {
 		return err
@@ -174,20 +184,15 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	}
 
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
 
 	switch {
-	// Case 1. if pair is native denomination -> no-op
-	case coin.Denom == bondDenom:
-		// no-op, received coin is the staking denomination
-		return nil
-	// Case 2. if pair is native coin -> no-op
+
+	// Case 1. if pair is native coin -> no-op
 	case pair.IsNativeCoin():
 		// no-op, received coin is a  native coin
 		return nil
 
-	// Case 3. if pair is native ERC20 -> unescrow
+	// Case 2. if pair is native ERC20 -> unescrow
 	case pair.IsNativeERC20():
 		// use a zero gas config to avoid extra costs for the relayers
 		ctx = ctx.
@@ -209,13 +214,14 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 
 		// Convert from Coin to ERC20
 		if err := k.ConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender), sender); err != nil {
+			// We want to record only the failed attempt to reconvert the coins during IBC.
+			defer func() {
+				telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
+			}()
+
 			return err
 		}
 	}
-
-	defer func() {
-		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
-	}()
 
 	return nil
 }
