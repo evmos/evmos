@@ -69,6 +69,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
 
 ## [v16.0.1](https://github.com/evmos/evmos/releases/tag/v16.0.1) - 2024-01-11
 
@@ -934,4 +935,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-
