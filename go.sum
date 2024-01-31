@@ -401,16 +401,10 @@ github.com/creachadair/taskgroup v0.4.2/go.mod h1:qiXUOSrbwAY3u0JPGTzObbE3yf9hcX
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/creack/pty v1.1.18 h1:n56/Zwd5o6whRC5PMGretI4IdRLlmBXYNjScPaBgsbY=
-github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e h1:1+NtTl/lzVNKXZUv41HYQ76gtxojDi6gbQrxM2lgDpo=
-github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e/go.mod h1:PMRblIxBPdkHeEw36YxCWLO0DylfmEJYIgmdo6VgwZo=
 github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f h1:1iOcVkGzlyf69VmH0HRMa6Hx5RQQiV3ojdII6sqmtcc=
 github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f/go.mod h1:b2P7ilsxOWAhl9augFxBeRVeqecnQtzqfzpqsglj5ik=
-github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e h1:3mq9zn5+49covVejnfwPIIx0i6pzRXxKJzz4PuVVn9g=
-github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e/go.mod h1:N6IfJDLTTo0vxyuY4MSMMX2TOdBd/tozpjnYGJmAfmE=
 github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f h1:A9n61ZEpG2HXOMJ0Q8EHGGzEAp9IUA4E9PiydqVeJy0=
 github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f/go.mod h1:puaAzL204Ni6axMuMNfZREz9gazZbhAbb4ksRhdLBdI=
-github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e h1:kN1HNLp2xmy8vIHpGWjsX8dCL6sXID2Tw4qZZk7XYd4=
-github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e/go.mod h1:8W9LCw+FhR2sFI+nkjSi0ItZ0IeSyUjc6CSvuaYTU2s=
 github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240129013154-12efd9b7643f h1:crbxFPAPS4LaTSimB4JeZF8apfDYy39E2+JFGwFEKFQ=
 github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240129013154-12efd9b7643f/go.mod h1:8L1WprpzpqIz6erpQjd/qOvMNpYDG4qzR5vWgAqv6Jw=
 github.com/cyphar/filepath-securejoin v0.2.3/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxGGx79pTxQpKOJNYHHl4=
@@ -842,8 +836,8 @@ github.com/libp2p/go-buffer-pool v0.1.0 h1:oK4mSFcQz7cTQIfqbe4MIj9gLW+mnanjyFtc6
 github.com/libp2p/go-buffer-pool v0.1.0/go.mod h1:N+vh8gMqimBzdKkSMVuydVDq+UV5QTWy5HSiZacSbPg=
 github.com/lightstep/lightstep-tracer-common/golang/gogo v0.0.0-20190605223551-bc2310a04743/go.mod h1:qklhhLq1aX+mtWk9cPHPzaBjWImj5ULL6C7HFJtXQMM=
 github.com/lightstep/lightstep-tracer-go v0.18.1/go.mod h1:jlF1pusYV4pidLvZ+XD0UBX0ZE6WURAspgAczcDHrL4=
-github.com/linxGnu/grocksdb v1.8.11 h1:BGol9e5gB1BrsTvOxloC88pe70TCqgrfLNwkyWW0kD8=
-github.com/linxGnu/grocksdb v1.8.11/go.mod h1:xZCIb5Muw+nhbDK4Y5UJuOrin5MceOuiXkVUR7vp4WY=
+github.com/linxGnu/grocksdb v1.8.12 h1:1/pCztQUOa3BX/1gR3jSZDoaKFpeHFvQ1XrqZpSvZVo=
+github.com/linxGnu/grocksdb v1.8.12/go.mod h1:xZCIb5Muw+nhbDK4Y5UJuOrin5MceOuiXkVUR7vp4WY=
 github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/magiconair/properties v1.8.7 h1:IeQXZAiQcpL9mgcAe1Nu6cX9LLw6ExEHKjN0VQdvPDY=
