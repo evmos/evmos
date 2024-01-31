@@ -403,10 +403,16 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/creack/pty v1.1.18 h1:n56/Zwd5o6whRC5PMGretI4IdRLlmBXYNjScPaBgsbY=
 github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e h1:1+NtTl/lzVNKXZUv41HYQ76gtxojDi6gbQrxM2lgDpo=
 github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e/go.mod h1:PMRblIxBPdkHeEw36YxCWLO0DylfmEJYIgmdo6VgwZo=
+github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f h1:1iOcVkGzlyf69VmH0HRMa6Hx5RQQiV3ojdII6sqmtcc=
+github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f/go.mod h1:b2P7ilsxOWAhl9augFxBeRVeqecnQtzqfzpqsglj5ik=
 github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e h1:3mq9zn5+49covVejnfwPIIx0i6pzRXxKJzz4PuVVn9g=
 github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e/go.mod h1:N6IfJDLTTo0vxyuY4MSMMX2TOdBd/tozpjnYGJmAfmE=
+github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f h1:A9n61ZEpG2HXOMJ0Q8EHGGzEAp9IUA4E9PiydqVeJy0=
+github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f/go.mod h1:puaAzL204Ni6axMuMNfZREz9gazZbhAbb4ksRhdLBdI=
 github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e h1:kN1HNLp2xmy8vIHpGWjsX8dCL6sXID2Tw4qZZk7XYd4=
 github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e/go.mod h1:8W9LCw+FhR2sFI+nkjSi0ItZ0IeSyUjc6CSvuaYTU2s=
+github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240129013154-12efd9b7643f h1:crbxFPAPS4LaTSimB4JeZF8apfDYy39E2+JFGwFEKFQ=
+github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240129013154-12efd9b7643f/go.mod h1:8L1WprpzpqIz6erpQjd/qOvMNpYDG4qzR5vWgAqv6Jw=
 github.com/cyphar/filepath-securejoin v0.2.3/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxGGx79pTxQpKOJNYHHl4=
 github.com/danieljoos/wincred v1.1.2 h1:QLdCxFs1/Yl4zduvBdcHB8goaYk9RARS2SgLLRuAyr0=
 github.com/danieljoos/wincred v1.1.2/go.mod h1:GijpziifJoIBfYh+S7BbkdUTU4LfM+QnGqR5Vl2tAx0=
