@@ -39,16 +39,52 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	return res, nil
 }
 
-// ExecuteContractCall executes a contract call with the provided private key
-func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error) {
-	// Create MsgEthereumTx that calls the contract
+// TODO - remove this from here
+// GenerateContractCallArgs generates the txArgs for a contract call.
+func (tf *IntegrationTxFactory) GenerateContractCallArgs(
+	txArgs evmtypes.EvmTxArgs,
+	callArgs CallArgs,
+) (evmtypes.EvmTxArgs, error) {
 	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
 	if err != nil {
-		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to pack contract arguments")
 	}
 	txArgs.Input = input
+	return txArgs, nil
+}
 
-	return tf.ExecuteEthTx(privKey, txArgs)
+// ExecuteContractCall executes a contract call with the provided private key
+func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error) {
+	completeTxArgs, err := tf.GenerateContractCallArgs(txArgs, callArgs)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to generate contract call args")
+	}
+
+	return tf.ExecuteEthTx(privKey, completeTxArgs)
+}
+
+// TODO - remove this from here
+// GenerateDeployContractArgs generates the txArgs for a contract deployment.
+func (tf *IntegrationTxFactory) GenerateDeployContractArgs(
+	from common.Address,
+	txArgs evmtypes.EvmTxArgs,
+	deploymentData ContractDeploymentData,
+) (evmtypes.EvmTxArgs, error) {
+	account, err := tf.grpcHandler.GetEvmAccount(from)
+	if err != nil {
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
+	}
+	txArgs.Nonce = account.GetNonce()
+
+	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
+	if err != nil {
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
+	}
+	data := deploymentData.Contract.Bin
+	data = append(data, ctorArgs...)
+
+	txArgs.Input = data
+	return txArgs, nil
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -61,26 +97,16 @@ func (tf *IntegrationTxFactory) DeployContract(
 ) (common.Address, error) {
 	// Get account's nonce to create contract hash
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	account, err := tf.grpcHandler.GetEvmAccount(from)
-	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
-	}
-	nonce := account.GetNonce()
+	completeTxArgs, err := tf.GenerateDeployContractArgs(from, txArgs, deploymentData)
+    if err != nil {
+      return common.Address{}, errorsmod.Wrap(err, "failed to generate contract call args")
+    }
 
-	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
-	if err != nil {
-		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
-	}
-	data := deploymentData.Contract.Bin
-	data = append(data, ctorArgs...)
-
-	txArgs.Input = data
-	txArgs.Nonce = nonce
-	res, err := tf.ExecuteEthTx(priv, txArgs)
+	res, err := tf.ExecuteEthTx(priv, completeTxArgs)
 	if err != nil || !res.IsOK() {
 		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
-	return crypto.CreateAddress(from, nonce), nil
+	return crypto.CreateAddress(from, completeTxArgs.Nonce), nil
 }
 
 // CallContractAndCheckLogs is a helper function to call a contract and check the logs using
