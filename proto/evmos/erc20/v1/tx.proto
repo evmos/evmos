@@ -5,6 +5,7 @@ package evmos.erc20.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "evmos/erc20/v1/erc20.proto";
 import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -21,6 +22,10 @@ service Msg {
   // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // UpdateERC20Metadata defines a governance operation for updating the metadata
+  // of an automatically deployed erc20 precompile.
+  rpc UpdateERC20Metadata(MsgUpdateERC20Metadata) returns (MsgUpdateERC20MetadataResponse);
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
@@ -56,3 +61,21 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateERC20Metadata request for changing erc20 auto defined metadata
+// Since: cosmos-sdk 0.47
+message MsgUpdateERC20Metadata {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // erc20metadata contains the updated metadata for the auto deployed erc20 contract
+  // NOTE: All parameters must be supplied.
+  ERC20Metadata erc20metadata = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateERC20MetadataResponse defines the response structure for executing a
+// MsgUpdateErc20Metadata message.
+// Since: cosmos-sdk 0.47
+message MsgUpdateERC20MetadataResponse {}

@@ -207,7 +207,6 @@ var (
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
 				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
-				erc20client.UpdateERC20MetadataHandler,
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),

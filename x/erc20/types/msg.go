@@ -4,6 +4,9 @@
 package types
 
 import (
+	"errors"
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,10 +18,13 @@ import (
 var (
 	_ sdk.Msg = &MsgConvertERC20{}
 	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg = &MsgUpdateERC20Metadata{}
 )
 
 const (
 	TypeMsgConvertERC20 = "convert_ERC20"
+	// TODO: check where this is defined or used
+	TypeMsgUpdateERC20Metadata = "update_ERC20_metadata"
 )
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
@@ -84,4 +90,56 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// TODO: do we need this?
+// // NewMsgUpdateErc20Metadata creates a new instance of MsgUpdateErc20Metadata
+// func NewMsgUpdateErc20Metadata(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { //nolint: interfacer
+// 	return &MsgUpdateErc20Metadata{}
+// }
+
+// Route should return the name of the module
+func (msg MsgUpdateERC20Metadata) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgUpdateERC20Metadata) Type() string { return TypeMsgUpdateERC20Metadata }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgUpdateERC20Metadata) ValidateBasic() error {
+
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errorsmod.Wrap(err, "Invalid authority address")
+	}
+
+	if !common.IsHexAddress(msg.Erc20Metadata.Address) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", msg.Erc20Metadata.Address)
+	}
+
+	if strings.TrimSpace(msg.Erc20Metadata.Name) == "" {
+		return errors.New("name field cannot be blank")
+	}
+
+	if strings.TrimSpace(msg.Erc20Metadata.Symbol) == "" {
+		return errors.New("symbol field cannot be blank")
+	}
+
+	// This are the only decimals allowed
+	if msg.Erc20Metadata.Decimals != 6 &&
+		msg.Erc20Metadata.Decimals != 9 &&
+		msg.Erc20Metadata.Decimals != 18 {
+		return errors.New("decimals value is invalid. Can only be 6,9 or 18")
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg MsgUpdateERC20Metadata) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (m *MsgUpdateERC20Metadata) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(m.Authority)
+	return []sdk.AccAddress{addr}
 }

@@ -13,7 +13,6 @@ import (
 	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v16/types"
 )
 
@@ -182,33 +181,4 @@ func (ttcp *ToggleTokenConversionProposal) ValidateBasic() error {
 	}
 
 	return v1beta1.ValidateAbstract(ttcp)
-}
-
-func NewUpdateERC20MetadataProposal(title, description string, address common.Address, name, symbol string, decimals uint32) v1beta1.Content {
-	return &UpdateERC20MetadataProposal{
-		Title:       title,
-		Description: description,
-		Contract:    address.String(),
-		Name:        name,
-		Symbol:      symbol,
-		Decimals:    decimals,
-	}
-}
-
-// ProposalRoute returns router key for this proposal
-func (*UpdateERC20MetadataProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal
-func (*UpdateERC20MetadataProposal) ProposalType() string {
-	return ProposalTypeToggleTokenConversion
-}
-
-// ValidateBasic performs a stateless check of the proposal fields
-func (uemp *UpdateERC20MetadataProposal) ValidateBasic() error {
-	// TODO: validate data
-	if err := evmostypes.ValidateAddress(uemp.Contract); err != nil {
-		return errorsmod.Wrap(err, "invalid ERC20 address")
-	}
-
-	return v1beta1.ValidateAbstract(uemp)
 }

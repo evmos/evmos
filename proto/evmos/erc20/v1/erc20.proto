@@ -81,18 +81,14 @@ message ProposalMetadata {
 
 // UpdateERC20MetadataProposal is a gov Content type
 // it updates the bank metadata in case of incorrect automatic generation
-message UpdateERC20MetadataProposal {
-  // title of the proposal
-  string title = 1;
-  // description of the proposal
-  string description = 2;
+message ERC20Metadata {
   // address of the erc20 extension contract
-  string contract = 3; 
+  string address = 1; 
   // name of the token
-  string name = 4;
+  string name = 2;
   // symbol of the token
-  string symbol = 5;
+  string symbol = 3;
   // decimals places of the token
   // supported options are 6 (micro), 9 (nano) and 18 (atto).
-  uint32 decimals = 6;
+  uint32 decimals = 4;
 }

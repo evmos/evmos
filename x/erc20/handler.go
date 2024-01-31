@@ -23,6 +23,9 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		case *types.MsgUpdateParams:
 			res, err := server.UpdateParams(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgUpdateERC20Metadata:
+			res, err := server.UpdateERC20Metadata(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, err

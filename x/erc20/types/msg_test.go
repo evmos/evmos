@@ -1,12 +1,15 @@
 package types_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -166,4 +169,133 @@ func (suite *MsgsTestSuite) TestMsgUpdateValidateBasic() {
 			}
 		})
 	}
+}
+
+func (suite *MsgsTestSuite) TestMsgUpdateERC20MetadataValidateBasic() {
+	testCases := []struct {
+		name                   string
+		msgUpdateERC20Metadata *types.MsgUpdateERC20Metadata
+		expectedError          error
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgUpdateERC20Metadata{
+				Authority: "invalid",
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "TT",
+					Decimals: 6,
+				},
+			},
+			errorsmod.Wrap(errors.New("decoding bech32 failed: invalid bech32 string length 7"), "Invalid authority address"),
+		},
+		{
+			"fail - invalid contract address",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "dF958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "TT",
+					Decimals: 6,
+				},
+			},
+			errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", "dF958D2ee523a2206206994597C13D831ec7"),
+		},
+		{
+			"fail - invalid name",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "",
+					Symbol:   "TT",
+					Decimals: 6,
+				},
+			},
+			errors.New("name field cannot be blank"),
+		},
+		{
+			"fail - invalid Symbol",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "",
+					Decimals: 6,
+				},
+			},
+			errors.New("symbol field cannot be blank"),
+		},
+		{
+			"fail - invalid decimals",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "TT",
+					Decimals: 5,
+				},
+			},
+			errors.New("decimals value is invalid. Can only be 6,9 or 18"),
+		},
+		{
+			"pass - 6 decimals",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "TT",
+					Decimals: 6,
+				},
+			},
+			nil,
+		},
+		{
+			"pass - 9 decimals",
+			&types.MsgUpdateERC20Metadata{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Erc20Metadata: types.ERC20Metadata{
+					Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+					Name:     "Test",
+					Symbol:   "TT",
+					Decimals: 9,
+				},
+			},
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			err := tc.msgUpdateERC20Metadata.ValidateBasic()
+			if tc.expectedError != nil {
+				suite.Require().Equal(err.Error(), tc.expectedError.Error())
+			} else {
+				suite.Require().NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *MsgsTestSuite) TestMsgUpdateERC20MetadataGetters() {
+	msgInvalid := types.MsgUpdateERC20Metadata{}
+	erc20Update := types.ERC20Metadata{
+		Address:  "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+		Name:     "Test",
+		Symbol:   "TT",
+		Decimals: 9,
+	}
+	msg := types.MsgUpdateERC20Metadata{
+		Authority:     authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		Erc20Metadata: erc20Update,
+	}
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgUpdateERC20Metadata, msg.Type())
+	suite.Require().NotNil(msgInvalid.GetSignBytes())
+	suite.Require().NotNil(msg.GetSigners())
 }
