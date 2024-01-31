@@ -61,8 +61,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 - (erc20) [#2276](https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
-
 
 ### API Breaking
 
@@ -166,6 +166,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
 - (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
 - (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
+- (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
+- (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 
 ### Bug Fixes
 

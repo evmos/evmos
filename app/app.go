@@ -815,8 +815,15 @@ func NewEvmos(
 		if queryMultiStore != nil {
 			v1 := queryMultiStore.LatestVersion()
 			v2 := app.LastBlockHeight()
-			if v1 > 0 && v1 != v2 {
-				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))
+			// Prevent creating gaps in versiondb
+			// - if versiondb lag behind iavl, when commit new blocks, it creates gap in versiondb.
+			// 	 This can happen because cms is committed before versiondb.
+			// - if versiondb is beyond iavl, and when commit new blocks, versiondb will write some duplicated data.
+			//	 This is actually not harmful, if the rewritten data is identical to the old ones.
+			// 	 This can happen with memiavl async-commit.
+			// The latter case is not harmful, so we can relax the checking to improve UX.
+			if v1 > 0 && v1 < v2 {
+				tmos.Exit(fmt.Sprintf("versiondb lastest version %d lag behind iavl latest version %d", v1, v2))
 			}
 		}
 	}
