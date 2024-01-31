@@ -75,6 +75,7 @@ class Evmos:
 class CosmosChain:
     def __init__(self, base_dir, daemon_name):
         self.base_dir = base_dir
+        print("base_dir", base_dir / "config.json")
         self.config = json.loads((base_dir / "config.json").read_text())
         self.daemon_name = daemon_name
 
@@ -186,12 +187,12 @@ def setup_custom_evmos(
         str(base_port),
         "--no_remove",
     ]
-    print(*cmd)
+    print("the command", *cmd)
     subprocess.run(cmd, check=True)
     if post_init is not None:
         post_init(path, base_port, config)
     proc = subprocess.Popen(
-        ["pystarport", "start", "--data", path, "--quiet"],
+        ["pystarport", "start", "--data", path], # TODO: remove --quiet
         preexec_fn=os.setsid,
     )
     try:
