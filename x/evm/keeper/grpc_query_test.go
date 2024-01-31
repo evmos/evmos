@@ -668,7 +668,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 			false,
 			20000,
 		},
-		// // estimate gas of an erc20 contract deployment, the exact gas number is checked with geth
+		// estimate gas of an erc20 contract deployment, the exact gas number is checked with geth
 		{
 			"contract deployment",
 			func() types.TransactionArgs {
