@@ -20,10 +20,13 @@ let
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
   buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ];
+  nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/23.11.tar.gz";
+  nixpkgs = import (fetchTarball nixpkgsUrl) {};
+  go_1_21 = nixpkgs.pkgs.go_1_21;  
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;
-  go = buildPackages.go_1_20;
+  go = go_1_21;
   src = ./.;
   modules = ./gomod2nix.toml;
   doCheck = false;
