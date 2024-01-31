@@ -27,26 +27,77 @@ jobs:
       - name: Test E2E
         run: |
           make test-e2e
-        if: env.GIT_DIFF
-  test-nix:
+        if: env.GIT_DIFF   
+  test-files-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
+    steps:      
+      - uses: actions/checkout@v4
+      - name: Set up test file matrix to run nix tests in parallel
+        id: set_matrix
+        run: |
+          cd ./tests/nix_tests || exit 1
+
+          # Define parallel test files
+          PARALLEL_TESTS=(
+            "test_account.py"
+            "test_filters.py"
+            "test_fee_history.py"
+            "test_grpc_only.py"
+            "test_ibc.py"
+            "test_no_abci_resp.py"
+            "test_osmosis_outpost.py"
+            "test_precompiles.py"
+            "test_priority.py"
+            "test_pruned_node.py"
+            "test_rollback.py"
+            "test_stride_outpost.py"
+            "test_storage_proof.py"
+            "test_zero_fee.py"
+          )
+
+          # Get all test files
+          # shellcheck disable=SC2207
+          ALL_FILES=($(ls test_*.py))
+
+          # Determine remaining test files
+          # (the test files that will run all together in one process)
+          REMAINING_FILES=()
+          for file in "${ALL_FILES[@]}"; do
+            if [[ ! " ${PARALLEL_TESTS[*]} " =~ $file ]]; then
+              REMAINING_FILES+=("$file")
+            fi
+          done
+          
+          # Construct test matrix
+          # shellcheck disable=SC2076,SC2124,SC2048,SC2086,SC2089,SC2027
+          TEST_FILES="[$(printf '"%s",' ${PARALLEL_TESTS[*]}) \"${REMAINING_FILES[*]}\"]"
+          echo "test_matrix=${TEST_FILES}" >> "$GITHUB_OUTPUT"
+          echo "Test matrix: ${TEST_FILES}"
+  test-nix:
+    needs: test-files-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}
     steps:
       - uses: actions/checkout@v4
         # TODO: create a new PAT to use here
         # with:
-        #   token: ${{ secrets.E2E_PAT }}
-      - uses: cachix/install-nix-action@v25
+        #   token: ${{ secrets.E2E_PAT }}        
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
         with:
-          # pin to nix-2.13 to workaround compability issue of 2.14,
-          # see: https://github.com/cachix/install-nix-action/issues/161
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v14
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v14
         with:
           name: evmosd
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"                    
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"                  
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
@@ -56,8 +107,10 @@ jobs:
             go.sum
             *.toml
             tests/nix_tests/**
-            .github/workflows/e2e-test*
+            .github/workflows/e2e-test*         
       - name: Run nix tests
+        env:
+          ARGS: "${{ matrix.test_files }}"   
         run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
