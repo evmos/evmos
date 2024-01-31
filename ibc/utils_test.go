@@ -337,16 +337,16 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 			expErrMsg: "Base denom cannot be an empty string",
 		},
 		{
-			name:      "fail: invalid prefix",
-			baseDenom: "nevmos",
-			expDec:    0,
-			expFail:   true,
-			expErrMsg: "Should be either micro ('u[...]') or atto ('a[...]'); got: \"nevmos\"",
-		},
-		{
 			name:      "success: micro 'u' prefix",
 			baseDenom: "uevmos",
 			expDec:    6,
+			expFail:   false,
+			expErrMsg: "",
+		},
+		{
+			name:      "fail: invalid prefix",
+			baseDenom: "nevmos",
+			expDec:    9,
 			expFail:   false,
 			expErrMsg: "",
 		},
@@ -368,5 +368,58 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 			require.NoError(t, err)
 		}
 		require.Equal(t, tc.expDec, dec)
+	}
+}
+
+// On the OnRecv function there are two denominations
+// coin.Denom contains IBC denomination (e.g aevmos, IBC/hash)
+// data.Denom contains source chain denomination (e.g transfer/channel-x/aevmos, uosmo)
+
+// In this function we are checking the source chain denomination (2nd case).
+// On osmosis chain coins will look like:
+// uosmo <- less than 2 slashes is native from source chain
+// transfer/channel-xx/atom <- 2 slashes is not native. So its a hop coin.
+func TestIsSingleHop(t *testing.T) {
+	t.Parallel()
+
+	testcases := []struct {
+		name     string
+		rawDenom string
+		exp      bool
+	}{
+		// Native from source chain
+		{
+			name:     "pass - uosmo from osmosis",
+			rawDenom: "uosmo",
+			exp:      true,
+		},
+		// Non native from source chain
+		{
+			name:     "fail - double hop coin - uatom from osmosis",
+			rawDenom: "transfer/channel-0/uatom",
+			exp:      false,
+		},
+		// Non native from source chain
+		{
+			name:     "fail - 3x hop coin - uatom ",
+			rawDenom: "transfer/channel-0/transfer/channel-1/uatom",
+			exp:      false,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			require.Equal(t,
+				// Check if the coin is native from the source chain
+				// Source chain is the chain where the IBC tx arrived from.
+				IsNativeFromSourceChain(tc.rawDenom),
+				tc.exp,
+				"expected different result checking single hop denom",
+			)
+		})
 	}
 }
