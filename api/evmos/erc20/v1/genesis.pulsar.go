@@ -1229,6 +1229,7 @@ var (
 		(*TokenPair)(nil),    // 2: evmos.erc20.v1.TokenPair
 	}
 )
+
 var file_evmos_erc20_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: evmos.erc20.v1.GenesisState.params:type_name -> evmos.erc20.v1.Params
 	2, // 1: evmos.erc20.v1.GenesisState.token_pairs:type_name -> evmos.erc20.v1.TokenPair

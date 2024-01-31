@@ -9,6 +9,8 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
@@ -18,13 +20,13 @@ import (
 // VestingDelegationDecorator validates delegation of vested coins
 type VestingDelegationDecorator struct {
 	ak  evmtypes.AccountKeeper
-	sk  vestingtypes.StakingKeeper
+	sk  anteutils.StakingKeeper
 	bk  evmtypes.BankKeeper
 	cdc codec.BinaryCodec
 }
 
 // NewVestingDelegationDecorator creates a new VestingDelegationDecorator
-func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk vestingtypes.StakingKeeper, bk evmtypes.BankKeeper, cdc codec.BinaryCodec) VestingDelegationDecorator {
+func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk anteutils.StakingKeeper, bk evmtypes.BankKeeper, cdc codec.BinaryCodec) VestingDelegationDecorator {
 	return VestingDelegationDecorator{
 		ak:  ak,
 		sk:  sk,

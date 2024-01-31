@@ -5,6 +5,9 @@ package stride
 
 import (
 	"fmt"
+	"time"
+
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v16/utils"
@@ -25,8 +28,6 @@ const (
 	LiquidStakeAction = "LiquidStake"
 	// RedeemStakeAction is the action name needed in the memo field
 	RedeemStakeAction = "RedeemStake"
-	// NoReceiver is the string used in the memo field when the receiver is not needed
-	NoReceiver = ""
 )
 
 // LiquidStake is a transaction that liquid stakes tokens using
@@ -39,10 +40,16 @@ func (p Precompile) LiquidStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, token, amount, receiver, err := parseLiquidStakeArgs(args)
+	autopilotArgs, err := parseAutopilotArgs(method, args)
 	if err != nil {
 		return nil, err
 	}
+
+	sender := autopilotArgs.Sender
+	receiver := autopilotArgs.Receiver
+	token := autopilotArgs.Token
+	amount := autopilotArgs.Amount
+	strideForwarder := autopilotArgs.StrideForwarder
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
@@ -54,41 +61,33 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
+	// WEVMOS address is the only supported token for liquid staking
+	if token != p.wevmosAddress {
+		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.wevmosAddress)
+	}
+
 	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
-
-	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
-	// NOTE this should always exist
-	if !found {
-		return nil, fmt.Errorf(ErrTokenPairNotFound, tokenPairID)
-	}
-
-	// NOTE: for v1 we only support the native EVM (and staking) denomination (WEVMOS/WTEVMOS).
-	if token != tokenPair.GetERC20Contract() {
-		return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
-	}
-
-	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
-	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)
+	memo, err := CreateMemo(LiquidStakeAction, strideForwarder, sdk.AccAddress(receiver.Bytes()).String())
 	if err != nil {
 		return nil, err
 	}
 
 	// Build the MsgTransfer with the memo and coin
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		autopilotArgs.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
-		p.timeoutHeight,
-		0,
+		strideForwarder,
+		ics20.DefaultTimeoutHeight,
+		uint64(timeoutTimestamp),
 		memo,
 	)
 	if err != nil {
@@ -103,7 +102,7 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(ctx, msg)
+	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +133,7 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }
 
 // RedeemStake is a transaction that redeems the native tokens using the liquid stake
@@ -148,10 +147,17 @@ func (p Precompile) RedeemStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, receiver, token, strideForwarder, amount, err := parseRedeemStakeArgs(args)
+	autopilotArgs, err := parseAutopilotArgs(method, args)
 	if err != nil {
 		return nil, err
 	}
+
+	sender := autopilotArgs.Sender
+	receiver := autopilotArgs.Receiver
+	token := autopilotArgs.Token
+	amount := autopilotArgs.Amount
+	strideForwarder := autopilotArgs.StrideForwarder
+	channelID := autopilotArgs.ChannelID
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
@@ -169,7 +175,7 @@ func (p Precompile) RedeemStake(
 	}
 	stToken := "st" + bondDenom
 
-	ibcDenom := utils.ComputeIBCDenom(p.portID, p.channelID, stToken)
+	ibcDenom := utils.ComputeIBCDenom(transfertypes.PortID, channelID, stToken)
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, ibcDenom)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
@@ -189,15 +195,16 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
-		p.timeoutHeight,
-		0,
+		ics20.DefaultTimeoutHeight,
+		uint64(timeoutTimestamp),
 		memo,
 	)
 	if err != nil {
@@ -212,7 +219,7 @@ func (p Precompile) RedeemStake(
 	}
 
 	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(ctx, msg)
+	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -243,5 +250,5 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }

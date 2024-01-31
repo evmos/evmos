@@ -5518,6 +5518,7 @@ var (
 		(*v1beta11.Coin)(nil),                           // 12: cosmos.base.v1beta1.Coin
 	}
 )
+
 var file_evmos_vesting_v2_tx_proto_depIdxs = []int32{
 	10, // 0: evmos.vesting.v2.MsgFundVestingAccount.start_time:type_name -> google.protobuf.Timestamp
 	11, // 1: evmos.vesting.v2.MsgFundVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period

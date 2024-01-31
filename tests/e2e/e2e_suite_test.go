@@ -8,10 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
+	"github.com/cosmos/cosmos-sdk/codec"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/tests/e2e/upgrade"
 	"github.com/evmos/evmos/v16/utils"
+	"github.com/stretchr/testify/suite"
 )
 
 const (
@@ -24,9 +27,6 @@ const (
 
 	// relatedBuildPath defines the path where the build data is stored
 	relatedBuildPath = "../../build/"
-
-	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
-	upgradeHeightDelta = 10
 
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
@@ -129,9 +129,9 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	defer cancel()
 
 	// calculate upgrade height for the proposal
-	nodeHeight, err := s.upgradeManager.GetNodeHeight(ctx)
-	s.Require().NoError(err, "can't get block height from running node")
-	s.upgradeManager.UpgradeHeight = uint(nodeHeight + upgradeHeightDelta)
+	upgradeHeight, err := s.upgradeManager.GetUpgradeHeight(ctx, s.upgradeParams.ChainID)
+	s.Require().NoError(err, "can't get upgrade height")
+	s.upgradeManager.UpgradeHeight = upgradeHeight
 
 	// if Evmos is lower than v10.x.x no need to use the legacy proposal
 	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
@@ -198,13 +198,16 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s.T().Log("wait for node to reach upgrade height...")
+	s.T().Logf("wait for node to reach upgrade height %d...", s.upgradeManager.UpgradeHeight)
 	// wait for proposed upgrade height
 	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
 	dirs := strings.Split(s.upgradeParams.MountPath, ":")
 	buildDir := dirs[0]
 	rootDir := dirs[1]
+
+	// check that the proposal has passed before stopping the node
+	s.checkProposalPassed(ctx)
 
 	s.T().Log("exporting state to local...")
 	// export node .evmosd to local build/
@@ -227,6 +230,9 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	s.T().Logf("executing all module queries")
 	s.executeQueries()
+
+	s.T().Logf("executing sample transactions")
+	s.executeTransactions()
 
 	// make sure node produce blocks after upgrade
 	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
@@ -255,7 +261,35 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	}
 }
 
-// executeQueries executes all the module queries
+// checkProposalPassed queries the (most recent) upgrade proposal and checks that it has passed.
+//
+// NOTE: This was a problem in the past, where the upgrade height was reached before the proposal actually passed.
+// This is a safety check to make sure this doesn't happen again, as this was not obvious from the log output.
+func (s *IntegrationTestSuite) checkProposalPassed(ctx context.Context) {
+	exec, err := s.upgradeManager.CreateModuleQueryExec("gov", "proposals", s.upgradeParams.ChainID)
+	s.Require().NoError(err, "can't create query proposals exec")
+
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoErrorf(
+		err,
+		"failed to query proposals;\nstdout: %s,\nstderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
+	s.Require().True(ok, "encoding config codec is not a proto codec")
+
+	var proposalsRes govtypes.QueryProposalsResponse
+	err = protoCodec.UnmarshalJSON(outBuf.Bytes(), &proposalsRes)
+	s.Require().NoError(err, "can't unmarshal proposals response\n%s", outBuf.String())
+	s.Require().GreaterOrEqual(len(proposalsRes.Proposals), 1, "no proposals found")
+
+	// check that the most recent proposal has passed
+	proposal := proposalsRes.Proposals[len(proposalsRes.Proposals)-1]
+	s.Require().Equal(govtypes.ProposalStatus_PROPOSAL_STATUS_PASSED.String(), proposal.Status.String(), "expected proposal to have passed already")
+}
+
+// executeQueries executes all the module queries to check they are still working after the upgrade.
 func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -293,6 +327,40 @@ func (s *IntegrationTestSuite) executeQueries() {
 		s.Require().Empty(errBuf.String())
 	}
 	s.T().Logf("executed all queries successfully")
+}
+
+// executeTransactions executes some sample transactions to check they are still working after the upgrade.
+func (s *IntegrationTestSuite) executeTransactions() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainID := utils.TestnetChainID + "-1"
+
+	// send some tokens between accounts to check transactions are still working
+	exec, err := s.upgradeManager.CreateModuleTxExec(upgrade.E2ETxArgs{
+		ModuleName: "bank",
+		SubCommand: "send",
+		Args:       []string{"mykey", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq", "10000000000aevmos"},
+		ChainID:    chainID,
+		From:       "mykey",
+	})
+	s.Require().NoError(err, "failed to create bank send tx command")
+
+	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank send tx")
+	s.Require().Empty(errBuf.String())
+
+	// query the balances of the sending and receiving accounts to check the transaction was successful
+	exec, err = s.upgradeManager.CreateExec(
+		[]string{"evmosd", "q", "bank", "balances", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"},
+		s.upgradeManager.ContainerID(),
+	)
+	s.Require().NoError(err, "failed to create bank balances query command")
+
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank balances query")
+	s.Require().Empty(errBuf.String())
+	s.Require().Contains(outBuf.String(), "10000000000aevmos")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path

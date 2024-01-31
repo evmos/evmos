@@ -25,12 +25,13 @@ type EthVestingTransactionDecorator struct {
 // EthVestingExpenseTracker tracks both the total transaction value to be sent across Ethereum
 // messages and the maximum spendable value for a given account.
 type EthVestingExpenseTracker struct {
-	// total is the total value to be spent across a transaction with one or more Ethereum message calls
-	total *big.Int
-	// spendable is the maximum value that can be spent
-	spendable *big.Int
+	// Total is the total value to be spent across a transaction with one or more Ethereum message calls
+	Total *big.Int
+	// Spendable is the maximum value that can be spent
+	Spendable *big.Int
 }
 
+// NOTE: Can't delete the legacy decorator yet because vesting module's tests would have to be refactored
 // NewEthVestingTransactionDecorator returns a new EthVestingTransactionDecorator.
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
@@ -100,8 +101,8 @@ func CheckVesting(
 		return err
 	}
 
-	total := expenses.total
-	spendable := expenses.spendable
+	total := expenses.Total
+	spendable := expenses.Spendable
 
 	if total.Cmp(spendable) > 0 {
 		return errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
@@ -128,7 +129,7 @@ func UpdateAccountExpenses(
 	expenses, ok := accountExpenses[addrStr]
 	// if an expense tracker is found for the address, add the expense and return
 	if ok {
-		expenses.total = expenses.total.Add(expenses.total, addedExpense)
+		expenses.Total = expenses.Total.Add(expenses.Total, addedExpense)
 		return expenses, nil
 	}
 
@@ -154,8 +155,8 @@ func UpdateAccountExpenses(
 	}
 
 	expenses = &EthVestingExpenseTracker{
-		total:     addedExpense,
-		spendable: spendableValue,
+		Total:     addedExpense,
+		Spendable: spendableValue,
 	}
 
 	accountExpenses[addrStr] = expenses

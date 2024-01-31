@@ -4,48 +4,43 @@
 package v16
 
 import (
-	"context"
-	"fmt"
-
 	"cosmossdk.io/log"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
-// deprecatedProposals is a map of the TypeURL
-// of the deprecated proposal types
-var deprecatedProposals = map[string]struct{}{
-	"/evmos.incentives.v1.RegisterIncentiveProposal": {},
-	"/evmos.incentives.v1.CancelIncentiveProposal":   {},
-	"/evmos.erc20.v1.RegisterCoinProposal":           {},
-}
+// DeleteIncentivesProposals deletes the RegisterIncentives & CancelIncentiveProposal proposals from the store
+// because the module was deprecated
+func DeleteIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
+	// TODO fix
+	// Delete the only incentives module proposals
+	// gk.Proposals.Iterate(ctx, func(proposal govtypes.Proposal) bool {
+	// 	// Check if proposal is a RegisterIncentives or CancelIncentiveProposal proposal
+	// 	msgs, err := proposal.GetMsgs()
+	// 	if err != nil {
+	// 		logger.Error("failed to get proposal messages", "error", err.Error())
+	// 		return false, nil
+	// 	}
 
-// DeleteDeprecatedProposals deletes the RegisterCoin, RegisterIncentives & CancelIncentiveProposal
-// proposals from the store because were deprecated
-func DeleteDeprecatedProposals(ctx context.Context, gk govkeeper.Keeper, logger log.Logger) {
-	gk.Proposals.Walk(ctx, nil, func(_ uint64, proposal govtypes.Proposal) (stop bool, err error) {
-		// Check if proposal is a deprecated proposal
-		msgs, err := proposal.GetMsgs()
-		if err != nil {
-			logger.Error("failed to get proposal messages", "error", err.Error())
-			return false, nil
-		}
+	// 	for _, msg := range msgs {
+	// 		legacyContentMsg, ok := msg.(*govtypes.MsgExecLegacyContent)
+	// 		if !ok {
+	// 			continue
+	// 		}
 
-		for _, msg := range msgs {
-			legacyContentMsg, ok := msg.(*govtypes.MsgExecLegacyContent)
-			if !ok {
-				continue
-			}
+	// 		_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.RegisterIncentiveProposal)
+	// 		if ok {
+	// 			gk.DeleteProposal(ctx, proposal.Id)
+	// 			continue
+	// 		}
 
-			if _, deprecated := deprecatedProposals[legacyContentMsg.Content.TypeUrl]; !deprecated {
-				continue
-			}
-
-			if err := gk.DeleteProposal(ctx, proposal.Id); err != nil {
-				logger.Error(fmt.Sprintf("failed to delete proposal with id %d and type %s", proposal.Id, legacyContentMsg.Content.TypeUrl), "error", err.Error())
-			}
-		}
-		return false, nil
-	})
+	// 		_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.CancelIncentiveProposal)
+	// 		if ok {
+	// 			gk.DeleteProposal(ctx, proposal.Id)
+	// 			continue
+	// 		}
+	// 	}
+	// 	return false, nil
+	// })
 }

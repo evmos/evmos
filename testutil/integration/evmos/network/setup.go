@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -12,6 +13,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
+	"github.com/cosmos/gogoproto/proto"
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
@@ -26,7 +28,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/evmos/evmos/v16/types"
 	evmosutil "github.com/evmos/evmos/v16/utils"
@@ -96,6 +97,17 @@ func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAc
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
 		genAccounts = append(genAccounts, baseAcc)
+	}
+	return genAccounts
+}
+
+// getAccAddrsFromBalances returns a slice of genesis accounts from the
+// given balances.
+func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress {
+	numberOfBalances := len(balances)
+	genAccounts := make([]sdktypes.AccAddress, 0, numberOfBalances)
+	for _, balance := range balances {
+		genAccounts = append(genAccounts, sdktypes.AccAddress(balance.Address))
 	}
 	return genAccounts
 }
@@ -216,7 +228,11 @@ func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.Genes
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
 
-	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, overwriteParams.validators, overwriteParams.delegations)
+	stakingGenesis := stakingtypes.NewGenesisState(
+		stakingParams,
+		overwriteParams.validators,
+		overwriteParams.delegations,
+	)
 	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
 	return genesisState
 }
@@ -291,7 +307,10 @@ func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.C
 }
 
 // addBondedModuleAccountToFundedBalances adds bonded amount to bonded pool module account and include it on funded accounts
-func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.Balance, totalBonded sdktypes.Coin) []banktypes.Balance {
+func addBondedModuleAccountToFundedBalances(
+	fundedAccountsBalances []banktypes.Balance,
+	totalBonded sdktypes.Coin,
+) []banktypes.Balance {
 	return append(fundedAccountsBalances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
 		Coins:   sdktypes.Coins{totalBonded},

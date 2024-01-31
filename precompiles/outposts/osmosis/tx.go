@@ -4,13 +4,17 @@
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
 // chain, targeting the Cross-Chain Swap Contract V1 (XCS V1)
+
 package osmosis
 
 import (
+	"time"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -39,7 +43,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	swapPacketData, err := ParseSwapPacketData(args)
+	swapPacketData, err := ParseSwapPacketData(method, args)
 	if err != nil {
 		return nil, err
 	}
@@ -59,23 +63,35 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// We need to check if the input and output denom exist. If they exist we retrieve their denom
-	// otherwise error out.
-	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
 	if err != nil {
 		return nil, err
 	}
-	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	if err != nil {
-		return nil, err
+	var inputDenom, outputDenom string
+
+	// Case 1. Input has to be either the address of Osmosis or WEVMOS
+	switch input {
+	case p.wevmosAddress:
+		inputDenom = bondDenom
+	default:
+		inputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, input)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
-	params, err := p.stakingKeeper.GetParams(ctx)
-	if err != nil {
-		return nil, err
+	// Case 2. Output has to be either the address of Osmosis or WEVMOS
+	switch output {
+	case p.wevmosAddress:
+		outputDenom = bondDenom
+	default:
+		outputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, output)
+		if err != nil {
+			return nil, err
+		}
 	}
-	bondDenom := params.BondDenom
+
+	evmosChannel := NewIBCChannel(transfertypes.PortID, swapPacketData.ChannelID)
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
@@ -83,6 +99,7 @@ func (p Precompile) Swap(
 
 	// Retrieve Osmosis channel and port associated with Evmos transfer app. We need these information
 	// to reconstruct the output denom in the Osmosis chain.
+
 	channel, found := p.channelKeeper.GetChannel(ctx, evmosChannel.PortID, evmosChannel.ChannelID)
 	if !found {
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosChannel.PortID, evmosChannel.ChannelID)
@@ -102,7 +119,7 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
-		p.osmosisXCSContract,
+		swapPacketData.XcsContract,
 		swapPacketData.SlippagePercentage,
 		swapPacketData.WindowSeconds,
 		onFailedDelivery,
@@ -115,15 +132,16 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
 		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		p.osmosisXCSContract,
-		p.timeoutHeight,
-		p.timeoutTimestamp,
+		swapPacketData.XcsContract,
+		ics20.DefaultTimeoutHeight,
+		uint64(timeoutTimestamp),
 		packetString,
 	)
 	if err != nil {
@@ -143,8 +161,8 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(ctx, msg)
+	// Execute the ICS20 Transfer.
+	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
@@ -175,5 +193,5 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }

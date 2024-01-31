@@ -3330,6 +3330,7 @@ var (
 		(*v1beta1.Metadata)(nil),              // 6: cosmos.bank.v1beta1.Metadata
 	}
 )
+
 var file_evmos_erc20_v1_erc20_proto_depIdxs = []int32{
 	0, // 0: evmos.erc20.v1.TokenPair.contract_owner:type_name -> evmos.erc20.v1.Owner
 	6, // 1: evmos.erc20.v1.RegisterCoinProposal.metadata:type_name -> cosmos.bank.v1beta1.Metadata

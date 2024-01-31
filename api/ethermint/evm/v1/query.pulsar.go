@@ -13406,6 +13406,7 @@ var (
 		(*MsgEthereumTxResponse)(nil),         // 31: ethermint.evm.v1.MsgEthereumTxResponse
 	}
 )
+
 var file_ethermint_evm_v1_query_proto_depIdxs = []int32{
 	24, // 0: ethermint.evm.v1.QueryTxLogsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	25, // 1: ethermint.evm.v1.QueryTxLogsResponse.logs:type_name -> ethermint.evm.v1.Log

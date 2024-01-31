@@ -2528,6 +2528,7 @@ var (
 		(*EventUpdateVestingFunder)(nil),          // 3: evmos.vesting.v2.EventUpdateVestingFunder
 	}
 )
+
 var file_evmos_vesting_v2_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

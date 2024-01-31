@@ -820,7 +820,6 @@ func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-
 			suite.Require().Equal(
 				tc.expAdr,
 				keeper.GetProposerAddress(unitNetwork.GetContext(), tc.addr),

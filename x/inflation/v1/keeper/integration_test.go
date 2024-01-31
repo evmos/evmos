@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -91,7 +92,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -156,7 +157,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -214,7 +215,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -309,7 +310,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						It("should recalculate the EpochMintProvision", func() {
 							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							Expect(provisionAfter).ToNot(Equal(provision))
-							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("159375000000000000000000000")))
+							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("159375000000000000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))))
 						})
 					})
 				})

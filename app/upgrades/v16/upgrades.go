@@ -24,11 +24,11 @@ import (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	ek *evmkeeper.Keeper,
-	_ bankkeeper.Keeper,
-	inflationKeeper inflationkeeper.Keeper,
 	ak authkeeper.AccountKeeper,
+	bk bankkeeper.Keeper,
+	ek *evmkeeper.Keeper,
 	gk govkeeper.Keeper,
+	inflationKeeper inflationkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
@@ -50,24 +50,22 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-		// Migrate the FeeCollector module account to include the Burner permission.
-		// This is required when including the postHandler to burn Cosmos Tx fees
+		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
 		}
 
-		// TODO: uncomment when ready
-		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
-		//	logger.Error("failed to burn inflation pool", "error", err.Error())
-		// }
+		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
+			logger.Error("failed to burn inflation pool", "error", err.Error())
+		}
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
 
 		// Remove the deprecated governance proposals from store
-		logger.Debug("deleting deprecated proposals...")
-		DeleteDeprecatedProposals(ctx, gk, logger)
+		logger.Debug("deleting deprecated incentives module proposals...")
+		DeleteIncentivesProposals(ctx, gk, logger)
 
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
@@ -79,6 +77,7 @@ func CreateUpgradeHandler(
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
+
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }

@@ -88,48 +88,60 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "input",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "output",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "slippage_percentage",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint64",
-				"name": "window_seconds",
-				"type": "uint64"
-			},
-			{
-				"internalType": "string",
-				"name": "receiver",
-				"type": "string"
+				"components": [
+					{
+						"internalType": "string",
+						"name": "channelID",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "xcsContract",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "input",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "output",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint8",
+						"name": "slippagePercentage",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint64",
+						"name": "windowSeconds",
+						"type": "uint64"
+					},
+					{
+						"internalType": "string",
+						"name": "swapReceiver",
+						"type": "string"
+					}
+				],
+				"internalType": "struct SwapParams",
+				"name": "payload",
+				"type": "tuple"
 			}
 		],
 		"name": "swap",
 		"outputs": [
-			{
-				"internalType": "uint64",
-				"name": "nextSequence",
-				"type": "uint64"
-			},
 			{
 				"internalType": "bool",
 				"name": "success",

@@ -3167,6 +3167,7 @@ var (
 		(*Params)(nil),                  // 7: evmos.erc20.v1.Params
 	}
 )
+
 var file_evmos_erc20_v1_tx_proto_depIdxs = []int32{
 	6, // 0: evmos.erc20.v1.MsgConvertCoin.coin:type_name -> cosmos.base.v1beta1.Coin
 	7, // 1: evmos.erc20.v1.MsgUpdateParams.params:type_name -> evmos.erc20.v1.Params

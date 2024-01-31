@@ -40,3 +40,27 @@ jobs:
           file: ./coverage.txt
           fail_ci_if_error: true
         if: env.GIT_DIFF
+
+  test-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: technote-space/get-diff-action@v6.1.2
+        with:
+          PATTERNS: |
+            ./scripts/**
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip' # caching pip dependencies
+        if: env.GIT_DIFF
+      - name: Install Pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+        if: env.GIT_DIFF
+      - name: Test Scripts
+        run: |
+          make test-scripts
+        if: env.GIT_DIFF

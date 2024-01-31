@@ -25,14 +25,18 @@ import (
 )
 
 const (
-	// TimeoutHeight is the default value used in the IBC timeout height for
-	// the client.
-	DefaultTimeoutHeight = 100
+	// DefaultRevisionNumber is the default value used to not set a timeout revision number
+	DefaultRevisionNumber = 0
 
-	// DefaultTimeoutTimestamp is the default value used in the IBC timeout
-	// timestamp for the client.
-	DefaultTimeoutTimestamp = 0
+	// DefaultRevisionHeight is the default value used to not set a timeout revision height
+	DefaultRevisionHeight = 0
+
+	// DefaultTimeoutMinutes is the default value in minutes used to set a timeout timestamp
+	DefaultTimeoutMinutes = 10
 )
+
+// DefaultTimeoutHeight is the default value used to set a timeout height
+var DefaultTimeoutHeight = clienttypes.NewHeight(DefaultRevisionNumber, DefaultRevisionHeight)
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.
 type EventIBCTransfer struct {
