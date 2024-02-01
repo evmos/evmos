@@ -6,7 +6,8 @@ on:
       - release/**
   push:
     branches:
-      - release/**      
+      - main
+      - release/**
 
 jobs:
   test-e2e:
