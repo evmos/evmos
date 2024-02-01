@@ -106,7 +106,6 @@ func (msg MsgUpdateERC20Metadata) Type() string { return TypeMsgUpdateERC20Metad
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateERC20Metadata) ValidateBasic() error {
-
 	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
 		return errorsmod.Wrap(err, "Invalid authority address")
 	}

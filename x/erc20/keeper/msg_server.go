@@ -440,7 +440,6 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 }
 
 func (k *Keeper) UpdateERC20Metadata(goCtx context.Context, req *types.MsgUpdateERC20Metadata) (*types.MsgUpdateERC20MetadataResponse, error) {
-
 	if k.authority.String() != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}
