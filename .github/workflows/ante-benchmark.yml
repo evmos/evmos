@@ -19,7 +19,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: '1.21'
           check-latest: true
         if: env.GIT_DIFF
       - name: Run benchmark tests
