@@ -379,7 +379,6 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	)
 	handler := grpc.NewIntegrationHandler(unitNetwork)
 	tf := testfactory.New(unitNetwork, handler)
-	_ = tf
 
 	// Test that the token pairs are registered correctly
 	res, err := handler.GetTokenPairs()
@@ -396,11 +395,18 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 		require.NotNil(t, acc, "expected account %d to be not nil after genesis: %s", i, expectedAccount)
 	}
 
-	//// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
-	//balance, err := GetERC20Balance(tf, keyring.GetPrivKey(testAccount), res.TokenPairs[0].GetERC20Contract())
-	//require.NoError(t, err, "failed to query ERC-20 balance")
-	//require.Equal(t, big.NewInt(100), balance, "expected different ERC-20 balance after genesis")
-	//
+	// Check that the smart contract address is indeed the registered ERC-20 contract.
+	require.Equal(t,
+		sdk.AccAddress(res.TokenPairs[0].GetERC20Contract().Bytes()).String(),
+		SmartContractAddress,
+		"expected different ERC-20 address for token pair",
+	)
+
+	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
+	balance, err := GetERC20Balance(tf, keyring.GetPrivKey(testAccount), res.TokenPairs[0].GetERC20Contract())
+	require.NoError(t, err, "failed to query ERC-20 balance")
+	require.Equal(t, big.NewInt(100), balance, "expected different ERC-20 balance after genesis")
+
 	//// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
 	//// converting to ERC20s.
 	//err = utils.CheckBalances(handler, []banktypes.Balance{
