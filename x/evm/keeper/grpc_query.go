@@ -659,7 +659,7 @@ func (k *Keeper) traceTx(
 		}
 	}()
 
-    // Build EVM execution context
+	// Build EVM execution context
 	ctx = evmante.BuildEvmExecutionCtx(ctx).
 		WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
 	res, err := k.ApplyMessageWithConfig(ctx, msg, tracer, commitMessage, cfg, txConfig)
