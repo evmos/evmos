@@ -52,12 +52,18 @@ type TxFactory interface {
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
 	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error)
+	// GenerateDeployContractArgs generates the txArgs for a contract deployment.
+	GenerateDeployContractArgs(from common.Address, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (evmtypes.EvmTxArgs, error)
+	// GenerateContractCallArgs generates the txArgs for a contract call.
+	GenerateContractCallArgs(txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (evmtypes.EvmTxArgs, error)
 	// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
 	GenerateMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
 	// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
 	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+	GetEvmTransactionResponseFromTxResult(txResult abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -83,6 +89,27 @@ func New(
 		network:              network,
 		ec:                   &ec,
 	}
+}
+
+// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
+	txResult abcitypes.ExecTxResult,
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	var txData sdktypes.TxMsgData
+	if err := tf.ec.Codec.Unmarshal(txResult.Data, &txData); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal tx data")
+	}
+
+	if len(txData.MsgResponses) != 1 {
+		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal evm tx response")
+	}
+
+	return &evmRes, nil
 }
 
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.

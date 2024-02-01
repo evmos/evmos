@@ -169,7 +169,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	consnsusParams := app.DefaultConsensusParams
+	consensusParams := app.DefaultConsensusParams
 	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -213,7 +213,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Set networks global parameters
 	n.app = evmosApp
-	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
+	n.ctx = n.ctx.WithConsensusParams(*consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
 	n.validators = validators
