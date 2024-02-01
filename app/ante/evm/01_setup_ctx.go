@@ -4,14 +4,13 @@ package evm
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	evmante "github.com/evmos/evmos/v16/x/evm/ante"
 )
 
-var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
+var _ sdktypes.AnteDecorator = &EthSetupContextDecorator{}
 
 // EthSetupContextDecorator is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
 // by setting the gas meter to infinite
@@ -25,7 +24,7 @@ func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
 	}
 }
 
-func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (esc EthSetupContextDecorator) AnteHandle(ctx sdktypes.Context, tx sdktypes.Tx, simulate bool, next sdktypes.AnteHandler) (newCtx sdktypes.Context, err error) {
 	newCtx, err = SetupContext(ctx, tx, esc.evmKeeper)
 	if err != nil {
 		return ctx, err
@@ -33,7 +32,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(newCtx, tx, simulate)
 }
 
-func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
+func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper EVMKeeper) (sdktypes.Context, error) {
 	// all transactions must implement GasTx
 	_, ok := tx.(authante.GasTx)
 	if !ok {
