@@ -5,6 +5,7 @@ package network
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"math/big"
 
@@ -152,6 +153,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			bank:        bankParams,
 		},
 	)
+
+	fmt.Println("total supply before customizing genesis state: ", totalSupply)
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules

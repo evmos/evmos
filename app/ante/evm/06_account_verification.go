@@ -3,6 +3,8 @@
 package evm
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,6 +41,8 @@ func VerifyAccountBalance(
 		account = statedb.NewEmptyAccount()
 	}
 
+	// TODO: remove this
+	fmt.Printf("Balance that is stored for address %q: %s\n", sdk.AccAddress(from.Bytes()).String(), account.Balance.String())
 	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(account.Balance), txData); err != nil {
 		return errorsmod.Wrap(err, "failed to check sender balance")
 	}
