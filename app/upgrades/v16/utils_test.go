@@ -1,9 +1,13 @@
 package v16_test
 
 import (
+	"fmt"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/evmos/evmos/v16/types"
 	"math/big"
 	"testing"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -101,9 +105,27 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// Call the token pair contract to check the balance
-	balance, err := GetERC20Balance(txFactory, kr.GetAddr(testAccount), tokenPair.GetERC20Contract())
+	balance, err := GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), tokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, common.Big0.Int64(), balance.Int64(), "expected different balance initially")
+
+	accs := nw.App.AccountKeeper.GetAllAccounts(nw.GetContext())
+	for i, acct := range accs {
+		fmt.Printf("\n-------------\nAccount %d\n", i)
+		if _, ok := acct.(*authtypes.ModuleAccount); ok {
+			continue
+			//fmt.Println(" >>> Module account")
+		}
+
+		if ethAcc, ok := acct.(*types.EthAccount); ok {
+			fmt.Printf(" >>> Eth account > CodeHash: %x\n", ethAcc.CodeHash)
+		}
+		fmt.Printf(" - Type: %s\n", acct.String())
+		fmt.Printf(" - Address: %s\n", acct.GetAddress())
+		fmt.Printf(" - PubKey: %s\n", acct.GetPubKey())
+		fmt.Printf(" - AccountNumber: %d\n", acct.GetAccountNumber())
+		fmt.Printf(" - Sequence: %d\n", acct.GetSequence())
+	}
 
 	err = nw.NextBlock()
 	require.NoError(t, err, "failed to execute block")
@@ -123,7 +145,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// We check that the ERC20 contract for the token pair shows the correct balance
-	balance, err = GetERC20Balance(txFactory, kr.GetAddr(testAccount), tokenPair.GetERC20Contract())
+	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), tokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, big.NewInt(100), balance, "expected different balance after converting ERC20")
 
@@ -164,7 +186,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// we check that the balance of the deployer address is correct
-	balance, err = GetERC20Balance(txFactory, kr.GetAddr(erc20Deployer), erc20Addr)
+	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(erc20Deployer), erc20Addr)
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, mintAmount, balance, "expected different balance after minting ERC20")
 
@@ -206,9 +228,13 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// check that the WEVMOS balance has been increased
-	balance, err = GetERC20Balance(txFactory, kr.GetAddr(testAccount), wevmosAddr)
+	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), wevmosAddr)
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, big.NewInt(1e18), balance, "expected different balance after minting ERC20")
+
+	// query the token pairs
+	tokenPairs := nw.App.Erc20Keeper.GetTokenPairs(nw.GetContext())
+	fmt.Println("Token pairs: ", tokenPairs)
 
 	return ConvertERC20CoinsTestSuite{
 		keyring:            kr,
@@ -223,18 +249,23 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 }
 
 // GetERC20Balance is a helper method to return the balance of the given ERC20 contract for the given address.
-func GetERC20Balance(txFactory testfactory.TxFactory, addr, erc20Addr common.Address) (*big.Int, error) {
+func GetERC20Balance(txFactory testfactory.TxFactory, pk cryptotypes.PrivKey, erc20Addr common.Address) (*big.Int, error) {
 	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	addr := common.BytesToAddress(pk.PubKey().Address().Bytes())
 
-	callArgs := testfactory.EthCallArgs{
-		ABI:          erc20ABI,
-		ContractAddr: erc20Addr,
-		MethodName:   "balanceOf",
-		Args:         []interface{}{addr},
+	callArgs := testfactory.CallArgs{
+		ContractABI: erc20ABI,
+		MethodName:  "balanceOf",
+		Args:        []interface{}{addr},
 	}
 
 	// FIXME: correctly implement EthCall
-	ethRes, err := txFactory.ExecuteEthCall(callArgs)
+	res, err := txFactory.ExecuteContractCall(pk, evmtypes.EvmTxArgs{To: &erc20Addr}, callArgs)
+	if err != nil {
+		return nil, err
+	}
+
+	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
 		return nil, err
 	}

@@ -194,7 +194,7 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	)
 
 	// NOTE: We check that the ERC20 contract for the token pair can still be called (now as an EVM extension)
-	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetAddr(testAccount), ts.tokenPair.GetERC20Contract())
+	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.tokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, int64(300), balance.Int64(), "expected different balance after converting ERC20")
 
@@ -204,12 +204,12 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	require.True(t, balancesRes.Balances.IsZero(), "expected different balance for module account")
 
 	// NOTE: We check that the erc20deployer account still has the minted balance after converting the native ERC20s only.
-	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetAddr(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
+	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, mintAmount, balance, "expected different balance after converting ERC20")
 
 	// NOTE: We check that there all balance of the WEVMOS contract was withdrawn too.
-	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetAddr(testAccount), ts.wevmosContract)
+	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.wevmosContract)
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, common.Big0.Int64(), balance.Int64(), "expected no WEVMOS left after conversion")
 }
