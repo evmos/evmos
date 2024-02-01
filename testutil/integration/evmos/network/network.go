@@ -155,6 +155,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	)
 
 	fmt.Println("total supply before customizing genesis state: ", totalSupply)
+	fmt.Println("Genesis state for EVM pre customized genesis: ", genesisState[evmtypes.ModuleName])
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules
@@ -162,6 +163,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("Genesis state for EVM post customized genesis: ", genesisState[evmtypes.ModuleName])
 
 	// Init chain
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
