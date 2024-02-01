@@ -8,7 +8,6 @@ import (
 
 	"github.com/armon/go-metrics"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
@@ -67,9 +66,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		)
 		return
 	}
-
-	// per proposal 258, subtract 2/3 of the prev issuance
-	epochMintProvision = epochMintProvision.Quo(sdkmath.LegacyNewDec(ReductionFactor))
 
 	mintedCoin := sdk.Coin{
 		Denom:  params.MintDenom,

@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
-
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -220,7 +217,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 					period,
 					currentEpochPeriod,
 					bondedRatio,
-				).Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+				)
 				suite.Require().Equal(expectedProvision, newProvision)
 				// mint provisions will change
 				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
