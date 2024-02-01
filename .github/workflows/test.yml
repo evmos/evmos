@@ -40,6 +40,8 @@ jobs:
           file: ./coverage.txt
           fail_ci_if_error: true
         if: env.GIT_DIFF
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-scripts:
     runs-on: ubuntu-latest
