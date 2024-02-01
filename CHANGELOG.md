@@ -45,7 +45,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
-- (dep) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 
 ### Bug Fixes
 
@@ -68,6 +67,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+- (dep) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
