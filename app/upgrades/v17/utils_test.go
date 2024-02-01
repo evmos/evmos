@@ -1,12 +1,12 @@
 package v17_test
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"fmt"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"math/big"
 	"testing"
 
+	errorsmod "cosmossdk.io/errors"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"

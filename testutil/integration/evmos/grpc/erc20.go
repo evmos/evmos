@@ -5,6 +5,7 @@ package grpc
 
 import (
 	"context"
+
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 )
 
