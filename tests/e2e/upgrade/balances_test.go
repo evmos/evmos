@@ -2,13 +2,14 @@ package upgrade_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/tests/e2e/upgrade"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestUnpackBalancesResponse(t *testing.T) {

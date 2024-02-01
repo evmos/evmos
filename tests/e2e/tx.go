@@ -61,5 +61,4 @@ func (s *IntegrationTestSuite) sendBankTransfer(ctx context.Context, chainID str
 
 	diff := balancePost.Sub(balancePre...)
 	s.Require().Equal(diff.String(), sentCoins.String(), "unexpected difference in bank balance")
-
 }
