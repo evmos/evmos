@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos
 from .utils import ADDRS, KEYS, eth_to_bech32, sign_transaction, wait_for_new_blocks
 
 PRIORITY_REDUCTION = 1000000

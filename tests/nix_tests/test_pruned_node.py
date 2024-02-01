@@ -6,7 +6,7 @@ from eth_utils import abi, big_endian_to_int
 from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
-from .network import create_snapshots_dir, setup_custom_evmos
+from .network import setup_custom_evmos
 from .utils import (
     ADDRS,
     CONTRACTS,

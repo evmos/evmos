@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import memiavl_config, wait_for_block
+from .network import setup_custom_evmos
+from .utils import wait_for_block
 
 
 @pytest.fixture(scope="module")

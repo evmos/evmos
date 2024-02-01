@@ -20,6 +20,9 @@ let
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
   buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ];
+  # use a newer version of nixpkgs to get go_1_21
+  # We're not updating this on the whole setup because breaks other stuff
+  # but we can import the needed packages from the newer version
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/23.11.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
   go_1_21 = nixpkgs.pkgs.go_1_21;  

@@ -1,6 +1,6 @@
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
+from .network import setup_evmos, setup_geth
 
 
 @pytest.fixture(scope="session")

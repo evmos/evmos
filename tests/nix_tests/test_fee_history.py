@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos
 from .utils import ADDRS, send_transaction
 
 

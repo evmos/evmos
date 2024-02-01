@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos
 from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
 
 

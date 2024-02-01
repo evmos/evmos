@@ -1,6 +1,6 @@
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos
 from .utils import CONTRACTS, deploy_contract, w3_wait_for_new_blocks
 
 

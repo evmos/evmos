@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from web3 import Web3
 
-from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_fn
+from .network import setup_custom_evmos
+from .utils import ADDRS, eth_to_bech32, wait_for_fn
 
 
 @pytest.fixture(scope="module")
