@@ -5,6 +5,8 @@ package keeper
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -444,8 +446,36 @@ func (k *Keeper) UpdateERC20Metadata(goCtx context.Context, req *types.MsgUpdate
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}
 
-	// ctx := sdk.UnwrapSDKContext(goCtx)
-	// TODO: update metadata
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Check existance of contract address
+	contractAddress := common.HexToAddress(req.Erc20Metadata.Address)
+	if !k.evmKeeper.IsAvailablePrecompile(contractAddress) {
+		return nil, errors.New("Precompile does not exists")
+	}
 
+	// check existance of token pair
+	pairID := k.GetTokenPairID(ctx, req.Erc20Metadata.Address)
+	pair, found := k.GetTokenPair(ctx, pairID)
+	if !found {
+		return nil, errors.New("Token pair is not registered")
+	}
+
+	// Get IBC name
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
+	if !found {
+		return nil, errors.New("Metadata did not exist before")
+	}
+
+	// update metadata
+	metadata.Name = req.Erc20Metadata.Name
+	metadata.Symbol = req.Erc20Metadata.Symbol
+
+	for _, denom := range metadata.DenomUnits {
+		fmt.Println(denom)
+	}
+
+	metadata.DenomUnits[0].Exponent = req.Erc20Metadata.Decimals
+
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
 	return nil, nil
 }
