@@ -46,6 +46,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 
+### Bug Fixes
+
+- (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
+
 ### Improvements
 
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
@@ -69,7 +73,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup.
 
 ## [v16.0.1](https://github.com/evmos/evmos/releases/tag/v16.0.1) - 2024-01-11
 
