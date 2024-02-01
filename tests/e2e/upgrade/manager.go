@@ -143,7 +143,6 @@ func (m *Manager) RunNode(node *Node) error {
 			return nil
 		},
 	)
-
 	if err != nil {
 		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 		return fmt.Errorf(
