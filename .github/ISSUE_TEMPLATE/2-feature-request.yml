@@ -18,15 +18,15 @@ body:
     validations:
       required: true
   - type: textarea
-    id: problem
+    id: issue
     attributes:
-      label: Problem Definition
+      label: Issue Definition
       description: |
         If applicable please answer the below questions
         Why do we need this feature? 
-        What problems may be addressed by introducing this feature?
-        What benefits does Evmos stands to gain by including this feature?
-        Are there any disadvantages of including this feature?
+        What issues may be addressed by introducing this feature?
+        What benefits does Evmos stand to gain by including this feature?
+        Are there any disadvantages to including this feature?
       placeholder: Description of the issue being faced
     validations:
       required: false
