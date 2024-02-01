@@ -1229,6 +1229,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 		})
 	}
 }
+
 func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 	keyring := testkeyring.New(3)
 	unitNetwork := network.NewUnitTestNetwork(

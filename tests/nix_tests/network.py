@@ -2,6 +2,7 @@ import json
 import os
 import signal
 import subprocess
+import time
 from pathlib import Path
 
 import tomlkit
@@ -198,6 +199,9 @@ def setup_custom_evmos(
         if wait_port:
             wait_for_port(ports.evmrpc_port(base_port))
             wait_for_port(ports.evmrpc_ws_port(base_port))
+            # wait a couple of additional secs
+            # cause with sdkv0.50 the port starts faster
+            time.sleep(3)
         yield Evmos(
             path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
         )

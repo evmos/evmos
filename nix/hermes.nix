@@ -8,14 +8,18 @@
 , rust-bin
 }:
 rustPlatform.buildRustPackage rec {
+  inherit src;
   name = "hermes";
 
   nativeBuildInputs = [
     rust-bin.stable.latest.minimal
   ];
 
-  inherit src;
-  cargoSha256 = "sha256-jqmIBmvY3PXpLFfv6XrnXJ0RmR6amFFMNfgK8qDFHb8=";
+  cargoLock = {
+    lockFile = "${src}/Cargo.lock";
+  };
+  
+  cargoSha256 = "";
   cargoBuildFlags = "--no-default-features --bin hermes";
   buildInputs = lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.Security

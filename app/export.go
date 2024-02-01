@@ -148,7 +148,6 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 		// this lets us stop in case there's an error
 		return err != nil
 	})
-
 	if err != nil {
 		return err
 	}

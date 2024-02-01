@@ -98,9 +98,9 @@ func (tf *IntegrationTxFactory) DeployContract(
 	// Get account's nonce to create contract hash
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	completeTxArgs, err := tf.GenerateDeployContractArgs(from, txArgs, deploymentData)
-    if err != nil {
-      return common.Address{}, errorsmod.Wrap(err, "failed to generate contract call args")
-    }
+	if err != nil {
+		return common.Address{}, errorsmod.Wrap(err, "failed to generate contract call args")
+	}
 
 	res, err := tf.ExecuteEthTx(priv, completeTxArgs)
 	if err != nil || !res.IsOK() {
