@@ -21,4 +21,7 @@ cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..
-pytest -vv -s
+
+# we want to pass the arguments as separate words instead of one string
+# shellcheck disable=SC2086
+pytest $ARGS -vv -s
