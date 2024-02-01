@@ -1,18 +1,23 @@
 import pytest
 import time
+from web3 import Web3
 
 from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
 from .network import CosmosChain, Evmos
 from .utils import (
     ADDRS,
     eth_to_bech32,
-    wait_for_fn
+    wait_for_fn,
+    erc20_balance
 )
 
 from .ibc_utils import (
-    EVMOS_IBC_DENOM,
-    OSMO_IBC_DENOM,
+    ATOM_IBC_DENOM
 )
+
+# The ERC20 address of ATOM on Evmos
+ATOM_ERC20_ADDRESS = Web3.toChecksumAddress("0xf36e4C1F926001CEaDa9cA97ea622B25f41e5eB2")
+
 
 @pytest.fixture(scope="module", params=["evmos"])
 def ibc(request, tmp_path_factory):
@@ -38,32 +43,37 @@ def test_str_v2_single_hop(ibc):
 
     evmos_cli = evmos.cosmos_cli()
     evmos_addr = ADDRS["signer2"]
-
-    print("token pairs", evmos_cli.get_token_pairs())
+    bech_dst = eth_to_bech32(evmos_addr)
 
     gaia_cli = gaia.cosmos_cli()
     gaia_addr = gaia_cli.address("signer2")
 
-    print("old balance of gaia", gaia_cli.balances(gaia_addr))
-    bech_dst = eth_to_bech32(evmos_addr)
+    old_dst_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
+    print("the bech32 destination", bech_dst)
+    print(f"balance on evmos before: {old_dst_balance}")
 
-    old_dst_balance = evmos_cli.balances(bech_dst)
-    rsp = gaia_cli.ibc_transfer(gaia_addr, bech_dst, "200uatom", "channel-0", 1, fees="10000uatom")
+    rsp = gaia_cli.ibc_transfer(gaia_addr, bech_dst, "5000uatom", "channel-0", 1, fees="10000uatom")
     assert rsp["code"] == 0
 
-    time.sleep(20)
-    # def check_balance_change():
-    #     new_dst_balance = evmos_cli.balances(bech_dst)
-    #     return old_dst_balance != new_dst_balance
-    #
-    # wait_for_fn("balance change", check_balance_change, timeout=25)
+    time.sleep(30)
 
     print("token pairs", evmos_cli.get_token_pairs())
-    print(f"balance on evmos after: {evmos_cli.balances(bech_dst)}")
     print("balance on gaia after", gaia_cli.balances(gaia_addr))
-    print(evmos_cli.evm_params())
+    print(evmos_cli.evm_params()["params"]["active_precompiles"])
 
-    # assert old_dst_balance + 200 == new_dst_balance
+    # new_dst_balance_erc20_balance = erc20_balance(evmos.w3, ATOM_ERC20_ADDRESS, evmos_addr)
+    # print("erc20 balance after", new_dst_balance_erc20_balance)
+
+    new_dest_balance = 0
+    def check_balance_after():
+        nonlocal new_dest_balance
+        new_dest_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
+        print("new balance on evmos after", new_dest_balance)
+        assert old_dst_balance < new_dest_balance
+
+    wait_for_fn("balance changed", check_balance_after)
+
+    assert old_dst_balance + 5000 == new_dest_balance
 
 # def test_str_v2_multi_hop(ibc):
 #     """
