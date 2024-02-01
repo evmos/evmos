@@ -25,7 +25,7 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
+	suite.ctx = suite.app.NewContext(checkTx, header)
 
 	// setup query helpers
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
