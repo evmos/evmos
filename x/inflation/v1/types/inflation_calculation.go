@@ -47,8 +47,13 @@ func CalculateEpochMintProvision(
 	}
 
 	// bondingIncentive = 1 + max_variance - max_variance * (bondingRatio / bonding_target)
-	sub := maxVariance.Mul(bondedRatio.Quo(bTarget))
-	bondingIncentive := math.LegacyOneDec().Add(maxVariance).Sub(sub)
+	var bondingIncentive math.LegacyDec
+	if maxVariance != math.LegacyZeroDec() {
+		sub := maxVariance.Mul(bondedRatio.Quo(bTarget))
+		bondingIncentive = math.LegacyOneDec().Add(maxVariance).Sub(sub)
+	} else {
+		bondingIncentive = math.LegacyOneDec()
+	}
 
 	// reducedPeriodProvision = (exponentialDecay * bondingIncentive + c) / reductionFactor
 	periodProvision := exponentialDecay.Mul(bondingIncentive).Add(c)
