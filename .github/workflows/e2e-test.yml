@@ -80,6 +80,8 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v25
         with:
+          # pin to nix-2.13 to workaround compability issue of 2.14,	
+          # see: https://github.com/cachix/install-nix-action/issues/161
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
