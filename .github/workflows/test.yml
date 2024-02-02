@@ -39,7 +39,9 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           file: ./coverage.txt
-          fail_ci_if_error: true
+          # We were getting a 500 error on codecov servers
+          # so we decided to avoid blocking the CI if this fails
+          fail_ci_if_error: false
         if: env.GIT_DIFF
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
