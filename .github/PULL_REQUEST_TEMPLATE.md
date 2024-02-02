@@ -32,7 +32,7 @@ if you only reviewed selected items.
 I have...
 
 - [ ] added a relevant changelog entry to the `Unreleased` section in `CHANGELOG.md`
-- [ ] confirmed all author checklist items have been addressed 
+- [ ] confirmed all author checklist items have been addressed
 - [ ] confirmed that this PR does not change production code
 - [ ] reviewed content
 - [ ] tested instructions (if applicable)

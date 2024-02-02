@@ -39,4 +39,3 @@ body:
       placeholder: Tell us what how to reproduce the bug!
     validations:
       required: false
-        
