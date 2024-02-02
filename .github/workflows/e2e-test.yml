@@ -121,5 +121,7 @@ jobs:
       #     file_pattern: '*.toml'
       
       - name: Upload Cache
-        if: env.GIT_DIFF
+        env:
+          ARGS: "${{ matrix.test_files }}"
+        if: env.GIT_DIFF && "${ARGS}" == test_account.py
         run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"    
