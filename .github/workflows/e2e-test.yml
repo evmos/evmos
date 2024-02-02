@@ -123,5 +123,5 @@ jobs:
       - name: Upload Cache
         env:
           ARGS: "${{ matrix.test_files }}"
-        if: env.GIT_DIFF && "${ARGS}" == test_account.py
+        if: env.GIT_DIFF && env.ARGS == 'test_account.py'
         run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"    
