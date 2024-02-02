@@ -35,12 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v16.0.3] - 2024-02-02
+
+## Bug Fixes
+
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+
 ## [v16.0.2] - 2024-01-16
 
 ### Bug Fixes
 
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
 
 ## [v16.0.1] - 2024-01-11
 
