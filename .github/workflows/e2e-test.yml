@@ -123,5 +123,5 @@ jobs:
       # upload-cache step
       # make sure to run it only once (the build is the same for all parallel jobs)
       - name: Upload Cache
-        if: matrix.test_file == 'test_account.py'  # Execute only for a specific matrix job
+        if: ${{ matrix.test_files }} == 'test_account.py'  # Execute only for a specific matrix job
         run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"    
