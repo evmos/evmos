@@ -74,7 +74,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 		},
 	}
 
-	genesisState := createGenesisWithTokenPairs()
+	genesisState := createGenesisWithTokenPairs(kr)
 
 	nw := network.NewUnitTestNetwork(
 		network.WithCustomGenesis(genesisState),
@@ -204,7 +204,6 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 func GetERC20Balance(txFactory testfactory.TxFactory, priv cryptotypes.PrivKey, erc20Addr common.Address) (*big.Int, error) {
 	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	addr := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	fmt.Println("Getting balance for address: ", sdk.AccAddress(addr.Bytes()).String())
 
 	txArgs := evmtypes.EvmTxArgs{
 		To: &erc20Addr,

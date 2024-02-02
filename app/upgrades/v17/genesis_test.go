@@ -87,7 +87,7 @@ var (
 //
 // NOTE: This assumes, that the SDK coin balances should be handled in the balances setup for
 // the integration network.
-func createGenesisWithTokenPairs() network.CustomGenesisState {
+func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
 	genesisAccounts := []accounttypes.AccountI{
 		&accounttypes.BaseAccount{
 			Address:       baseAccountAddress,
@@ -105,6 +105,22 @@ func createGenesisWithTokenPairs() network.CustomGenesisState {
 			CodeHash: codeHash.String(),
 		},
 	}
+
+	// Add all keys from the keyring to the genesis accounts as well.
+	//
+	// NOTE: This is necessary to enable the account to send EVM transactions,
+	// because the Mono ante handler checks the account balance by querying the
+	// account from the account keeper first. If these accounts are not in the genesis
+	// state, the ante handler finds a zero balance because of the missing account.
+	for i, addr := range keyring.GetAllAccAddrs() {
+		genesisAccounts = append(genesisAccounts, &accounttypes.BaseAccount{
+			Address:       addr.String(),
+			PubKey:        nil,
+			AccountNumber: uint64(i + 1),
+			Sequence:      1,
+		})
+	}
+
 	accGenesisState := accounttypes.DefaultGenesisState()
 	for _, genesisAccount := range genesisAccounts {
 		// NOTE: This type requires to be packed into a *types.Any as seen on SDK tests,
@@ -147,7 +163,7 @@ func createGenesisWithTokenPairs() network.CustomGenesisState {
 func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	// Create the custom genesis
 	keyring := testkeyring.New(2)
-	genesisState := createGenesisWithTokenPairs()
+	genesisState := createGenesisWithTokenPairs(keyring)
 	fundedBalances := []banktypes.Balance{
 		{
 			Address: keyring.GetAccAddr(testAccount).String(),
@@ -248,6 +264,10 @@ func TestGetERC20Balance(t *testing.T) {
 	require.Equal(t, network.PrefundedAccountInitialBalance.Int64(), aevmosBalance.Balance.Amount.Int64(), "expected different AEVMOS balance after genesis")
 
 	fmt.Printf("Checked balances for %s: %s\n", kr.GetAccAddr(testAccount), aevmosBalance.Balance.Amount.String())
+
+	accI, err := handler.GetAccount(kr.GetAccAddr(testAccount).String())
+	require.NoError(t, err, "failed to get account")
+	require.NotNil(t, accI, "expected account to be not nil after genesis")
 
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 	balance, err := GetERC20Balance(tf, kr.GetPrivKey(testAccount), common.HexToAddress(SmartContractAddress))
