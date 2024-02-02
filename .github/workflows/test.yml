@@ -26,6 +26,7 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
+            .github/workflows/test.yml
             **/**.sol
             **/**.go
             go.mod
@@ -38,8 +39,12 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           file: ./coverage.txt
-          fail_ci_if_error: true
+          # We were getting a 500 error on codecov servers
+          # so we decided to avoid blocking the CI if this fails
+          fail_ci_if_error: false
         if: env.GIT_DIFF
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-scripts:
     runs-on: ubuntu-latest
@@ -48,6 +53,7 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
+            .github/workflows/test.yml
             ./scripts/**
       - name: Setup Python
         uses: actions/setup-python@v5
