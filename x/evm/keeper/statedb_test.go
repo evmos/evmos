@@ -17,7 +17,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
@@ -442,58 +443,70 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 }
 
 func (suite *KeeperTestSuite) TestSuicide() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	firstAddressIndex := keyring.AddKey()
+	firstAddress := keyring.GetAddr(firstAddressIndex)
+	secondAddressIndex := keyring.AddKey()
+	secondAddress := keyring.GetAddr(secondAddressIndex)
+
 	code := []byte("code")
-	db := suite.StateDB()
+	db := unitNetwork.GetStateDB()
 	// Add code to account
-	db.SetCode(suite.keyring.GetAddr(0), code)
-	suite.Require().Equal(code, db.GetCode(suite.keyring.GetAddr(0)))
+	db.SetCode(firstAddress, code)
+	suite.Require().Equal(code, db.GetCode(firstAddress))
 	// Add state to account
 	for i := 0; i < 5; i++ {
-		db.SetState(suite.keyring.GetAddr(0), common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+		db.SetState(
+			firstAddress,
+			common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
+			common.BytesToHash([]byte(fmt.Sprintf("value%d", i))),
+		)
 	}
-
 	suite.Require().NoError(db.Commit())
-	db = suite.StateDB()
-
-	// Generate 2nd address
-	privkey, _ := ethsecp256k1.GenerateKey()
-	key, err := privkey.ToECDSA()
-	suite.Require().NoError(err)
-	addr2 := crypto.PubkeyToAddress(key.PublicKey)
+	db = unitNetwork.GetStateDB()
 
 	// Add code and state to account 2
-	db.SetCode(addr2, code)
-	suite.Require().Equal(code, db.GetCode(addr2))
+	db.SetCode(secondAddress, code)
+	suite.Require().Equal(code, db.GetCode(secondAddress))
 	for i := 0; i < 5; i++ {
-		db.SetState(addr2, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+		db.SetState(
+			secondAddress,
+			common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
+			common.BytesToHash([]byte(fmt.Sprintf("value%d", i))),
+		)
 	}
 
 	// Call Suicide
-	suite.Require().Equal(true, db.Suicide(suite.keyring.GetAddr(0)))
+	suite.Require().Equal(true, db.Suicide(firstAddress))
 
 	// Check suicided is marked
-	suite.Require().Equal(true, db.HasSuicided(suite.keyring.GetAddr(0)))
+	suite.Require().Equal(true, db.HasSuicided(firstAddress))
 
 	// Commit state
 	suite.Require().NoError(db.Commit())
-	db = suite.StateDB()
+	db = unitNetwork.GetStateDB()
 
 	// Check code is deleted
-	suite.Require().Nil(db.GetCode(suite.keyring.GetAddr(0)))
+	suite.Require().Nil(db.GetCode(firstAddress))
+
 	// Check state is deleted
 	var storage types.Storage
-	suite.network.App.EvmKeeper.ForEachStorage(suite.network.GetContext(), suite.keyring.GetAddr(0), func(key, value common.Hash) bool {
+	unitNetwork.App.EvmKeeper.ForEachStorage(unitNetwork.GetContext(), firstAddress, func(key, value common.Hash) bool {
 		storage = append(storage, types.NewState(key, value))
 		return true
 	})
 	suite.Require().Equal(0, len(storage))
 
 	// Check account is deleted
-	suite.Require().Equal(common.Hash{}, db.GetCodeHash(suite.keyring.GetAddr(0)))
+	suite.Require().Equal(common.Hash{}, db.GetCodeHash(firstAddress))
 
 	// Check code is still present in addr2 and suicided is false
-	suite.Require().NotNil(db.GetCode(addr2))
-	suite.Require().Equal(false, db.HasSuicided(addr2))
+	suite.Require().NotNil(db.GetCode(secondAddress))
+	suite.Require().Equal(false, db.HasSuicided(secondAddress))
 }
 
 func (suite *KeeperTestSuite) TestExist() {
