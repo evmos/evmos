@@ -35,9 +35,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-<<<<<<< HEAD
-## [v16.0.2] - 2024-01-16
-=======
 ## Unreleased
 
 ### State Machine Breaking
@@ -73,7 +70,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
->>>>>>> 15a40aec (chore(ci): add markdown lint and build targets for release branch (#2321))
 
 ### Bug Fixes
 

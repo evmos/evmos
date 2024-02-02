@@ -1,19 +1,9 @@
 name: Check Markdown links
 on: 
   pull_request:
-<<<<<<< HEAD
-    paths:
-      - '**.md'
-  push:
-    branches:
-      - main
-    paths:
-      - '**.md'
-=======
     branches:
       - main
       - release/**
->>>>>>> 15a40aec (chore(ci): add markdown lint and build targets for release branch (#2321))
 
 jobs:
   markdown-link-check:
