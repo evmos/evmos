@@ -123,5 +123,7 @@ jobs:
       - name: Upload Cache
         env:
           ARGS: "${{ matrix.test_files }}"
+        # Run the upload cache only once to avoid repeating this
+        # on every job triggered due to the matrix strategy
         if: env.GIT_DIFF && env.ARGS == 'test_account.py'
         run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"    
