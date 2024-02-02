@@ -122,7 +122,7 @@ jobs:
 
   upload-cache:
     if: github.event_name == 'push'
-    needs: ["test-nix"]
+    needs: ["test-nix (test_account.py)"]
     strategy:
       matrix:
         os: [macos-latest]
