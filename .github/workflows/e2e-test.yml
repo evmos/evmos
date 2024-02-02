@@ -122,7 +122,7 @@ jobs:
 
   upload-cache:
     if: github.event_name == 'push'
-    needs: ${{ job.services.test-nix-matrix.outputs.job_id }}
+    needs: ${{ job.services.test-nix.outputs.job_id }}
     strategy:
       matrix:
         os: [macos-latest]
