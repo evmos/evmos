@@ -44,12 +44,6 @@ import (
 	"github.com/evmos/evmos/v12/utils"
 )
 
-func init() {
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
-}
-
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
@@ -72,18 +66,16 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
-func init() {
-	feemarkettypes.DefaultMinGasPrice = sdk.ZeroDec()
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
-}
-
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
 func Setup(
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
 ) *Evmos {
+	feemarkettypes.DefaultMinGasPrice = sdk.ZeroDec()
+	cfg := sdk.GetConfig()
+	config.SetBech32Prefixes(cfg)
+	config.SetBip44CoinType(cfg)
+
 	privVal := mock.NewPV()
 	pubKey, _ := privVal.GetPubKey()
 
