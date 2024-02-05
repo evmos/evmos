@@ -58,16 +58,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 
 	BeforeAll(func() {
 		// NOTE: In the setup function we are creating a custom genesis state for the integration network
-		// which contains balances for two accounts in different denominations.
-		// There is also an ERC-20 smart contract deployed and some tokens minted for each of the accounts.
-		// The balances are split between both token representations (IBC coin and ERC-20 token).
-		//
-		// This genesis state is the starting point to check the migration for the introduction of STR v2.
-		// This should ONLY convert native coins for now, which means that the native ERC-20s should be untouched.
-		// All native IBC coins should be converted to the native representation and the full balance should be returned
-		// both by the bank and the ERC-20 contract.
-		// There should be a new ERC-20 EVM extension registered and the ERC-20 contract should be able to be called
-		// after being deleted and re-registered as a precompile.
+		// which contains balances for accounts in different denominations, both in native as well as ERC-20 representation.
 		var err error
 		ts, err = NewConvertERC20CoinsTestSuite()
 		Expect(err).ToNot(HaveOccurred(), "failed to create test suite")
