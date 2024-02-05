@@ -34,6 +34,8 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	logger := ts.network.GetContext().Logger().With("upgrade")
 
 	// Convert the coins back using the upgrade util
+	//
+	// TODO: debug and step through the conversion to see why the print statement does not occur
 	err = v17.ConvertToNativeCoinExtensions(
 		ts.network.GetContext(),
 		logger,
@@ -48,6 +50,9 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	require.NoError(t, err, "failed to execute block")
 
 	// NOTE: Here we check that the ERC20 converted coins have been added back to the bank balance.
+	//
+	// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
+	// through paying transaction fees and they are not affected by the migration.
 	err = testutils.CheckBalances(ts.handler, []banktypes.Balance{
 		{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
 		{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
@@ -64,10 +69,15 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 		"expected non-native token pair not to be a precompile",
 	)
 
-	// NOTE: We check that the ERC20 contract for the token pair can still be called,
+	// NOTE: We check that the ERC20 contract for the native token pair can still be called,
 	// even though the original contract code was deleted and it is now re-deployed
 	// as a precompiled contract.
-	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.tokenPair.GetERC20Contract())
+	balance, err := GetERC20BalanceForAddr(
+		ts.factory,
+		ts.keyring.GetPrivKey(testAccount),
+		accountWithERC20s,
+		ts.tokenPair.GetERC20Contract(),
+	)
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, int64(300), balance.Int64(), "expected different balance after converting ERC20")
 

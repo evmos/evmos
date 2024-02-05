@@ -28,6 +28,7 @@ type ConvertERC20CoinsTestSuite struct {
 	handler grpc.Handler
 	factory testfactory.TxFactory
 
+	// expectedBalances is the initial balances for the test accounts.
 	expectedBalances   []banktypes.Balance
 	tokenPair          erc20types.TokenPair
 	nonNativeTokenPair erc20types.TokenPair
@@ -45,16 +46,14 @@ const (
 
 // SetupConvertERC20CoinsTest sets up a test suite to test the conversion of ERC-20 coins to native coins.
 //
-// It sets up a basic integration test suite, with two accounts, that contain balances in a native non-Evmos coin.
+// It sets up a basic integration test suite with accounts, that contain balances in a native non-Evmos coin.
 // This coin is registered as an ERC-20 token pair, and a portion of the initial balance is converted to the ERC-20
 // representation.
 //
-// FIXME: this method is removed on the feature branch -> use custom genesis instead?
+// There is also another ERC-20 token pair (a NATIVE ERC-20) registered and some tokens minted to the test account.
+// This is to show that non-native registered ERC20s are not converted and their balances still remain only in the EVM.
 //
-// Things to add in custom genesis:
-// TODO: add token contract to EVM genesis
-// TODO: add token pair to ERC-20 genesis
-// TODO: add some converted balances for the token pair (-> this should mean that there's a balance in the ERC-20 module account)
+// TODO: set up the balance for the ERC-20 module address!
 func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error) {
 	kr := testkeyring.New(2)
 	fundedBalances := []banktypes.Balance{
@@ -72,6 +71,19 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 				sdk.NewInt64Coin(XMPL, 200),
 			),
 		},
+		{
+			Address: bech32WithERC20s.String(),
+			Coins: sdk.NewCoins(
+				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
+				sdk.NewInt64Coin(XMPL, 500),
+			),
+		},
+		// FIXME: Uncomment to check module address was deleted too
+		//{
+		//	Address: types.NewModuleAddress(erc20types.ModuleName).String(),
+		// FIXME: pass correct amount of tokens here
+		//	Coins:   sdk.NewCoins(sdk.NewInt64Coin(XMPL, 100)),
+		//},
 	}
 
 	genesisState := createGenesisWithTokenPairs(kr)
@@ -83,7 +95,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	handler := grpc.NewIntegrationHandler(nw)
 	txFactory := testfactory.New(nw, handler)
 
-	// TODO: Can these whole gov params adjustments be removed? Currently, this is needed to register the ERC-20 as an IBC coin.
+	// NOTE: we are adjusting the gov params to have a min deposit of 0 for the voting proposal.
+	// This makes it simpler to register the token pair for the test.
 	govParamsRes, err := handler.GetGovParams("voting")
 	require.NoError(t, err, "failed to get gov params")
 	govParams := govParamsRes.GetParams()
@@ -96,24 +109,11 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to get token pairs")
 	require.NotNil(t, res, "failed to get token pairs")
 
-	tokenPair := res.TokenPairs[0]
-	fmt.Println("Got token pair with denom: ", tokenPair.Denom)
+	// nativeTokenPair is the token pair for the IBC native coin (XMPL).
+	nativeTokenPair := res.TokenPairs[0]
 
-	// We check that the ERC-20 contract for the token pair shows the correct balance after
-	// converting a portion of the native coins to their ERC-20 representation.
-	balance, err := GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), tokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to query ERC-20 balance")
-	require.Equal(t, big.NewInt(100), balance, "expected different balance after converting ERC-20")
-
-	// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
-	// converting to ERC20s.
-	err = utils.CheckBalances(handler, []banktypes.Balance{
-		{Address: kr.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-		{Address: kr.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	})
-	require.NoError(t, err, "failed to check balances")
-
-	// NOTE: We deploy a standard ERC-20 to show that non-native registered ERC20s are not converted and their balances still remain.
+	// NOTE: We deploy a standard ERC-20 to show that non-native registered ERC20s
+	// are not converted and their balances still remain untouched.
 	erc20Addr, err := txFactory.DeployContract(kr.GetPrivKey(erc20Deployer),
 		evmtypes.EvmTxArgs{},
 		testfactory.ContractDeploymentData{
@@ -128,7 +128,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	err = nw.NextBlock()
 	require.NoError(t, err, "failed to execute block")
 
-	// we mint some tokens to the deployer address
+	// We mint some tokens to the deployer address.
 	_, err = txFactory.ExecuteContractCall(
 		kr.GetPrivKey(erc20Deployer), evmtypes.EvmTxArgs{To: &erc20Addr}, testfactory.CallArgs{
 			ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -141,8 +141,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	err = nw.NextBlock()
 	require.NoError(t, err, "failed to execute block")
 
-	// we check that the balance of the deployer address is correct
-	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(erc20Deployer), erc20Addr)
+	// We check that the minting of tokens for the contract deployer has worked.
+	balance, err := GetERC20Balance(txFactory, kr.GetPrivKey(erc20Deployer), erc20Addr)
 	require.NoError(t, err, "failed to query ERC-20 balance")
 	require.Equal(t, mintAmount, balance, "expected different balance after minting ERC-20")
 
@@ -157,7 +157,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	})
 	require.NoError(t, err, "failed to register ERC-20 token")
 
-	// NOTE: We deploy another a wrapped token contract as a representation of the WEVMOS token.
+	// NOTE: We deploy another smart contract. This is a wrapped token contract
+	// as a representation of the WEVMOS token.
 	wevmosAddr, err := txFactory.DeployContract(
 		kr.GetPrivKey(testAccount),
 		evmtypes.EvmTxArgs{},
@@ -169,11 +170,12 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// send some coins to the wevmos address to deposit them.
+	sentWEvmos := big.NewInt(1e18)
 	_, err = txFactory.ExecuteEthTx(
 		kr.GetPrivKey(testAccount),
 		evmtypes.EvmTxArgs{
 			To:     &wevmosAddr,
-			Amount: big.NewInt(1e18),
+			Amount: sentWEvmos,
 			// FIXME: the gas simulation is not working correctly - otherwise results in out of gas
 			GasLimit: 100_000,
 		},
@@ -186,15 +188,14 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	// check that the WEVMOS balance has been increased
 	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), wevmosAddr)
 	require.NoError(t, err, "failed to query ERC-20 balance")
-	require.Equal(t, big.NewInt(1e18), balance, "expected different balance after minting ERC-20")
+	require.Equal(t, sentWEvmos.String(), balance.String(), "expected different balance after minting ERC-20")
 
 	return ConvertERC20CoinsTestSuite{
 		keyring:            kr,
 		network:            nw,
 		handler:            handler,
 		factory:            txFactory,
-		expectedBalances:   fundedBalances,
-		tokenPair:          tokenPair,
+		tokenPair:          nativeTokenPair,
 		nonNativeTokenPair: nonNativeTokenPair,
 		wevmosContract:     wevmosAddr,
 	}, nil

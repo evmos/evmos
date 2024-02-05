@@ -95,6 +95,14 @@ var (
 // the integration network.
 func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
 	genesisAccounts := []accounttypes.AccountI{
+		// NOTE: we are adding the account which has native coins as ERC-20s to the genesis state to check that
+		// both balances are merged afterward.
+		&accounttypes.BaseAccount{
+			Address:       bech32WithERC20s.String(),
+			PubKey:        nil,
+			AccountNumber: 0,
+			Sequence:      0,
+		},
 		&types.EthAccount{
 			BaseAccount: &accounttypes.BaseAccount{
 				Address:       SmartContractAddress,
@@ -206,10 +214,10 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.Equal(t, XMPL, res.TokenPairs[0].Denom, fmt.Sprintf("expected different denom for %q token pair", XMPL))
 
 	// Check that the accounts defined in the genesis of the account keeper exist
-	expectedAccounts := []string{SmartContractAddress}
+	expectedAccounts := []string{bech32WithERC20s.String(), SmartContractAddress}
 	for i, expectedAccount := range expectedAccounts {
 		acc, err := handler.GetAccount(expectedAccount)
-		require.NoError(t, err, "failed to get account %d", i)
+		require.NoError(t, err, "failed to get account %d: %s", i, expectedAccount)
 		require.NotNil(t, acc, "expected account %d to be not nil after genesis: %s", i, expectedAccount)
 	}
 
