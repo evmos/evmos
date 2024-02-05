@@ -7,7 +7,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -94,17 +94,17 @@ var (
 // NOTE: This assumes, that the SDK coin balances should be handled in the balances setup for
 // the integration network.
 func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
-	genesisAccounts := []accounttypes.AccountI{
+	genesisAccounts := []authtypes.AccountI{
 		// NOTE: we are adding the account which has native coins as ERC-20s to the genesis state to check that
 		// both balances are merged afterward.
-		&accounttypes.BaseAccount{
+		&authtypes.BaseAccount{
 			Address:       bech32WithERC20s.String(),
 			PubKey:        nil,
 			AccountNumber: 0,
 			Sequence:      0,
 		},
 		&types.EthAccount{
-			BaseAccount: &accounttypes.BaseAccount{
+			BaseAccount: &authtypes.BaseAccount{
 				Address:       SmartContractAddress,
 				PubKey:        nil,
 				AccountNumber: 9,
@@ -121,7 +121,7 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 	// account from the account keeper first. If these accounts are not in the genesis
 	// state, the ante handler finds a zero balance because of the missing account.
 	for i, addr := range keyring.GetAllAccAddrs() {
-		genesisAccounts = append(genesisAccounts, &accounttypes.BaseAccount{
+		genesisAccounts = append(genesisAccounts, &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
 			AccountNumber: uint64(i + 1),
@@ -129,7 +129,7 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		})
 	}
 
-	accGenesisState := accounttypes.DefaultGenesisState()
+	accGenesisState := authtypes.DefaultGenesisState()
 	for _, genesisAccount := range genesisAccounts {
 		// NOTE: This type requires to be packed into a *types.Any as seen on SDK tests,
 		// e.g. https://github.com/evmos/cosmos-sdk/blob/v0.47.5-evmos.2/x/auth/keeper/keeper_test.go#L193-L223
@@ -155,9 +155,9 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 
 	// Combine module genesis states
 	return network.CustomGenesisState{
-		accounttypes.ModuleName: accGenesisState,
-		erc20types.ModuleName:   erc20GenesisState,
-		evmtypes.ModuleName:     evmGenesisState,
+		authtypes.ModuleName:  accGenesisState,
+		erc20types.ModuleName: erc20GenesisState,
+		evmtypes.ModuleName:   evmGenesisState,
 	}
 }
 

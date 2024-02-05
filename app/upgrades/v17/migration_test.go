@@ -34,8 +34,6 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	logger := ts.network.GetContext().Logger().With("upgrade")
 
 	// Convert the coins back using the upgrade util
-	//
-	// TODO: debug and step through the conversion to see why the print statement does not occur
 	err = v17.ConvertToNativeCoinExtensions(
 		ts.network.GetContext(),
 		logger,
@@ -49,17 +47,18 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	err = ts.network.NextBlock()
 	require.NoError(t, err, "failed to execute block")
 
-	// NOTE: Here we check that the ERC20 converted coins have been added back to the bank balance.
+	// We check that the ERC20 converted coins have been added back to the bank balance.
 	//
 	// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
 	// through paying transaction fees and they are not affected by the migration.
 	err = testutils.CheckBalances(ts.handler, []banktypes.Balance{
 		{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
 		{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
+		{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 600))},
 	})
 	require.NoError(t, err, "failed to check balances")
 
-	// NOTE: we check that the token pair was registered as an active precompile
+	// We check that the token pair was registered as an active precompile.
 	evmParams, err := ts.handler.GetEvmParams()
 	require.NoError(t, err, "failed to get evm params")
 	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.tokenPair.GetERC20Contract().String(),
@@ -79,7 +78,7 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 		ts.tokenPair.GetERC20Contract(),
 	)
 	require.NoError(t, err, "failed to query ERC20 balance")
-	require.Equal(t, int64(300), balance.Int64(), "expected different balance after converting ERC20")
+	require.Equal(t, int64(600), balance.Int64(), "expected different balance after converting ERC20")
 
 	// NOTE: We check that the balance of the module address is empty after converting native ERC20s
 	balancesRes, err := ts.handler.GetAllBalances(authtypes.NewModuleAddress(erc20types.ModuleName))

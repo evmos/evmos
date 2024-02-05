@@ -8,6 +8,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
@@ -78,12 +79,13 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 				sdk.NewInt64Coin(XMPL, 500),
 			),
 		},
-		// FIXME: Uncomment to check module address was deleted too
-		//{
-		//	Address: types.NewModuleAddress(erc20types.ModuleName).String(),
-		// FIXME: pass correct amount of tokens here
-		//	Coins:   sdk.NewCoins(sdk.NewInt64Coin(XMPL, 100)),
-		//},
+		// NOTE: Here, we are adding the ERC-20 module address to the funded balances,
+		// since we have "converted coins to ERC-20s".
+		// This initial balance is representative of the escrowed coins during this operation.
+		{
+			Address: types.NewModuleAddress(erc20types.ModuleName).String(),
+			Coins:   sdk.NewCoins(sdk.NewInt64Coin(XMPL, 100)),
+		},
 	}
 
 	genesisState := createGenesisWithTokenPairs(kr)
