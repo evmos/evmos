@@ -179,14 +179,21 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 	/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
+	var iterErr error
 	if err := app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
 		for i := range red.Entries {
 			red.Entries[i].CreationHeight = 0
 		}
-		app.StakingKeeper.SetRedelegation(ctx, red)
+		if iterErr = app.StakingKeeper.SetRedelegation(ctx, red); iterErr != nil {
+			return true
+		}
 		return false
 	}); err != nil {
 		return err
+	}
+
+	if iterErr != nil {
+		return iterErr
 	}
 
 	// iterate through unbonding delegations, reset creation height
@@ -194,10 +201,16 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 		for i := range ubd.Entries {
 			ubd.Entries[i].CreationHeight = 0
 		}
-		app.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
+		if iterErr = app.StakingKeeper.SetUnbondingDelegation(ctx, ubd); iterErr != nil {
+			return true
+		}
 		return false
 	}); err != nil {
 		return err
+	}
+
+	if iterErr != nil {
+		return iterErr
 	}
 
 	// Iterate through validators by power descending, reset bond heights, and
@@ -218,7 +231,9 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 			validator.Jailed = true
 		}
 
-		app.StakingKeeper.SetValidator(ctx, validator)
+		if err := app.StakingKeeper.SetValidator(ctx, validator); err != nil {
+			return err
+		}
 		counter++
 	}
 
@@ -237,11 +252,18 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 		ctx,
 		func(addr sdk.ConsAddress, info slashingtypes.ValidatorSigningInfo) (stop bool) {
 			info.StartHeight = 0
-			app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
+			if iterErr = app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info); iterErr != nil {
+				return true
+			}
 			return false
 		},
 	); err != nil {
 		return err
 	}
+
+	if iterErr != nil {
+		return iterErr
+	}
+
 	return nil
 }
