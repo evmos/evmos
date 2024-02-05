@@ -124,7 +124,6 @@ func WithdrawWEVMOS(
 	from, wevmosContract common.Address,
 	erc20Keeper erc20keeper.Keeper,
 ) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
-	// TODO: is it correct to use the ABI from the testdata here? Should this maybe be ported to either the contracts directory or another place?
 	balance := erc20Keeper.BalanceOf(ctx, testdata.WEVMOSContract.ABI, wevmosContract, from)
 	if balance == nil {
 		return common.Big0, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())

@@ -170,13 +170,13 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 // to already set up the scenario in the genesis state.
 func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	// Create the custom genesis
-	keyring := testkeyring.New(2)
+	keyring := testkeyring.New(1)
 	genesisState := createGenesisWithTokenPairs(keyring)
 	// TODO: the queried accounts (not only the ones in the keyring) should have the balances assigned
 	// so that the migration can be tested on those accounts directly.
 	fundedBalances := []banktypes.Balance{
 		{
-			Address: keyring.GetAccAddr(testAccount).String(),
+			Address: keyring.GetAccAddr(erc20Deployer).String(),
 			Coins: sdk.NewCoins(
 				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
 				sdk.NewInt64Coin(XMPL, 300),
@@ -240,7 +240,7 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 	balance, err := GetERC20BalanceForAddr(
 		tf,
-		keyring.GetPrivKey(testAccount),
+		keyring.GetPrivKey(erc20Deployer),
 		accountWithERC20s,
 		res.TokenPairs[0].GetERC20Contract(),
 	)

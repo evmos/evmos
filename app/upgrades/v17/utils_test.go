@@ -25,12 +25,8 @@ const (
 	AEVMOS = "aevmos"
 	XMPL   = "xmpl"
 
-	// testAccount is the index for the main testing account that is sending
-	testAccount = 0
 	// erc20Deployer is the index for the account that deploys the ERC-20 contract.
-	//
-	// TODO: not really necessary??
-	erc20Deployer = testAccount + 1
+	erc20Deployer = 0
 )
 
 var (
@@ -46,10 +42,10 @@ var (
 //
 // This also means, that the ERC-20 module address has a balance of the escrowed ERC-20 token pair coins.
 func NewConvertERC20CoinsTestSuite() (*ConvertERC20CoinsTestSuite, error) {
-	kr := testkeyring.New(2)
+	kr := testkeyring.New(1)
 	fundedBalances := []banktypes.Balance{
 		{
-			Address: kr.GetAccAddr(testAccount).String(),
+			Address: kr.GetAccAddr(erc20Deployer).String(),
 			Coins: sdk.NewCoins(
 				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
 				sdk.NewInt64Coin(XMPL, 300),
@@ -160,7 +156,7 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 	nonNativeTokenPair, err := utils.RegisterERC20(ts.factory, ts.network, utils.ERC20RegistrationData{
 		Address:      erc20Addr,
 		Denom:        "MYTOKEN",
-		ProposerPriv: ts.keyring.GetPrivKey(testAccount),
+		ProposerPriv: ts.keyring.GetPrivKey(erc20Deployer),
 	})
 	if err != nil {
 		return &ConvertERC20CoinsTestSuite{}, errorsmod.Wrap(err, "failed to register ERC-20 token")
@@ -169,7 +165,7 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 	// NOTE: We deploy another smart contract. This is a wrapped token contract
 	// as a representation of the WEVMOS token.
 	wevmosAddr, err := ts.factory.DeployContract(
-		ts.keyring.GetPrivKey(testAccount),
+		ts.keyring.GetPrivKey(erc20Deployer),
 		evmtypes.EvmTxArgs{},
 		testfactory.ContractDeploymentData{Contract: testdata.WEVMOSContract},
 	)
@@ -184,7 +180,7 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 
 	// send some coins to the wevmos address to deposit them.
 	_, err = ts.factory.ExecuteEthTx(
-		ts.keyring.GetPrivKey(testAccount),
+		ts.keyring.GetPrivKey(erc20Deployer),
 		evmtypes.EvmTxArgs{
 			To:     &wevmosAddr,
 			Amount: sentWEVMOS.BigInt(),

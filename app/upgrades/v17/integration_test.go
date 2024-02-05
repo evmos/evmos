@@ -87,7 +87,6 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
 			// through paying transaction fees and they are not affected by the migration.
 			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
-				{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
 				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
 				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted))},
 			})
@@ -121,7 +120,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 			balance, err := GetERC20BalanceForAddr(
 				ts.factory,
-				ts.keyring.GetPrivKey(testAccount),
+				ts.keyring.GetPrivKey(erc20Deployer),
 				accountWithERC20s,
 				ts.nativeTokenPair.GetERC20Contract(),
 			)
@@ -171,7 +170,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 		var balancePre *sdk.Coin
 
 		BeforeAll(func() {
-			balancePreRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
+			balancePreRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(erc20Deployer), AEVMOS)
 			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
 			balancePre = balancePreRes.Balance
 			// TODO: Remove when FIXME below has been cleared
@@ -202,7 +201,6 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
 			// through paying transaction fees and they are not affected by the migration.
 			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
-				{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
 				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
 				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted+converted))},
 			})
@@ -211,7 +209,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 
 		It("should have converted WEVMOS back to the base denomination", func() {
 			// We are checking that the WEVMOS tokens have been converted back to the base denomination.
-			balancePostRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
+			balancePostRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(erc20Deployer), AEVMOS)
 			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
 			Expect(balancePostRes.Balance.String()).To(Equal(balancePre.AddAmount(sentWEVMOS).String()), "expected different balance after converting WEVMOS back to unwrapped denom")
 		})
@@ -232,7 +230,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			// as a precompiled contract.
 			balance, err := GetERC20BalanceForAddr(
 				ts.factory,
-				ts.keyring.GetPrivKey(testAccount),
+				ts.keyring.GetPrivKey(erc20Deployer),
 				accountWithERC20s,
 				ts.nativeTokenPair.GetERC20Contract(),
 			)
@@ -258,7 +256,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 		})
 
 		It("should have withdrawn all WEVMOS tokens", func() {
-			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.wevmosContract)
+			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.wevmosContract)
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
 			Expect(balance.Int64()).To(Equal(int64(0)), "expected empty WEVMOS balance")
 		})
