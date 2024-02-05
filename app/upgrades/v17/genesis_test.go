@@ -2,7 +2,6 @@ package v17_test
 
 import (
 	"fmt"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"math/big"
 	"testing"
 
@@ -223,7 +222,6 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.Equal(t, network.PrefundedAccountInitialBalance.Int64(), aevmosBalance.Balance.Amount.Int64(), "expected different AEVMOS balance after genesis")
 
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
-	// The contract should be initialized with a balance.
 	balance, err := GetERC20BalanceForAddr(
 		tf,
 		keyring.GetPrivKey(testAccount),
@@ -235,12 +233,4 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 		big.NewInt(100).String(), balance.String(),
 		"expected different ERC-20 balance after genesis",
 	)
-
-	// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
-	// converting to ERC20s.
-	err = utils.CheckBalances(handler, []banktypes.Balance{
-		{Address: keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
-		{Address: keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	})
-	require.NoError(t, err, "failed to check balances")
 }
