@@ -167,37 +167,45 @@ func (k Keeper) Precompiles(
 	return activePrecompileMap
 }
 
+// containsPrecompile returns true if the given precompile address is contained in the
+// list of precompiles.
+func containsPrecompile(precompiles []string, address string) bool {
+	for _, a := range precompiles {
+		if a == address {
+			return true
+		}
+	}
+	return false
+}
+
 // AddEVMExtensions adds the given precompiles to the list of active precompiles in the EVM parameters
 // and to the available precompiles map in the Keeper. This function returns an error if
 // the precompiles are invalid or duplicated.
 func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	params := k.GetParams(ctx)
+	fmt.Println("Adding EVM Extensions...")
 
-	addresses := make([]string, len(precompiles))
-	precompilesMap := maps.Clone(k.precompiles)
+	addresses := make([]common.Address, len(precompiles))
+	activePrecompiles := k.GetParams(ctx).ActivePrecompiles
 
 	for i, precompile := range precompiles {
 		// add to active precompiles
 		address := precompile.Address()
-		addresses[i] = address.String()
+		fmt.Println("Check Precompile address: ", address)
 
-		// add to available precompiles, but check for duplicates
-		if _, ok := precompilesMap[address]; ok {
+		if ok := containsPrecompile(activePrecompiles, address.String()); ok {
+			fmt.Printf("precompile already registered: %s \n", address)
 			return fmt.Errorf("precompile already registered: %s", address)
 		}
-		precompilesMap[address] = precompile
+		addresses[i] = address
 	}
 
-	params.ActivePrecompiles = append(params.ActivePrecompiles, addresses...)
-
-	// NOTE: the active precompiles are sorted and validated before setting them
-	// in the params
-	if err := k.SetParams(ctx, params); err != nil {
+	err := k.EnablePrecompiles(ctx, addresses...)
+	if err != nil {
+		fmt.Println("Error enabling precompiles: ", err)
 		return err
 	}
 
-	// update the pointer to the map with the newly added EVM Extensions
-	k.precompiles = precompilesMap
+	fmt.Println("EVM Extensions added successfully.")
 	return nil
 }
 
