@@ -1,15 +1,19 @@
 package v17_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
@@ -21,9 +25,6 @@ func TestSTRv2Migration(t *testing.T) {
 }
 
 type ConvertERC20CoinsTestSuite struct {
-	// TODO: Can be removed eventually because it's only used for the require stuff which we are not using in integration tests
-	suite.Suite
-
 	keyring testkeyring.Keyring
 	network *network.UnitTestNetwork
 	handler grpc.Handler
@@ -66,6 +67,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to get token pairs")
 			Expect(res.TokenPairs).To(HaveLen(1), "unexpected number of token pairs")
 			Expect(res.TokenPairs[0].Denom).To(Equal(XMPL), "expected different denom")
+			Expect(res.TokenPairs[0].IsNativeCoin()).To(BeTrue(), "expected token pair to be for a native coin")
 
 			// Assign the native token pair to the test suite for later use.
 			ts.nativeTokenPair = res.TokenPairs[0]
@@ -79,15 +81,119 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to prepare network state")
 		})
 
-		It("should have registered another token pair", func() {
+		It("should have registered a non-native token pair", func() {
 			res, err := ts.handler.GetTokenPairs()
 			Expect(err).ToNot(HaveOccurred(), "failed to get token pairs")
 			Expect(res.TokenPairs).To(HaveLen(2), "unexpected number of token pairs")
 			Expect(res.TokenPairs).To(ContainElement(ts.nonNativeTokenPair), "non-native token pair not found")
 		})
+
+		It("should have minted ERC-20 tokens for the contract deployer", func() {
+			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.erc20Contract)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC-20 balance")
+			Expect(balance).To(Equal(mintAmount), "expected different balance after minting ERC-20")
+		})
 	})
 
-	It("should migrate migrate without an error", func() {
-		Expect(false).To(BeTrue(), "not implemented")
+	When("running the migration", Ordered, func() {
+		// balancePre is the balance of the account having some WEVMOS tokens before the migration.
+		//
+		// NOTE: we are checking the balances of the account before the migration to compare
+		// them with the balances after the migration to check that the WEVMOS tokens
+		// have been correctly unwrapped.
+		var balancePre *sdk.Coin
+
+		BeforeAll(func() {
+			balancePreRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
+			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
+			balancePre = balancePreRes.Balance
+			// TODO: Remove when FIXME below has been cleared
+			// fmt.Println("Have balance before conversion", balancePre.Amount.String())
+		})
+
+		It("should succeed", func() {
+			logger := ts.network.GetContext().Logger().With("upgrade")
+
+			// Convert the coins back using the upgrade util
+			err := v17.ConvertToNativeCoinExtensions(
+				ts.network.GetContext(),
+				logger,
+				ts.network.App.AccountKeeper,
+				ts.network.App.BankKeeper,
+				ts.network.App.Erc20Keeper,
+				ts.wevmosContract,
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to run migration")
+
+			err = ts.network.NextBlock()
+			Expect(err).ToNot(HaveOccurred(), "failed to execute block")
+		})
+
+		It("should have converted the ERC-20s back to the native representation", func() {
+			// We check that the ERC20 converted coins have been added back to the bank balance.
+			//
+			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
+			// through paying transaction fees and they are not affected by the migration.
+			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
+				{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
+				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
+				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 600))},
+			})
+			Expect(err).ToNot(HaveOccurred(), "expected different balances")
+		})
+
+		It("should have converted WEVMOS back to the base denomination", func() {
+			// We are checking that the WEVMOS tokens have been converted back to the base denomination.
+			balancePostRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
+			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
+			Expect(balancePostRes.Balance.String()).To(Equal(balancePre.AddAmount(sentWEVMOS).String()), "expected different balance after converting WEVMOS back to unwrapped denom")
+		})
+
+		It("should have registered the token pair as an active precompile", func() {
+			// We check that the token pair was registered as an active precompile.
+			evmParamsRes, err := ts.handler.GetEvmParams()
+			Expect(err).ToNot(HaveOccurred(), "failed to get EVM params")
+			Expect(evmParamsRes.Params.ActivePrecompiles).To(
+				ContainElement(ts.nativeTokenPair.GetERC20Contract().String()),
+				"expected precompile to be registered",
+			)
+		})
+
+		It("should be possible to query the account balance either through the bank or the ERC-20 contract", func() {
+			// NOTE: We check that the ERC20 contract for the native token pair can still be called,
+			// even though the original contract code was deleted, and it is now re-deployed
+			// as a precompiled contract.
+			balance, err := GetERC20BalanceForAddr(
+				ts.factory,
+				ts.keyring.GetPrivKey(testAccount),
+				accountWithERC20s,
+				ts.nativeTokenPair.GetERC20Contract(),
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			// TODO: add values instead of hardcoding
+			Expect(balance.Int64()).To(Equal(int64(600)), "expected different balance after converting ERC20")
+
+			balanceRes, err := ts.handler.GetBalance(bech32WithERC20s, ts.nativeTokenPair.Denom)
+			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
+			Expect(balanceRes.Balance.Amount.Int64()).To(Equal(int64(600)), "expected different balance after converting ERC20")
+		})
+
+		It("should have removed all balances from the ERC-20 module account", func() {
+			balancesRes, err := ts.handler.GetAllBalances(authtypes.NewModuleAddress(erc20types.ModuleName))
+			Expect(err).ToNot(HaveOccurred(), "failed to get balances")
+			Expect(balancesRes.Balances.IsZero()).To(BeTrue(), "expected different balance for module account")
+		})
+
+		It("should not have converted the native ERC-20s", func() {
+			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance).To(Equal(mintAmount), "expected different balance after converting ERC20")
+		})
+
+		It("should have withdrawn all WEVMOS tokens", func() {
+			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.wevmosContract)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance.Int64()).To(Equal(int64(0)), "expected empty WEVMOS balance")
+		})
 	})
 })

@@ -35,7 +35,7 @@ const (
 
 var (
 	// sentWEVMOS is the amount of WEVMOS sent to the WEVMOS contract during testing.
-	sentWEVMOS = big.NewInt(1e18)
+	sentWEVMOS = sdk.NewInt(1e18)
 )
 
 // NewConvertERC20CoinsTestSuite sets up a test suite to test the conversion of ERC-20 coins to native coins.
@@ -187,7 +187,7 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 		ts.keyring.GetPrivKey(testAccount),
 		evmtypes.EvmTxArgs{
 			To:     &wevmosAddr,
-			Amount: sentWEVMOS,
+			Amount: sentWEVMOS.BigInt(),
 			// FIXME: the gas simulation is not working correctly - otherwise results in out of gas
 			GasLimit: 100_000,
 		},

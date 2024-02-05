@@ -39,16 +39,12 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	ts, err = PrepareNetwork(ts)
 	require.NoError(t, err, "failed to setup test")
 
-	// TODO: port this to the integration test suite
 	// NOTE: we are checking the balances of the account before the migration to compare
 	// them with the balances after the migration to check that the WEVMOS tokens have been correctly unwrapped.
 	balancePreRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
 	require.NoError(t, err, "failed to check balances")
-	// TODO: Remove when FIXME below has been cleared
-	// fmt.Println("Have balance before conversion", balancePreRes.Balance.Amount.String())
 
 	// We check that the minting of tokens for the contract deployer has worked.
-	// TODO: port this to the integration test suite
 	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.erc20Contract)
 	require.NoError(t, err, "failed to query ERC-20 balance")
 	require.Equal(t, mintAmount, balance, "expected different balance after minting ERC-20")
@@ -90,20 +86,12 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	require.NoError(t, err, "failed to check balances")
 
 	// We are checking that the WEVMOS tokens have been converted back to the base denomination.
-	// TODO: Port to integration tests
 	balancePostRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(testAccount), AEVMOS)
 	require.NoError(t, err, "failed to check balances")
+	// NOTE: can't test for equality because there are transaction fees taken to query the ERC-20 balance ATM.
 	require.Greater(t, balancePostRes.Balance.Amount.String(), balancePreRes.Balance.Amount.String(),
 		"expected different balance after converting WEVMOS back to unwrapped denom",
 	)
-
-	// // FIXME: why is the balance not the exact same?? Are there fees taken from the user balance? Do we want that??
-	// require.Equal(t,
-	//	balancePreRes.Balance.Amount.AddRaw(sentWEVMOS.Int64()).String(),
-	//	balancePostRes.Balance.Amount.String(),
-	//	"expected different balance after converting WEVMOS back to unwrapped denom",
-	// )
-	// fmt.Println("Have balance after conversion", balancePostRes.Balance.Amount.String())
 
 	// We check that the token pair was registered as an active precompile.
 	evmParams, err := ts.handler.GetEvmParams()
@@ -116,7 +104,7 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	)
 
 	// NOTE: We check that the ERC20 contract for the native token pair can still be called,
-	// even though the original contract code was deleted and it is now re-deployed
+	// even though the original contract code was deleted, and it is now re-deployed
 	// as a precompiled contract.
 	balance, err = GetERC20BalanceForAddr(
 		ts.factory,
