@@ -1,9 +1,12 @@
-FROM golang:1.20-bullseye as build-env
+FROM golang:1.22rc2-bullseye as build-env
 
 # Install minimum necessary dependencies
 ENV PACKAGES curl make git libc-dev bash gcc
+# Ignoring the lint about pinning version because
+# the build breaks whenever a new version comes out
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y $PACKAGES
+    apt-get install -y $PACKAGES --no-install-recommends
 
 # Set working directory for the build
 WORKDIR /go/src/github.com/evmos/evmos
@@ -15,7 +18,7 @@ COPY . .
 RUN make build-linux
 
 # Final image
-FROM golang:1.20-bullseye as final
+FROM golang:1.22rc2-bullseye as final
 
 WORKDIR /
 
