@@ -2,8 +2,8 @@ schema = 3
 
 [mod]
   [mod."cloud.google.com/go"]
-    version = "v0.110.10"
-    hash = "sha256-D+V6LaCiCdthJ6W0s220Dyqa7/iReEIv5vqxtOGvy/A="
+    version = "v0.111.0"
+    hash = "sha256-i8tQyny5W/PcPY5W5h2Zo6wKDKgYHpQlK77QU9TUdI4="
   [mod."cloud.google.com/go/compute"]
     version = "v1.23.3"
     hash = "sha256-WwlTw/x9GSM6B4nHm9FDvHZ1Pd4KN0wxk650CosJnpQ="
@@ -29,8 +29,8 @@ schema = 3
     version = "v1.0.1"
     hash = "sha256-MgTocXkBzri9FKkNtkARJXPmxRrRO/diQJS5ZzvYrJY="
   [mod."cosmossdk.io/log"]
-    version = "v1.2.1"
-    hash = "sha256-2Mb0jQ5Yvi+2fvhCVEiiacwODXM8+6vhsKOnHz+wsiY="
+    version = "v1.3.0"
+    hash = "sha256-ti835PlPIWxP8c2Drfo5asi2Kd6kBkmXaadQZ/BiMqw="
   [mod."cosmossdk.io/math"]
     version = "v1.2.0"
     hash = "sha256-yLPUAsJPQxuI0C22cPbP/BzclWb9eBzGFntGDQmdVUc="
@@ -126,8 +126,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.37.3-0.20230920093934-46df7b597e3c"
-    hash = "sha256-142EHlufWebjs4MvQ7LHBo7duqJHVIV394xuEPrr0zA="
+    version = "v0.37.4"
+    hash = "sha256-rEzIdkxeE5FsIGwvzZiPdifPr0v9SmKHQw78I7v2WUA="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.8.0"
     hash = "sha256-Tlm2V9zDs/wVoFvMmJSdCzCdZKiFRC7Qk8FS3FaqQyk="
@@ -160,14 +160,14 @@ schema = 3
     version = "v0.21.0-alpha.1.0.20230904092046-df3db2d96583"
     hash = "sha256-3Va8Ljq63IXty0oHlRpqfsC6WsMut6TWZ2R+/nYtfTU="
   [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.3.1"
-    hash = "sha256-5lRAQaQRscTMVKeKlsiWtLFauK/gjL9cD7gTJgUbddQ="
+    version = "v7.3.2"
+    hash = "sha256-nzfVl2BNqrQCcKBBf5bq47EUuVCcEeg6cBEyfG/5XKM="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
   [mod."github.com/cosmos/ledger-cosmos-go"]
-    version = "v0.12.2"
-    hash = "sha256-fLkveUWxn0nZzvgsY0KTU/T1TUUQ8Ap6XTYSnJs6XXo="
+    version = "v0.12.4"
+    hash = "sha256-SYABql9QYhuZaNxRnvfHw/KqDTTzjYWgzbN7PDKVmGA="
   [mod."github.com/cosmos/rosetta-sdk-go"]
     version = "v0.10.0"
     hash = "sha256-WmLq9E9mYV+ms6Tdb43lCoAy6cowkDnK4bvX/ApDzLY="
@@ -266,6 +266,9 @@ schema = 3
   [mod."github.com/go-logr/logr"]
     version = "v1.3.0"
     hash = "sha256-N8JYtQlwpLWTaCczfhfA/YmHExko0ObPMYVGw8JwbSw="
+  [mod."github.com/go-logr/stdr"]
+    version = "v1.2.2"
+    hash = "sha256-rRweAP7XIb4egtT1f2gkz4sYOu7LDHmcJ5iNsJUd0sE="
   [mod."github.com/go-ole/go-ole"]
     version = "v1.2.6"
     hash = "sha256-+oxitLeJxYF19Z6g+6CgmCHJ1Y5D8raMi2Cb3M6nXCs="
@@ -438,8 +441,8 @@ schema = 3
     version = "v0.1.13"
     hash = "sha256-qb3Qbo0CELGRIzvw7NVM1g/aayaz4Tguppk9MD2/OI8="
   [mod."github.com/mattn/go-isatty"]
-    version = "v0.0.19"
-    hash = "sha256-wYQqGxeqV3Elkmn26Md8mKZ/viw598R4Ych3vtt72YE="
+    version = "v0.0.20"
+    hash = "sha256-qhw9hWtU5wnyFyuMbKx+7RB8ckQaFQ8D+8GKPkN3HHQ="
   [mod."github.com/mattn/go-runewidth"]
     version = "v0.0.9"
     hash = "sha256-dK/kIPe1tcxEubwI4CWfov/HWRBgD/fqlPC3d5i30CY="
@@ -531,8 +534,8 @@ schema = 3
     version = "v1.10.1"
     hash = "sha256-um4INJM5/675MLK42npIsDbSQ1/Iy5ZiUNuAFReUfeM="
   [mod."github.com/rs/zerolog"]
-    version = "v1.30.0"
-    hash = "sha256-fOJEpuiJmsp9ONqvmPGOyoBEDfJHBfUH8liiRCWDe1E="
+    version = "v1.31.0"
+    hash = "sha256-OF4VM+Rv6M5EAaUVD2nOzcbZLQ4b7OAMteyyTqIoU0M="
   [mod."github.com/sasha-s/go-deadlock"]
     version = "v0.3.1"
     hash = "sha256-2CBEi9/iN/OMt7wEIG+hRjgDH6CRWIgibGGGy1dQ78I="
@@ -628,14 +631,23 @@ schema = 3
     version = "v0.9.2"
     hash = "sha256-9h1gEJ/loyaJvu9AsmslztiA8U9ixDTC6TBw9lCU2BE="
   [mod."github.com/zondax/ledger-go"]
-    version = "v0.14.1"
-    hash = "sha256-iQmShSaty50yYTbYPNd4fnOyrcEG7P2fWmj+fLJQW4s="
+    version = "v0.14.3"
+    hash = "sha256-tldEok5ebZ4R4B7H8dSlYS5oVuLvh89n9wUaVlDjYwg="
   [mod."go.etcd.io/bbolt"]
     version = "v1.3.7"
     hash = "sha256-poZk8tPLDWwW95oCOkTJcQtEvOJTD9UXAZ2TqGJutwk="
   [mod."go.opencensus.io"]
     version = "v0.24.0"
     hash = "sha256-4H+mGZgG2c9I1y0m8avF4qmt8LUKxxVsTqR8mKgP4yo="
+  [mod."go.opentelemetry.io/otel"]
+    version = "v1.19.0"
+    hash = "sha256-y51fwO/y73QBdwwRnCp+wrvVuWLeqfSnU/I8i4mBK84="
+  [mod."go.opentelemetry.io/otel/metric"]
+    version = "v1.19.0"
+    hash = "sha256-eYeeR8XUPjoF6lY3Yg1VUL0dPum/18KAcpo5k6zY67E="
+  [mod."go.opentelemetry.io/otel/trace"]
+    version = "v1.19.0"
+    hash = "sha256-EVsShx1IO0zpMztSfqYQ32Gm+hV4wrVM8wWkEfHOaoM="
   [mod."golang.org/x/crypto"]
     version = "v0.18.0"
     hash = "sha256-BuMVUxOIyfLo8MOhqYt+uQ8NDN6P2KdblKyfPxINzQ4="
@@ -666,9 +678,6 @@ schema = 3
   [mod."golang.org/x/tools"]
     version = "v0.16.1"
     hash = "sha256-zIAwVvY/5/rPDebMDpR67CR7b+GtFmGWw6AOhxIkcfI="
-  [mod."golang.org/x/xerrors"]
-    version = "v0.0.0-20220907171357-04be3eba64a2"
-    hash = "sha256-6+zueutgefIYmgXinOflz8qGDDDj0Zhv+2OkGhBTKno="
   [mod."google.golang.org/api"]
     version = "v0.149.0"
     hash = "sha256-nR3mk7wAsjvMEGsOiPKvqQwt789m6a+BDThpfTx0doA="
@@ -676,14 +685,14 @@ schema = 3
     version = "v1.6.8"
     hash = "sha256-decMa0MiWfW/Bzr8QPPzzpeya0YWGHhZAt4Cr/bD1wQ="
   [mod."google.golang.org/genproto"]
-    version = "v0.0.0-20231211222908-989df2bf70f3"
-    hash = "sha256-7DvusxTmchjQbVzN4ph4p5EYvfQQwDg+lo9nk8qDwXY="
+    version = "v0.0.0-20240102182953-50ed04b92917"
+    hash = "sha256-iTzbVZIeGfcI/ZnDJqJZDxBCJ2J6vlYVdpE7wJX0sXI="
   [mod."google.golang.org/genproto/googleapis/api"]
-    version = "v0.0.0-20231120223509-83a465c0220f"
-    hash = "sha256-hWz9HrHPPPmWxOZ+VdpayDHCN79UMxrnQ66wTDE1lvY="
-  [mod."google.golang.org/genproto/googleapis/rpc"]
     version = "v0.0.0-20231212172506-995d672761c0"
-    hash = "sha256-48aeFcLvuthyG7x9JmpeySrBkOqRhu+FgECjt1167IY="
+    hash = "sha256-K85oYmTXZlQ+dOtyL4k1Oy6Qql2uqRUBOk+9TvRlPpE="
+  [mod."google.golang.org/genproto/googleapis/rpc"]
+    version = "v0.0.0-20240108191215-35c7eff3a6b1"
+    hash = "sha256-bwWoFG+H827aJ3VunK7emdQz3BQlTTjWlM513kTZqSo="
   [mod."google.golang.org/grpc"]
     version = "v1.61.0"
     hash = "sha256-+LvlQyeIaM0GgOQoa3rVmM9OS0UtbdK54Fvl3dgJEt8="
