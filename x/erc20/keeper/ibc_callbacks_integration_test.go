@@ -250,7 +250,6 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.suiteIBCTesting = false
 	})
 	It("Is native from source chain - should transfer and register pair and deploy a precompile", func() {
-
 		sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 		receiver = s.EvmosChain.SenderAccount.GetAddress().String()
 		senderAcc = sdk.MustAccAddressFromBech32(sender)
@@ -323,7 +322,6 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.Require().False(s.app.EvmKeeper.IsAvailablePrecompile(uosmoContractAddr))
 	})
 	It("Aevmos - Should transfer aevmos from Osmosis to Evmos and not register pair", func() {
-
 		aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 
 		// 1. Send aevmos from Evmos to Osmosis
@@ -357,6 +355,5 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), utils.BaseDenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().False(found)
-
 	})
 })
