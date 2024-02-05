@@ -128,6 +128,20 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 	}
 }
 
+// IsNativeFromSourceChain checks if the given denom has only made a single hop.
+// It returns true if the denomination is single-hop, false otherwise.
+func IsNativeFromSourceChain(rawDenom string) bool {
+	// Parse the raw denomination to get its DenomTrace
+	denomTrace := transfertypes.ParseDenomTrace(rawDenom)
+
+	// Split the path of the DenomTrace into its components
+	pathComponents := strings.Split(denomTrace.Path, "/")
+
+	// Each hop in the path is represented by a pair of port and channel ids
+	// If the number of components in the path is more than 2, it has hopped multiple chains
+	return len(pathComponents) < 2
+}
+
 // GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
 // denomination is not an IBC voucher or the trace is not found, it returns an error.
 func GetDenomTrace(
@@ -163,6 +177,8 @@ func DeriveDecimalsFromDenom(baseDenom string) (uint8, error) {
 	switch baseDenom[0] {
 	case 'u': // micro (u) -> 6 decimals
 		decimals = 6
+	case 'n': // nano (n) -> 9 decimals
+		decimals = 9
 	case 'a': // atto (a) -> 18 decimals
 		decimals = 18
 	default:

@@ -87,19 +87,22 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	// only convert the remaining difference
-	difference := msg.Token.Amount.Sub(balance.Amount)
+	// Only convert if the pair is a native ERC20
+	if pair.IsNativeERC20() {
+		// only convert the remaining difference
+		difference := msg.Token.Amount.Sub(balance.Amount)
 
-	msgConvertERC20 := erc20types.NewMsgConvertERC20(
-		difference,
-		sender,
-		pair.GetERC20Contract(),
-		common.BytesToAddress(sender.Bytes()),
-	)
+		msgConvertERC20 := erc20types.NewMsgConvertERC20(
+			difference,
+			sender,
+			pair.GetERC20Contract(),
+			common.BytesToAddress(sender.Bytes()),
+		)
 
-	// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-	if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
-		return nil, err
+		// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
+		if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
+			return nil, err
+		}
 	}
 
 	defer func() {
