@@ -17,7 +17,10 @@ import (
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
@@ -42,6 +45,9 @@ type Manager struct {
 	// proposalCounter keeps track of the number of proposals that have been submitted
 	proposalCounter uint
 
+	// ProtoCodec is the codec used to marshal/unmarshal protobuf messages
+	ProtoCodec *codec.ProtoCodec
+
 	// UpgradeHeight stores the upgrade height for the latest upgrade proposal that was submitted
 	UpgradeHeight uint
 }
@@ -57,9 +63,17 @@ func NewManager(networkName string) (*Manager, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docker network creation error: %w", err)
 	}
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
+	if !ok {
+		return nil, fmt.Errorf("failed to get proto codec")
+	}
+
 	return &Manager{
-		pool:    pool,
-		network: network,
+		pool:       pool,
+		network:    network,
+		ProtoCodec: protoCodec,
 	}, nil
 }
 
@@ -323,7 +337,11 @@ func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
 
 // getVotingPeriod returns the voting period for the current node
 func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int, error) {
-	exec, err := m.CreateModuleQueryExec("gov", "params", chainID)
+	exec, err := m.CreateModuleQueryExec(QueryArgs{
+		Module:     "gov",
+		SubCommand: "params",
+		ChainID:    chainID,
+	})
 	if err != nil {
 		return common.Big0, fmt.Errorf("create exec error: %w", err)
 	}

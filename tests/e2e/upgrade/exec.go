@@ -28,10 +28,11 @@ func (m *Manager) CreateModuleTxExec(txArgs E2ETxArgs) (string, error) {
 	cmd = append(cmd,
 		fmt.Sprintf("--chain-id=%s", txArgs.ChainID),
 		"--keyring-backend=test",
-		"--log_format=json",
-		"--fees=500aevmos",
+		"--output=json",
+		"--fees=500000000000aevmos",
 		"--gas=auto",
 		fmt.Sprintf("--from=%s", txArgs.From),
+		"--yes",
 	)
 	return m.CreateExec(cmd, m.ContainerID())
 }
