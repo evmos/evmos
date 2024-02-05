@@ -15,7 +15,10 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+
+	//nolint:revive // dot-imports are okay for Ginkgo BDD
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot-imports are okay for Gomega assertions
 	. "github.com/onsi/gomega"
 )
 
