@@ -176,10 +176,6 @@ build-docker:
 	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
 	chmod +x ./build/evmosd
 
-build-pebbledb:
-	@go mod edit -replace github.com/cometbft/cometbft-db=github.com/notional-labs/cometbft-db@pebble
-	@go mod tidy
-	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
 
 build-rocksdb:
 	# Make sure to run this command with root permission
