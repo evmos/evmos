@@ -26,7 +26,6 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 			amount: big.NewInt(100),
 		},
 	}
-
 	for _, tc := range testcases {
 		tc := tc
 		s.Run(tc.name, func() {
