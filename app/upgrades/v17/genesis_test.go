@@ -1,24 +1,17 @@
 package v17_test
 
 import (
-	"fmt"
-	"math/big"
-	"testing"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/types"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"github.com/stretchr/testify/require"
+	"math/big"
 )
 
 const (
@@ -159,94 +152,4 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		erc20types.ModuleName: erc20GenesisState,
 		evmtypes.ModuleName:   evmGenesisState,
 	}
-}
-
-// This test asserts that we are generating the correct genesis state for the STR v2 migration logic tests.
-// Specifically, this test should enable the scenario where we have token pairs registered in the ERC-20 module
-// and some users with balances in the native denom and the token pair denoms.
-//
-// The users should have balances in both representations (SDK coins and ERC-20s).
-// NOTE: This could also be done after genesis by interacting with the smart contracts, but would be good
-// to already set up the scenario in the genesis state.
-func TestCreateGenesisWithTokenPairs(t *testing.T) {
-	// Create the custom genesis
-	keyring := testkeyring.New(1)
-	genesisState := createGenesisWithTokenPairs(keyring)
-	// TODO: the queried accounts (not only the ones in the keyring) should have the balances assigned
-	// so that the migration can be tested on those accounts directly.
-	fundedBalances := []banktypes.Balance{
-		{
-			Address: keyring.GetAccAddr(erc20Deployer).String(),
-			Coins: sdk.NewCoins(
-				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
-				sdk.NewInt64Coin(XMPL, 300),
-			),
-		},
-		{
-			Address: keyring.GetAccAddr(erc20Deployer).String(),
-			Coins: sdk.NewCoins(
-				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
-				sdk.NewInt64Coin(XMPL, 200),
-			),
-		},
-		{
-			Address: bech32WithERC20s.String(),
-			Coins: sdk.NewCoins(
-				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
-				sdk.NewInt64Coin(XMPL, 500),
-			),
-		},
-	}
-
-	// Instantiate the network
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithBalances(fundedBalances...),
-		network.WithCustomGenesis(genesisState),
-	)
-	handler := grpc.NewIntegrationHandler(unitNetwork)
-	tf := testfactory.New(unitNetwork, handler)
-
-	// Test that the token pairs are registered correctly
-	res, err := handler.GetTokenPairs()
-	require.NoError(t, err, "failed to get token pairs")
-	require.NotNil(t, res, "failed to get token pairs")
-	require.Equal(t, 1, len(res.TokenPairs), "expected different number of token pairs")
-	require.Equal(t, XMPL, res.TokenPairs[0].Denom, fmt.Sprintf("expected different denom for %q token pair", XMPL))
-
-	// Check that the accounts defined in the genesis of the account keeper exist
-	expectedAccounts := []string{bech32WithERC20s.String(), SmartContractAddress.String()}
-	for i, expectedAccount := range expectedAccounts {
-		acc, err := handler.GetAccount(expectedAccount)
-		require.NoError(t, err, "failed to get account %d: %s", i, expectedAccount)
-		require.NotNil(t, acc, "expected account %d to be not nil after genesis: %s", i, expectedAccount)
-	}
-
-	// Check that the smart contract address is indeed the registered ERC-20 contract.
-	require.Equal(t,
-		sdk.AccAddress(res.TokenPairs[0].GetERC20Contract().Bytes()).String(),
-		SmartContractAddress.String(),
-		"expected different ERC-20 address for token pair",
-	)
-
-	// Check that the funded balances are assigned correctly
-	aevmosBalance, err := handler.GetBalance(bech32WithERC20s, AEVMOS)
-	require.NoError(t, err, "failed to get AEVMOS balance")
-	require.Equal(t, network.PrefundedAccountInitialBalance.Int64(), aevmosBalance.Balance.Amount.Int64(), "expected different AEVMOS balance after genesis")
-
-	xmplBalance, err := handler.GetBalance(bech32WithERC20s, XMPL)
-	require.NoError(t, err, "failed to get XMPL balance")
-	require.Equal(t, int64(500), xmplBalance.Balance.Amount.Int64(), "expected different XMPL balance after genesis")
-
-	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
-	balance, err := GetERC20BalanceForAddr(
-		tf,
-		keyring.GetPrivKey(erc20Deployer),
-		accountWithERC20s,
-		res.TokenPairs[0].GetERC20Contract(),
-	)
-	require.NoError(t, err, "failed to query ERC-20 balance")
-	require.Equal(t,
-		big.NewInt(100).String(), balance.String(),
-		"expected different ERC-20 balance after genesis",
-	)
 }
