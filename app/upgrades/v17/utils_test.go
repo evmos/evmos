@@ -46,14 +46,6 @@ func NewConvertERC20CoinsTestSuite() (*ConvertERC20CoinsTestSuite, error) {
 			Address: kr.GetAccAddr(erc20Deployer).String(),
 			Coins: sdk.NewCoins(
 				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
-				sdk.NewInt64Coin(XMPL, 300),
-			),
-		},
-		{
-			Address: kr.GetAccAddr(erc20Deployer).String(),
-			Coins: sdk.NewCoins(
-				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
-				sdk.NewInt64Coin(XMPL, 200),
 			),
 		},
 		{

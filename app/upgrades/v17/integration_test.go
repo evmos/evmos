@@ -91,8 +91,19 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
 			// through paying transaction fees and they are not affected by the migration.
 			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
-				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted))},
+				{
+					Address: ts.keyring.GetAccAddr(erc20Deployer).String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
+					),
+				},
+				{
+					Address: bech32WithERC20s.String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
+						sdk.NewInt64Coin(XMPL, unconverted),
+					),
+				},
 			})
 			Expect(err).ToNot(HaveOccurred(), "expected different balances")
 		})
@@ -198,12 +209,14 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 
 		It("should have converted the ERC-20s back to the native representation", func() {
 			// We check that the ERC20 converted coins have been added back to the bank balance.
-			//
-			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
-			// through paying transaction fees and they are not affected by the migration.
 			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
-				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted+converted))},
+				{
+					Address: bech32WithERC20s.String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
+						sdk.NewInt64Coin(XMPL, unconverted+converted),
+					),
+				},
 			})
 			Expect(err).ToNot(HaveOccurred(), "expected different balances")
 		})
@@ -215,13 +228,17 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			Expect(balancePostRes.Balance.String()).To(Equal(balancePre.AddAmount(sentWEVMOS).String()), "expected different balance after converting WEVMOS back to unwrapped denom")
 		})
 
-		It("should have registered the token pair as an active precompile", func() {
+		It("should have registered only the native token pair as an active precompile", func() {
 			// We check that the token pair was registered as an active precompile.
 			evmParamsRes, err := ts.handler.GetEvmParams()
 			Expect(err).ToNot(HaveOccurred(), "failed to get EVM params")
 			Expect(evmParamsRes.Params.ActivePrecompiles).To(
 				ContainElement(ts.nativeTokenPair.GetERC20Contract().String()),
 				"expected precompile to be registered",
+			)
+			Expect(evmParamsRes.Params.ActivePrecompiles).ToNot(
+				ContainElement(ts.nonNativeTokenPair.GetERC20Contract().String()),
+				"expected no precompile to be registered for non-native token pairs",
 			)
 		})
 
