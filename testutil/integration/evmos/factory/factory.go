@@ -91,7 +91,7 @@ func New(
 	}
 }
 
-// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
 func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
 	txResult abcitypes.ExecTxResult,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
