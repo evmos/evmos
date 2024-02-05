@@ -63,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 - (erc20) [#2276](https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
+- (erc20) [#2290](https://github.com/evmos/evmos/pull/2290) Add migration logic for STR v2 to upgrade handler.
 
 ### API Breaking
 
