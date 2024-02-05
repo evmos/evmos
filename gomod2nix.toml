@@ -56,6 +56,9 @@ schema = 3
   [mod."github.com/ChainSafe/go-schnorrkel"]
     version = "v1.0.0"
     hash = "sha256-atJ2waz124m0DVHjol8v3NfCLKidU3fYu5AgzT9xCBA="
+  [mod."github.com/DataDog/zstd"]
+    version = "v1.5.2"
+    hash = "sha256-LVkZHLG8O4CzmqyQVbGn+0r6AKIMABej8a4HKMFw/xo="
   [mod."github.com/Microsoft/go-winio"]
     version = "v0.6.0"
     hash = "sha256-TQ0AvXZfuT3PDnb4p/h5zmyT8m9VPcwxlXMJuVD6ltE="
@@ -119,6 +122,9 @@ schema = 3
   [mod."github.com/cockroachdb/logtags"]
     version = "v0.0.0-20230118201751-21c54148d20b"
     hash = "sha256-7dQH6j1o99fuxHKkw0RhNC5wJKkvRLMDJpUiVnDx6h8="
+  [mod."github.com/cockroachdb/pebble"]
+    version = "v1.0.0"
+    hash = "sha256-oIMajhqta96d74XxTvMizFmtlPQ/QGIKg+cUzH/1ycU="
   [mod."github.com/cockroachdb/redact"]
     version = "v1.1.5"
     hash = "sha256-0rtT7LRO0wxf9XovOK8GXRrhmx8OcbdPK/mXOKbJdog="
@@ -129,8 +135,8 @@ schema = 3
     version = "v0.37.4"
     hash = "sha256-rEzIdkxeE5FsIGwvzZiPdifPr0v9SmKHQw78I7v2WUA="
   [mod."github.com/cometbft/cometbft-db"]
-    version = "v0.8.0"
-    hash = "sha256-Tlm2V9zDs/wVoFvMmJSdCzCdZKiFRC7Qk8FS3FaqQyk="
+    version = "v0.10.0"
+    hash = "sha256-+X0bghfGcsudcjWrdXijx0FnimzGF6ZsLp52cbImjEE="
   [mod."github.com/confio/ics23/go"]
     version = "v0.9.0"
     hash = "sha256-guD8w7YygfUp7lpTAUyXQuCPx8F3lXkcg+yR5+JOCbk="
@@ -634,8 +640,8 @@ schema = 3
     version = "v0.14.3"
     hash = "sha256-tldEok5ebZ4R4B7H8dSlYS5oVuLvh89n9wUaVlDjYwg="
   [mod."go.etcd.io/bbolt"]
-    version = "v1.3.7"
-    hash = "sha256-poZk8tPLDWwW95oCOkTJcQtEvOJTD9UXAZ2TqGJutwk="
+    version = "v1.3.8"
+    hash = "sha256-ekKy8198B2GfPldHLYZnvNjID6x07dUPYKgFx84TgVs="
   [mod."go.opencensus.io"]
     version = "v0.24.0"
     hash = "sha256-4H+mGZgG2c9I1y0m8avF4qmt8LUKxxVsTqR8mKgP4yo="
