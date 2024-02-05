@@ -1,6 +1,9 @@
 package v17_test
 
 import (
+	"math/big"
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -14,8 +17,6 @@ import (
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"math/big"
-	"testing"
 )
 
 // TestSTRv2Migration runs the Ginkgo BDD tests for the migration logic
@@ -129,7 +130,6 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 				Equal(big.NewInt(converted).String()),
 				"expected different ERC-20 balance after genesis",
 			)
-
 		})
 
 		It("should have a balance of escrowed tokens in the ERC-20 module account", func() {

@@ -1,6 +1,8 @@
 package v17_test
 
 import (
+	"math/big"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -11,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/types"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"math/big"
 )
 
 const (
