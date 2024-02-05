@@ -2,7 +2,6 @@ import json
 import os
 import signal
 import subprocess
-import time
 from pathlib import Path
 
 import tomlkit
@@ -11,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import memiavl_config, supervisorctl, wait_for_port
+from .utils import http_wait_for_block, memiavl_config, supervisorctl, wait_for_port
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -199,9 +198,9 @@ def setup_custom_evmos(
         if wait_port:
             wait_for_port(ports.evmrpc_port(base_port))
             wait_for_port(ports.evmrpc_ws_port(base_port))
-            # wait a couple of additional secs
+            # wait for blocks
             # cause with sdkv0.50 the port starts faster
-            time.sleep(3)
+            http_wait_for_block(ports.rpc_port(base_port), 2)
         yield Evmos(
             path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
         )
