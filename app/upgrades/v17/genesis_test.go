@@ -138,6 +138,7 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 
 	// Add token pairs to genesis
 	erc20GenesisState := erc20types.DefaultGenesisState()
+	// TODO: refactor to be a module wide var
 	erc20GenesisState.TokenPairs = []erc20types.TokenPair{{
 		Erc20Address:  erc20TokenPairHex,
 		Denom:         XMPL,
