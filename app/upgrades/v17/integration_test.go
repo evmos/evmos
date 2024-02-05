@@ -14,6 +14,7 @@ import (
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"math/big"
 	"testing"
 )
 
@@ -42,7 +43,14 @@ type ConvertERC20CoinsTestSuite struct {
 
 // NOTE: For these tests it's mandatory to run them ORDERED!
 var _ = When("testing the STR v2 migration", Ordered, func() {
-	var ts *ConvertERC20CoinsTestSuite
+	var (
+		ts *ConvertERC20CoinsTestSuite
+
+		// unconverted is the amount of native coins that have not been converted to ERC-20.
+		unconverted = int64(500)
+		// converted is the amount of native coins that have been converted to ERC-20.
+		converted = int64(100)
+	)
 
 	BeforeAll(func() {
 		// NOTE: In the setup function we are creating a custom genesis state for the integration network
@@ -62,6 +70,30 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 	})
 
 	When("checking the genesis state of the network", Ordered, func() {
+		It("should include all expected accounts", func() {
+			expectedAccounts := ts.keyring.GetAllAccAddrs()
+			expectedAccounts = append(expectedAccounts, bech32WithERC20s, SmartContractAddress)
+
+			for _, acc := range expectedAccounts {
+				got, err := ts.handler.GetAccount(acc.String())
+				Expect(err).ToNot(HaveOccurred(), "failed to get account")
+				Expect(got).ToNot(BeNil(), "expected non-nil account")
+			}
+		})
+
+		It("should have the expected initial balances", func() {
+			// We check that the ERC20 converted coins have been added back to the bank balance.
+			//
+			// NOTE: We are deliberately ONLY checking the balance of the XMPL coin, because the AEVMOS balance was changed
+			// through paying transaction fees and they are not affected by the migration.
+			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
+				{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
+				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
+				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted))},
+			})
+			Expect(err).ToNot(HaveOccurred(), "expected different balances")
+		})
+
 		It("should have registered a native token pair", func() {
 			res, err := ts.handler.GetTokenPairs()
 			Expect(err).ToNot(HaveOccurred(), "failed to get token pairs")
@@ -69,8 +101,43 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			Expect(res.TokenPairs[0].Denom).To(Equal(XMPL), "expected different denom")
 			Expect(res.TokenPairs[0].IsNativeCoin()).To(BeTrue(), "expected token pair to be for a native coin")
 
+			Expect(res.TokenPairs[0].Erc20Address).To(
+				Equal(common.BytesToAddress(SmartContractAddress.Bytes()).String()),
+				"expected different ERC-20 contract",
+			)
+
 			// Assign the native token pair to the test suite for later use.
 			ts.nativeTokenPair = res.TokenPairs[0]
+		})
+
+		It("should show separate ERC-20 and bank balances", func() {
+			xmplBalance, err := ts.handler.GetBalance(bech32WithERC20s, XMPL)
+			Expect(err).ToNot(HaveOccurred(), "failed to get XMPL balance")
+			Expect(xmplBalance.Balance.Amount.Int64()).To(
+				Equal(unconverted),
+				"expected different XMPL balance",
+			)
+
+			// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
+			balance, err := GetERC20BalanceForAddr(
+				ts.factory,
+				ts.keyring.GetPrivKey(testAccount),
+				accountWithERC20s,
+				ts.nativeTokenPair.GetERC20Contract(),
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance.String()).To(
+				Equal(big.NewInt(converted).String()),
+				"expected different ERC-20 balance after genesis",
+			)
+
+		})
+
+		It("should have a balance of escrowed tokens in the ERC-20 module account", func() {
+			balancesRes, err := ts.handler.GetAllBalances(authtypes.NewModuleAddress(erc20types.ModuleName))
+			Expect(err).ToNot(HaveOccurred(), "failed to get balances")
+			Expect(balancesRes.Balances).ToNot(BeNil(), "expected non-nil balances")
+			Expect(balancesRes.Balances).ToNot(BeEmpty(), "expected non-empty balances")
 		})
 	})
 
@@ -137,7 +204,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			err := testutils.CheckBalances(ts.handler, []banktypes.Balance{
 				{Address: ts.keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
 				{Address: ts.keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 600))},
+				{Address: bech32WithERC20s.String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, unconverted+converted))},
 			})
 			Expect(err).ToNot(HaveOccurred(), "expected different balances")
 		})
@@ -171,11 +238,11 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			)
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
 			// TODO: add values instead of hardcoding
-			Expect(balance.Int64()).To(Equal(int64(600)), "expected different balance after converting ERC20")
+			Expect(balance.Int64()).To(Equal(unconverted+converted), "expected different balance after converting ERC20")
 
 			balanceRes, err := ts.handler.GetBalance(bech32WithERC20s, ts.nativeTokenPair.Denom)
 			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
-			Expect(balanceRes.Balance.Amount.Int64()).To(Equal(int64(600)), "expected different balance after converting ERC20")
+			Expect(balanceRes.Balance.Amount.Int64()).To(Equal(unconverted+converted), "expected different balance after converting ERC20")
 		})
 
 		It("should have removed all balances from the ERC-20 module account", func() {

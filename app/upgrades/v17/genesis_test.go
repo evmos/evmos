@@ -74,7 +74,7 @@ var (
 	mintAmount = big.NewInt(5e18)
 
 	// SmartContractAddress is the bech32 address of the Ethereum smart contract account that is set in genesis.
-	SmartContractAddress = sdk.AccAddress(common.HexToAddress(erc20TokenPairHex).Bytes()).String()
+	SmartContractAddress = sdk.AccAddress(common.HexToAddress(erc20TokenPairHex).Bytes())
 )
 
 // createGenesisWithTokenPairs creates a genesis state that contains the state that cannot be created
@@ -105,7 +105,7 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		},
 		&types.EthAccount{
 			BaseAccount: &authtypes.BaseAccount{
-				Address:       SmartContractAddress,
+				Address:       SmartContractAddress.String(),
 				PubKey:        nil,
 				AccountNumber: 9,
 				Sequence:      1,
@@ -138,7 +138,6 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 
 	// Add token pairs to genesis
 	erc20GenesisState := erc20types.DefaultGenesisState()
-	// TODO: refactor to be a module wide var
 	erc20GenesisState.TokenPairs = []erc20types.TokenPair{{
 		Erc20Address:  erc20TokenPairHex,
 		Denom:         XMPL,
@@ -215,7 +214,7 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.Equal(t, XMPL, res.TokenPairs[0].Denom, fmt.Sprintf("expected different denom for %q token pair", XMPL))
 
 	// Check that the accounts defined in the genesis of the account keeper exist
-	expectedAccounts := []string{bech32WithERC20s.String(), SmartContractAddress}
+	expectedAccounts := []string{bech32WithERC20s.String(), SmartContractAddress.String()}
 	for i, expectedAccount := range expectedAccounts {
 		acc, err := handler.GetAccount(expectedAccount)
 		require.NoError(t, err, "failed to get account %d: %s", i, expectedAccount)
@@ -225,7 +224,7 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	// Check that the smart contract address is indeed the registered ERC-20 contract.
 	require.Equal(t,
 		sdk.AccAddress(res.TokenPairs[0].GetERC20Contract().Bytes()).String(),
-		SmartContractAddress,
+		SmartContractAddress.String(),
 		"expected different ERC-20 address for token pair",
 	)
 
