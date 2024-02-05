@@ -483,8 +483,8 @@ schema = 3
     version = "v1.1.0-rc2"
     hash = "sha256-833S8D86IumLRpfrKBzpZCtLsTEnGBWbI3dTYd6BdFg="
   [mod."github.com/opencontainers/runc"]
-    version = "v1.1.5"
-    hash = "sha256-ZbB659QpIXPXdzT2hqwrBiTd14mlgGYeWhYx39nt9RY="
+    version = "v1.1.12"
+    hash = "sha256-YM12Tl1/9dFV9dDAImg56Cf38R+8KsTWvDd1Kh7eD7Q="
   [mod."github.com/ory/dockertest/v3"]
     version = "v3.10.0"
     hash = "sha256-lu+21U7zG00tsTSXBuc2Aq8Ao320OlNxnsLA1LV0qeo="
