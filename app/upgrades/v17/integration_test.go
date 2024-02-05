@@ -176,8 +176,6 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			balancePreRes, err := ts.handler.GetBalance(ts.keyring.GetAccAddr(erc20Deployer), AEVMOS)
 			Expect(err).ToNot(HaveOccurred(), "failed to check balances")
 			balancePre = balancePreRes.Balance
-			// TODO: Remove when FIXME below has been cleared
-			// fmt.Println("Have balance before conversion", balancePre.Amount.String())
 		})
 
 		It("should succeed", func() {
@@ -238,7 +236,6 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 				ts.nativeTokenPair.GetERC20Contract(),
 			)
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
-			// TODO: add values instead of hardcoding
 			Expect(balance.Int64()).To(Equal(unconverted+converted), "expected different balance after converting ERC20")
 
 			balanceRes, err := ts.handler.GetBalance(bech32WithERC20s, ts.nativeTokenPair.Denom)

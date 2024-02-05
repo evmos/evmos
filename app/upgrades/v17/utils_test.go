@@ -94,8 +94,6 @@ func NewConvertERC20CoinsTestSuite() (*ConvertERC20CoinsTestSuite, error) {
 //
 //   - deploy an ERC-20 token contract (EVM-native!)
 //   - register a token pair for this smart contract
-//
-// TODO: mint to deployer account or mint to accountWithERC20s?
 //   - mint some tokens to the deployer account
 //   - This is to show that non-native registered ERC20s are not converted and their balances still remain only in the EVM.
 func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite, error) {
