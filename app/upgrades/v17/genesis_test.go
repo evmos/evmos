@@ -22,10 +22,6 @@ import (
 )
 
 const (
-	// baseAccountAddress is the address of the base account that is set in genesis.
-	baseAccountAddress = "evmos1k5c2zrqmmyx4rfkfp3l98qxvrpcr3m4kgxd0dp"
-	// accountWithERC20s is the address of the account that has ERC-20 tokens in genesis.
-	accountWithERC20s = "0x7B5089c16eC85d73D8d5f6879f39B08797877356"
 	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
 	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials
 	// SmartContractCode is the hex representation of the smart contract code that is set in genesis.
@@ -35,6 +31,11 @@ const (
 )
 
 var (
+	// accountWithERC20s is the address of the account that has ERC-20 tokens in genesis.
+	accountWithERC20s = common.HexToAddress("0x7B5089c16eC85d73D8d5f6879f39B08797877356")
+	// bech32WithERC20s is the bech32 formatted address of the account with ERC-20s.
+	bech32WithERC20s = sdk.AccAddress(accountWithERC20s.Bytes())
+
 	// code is the bytecode of the contract.
 	//
 	// These conversions are taken from the code hash check in InitGenesis:
@@ -71,6 +72,7 @@ var (
 
 	// mintAmount is the amount of tokens to be minted for a non-native ERC-20 contract.
 	mintAmount = big.NewInt(5e18)
+
 	// SmartContractAddress is the bech32 address of the Ethereum smart contract account that is set in genesis.
 	SmartContractAddress = sdk.AccAddress(common.HexToAddress(erc20TokenPairHex).Bytes()).String()
 )
@@ -86,18 +88,13 @@ var (
 //
 //   - 1 token pair with IBC native denom
 //   - The corresponding smart contract with its code and balances (ERC-20 balance)
-//   - An ERC-20 balance for the xmpl denom which represents some native coins, that have been converted to the ERC-20 representation.
+//   - An ERC-20 balance for the xmpl denom which represents some native coins,
+//     that have been converted to the ERC-20 representation.
 //
 // NOTE: This assumes, that the SDK coin balances should be handled in the balances setup for
 // the integration network.
 func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
 	genesisAccounts := []accounttypes.AccountI{
-		&accounttypes.BaseAccount{
-			Address:       baseAccountAddress,
-			PubKey:        nil,
-			AccountNumber: 0,
-			Sequence:      1,
-		},
 		&types.EthAccount{
 			BaseAccount: &accounttypes.BaseAccount{
 				Address:       SmartContractAddress,
@@ -184,6 +181,13 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 				sdk.NewInt64Coin(XMPL, 200),
 			),
 		},
+		{
+			Address: bech32WithERC20s.String(),
+			Coins: sdk.NewCoins(
+				sdk.NewCoin(AEVMOS, network.PrefundedAccountInitialBalance),
+				sdk.NewInt64Coin(XMPL, 500),
+			),
+		},
 	}
 
 	// Instantiate the network
@@ -201,8 +205,8 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.Equal(t, 1, len(res.TokenPairs), "expected different number of token pairs")
 	require.Equal(t, XMPL, res.TokenPairs[0].Denom, fmt.Sprintf("expected different denom for %q token pair", XMPL))
 
-	// Check that the base account exists
-	expectedAccounts := []string{baseAccountAddress, SmartContractAddress}
+	// Check that the accounts defined in the genesis of the account keeper exist
+	expectedAccounts := []string{SmartContractAddress}
 	for i, expectedAccount := range expectedAccounts {
 		acc, err := handler.GetAccount(expectedAccount)
 		require.NoError(t, err, "failed to get account %d", i)
@@ -217,15 +221,19 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	)
 
 	// Check that the funded balances are assigned correctly
-	aevmosBalance, err := handler.GetBalance(keyring.GetAccAddr(testAccount), AEVMOS)
+	aevmosBalance, err := handler.GetBalance(bech32WithERC20s, AEVMOS)
 	require.NoError(t, err, "failed to get AEVMOS balance")
 	require.Equal(t, network.PrefundedAccountInitialBalance.Int64(), aevmosBalance.Balance.Amount.Int64(), "expected different AEVMOS balance after genesis")
+
+	xmplBalance, err := handler.GetBalance(bech32WithERC20s, XMPL)
+	require.NoError(t, err, "failed to get XMPL balance")
+	require.Equal(t, int64(500), xmplBalance.Balance.Amount.Int64(), "expected different XMPL balance after genesis")
 
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 	balance, err := GetERC20BalanceForAddr(
 		tf,
 		keyring.GetPrivKey(testAccount),
-		common.HexToAddress(accountWithERC20s),
+		accountWithERC20s,
 		res.TokenPairs[0].GetERC20Contract(),
 	)
 	require.NoError(t, err, "failed to query ERC-20 balance")
