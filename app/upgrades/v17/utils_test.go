@@ -202,8 +202,17 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 
 // GetERC20Balance is a helper method to return the balance of the given ERC-20 contract for the given address.
 func GetERC20Balance(txFactory testfactory.TxFactory, priv cryptotypes.PrivKey, erc20Addr common.Address) (*big.Int, error) {
-	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	addr := common.BytesToAddress(priv.PubKey().Address().Bytes())
+
+	return GetERC20BalanceForAddr(txFactory, priv, addr, erc20Addr)
+}
+
+// GetERC20BalanceForAddr is a helper method to return the balance of the given ERC-20 contract for the given address.
+//
+// NOTE: Under the hood this sends an actual EVM transaction instead of just querying the JSON-RPC.
+// TODO: Use query instead of transaction in future.
+func GetERC20BalanceForAddr(txFactory testfactory.TxFactory, priv cryptotypes.PrivKey, addr, erc20Addr common.Address) (*big.Int, error) {
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	txArgs := evmtypes.EvmTxArgs{
 		To: &erc20Addr,

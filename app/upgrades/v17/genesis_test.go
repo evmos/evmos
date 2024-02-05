@@ -2,6 +2,7 @@ package v17_test
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"math/big"
 	"testing"
 
@@ -24,8 +25,10 @@ import (
 const (
 	// baseAccountAddress is the address of the base account that is set in genesis.
 	baseAccountAddress = "evmos1k5c2zrqmmyx4rfkfp3l98qxvrpcr3m4kgxd0dp"
+	// accountWithERC20s is the address of the account that has ERC-20 tokens in genesis.
+	accountWithERC20s = "0x7B5089c16eC85d73D8d5f6879f39B08797877356"
 	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
-	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials
 	// SmartContractCode is the hex representation of the smart contract code that is set in genesis.
 	//
 	// NOTE: This was printed from the working branch and using ExportGenesis -> then printing the genesis account code.
@@ -61,6 +64,7 @@ var (
 		{Key: "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49", Value: "0x0000000000000000000000000000000000000000000000000000000000000001"},
 		{Key: "0xb009fbc347bffd144efd545cc4b15a37592e1dd7063753564d9ecc6fea764b6f", Value: "0x00000000000000000000000047eeb2eac350e1923b8cbdfa4396a077b36e62a0"},
 		{Key: "0xb9cbbae02fe941283ec0eefd7b121e3bc7f89fae077b27bdd75a7fd4cf1543a8", Value: "0x0000000000000000000000000000000000000000000000000000000000000001"},
+		{Key: "0xbd709b1d40030de11c73f3ce33376499eb0cd135667d98ee19bd658eef2adc4d", Value: "0x0000000000000000000000000000000000000000000000000000000000000064"},
 		{Key: "0xc5724e8640ef1f7915e4839c81ad4b592af3c601230608793acd429a848553e9", Value: "0x0000000000000000000000000000000000000000000000000000000000000001"},
 		{Key: "0xfac4953099c6f6272238a038333d99c9cd0475cb85c72b761909fadae4b6cbcd", Value: "0x0000000000000000000000000000000000000000000000000000000000000001"},
 		{Key: "0xfd061ffb53f8d83182630fadee503ca39e0bae885f162932fe84d25caddbc888", Value: "0x0000000000000000000000000000000000000000000000000000000000000001"},
@@ -164,6 +168,8 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	// Create the custom genesis
 	keyring := testkeyring.New(2)
 	genesisState := createGenesisWithTokenPairs(keyring)
+	// TODO: the queried accounts (not only the ones in the keyring) should have the balances assigned
+	// so that the migration can be tested on those accounts directly.
 	fundedBalances := []banktypes.Balance{
 		{
 			Address: keyring.GetAccAddr(testAccount).String(),
@@ -216,20 +222,27 @@ func TestCreateGenesisWithTokenPairs(t *testing.T) {
 	require.NoError(t, err, "failed to get AEVMOS balance")
 	require.Equal(t, network.PrefundedAccountInitialBalance.Int64(), aevmosBalance.Balance.Amount.Int64(), "expected different AEVMOS balance after genesis")
 
-	fmt.Printf("Checked balances for %s: %s\n", keyring.GetAccAddr(testAccount), aevmosBalance.Balance.Amount.String())
-
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
-	balance, err := GetERC20Balance(tf, keyring.GetPrivKey(testAccount), res.TokenPairs[0].GetERC20Contract())
+	// The contract should be initialized with a balance.
+	balance, err := GetERC20BalanceForAddr(
+		tf,
+		keyring.GetPrivKey(testAccount),
+		common.HexToAddress(accountWithERC20s),
+		res.TokenPairs[0].GetERC20Contract(),
+	)
 	require.NoError(t, err, "failed to query ERC-20 balance")
-	require.Equal(t, big.NewInt(100), balance, "expected different ERC-20 balance after genesis")
+	require.Equal(t,
+		big.NewInt(100).String(), balance.String(),
+		"expected different ERC-20 balance after genesis",
+	)
 
-	// // NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
-	// // converting to ERC20s.
-	// err = utils.CheckBalances(handler, []banktypes.Balance{
-	//	{Address: keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	//	{Address: keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	// })
-	// require.NoError(t, err, "failed to check balances")
+	// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
+	// converting to ERC20s.
+	err = utils.CheckBalances(handler, []banktypes.Balance{
+		{Address: keyring.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
+		{Address: keyring.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
+	})
+	require.NoError(t, err, "failed to check balances")
 }
 
 func TestGetERC20Balance(t *testing.T) {
@@ -272,5 +285,8 @@ func TestGetERC20Balance(t *testing.T) {
 	// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
 	balance, err := GetERC20Balance(tf, kr.GetPrivKey(testAccount), common.HexToAddress(SmartContractAddress))
 	require.NoError(t, err, "failed to query ERC-20 balance")
-	require.Equal(t, big.NewInt(100), balance, "expected different ERC-20 balance after genesis")
+	require.Equal(t,
+		big.NewInt(150).String(), balance.String(),
+		"expected different ERC-20 balance after genesis",
+	)
 }
