@@ -61,7 +61,7 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	// We check that the token pair was registered as an active precompile.
 	evmParams, err := ts.handler.GetEvmParams()
 	require.NoError(t, err, "failed to get evm params")
-	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.tokenPair.GetERC20Contract().String(),
+	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.nativeTokenPair.GetERC20Contract().String(),
 		"expected token pair precompile to be active",
 	)
 	require.NotContains(t, evmParams.Params.ActivePrecompiles, ts.nonNativeTokenPair.GetERC20Contract().String(),
@@ -75,7 +75,7 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 		ts.factory,
 		ts.keyring.GetPrivKey(testAccount),
 		accountWithERC20s,
-		ts.tokenPair.GetERC20Contract(),
+		ts.nativeTokenPair.GetERC20Contract(),
 	)
 	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, int64(600), balance.Int64(), "expected different balance after converting ERC20")

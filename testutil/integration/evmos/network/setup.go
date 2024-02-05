@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -262,11 +261,11 @@ func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
-	accounttypes.ModuleName: genStateSetter[*accounttypes.GenesisState](accounttypes.ModuleName),
-	erc20types.ModuleName:   genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
-	evmtypes.ModuleName:     genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
-	govtypes.ModuleName:     genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	infltypes.ModuleName:    genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	authtypes.ModuleName:  genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
+	erc20types.ModuleName: genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
+	evmtypes.ModuleName:   genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	govtypes.ModuleName:   genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	infltypes.ModuleName:  genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 }
 
 // setDefaultAuthGenesisState sets the default auth genesis state

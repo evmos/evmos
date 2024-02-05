@@ -29,19 +29,23 @@ type ConvertERC20CoinsTestSuite struct {
 	handler grpc.Handler
 	factory testfactory.TxFactory
 
-	// expectedBalances is the initial balances for the test accounts.
-	expectedBalances   []banktypes.Balance
-	tokenPair          erc20types.TokenPair
+	// nativeTokenPair is a registered token pair for a native Coin.
+	nativeTokenPair erc20types.TokenPair
+	// nonNativeTokenPair is a registered token pair for an ERC-20 native asset.
 	nonNativeTokenPair erc20types.TokenPair
-	wevmosContract     common.Address
+	// wevmosContract is the address of the deployed WEVMOS contract for testing purposes.
+	wevmosContract common.Address
 }
 
 const (
-	// TODO: rename to AEVMOS_DENOM and XMPL_DENOM
 	AEVMOS = "aevmos"
 	XMPL   = "xmpl"
 
-	testAccount   = 0
+	// testAccount is the index for the main testing account that is sending
+	testAccount = 0
+	// erc20Deployer is the index for the account that deploys the ERC-20 contract.
+	//
+	// TODO: not really necessary??
 	erc20Deployer = testAccount + 1
 )
 
@@ -197,7 +201,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 		network:            nw,
 		handler:            handler,
 		factory:            txFactory,
-		tokenPair:          nativeTokenPair,
+		nativeTokenPair:    nativeTokenPair,
 		nonNativeTokenPair: nonNativeTokenPair,
 		wevmosContract:     wevmosAddr,
 	}, nil
