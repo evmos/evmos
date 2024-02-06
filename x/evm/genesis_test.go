@@ -72,6 +72,8 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 			"invalid account type",
 			func() {
 				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
+				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				acc.AccountNumber = accNum
 				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			&types.GenesisState{
@@ -126,7 +128,8 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
 					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
 				}
-
+				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				ethAcc.AccountNumber = accNum
 				suite.network.App.AccountKeeper.SetAccount(ctx, ethAcc)
 			},
 			&types.GenesisState{
