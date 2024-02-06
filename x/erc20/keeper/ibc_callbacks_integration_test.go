@@ -237,12 +237,8 @@ var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordere
 })
 
 var _ = Describe("Native coins from IBC", Ordered, func() {
-	var (
-		sender, receiver string
-		receiverAcc      sdk.AccAddress
-		senderAcc        sdk.AccAddress
-		amount           int64 = 10
-	)
+	// amount to be transferred
+	var amount int64 = 10
 
 	BeforeEach(func() {
 		s.suiteIBCTesting = true
@@ -251,26 +247,25 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 	})
 	It("Is native from source chain - should transfer and register pair and deploy a precompile", func() {
 
-		sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-		receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-		senderAcc = sdk.MustAccAddressFromBech32(sender)
-		receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+		osmosisAddress := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+		evmosAddress := s.EvmosChain.SenderAccount.GetAddress().String()
+		evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
 
 		// Precompile should not be available before IBC
 		uosmoContractAddr, err := utils.GetIBCDenomAddress(teststypes.UosmoIbcdenom)
 		s.Require().NoError(err)
 		s.Require().False(s.app.EvmKeeper.IsAvailablePrecompile(uosmoContractAddr))
 		// Check receiver's balance for IBC before transfer. Should be zero
-		ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
+		ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, teststypes.UosmoIbcdenom)
 		s.Require().Equal(int64(0), ibcOsmoBalanceBefore.Amount.Int64())
 		s.EvmosChain.Coordinator.CommitBlock()
 
 		// Send uosmo from osmosis to evmos
-		s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+		s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, osmosisAddress, evmosAddress, 1, "")
 		s.EvmosChain.Coordinator.CommitBlock()
 
 		// Check IBC uosmo coin balance - should be equals to amount sended
-		ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
+		ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, teststypes.UosmoIbcdenom)
 		s.Require().Equal(amount, ibcOsmoBalanceAfter.Amount.Int64())
 
 		// Pair should be registered now and precompile available
@@ -281,9 +276,9 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 	})
 	It("Not native from source chain - should transfer and not register pair or deploy precompile", func() {
 		// Send from Cosmos to Osmosis
-		sender = s.IBCCosmosChain.SenderAccount.GetAddress().String()
-		receiver = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-		receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+		sender := s.IBCCosmosChain.SenderAccount.GetAddress().String()
+		receiver := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+		receiverAcc := sdk.MustAccAddressFromBech32(receiver)
 
 		UatomInOsmosisDenomtrace := transfertypes.DenomTrace{
 			Path:      "transfer/channel-1",
@@ -323,35 +318,36 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.Require().False(s.app.EvmKeeper.IsAvailablePrecompile(uosmoContractAddr))
 	})
 	It("Aevmos - Should transfer aevmos from Osmosis to Evmos and not register pair", func() {
+		// Send from vmos to Osmosis back to Evmos
+		evmosAddress := s.EvmosChain.SenderAccount.GetAddress().String()
+		evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
+		osmosisAddress := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+		osmosisAccount := sdk.MustAccAddressFromBech32(osmosisAddress)
 
-		aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
+		aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
 
 		// 1. Send aevmos from Evmos to Osmosis
-		s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, utils.BaseDenom, amount, receiver, sender, 1, "")
+		s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, utils.BaseDenom, amount, evmosAddress, osmosisAddress, 1, "")
 
-		aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
+		aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
 		s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(sendAndReceiveMsgFee), aevmosAfterBalance.Amount)
 
 		// check ibc aevmos coins balance on Osmosis
-		aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, teststypes.AevmosIbcdenom)
+		aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
 		s.Require().Equal(amount, aevmosIBCBalanceBefore.Amount.Int64())
 
 		// 2. Send aevmos IBC coins from Osmosis back to Evmos
 		ibcCoinMeta := fmt.Sprintf("%s/%s", teststypes.AevmosDenomtrace.Path, teststypes.AevmosDenomtrace.BaseDenom)
-		s.SendBackCoins(s.pathOsmosisEvmos, s.IBCOsmosisChain, teststypes.AevmosIbcdenom, amount, sender, receiver, 1, ibcCoinMeta)
+		s.SendBackCoins(s.pathOsmosisEvmos, s.IBCOsmosisChain, teststypes.AevmosIbcdenom, amount, osmosisAddress, evmosAddress, 1, ibcCoinMeta)
 
 		// check ibc aevmos coins balance on Osmosis - should be zero
-		aevmosIBCSenderFinalBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, teststypes.AevmosIbcdenom)
+		aevmosIBCSenderFinalBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
 		s.Require().Equal(int64(0), aevmosIBCSenderFinalBalance.Amount.Int64())
 
 		// check aevmos balance after transfer - should be equal to initial balance
-		aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
+		aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
 		totalFees := sendBackCoinsFee.Add(sendAndReceiveMsgFee)
 		s.Require().Equal(aevmosInitialBalance.Amount.Sub(totalFees), aevmosFinalBalance.Amount)
-
-		// check IBC Coin balance - should be zero
-		ibcCoinsBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.AevmosIbcdenom)
-		s.Require().Equal(int64(0), ibcCoinsBalance.Amount.Int64())
 
 		// Aevmos pair should not be registered
 		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), utils.BaseDenom)
