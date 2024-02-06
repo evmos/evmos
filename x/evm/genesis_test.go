@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	evmostypes "github.com/evmos/evmos/v16/types"
@@ -19,7 +20,10 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
-	var vmdb *statedb.StateDB
+	var (
+		vmdb *statedb.StateDB
+		ctx  sdk.Context
+	)
 
 	testCases := []struct {
 		name     string
@@ -68,7 +72,9 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 			"invalid account type",
 			func() {
 				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
-				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				acc.AccountNumber = accNum
+				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			&types.GenesisState{
 				Params: types.DefaultParams(),
@@ -83,8 +89,8 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 		{
 			"invalid code hash",
 			func() {
-				acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, address.Bytes())
-				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			&types.GenesisState{
 				Params: types.DefaultParams(),
@@ -100,9 +106,9 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 		{
 			"ignore empty account code checking",
 			func() {
-				acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, address.Bytes())
+				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 
-				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			&types.GenesisState{
 				Params: types.DefaultParams(),
@@ -122,8 +128,9 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
 					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
 				}
-
-				suite.app.AccountKeeper.SetAccount(suite.ctx, ethAcc)
+				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				ethAcc.AccountNumber = accNum
+				suite.network.App.AccountKeeper.SetAccount(ctx, ethAcc)
 			},
 			&types.GenesisState{
 				Params: types.DefaultParams(),
@@ -142,6 +149,7 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset values
 			vmdb = suite.StateDB()
+			ctx = suite.network.GetContext()
 
 			tc.malleate()
 			err := vmdb.Commit()
@@ -150,13 +158,13 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 			if tc.expPanic {
 				suite.Require().Panics(
 					func() {
-						_ = evm.InitGenesis(suite.ctx, suite.app.EvmKeeper, suite.app.AccountKeeper, *tc.genState)
+						_ = evm.InitGenesis(ctx, suite.network.App.EvmKeeper, suite.network.App.AccountKeeper, *tc.genState)
 					},
 				)
 			} else {
 				suite.Require().NotPanics(
 					func() {
-						_ = evm.InitGenesis(suite.ctx, suite.app.EvmKeeper, suite.app.AccountKeeper, *tc.genState)
+						_ = evm.InitGenesis(ctx, suite.network.App.EvmKeeper, suite.network.App.AccountKeeper, *tc.genState)
 					},
 				)
 			}
