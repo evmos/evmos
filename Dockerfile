@@ -17,16 +17,14 @@ COPY . .
 
 RUN mkdir -p /target/usr/lib /target/usr/local/lib /target/usr/include
 
-RUN if [ "$DB_BACKEND" = "pebbledb" ]; then \
-    make build-pebbledb; \
-elif [ "$DB_BACKEND" = "rocksdb" ]; then \
+RUN if [ "$DB_BACKEND" = "rocksdb" ]; then \
    make build-rocksdb; \
    cp -r /usr/lib/* /target/usr/lib/ && \
    cp -r /usr/local/lib/* /target/usr/local/lib/ && \
    cp -r /usr/include/* /target/usr/include/; \
 else \
-    # Build default binary (LevelDB)
-    make build; \
+    # Build default binary with corresponding db backend
+    COSMOS_BUILD_OPTIONS=$DB_BACKEND make build; \
 fi
 
 RUN go install github.com/MinseokOh/toml-cli@latest
