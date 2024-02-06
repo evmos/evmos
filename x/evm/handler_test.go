@@ -2,6 +2,7 @@ package evm_test
 
 import (
 	"errors"
+	"math"
 	"math/big"
 	"testing"
 
@@ -10,7 +11,11 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/x/evm/keeper"
 
+	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 
@@ -57,6 +62,19 @@ func (s *EvmTestSuite) DoSetupTest(t require.TestingT) {
 		feemarketGenesis.Params.NoBaseFee = true
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
+
+	// mint some coin to fee collector
+	// to pay gas refunds
+	coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewIntFromUint64(math.MaxUint64)))
+	balances := []banktypes.Balance{
+		{
+			Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+			Coins:   coins,
+		},
+	}
+	bankGenesis := banktypes.DefaultGenesisState()
+	bankGenesis.Balances = balances
+	customGenesis[banktypes.ModuleName] = bankGenesis
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
