@@ -1,6 +1,8 @@
 package v17_test
 
 import (
+	"testing"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,7 +17,6 @@ import (
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 type WithdrawWEVMOSTestSuite struct {
