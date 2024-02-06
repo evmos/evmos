@@ -50,12 +50,12 @@ type EvmTestSuite struct {
 }
 
 // DoSetupTest setup test environment, it uses`require.TestingT` to support both `testing.T` and `testing.B`.
-func (s *EvmTestSuite) DoSetupTest(t require.TestingT) {
+func (suite *EvmTestSuite) DoSetupTest(_ require.TestingT) {
 	keys := testkeyring.New(2)
 	// Set custom balance based on test params
 	customGenesis := network.CustomGenesisState{}
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
-	if s.dynamicTxFee {
+	if suite.dynamicTxFee {
 		feemarketGenesis.Params.EnableHeight = 1
 		feemarketGenesis.Params.NoBaseFee = false
 	} else {
@@ -83,11 +83,11 @@ func (s *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
-	s.network = nw
-	s.factory = tf
-	s.handler = gh
-	s.keyring = keys
-	s.server = nw.App.EvmKeeper
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
+	suite.server = nw.App.EvmKeeper
 }
 
 func (suite *EvmTestSuite) SetupTest() {
