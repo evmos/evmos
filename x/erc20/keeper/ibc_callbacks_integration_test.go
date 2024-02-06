@@ -209,7 +209,6 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.suiteIBCTesting = false
 	})
 	It("Is native from source chain - should transfer and register pair and deploy a precompile", func() {
-
 		osmosisAddress := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 		evmosAddress := s.EvmosChain.SenderAccount.GetAddress().String()
 		evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
