@@ -36,7 +36,7 @@ func CreateUpgradeHandler(
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
 		}
 
-		// Execute the conversion for all Cosmos native ERC20 token pairs to use the ERC20 EVM extension.
+		// Execute the conversion for all ERC20 token pairs for native Cosmos coins to use the ERC20 EVM extension.
 		cacheCtx, writeFn := ctx.CacheContext()
 		if err := ConvertToNativeCoinExtensions(cacheCtx, logger, ak, bk, erck, wrappedContractAddr); err != nil {
 			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
