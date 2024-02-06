@@ -44,45 +44,8 @@ var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordere
 		s.suiteIBCTesting = false
 	})
 
-	Describe("disabled params", func() {
+	Describe("registered native erc20", func() {
 		BeforeEach(func() {
-			erc20params := types.DefaultParams()
-			erc20params.EnableErc20 = false
-			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
-			s.Require().NoError(err)
-
-			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
-		})
-		It("should transfer and not convert to erc20", func() {
-			// register the pair to check that it was not converted to ERC-20
-			// pair, err := s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
-			// s.Require().NoError(err)
-
-			// // check balance before transfer is 0
-			// ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
-			// s.Require().Equal(int64(0), ibcOsmoBalanceBefore.Amount.Int64())
-
-			// s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
-
-			// // check balance after transfer
-			// ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
-			// s.Require().Equal(amount, ibcOsmoBalanceAfter.Amount.Int64())
-
-			// // check ERC20 balance - should be zero (no conversion)
-			// balanceERC20TokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
-			// s.Require().Equal(int64(0), balanceERC20TokenAfter.Int64())
-		})
-	})
-
-	Describe("registered erc20", func() {
-		BeforeEach(func() {
-			erc20params := types.DefaultParams()
-			erc20params.EnableErc20 = true
-			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
-			s.Require().NoError(err)
-
 			receiver = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			sender = s.EvmosChain.SenderAccount.GetAddress().String()
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
@@ -353,6 +316,5 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), utils.BaseDenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().False(found)
-
 	})
 })
