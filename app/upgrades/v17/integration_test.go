@@ -46,7 +46,7 @@ type ConvertERC20CoinsTestSuite struct {
 }
 
 // NOTE: For these tests it's mandatory to run them ORDERED!
-var _ = When("testing the STR v2 migration", Ordered, func() {
+var _ = Describe("STR v2 tests -", Ordered, func() {
 	var (
 		ts *ConvertERC20CoinsTestSuite
 
@@ -64,7 +64,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to create test suite")
 	})
 
-	When("checking the genesis state of the network", Ordered, func() {
+	Describe("the genesis state of the network", Ordered, func() {
 		It("should include all expected accounts", func() {
 			expectedAccounts := ts.keyring.GetAllAccAddrs()
 			expectedAccounts = append(expectedAccounts, bech32WithERC20s, SmartContractAddress)
@@ -145,8 +145,8 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 		})
 	})
 
-	When("preparing the network state", Ordered, func() {
-		It("should run the preparation without an error", func() {
+	Describe("the network state preparation", Ordered, func() {
+		It("should run without an error", func() {
 			var err error
 			ts, err = PrepareNetwork(ts)
 			Expect(err).ToNot(HaveOccurred(), "failed to prepare network state")
@@ -166,7 +166,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 		})
 	})
 
-	When("running the migration", Ordered, func() {
+	Describe("the migration", Ordered, func() {
 		// balancePre is the balance of the account having some WEVMOS tokens before the migration.
 		//
 		// NOTE: we are checking the balances of the account before the migration to compare
@@ -233,7 +233,7 @@ var _ = When("testing the STR v2 migration", Ordered, func() {
 			)
 		})
 
-		It("should be possible to query the account balance either through the bank or the ERC-20 contract", func() {
+		It("should enable getting the same account balance through the bank and the ERC-20 contract", func() {
 			// NOTE: We check that the ERC20 contract for the native token pair can still be called,
 			// even though the original contract code was deleted, and it is now re-deployed
 			// as a precompiled contract.

@@ -23,10 +23,21 @@ func ConvertToNativeCoinExtensions(
 	erc20Keeper erc20keeper.Keeper,
 	wrappedContractAddr common.Address,
 ) error {
+	// Filter all token pairs for the ones that are for Cosmos native coins.
+	nativeTokenPairs := getNativeTokenPairs(ctx, erc20Keeper)
+
 	// NOTE (@fedekunze): first we must convert the all the registered tokens.
 	// If we do it the other way around, the conversion will fail since there won't
 	// be any contract code due to the selfdestruct.
-	if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper, wrappedContractAddr); err != nil {
+	if err := ConvertERC20Coins(
+		ctx,
+		logger,
+		accountKeeper,
+		bankKeeper,
+		erc20Keeper,
+		wrappedContractAddr,
+		nativeTokenPairs,
+	); err != nil {
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 

@@ -31,6 +31,7 @@ func ConvertERC20Coins(
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	wrappedAddr common.Address,
+	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
@@ -61,12 +62,7 @@ func ConvertERC20Coins(
 			)
 		}
 
-		erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
-			// NOTE: here we check if the token pair contains an IBC coin. For now we only want to convert those.
-			if !tokenPair.IsNativeCoin() {
-				return false
-			}
-
+		for _, tokenPair := range nativeTokenPairs {
 			contract := tokenPair.GetERC20Contract()
 			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper); err != nil {
 				logger.Error(
@@ -77,9 +73,7 @@ func ConvertERC20Coins(
 					"error", err.Error(),
 				)
 			}
-
-			return false
-		})
+		}
 
 		return false
 	})
@@ -94,6 +88,26 @@ func ConvertERC20Coins(
 	}
 
 	return nil
+}
+
+// getNativeTokenPairs returns the token pairs that are registered for native Cosmos coins.
+func getNativeTokenPairs(
+	ctx sdk.Context,
+	erc20Keeper erc20keeper.Keeper,
+) []erc20types.TokenPair {
+	var nativeTokenPairs []erc20types.TokenPair
+
+	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
+		// NOTE: here we check if the token pair contains an IBC coin. For now, we only want to convert those.
+		if !tokenPair.IsNativeCoin() {
+			return false
+		}
+
+		nativeTokenPairs = append(nativeTokenPairs, tokenPair)
+		return false
+	})
+
+	return nativeTokenPairs
 }
 
 // ConvertERC20Token converts the given ERC20 token to the native representation.
