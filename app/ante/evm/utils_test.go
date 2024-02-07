@@ -15,7 +15,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -44,40 +43,6 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
-
-func (suite *AnteTestSuite) BuildTestEthTx(
-	from common.Address,
-	to common.Address,
-	amount *big.Int,
-	input []byte,
-	gasPrice *big.Int,
-	gasFeeCap *big.Int,
-	gasTipCap *big.Int,
-	accesses *ethtypes.AccessList,
-) *evmtypes.MsgEthereumTx {
-	chainID := suite.app.EvmKeeper.ChainID()
-	nonce := suite.app.EvmKeeper.GetNonce(
-		suite.ctx,
-		common.BytesToAddress(from.Bytes()),
-	)
-
-	ethTxParams := &evmtypes.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		To:        &to,
-		Amount:    amount,
-		GasLimit:  TestGasLimit,
-		GasPrice:  gasPrice,
-		GasFeeCap: gasFeeCap,
-		GasTipCap: gasTipCap,
-		Input:     input,
-		Accesses:  accesses,
-	}
-
-	msgEthereumTx := evmtypes.NewTx(ethTxParams)
-	msgEthereumTx.From = from.String()
-	return msgEthereumTx
-}
 
 // CreateTestTx is a helper function to create a tx given multiple inputs.
 //
@@ -143,15 +108,15 @@ func (suite *AnteTestSuite) CreateTestTxBuilder(
 		suite.Require().NoError(err)
 
 		// Second round: all signer infos are set, so each signer can sign.
-
+		ctx := suite.network.GetContext()
 		signerData := authsigning.SignerData{
-			ChainID:       suite.ctx.ChainID(),
+			ChainID:       ctx.ChainID(),
 			AccountNumber: accNum,
 			Sequence:      txData.GetNonce(),
 		}
 
 		sigV2, err = tx.SignWithPrivKey(
-			suite.ctx,
+			ctx,
 			signMode, signerData,
 			txBuilder, priv, suite.clientCtx.TxConfig, txData.GetNonce(),
 		)
@@ -260,7 +225,7 @@ func (suite *AnteTestSuite) CreateTestEIP712GrantAllowance(from sdk.AccAddress, 
 		Expiration: &threeHours,
 	}
 	granted := utiltx.GenerateAddress()
-	grantedAddr := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, granted.Bytes())
+	grantedAddr := suite.network.App.AccountKeeper.NewAccountWithAddress(suite.network.GetContext(), granted.Bytes())
 	msgGrant, err := feegrant.NewMsgGrantAllowance(basic, from, grantedAddr.GetAddress())
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgGrant)
@@ -298,7 +263,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgVoteV1(from sdk.AccAddress, priv 
 func (suite *AnteTestSuite) CreateTestEIP712SubmitProposalV1(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) (client.TxBuilder, error) {
 	// Build V1 proposal messages. Must all be same-type, since EIP-712
 	// does not support arrays of variable type.
-	authAcc := suite.app.GovKeeper.GetGovernanceAccount(suite.ctx)
+	authAcc := suite.network.App.GovKeeper.GetGovernanceAccount(suite.network.GetContext())
 
 	proposal1, ok := govtypes.ContentFromProposalType("My proposal 1", "My description 1", govtypes.ProposalTypeText)
 	suite.Require().True(ok)
@@ -458,8 +423,8 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	}
 
 	return utiltx.PrepareEIP712CosmosTx(
-		suite.ctx,
-		suite.app,
+		suite.network.GetContext(),
+		suite.network.App,
 		utiltx.EIP712TxArgs{
 			CosmosTxArgs:       cosmosTxArgs,
 			UseLegacyTypedData: suite.useLegacyEIP712TypedData,
@@ -537,16 +502,18 @@ func (suite *AnteTestSuite) generateMultikeySignatures(signMode signing.SignMode
 
 // RegisterAccount creates an account with the keeper and populates the initial balance
 func (suite *AnteTestSuite) RegisterAccount(pubKey cryptotypes.PubKey, balance *big.Int) {
-	acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, sdk.AccAddress(pubKey.Address()))
-	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+	ctx := suite.network.GetContext()
+	acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(pubKey.Address()))
+	suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 
-	err := suite.app.EvmKeeper.SetBalance(suite.ctx, common.BytesToAddress(pubKey.Address()), balance)
+	err := suite.network.App.EvmKeeper.SetBalance(ctx, common.BytesToAddress(pubKey.Address()), balance)
 	suite.Require().NoError(err)
 }
 
 // createSignerBytes generates sign doc bytes using the given parameters
 func (suite *AnteTestSuite) createSignerBytes(chainID string, signMode signing.SignMode, pubKey cryptotypes.PubKey, txBuilder client.TxBuilder) []byte {
-	acc, err := sdkante.GetSignerAcc(suite.ctx, suite.app.AccountKeeper, sdk.AccAddress(pubKey.Address()))
+	ctx := suite.network.GetContext()
+	acc, err := sdkante.GetSignerAcc(ctx, suite.network.App.AccountKeeper, sdk.AccAddress(pubKey.Address()))
 	suite.Require().NoError(err)
 	signerInfo := authsigning.SignerData{
 		Address:       sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), acc.GetAddress().Bytes()),
@@ -557,7 +524,7 @@ func (suite *AnteTestSuite) createSignerBytes(chainID string, signMode signing.S
 	}
 
 	signerBytes, err := authsigning.GetSignBytesAdapter(
-		suite.ctx,
+		ctx,
 		suite.clientCtx.TxConfig.SignModeHandler(),
 		signMode,
 		signerInfo,
@@ -656,7 +623,7 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 // balance and rewards to the provided account
 func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards math.Int) sdk.Context {
 	ctx, err := testutil.PrepareAccountsForDelegationRewards(
-		suite.T(), ctx, suite.app, addr, balance, rewards,
+		suite.T(), ctx, suite.network.App, addr, balance, rewards,
 	)
 	suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
 	return ctx.

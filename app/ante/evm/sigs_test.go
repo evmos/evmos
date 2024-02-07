@@ -19,10 +19,10 @@ func (suite *AnteTestSuite) TestSignatures() {
 	acc.Nonce = 1
 	acc.Balance = big.NewInt(10000000000)
 
-	err := suite.app.EvmKeeper.SetAccount(suite.ctx, addr, *acc)
+	err := suite.network.App.EvmKeeper.SetAccount(suite.network.GetContext(), addr, *acc)
 	suite.Require().NoError(err)
 	ethTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.app.EvmKeeper.ChainID(),
+		ChainID:  suite.network.App.EvmKeeper.ChainID(),
 		Nonce:    1,
 		To:       &to,
 		Amount:   big.NewInt(10),
