@@ -148,25 +148,9 @@ func (k *Keeper) WithPrecompiles(precompiles map[common.Address]vm.PrecompiledCo
 	return k
 }
 
-// GetInitializedPrecompiles returns the subset of the available precompiled contracts that
-// are initalized in memory.
-func (k Keeper) GetInitializedPrecompiles(
-	activePrecompiles ...common.Address,
-) map[common.Address]vm.PrecompiledContract {
-	newActivePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-	for _, address := range activePrecompiles {
-		precompile, ok := k.precompiles[address]
-		if !ok {
-			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
-		}
-
-		newActivePrecompileMap[address] = precompile
-	}
-
-	return newActivePrecompileMap
-}
-
-// GetCachedPrecompiles returns the available precompiled contracts in memory.
+// GetCachedPrecompiles returns the subset of the available precompiled contracts that
+// are initalized in memory. If a precompile is not found in the cache, it will be
+// instantiated and added to the cache.
 func (k Keeper) GetCachedPrecompiles(
 	ctx sdk.Context,
 	activePrecompiles ...common.Address,
