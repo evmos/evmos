@@ -4,7 +4,6 @@
 package keeper
 
 import (
-	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
