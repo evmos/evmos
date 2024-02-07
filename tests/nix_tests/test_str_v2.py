@@ -71,7 +71,7 @@ def test_str_v2_single_hop(ibc):
         print("new balance on evmos after", new_dest_balance)
         assert old_dst_balance < new_dest_balance
 
-    wait_for_fn("balance changed", check_balance_after)
+    wait_for_fn("balance changed", check_balance_after, timeout=20)
 
     assert old_dst_balance + 5000 == new_dest_balance
 

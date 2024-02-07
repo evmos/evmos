@@ -1,0 +1,11 @@
+=============== Feb 6, 2024 (EST) ===============
+21:15:56.921703 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+21:15:56.970995 db@open opening
+21:15:56.975882 version@stat F·[] S·0B[] Sc·[]
+21:15:56.990068 db@janitor F·2 G·0
+21:15:56.990536 db@open done T·19.164375ms
+21:31:56.094755 memdb@flush N·3676 S·3MiB
+21:31:56.126566 memdb@flush created L0@3 N·3676 S·1MiB "abc..y:1,v6":"val..:99,v488"
+21:31:56.126588 version@stat F·[1] S·1MiB[1MiB] Sc·[0.25]
+21:31:56.130717 memdb@flush committed F·1 T·35.815916ms
+21:31:56.131161 journal@remove removed @1

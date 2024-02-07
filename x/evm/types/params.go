@@ -137,7 +137,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
+	if err := validatePrecompiles(p.ActivePrecompiles); err != nil {
 		return err
 	}
 
@@ -232,8 +232,8 @@ func validateChainConfig(i interface{}) error {
 	return cfg.Validate()
 }
 
-// ValidatePrecompiles checks if the precompile addresses are valid and unique.
-func ValidatePrecompiles(i interface{}) error {
+// validatePrecompiles checks if the precompile addresses are valid and unique.
+func validatePrecompiles(i interface{}) error {
 	precompiles, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid precompile slice type: %T", i)
@@ -242,7 +242,7 @@ func ValidatePrecompiles(i interface{}) error {
 	seenPrecompiles := make(map[string]struct{})
 	for _, precompile := range precompiles {
 		if _, ok := seenPrecompiles[precompile]; ok {
-			return fmt.Errorf("duplicate precompile %s", precompile)
+			return errorsmod.Wrapf(ErrDuplicatePrecompile, "duplicate precompile: %s", precompile)
 		}
 
 		if err := types.ValidateAddress(precompile); err != nil {

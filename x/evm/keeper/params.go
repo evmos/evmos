@@ -53,8 +53,8 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 // of active precompiles.
 func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	params := k.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
 
+	activePrecompiles := params.ActivePrecompiles
 	for _, address := range addresses {
 		activePrecompiles = append(activePrecompiles, address.String())
 	}
@@ -64,7 +64,6 @@ func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) 
 	})
 
 	params.ActivePrecompiles = activePrecompiles
-
 	return k.SetParams(ctx, params)
 }
 

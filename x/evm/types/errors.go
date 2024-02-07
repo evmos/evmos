@@ -30,6 +30,7 @@ const (
 	codeErrInvalidAccount
 	codeErrInvalidGasLimit
 	codeErrInactivePrecompile
+	codeErrDuplicatePrecompile
 )
 
 var ErrPostTxProcessing = errors.New("failed to execute post processing")
@@ -82,6 +83,9 @@ var (
 
 	// ErrInactivePrecompile returns an error if a call is made to an inactive precompile
 	ErrInactivePrecompile = errorsmod.Register(ModuleName, codeErrInactivePrecompile, "precompile not enabled")
+
+	// ErrDuplicatePrecompile returns an error if a precompile is already registered
+	ErrDuplicatePrecompile = errorsmod.Register(ModuleName, codeErrDuplicatePrecompile, "precompile already registered")
 )
 
 // NewExecErrorWithReason unpacks the revert return bytes and returns a wrapped error

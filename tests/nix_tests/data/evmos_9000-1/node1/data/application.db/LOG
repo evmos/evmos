@@ -1,0 +1,37 @@
+=============== Feb 6, 2024 (EST) ===============
+21:15:56.754789 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+21:15:56.792146 db@open opening
+21:15:56.798046 version@stat F·[] S·0B[] Sc·[]
+21:15:56.811202 db@janitor F·2 G·0
+21:15:56.811712 db@open done T·19.145875ms
+21:21:23.973684 memdb@flush N·38843 S·3MiB
+21:21:24.000308 memdb@flush created L0@3 N·38843 S·2MiB "s/1,v435":"s/latest,v436"
+21:21:24.000330 version@stat F·[1] S·2MiB[2MiB] Sc·[0.25]
+21:21:24.005037 memdb@flush committed F·1 T·31.333792ms
+21:21:24.005501 journal@remove removed @1
+21:26:44.600393 memdb@flush N·38755 S·3MiB
+21:26:44.626091 memdb@flush created L0@5 N·38755 S·2MiB "s/246,v38912":"s/latest,v38913"
+21:26:44.626117 version@stat F·[2] S·4MiB[4MiB] Sc·[0.50]
+21:26:44.630426 memdb@flush committed F·1 T·29.880333ms
+21:26:44.630889 journal@remove removed @2
+21:26:52.581045 table@compaction L0·2 -> L1·0 S·4MiB Q·78653
+21:26:52.649133 table@build created L1@6 N·35307 S·2MiB "s/1,v435":"s/k..29?,v33546"
+21:26:52.671060 table@build created L1@7 N·23825 S·1MiB "s/k..84\xcb,v21652":"s/latest,v77594"
+21:26:52.671576 version@stat F·[0 2] S·3MiB[0B 3MiB] Sc·[0.00 0.04]
+21:26:52.685208 table@compaction committed F~ S-172KiB Ke·0 D·18466 T·104.146875ms
+21:26:52.685367 table@remove removed @5
+21:26:52.689397 table@remove removed @3
+21:32:05.307963 memdb@flush N·38782 S·3MiB
+21:32:05.379983 memdb@flush created L0@9 N·38782 S·2MiB "s/486,v77754":"s/latest,v77755"
+21:32:05.380008 version@stat F·[1 2] S·6MiB[2MiB 3MiB] Sc·[0.25 0.04]
+21:32:05.395020 memdb@flush committed F·1 T·87.036749ms
+21:32:05.395813 journal@remove removed @4
+21:32:13.083541 table@compaction L0·1 -> L1·2 S·6MiB Q·117367
+21:32:13.113115 table@build created L1@10 N·32569 S·2MiB "s/1,v435":"s/k..\x00\x00w,v18442"
+21:32:13.145522 table@build created L1@11 N·31078 S·2MiB "s/k..\x00\x00x,v18601":"s/k..\x1b\\\b,v80448"
+21:32:13.159165 table@build created L1@12 N·25126 S·1MiB "s/k..\x01|\xd2,v86547":"s/latest,v116304"
+21:32:13.159188 version@stat F·[0 3] S·5MiB[0B 5MiB] Sc·[0.00 0.06]
+21:32:13.167584 table@compaction committed F~ S-67KiB Ke·0 D·9141 T·84.023999ms
+21:32:13.167712 table@remove removed @9
+21:32:13.168019 table@remove removed @6
+21:32:13.168075 table@remove removed @7

@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract())
+				available := suite.app.EvmKeeper.IsAvailablePrecompile(suite.ctx, tokenPair.GetERC20Contract())
 				suite.Require().True(available, "expected precompile to be registered")
 
 				// Check that the precompile is set as active
@@ -58,7 +58,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(ibcTokenPair.GetERC20Contract())
+				available := suite.app.EvmKeeper.IsAvailablePrecompile(suite.ctx, ibcTokenPair.GetERC20Contract())
 				suite.Require().True(available, "expected precompile to be registered")
 
 				// Check that the precompile is set as active
@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was not registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract())
+				available := suite.app.EvmKeeper.IsAvailablePrecompile(suite.ctx, tokenPair.GetERC20Contract())
 				suite.Require().True(available, "expected precompile to be registered")
 			},
 		},

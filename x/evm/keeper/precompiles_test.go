@@ -6,6 +6,7 @@ package keeper_test
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -34,7 +35,7 @@ func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
-			available := suite.app.EvmKeeper.IsAvailablePrecompile(tc.address)
+			available := suite.app.EvmKeeper.IsAvailablePrecompile(suite.ctx, tc.address)
 			suite.Require().Equal(tc.expAvailable, available)
 		})
 	}
@@ -59,9 +60,8 @@ func (d DummyPrecompile) Address() common.Address {
 var (
 	// dummyPrecompile holds an unused precompile address to check adding EVM extensions.
 	dummyPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010000"}
-	// duplicatePrecompile holds the same address as an already existing precompile in the Go-Ethereum
-	// base implementation of the EVM.
-	duplicatePrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000000001"}
+	// duplicatePrecompile holds the address of a precompile that is already registered.
+	duplicatePrecompile = DummyPrecompile{address: p256.PrecompileAddress}
 	// otherPrecompile holds another unused precompile address to check adding multiple extensions at once.
 	otherPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010001"}
 )
@@ -79,14 +79,14 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			malleate: func() []vm.PrecompiledContract {
 				return []vm.PrecompiledContract{duplicatePrecompile}
 			},
-			errContains: "precompile already registered",
+			errContains: types.ErrDuplicatePrecompile.Error(),
 		},
 		{
 			name: "fail - add multiple precompiles with duplicates",
 			malleate: func() []vm.PrecompiledContract {
 				return []vm.PrecompiledContract{dummyPrecompile, dummyPrecompile}
 			},
-			errContains: "precompile already registered",
+			errContains: types.ErrDuplicatePrecompile.Error(),
 		},
 		{
 			name: "fail - precompile already in active precompiles",
@@ -98,12 +98,13 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 				// We add the dummy precompile to the active precompiles to trigger the error.
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.ActivePrecompiles = append(params.ActivePrecompiles, dummyPrecompile.Address().String())
+
 				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err, "expected no error setting params")
 
 				return []vm.PrecompiledContract{dummyPrecompile}
 			},
-			errContains: "duplicate precompile",
+			errContains: types.ErrDuplicatePrecompile.Error(),
 		},
 		{
 			name: "pass - add precompile",
@@ -139,12 +140,6 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 
 				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
 				suite.Require().Equal(tc.expPrecompiles, activePrecompiles, "expected different active precompiles")
-
-				availablePrecompiles := suite.app.EvmKeeper.GetAvailablePrecompileAddrs()
-				for _, expPrecompile := range tc.expPrecompiles {
-					expPrecompileAddr := common.HexToAddress(expPrecompile)
-					suite.Require().Contains(availablePrecompiles, expPrecompileAddr, "expected available precompiles to contain: %s", expPrecompile)
-				}
 			} else {
 				suite.Require().Error(err, "expected error adding extensions")
 				suite.Require().ErrorContains(err, tc.errContains, "expected different error")

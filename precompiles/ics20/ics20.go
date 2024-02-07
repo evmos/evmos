@@ -19,6 +19,8 @@ import (
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
+const PrecompileAddress = "0x0000000000000000000000000000000000000802"
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.

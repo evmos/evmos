@@ -4,18 +4,16 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
-	"sort"
-
-	"github.com/evmos/evmos/v16/utils"
 
 	"github.com/evmos/evmos/v16/precompiles/bech32"
+	"github.com/evmos/evmos/v16/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"golang.org/x/exp/maps"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -32,6 +30,7 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
@@ -49,6 +48,7 @@ func AvailablePrecompiles(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
+
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 
@@ -148,91 +148,93 @@ func (k *Keeper) WithPrecompiles(precompiles map[common.Address]vm.PrecompiledCo
 	return k
 }
 
-// Precompiles returns the subset of the available precompiled contracts that
-// are active given the current parameters.
-func (k Keeper) Precompiles(
+// GetInitializedPrecompiles returns the subset of the available precompiled contracts that
+// are initalized in memory.
+func (k Keeper) GetInitializedPrecompiles(
 	activePrecompiles ...common.Address,
 ) map[common.Address]vm.PrecompiledContract {
-	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-
+	newActivePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
 	for _, address := range activePrecompiles {
 		precompile, ok := k.precompiles[address]
 		if !ok {
 			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
 		}
 
-		activePrecompileMap[address] = precompile
+		newActivePrecompileMap[address] = precompile
 	}
 
-	return activePrecompileMap
+	return newActivePrecompileMap
 }
 
-// containsPrecompile returns true if the given precompile address is contained in the
-// list of precompiles.
-func containsPrecompile(precompiles []string, address string) bool {
-	for _, a := range precompiles {
-		if a == address {
-			return true
+// GetCachedPrecompiles returns the available precompiled contracts in memory.
+func (k Keeper) GetCachedPrecompiles(
+	ctx sdk.Context,
+	activePrecompiles ...common.Address,
+) map[common.Address]vm.PrecompiledContract {
+	newActivePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
+	for _, address := range activePrecompiles {
+		// Check cached precompiles
+		cachedPrecompile, ok := k.precompiles[address]
+
+		// If precompile is not found on cache, try to initiate it
+		// It can only be an erc20 precompile
+		if !ok {
+			precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
+			if err != nil {
+				panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
+			}
+			fmt.Println(precompile.Address())
+			newActivePrecompileMap[address] = precompile
+			continue
 		}
+		newActivePrecompileMap[address] = cachedPrecompile
 	}
-	return false
+
+	// Update cache
+	k.precompiles = newActivePrecompileMap
+	return k.precompiles
 }
 
 // AddEVMExtensions adds the given precompiles to the list of active precompiles in the EVM parameters
 // and to the available precompiles map in the Keeper. This function returns an error if
 // the precompiles are invalid or duplicated.
 func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	fmt.Println("Adding EVM Extensions...")
-
 	addresses := make([]common.Address, len(precompiles))
-	activePrecompiles := k.GetParams(ctx).ActivePrecompiles
 
+	precompilesMap := make(map[common.Address]vm.PrecompiledContract, len(precompiles))
+	precompilesMap = maps.Clone(k.precompiles)
+
+	// Iterate over precompiles and:
+	// - validate it doesn't already exist in the active precompiles
+	// - get the string address and add it to the active precompiles
+	params := k.GetParams(ctx)
 	for i, precompile := range precompiles {
 		// add to active precompiles
 		address := precompile.Address()
-		fmt.Println("Check Precompile address: ", address)
-
-		if ok := containsPrecompile(activePrecompiles, address.String()); ok {
-			fmt.Printf("precompile already registered: %s \n", address)
-			return fmt.Errorf("precompile already registered: %s", address)
+		if ok := params.IsActivePrecompile(address.String()); ok {
+			return errorsmod.Wrapf(types.ErrDuplicatePrecompile, "precompile already registered: %s", address)
 		}
+
 		addresses[i] = address
+		precompilesMap[address] = precompile
 	}
 
 	err := k.EnablePrecompiles(ctx, addresses...)
 	if err != nil {
-		fmt.Println("Error enabling precompiles: ", err)
-		return err
+		return fmt.Errorf("failed to enable precompiles: %w", err)
 	}
 
-	fmt.Println("EVM Extensions added successfully.")
+	// set the new precompiles map in memory for faster
+	// access during the block processing
+	if !ctx.IsCheckTx() {
+		k.precompiles = precompilesMap
+	}
 	return nil
 }
 
 // IsAvailablePrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available precompiles map.
-func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
-	_, ok := k.precompiles[address]
-	return ok
-}
-
-// GetAvailablePrecompileAddrs returns the list of available precompile addresses.
-//
-// NOTE: uses index based approach instead of append because it's supposed to be faster.
-// Check https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map.
-func (k Keeper) GetAvailablePrecompileAddrs() []common.Address {
-	addresses := make([]common.Address, len(k.precompiles))
-	i := 0
-
-	//#nosec G705 -- two operations in for loop here are fine
-	for address := range k.precompiles {
-		addresses[i] = address
-		i++
-	}
-
-	sort.Slice(addresses, func(i, j int) bool {
-		return bytes.Compare(addresses[i].Bytes(), addresses[j].Bytes()) == -1
-	})
-
-	return addresses
+func (k Keeper) IsAvailablePrecompile(ctx sdk.Context, address common.Address) bool {
+	params := k.GetParams(ctx)
+	return params.IsActivePrecompile(address.String())
 }

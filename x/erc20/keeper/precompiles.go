@@ -4,6 +4,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -24,7 +26,7 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
 		if tokenPair.ContractOwner != types.OWNER_MODULE ||
-			k.evmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract()) {
+			k.evmKeeper.IsAvailablePrecompile(ctx, tokenPair.GetERC20Contract()) {
 			return false
 		}
 
@@ -77,7 +79,6 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string, contractAd
 	if err != nil {
 		return err
 	}
-
 	// Add to existing EVM extensions
 	return k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
 }
@@ -86,10 +87,23 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string, contractAd
 // and returns the token pair
 func (k Keeper) newTokenPair(ctx sdk.Context, denom string, contractAddr common.Address) types.TokenPair {
 	pair := types.NewTokenPair(contractAddr, denom, types.OWNER_MODULE)
-
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, contractAddr, pair.GetID())
 
 	return pair
+}
+
+func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error) {
+	address := contractAddr.String()
+	// check if the precompile is an ERC20 contract
+	id := k.GetTokenPairID(ctx, address)
+	if len(id) == 0 {
+		return nil, fmt.Errorf("precompile not found: %s", address)
+	}
+	pair, ok := k.GetTokenPair(ctx, id)
+	if !ok {
+		return nil, fmt.Errorf("precompile not found: %s", address)
+	}
+	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }

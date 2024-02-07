@@ -236,10 +236,11 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(ack.Success(), string(ack.Acknowledgement()))
 			}
 
+			isPrecompileAvailable := unitNetwork.App.EvmKeeper.IsAvailablePrecompile(unitNetwork.GetContext(), tc.precompileAddr)
 			if tc.precompileAddr != emptyAddress {
-				suite.Require().True(unitNetwork.App.EvmKeeper.IsAvailablePrecompile(tc.precompileAddr))
+				suite.Require().True(isPrecompileAvailable)
 			} else {
-				suite.Require().False(unitNetwork.App.EvmKeeper.IsAvailablePrecompile(tc.precompileAddr))
+				suite.Require().False(isPrecompileAvailable)
 			}
 		})
 	}

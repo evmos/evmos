@@ -327,7 +327,6 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	// set the custom precompiles to the EVM (if any)
 	if cfg.Params.HasCustomPrecompiles() {
 		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
-
 		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
 		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
 		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
@@ -347,7 +346,7 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		// NOTE: this only adds active precompiles to the EVM.
 		// This means that evm.Precompile(addr) will return false for inactive precompiles
 		// even though this is actually a reserved address.
-		precompileMap := k.Precompiles(activePrecompiles...)
+		precompileMap := k.GetCachedPrecompiles(ctx, activePrecompiles...)
 		evm.WithPrecompiles(precompileMap, activePrecompiles)
 	}
 

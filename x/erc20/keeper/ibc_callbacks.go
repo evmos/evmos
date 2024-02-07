@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -40,6 +41,7 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
+	fmt.Println("OnRecvPacket called")
 	// If ERC20 module is disabled no-op
 	if !k.IsERC20Enabled(ctx) {
 		return ack
@@ -102,12 +104,14 @@ func (k Keeper) OnRecvPacket(
 	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
 	// IsNativeFromSourceChain will check if the coin is native from the source chain.
 	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsNativeFromSourceChain(data.Denom):
+		fmt.Println("Case 1")
 		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 
 		if err := k.RegisterERC20Extension(ctx, coin.Denom, contractAddr); err != nil {
+			fmt.Println("Error registering ERC20 extension: ", err)
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 		return ack

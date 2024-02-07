@@ -22,6 +22,8 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
 
+const PrecompileAddress = "0x0000000000000000000000000000000000000803"
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.

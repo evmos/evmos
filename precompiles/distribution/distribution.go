@@ -19,6 +19,8 @@ import (
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
+const PrecompileAddress = "0x0000000000000000000000000000000000000801"
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.

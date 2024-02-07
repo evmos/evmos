@@ -1,0 +1,82 @@
+[[chains]]
+key_name = "relayer"
+id = "cosmoshub-1"
+rpc_addr = "http://127.0.0.1:26907"
+grpc_addr = "http://127.0.0.1:26903"
+rpc_timeout = "10s"
+account_prefix = "cosmos"
+store_prefix = "ibc"
+max_gas = 3000000
+trusting_period = "336h"
+default_gas = 1000000
+gas_multiplier = 1.2
+
+[chains.event_source]
+mode = "push"
+url = "ws://127.0.0.1:26907/websocket"
+batch_delay = "200ms"
+
+[chains.gas_price]
+price = 1000000
+denom = "uatom"
+
+[chains.address_type]
+derivation = "cosmos"
+
+[[chains]]
+key_name = "relayer"
+id = "evmos_9000-1"
+rpc_addr = "http://127.0.0.1:26657"
+grpc_addr = "http://127.0.0.1:26653"
+rpc_timeout = "10s"
+account_prefix = "evmos"
+store_prefix = "ibc"
+max_gas = 3000000
+trusting_period = "336h"
+default_gas = 100000
+gas_multiplier = 1.2
+
+[[chains.extension_options]]
+type = "ethermint_dynamic_fee"
+value = "1000000"
+
+[chains.event_source]
+mode = "push"
+url = "ws://127.0.0.1:26657/websocket"
+batch_delay = "200ms"
+
+[chains.gas_price]
+price = 40000000000
+denom = "aevmos"
+
+[chains.address_type]
+derivation = "ethermint"
+
+[chains.address_type.proto_type]
+pk_type = "/ethermint.crypto.v1.ethsecp256k1.PubKey"
+
+[global]
+log_level = "info"
+
+[mode]
+[mode.channels]
+enabled = true
+
+[mode.clients]
+enabled = true
+misbehaviour = true
+refresh = true
+
+[mode.connections]
+enabled = true
+
+[mode.packets]
+clear_interval = 100
+clear_on_start = true
+enabled = true
+tx_confirmation = true
+
+[rest]
+enabled = true
+host = "127.0.0.1"
+port = 3000

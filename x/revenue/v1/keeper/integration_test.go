@@ -503,7 +503,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000800")
 					gasTipCap := big.NewInt(100000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-					stakingPrecompile := s.app.EvmKeeper.Precompiles(contractAddress)[contractAddress].(*staking.Precompile)
+					stakingPrecompile := s.app.EvmKeeper.GetCachedPrecompiles(s.ctx, contractAddress)[contractAddress].(*staking.Precompile)
 					data, err := stakingPrecompile.ABI.Pack("delegate", common.BytesToAddress(userAddress), s.validator.OperatorAddress, big.NewInt(1e18))
 					Expect(err).To(BeNil())
 					res := contractInteract(
