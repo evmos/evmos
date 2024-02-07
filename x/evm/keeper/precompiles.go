@@ -48,7 +48,6 @@ func AvailablePrecompiles(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
-
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 
