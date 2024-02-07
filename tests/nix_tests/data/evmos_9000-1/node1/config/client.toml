@@ -1,5 +1,0 @@
-chain-id = "evmos_9000-1"
-keyring-backend = "test"
-output = "json"
-node = "tcp://127.0.0.1:26667"
-broadcast-mode = "sync"
