@@ -3,6 +3,10 @@ on:
   pull_request:
     branches:
       - main
+      - release/**
+  push:
+    branches:
+      - release/**
 
 jobs:
   test-e2e:
@@ -16,14 +20,13 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
-            app/app.go
-            app/upgrades/*
             go.mod
             go.sum
+            **/*.go
             *.toml
             tests/e2e/*
             Dockerfile
-            .github/workflows/e2e-test*
+            .github/workflows/e2e-test*      
       - name: Test E2E
         run: |
           make test-e2e
@@ -83,9 +86,8 @@ jobs:
         test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}
     steps:
       - uses: actions/checkout@v4
-        # TODO: create a new PAT to use here
-        # with:
-        #   token: ${{ secrets.E2E_PAT }}
+        with:
+          token: ${{ secrets.E2E_PAT }}        
       - name: Install Nix
         uses: cachix/install-nix-action@v25
         with:
@@ -114,8 +116,7 @@ jobs:
         run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
-      # TODO: uncomment this once added the new PAT to commit the changes (when needed)
-      # - uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: update gomod2nix.toml file
-      #     file_pattern: '*.toml'
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: update gomod2nix.toml file
+          file_pattern: '*.toml'
