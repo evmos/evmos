@@ -100,6 +100,16 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 	Context("WEVMOS specific functions", func() {
 		When("calling deposit correctly", func() {
+			It("should not emit events", func() {
+				depositCheck := passCheck.WithExpPass(true)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgs.Amount = amount
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes.Logs).To(BeEmpty(), "expected no events")
+			})
+
 			It("should spend the correct minimum gas", func() {
 				depositCheck := passCheck.WithExpPass(true)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
@@ -113,6 +123,16 @@ var _ = Describe("WEVMOS Extension -", func() {
 		})
 
 		When("calling withdraw correctly", func() {
+			It("should not emit events", func() {
+				depositCheck := passCheck.WithExpPass(true)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+				txArgs.Amount = amount
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes.Logs).To(BeEmpty(), "expected no events")
+			})
+
 			It("should spend the correct minimum gas", func() {
 				withdrawCheck := passCheck.WithExpPass(true)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
