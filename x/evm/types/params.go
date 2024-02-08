@@ -43,8 +43,8 @@ var (
 		"0x0000000000000000000000000000000000000900", // Stride outpost
 		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
-	// DefaultActvieDynamicPrecompiles defines the default active dynamic precompiles
-	DefaultActvieDynamicPrecompiles = []string{}
+	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
+	DefaultActiveDynamicPrecompiles = []string{}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []int64{3855}
@@ -94,7 +94,7 @@ func DefaultParams() Params {
 		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:        AvailableEVMExtensions,
 		EVMChannels:              DefaultEVMChannels,
-		ActiveDynamicPrecompiles: DefaultActvieDynamicPrecompiles,
+		ActiveDynamicPrecompiles: DefaultActiveDynamicPrecompiles,
 	}
 }
 
