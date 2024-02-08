@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			suite.Require().NotNil(tc.malleate, "malleate must be defined")
 			extensions = tc.malleate()
 
-			err := suite.app.EvmKeeper.AddEVMExtensions(suite.ctx, extensions...)
+			err := suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, extensions...)
 			if tc.expPass {
 				suite.Require().NoError(err, "expected no error adding extensions")
 

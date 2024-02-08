@@ -90,7 +90,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 				tokenPrecompile, err := erc20precompile.NewPrecompile(tokenPair, suite.app.BankKeeper, suite.app.AuthzKeeper, suite.app.TransferKeeper)
 				suite.Require().NoError(err, "expected no error creating precompile")
 
-				err = suite.app.EvmKeeper.AddEVMExtensions(suite.ctx, tokenPrecompile)
+				err = suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, tokenPrecompile)
 				suite.Require().NoError(err, "expected no error adding precompile to EVM keeper")
 			},
 			expPass: true,
