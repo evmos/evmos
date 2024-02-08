@@ -1143,7 +1143,8 @@ func (_m *BankkKeeper) WithMintCoinsRestriction(_a0 keeper.MintingRestrictionFn)
 func NewBankkKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *BankkKeeper {
+},
+) *BankkKeeper {
 	mock := &BankkKeeper{}
 	mock.Mock.Test(t)
 
