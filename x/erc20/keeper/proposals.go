@@ -173,6 +173,12 @@ func (k Keeper) ToggleConversion(
 		)
 	}
 
+	if pair.ContractOwner == types.OWNER_MODULE {
+		return types.TokenPair{}, errorsmod.Wrapf(
+			types.ErrTokenPairNotFound, "not allowed to disable '%s' token", token,
+		)
+	}
+
 	pair.Enabled = !pair.Enabled
 
 	k.SetTokenPair(ctx, pair)
