@@ -88,7 +88,12 @@ jobs:
       - name: Determine token
         id: token_check
         run: | 
-          echo "token=${{ secrets.E2E_PAT ? secrets.E2E_PAT : secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ secrets.E2E_PAT }}" ]; then
+            TOKEN=${{ secrets.E2E_PAT }}
+          else
+            TOKEN=${{ secrets.GITHUB_TOKEN }}
+          fi
+          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
           token: ${{ steps.token_check.outputs.token }}        
