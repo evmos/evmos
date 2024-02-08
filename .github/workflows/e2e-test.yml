@@ -37,6 +37,8 @@ jobs:
       test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.E2E_PAT }}  
       - name: Set up test file matrix to run nix tests in parallel
         id: set_matrix
         run: |
