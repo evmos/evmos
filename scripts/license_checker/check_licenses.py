@@ -12,9 +12,8 @@ import re
 import sys
 from typing import Dict, List
 
-# Check all Go or Protobuf files, that are neither generated nor test files.
-FILTER: re.Pattern = re.compile(
-    r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
+# Check only files, that are neither auto-generated nor test files.
+IGNORED_FILETYPES: re.Pattern = re.compile(r"(_test|\.pb|\.pb\.gw)\.")
 
 # List of files with a LGPL3 license.
 EXEMPT_FILES: List[str] = [
@@ -33,12 +32,12 @@ IGNORED_FOLDERS: List[str] = [
 
 LGPL3_LICENSE = [
     "// Copyright Tharsis Labs Ltd.(Evmos)\n",
-    "// SPDX-License-Identifier:LGPL-3.0-only\n"
+    "// SPDX-License-Identifier:LGPL-3.0-only\n",
 ]
 
 ENCL_LICENSE = [
     "// Copyright Tharsis Labs Ltd.(Evmos)\n",
-    "// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)\n"
+    "// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)\n",
 ]
 
 
@@ -65,7 +64,8 @@ def check_licenses_in_path(
             continue
         for file in files:
             full_path = os.path.join(root, file)
-            if not name_filter.search(full_path):
+            if ignore(full_path, name_filter):
+                # In case the filter is not matching we skip the file
                 continue
 
             n_files += 1
@@ -73,8 +73,7 @@ def check_licenses_in_path(
             lgpl3 = check_if_in_exempt_files(full_path)
             checked_license = LGPL3_LICENSE if lgpl3 else ENCL_LICENSE
 
-            found = check_license_in_file(
-                os.path.join(root, file), checked_license)
+            found = check_license_in_file(os.path.join(root, file), checked_license)
             if found is True:
                 n_files_with += 1
                 if lgpl3:
@@ -127,6 +126,18 @@ def check_if_in_exempt_files(file: str) -> bool:
     return False
 
 
+def ignore(path: str, name_filter: re.Pattern) -> bool:
+    """
+    Returns a boolean value stating if a file should be ignored or not.
+    """
+
+    if not path.endswith(".go") and not path.endswith(".proto"):
+        return True
+
+    match = name_filter.search(path)
+    return match is not None
+
+
 def check_license_in_file(file: str, checked_license: List[str]) -> bool | str:
     """
     Check if the file has the license.
@@ -149,6 +160,6 @@ def check_license_in_file(file: str, checked_license: List[str]) -> bool | str:
 
 
 if __name__ == "__main__":
-    result = check_licenses_in_path(sys.argv[1], FILTER)
+    result = check_licenses_in_path(sys.argv[1], IGNORED_FILETYPES)
     if result["wrong_license"] > 0:
         sys.exit(1)

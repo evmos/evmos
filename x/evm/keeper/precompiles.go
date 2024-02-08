@@ -8,22 +8,23 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/evmos/evmos/v16/precompiles/bech32"
+	"github.com/evmos/evmos/v16/utils"
 
-	"golang.org/x/exp/maps"
+	"github.com/evmos/evmos/v16/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"golang.org/x/exp/maps"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
@@ -38,6 +39,7 @@ import (
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
+	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -83,15 +85,32 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
+	var WEVMOSAddress common.Address
+	if utils.IsMainnet(chainID) {
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
+	} else {
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
+	}
+
+	strideOutpost, err := strideoutpost.NewPrecompile(
+		WEVMOSAddress,
+		transferKeeper,
+		erc20Keeper,
+		authzKeeper,
+		stakingKeeper,
+	)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
-		transfertypes.PortID, "channel-215",
-		osmosisoutpost.XCSContractTestnet,
-		authzKeeper, bankKeeper, transferKeeper, stakingKeeper, erc20Keeper, channelKeeper,
+		WEVMOSAddress,
+		authzKeeper,
+		bankKeeper,
+		transferKeeper,
+		stakingKeeper,
+		erc20Keeper,
+		channelKeeper,
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate osmosis outpost: %w", err))

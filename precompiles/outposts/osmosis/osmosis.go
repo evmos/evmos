@@ -11,13 +11,11 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
@@ -25,14 +23,8 @@ import (
 const (
 	// OsmosisPrefix represents the human readable part for bech32 addresses on the Osmosis chain.
 	OsmosisPrefix = "osmo"
-
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile.
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
-
-	// XCSContract address for Osmosis testnet.
-	XCSContractTestnet = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
-	// XCSContract address for Osmosis mainnet.
-	XCSContractMainnet = ""
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -46,14 +38,7 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
-	// IBC
-	portID           string
-	channelID        string
-	timeoutHeight    clienttypes.Height
-	timeoutTimestamp uint64
-
-	// Osmosis
-	osmosisXCSContract string
+	wevmosAddress common.Address
 
 	// Keepers
 	bankKeeper     bankkeeper.Keeper
@@ -66,8 +51,7 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	portID, channelID string,
-	osmosisXCSContract string,
+	wevmosAddress common.Address,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -80,11 +64,6 @@ func NewPrecompile(
 		return nil, err
 	}
 
-	err = ValidateOsmosisContractAddress(osmosisXCSContract)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
@@ -93,16 +72,12 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		portID:             portID,
-		channelID:          channelID,
-		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
-		osmosisXCSContract: osmosisXCSContract,
-		bankKeeper:         bankKeeper,
-		transferKeeper:     transferKeeper,
-		stakingKeeper:      stakingKeeper,
-		erc20Keeper:        erc20Keeper,
-		channelKeeper:      channelKeeper,
+		wevmosAddress:  wevmosAddress,
+		bankKeeper:     bankKeeper,
+		transferKeeper: transferKeeper,
+		stakingKeeper:  stakingKeeper,
+		erc20Keeper:    erc20Keeper,
+		channelKeeper:  channelKeeper,
 	}, nil
 }
 

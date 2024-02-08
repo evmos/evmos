@@ -18,6 +18,7 @@ import (
 
 // constants
 const (
+	// ProposalTypeRegisterCoin is DEPRECATED, we are keeping it to not break existing proposals on the chain
 	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
@@ -25,6 +26,7 @@ const (
 
 // Implements Proposal Interface
 var (
+	// RegisterCoinProposal is DEPRECATED, we are keeping it to not break existing proposals on the chain
 	_ v1beta1.Content = &RegisterCoinProposal{}
 	_ v1beta1.Content = &RegisterERC20Proposal{}
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}

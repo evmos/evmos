@@ -4,123 +4,71 @@ package evm
 
 import (
 	"errors"
-	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-// EthValidateBasicDecorator is adapted from ValidateBasicDecorator from cosmos-sdk, it ignores ErrNoSignatures
-type EthValidateBasicDecorator struct {
-	evmKeeper EVMKeeper
-}
-
-// NewEthValidateBasicDecorator creates a new EthValidateBasicDecorator
-func NewEthValidateBasicDecorator(ek EVMKeeper) EthValidateBasicDecorator {
-	return EthValidateBasicDecorator{
-		evmKeeper: ek,
-	}
-}
-
-// AnteHandle handles basic validation of tx
-func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-	// no need to validate basic on recheck tx, call next antehandler
-	if ctx.IsReCheckTx() {
-		return next(ctx, tx, simulate)
-	}
-
-	txFeeInfo, err := ValidateTx(tx)
+// ValidateMsg validates an Ethereum specific message type and returns an error if invalid
+// It checks for the following conditions:
+// - If the from address is not empty
+// - If the transaction is a contract creation or call and it is disabled through governance
+func ValidateMsg(
+	evmParams evmtypes.Params,
+	txData evmtypes.TxData,
+	from sdktypes.AccAddress,
+) error {
+	err := checkValidFrom(from)
 	if err != nil {
-		return ctx, err
+		return err
 	}
-
-	txFee := sdk.Coins{}
-	txGasLimit := uint64(0)
-
-	evmParams := vbd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	chainID := vbd.evmKeeper.ChainID()
-	ethCfg := chainCfg.EthereumConfig(chainID)
-	baseFee := vbd.evmKeeper.GetBaseFee(ctx, ethCfg)
-	enableCreate := evmParams.GetEnableCreate()
-	enableCall := evmParams.GetEnableCall()
-	evmDenom := evmParams.GetEvmDenom()
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		txFee, txGasLimit, err = CheckDisabledCreateCallAndUpdateTxFee(
-			txData.GetTo(),
-			from,
-			txGasLimit,
-			txData.GetGas(),
-			enableCreate,
-			enableCall,
-			baseFee,
-			txData.Fee(),
-			txData.TxType(),
-			evmDenom,
-			txFee,
-		)
-		if err != nil {
-			return ctx, err
-		}
-	}
-
-	if err := CheckTxFee(txFeeInfo, txFee, txGasLimit); err != nil {
-		return ctx, err
-	}
-
-	return next(ctx, tx, simulate)
+	return checkDisabledCreateCall(
+		txData,
+		evmParams.EnableCreate,
+		evmParams.EnableCall,
+	)
 }
 
-// FIXME: split this function into multiple ones
-// CheckDisabledCreateCallAndUpdateTxFee checks if contract creation or call are disabled through governance
-// and updates the transaction fee by adding the message fee to the cumulative transaction fee
-func CheckDisabledCreateCallAndUpdateTxFee(
-	to *common.Address,
-	from sdk.AccAddress,
-	txGasLimit, gasLimit uint64,
-	enableCreate, enableCall bool,
-	baseFee *big.Int,
-	msgFee *big.Int,
-	txType byte,
-	denom string,
-	txFee sdk.Coins,
-) (sdk.Coins, uint64, error) {
-	// Validate `From` field
-	if from != nil {
-		return nil, 0, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address %s, expect empty string", from)
+// checkDisabledCreateCall checks if the transaction is a contract creation or call
+// and it is disabled through governance
+func checkDisabledCreateCall(
+	txData evmtypes.TxData,
+	enableCreate,
+	enableCall bool,
+) error {
+	to := txData.GetTo()
+	data := txData.GetData()
+	// If its not a contract creation or contract call this check is irrelevant
+	if data == nil {
+		return nil
 	}
-
-	txGasLimit += gasLimit
 
 	// return error if contract creation or call are disabled through governance
+	// and the transaction is trying to create a contract or call a contract
 	if !enableCreate && to == nil {
-		return nil, 0, errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
+		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
 	} else if !enableCall && to != nil {
-		return nil, 0, errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
+		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
 	}
+	return nil
+}
 
-	if baseFee == nil && txType == ethtypes.DynamicFeeTxType {
-		return nil, 0, errorsmod.Wrap(ethtypes.ErrTxTypeNotSupported, "dynamic fee tx not supported")
+// checkValidFrom checks if the from address is empty
+func checkValidFrom(
+	from sdktypes.AccAddress,
+) error {
+	// Validate `From` field
+	if from != nil {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address %s, expect empty string", from)
 	}
-
-	txFee = txFee.Add(sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(msgFee)})
-	return txFee, txGasLimit, nil
+	return nil
 }
 
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type
-func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
+func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	err := tx.ValidateBasic()
 	// ErrNoSignatures is fine with eth tx
 	if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
@@ -162,7 +110,7 @@ func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
 	return authInfo.Fee, nil
 }
 
-func CheckTxFee(txFeeInfo *tx.Fee, txFee sdk.Coins, txGasLimit uint64) error {
+func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) error {
 	if txFeeInfo == nil {
 		return nil
 	}

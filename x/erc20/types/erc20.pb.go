@@ -130,8 +130,9 @@ func (m *TokenPair) GetContractOwner() Owner {
 	return OWNER_UNSPECIFIED
 }
 
-// RegisterCoinProposal is a gov Content type to register a token pair for a
-// native Cosmos coin.
+// Deprecated: RegisterCoinProposal is a gov Content type to register a token pair for a
+// native Cosmos coin. We're keeping it to remove the existing proposals from
+// store. After that, remove this message.
 type RegisterCoinProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -326,6 +327,7 @@ func (m *ToggleTokenConversionProposal) GetToken() string {
 	return ""
 }
 
+// Deprecated: ProposalMetadata is used to parse a slice of denom metadata and generate
 // ProposalMetadata is used to parse a slice of denom metadata and generate
 // the RegisterCoinProposal content.
 type ProposalMetadata struct {

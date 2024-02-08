@@ -125,6 +125,7 @@ import (
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/app/post"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	"github.com/evmos/evmos/v16/precompiles/common"
@@ -143,6 +144,7 @@ import (
 	"github.com/evmos/evmos/v16/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v16/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/incentives"
 	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -204,7 +206,7 @@ var (
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
-				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
@@ -226,6 +228,7 @@ var (
 		epochs.AppModuleBasic{},
 		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		incentives.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -504,10 +507,11 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
-
+	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
+			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -535,7 +539,6 @@ func NewEvmos(
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
-			app.Erc20Keeper.Hooks(),
 			app.RevenueKeeper.Hooks(),
 		),
 	)
@@ -812,8 +815,15 @@ func NewEvmos(
 		if queryMultiStore != nil {
 			v1 := queryMultiStore.LatestVersion()
 			v2 := app.LastBlockHeight()
-			if v1 > 0 && v1 != v2 {
-				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))
+			// Prevent creating gaps in versiondb
+			// - if versiondb lag behind iavl, when commit new blocks, it creates gap in versiondb.
+			// 	 This can happen because cms is committed before versiondb.
+			// - if versiondb is beyond iavl, and when commit new blocks, versiondb will write some duplicated data.
+			//	 This is actually not harmful, if the rewritten data is identical to the old ones.
+			// 	 This can happen with memiavl async-commit.
+			// The latter case is not harmful, so we can relax the checking to improve UX.
+			if v1 > 0 && v1 < v2 {
+				tmos.Exit(fmt.Sprintf("versiondb lastest version %d lag behind iavl latest version %d", v1, v2))
 			}
 		}
 	}
@@ -1132,10 +1142,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v16.UpgradeName,
 		v16.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.EvmKeeper,
-			app.BankKeeper,
-			app.InflationKeeper,
 			app.AccountKeeper,
+			app.BankKeeper,
+			app.EvmKeeper,
+			app.GovKeeper,
+			app.InflationKeeper,
+		),
+	)
+
+	// v17 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v17.UpgradeName,
+		v17.CreateUpgradeHandler(
+			app.mm, app.configurator,
 		),
 	)
 
@@ -1159,6 +1178,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
+	case v17.UpgradeName:
+		// no store upgrades
 	default:
 		// no-op
 	}
