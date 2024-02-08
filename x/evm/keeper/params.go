@@ -72,7 +72,7 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
+	activePrecompiles := params.ActiveDynamicPrecompiles
 
 	// Append and sort the new precompiles
 	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
@@ -81,7 +81,7 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	}
 
 	// Update params
-	params.ActivePrecompiles = activePrecompiles
+	params.ActiveDynamicPrecompiles = activePrecompiles
 	return k.SetParams(ctx, params)
 }
 
