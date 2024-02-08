@@ -43,6 +43,8 @@ var (
 		"0x0000000000000000000000000000000000000900", // Stride outpost
 		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
+	// DefaultActvieDynamicPrecompiles defines the default active dynamic precompiles
+	DefaultActvieDynamicPrecompiles = []string{}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []int64{3855}
@@ -62,17 +64,19 @@ func NewParams(
 	config ChainConfig,
 	extraEIPs []int64,
 	activePrecompiles,
-	evmChannels []string,
+	evmChannels,
+	activeDynamicPrecompiles []string,
 ) Params {
 	return Params{
-		EvmDenom:            evmDenom,
-		AllowUnprotectedTxs: allowUnprotectedTxs,
-		EnableCreate:        enableCreate,
-		EnableCall:          enableCall,
-		ExtraEIPs:           extraEIPs,
-		ChainConfig:         config,
-		ActivePrecompiles:   activePrecompiles,
-		EVMChannels:         evmChannels,
+		EvmDenom:                 evmDenom,
+		AllowUnprotectedTxs:      allowUnprotectedTxs,
+		EnableCreate:             enableCreate,
+		EnableCall:               enableCall,
+		ExtraEIPs:                extraEIPs,
+		ChainConfig:              config,
+		ActivePrecompiles:        activePrecompiles,
+		EVMChannels:              evmChannels,
+		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
 	}
 }
 
@@ -82,14 +86,15 @@ func NewParams(
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:            DefaultEVMDenom,
-		EnableCreate:        DefaultEnableCreate,
-		EnableCall:          DefaultEnableCall,
-		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           DefaultExtraEIPs,
-		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   AvailableEVMExtensions,
-		EVMChannels:         DefaultEVMChannels,
+		EvmDenom:                 DefaultEVMDenom,
+		EnableCreate:             DefaultEnableCreate,
+		EnableCall:               DefaultEnableCall,
+		ChainConfig:              DefaultChainConfig(),
+		ExtraEIPs:                DefaultExtraEIPs,
+		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:        AvailableEVMExtensions,
+		EVMChannels:              DefaultEVMChannels,
+		ActiveDynamicPrecompiles: DefaultActvieDynamicPrecompiles,
 	}
 }
 
@@ -141,6 +146,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := ValidatePrecompiles(p.ActiveDynamicPrecompiles); err != nil {
+		return err
+	}
+
 	return validateChannels(p.EVMChannels)
 }
 
@@ -168,6 +177,16 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 	return precompiles
 }
 
+// GetActiveDynamicPrecompilesAddrs is a util function that the Active Dynamic Precompiles
+// as a slice of addresses.
+func (p Params) GetActiveDynamicPrecompilesAddrs() []common.Address {
+	precompiles := make([]common.Address, len(p.ActiveDynamicPrecompiles))
+	for i, precompile := range p.ActiveDynamicPrecompiles {
+		precompiles[i] = common.HexToAddress(precompile)
+	}
+	return precompiles
+}
+
 // IsEVMChannel returns true if the channel provided is in the list of
 // EVM channels
 func (p Params) IsEVMChannel(channel string) bool {
@@ -182,6 +201,15 @@ func (p Params) IsActivePrecompile(address string) bool {
 	})
 
 	return found
+}
+
+// IsActiveDynamicPrecompile returns true if the given precompile address is
+// registered as an active dynamic precompile.
+func (p Params) IsActiveDynamicPrecompile(address string) bool {
+  _, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
+    return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
+  })
+  return found
 }
 
 func validateEVMDenom(i interface{}) error {
@@ -265,13 +293,4 @@ func ValidatePrecompiles(i interface{}) error {
 // IsLondon returns if london hardfork is enabled.
 func IsLondon(ethConfig *params.ChainConfig, height int64) bool {
 	return ethConfig.IsLondon(big.NewInt(height))
-}
-
-// IsPrecompileRegistered returns true if the given precompile address is registered in the params.
-func (p Params) IsPrecompileRegistered(address string) bool {
-	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActivePrecompiles[i])
-	})
-
-	return found
 }
