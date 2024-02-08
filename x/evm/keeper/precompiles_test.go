@@ -34,7 +34,7 @@ func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
-			available := suite.app.EvmKeeper.IsAvailablePrecompile(tc.address)
+			available := suite.network.App.EvmKeeper.IsAvailablePrecompile(tc.address)
 			suite.Require().Equal(tc.expAvailable, available)
 		})
 	}
@@ -96,9 +96,9 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 				// the error on ValidatePrecompiles.
 				//
 				// We add the dummy precompile to the active precompiles to trigger the error.
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				params.ActivePrecompiles = append(params.ActivePrecompiles, dummyPrecompile.Address().String())
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err, "expected no error setting params")
 
 				return []vm.PrecompiledContract{dummyPrecompile}
@@ -133,14 +133,14 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			suite.Require().NotNil(tc.malleate, "malleate must be defined")
 			extensions = tc.malleate()
 
-			err := suite.app.EvmKeeper.AddEVMExtensions(suite.ctx, extensions...)
+			err := suite.network.App.EvmKeeper.AddEVMExtensions(suite.network.GetContext(), extensions...)
 			if tc.expPass {
 				suite.Require().NoError(err, "expected no error adding extensions")
 
-				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
+				activePrecompiles := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext()).ActivePrecompiles
 				suite.Require().Equal(tc.expPrecompiles, activePrecompiles, "expected different active precompiles")
 
-				availablePrecompiles := suite.app.EvmKeeper.GetAvailablePrecompileAddrs()
+				availablePrecompiles := suite.network.App.EvmKeeper.GetAvailablePrecompileAddrs()
 				for _, expPrecompile := range tc.expPrecompiles {
 					expPrecompileAddr := common.HexToAddress(expPrecompile)
 					suite.Require().Contains(availablePrecompiles, expPrecompileAddr, "expected available precompiles to contain: %s", expPrecompile)

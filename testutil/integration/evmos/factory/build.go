@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/server/config"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -59,7 +60,7 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 
 // GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
-	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
+	msgEthereumTx, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
@@ -75,4 +76,46 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 	}
 
 	return tf.buildSignedTx(signedMsg)
+}
+
+// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
+// If any of the arguments are not provided, they will be populated with default values.
+func (tf *IntegrationTxFactory) GenerateMsgEthereumTx(
+	privKey cryptotypes.PrivKey,
+	txArgs evmtypes.EvmTxArgs,
+) (evmtypes.MsgEthereumTx, error) {
+	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
+	// Fill TxArgs with default values
+	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
+	if err != nil {
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
+	}
+	msg := buildMsgEthereumTx(txArgs, fromAddr)
+
+	return msg, nil
+}
+
+// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
+func (tf *IntegrationTxFactory) GenerateGethCoreMsg(
+	privKey cryptotypes.PrivKey,
+	txArgs evmtypes.EvmTxArgs,
+) (core.Message, error) {
+	msg, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to generate ethereum tx")
+	}
+
+	signedMsg, err := tf.SignMsgEthereumTx(privKey, msg)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
+	}
+
+	baseFeeResp, err := tf.grpcHandler.GetBaseFee()
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to get base fee")
+	}
+	signer := gethtypes.LatestSignerForChainID(
+		tf.network.GetEIP155ChainID(),
+	)
+	return signedMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
 }

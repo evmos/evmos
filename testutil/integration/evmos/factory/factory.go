@@ -15,12 +15,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -52,8 +52,18 @@ type TxFactory interface {
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
 	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error)
+	// GenerateDeployContractArgs generates the txArgs for a contract deployment.
+	GenerateDeployContractArgs(from common.Address, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (evmtypes.EvmTxArgs, error)
+	// GenerateContractCallArgs generates the txArgs for a contract call.
+	GenerateContractCallArgs(txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (evmtypes.EvmTxArgs, error)
+	// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
+	GenerateMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
+	// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
+	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+	GetEvmTransactionResponseFromTxResult(txResult abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -81,21 +91,25 @@ func New(
 	}
 }
 
-// createMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
-// If any of the arguments are not provided, they will be populated with default values.
-func (tf *IntegrationTxFactory) createMsgEthereumTx(
-	privKey cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-) (evmtypes.MsgEthereumTx, error) {
-	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
-	// Fill TxArgs with default values
-	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
-	if err != nil {
-		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
+// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
+	txResult abcitypes.ExecTxResult,
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	var txData sdktypes.TxMsgData
+	if err := tf.ec.Codec.Unmarshal(txResult.Data, &txData); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal tx data")
 	}
-	msg := buildMsgEthereumTx(txArgs, fromAddr)
 
-	return msg, nil
+	if len(txData.MsgResponses) != 1 {
+		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal evm tx response")
+	}
+
+	return &evmRes, nil
 }
 
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
@@ -105,11 +119,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
 	if txArgs.ChainID == nil {
-		ethChainID, err := types.ParseChainID(tf.network.GetChainID())
-		if err != nil {
-			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to parse chain id: %v", tf.network.GetChainID())
-		}
-		txArgs.ChainID = ethChainID
+		txArgs.ChainID = tf.network.GetEIP155ChainID()
 	}
 
 	if txArgs.Nonce == 0 {

@@ -49,7 +49,7 @@ func (suite *KeeperTestSuite) TestWithChainID() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			keeper := keeper.Keeper{}
-			ctx := suite.ctx.WithChainID(tc.chainID)
+			ctx := suite.network.GetContext().WithChainID(tc.chainID)
 
 			if tc.expPanic {
 				suite.Require().Panics(func() {
@@ -83,10 +83,10 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.enableFeemarket = tc.enableFeemarket
 			suite.enableLondonHF = tc.enableLondonHF
 			suite.SetupTest()
-			suite.app.EvmKeeper.BeginBlock(suite.ctx)
-			params := suite.app.EvmKeeper.GetParams(suite.ctx)
-			ethCfg := params.ChainConfig.EthereumConfig(suite.app.EvmKeeper.ChainID())
-			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
+			suite.network.App.EvmKeeper.BeginBlock(suite.network.GetContext())
+			params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+			ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EvmKeeper.ChainID())
+			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext(), ethCfg)
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})
 	}
@@ -109,7 +109,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			"Two accounts - one contract (with storage), one wallet",
 			func() {
 				supply := big.NewInt(100)
-				suite.DeployTestContract(suite.T(), suite.address, supply)
+				suite.DeployTestContract(suite.T(), suite.keyring.GetAddr(0), supply)
 			},
 			[]int{2, 0},
 		},
@@ -120,7 +120,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			suite.SetupTest()
 			tc.malleate()
 			i := 0
-			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account sdk.AccountI) bool {
+			suite.network.App.AccountKeeper.IterateAccounts(suite.network.GetContext(), func(account sdk.AccountI) bool {
 				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
 					// ignore non EthAccounts
@@ -128,7 +128,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				}
 
 				addr := ethAccount.EthAddress()
-				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, addr)
+				storage := suite.network.App.EvmKeeper.GetAccountStorage(suite.network.GetContext(), addr)
 
 				suite.Require().Equal(tc.expRes[i], len(storage))
 				i++
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TestGetAccountOrEmpty() {
 	}
 
 	supply := big.NewInt(100)
-	contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
+	contractAddr := suite.DeployTestContract(suite.T(), suite.keyring.GetAddr(0), supply)
 
 	testCases := []struct {
 		name     string
@@ -166,7 +166,7 @@ func (suite *KeeperTestSuite) TestGetAccountOrEmpty() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			res := suite.app.EvmKeeper.GetAccountOrEmpty(suite.ctx, tc.addr)
+			res := suite.network.App.EvmKeeper.GetAccountOrEmpty(suite.network.GetContext(), tc.addr)
 			if tc.expEmpty {
 				suite.Require().Equal(empty, res)
 			} else {

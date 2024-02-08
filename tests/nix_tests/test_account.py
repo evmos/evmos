@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos
 from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
 
 
@@ -12,17 +12,19 @@ def custom_evmos(tmp_path_factory):
     yield from setup_evmos(path, 26700, long_timeout_commit=True)
 
 
-@pytest.fixture(scope="module")
-def custom_evmos_rocksdb(tmp_path_factory):
-    path = tmp_path_factory.mktemp("account-rocksdb")
-    yield from setup_evmos_rocksdb(
-        path,
-        26777,
-    )
+# ATM rocksdb build is not supported for sdkv0.50
+# This is due to cronos dependencies (versionDB, memIAVL)
+# @pytest.fixture(scope="module")
+# def custom_evmos_rocksdb(tmp_path_factory):
+#     path = tmp_path_factory.mktemp("account-rocksdb")
+#     yield from setup_evmos_rocksdb(
+#         path,
+#         26777,
+#     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-ws", "evmos-rocksdb", "geth"])
-def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
+@pytest.fixture(scope="module", params=["evmos", "evmos-ws", "geth"])
+def cluster(request, custom_evmos, geth):
     """
     run on evmos, evmos websocket,
     evmos built with rocksdb (memIAVL + versionDB)
@@ -35,8 +37,10 @@ def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
         evmos_ws = custom_evmos.copy()
         evmos_ws.use_websocket()
         yield evmos_ws
-    elif provider == "evmos-rocksdb":
-        yield custom_evmos_rocksdb
+    # ATM rocksdb build is not supported for sdkv0.50
+    # This is due to cronos dependencies (versionDB, memIAVL)
+    # elif provider == "evmos-rocksdb":
+    #     yield custom_evmos_rocksdb
     elif provider == "geth":
         yield geth
     else:

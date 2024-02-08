@@ -18,7 +18,9 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	cmttypes "github.com/cometbft/cometbft/types"
+	"github.com/cometbft/cometbft/version"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -167,7 +169,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	consnsusParams := app.DefaultConsensusParams
+	consensusParams := app.DefaultConsensusParams
 	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -197,6 +199,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		ValidatorsHash:     req.NextValidatorsHash,
 		NextValidatorsHash: req.NextValidatorsHash,
 		ProposerAddress:    req.ProposerAddress,
+		Version: tmversion.Consensus{
+			Block: version.BlockProtocol,
+		},
 	}
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
@@ -208,7 +213,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Set networks global parameters
 	n.app = evmosApp
-	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
+	n.ctx = n.ctx.WithConsensusParams(*consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
 	n.validators = validators
@@ -245,6 +250,12 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 // GetContext returns the network's context
 func (n *IntegrationNetwork) GetContext() sdktypes.Context {
+	return n.ctx
+}
+
+// WithIsCheckTxCtx switches the network's checkTx property
+func (n *IntegrationNetwork) WithIsCheckTxCtx(isCheckTx bool) sdktypes.Context {
+	n.ctx = n.ctx.WithIsCheckTx(isCheckTx)
 	return n.ctx
 }
 

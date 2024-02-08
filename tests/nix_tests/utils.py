@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from eth_account import Account
 from hexbytes import HexBytes
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
+from .http_rpc import comet_status
 from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
@@ -124,6 +125,20 @@ def wait_for_block(cli, height, timeout=240):
         if current_height >= height:
             break
         print("current block height", current_height)
+        time.sleep(0.5)
+    else:
+        raise TimeoutError(f"wait for block {height} timeout")
+
+
+def http_wait_for_block(port, height, timeout=240):
+    for _ in range(timeout * 2):
+        status = comet_status(port)
+        if status is None:
+            time.sleep(0.5)
+            continue
+        current_height = int(status["sync_info"]["latest_block_height"])
+        if current_height >= height:
+            break
         time.sleep(0.5)
     else:
         raise TimeoutError(f"wait for block {height} timeout")
