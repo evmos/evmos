@@ -4,6 +4,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -64,7 +66,21 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	}
 
 	// add the ERC20s to the EVM active and available precompiles
-	return k.evmKeeper.AddEVMExtensions(ctx, precompiles...)
+	return k.evmKeeper.AddDynamicPrecompiles(ctx, precompiles...)
+}
+
+func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error) {
+	address := contractAddr.String()
+	// check if the precompile is an ERC20 contract
+	id := k.GetTokenPairID(ctx, address)
+	if len(id) == 0 {
+		return nil, fmt.Errorf("precompile not found: %s", address)
+	}
+	pair, ok := k.GetTokenPair(ctx, id)
+	if !ok {
+		return nil, fmt.Errorf("precompile not found: %s", address)
+	}
+	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
 // RegisterERC20Extension Creates and adds an ERC20 precompile interface for an IBC Coin.
@@ -79,7 +95,7 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string, contractAd
 	}
 
 	// Add to existing EVM extensions
-	return k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
+	return k.evmKeeper.AddDynamicPrecompiles(ctx, newPrecompile)
 }
 
 // newTokenPair - Registers a new token pair for an IBC Coin with an ERC20 precompile contract

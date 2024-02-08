@@ -16,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"golang.org/x/exp/maps"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -148,9 +147,9 @@ func (k *Keeper) WithPrecompiles(precompiles map[common.Address]vm.PrecompiledCo
 	return k
 }
 
-// Precompiles returns the subset of the available precompiled contracts that
+// GetStaticPrecompilesInstances returns the subset of the available precompiled contracts that
 // are active given the current parameters.
-func (k Keeper) Precompiles(
+func (k Keeper) GetStaticPrecompilesInstances(
 	activePrecompiles ...common.Address,
 ) map[common.Address]vm.PrecompiledContract {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
@@ -167,40 +166,6 @@ func (k Keeper) Precompiles(
 	return activePrecompileMap
 }
 
-// AddEVMExtensions adds the given precompiles to the list of active precompiles in the EVM parameters
-// and to the available precompiles map in the Keeper. This function returns an error if
-// the precompiles are invalid or duplicated.
-func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	params := k.GetParams(ctx)
-
-	addresses := make([]string, len(precompiles))
-	precompilesMap := maps.Clone(k.precompiles)
-
-	for i, precompile := range precompiles {
-		// add to active precompiles
-		address := precompile.Address()
-		addresses[i] = address.String()
-
-		// add to available precompiles, but check for duplicates
-		if _, ok := precompilesMap[address]; ok {
-			return fmt.Errorf("precompile already registered: %s", address)
-		}
-		precompilesMap[address] = precompile
-	}
-
-	params.ActivePrecompiles = append(params.ActivePrecompiles, addresses...)
-
-	// NOTE: the active precompiles are sorted and validated before setting them
-	// in the params
-	if err := k.SetParams(ctx, params); err != nil {
-		return err
-	}
-
-	// update the pointer to the map with the newly added EVM Extensions
-	k.precompiles = precompilesMap
-	return nil
-}
-
 // IsAvailablePrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available precompiles map.
 func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
@@ -208,6 +173,7 @@ func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	return ok
 }
 
+// TODO: this is not being used
 // GetAvailablePrecompileAddrs returns the list of available precompile addresses.
 //
 // NOTE: uses index based approach instead of append because it's supposed to be faster.

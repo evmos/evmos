@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,23 +50,59 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	return params
 }
 
-// EnablePrecompiles appends the addresses of the given Precompiles to the list
+// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
 // of active precompiles.
-func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	params := k.GetParams(ctx)
 	activePrecompiles := params.ActivePrecompiles
 
-	for _, address := range addresses {
-		activePrecompiles = append(activePrecompiles, address.String())
+	// Append and sort the new precompiles
+	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
 	}
-
-	sort.Slice(activePrecompiles, func(i, j int) bool {
-		return activePrecompiles[i] < activePrecompiles[j]
-	})
 
 	params.ActivePrecompiles = activePrecompiles
 
 	return k.SetParams(ctx, params)
+}
+
+// EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
+// of active precompiles.
+func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+	// Get the current params and append the new precompiles
+	params := k.GetParams(ctx)
+	activePrecompiles := params.ActivePrecompiles
+
+	// Append and sort the new precompiles
+	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
+	}
+
+	// Update params
+	params.ActivePrecompiles = activePrecompiles
+	return k.SetParams(ctx, params)
+}
+
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
+	updatedPrecompiles := []string{}
+	for _, address := range addresses {
+		// Check for duplicates
+		if slices.Contains(existingPrecompiles, address.String()) {
+			return nil, fmt.Errorf("precompile already registered: %s", address)
+		}
+		updatedPrecompiles = append(updatedPrecompiles, address.String())
+	}
+	updatedPrecompiles = append(updatedPrecompiles, existingPrecompiles...)
+	sortPrecompiles(updatedPrecompiles)
+	return updatedPrecompiles, nil
+}
+
+func sortPrecompiles(precompiles []string) {
+	sort.Slice(precompiles, func(i, j int) bool {
+		return precompiles[i] < precompiles[j]
+	})
 }
 
 // EnableEIPs enables the given EIPs in the EVM parameters.

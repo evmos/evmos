@@ -37,7 +37,7 @@ type EVMKeeper interface {
 	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
 	EstimateGasInternal(c context.Context, req *evmtypes.EthCallRequest, fromType evmtypes.CallType) (*evmtypes.EstimateGasResponse, error)
 	ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
-	AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
+	AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailablePrecompile(addr common.Address) bool
 }
