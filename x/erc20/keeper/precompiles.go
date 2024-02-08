@@ -74,11 +74,11 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	// check if the precompile is an ERC20 contract
 	id := k.GetTokenPairID(ctx, address)
 	if len(id) == 0 {
-		return nil, fmt.Errorf("precompile not found: %s", address)
+		return nil, fmt.Errorf("precompile id not found: %s", address)
 	}
 	pair, ok := k.GetTokenPair(ctx, id)
 	if !ok {
-		return nil, fmt.Errorf("precompile not found: %s", address)
+		return nil, fmt.Errorf("token pair not found: %s", address)
 	}
 	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
@@ -106,6 +106,5 @@ func (k Keeper) newTokenPair(ctx sdk.Context, denom string, contractAddr common.
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, contractAddr, pair.GetID())
-
 	return pair
 }

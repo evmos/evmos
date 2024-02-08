@@ -433,9 +433,13 @@ func NewEvmos(
 	)
 
 	evmKeeper := evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
-		tracer, app.GetSubspace(evmtypes.ModuleName), &app.Erc20Keeper,
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper,
+        app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
+		// NOTE: Erc20Keeper is not defined yet, so a pointer is necessary
+		// until another solution is developed
+		&app.Erc20Keeper,
 	)
 
 	app.EvmKeeper = evmKeeper
