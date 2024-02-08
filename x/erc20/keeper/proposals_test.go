@@ -245,7 +245,6 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 				suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, teststypes.UosmoIbcdenom, contractAddr)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
-
 			},
 			false,
 			true,
