@@ -3,8 +3,7 @@
 package keeper
 
 import (
-	"fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -33,7 +32,7 @@ func (k Keeper) GetDynamicPrecompileInstance(
 	for _, address := range activePrecompiles {
 		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
-			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
+			panic(errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address))
 		}
 
 		activePrecompileMap[address] = precompile
