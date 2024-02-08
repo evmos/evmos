@@ -71,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
 - (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (wevmos) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
