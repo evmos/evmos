@@ -41,10 +41,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
 - (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
+- (erc20) [#2159](https://github.com/evmos/evmos/pull/2159) Update IBC middleware with automatic coin conversion of the single token representation v2.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+- (erc20) [#2276](https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
+- (erc20) [#2290](https://github.com/evmos/evmos/pull/2290) Add migration logic for STR v2 to upgrade handler.
 
 ### Improvements
 
@@ -65,12 +68,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
 - (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
 
+### Bug Fixes
+
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
+
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
 ### Bug Fixes
 
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
 
 ## [v16.0.1](https://github.com/evmos/evmos/releases/tag/v16.0.1) - 2024-01-11
 
@@ -96,22 +102,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
 - (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 - (upgrade) [#2129](https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
-- (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
-- (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
-- (erc20) [#2157](https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
-- (erc20) [#2159](https://github.com/evmos/evmos/pull/2159) Update IBC middleware with automatic coin conversion of the single token representation v2.
-- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
-- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
-- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
-- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
-- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
-- (erc20) [#2276](https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
 - (evm) [#2172](https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
 - (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
 - (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
 - (upgrade) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
-
 
 ### API Breaking
 
