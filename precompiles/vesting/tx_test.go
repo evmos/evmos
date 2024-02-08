@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -130,7 +130,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 5, 0),
 		},
@@ -217,7 +217,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -295,7 +295,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -381,7 +381,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
@@ -393,7 +393,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid type for vestingAddress",
 		},
