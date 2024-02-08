@@ -26,12 +26,13 @@ func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.Precom
 }
 
 func (k Keeper) GetDynamicPrecompileInstance(
+	ctx sdk.Context,
 	activePrecompiles ...common.Address,
 ) map[common.Address]vm.PrecompiledContract {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
 	for _, address := range activePrecompiles {
-		precompile, ok := k.precompiles[address]
-		if !ok {
+		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
+		if err != nil {
 			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
 		}
 

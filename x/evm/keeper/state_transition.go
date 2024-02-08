@@ -351,7 +351,7 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		// This means that evm.Precompile(addr) will return false for inactive precompiles
 		// even though this is actually a reserved address.
 		activePrempilesMap := k.GetStaticPrecompilesInstances(activeStaticPrecompiles...)
-		dynamicPrecompileMap := k.GetDynamicPrecompileInstance(dynamicPrecompiles...)
+		dynamicPrecompileMap := k.GetDynamicPrecompileInstance(ctx, dynamicPrecompiles...)
         // Append the dynamic precompiles to the active precompiles
 		maps.Copy(activePrempilesMap, dynamicPrecompileMap)
 
