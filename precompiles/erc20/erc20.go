@@ -71,7 +71,6 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  abiInstance,

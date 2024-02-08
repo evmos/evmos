@@ -206,10 +206,10 @@ func (p Params) IsActivePrecompile(address string) bool {
 // IsActiveDynamicPrecompile returns true if the given precompile address is
 // registered as an active dynamic precompile.
 func (p Params) IsActiveDynamicPrecompile(address string) bool {
-  _, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
-    return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
-  })
-  return found
+	_, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
+	})
+	return found
 }
 
 func validateEVMDenom(i interface{}) error {

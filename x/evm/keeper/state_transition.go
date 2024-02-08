@@ -352,7 +352,7 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		// even though this is actually a reserved address.
 		activePrempilesMap := k.GetStaticPrecompilesInstances(activeStaticPrecompiles...)
 		dynamicPrecompileMap := k.GetDynamicPrecompileInstance(ctx, dynamicPrecompiles...)
-        // Append the dynamic precompiles to the active precompiles
+		// Append the dynamic precompiles to the active precompiles
 		maps.Copy(activePrempilesMap, dynamicPrecompileMap)
 
 		evm.WithPrecompiles(activePrempilesMap, activePrecompiles)
