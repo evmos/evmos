@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,6 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -54,6 +56,40 @@ func (suite *AnteTestSuite) CreateTestTx(
 	return suite.CreateTestTxBuilder(msg, priv, accNum, signCosmosTx).GetTx()
 }
 
+func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, unsetExtensionOptions ...bool) client.TxBuilder {
+	var option *codectypes.Any
+	var err error
+	if len(unsetExtensionOptions) == 0 {
+		option, err = codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
+		suite.Require().NoError(err)
+	}
+	msgEthTx, err := suite.factory.GenerateMsgEthereumTx(privKey, txArgs)
+	suite.Require().NoError(err)
+
+	signedMsg, err := suite.factory.SignMsgEthereumTx(privKey, msgEthTx)
+	suite.Require().NoError(err)
+	suite.Require().NoError(signedMsg.ValidateBasic())
+
+	tb := suite.clientCtx.TxConfig.NewTxBuilder()
+	builder, ok := tb.(authtx.ExtensionOptionsTxBuilder)
+	suite.Require().True(ok)
+
+	if len(unsetExtensionOptions) == 0 {
+		builder.SetExtensionOptions(option)
+	}
+
+	err = builder.SetMsgs(&signedMsg)
+	suite.Require().NoError(err)
+
+	txData, err := evmtypes.UnpackTxData(signedMsg.Data)
+	suite.Require().NoError(err)
+
+	fees := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewIntFromBigInt(txData.Fee())))
+	builder.SetFeeAmount(fees)
+	builder.SetGasLimit(signedMsg.GetGas())
+	return builder
+}
+
 // CreateTestTxBuilder is a helper function to create a tx builder given multiple inputs.
 func (suite *AnteTestSuite) CreateTestTxBuilder(
 	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
@@ -73,8 +109,9 @@ func (suite *AnteTestSuite) CreateTestTxBuilder(
 	if len(unsetExtensionOptions) == 0 {
 		builder.SetExtensionOptions(option)
 	}
+	ethSigner := types.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 
-	err = msg.Sign(suite.ethSigner, utiltx.NewSigner(priv))
+	err = msg.Sign(ethSigner, utiltx.NewSigner(priv))
 	suite.Require().NoError(err)
 
 	msg.From = ""

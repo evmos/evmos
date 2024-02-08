@@ -9,7 +9,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
+
 	"github.com/evmos/evmos/v16/app"
 	ante "github.com/evmos/evmos/v16/app/ante"
 	"github.com/evmos/evmos/v16/encoding"
@@ -32,8 +33,8 @@ type AnteTestSuite struct {
 	clientCtx client.Context
 
 	anteHandler              sdk.AnteHandler
-	ethSigner                types.Signer
 	enableFeemarket          bool
+	baseFee                  *sdkmath.Int
 	enableLondonHF           bool
 	evmParamsOption          func(*evmtypes.Params)
 	useLegacyEIP712TypedData bool
@@ -51,6 +52,9 @@ func (suite *AnteTestSuite) SetupTest() {
 		feemarketGenesis.Params.NoBaseFee = false
 	} else {
 		feemarketGenesis.Params.NoBaseFee = true
+	}
+	if suite.baseFee != nil {
+		feemarketGenesis.Params.BaseFee = *suite.baseFee
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
@@ -83,6 +87,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	eip712.SetEncodingConfig(encodingConfig)
+	legacytx.RegressionTestingAminoCodec = encodingConfig.Amino
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
@@ -103,7 +108,6 @@ func (suite *AnteTestSuite) SetupTest() {
 	})
 
 	suite.anteHandler = anteHandler
-	suite.ethSigner = types.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 }
 
 // func (suite *AnteTestSuite) SetupTest2() {

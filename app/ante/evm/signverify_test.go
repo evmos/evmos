@@ -13,6 +13,7 @@ import (
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
+	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.network.App.EvmKeeper.ChainID(),
@@ -23,7 +24,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	}
 	signedTx := evmtypes.NewTx(ethContractCreationTxParams)
 	signedTx.From = addr.Hex()
-	err := signedTx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
+	err := signedTx.Sign(ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	uprotectedEthTxParams := &evmtypes.EvmTxArgs{

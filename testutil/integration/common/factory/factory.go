@@ -5,6 +5,7 @@ package factory
 
 import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -26,6 +27,9 @@ const (
 type TxFactory interface {
 	// BuildCosmosTx builds a Cosmos tx with the provided private key and txArgs
 	BuildCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (signing.Tx, error)
+	// SignCosmosTx signs a Cosmos transaction with the provided
+	// private key and tx builder
+	SignCosmosTx(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder) error
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 

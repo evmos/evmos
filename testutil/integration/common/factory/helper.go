@@ -4,21 +4,13 @@
 package factory
 
 import (
-	"context"
 	"math/big"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	cosmostx "github.com/cosmos/cosmos-sdk/client/tx"
-
-	sdkmath "cosmossdk.io/math"
-
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/client"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 // buildTx builds a tx with the provided private key and txArgs
@@ -35,44 +27,12 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 
 	senderAddress := sdktypes.AccAddress(privKey.PubKey().Address().Bytes())
-	account, err := tf.grpcHandler.GetAccount(senderAddress.String())
-	if err != nil {
-		return nil, errorsmod.Wrapf(err, "failed to get account: %s", senderAddress.String())
-	}
-
-	sequence := account.GetSequence()
-	signerData := authsigning.SignerData{
-		ChainID:       tf.network.GetChainID(),
-		AccountNumber: account.GetAccountNumber(),
-		Sequence:      sequence,
-		Address:       senderAddress.String(),
-		PubKey:        privKey.PubKey(),
-	}
-	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "invalid sign mode")
-	}
-	// sign tx
-	sigsV2 := signing.SignatureV2{
-		PubKey: privKey.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  signMode,
-			Signature: nil,
-		},
-		Sequence: sequence,
-	}
-
-	err = txBuilder.SetSignatures(sigsV2)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to set tx signatures")
-	}
 
 	if txArgs.FeeGranter != nil {
 		txBuilder.SetFeeGranter(txArgs.FeeGranter)
 	}
 
 	txBuilder.SetFeePayer(senderAddress)
-
 	gasLimit, err := tf.estimateGas(txArgs, txBuilder)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to estimate gas")
@@ -85,14 +45,8 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 	txBuilder.SetFeeAmount(fees)
 
-	signature, err := cosmostx.SignWithPrivKey(context.TODO(), signMode, signerData, txBuilder, privKey, txConfig, sequence)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to sign tx")
-	}
-
-	err = txBuilder.SetSignatures(signature)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to set tx signatures")
+	if err := tf.SignCosmosTx(privKey, txBuilder); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to sign Cosmos Tx")
 	}
 
 	return txBuilder, nil
