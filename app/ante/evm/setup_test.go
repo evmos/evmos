@@ -9,7 +9,6 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 
 	"github.com/evmos/evmos/v16/app"
 	ante "github.com/evmos/evmos/v16/app/ante"
@@ -87,7 +86,6 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	eip712.SetEncodingConfig(encodingConfig)
-	legacytx.RegressionTestingAminoCodec = encodingConfig.Amino
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
