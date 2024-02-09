@@ -193,9 +193,4 @@ func TestAnteTestSuite(t *testing.T) {
 		enableLondonHF:           true,
 		useLegacyEIP712TypedData: true,
 	})
-
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF:           true,
-		useLegacyEIP712TypedData: true,
-	})
 }
