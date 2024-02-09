@@ -90,9 +90,9 @@ func decodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	}
 
 	// Validate payload messages
-	msgs := make([]sdk.LegacyMsg, len(aminoDoc.Msgs))
+	msgs := make([]sdk.Msg, len(aminoDoc.Msgs))
 	for i, jsonMsg := range aminoDoc.Msgs {
-		var m sdk.LegacyMsg
+		var m sdk.Msg
 		if err := aminoCodec.UnmarshalJSON(jsonMsg, &m); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("failed to unmarshal sign doc message: %w", err)
 		}
@@ -152,18 +152,16 @@ func decodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	}
 
 	// Validate payload messages
-	legacyMsgs := make([]sdk.LegacyMsg, len(body.Messages))
 	msgs := make([]sdk.Msg, len(body.Messages))
 	for i, protoMsg := range body.Messages {
-		var lm sdk.LegacyMsg
-		if err := protoCodec.UnpackAny(protoMsg, &lm); err != nil {
+		var m sdk.Msg
+		if err := protoCodec.UnpackAny(protoMsg, &m); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("could not unpack message object with error %w", err)
 		}
-		legacyMsgs[i] = lm
-		msgs[i] = lm
+		msgs[i] = m
 	}
 
-	if err := validatePayloadMessages(legacyMsgs); err != nil {
+	if err := validatePayloadMessages(msgs); err != nil {
 		return apitypes.TypedData{}, err
 	}
 
@@ -213,7 +211,7 @@ func validateCodecInit() error {
 
 // validatePayloadMessages ensures that the transaction messages can be represented in an EIP-712
 // encoding by checking that messages exist and share a single signer.
-func validatePayloadMessages(msgs []sdk.LegacyMsg) error {
+func validatePayloadMessages(msgs []sdk.Msg) error {
 	if len(msgs) == 0 {
 		return errors.New("unable to build EIP-712 payload: transaction does contain any messages")
 	}
@@ -221,16 +219,20 @@ func validatePayloadMessages(msgs []sdk.LegacyMsg) error {
 	var msgSigner sdk.AccAddress
 
 	for i, m := range msgs {
-		if len(m.GetSigners()) != 1 {
+		signers, _, err := protoCodec.GetMsgV1Signers(m)
+		if err != nil {
+			return fmt.Errorf("error getting signers. %w", err)
+		}
+		if len(signers) != 1 {
 			return errors.New("unable to build EIP-712 payload: expect exactly 1 signer")
 		}
 
 		if i == 0 {
-			msgSigner = m.GetSigners()[0]
+			msgSigner = signers[0]
 			continue
 		}
 
-		if !msgSigner.Equals(m.GetSigners()[0]) {
+		if !msgSigner.Equals(sdk.AccAddress(signers[0])) {
 			return errors.New("unable to build EIP-712 payload: multiple signers detected")
 		}
 	}
