@@ -83,7 +83,7 @@ func TestIntegrationSuite(t *testing.T) {
 	RunSpecs(t, "ERC20 Extension Suite")
 }
 
-var _ = Describe("ERC20 Extension -", func() {
+var _ = Describe("ERC20 Extension -", Ordered, func() {
 	var (
 		// contractsData holds the addresses and ABIs for the different
 		// contract instances that are subject to testing here.

@@ -40,6 +40,12 @@ const (
 	WithdrawRequiredGas uint64 = 9207
 )
 
+// LoadABI loads the staking ABI from the embedded abi.json file
+// for the staking precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, abiPath)
+}
+
 // NewPrecompile creates a new WERC20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
@@ -48,7 +54,7 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, abiPath)
+	newABI, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
@@ -114,10 +120,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
-		bz, err = p.Deposit()
+		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
-		bz, err = p.Withdraw()
+		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)

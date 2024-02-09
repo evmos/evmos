@@ -74,19 +74,20 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 		errContains    string
 		expPrecompiles []string
 	}{
-		{
-			name: "fail - already registered precompile",
-			malleate: func() []vm.PrecompiledContract {
-				return []vm.PrecompiledContract{duplicatePrecompile}
-			},
-			errContains: "precompile already registered",
-		},
+		// Precompile is static now, so this case doesnt happen anymore
+		// {
+		// 	name: "fail - already registered precompile",
+		// 	malleate: func() []vm.PrecompiledContract {
+		// 		return []vm.PrecompiledContract{duplicatePrecompile}
+		// 	},
+		// 	errContains: "precompile already registered",
+		// },
 		{
 			name: "fail - add multiple precompiles with duplicates",
 			malleate: func() []vm.PrecompiledContract {
 				return []vm.PrecompiledContract{dummyPrecompile, dummyPrecompile}
 			},
-			errContains: "precompile already registered",
+			errContains: "duplicate precompile",
 		},
 		{
 			name: "fail - precompile already in active precompiles",
@@ -96,14 +97,12 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 				// the error on ValidatePrecompiles.
 				//
 				// We add the dummy precompile to the active precompiles to trigger the error.
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.ActivePrecompiles = append(params.ActivePrecompiles, dummyPrecompile.Address().String())
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err, "expected no error setting params")
+
+				suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, dummyPrecompile)
 
 				return []vm.PrecompiledContract{dummyPrecompile}
 			},
-			errContains: "duplicate precompile",
+			errContains: "precompile already registered",
 		},
 		{
 			name: "pass - add precompile",
@@ -138,12 +137,12 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 				suite.Require().NoError(err, "expected no error adding extensions")
 
 				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
-				suite.Require().Equal(tc.expPrecompiles, activePrecompiles, "expected different active precompiles")
+				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
+				combinedPrecompiles := append(activePrecompiles, activeDynamicPrecompiles...)
+				suite.Require().Equal(tc.expPrecompiles, combinedPrecompiles, "expected different active precompiles")
 
-				availablePrecompiles := suite.app.EvmKeeper.GetAvailablePrecompileAddrs()
 				for _, expPrecompile := range tc.expPrecompiles {
-					expPrecompileAddr := common.HexToAddress(expPrecompile)
-					suite.Require().Contains(availablePrecompiles, expPrecompileAddr, "expected available precompiles to contain: %s", expPrecompile)
+					suite.Require().Contains(combinedPrecompiles, expPrecompile, "expected available precompiles to contain: %s", expPrecompile)
 				}
 			} else {
 				suite.Require().Error(err, "expected error adding extensions")
@@ -151,4 +150,5 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			}
 		})
 	}
+
 }

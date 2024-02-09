@@ -4,13 +4,12 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
-	"sort"
 
 	"github.com/evmos/evmos/v16/utils"
 
 	"github.com/evmos/evmos/v16/precompiles/bech32"
+	"github.com/evmos/evmos/v16/precompiles/werc20"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -31,6 +30,7 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
@@ -90,6 +90,17 @@ func AvailablePrecompiles(
 	} else {
 		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
+	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, "aevmos", erc20types.OWNER_MODULE)
+	wevmosprecompile, err := werc20.NewPrecompile(
+		tokenPair,
+		bankKeeper,
+		authzKeeper,
+		transferKeeper,
+	)
+
+	if err != nil {
+		panic(fmt.Errorf("failed to wevmos bank precompile: %w", err))
+	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
@@ -129,6 +140,9 @@ func AvailablePrecompiles(
 	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
 	precompiles[osmosisOutpost.Address()] = osmosisOutpost
+
+	// Wevmos
+	precompiles[WEVMOSAddress] = wevmosprecompile
 
 	return precompiles
 }
@@ -173,24 +187,10 @@ func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	return ok
 }
 
-// TODO: this is not being used
-// GetAvailablePrecompileAddrs returns the list of available precompile addresses.
-//
-// NOTE: uses index based approach instead of append because it's supposed to be faster.
-// Check https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map.
-func (k Keeper) GetAvailablePrecompileAddrs() []common.Address {
-	addresses := make([]common.Address, len(k.precompiles))
-	i := 0
-
-	//#nosec G705 -- two operations in for loop here are fine
-	for address := range k.precompiles {
-		addresses[i] = address
-		i++
+func (k Keeper) GetIfAvailablePrecompile(address common.Address) vm.PrecompiledContract {
+	precompile, ok := k.precompiles[address]
+	if !ok {
+		return nil
 	}
-
-	sort.Slice(addresses, func(i, j int) bool {
-		return bytes.Compare(addresses[i].Bytes(), addresses[j].Bytes()) == -1
-	})
-
-	return addresses
+	return precompile
 }

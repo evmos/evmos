@@ -3,7 +3,6 @@
 package keeper
 
 import (
-	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -63,7 +62,6 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 	}
 
 	params.ActivePrecompiles = activePrecompiles
-
 	return k.SetParams(ctx, params)
 }
 
@@ -89,10 +87,10 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 	updatedPrecompiles := []string{}
 	for _, address := range addresses {
 		// Check for duplicates
-		if slices.Contains(existingPrecompiles, address.String()) {
-			return nil, fmt.Errorf("precompile already registered: %s", address)
+		if !slices.Contains(existingPrecompiles, address.String()) {
+			// return nil, fmt.Errorf("precompile already registered: %s", address)
+			updatedPrecompiles = append(updatedPrecompiles, address.String())
 		}
-		updatedPrecompiles = append(updatedPrecompiles, address.String())
 	}
 	updatedPrecompiles = append(updatedPrecompiles, existingPrecompiles...)
 	sortPrecompiles(updatedPrecompiles)

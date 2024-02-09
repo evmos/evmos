@@ -43,7 +43,7 @@ type EVMKeeper interface {
 	IsAvailablePrecompile(addr common.Address) bool
 }
 
-type BankkKeeper interface {
+type BankKeeper interface {
 	bankkeeper.Keeper
 }
 

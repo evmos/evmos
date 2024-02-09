@@ -3,6 +3,12 @@
 
 package werc20
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/core/vm"
+)
+
 const (
 	// DepositMethod defines the ABI method name for the IWERC20 deposit
 	// transaction.
@@ -15,13 +21,27 @@ const (
 // Deposit is a no-op and mock function that provides the same interface as the
 // WETH contract to support equality between the native coin and its wrapped
 // ERC-20 (eg. EVMOS and WEVMOS). It only emits the Deposit event.
-func (p Precompile) Deposit() ([]byte, error) {
+func (p Precompile) Deposit(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	_ *abi.Method,
+	_ []interface{},
+) ([]byte, error) {
+
 	return nil, nil
 }
 
 // Withdraw is a no-op and mock function that provides the same interface as the
 // WETH contract to support equality between the native coin and its wrapped
 // ERC-20 (eg. EVMOS and WEVMOS). It only emits the Withdraw event.
-func (p Precompile) Withdraw() ([]byte, error) {
+func (p Precompile) Withdraw(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	_ *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+
 	return nil, nil
 }
