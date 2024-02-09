@@ -93,6 +93,8 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 		{
 			"success",
 			func() []interface{} {
+				// FIXME this could be broken
+				// One way is to use the accKeeper.AddressCodec().StringToBytes(string)
 				addr := sdk.AccAddress(s.validators[0].GetOperator())
 				// fund del account to make self-delegation
 				err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)

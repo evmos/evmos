@@ -315,6 +315,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	// =====================================
 	Describe("Execute queries", func() {
 		It("should get validator distribution info - validatorDistributionInfo query", func() {
+			// FIXME this could be broken
+			// One way is to use the accKeeper.AddressCodec().StringToBytes(string)
 			addr := sdk.AccAddress(s.validators[0].GetOperator())
 			// fund validator account to make self-delegation
 			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
@@ -334,8 +336,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 
-			expAddr := sdk.AccAddress(s.validators[0].GetOperator())
-			Expect(expAddr.String()).To(Equal(out.DistributionInfo.OperatorAddress))
+			expAddr := s.validators[0].GetOperator()
+			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
 			Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
 			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})

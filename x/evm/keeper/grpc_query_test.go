@@ -516,7 +516,7 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 				}
 
 				resp := &types.QueryValidatorAccountResponse{
-					AccountAddress: sdk.AccAddress(val.OperatorAddress).String(),
+					AccountAddress: val.OperatorAddress,
 					Sequence:       0,
 					AccountNumber:  0,
 				}
@@ -531,6 +531,8 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
+				// FIXME this could be broken
+				// One way is to use the accKeeper.AddressCodec().StringToBytes(string)
 				valAddr := sdk.AccAddress(val.OperatorAddress)
 
 				// Create validator account and set sequence and account number
