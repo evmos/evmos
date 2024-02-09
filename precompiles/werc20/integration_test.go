@@ -73,7 +73,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 	Context("WEVMOS specific functions", func() {
 		When("calling deposit correctly", func() {
 			It("should not emit events", func() {
-
 				senderKey := s.keyring.GetKey(1)
 				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
@@ -94,7 +93,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				Expect(depositResponse.IsOK()).To(Equal(true), "transaction should have succeeded", depositResponse.GetLog())
 
 				Expect(depositResponse.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used")
-
 			})
 		})
 
@@ -122,14 +120,12 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				Expect(withdrawResponse.IsOK()).To(Equal(true), "transaction should have succeeded", withdrawResponse.GetLog())
 
 				Expect(withdrawResponse.GasUsed).To(BeNumerically(">=", werc20.WithdrawRequiredGas), "expected different gas used")
-
 			})
 		})
 
 		// TODO: How do we actually check the method types here? We can see the correct ones being populated by printing the line in the cmn.Precompile
 		When("calling with incomplete data or amount", func() {
 			It("calls no call data, with amount - should call `receive` ", func() {
-
 				senderKey := s.keyring.GetKey(1)
 				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
@@ -242,9 +238,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		// })
 
 		Context("Comparing to original WEVMOS contract", func() {
-			var (
-				WEVMOSOriginalContractAddr common.Address
-			)
+			var WEVMOSOriginalContractAddr common.Address
 			BeforeEach(func() {
 				var err error
 				WEVMOSOriginalContractAddr, err = s.factory.DeployContract(
@@ -292,7 +286,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			})
 
 			It("should return the same error", func() {
-
 				senderKey := s.keyring.GetKey(1)
 				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
@@ -326,7 +319,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				Expect(originalDepositResponse.IsOK()).To(Equal(false), "transaction should have failed", originalDepositResponse.GetLog())
 
 				Expect(errOriginal.Error()).To(Equal(err.Error()))
-
 			})
 
 			// 		It("should reflect the correct balances", func() {

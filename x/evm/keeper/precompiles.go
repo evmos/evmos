@@ -97,7 +97,6 @@ func AvailablePrecompiles(
 		authzKeeper,
 		transferKeeper,
 	)
-
 	if err != nil {
 		panic(fmt.Errorf("failed to wevmos bank precompile: %w", err))
 	}

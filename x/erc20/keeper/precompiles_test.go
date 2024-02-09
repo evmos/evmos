@@ -118,7 +118,6 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 				// Check that the precompile was not registered
 				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
 				suite.Require().Contains(activeDynamicPrecompiles, tokenPair.GetERC20Contract().String(), "expected precompile to be registered")
-
 			},
 		},
 	}

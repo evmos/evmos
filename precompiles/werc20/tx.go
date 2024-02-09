@@ -28,7 +28,6 @@ func (p Precompile) Deposit(
 	_ *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-
 	return nil, nil
 }
 
@@ -42,6 +41,5 @@ func (p Precompile) Withdraw(
 	_ *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-
 	return nil, nil
 }

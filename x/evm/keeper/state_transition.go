@@ -401,7 +401,6 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 	} else {
 		ret, leftoverGas, vmErr = evm.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
-
 	}
 
 	refundQuotient := params.RefundQuotient

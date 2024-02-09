@@ -150,5 +150,4 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			}
 		})
 	}
-
 }
