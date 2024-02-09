@@ -73,9 +73,9 @@ func legacyDecodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	}
 
 	// Validate payload messages
-	msgs := make([]sdk.LegacyMsg, len(aminoDoc.Msgs))
+	msgs := make([]sdk.Msg, len(aminoDoc.Msgs))
 	for i, jsonMsg := range aminoDoc.Msgs {
-		var m sdk.LegacyMsg
+		var m sdk.Msg
 		if err := aminoCodec.UnmarshalJSON(jsonMsg, &m); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("failed to unmarshal sign doc message: %w", err)
 		}
@@ -90,7 +90,11 @@ func legacyDecodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	msg := msgs[0]
 
 	// By convention, the fee payer is the first address in the list of signers.
-	feePayer := msg.GetSigners()[0]
+	signers, _, err := protoCodec.GetMsgV1Signers(msg)
+	if err != nil {
+		return apitypes.TypedData{}, err
+	}
+	feePayer := signers[0]
 	feeDelegation := &FeeDelegationOptions{
 		FeePayer: feePayer,
 	}
@@ -147,23 +151,21 @@ func legacyDecodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error
 	}
 
 	// Validate payload messages
-	legacyMsgs := make([]sdk.LegacyMsg, len(body.Messages))
 	msgs := make([]sdk.Msg, len(body.Messages))
 	for i, protoMsg := range body.Messages {
-		var lm sdk.LegacyMsg
-		if err := protoCodec.UnpackAny(protoMsg, &lm); err != nil {
+		var m sdk.Msg
+		if err := protoCodec.UnpackAny(protoMsg, &m); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("could not unpack message object with error %w", err)
 		}
-		legacyMsgs[i] = lm
-		msgs[i] = lm
+		msgs[i] = m
 	}
 
-	if err := legacyValidatePayloadMessages(legacyMsgs); err != nil {
+	if err := legacyValidatePayloadMessages(msgs); err != nil {
 		return apitypes.TypedData{}, err
 	}
 
 	// Use first message for fee payer and type inference
-	msg := legacyMsgs[0]
+	msg := msgs[0]
 
 	signerInfo := authInfo.SignerInfos[0]
 
@@ -177,7 +179,11 @@ func legacyDecodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error
 		Gas:    authInfo.Fee.GasLimit,
 	}
 
-	feePayer := msg.GetSigners()[0]
+	signers, _, err := protoCodec.GetMsgV1Signers(msg)
+	if err != nil {
+		return apitypes.TypedData{}, err
+	}
+	feePayer := signers[0]
 	feeDelegation := &FeeDelegationOptions{
 		FeePayer: feePayer,
 	}
@@ -209,7 +215,7 @@ func legacyDecodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error
 
 // validatePayloadMessages ensures that the transaction messages can be represented in an EIP-712
 // encoding by checking that messages exist, are of the same type, and share a single signer.
-func legacyValidatePayloadMessages(msgs []sdk.LegacyMsg) error {
+func legacyValidatePayloadMessages(msgs []sdk.Msg) error {
 	if len(msgs) == 0 {
 		return errors.New("unable to build EIP-712 payload: transaction does contain any messages")
 	}
@@ -223,13 +229,17 @@ func legacyValidatePayloadMessages(msgs []sdk.LegacyMsg) error {
 			return err
 		}
 
-		if len(m.GetSigners()) != 1 {
+		signers, _, err := protoCodec.GetMsgV1Signers(m)
+		if err != nil {
+			return err
+		}
+		if len(signers) != 1 {
 			return errors.New("unable to build EIP-712 payload: expect exactly 1 signer")
 		}
 
 		if i == 0 {
 			msgType = t
-			msgSigner = m.GetSigners()[0]
+			msgSigner = signers[0]
 			continue
 		}
 
@@ -237,7 +247,7 @@ func legacyValidatePayloadMessages(msgs []sdk.LegacyMsg) error {
 			return errors.New("unable to build EIP-712 payload: different types of messages detected")
 		}
 
-		if !msgSigner.Equals(m.GetSigners()[0]) {
+		if !msgSigner.Equals(sdk.AccAddress(signers[0])) {
 			return errors.New("unable to build EIP-712 payload: multiple signers detected")
 		}
 	}
