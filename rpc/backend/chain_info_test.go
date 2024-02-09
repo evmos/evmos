@@ -333,7 +333,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 	}{
 		{
 			"fail - can't get params ",
-			func(validator sdk.AccAddress) {
+			func(_ sdk.AccAddress) {
 				var header metadata.MD
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 0
@@ -347,7 +347,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 		},
 		{
 			"fail - user block count higher than max block count ",
-			func(validator sdk.AccAddress) {
+			func(_ sdk.AccAddress) {
 				var header metadata.MD
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 0
@@ -361,7 +361,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 		},
 		{
 			"fail - Tendermint block fetching error ",
-			func(validator sdk.AccAddress) {
+			func(_ sdk.AccAddress) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
 				RegisterBlockError(client, ethrpc.BlockNumber(1).Int64())
@@ -374,7 +374,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 		},
 		{
 			"fail - Eth block fetching error",
-			func(validator sdk.AccAddress) {
+			func(sdk.AccAddress) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
 				_, err := RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)

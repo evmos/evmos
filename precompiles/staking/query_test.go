@@ -29,10 +29,10 @@ func (s *PrecompileTestSuite) TestDelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -45,20 +45,20 @@ func (s *PrecompileTestSuite) TestDelegation() {
 					operatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
 		},
 		{
 			"fail - invalid operator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					s.address,
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"decoding bech32 failed: invalid bech32 string",
@@ -134,10 +134,10 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -150,7 +150,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 					operatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -231,7 +231,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress common.Address) []interface{} {
+			func(common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(_ []byte) {},
@@ -425,10 +425,10 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(string, string) []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -442,35 +442,35 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 					destOperatorAddr,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
 		},
 		{
 			"fail - empty src validator addr",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(_, destOperatorAddr string) []interface{} {
 				return []interface{}{
 					s.address,
 					"",
 					destOperatorAddr,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"empty address string is not allowed",
 		},
 		{
 			"fail - empty destination addr",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, _ string) []interface{} {
 				return []interface{}{
 					s.address,
 					srcOperatorAddr,
 					"",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"empty address string is not allowed",
@@ -568,7 +568,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
@@ -583,7 +583,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"redelegation not found",
@@ -598,7 +598,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 					query.PageRequest{},
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"invalid query. Need to specify at least a source validator address or delegator address",
@@ -613,7 +613,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 					query.PageRequest{},
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"invalid query. Need to specify at least a source validator address or delegator address",
@@ -718,7 +718,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),

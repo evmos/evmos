@@ -193,7 +193,7 @@ func (suite *StateDBTestSuite) TestState() {
 		malleate  func(*statedb.StateDB)
 		expStates statedb.Storage
 	}{
-		{"empty state", func(db *statedb.StateDB) {
+		{"empty state", func(_ *statedb.StateDB) {
 		}, nil},
 		{"set empty value", func(db *statedb.StateDB) {
 			db.SetState(address, key1, common.Hash{})
