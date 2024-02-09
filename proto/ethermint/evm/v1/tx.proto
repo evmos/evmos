@@ -28,7 +28,6 @@ service Msg {
 // MsgEthereumTx encapsulates an Ethereum transaction as an SDK message.
 message MsgEthereumTx {
   option (amino.name) = "ethermint/MsgEthereumTx";
-  option (cosmos.msg.v1.signer) = "from";
 
   option (gogoproto.goproto_getters) = false;
 
