@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	types "github.com/evmos/evmos/v16/x/erc20/types"
+	types "github.com/evmos/evmos/v16/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -14,28 +14,28 @@ type MsgServer struct {
 	mock.Mock
 }
 
-// ConvertERC20 provides a mock function with given fields: _a0, _a1
-func (_m *MsgServer) ConvertERC20(_a0 context.Context, _a1 *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
+// EthereumTx provides a mock function with given fields: _a0, _a1
+func (_m *MsgServer) EthereumTx(_a0 context.Context, _a1 *types.MsgEthereumTx) (*types.MsgEthereumTxResponse, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ConvertERC20")
+		panic("no return value specified for EthereumTx")
 	}
 
-	var r0 *types.MsgConvertERC20Response
+	var r0 *types.MsgEthereumTxResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *types.MsgEthereumTx) (*types.MsgEthereumTxResponse, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *types.MsgConvertERC20) *types.MsgConvertERC20Response); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *types.MsgEthereumTx) *types.MsgEthereumTxResponse); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*types.MsgConvertERC20Response)
+			r0 = ret.Get(0).(*types.MsgEthereumTxResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *types.MsgConvertERC20) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *types.MsgEthereumTx) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)

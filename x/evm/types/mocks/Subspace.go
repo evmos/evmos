@@ -14,27 +14,9 @@ type Subspace struct {
 	mock.Mock
 }
 
-// GetParamSet provides a mock function with given fields: ctx, ps
-func (_m *Subspace) GetParamSet(ctx types.Context, ps paramstypes.ParamSet) {
+// GetParamSetIfExists provides a mock function with given fields: ctx, ps
+func (_m *Subspace) GetParamSetIfExists(ctx types.Context, ps paramstypes.ParamSet) {
 	_m.Called(ctx, ps)
-}
-
-// WithKeyTable provides a mock function with given fields: table
-func (_m *Subspace) WithKeyTable(table paramstypes.KeyTable) paramstypes.Subspace {
-	ret := _m.Called(table)
-
-	if len(ret) == 0 {
-		panic("no return value specified for WithKeyTable")
-	}
-
-	var r0 paramstypes.Subspace
-	if rf, ok := ret.Get(0).(func(paramstypes.KeyTable) paramstypes.Subspace); ok {
-		r0 = rf(table)
-	} else {
-		r0 = ret.Get(0).(paramstypes.Subspace)
-	}
-
-	return r0
 }
 
 // NewSubspace creates a new instance of Subspace. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -15,9 +15,9 @@ type AccountKeeper struct {
 	mock.Mock
 }
 
-// GetAccount provides a mock function with given fields: _a0, _a1
-func (_m *AccountKeeper) GetAccount(_a0 types.Context, _a1 types.AccAddress) authtypes.AccountI {
-	ret := _m.Called(_a0, _a1)
+// GetAccount provides a mock function with given fields: ctx, addr
+func (_m *AccountKeeper) GetAccount(ctx types.Context, addr types.AccAddress) authtypes.AccountI {
+	ret := _m.Called(ctx, addr)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAccount")
@@ -25,10 +25,30 @@ func (_m *AccountKeeper) GetAccount(_a0 types.Context, _a1 types.AccAddress) aut
 
 	var r0 authtypes.AccountI
 	if rf, ok := ret.Get(0).(func(types.Context, types.AccAddress) authtypes.AccountI); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, addr)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(authtypes.AccountI)
+		}
+	}
+
+	return r0
+}
+
+// GetAllAccounts provides a mock function with given fields: ctx
+func (_m *AccountKeeper) GetAllAccounts(ctx types.Context) []authtypes.AccountI {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAllAccounts")
+	}
+
+	var r0 []authtypes.AccountI
+	if rf, ok := ret.Get(0).(func(types.Context) []authtypes.AccountI); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]authtypes.AccountI)
 		}
 	}
 
@@ -50,6 +70,24 @@ func (_m *AccountKeeper) GetModuleAddress(moduleName string) types.AccAddress {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(types.AccAddress)
 		}
+	}
+
+	return r0
+}
+
+// GetParams provides a mock function with given fields: ctx
+func (_m *AccountKeeper) GetParams(ctx types.Context) authtypes.Params {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetParams")
+	}
+
+	var r0 authtypes.Params
+	if rf, ok := ret.Get(0).(func(types.Context) authtypes.Params); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(authtypes.Params)
 	}
 
 	return r0
@@ -81,6 +119,41 @@ func (_m *AccountKeeper) GetSequence(_a0 types.Context, _a1 types.AccAddress) (u
 	}
 
 	return r0, r1
+}
+
+// IterateAccounts provides a mock function with given fields: ctx, cb
+func (_m *AccountKeeper) IterateAccounts(ctx types.Context, cb func(authtypes.AccountI) bool) {
+	_m.Called(ctx, cb)
+}
+
+// NewAccountWithAddress provides a mock function with given fields: ctx, addr
+func (_m *AccountKeeper) NewAccountWithAddress(ctx types.Context, addr types.AccAddress) authtypes.AccountI {
+	ret := _m.Called(ctx, addr)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewAccountWithAddress")
+	}
+
+	var r0 authtypes.AccountI
+	if rf, ok := ret.Get(0).(func(types.Context, types.AccAddress) authtypes.AccountI); ok {
+		r0 = rf(ctx, addr)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(authtypes.AccountI)
+		}
+	}
+
+	return r0
+}
+
+// RemoveAccount provides a mock function with given fields: ctx, account
+func (_m *AccountKeeper) RemoveAccount(ctx types.Context, account authtypes.AccountI) {
+	_m.Called(ctx, account)
+}
+
+// SetAccount provides a mock function with given fields: ctx, account
+func (_m *AccountKeeper) SetAccount(ctx types.Context, account authtypes.AccountI) {
+	_m.Called(ctx, account)
 }
 
 // NewAccountKeeper creates a new instance of AccountKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

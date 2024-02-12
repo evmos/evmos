@@ -21,7 +21,7 @@ func (k *Keeper) GetActivePrecompilesInstances(
 	// Append the dynamic precompiles to the active precompiles
 	maps.Copy(activePrempilesMap, dynamicPrecompileMap)
 
-    // Append the dynamic precompiles to the active precompiles addresses
+	// Append the dynamic precompiles to the active precompiles addresses
 	staticLen := len(staticAddresses)
 	dynamicLen := len(dynamicAddresses)
 	totalLen := staticLen + dynamicLen
