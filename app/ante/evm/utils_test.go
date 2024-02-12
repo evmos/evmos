@@ -15,10 +15,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -44,16 +42,6 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
-
-// CreateTestTx is a helper function to create a tx given multiple inputs.
-//
-//nolint:revive
-func (suite *AnteTestSuite) CreateTestTx(
-	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
-	unsetExtensionOptions ...bool,
-) authsigning.Tx {
-	return suite.CreateTestTxBuilder(msg, priv, accNum, signCosmosTx).GetTx()
-}
 
 func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, unsetExtensionOptions ...bool) client.TxBuilder {
 	var option *codectypes.Any
@@ -87,85 +75,6 @@ func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs 
 	builder.SetFeeAmount(fees)
 	builder.SetGasLimit(signedMsg.GetGas())
 	return builder
-}
-
-// CreateTestTxBuilder is a helper function to create a tx builder given multiple inputs.
-// TODO remove this once replacing all calls with CreateTxBuilder
-func (suite *AnteTestSuite) CreateTestTxBuilder(
-	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
-	unsetExtensionOptions ...bool,
-) client.TxBuilder {
-	var option *codectypes.Any
-	var err error
-	if len(unsetExtensionOptions) == 0 {
-		option, err = codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
-		suite.Require().NoError(err)
-	}
-
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
-	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
-	suite.Require().True(ok)
-
-	if len(unsetExtensionOptions) == 0 {
-		builder.SetExtensionOptions(option)
-	}
-	ethSigner := types.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
-
-	err = msg.Sign(ethSigner, utiltx.NewSigner(priv))
-	suite.Require().NoError(err)
-
-	msg.From = ""
-	err = builder.SetMsgs(msg)
-	suite.Require().NoError(err)
-
-	txData, err := evmtypes.UnpackTxData(msg.Data)
-	suite.Require().NoError(err)
-
-	fees := sdk.NewCoins(sdk.NewCoin(suite.network.GetDenom(), sdkmath.NewIntFromBigInt(txData.Fee())))
-	builder.SetFeeAmount(fees)
-	builder.SetGasLimit(msg.GetGas())
-
-	if signCosmosTx {
-		signMode, err := authsigning.APISignModeToInternal(suite.clientCtx.TxConfig.SignModeHandler().DefaultMode())
-		suite.Require().NoError(err)
-		// First round: we gather all the signer infos. We use the "set empty
-		// signature" hack to do that.
-		sigV2 := signing.SignatureV2{
-			PubKey: priv.PubKey(),
-			Data: &signing.SingleSignatureData{
-				SignMode:  signMode,
-				Signature: nil,
-			},
-			Sequence: txData.GetNonce(),
-		}
-
-		sigsV2 := []signing.SignatureV2{sigV2}
-
-		err = txBuilder.SetSignatures(sigsV2...)
-		suite.Require().NoError(err)
-
-		// Second round: all signer infos are set, so each signer can sign.
-		ctx := suite.network.GetContext()
-		signerData := authsigning.SignerData{
-			ChainID:       ctx.ChainID(),
-			AccountNumber: accNum,
-			Sequence:      txData.GetNonce(),
-		}
-
-		sigV2, err = tx.SignWithPrivKey(
-			ctx,
-			signMode, signerData,
-			txBuilder, priv, suite.clientCtx.TxConfig, txData.GetNonce(),
-		)
-		suite.Require().NoError(err)
-
-		sigsV2 = []signing.SignatureV2{sigV2}
-
-		err = txBuilder.SetSignatures(sigsV2...)
-		suite.Require().NoError(err)
-	}
-
-	return txBuilder
 }
 
 func (suite *AnteTestSuite) RequireErrorForLegacyTypedData(err error) {
