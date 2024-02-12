@@ -66,7 +66,7 @@ func (s *VestingTestSuite) TestHandleClawbackProposal() {
 			vestingAddr:  vestingAddr.String(),
 			skipCreating: true,
 			errContains:  vestingtypes.ErrNotSubjectToClawback.Error(),
-			postCheck:    func(proposal vestingtypes.ClawbackProposal) {},
+			postCheck:    func(vestingtypes.ClawbackProposal) {},
 		},
 		{
 			name:              "fail - vesting account only initialized (no schedules)",
@@ -74,7 +74,7 @@ func (s *VestingTestSuite) TestHandleClawbackProposal() {
 			skipFunding:       true,
 			enableGovClawback: true,
 			errContains:       "has no vesting or lockup periods",
-			postCheck:         func(proposal vestingtypes.ClawbackProposal) {},
+			postCheck:         func(vestingtypes.ClawbackProposal) {},
 		},
 		{
 			name:              "fail - account does not exist",
@@ -82,7 +82,7 @@ func (s *VestingTestSuite) TestHandleClawbackProposal() {
 			skipCreating:      true,
 			enableGovClawback: true,
 			errContains:       fmt.Sprintf("account at address '%s' does not exist", notFoundAddr.String()),
-			postCheck:         func(proposal vestingtypes.ClawbackProposal) {},
+			postCheck:         func(vestingtypes.ClawbackProposal) {},
 		},
 		{
 			name:              "fail - gov clawback not enabled",

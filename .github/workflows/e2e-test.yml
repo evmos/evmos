@@ -36,7 +36,7 @@ jobs:
     outputs:
       test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4  
       - name: Set up test file matrix to run nix tests in parallel
         id: set_matrix
         run: |
@@ -85,9 +85,18 @@ jobs:
       matrix:
         test_files: ${{fromJson(needs.test-files-matrix.outputs.test_matrix)}}
     steps:
+      - name: Determine token
+        id: token_check
+        run: | 
+          if [ -n "${{ secrets.E2E_PAT }}" ]; then
+            TOKEN=${{ secrets.E2E_PAT }}
+          else
+            TOKEN=${{ secrets.GITHUB_TOKEN }}
+          fi
+          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.E2E_PAT }}        
+          token: ${{ steps.token_check.outputs.token }}        
       - name: Install Nix
         uses: cachix/install-nix-action@v25
         with:

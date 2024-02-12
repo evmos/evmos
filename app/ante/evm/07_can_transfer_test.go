@@ -55,7 +55,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 			name:          "success: valid tx and sufficient balance",
 			expectedError: nil,
 			isLondon:      true,
-			malleate: func(txArgs *evmtypes.EvmTxArgs) {
+			malleate: func(*evmtypes.EvmTxArgs) {
 			},
 		},
 	}
