@@ -901,15 +901,10 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			setup()
 
 			ctx = ctx.WithIsCheckTx(tc.checkTx).WithIsReCheckTx(tc.reCheckTx)
-
-			// expConsumed := params.TxGasContractCreation + params.TxGas
 			_, err := suite.anteHandler(ctx, tc.txFn(), false)
-
-			// suite.Require().Equal(consumed, ctx.GasMeter().GasConsumed())
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				// suite.Require().Equal(int(expConsumed), int(ctx.GasMeter().GasConsumed()))
 			} else {
 				suite.Require().Error(err)
 			}
