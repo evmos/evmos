@@ -4,15 +4,13 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/precompiles/erc20"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/werc20"
 	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -55,16 +53,19 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		// Add WEVMOS to params
 		params, err := grpcHandler.GetEvmParams()
 		Expect(err).To(BeNil())
+
 		WEVMOSAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		params.Params.ActivePrecompiles = append(params.Params.ActivePrecompiles, WEVMOSAddress.String())
-		integrationNetwork.UpdateEvmParams(params.Params)
+
+		err = integrationNetwork.UpdateEvmParams(params.Params)
+		Expect(err).To(BeNil(), "failed to update EVM params")
 	})
 
 	Context("WEVMOS specific functions", func() {
 		When("calling deposit correctly", func() {
 			It("should not emit events", func() {
 				senderKey := s.keyring.GetKey(1)
-				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+				contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
 				Expect(err).To(BeNil())
 
@@ -89,7 +90,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		When("calling withdraw correctly", func() {
 			It("should not emit events", func() {
 				senderKey := s.keyring.GetKey(1)
-				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+				contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
 				Expect(err).To(BeNil())
 
