@@ -52,7 +52,8 @@ func (_m *Erc20Keeper) InstantiateERC20Precompile(ctx types.Context, contractAdd
 func NewErc20Keeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *Erc20Keeper {
+},
+) *Erc20Keeper {
 	mock := &Erc20Keeper{}
 	mock.Mock.Test(t)
 

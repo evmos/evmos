@@ -466,7 +466,8 @@ func (_m *QueryClient) ValidatorAccount(ctx context.Context, in *types.QueryVali
 func NewQueryClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *QueryClient {
+},
+) *QueryClient {
 	mock := &QueryClient{}
 	mock.Mock.Test(t)
 

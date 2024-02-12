@@ -39,7 +39,8 @@ func (_m *EvmHooks) PostTxProcessing(ctx types.Context, msg core.Message, receip
 func NewEvmHooks(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EvmHooks {
+},
+) *EvmHooks {
 	mock := &EvmHooks{}
 	mock.Mock.Test(t)
 

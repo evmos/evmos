@@ -24,7 +24,8 @@ func (_m *Subspace) GetParamSetIfExists(ctx types.Context, ps paramstypes.ParamS
 func NewSubspace(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *Subspace {
+},
+) *Subspace {
 	mock := &Subspace{}
 	mock.Mock.Test(t)
 

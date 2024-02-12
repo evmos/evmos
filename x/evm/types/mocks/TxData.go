@@ -441,7 +441,8 @@ func (_m *TxData) Validate() error {
 func NewTxData(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *TxData {
+},
+) *TxData {
 	mock := &TxData{}
 	mock.Mock.Test(t)
 

@@ -75,7 +75,8 @@ func (_m *StakingKeeper) GetValidatorByConsAddr(ctx types.Context, consAddr type
 func NewStakingKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *StakingKeeper {
+},
+) *StakingKeeper {
 	mock := &StakingKeeper{}
 	mock.Mock.Test(t)
 

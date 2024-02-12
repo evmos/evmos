@@ -379,7 +379,8 @@ func (_m *QueryServer) ValidatorAccount(_a0 context.Context, _a1 *types.QueryVal
 func NewQueryServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *QueryServer {
+},
+) *QueryServer {
 	mock := &QueryServer{}
 	mock.Mock.Test(t)
 

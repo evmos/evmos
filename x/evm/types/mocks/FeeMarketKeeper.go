@@ -108,7 +108,8 @@ func (_m *FeeMarketKeeper) GetParams(ctx types.Context) feemarkettypes.Params {
 func NewFeeMarketKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *FeeMarketKeeper {
+},
+) *FeeMarketKeeper {
 	mock := &FeeMarketKeeper{}
 	mock.Mock.Test(t)
 
