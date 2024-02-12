@@ -54,7 +54,7 @@ type FeeMarketKeeper interface {
 	CalculateBaseFee(ctx sdk.Context) *big.Int
 }
 
-// Erc20Keeper
+// Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
 type Erc20Keeper interface {
 	InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error)
 }

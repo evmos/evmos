@@ -325,8 +325,10 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
-	// set the custom precompiles to the EVM (if any)
-	if cfg.Params.HasCustomPrecompiles() {
+    // Set the custom precompiles to the EVM if:
+    // 1. there are custom precompiles
+    // 2. the message is a contract call
+	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
 		staticPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
 		activeStaticPrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(staticPrecompiles))
 		copy(activeStaticPrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)

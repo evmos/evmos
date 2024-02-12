@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// AddDynamicPrecompiles adds the given precompiles to the list of active precompiles
 func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
 	addresses := make([]common.Address, len(precompiles))
 	for i, precompile := range precompiles {
@@ -17,13 +18,10 @@ func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.Precom
 		addresses[i] = address
 	}
 
-	err := k.EnableDynamicPrecompiles(ctx, addresses...)
-	if err != nil {
-		return err
-	}
-	return nil
+	return k.EnableDynamicPrecompiles(ctx, addresses...)
 }
 
+// GetDynamicPrecompileInstance returns a map of active precompiles
 func (k Keeper) GetDynamicPrecompileInstance(
 	ctx sdk.Context,
 	activePrecompiles ...common.Address,

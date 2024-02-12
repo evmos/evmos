@@ -1,0 +1,5 @@
+chain-id = "cosmoshub-2"
+keyring-backend = "test"
+output = "json"
+node = "tcp://127.0.0.1:26607"
+broadcast-mode = "sync"

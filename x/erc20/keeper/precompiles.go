@@ -69,6 +69,7 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	return k.evmKeeper.AddDynamicPrecompiles(ctx, precompiles...)
 }
 
+// InstantiateERC20Precompile returns an ERC20 precompile instance for the given contract address
 func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error) {
 	address := contractAddr.String()
 	// check if the precompile is an ERC20 contract
