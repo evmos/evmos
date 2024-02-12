@@ -120,20 +120,20 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		},
 		{
 			name:        "fail - insufficient staking rewards to withdraw",
-			malleate:    func(addr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress) {},
 			amount:      sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1000)}},
 			expErr:      true,
 			errContains: "insufficient staking rewards to cover transaction fees",
 		},
 		{
 			name:     "pass - zero amount to be claimed",
-			malleate: func(addr sdk.AccAddress) {},
+			malleate: func(sdk.AccAddress) {},
 			amount:   sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.ZeroInt()}},
 			expErr:   false,
 		},
 		{
 			name:        "fail - wrong coin denom",
-			malleate:    func(addr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress) {},
 			amount:      sdk.Coins{sdk.Coin{Denom: "wrongCoin", Amount: math.NewInt(1000)}},
 			expErr:      true,
 			errContains: "wrong fee denomination",

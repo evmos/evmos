@@ -86,7 +86,7 @@ func TestBinSearch(t *testing.T) {
 		target := uint64(21000)
 		return gas < target, nil, nil
 	}
-	failedExecutable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
+	failedExecutable := func(_ uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
 		return true, nil, errors.New("contract failed")
 	}
 
