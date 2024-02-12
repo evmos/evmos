@@ -26,6 +26,13 @@ const (
 	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 	abiPath = "abi.json"
 
+	// NOTE: These gas values have been derived from tests that have been concluded on a testing branch, which
+	// is not being merged to the main branch. The reason for this was to not clutter the repository with the
+	// necessary tests for this use case.
+	//
+	// The results can be inspected here:
+	// https://github.com/evmos/evmos/blob/malte/erc20-gas-tests/precompiles/erc20/plot_gas_values.ipynb
+
 	GasTransfer          = 9_000
 	GasTransferFrom      = 30_500
 	GasApprove           = 8_100
