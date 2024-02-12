@@ -80,7 +80,8 @@ func PrepareEIP712CosmosTx(
 		return nil, err
 	}
 
-	fee := legacytx.NewStdFee(txArgs.Gas, txArgs.Fees) //nolint:staticcheck
+	// using nolint:all because the staticcheck nolint is not working as expected
+	fee := legacytx.NewStdFee(txArgs.Gas, txArgs.Fees) //nolint:all
 
 	msgs := txArgs.Msgs
 	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, msgs, "", nil)
