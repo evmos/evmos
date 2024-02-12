@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/evmos/evmos/v16/app"
 	ante "github.com/evmos/evmos/v16/app/ante"
 	"github.com/evmos/evmos/v16/encoding"
@@ -71,6 +72,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		suite.evmParamsOption(&evmGenesis.Params)
 	}
 	customGenesis[evmtypes.ModuleName] = evmGenesis
+
+	// set block max gas to be less than maxUint64
+	cp := app.DefaultConsensusParams
+	cp.Block.MaxGas = 1000000000000000000
+	customGenesis[consensustypes.ModuleName] = cp
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),

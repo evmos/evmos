@@ -25,6 +25,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -56,6 +57,13 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
+	consensustypes.ModuleName: func(_ *app.Evmos, genesisState types.GenesisState, _ interface{}) (types.GenesisState, error) {
+		// no-op. Consensus does not have a genesis state on the application
+		// but the params are used on it
+		// (e.g. block max gas, max bytes).
+		// This is handled accordingly on chain and context initialization
+		return genesisState, nil
+	},
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
