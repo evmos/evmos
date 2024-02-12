@@ -26,7 +26,8 @@ func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
 	mb.RegisterLegacyAminoCodec(ec.Amino)
 	enccodec.RegisterInterfaces(ec.InterfaceRegistry)
 	mb.RegisterInterfaces(ec.InterfaceRegistry)
-	// This is needed for the EIP712 txs
+	// This is needed for the EIP712 txs because currently is using
+	// the deprecated method legacytx.StdSignBytes
 	legacytx.RegressionTestingAminoCodec = ec.Amino
 	return ec
 }
