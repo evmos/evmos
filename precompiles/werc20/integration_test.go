@@ -67,7 +67,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				senderKey := s.keyring.GetKey(1)
 				contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
-				Expect(err).To(BeNil())
+				Expect(err).To(BeNil(), "failed to load WERC-20 ABI")
 
 				totalSupplyTxArgs := evmtypes.EvmTxArgs{
 					To: &contractAddress,
@@ -80,9 +80,8 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 					Args:        []interface{}{},
 				}
 				depositResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, depositArgs)
-				Expect(err).To(BeNil())
+				Expect(err).To(BeNil(), "failed to call deposit")
 				Expect(depositResponse.IsOK()).To(Equal(true), "transaction should have succeeded", depositResponse.GetLog())
-
 				Expect(depositResponse.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used")
 			})
 		})
@@ -118,9 +117,9 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		When("calling with incomplete data or amount", func() {
 			It("calls no call data, with amount - should call `receive` ", func() {
 				senderKey := s.keyring.GetKey(1)
-				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+				contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
-				Expect(err).To(BeNil())
+				Expect(err).To(BeNil(), "failed to load WERC-20 ABI")
 
 				amountToSend := big.NewInt(200)
 
@@ -136,16 +135,16 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 					Args:        []interface{}{},
 				}
 				receiveResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, receiveArgs)
-				Expect(err).To(BeNil())
+				Expect(err).To(BeNil(), "unexpected result calling contract")
 				Expect(receiveResponse.IsOK()).To(Equal(true), "transaction should have succeeded", receiveResponse.GetLog())
 			})
 		})
 
 		It("calls short call data, with amount - should call `fallback` ", func() {
 			senderKey := s.keyring.GetKey(1)
-			contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+			contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 			contractABI, err := werc20.LoadABI()
-			Expect(err).To(BeNil())
+			Expect(err).To(BeNil(), "failed to load WERC-20 ABI")
 
 			amountToSend := big.NewInt(200)
 
@@ -155,32 +154,32 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				Input:  []byte{1, 2, 3},
 			}
 
-			// Perform a delegate transaction to the staking precompile
 			receiveArgs := factory.CallArgs{
 				ContractABI: contractABI,
 				MethodName:  "",
 				Args:        []interface{}{},
 			}
 			receiveResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, receiveArgs)
-			Expect(err).To(BeNil())
+			Expect(err).To(BeNil(), "unexpected result calling contract")
 			Expect(receiveResponse.IsOK()).To(Equal(true), "transaction should have succeeded", receiveResponse.GetLog())
 		})
 
-		// 		It("calls with non-existing function, with amount - should call `fallback` ", func() {
-		// 			txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-		// 			txArgs.Input = []byte("nonExistingMethod")
-		// 			txArgs.Amount = amount
-
-		// 			res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-		// 			depositCheck := passCheck.WithExpPass(true)
-		// 			depositCheck.Res = res
-		// 			err = testutil.CheckLogs(depositCheck)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-		// 			s.checkBalances(failCheck, sender, contractData)
-		// 		})
+		//It("calls with non-existing function, with amount - should call `fallback` ", func() {
+		//	txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+		//	txArgs.Input = []byte("nonExistingMethod")
+		//	txArgs.Amount = amount
+		//
+		//	res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+		//	Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+		//
+		//	depositCheck := passCheck.WithExpPass(true)
+		//	depositCheck.Res = res
+		//	err = testutil.CheckLogs(depositCheck)
+		//	Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+		//
+		//	s.checkBalances(failCheck, sender, contractData)
+		//	testutils.CheckBalances(s.grpcHandler, expectedBalances)
+		//})
 
 		// 		It("calls non call data, without amount - should call `fallback` ", func() {
 		// 			txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
@@ -246,7 +245,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			When("calling deposit", func() {
 				It("should have exact gas consumption", func() {
 					senderKey := s.keyring.GetKey(1)
-					contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+					contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 					contractABI, err := werc20.LoadABI()
 					Expect(err).To(BeNil())
 
@@ -278,7 +277,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 			It("should return the same error", func() {
 				senderKey := s.keyring.GetKey(1)
-				contractAddress := common.HexToAddress(erc20.WEVMOSContractMainnet)
+				contractAddress := common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 				contractABI, err := werc20.LoadABI()
 				Expect(err).To(BeNil())
 
