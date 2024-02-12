@@ -5,10 +5,10 @@ package network
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
-	storetypes "cosmossdk.io/store/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
@@ -23,6 +23,7 @@ import (
 	"github.com/cometbft/cometbft/version"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
@@ -50,15 +51,6 @@ type Network interface {
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-
-	// Because to update the module params on a conventional manner governance
-	// would be required, we should provide an easier way to update the params
-	// TODO implement
-	// UpdateEvmParams(params evmtypes.Params) error
-	// UpdateGovParams(params govtypes.Params) error
-	// UpdateInflationParams(params infltypes.Params) error
-	// UpdateRevenueParams(params revtypes.Params) error
-	// UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -169,12 +161,21 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
+	// Consensus module does not have a genesis state on the app,
+	// but can customize the consensus parameters of the chain on initialization
 	consensusParams := app.DefaultConsensusParams
+	if gen, ok := n.cfg.customGenesisState[consensustypes.ModuleName]; ok {
+		consensusParams, ok = gen.(*cmtproto.ConsensusParams)
+		if !ok {
+			return fmt.Errorf("invalid type for consensus parameters. Expected: cmtproto.ConsensusParams, got %T", gen)
+		}
+	}
+
 	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
-			ConsensusParams: app.DefaultConsensusParams,
+			ConsensusParams: consensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	); err != nil {
@@ -212,9 +213,14 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	// Set networks global parameters
+	var blockMaxGas uint64 = math.MaxUint64
+	if consensusParams.Block != nil && consensusParams.Block.MaxGas > 0 {
+		blockMaxGas = uint64(consensusParams.Block.MaxGas)
+	}
+
 	n.app = evmosApp
 	n.ctx = n.ctx.WithConsensusParams(*consensusParams)
-	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
+	n.ctx = n.ctx.WithBlockGasMeter(types.NewInfiniteGasMeterWithLimit(blockMaxGas))
 
 	n.validators = validators
 	n.valSet = valSet

@@ -79,7 +79,10 @@ func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) 
 		return nil
 	}
 
-	addr := sdk.AccAddress(delegateMsg.DelegatorAddress)
+	addr, err := vdd.ak.AddressCodec().StringToBytes(delegateMsg.DelegatorAddress)
+	if err != nil {
+		return err
+	}
 	acc := vdd.ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return errorsmod.Wrapf(

@@ -516,7 +516,7 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 				}
 
 				resp := &types.QueryValidatorAccountResponse{
-					AccountAddress: sdk.AccAddress(val.OperatorAddress).String(),
+					AccountAddress: val.OperatorAddress,
 					Sequence:       0,
 					AccountNumber:  0,
 				}
@@ -531,19 +531,22 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
-				valAddr := sdk.AccAddress(val.OperatorAddress)
 
 				// Create validator account and set sequence and account number
 				accNumber := uint64(100)
 				accSeq := uint64(10)
-				baseAcc := &authtypes.BaseAccount{Address: valAddr.String()}
+
+				addrBz, err := s.network.App.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.OperatorAddress)
+				suite.Require().NoError(err)
+
+				baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addrBz).String()}
 				acc := unitNetwork.App.AccountKeeper.NewAccount(unitNetwork.GetContext(), baseAcc)
 				suite.Require().NoError(acc.SetSequence(accSeq))
 				suite.Require().NoError(acc.SetAccountNumber(accNumber))
 				unitNetwork.App.AccountKeeper.SetAccount(unitNetwork.GetContext(), acc)
 
 				resp := &types.QueryValidatorAccountResponse{
-					AccountAddress: valAddr.String(),
+					AccountAddress: val.OperatorAddress,
 					Sequence:       accSeq,
 					AccountNumber:  accNumber,
 				}

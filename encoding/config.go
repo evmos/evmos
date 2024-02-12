@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/gogoproto/proto"
 
@@ -25,6 +26,9 @@ func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
 	mb.RegisterLegacyAminoCodec(ec.Amino)
 	enccodec.RegisterInterfaces(ec.InterfaceRegistry)
 	mb.RegisterInterfaces(ec.InterfaceRegistry)
+	// This is needed for the EIP712 txs because currently is using
+	// the deprecated method legacytx.StdSignBytes
+	legacytx.RegressionTestingAminoCodec = ec.Amino
 	return ec
 }
 
