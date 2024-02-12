@@ -49,13 +49,12 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Ethereum Legacy Tx",
 			TestGasLimit,
 			func() sdk.Tx {
-				msg, err := suite.factory.GenerateMsgEthereumTx(
-					fromPrivKey, evmtypes.EvmTxArgs{
-						To:       &to,
-						GasPrice: big.NewInt(0),
-					})
-				suite.Require().NoError(err)
-				return suite.CreateTestTx(&msg, fromPrivKey, 1, false)
+				txArgs := evmtypes.EvmTxArgs{
+					To:       &to,
+					GasPrice: big.NewInt(0),
+					GasLimit: TestGasLimit,
+				}
+				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},
@@ -64,15 +63,13 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
-				msg, err := suite.factory.GenerateMsgEthereumTx(
-					fromPrivKey,
-					evmtypes.EvmTxArgs{
-						To:       &to,
-						GasPrice: big.NewInt(0),
-						Accesses: &emptyAccessList,
-					})
-				suite.Require().NoError(err)
-				return suite.CreateTestTx(&msg, fromPrivKey, 1, false)
+				txArgs := evmtypes.EvmTxArgs{
+					To:       &to,
+					GasPrice: big.NewInt(0),
+					GasLimit: TestGasLimit,
+					Accesses: &emptyAccessList,
+				}
+				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},
@@ -81,17 +78,15 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
-				msg, err := suite.factory.GenerateMsgEthereumTx(
-					fromPrivKey,
-					evmtypes.EvmTxArgs{
-						To:        &to,
-						GasPrice:  big.NewInt(0),
-						GasFeeCap: big.NewInt(100),
-						GasTipCap: big.NewInt(50),
-						Accesses:  &emptyAccessList,
-					})
-				suite.Require().NoError(err)
-				return suite.CreateTestTx(&msg, fromPrivKey, 1, false)
+				txArgs := evmtypes.EvmTxArgs{
+					To:        &to,
+					GasPrice:  big.NewInt(0),
+					GasFeeCap: big.NewInt(100),
+					GasLimit:  TestGasLimit,
+					GasTipCap: big.NewInt(50),
+					Accesses:  &emptyAccessList,
+				}
+				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},

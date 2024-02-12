@@ -90,6 +90,7 @@ func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs 
 }
 
 // CreateTestTxBuilder is a helper function to create a tx builder given multiple inputs.
+// TODO remove this once replacing all calls with CreateTxBuilder
 func (suite *AnteTestSuite) CreateTestTxBuilder(
 	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
 	unsetExtensionOptions ...bool,
