@@ -1,11 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v16/x/evm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -21,19 +23,24 @@ func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.Precom
 	return k.EnableDynamicPrecompiles(ctx, addresses...)
 }
 
-// GetDynamicPrecompileInstance returns a map of active precompiles
-func (k Keeper) GetDynamicPrecompileInstance(
+// GetDynamicPrecompilesInstances returns a map of active precompiles
+func (k Keeper) GetDynamicPrecompilesInstances(
 	ctx sdk.Context,
-	activePrecompiles ...common.Address,
-) map[common.Address]vm.PrecompiledContract {
+	params *types.Params,
+) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-	for _, address := range activePrecompiles {
-		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
+	addresses := make([]common.Address, len(params.ActiveDynamicPrecompiles))
+
+	for _, address := range params.ActiveDynamicPrecompiles {
+		hexAddress := common.HexToAddress(address)
+
+		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, hexAddress)
 		if err != nil {
 			panic(errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address))
 		}
 
-		activePrecompileMap[address] = precompile
+		activePrecompileMap[hexAddress] = precompile
+		addresses = append(addresses, hexAddress)
 	}
-	return activePrecompileMap
+	return addresses, activePrecompileMap
 }

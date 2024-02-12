@@ -14,6 +14,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/maps"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -148,22 +149,40 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 }
 
 // GetStaticPrecompilesInstances returns the subset of the available precompiled contracts that
-// are active given the current parameters.
+// are active given the current parameters. It includes the Berlin Geth precompiles.
 func (k Keeper) GetStaticPrecompilesInstances(
-	activePrecompiles ...common.Address,
-) map[common.Address]vm.PrecompiledContract {
+	params *types.Params,
+) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
+	berlinLen := len(vm.PrecompiledAddressesBerlin)
+	totalLen := berlinLen + len(params.ActivePrecompiles)
+	addresses := make([]common.Address, totalLen)
+	// Append the Berlin precompiles to the active precompiles addresses
+	copy(addresses[:berlinLen], vm.PrecompiledAddressesBerlin)
 
-	for _, address := range activePrecompiles {
-		precompile, ok := k.precompiles[address]
+	// Add params precompiles
+	for _, address := range params.ActivePrecompiles {
+		hexAddress := common.HexToAddress(address)
+
+		precompile, ok := k.precompiles[hexAddress]
 		if !ok {
 			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
 		}
 
-		activePrecompileMap[address] = precompile
+		activePrecompileMap[hexAddress] = precompile
+		addresses = append(addresses, hexAddress)
 	}
 
-	return activePrecompileMap
+	// Add Berlin precompiles to map
+	for _, precompile := range vm.PrecompiledAddressesBerlin {
+		precompile, ok := k.precompiles[precompile]
+		if !ok {
+			panic(fmt.Sprintf("precompiled contract not initialized: %s", precompile))
+		}
+		activePrecompileMap[precompile.Address()] = precompile
+	}
+
+	return addresses, activePrecompileMap
 }
 
 // IsAvailablePrecompile returns true if the given precompile address is contained in the
