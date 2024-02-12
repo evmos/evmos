@@ -81,7 +81,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		expPass = testutil.LogCheckArgs{
 			ABIEvents: contractABI.Events,
-			ExpPass:   false,
+			ExpPass:   true,
 		}
 	})
 
@@ -190,51 +190,65 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			})
 		})
 
-		// 		It("calls non call data, without amount - should call `fallback` ", func() {
-		// 			txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+		When("calling empty function without amount", func() {
+			It("should call `fallback` ", func() {
+				txArgs := evmtypes.EvmTxArgs{
+					To:    &contractAddress,
+					Input: []byte("nonExistingMethod"),
+				}
 
-		// 			res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			depositCheck := expPass.WithExpPass(true)
-		// 			depositCheck.Res = res
-		// 			err = testutil.CheckLogs(depositCheck)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				err = testutil.CheckLogs(expPass.WithRes(res))
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			s.checkBalances(failCheck, sender, contractData)
-		// 		})
+				// TODO: what balances are expected here?
+				var expectedBalances []banktypes.Balance
+				err = testutils.CheckBalances(s.grpcHandler, expectedBalances)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result checking balances")
+			})
+		})
 
-		// 		It("calls short call data, without amount - should call `fallback` ", func() {
-		// 			txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-		// 			txArgs.Input = []byte{1, 2, 3} // 3 dummy bytes
+		When("calling with short call data without amount", func() {
+			It("should call `fallback` ", func() {
+				txArgs := evmtypes.EvmTxArgs{
+					To:    &contractAddress,
+					Input: []byte{1, 2, 3},
+				}
 
-		// 			res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			depositCheck := expPass.WithExpPass(true)
-		// 			depositCheck.Res = res
-		// 			err = testutil.CheckLogs(depositCheck)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				err = testutil.CheckLogs(expPass.WithRes(res))
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			s.checkBalances(failCheck, sender, contractData)
-		// 		})
+				// TODO: what balances are expected here?
+				var expectedBalances []banktypes.Balance
+				err = testutils.CheckBalances(s.grpcHandler, expectedBalances)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result checking balances")
+			})
+		})
 
-		// 		It("calls with non-existing function, without amount -  should call `fallback` ", func() {
-		// 			txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-		// 			txArgs.Input = []byte("nonExistingMethod")
+		When("calling non-existent function without amount", func() {
+			It("should call `fallback` ", func() {
+				txArgs := evmtypes.EvmTxArgs{
+					To:    &contractAddress,
+					Input: []byte("nonExistingMethod"),
+				}
 
-		// 			res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			depositCheck := expPass.WithExpPass(true)
-		// 			depositCheck.Res = res
-		// 			err = testutil.CheckLogs(depositCheck)
-		// 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				err = testutil.CheckLogs(expPass.WithRes(res))
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-		// 			s.checkBalances(failCheck, sender, contractData)
-		// 		})
-		// 	})
-		// })
+				// TODO: what balances are expected here?
+				var expectedBalances []banktypes.Balance
+				err = testutils.CheckBalances(s.grpcHandler, expectedBalances)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result checking balances")
+			})
+		})
 
 		Context("Comparing to original WEVMOS contract (not precompiled)", func() {
 			var WEVMOSOriginalContractAddr common.Address
