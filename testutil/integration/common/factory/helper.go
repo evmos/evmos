@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
 // buildTx builds a tx with the provided private key and txArgs
@@ -33,6 +34,17 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 
 	txBuilder.SetFeePayer(senderAddress)
+
+	// need to sign the tx to simulate the tx to get the gas estimation
+	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "invalid sign mode")
+	}
+	signerData, err := tf.setSignatures(privKey, txBuilder, signMode)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to set tx signatures")
+	}
+
 	gasLimit, err := tf.estimateGas(txArgs, txBuilder)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to estimate gas")
@@ -45,7 +57,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 	txBuilder.SetFeeAmount(fees)
 
-	if err := tf.SignCosmosTx(privKey, txBuilder); err != nil {
+	if err := tf.signWithPrivKey(privKey, txBuilder, signerData, signMode); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to sign Cosmos Tx")
 	}
 
