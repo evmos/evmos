@@ -24,9 +24,6 @@ import (
 // PrecompileTestSuite is the implementation of the TestSuite interface for ERC20 precompile
 // unit tests.
 type PrecompileTestSuite struct {
-	// suite.Suite
-
-	// bondDenom   string
 	network     network.Network
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler

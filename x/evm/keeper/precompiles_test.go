@@ -59,14 +59,11 @@ func (d DummyPrecompile) Address() common.Address {
 var (
 	// dummyPrecompile holds an unused precompile address to check adding EVM extensions.
 	dummyPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010000"}
-	// duplicatePrecompile holds the same address as an already existing precompile in the Go-Ethereum
-	// base implementation of the EVM.
-	duplicatePrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000000001"}
 	// otherPrecompile holds another unused precompile address to check adding multiple extensions at once.
 	otherPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010001"}
 )
 
-func (suite *KeeperTestSuite) TestAddEVMExtensions() {
+func (suite *KeeperTestSuite) TestAddDynamicEVMExtensions() {
 	testcases := []struct {
 		name           string
 		malleate       func() []vm.PrecompiledContract
@@ -74,14 +71,13 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 		errContains    string
 		expPrecompiles []string
 	}{
-		// Precompile is static now, so this case doesnt happen anymore
-		// {
-		// 	name: "fail - already registered precompile",
-		// 	malleate: func() []vm.PrecompiledContract {
-		// 		return []vm.PrecompiledContract{duplicatePrecompile}
-		// 	},
-		// 	errContains: "precompile already registered",
-		// },
+		{
+			name: "no-op - already registered precompile",
+			malleate: func() []vm.PrecompiledContract {
+				return []vm.PrecompiledContract{stakingprecompile.Precompile{}}
+			},
+			errContains: "precompile already registered",
+		},
 		{
 			name: "fail - add multiple precompiles with duplicates",
 			malleate: func() []vm.PrecompiledContract {
@@ -92,13 +88,16 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 		{
 			name: "fail - precompile already in active precompiles",
 			malleate: func() []vm.PrecompiledContract {
-				// NOTE: we adjust the EVM params here because the default active precompiles
-				// are all part of the available precompiles on the keeper and would not trigger
-				// the error on ValidatePrecompiles.
+				// TODO: check if this is still correct with the new changes?
+				//
+				// NOTE: we adjust the EVM params here by adding as a dynamic extension
+				// because the default active precompiles are all part of the available precompiles on the keeper
+				// and would not trigger the error on ValidatePrecompiles.
 				//
 				// We add the dummy precompile to the active precompiles to trigger the error.
 
-				suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, dummyPrecompile)
+				err := suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, dummyPrecompile)
+				suite.Require().NoError(err, "expected no error adding extensions")
 
 				return []vm.PrecompiledContract{dummyPrecompile}
 			},
