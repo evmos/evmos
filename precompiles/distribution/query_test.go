@@ -40,7 +40,7 @@ var baseTestCases = []distrTestCases{
 		func() []interface{} {
 			return []interface{}{}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid number of arguments",
@@ -52,7 +52,7 @@ var baseTestCases = []distrTestCases{
 				"invalid",
 			}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid bech32 string",
@@ -73,7 +73,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -85,7 +85,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					s.validators[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"delegation does not exist",
@@ -321,7 +321,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					"invalid", uint64(1), uint64(5), query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -336,7 +336,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -351,7 +351,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -483,7 +483,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"invalid bech32 string",
@@ -499,7 +499,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -513,7 +513,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					s.validators[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"delegation does not exist",
@@ -591,7 +591,7 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -719,7 +719,7 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -800,7 +800,7 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),

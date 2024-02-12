@@ -132,10 +132,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -148,20 +148,20 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 					operatorAddress,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, ""),
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					s.address,
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid validator address",
@@ -231,22 +231,22 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid validator address",
@@ -323,7 +323,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -336,7 +336,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					10,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid delegator address",
@@ -349,7 +349,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					big.NewInt(100000000000000000),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid type for maxRetrieve: expected uint32",
@@ -362,7 +362,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(2),
 				}
 			},
-			func(data []byte) {
+			func([]byte) {
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
 			},
@@ -378,7 +378,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(1),
 				}
 			},
-			func(data []byte) {
+			func([]byte) {
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6e18))
 			},
