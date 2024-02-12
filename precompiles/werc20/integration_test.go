@@ -30,14 +30,7 @@ type PrecompileTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
-const (
-	// EventTypeDeposit defines the event type for the Deposit transaction.
-	EventTypeDeposit = "Deposit"
-	// EventTypeWithdrawal defines the event type for the Withdraw transaction.
-	EventTypeWithdrawal = "Withdrawal"
-
-	chainID = "evmos_9001-1"
-)
+const chainID = "evmos_9001-1"
 
 var _ = Describe("WEVMOS Extension -", Ordered, func() {
 	var s *PrecompileTestSuite
