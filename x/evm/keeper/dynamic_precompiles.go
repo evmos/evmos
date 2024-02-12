@@ -23,7 +23,7 @@ func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.Precom
 	return k.EnableDynamicPrecompiles(ctx, addresses...)
 }
 
-// GetDynamicPrecompilesInstances returns a map of active precompiles
+// GetDynamicPrecompilesInstances returns the addresses and instances of the active dynamic precompiles
 func (k Keeper) GetDynamicPrecompilesInstances(
 	ctx sdk.Context,
 	params *types.Params,

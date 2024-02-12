@@ -148,8 +148,8 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 	return k
 }
 
-// GetStaticPrecompilesInstances returns the subset of the available precompiled contracts that
-// are active given the current parameters. It includes the Berlin Geth precompiles.
+// GetStaticPrecompilesInstances returns the addresses and instances of the active static precompiles.
+// Includes the Berlin precompiles.
 func (k Keeper) GetStaticPrecompilesInstances(
 	params *types.Params,
 ) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
