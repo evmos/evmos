@@ -20,10 +20,10 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	s := new(AnteTestSuite)
 	s.SetT(&testing.T{})
 	s.SetupTest()
-	ctx := s.network.GetContext()
+	ctx := s.GetNetwork().GetContext()
 
 	args := &evmtypes.EvmTxArgs{
-		ChainID:  s.network.App.EvmKeeper.ChainID(),
+		ChainID:  s.GetNetwork().App.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: uint64(1000000),
@@ -62,19 +62,19 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				cacheCtx, _ := ctx.CacheContext()
 				// Create new stateDB for each test case from the cached context
-				vmdb = testutil.NewStateDB(cacheCtx, s.network.App.EvmKeeper)
+				vmdb = testutil.NewStateDB(cacheCtx, s.GetNetwork().App.EvmKeeper)
 				cacheCtx = s.prepareAccount(cacheCtx, addr.Bytes(), tc.balance, tc.rewards)
 				s.Require().NoError(vmdb.Commit())
 				keepers := ethante.ConsumeGasKeepers{
-					Bank:         s.network.App.BankKeeper,
-					Distribution: s.network.App.DistrKeeper,
-					Evm:          s.network.App.EvmKeeper,
-					Staking:      s.network.App.StakingKeeper,
+					Bank:         s.GetNetwork().App.BankKeeper,
+					Distribution: s.GetNetwork().App.DistrKeeper,
+					Evm:          s.GetNetwork().App.EvmKeeper,
+					Staking:      s.GetNetwork().App.StakingKeeper,
 				}
 
-				baseFee := s.network.App.FeeMarketKeeper.GetParams(ctx).BaseFee
+				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
-				denom := s.network.App.EvmKeeper.GetParams(ctx).EvmDenom
+				denom := s.GetNetwork().App.EvmKeeper.GetParams(ctx).EvmDenom
 				fees := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 

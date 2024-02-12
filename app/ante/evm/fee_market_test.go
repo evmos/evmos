@@ -17,10 +17,10 @@ import (
 )
 
 func (suite *AnteTestSuite) TestGasWantedDecorator() {
-	suite.enableFeemarket = true
+	suite.WithFeemarketEnabled(true)
 	suite.SetupTest()
-	ctx := suite.network.GetContext()
-	dec := evm.NewGasWantedDecorator(suite.network.App.EvmKeeper, suite.network.App.FeeMarketKeeper)
+	ctx := suite.GetNetwork().GetContext()
+	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.EvmKeeper, suite.GetNetwork().App.FeeMarketKeeper)
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
@@ -96,9 +96,9 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			func() sdk.Tx {
 				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 				gas := uint64(200000)
-				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
+				acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
-				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
+				suite.GetNetwork().App.AccountKeeper.SetAccount(ctx, acc)
 				builder, err := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				return builder.GetTx()
@@ -133,7 +133,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 
-				gasWanted := suite.network.App.FeeMarketKeeper.GetTransientGasWanted(ctx)
+				gasWanted := suite.GetNetwork().App.FeeMarketKeeper.GetTransientGasWanted(ctx)
 				expectedGasWanted += tc.expectedGasWanted
 				suite.Require().Equal(expectedGasWanted, gasWanted)
 			} else {
