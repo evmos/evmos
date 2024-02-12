@@ -182,7 +182,7 @@ func (k Keeper) GetAvailableStaticPrecompileAddrs() []common.Address {
 	addresses := make([]common.Address, len(k.precompiles))
 	i := 0
 
-    //#nosec G705 -- two operations in for loop here are fine
+	//#nosec G705 -- two operations in for loop here are fine
 	for address := range k.precompiles {
 		addresses[i] = address
 		i++
