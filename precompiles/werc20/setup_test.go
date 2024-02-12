@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// var s *PrecompileTestSuite
+// var s *WERC20IntegrationTestSuite
 
 func TestPrecompileTestSuite(t *testing.T) {
 	// Run Ginkgo integration tests
@@ -19,7 +19,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 	RunSpecs(t, "Precompile Suite")
 }
 
-// func (s *PrecompileTestSuite) SetupTest() {
+// func (s *WERC20IntegrationTestSuite) SetupTest() {
 // 	keyring := testkeyring.New(2)
 // 	integrationNetwork := network.NewUnitTestNetwork(
 // 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),

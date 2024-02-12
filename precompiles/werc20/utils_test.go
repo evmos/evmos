@@ -1,27 +1,5 @@
 package werc20_test
 
-// import (
-// 	"math/big"
-// 	"time"
-
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/cosmos/cosmos-sdk/x/authz"
-// 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-// 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
-
-// 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-// 	"github.com/ethereum/go-ethereum/accounts/abi"
-// 	"github.com/ethereum/go-ethereum/common"
-// 	"github.com/evmos/evmos/v16/precompiles/erc20"
-// 	"github.com/evmos/evmos/v16/precompiles/testutil"
-// 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-// 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-// 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
-// 	//nolint:revive // dot imports are fine for Gomega
-// 	. "github.com/onsi/gomega"
-// )
-
 // // callType constants to differentiate between direct calls and calls through a contract.
 // const (
 // 	directCall = iota + 1
@@ -29,6 +7,8 @@ package werc20_test
 // 	erc20Call
 // )
 
+// TODO: remove all of this
+//
 // // ContractData is a helper struct to hold the addresses and ABIs for the
 // // different contract instances that are subject to testing here.
 // type ContractData struct {
@@ -42,37 +22,6 @@ package werc20_test
 // 	precompileABI  abi.ABI
 // }
 
-// // getCallArgs is a helper function to return the correct call arguments for a given call type.
-// //
-// // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
-// // ERC20CallerContract's ABI is used and the given contract address.
-// func (s *PrecompileTestSuite) getTxAndCallArgs(
-// 	callType int,
-// 	contractData ContractData,
-// 	methodName string,
-// 	args ...interface{},
-// ) (evmtypes.EvmTxArgs, factory.CallArgs) {
-// 	txArgs := evmtypes.EvmTxArgs{}
-// 	callArgs := factory.CallArgs{}
-
-// 	switch callType {
-// 	case directCall:
-// 		txArgs.To = &contractData.precompileAddr
-// 		callArgs.ContractABI = contractData.precompileABI
-// 	case contractCall:
-// 		txArgs.To = &contractData.contractAddr
-// 		callArgs.ContractABI = contractData.contractABI
-// 	case erc20Call:
-// 		txArgs.To = &contractData.erc20Addr
-// 		callArgs.ContractABI = contractData.erc20ABI
-// 	}
-
-// 	callArgs.MethodName = methodName
-// 	callArgs.Args = args
-
-// 	return txArgs, callArgs
-// }
-
 // // ExpectedBalance is a helper struct to check the balances of accounts.
 // type ExpectedBalance struct {
 // 	address  sdk.AccAddress
@@ -80,7 +29,7 @@ package werc20_test
 // }
 
 // // ExpectBalances is a helper function to check if the balances of the given accounts are as expected.
-// func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
+// func (s *WERC20IntegrationTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 // 	for _, expBalance := range expBalances {
 // 		for _, expCoin := range expBalance.expCoins {
 // 			coinBalance, err := s.grpcHandler.GetBalance(expBalance.address, expCoin.Denom)
@@ -91,7 +40,7 @@ package werc20_test
 // }
 
 // // checkBalances is a helper function to check the balances of the sender and receiver.
-// func (s *PrecompileTestSuite) checkBalances(failCheck testutil.LogCheckArgs, sender keyring.Key, contractData ContractData) {
+// func (s *WERC20IntegrationTestSuite) checkBalances(failCheck testutil.LogCheckArgs, sender keyring.Key, contractData ContractData) {
 // 	balanceCheck := failCheck.WithExpPass(true)
 // 	txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
 
@@ -112,7 +61,7 @@ package werc20_test
 // // a given grantee and granter combination for a given amount.
 // //
 // // NOTE: A default expiration of 1 hour after the current block time is used.
-// func (s *PrecompileTestSuite) setupSendAuthz(
+// func (s *WERC20IntegrationTestSuite) setupSendAuthz(
 // 	grantee sdk.AccAddress, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 // ) {
 // 	granter := sdk.AccAddress(granterPriv.PubKey().Address())
@@ -144,7 +93,7 @@ package werc20_test
 // //   - in other cases, it sends a `MsgGrant` to set up the authorization.
 // //
 // // TODO: Should we add more cases for WERC20Caller
-// func (s *PrecompileTestSuite) setupSendAuthzForContract(
+// func (s *WERC20IntegrationTestSuite) setupSendAuthzForContract(
 // 	callType int, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 // ) {
 // 	Expect(amount).To(HaveLen(1), "expected only one coin")
