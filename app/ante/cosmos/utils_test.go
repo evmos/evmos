@@ -16,6 +16,7 @@ import (
 
 	"github.com/evmos/evmos/v16/app"
 	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
+	"github.com/evmos/evmos/v16/app/ante/testutils"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/encoding"
 	testutil "github.com/evmos/evmos/v16/testutil"
@@ -23,10 +24,10 @@ import (
 )
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
+	txBuilder := suite.GetClientCtx().TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(TestGasLimit)
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(TestGasLimit))}}
+	txBuilder.SetGasLimit(testutils.TestGasLimit)
+	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(testutils.TestGasLimit))}}
 	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	suite.Require().NoError(err)
@@ -34,8 +35,8 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 }
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilderWithFees(fees sdk.Coins, msgs ...sdk.Msg) client.TxBuilder {
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
-	txBuilder.SetGasLimit(TestGasLimit)
+	txBuilder := suite.GetClientCtx().TxConfig.NewTxBuilder()
+	txBuilder.SetGasLimit(testutils.TestGasLimit)
 	txBuilder.SetFeeAmount(fees)
 	err := txBuilder.SetMsgs(msgs...)
 	suite.Require().NoError(err)
@@ -84,6 +85,7 @@ func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.A
 	return testPrivKeys, testAddresses, nil
 }
 
+// TODO refactor with current testutil funcs to remove this helper function
 func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -114,7 +116,7 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 
 	signerData := authsigning.SignerData{
 		Address:       sdk.AccAddress(priv.PubKey().Bytes()).String(),
-		ChainID:       chainID,
+		ChainID:       "chainID",
 		AccountNumber: 0,
 		Sequence:      0,
 		PubKey:        priv.PubKey(),
@@ -142,17 +144,19 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 // Returns the decorator and the tx arguments to use on the test case
 func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, priv *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (cosmosante.DeductFeeDecorator, testutiltx.CosmosTxArgs) {
 	suite.SetupTest()
+	nw := suite.GetNetwork()
+	ctx := nw.GetContext()
 
 	// Create a new DeductFeeDecorator
 	dfd := cosmosante.NewDeductFeeDecorator(
-		suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
+		nw.App.AccountKeeper, nw.App.BankKeeper, nw.App.DistrKeeper, nw.App.FeeGrantKeeper, nw.App.StakingKeeper, nil,
 	)
 
 	// prepare the testcase
 	var err error
-	suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards...)
+	ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), ctx, nw.App, addr, tc.balance, tc.rewards...)
 	suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+	ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
 	suite.Require().NoError(err)
 
 	// Create an arbitrary message for testing purposes
@@ -160,7 +164,7 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 
 	// Set up the transaction arguments
 	return dfd, testutiltx.CosmosTxArgs{
-		TxCfg:      suite.clientCtx.TxConfig,
+		TxCfg:      suite.GetClientCtx().TxConfig,
 		Priv:       priv,
 		Gas:        tc.gas,
 		GasPrice:   tc.gasPrice,

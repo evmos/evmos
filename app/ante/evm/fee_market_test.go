@@ -9,6 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/app/ante/testutils"
 	"github.com/evmos/evmos/v16/testutil"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/types"
@@ -32,7 +33,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	}{
 		{
 			"Cosmos Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				denom := evmtypes.DefaultEVMDenom
 				testMsg := banktypes.MsgSend{
@@ -47,12 +48,12 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Legacy Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				txArgs := evmtypes.EvmTxArgs{
 					To:       &to,
 					GasPrice: big.NewInt(0),
-					GasLimit: TestGasLimit,
+					GasLimit: testutils.TestGasLimit,
 				}
 				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
@@ -60,13 +61,13 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Access List Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
 				txArgs := evmtypes.EvmTxArgs{
 					To:       &to,
 					GasPrice: big.NewInt(0),
-					GasLimit: TestGasLimit,
+					GasLimit: testutils.TestGasLimit,
 					Accesses: &emptyAccessList,
 				}
 				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
@@ -75,14 +76,14 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Dynamic Fee Tx (EIP1559)",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
 				txArgs := evmtypes.EvmTxArgs{
 					To:        &to,
 					GasPrice:  big.NewInt(0),
 					GasFeeCap: big.NewInt(100),
-					GasLimit:  TestGasLimit,
+					GasLimit:  testutils.TestGasLimit,
 					GasTipCap: big.NewInt(50),
 					Accesses:  &emptyAccessList,
 				}
@@ -107,7 +108,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Cosmos Tx - gasWanted > max block gas",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				denom := evmtypes.DefaultEVMDenom
 				testMsg := banktypes.MsgSend{

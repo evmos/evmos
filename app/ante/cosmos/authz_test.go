@@ -283,13 +283,14 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
+	nw := suite.GetNetwork()
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   big.NewInt(9000),
 		Nonce:     0,
 		GasLimit:  1000000,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasFeeCap: nw.App.FeeMarketKeeper.GetBaseFee(nw.GetContext()),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},
@@ -414,37 +415,40 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 				tx  sdk.Tx
 				err error
 			)
+			nw := suite.GetNetwork()
+			ctx := nw.GetContext()
+			priv := suite.GetKeyring().GetPrivKey(0)
 
 			if tc.isEIP712 {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
 				cosmosTxArgs := utiltx.CosmosTxArgs{
-					TxCfg:   suite.clientCtx.TxConfig,
-					Priv:    suite.priv,
-					ChainID: suite.ctx.ChainID(),
+					TxCfg:   suite.GetClientCtx().TxConfig,
+					Priv:    priv,
+					ChainID: ctx.ChainID(),
 					Gas:     200000,
 					Fees:    fees,
 					Msgs:    tc.msgs,
 				}
 
 				tx, err = utiltx.CreateEIP712CosmosTx(
-					suite.ctx,
-					suite.app,
+					ctx,
+					nw.App,
 					utiltx.EIP712TxArgs{
 						CosmosTxArgs:       cosmosTxArgs,
 						UseLegacyTypedData: true,
 					},
 				)
 			} else {
-				tx, err = createTx(suite.ctx, suite.priv, tc.msgs...)
+				tx, err = createTx(ctx, priv, tc.msgs...)
 			}
 			suite.Require().NoError(err)
 
-			txEncoder := suite.clientCtx.TxConfig.TxEncoder()
+			txEncoder := suite.GetClientCtx().TxConfig.TxEncoder()
 			bz, err := txEncoder(tx)
 			suite.Require().NoError(err)
 
-			resCheckTx, err := suite.app.CheckTx(
+			resCheckTx, err := nw.App.CheckTx(
 				&abci.RequestCheckTx{
 					Tx:   bz,
 					Type: abci.CheckTxType_New,
@@ -453,7 +457,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			suite.Require().NoError(err)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
-			blockRes, err := suite.app.FinalizeBlock(
+			blockRes, err := nw.App.FinalizeBlock(
 				&abci.RequestFinalizeBlock{
 					Txs: [][]byte{bz},
 				},

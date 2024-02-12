@@ -10,16 +10,18 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+
 	"github.com/evmos/evmos/v16/app"
 	ante "github.com/evmos/evmos/v16/app/ante"
+	evmante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
@@ -98,17 +100,19 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.Require().NotNil(suite.network.App.AppCodec())
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
-		Cdc:                suite.network.App.AppCodec(),
-		AccountKeeper:      suite.network.App.AccountKeeper,
-		BankKeeper:         suite.network.App.BankKeeper,
-		DistributionKeeper: suite.network.App.DistrKeeper,
-		EvmKeeper:          suite.network.App.EvmKeeper,
-		FeegrantKeeper:     suite.network.App.FeeGrantKeeper,
-		IBCKeeper:          suite.network.App.IBCKeeper,
-		StakingKeeper:      suite.network.App.StakingKeeper,
-		FeeMarketKeeper:    suite.network.App.FeeMarketKeeper,
-		SignModeHandler:    encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:     ante.SigVerificationGasConsumer,
+		Cdc:                    suite.network.App.AppCodec(),
+		AccountKeeper:          suite.network.App.AccountKeeper,
+		BankKeeper:             suite.network.App.BankKeeper,
+		DistributionKeeper:     suite.network.App.DistrKeeper,
+		EvmKeeper:              suite.network.App.EvmKeeper,
+		FeegrantKeeper:         suite.network.App.FeeGrantKeeper,
+		IBCKeeper:              suite.network.App.IBCKeeper,
+		StakingKeeper:          suite.network.App.StakingKeeper,
+		FeeMarketKeeper:        suite.network.App.FeeMarketKeeper,
+		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
+		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.network.App.EvmKeeper),
 	})
 
 	suite.anteHandler = anteHandler

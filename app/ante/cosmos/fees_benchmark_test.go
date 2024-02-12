@@ -19,6 +19,9 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 	s.SetT(&testing.T{})
 	s.SetupTest()
 
+	nw := s.GetNetwork()
+	ctx := nw.GetContext()
+
 	testCases := []deductFeeDecoratorTestCase{
 		{
 			name:     "sufficient balance to pay fees",
@@ -43,10 +46,10 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 				// setup other users rewards
 				for i := 0; i < usersCount; i++ {
 					userAddr, _ := testutiltx.NewAccAddressAndKey()
-					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
+					ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), ctx, nw.App, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
 				s.Require().NoError(err)
 			},
 		},
@@ -61,10 +64,10 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 				// setup other users rewards
 				for i := 0; i < usersCount; i++ {
 					userAddr, _ := testutiltx.NewAccAddressAndKey()
-					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
+					ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), ctx, nw.App, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
 				s.Require().NoError(err)
 			},
 		},
@@ -91,14 +94,14 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 				// Create a new DeductFeeDecorator
 				dfd, args := s.setupDeductFeeDecoratorTestCase(addr, priv, tc)
 
-				s.ctx = s.ctx.WithIsCheckTx(tc.checkTx)
+				ctx = ctx.WithIsCheckTx(tc.checkTx)
 
 				// Create a transaction out of the message
-				tx, _ := testutiltx.PrepareCosmosTx(s.ctx, s.app, args)
+				tx, _ := testutiltx.PrepareCosmosTx(ctx, nw.App, args)
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
-				_, err := dfd.AnteHandle(s.ctx, tx, tc.simulate, testutil.NextFn)
+				_, err := dfd.AnteHandle(ctx, tx, tc.simulate, testutil.NextFn)
 				s.Require().NoError(err)
 			}
 		})

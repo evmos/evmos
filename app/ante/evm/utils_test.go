@@ -29,6 +29,7 @@ import (
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/evmos/evmos/v16/app/ante/testutils"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 
 	evtypes "cosmossdk.io/x/evidence/types"
@@ -99,8 +100,8 @@ func (suite *AnteTestSuite) TxForLegacyTypedData(txBuilder client.TxBuilder) sdk
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
 	txBuilder := suite.GetClientCtx().TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(TestGasLimit)
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(TestGasLimit))}}
+	txBuilder.SetGasLimit(testutils.TestGasLimit)
+	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(testutils.TestGasLimit))}}
 	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	suite.Require().NoError(err)

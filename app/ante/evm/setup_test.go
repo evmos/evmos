@@ -13,8 +13,6 @@ type AnteTestSuite struct {
 	useLegacyEIP712TypedData bool
 }
 
-const TestGasLimit uint64 = 100000
-
 func TestAnteTestSuite(t *testing.T) {
 	baseSuite := new(testutils.AnteTestSuite)
 	baseSuite.WithLondonHardForkEnabled(true)
