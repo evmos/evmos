@@ -46,8 +46,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2276](https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
-- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 - (erc20) [#2290](https://github.com/evmos/evmos/pull/2290) Add migration logic for STR v2 to upgrade handler.
+- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
+- (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
+
+
+### Bug Fixes
+
+- (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
 
 ### Improvements
 
@@ -66,6 +72,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+- (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
+- (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
+- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (wevmos) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
+
+## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
 ### Bug Fixes
 

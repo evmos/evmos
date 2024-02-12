@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmostypes "github.com/evmos/evmos/v16/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -81,7 +80,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 					uint64(0),
 					365,
 					math.LegacyOneDec(),
-				).Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
 					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
@@ -183,7 +182,7 @@ func (suite *KeeperTestSuite) TestQueryInflationRate() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
 	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := math.NewInt(1000100000000000000)
+	bondedAmt := math.NewInt(1_000_100_000_000_000_000)
 
 	// Mint coins to increase supply
 	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
@@ -191,7 +190,7 @@ func (suite *KeeperTestSuite) TestQueryInflationRate() {
 	err := suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
 	suite.Require().NoError(err)
 
-	expInflationRate := math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+	expInflationRate := math.LegacyMustNewDecFromStr("51.562500000000000000")
 	res, err := suite.queryClient.InflationRate(ctx, &types.QueryInflationRateRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(expInflationRate, res.InflationRate)
