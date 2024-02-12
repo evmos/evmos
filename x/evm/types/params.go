@@ -13,7 +13,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/precompiles/p256"
@@ -165,27 +164,6 @@ func (p Params) EIPs() []int {
 // HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
 func (p Params) HasCustomPrecompiles() bool {
 	return len(p.ActivePrecompiles) > 0
-}
-
-// GetActivePrecompilesAddrs is a util function that the Active Precompiles
-// as a slice of addresses. It includes Berlin precompiles.
-func (p Params) GetActivePrecompilesAddrs() []common.Address {
-	totalLen := len(vm.PrecompiledAddressesBerlin) + len(p.ActivePrecompiles)
-	precompiles := make([]common.Address, totalLen)
-	for i, precompile := range p.ActivePrecompiles {
-		precompiles[i] = common.HexToAddress(precompile)
-	}
-	return precompiles
-}
-
-// GetActiveDynamicPrecompilesAddrs is a util function that the Active Dynamic Precompiles
-// as a slice of addresses.
-func (p Params) GetActiveDynamicPrecompilesAddrs() []common.Address {
-	precompiles := make([]common.Address, len(p.ActiveDynamicPrecompiles))
-	for i, precompile := range p.ActiveDynamicPrecompiles {
-		precompiles[i] = common.HexToAddress(precompile)
-	}
-	return precompiles
 }
 
 // IsEVMChannel returns true if the channel provided is in the list of
