@@ -219,7 +219,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 	}{
 		{
 			name:        "fail - account does not exist",
-			malleate:    func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress, sdk.AccAddress) {},
 			funder:      funderAddr,
 			vestingAddr: vestingAddr,
 			expPass:     false,
@@ -227,7 +227,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			name: "fail - account is not an eth account",
-			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
+			malleate: func(_ sdk.AccAddress, vestingAddr sdk.AccAddress) {
 				acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
 				s.app.AccountKeeper.SetAccount(s.ctx, acc)
 			},
@@ -256,7 +256,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			name: "fail - vesting address is in the blocked addresses list",
-			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
+			malleate: func(funder sdk.AccAddress, _ sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
 				suite.Require().NoError(err)

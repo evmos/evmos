@@ -434,7 +434,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				)
 
 				coordinator.SetDefaultSignerForChain(s.unitNetwork.GetChainID(), ibcSenderPrivKey, ibcAcc)
-				coordinator.Setup(s.unitNetwork.GetChainID(), coordinator.GetDummyChainsIds()[0])
+				coordinator.Setup(s.unitNetwork.GetChainID(), coordinator.GetDummyChainsIDs()[0])
 
 				err = coordinator.CommitAll()
 				s.Require().NoError(err)

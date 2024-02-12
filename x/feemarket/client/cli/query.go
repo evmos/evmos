@@ -37,7 +37,7 @@ func GetBlockGasCmd() *cobra.Command {
 		Long: `Get the block gas used at a given block height.
 If the height is not provided, it will use the latest height from context`,
 		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
@@ -95,7 +95,7 @@ func GetBaseFeeCmd() *cobra.Command {
 		Long: `Get the base fee amount at a given block height.
 If the height is not provided, it will use the latest height from context.`,
 		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
