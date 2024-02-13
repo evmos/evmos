@@ -153,7 +153,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		When("calling with short call data, empty method and non-zero amount", func() {
-			It("should call `fallback` ", func() {
+			It("should call `fallback`", func() {
 				txArgs := evmtypes.EvmTxArgs{
 					To:     &contractAddress,
 					Amount: big.NewInt(100),
@@ -171,7 +171,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		When("calling a non-existing function with amount", func() {
-			It("should call `fallback` ", func() {
+			It("should call `fallback`", func() {
 				txArgs := evmtypes.EvmTxArgs{
 					To:     &contractAddress,
 					Amount: big.NewInt(100),
@@ -192,7 +192,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		When("calling empty function without amount", func() {
-			It("should call `fallback` ", func() {
+			It("should call `fallback`", func() {
 				txArgs := evmtypes.EvmTxArgs{
 					To:    &contractAddress,
 					Input: []byte("nonExistingMethod"),
@@ -212,7 +212,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		When("calling with short call data without amount", func() {
-			It("should call `fallback` ", func() {
+			It("should call `fallback`", func() {
 				txArgs := evmtypes.EvmTxArgs{
 					To:    &contractAddress,
 					Input: []byte{1, 2, 3},
@@ -232,7 +232,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		When("calling non-existent function without amount", func() {
-			It("should call `fallback` ", func() {
+			It("should call `fallback`", func() {
 				txArgs := evmtypes.EvmTxArgs{
 					To:    &contractAddress,
 					Input: []byte("nonExistingMethod"),
@@ -342,38 +342,80 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				)
 			})
 
-			// 		It("should reflect the correct balances", func() {
-			// 			depositCheck := expPass.WithExpPass(true)
-			// 			txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
-			// 			txArgsPrecompile.Amount = amount
+			It("should return the same evmos balance as the bank query", func() {
+				// Query the EVM extension for the balance
+				txArgs := evmtypes.EvmTxArgs{
+					To: &contractAddress,
+				}
 
-			// 			_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
-			// 			Expect(errPrecompile).ToNot(HaveOccurred(), "unexpected result calling contract")
+				balanceArgs := factory.CallArgs{
+					ContractABI: contractABI,
+					MethodName:  erc20precompile.BalanceOfMethod,
+					Args:        []interface{}{senderKey.Addr},
+				}
 
-			// 			txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
-			// 			txArgsContract.Amount = amount
-			// 			txArgsContract.GasLimit = 50_000
+				balanceResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, txArgs, balanceArgs)
+				Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+				Expect(balanceResponse.IsOK()).To(
+					BeTrue(),
+					"transaction should have succeeded",
+					balanceResponse.GetLog(),
+				)
 
-			// 			depositCheckContract := expPass.WithExpPass(true).WithExpEvents(EventTypeDeposit)
-			// 			_, _, errOriginal := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheckContract)
-			// 			Expect(errOriginal).ToNot(HaveOccurred(), "unexpected result calling contract")
+				ethRes, err := evmtypes.DecodeTxResponse(balanceResponse.Data)
+				Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
 
-			// 			// Check balances after calling precompile
-			// 			s.checkBalances(failCheck, sender, contractData)
+				var erc20Balance *big.Int
+				err = contractABI.UnpackIntoInterface(&erc20Balance, erc20precompile.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 
-			// 			// Check balances after calling original contract
-			// 			balanceCheck := failCheck.WithExpPass(true)
-			// 			txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractDataOriginal, erc20.BalanceOfMethod, sender.Addr)
+				// Query the bank module for the balance
+				//
+				// NOTE: It's important to first query the ERC-20 balance, because that
+				// consumes gas to send the transaction at the moment, so the balance will change.
+				bankBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, utils.BaseDenom)
+				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
-			// 			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
-			// 			Expect(err).ToNot(HaveOccurred(), "failed to execute balanceOf")
+				Expect(erc20Balance.String()).To(
+					Equal(bankBalance.Balance.Amount.String()),
+					"expected same balance for ERC-20 query and bank query",
+				)
+			})
 
-			// 			// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
-			// 			var erc20Balance *big.Int
-			// 			//err = .UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
-			// 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			// 			Expect(erc20Balance).To(Equal(amount), "expected different balance")
-			// 		})
+			//// FIXME: should this not just show the normal bank balance?? The deposit is a no-op now??
+			//It("should reflect the correct balances", func() {
+			//	// Deposit into the WEVMOS contract to have something to withdraw
+			//	// TODO: -- this shouldn't work anymore though???? It should just show the correct
+			//	txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+			//	txArgsPrecompile.Amount = amount
+			//
+			//	_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+			//	Expect(errPrecompile).ToNot(HaveOccurred(), "unexpected result calling contract")
+			//
+			//	txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+			//	txArgsContract.Amount = amount
+			//	txArgsContract.GasLimit = 50_000
+			//
+			//	depositCheckContract := expPass.WithExpPass(true).WithExpEvents(EventTypeDeposit)
+			//	_, _, errOriginal := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheckContract)
+			//	Expect(errOriginal).ToNot(HaveOccurred(), "unexpected result calling contract")
+			//
+			//	// Check balances after calling precompile
+			//	s.checkBalances(failCheck, sender, contractData)
+			//
+			//	// Check balances after calling original contract
+			//	balanceCheck := failCheck.WithExpPass(true)
+			//	txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractDataOriginal, erc20.BalanceOfMethod, sender.Addr)
+			//
+			//	_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
+			//	Expect(err).ToNot(HaveOccurred(), "failed to execute balanceOf")
+			//
+			//	// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
+			//	var erc20Balance *big.Int
+			//	//err = .UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
+			//	Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+			//	Expect(erc20Balance).To(Equal(amount), "expected different balance")
+			//})
 		})
 
 		// 	When("calling withdraw", func() {
