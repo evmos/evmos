@@ -9,6 +9,7 @@ import (
 	"github.com/evmos/evmos/v16/app"
 	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
 	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 )
@@ -281,14 +282,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// Test execution
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
-			var args testutiltx.CosmosTxArgs
-			suite.SetupTest()
-
-			nw := suite.GetNetwork()
-			ctx = nw.GetContext()
-			app = nw.App
+			var args factory.CosmosTxArgs
 			// make the setup for the test case
-			dfd, args = suite.setupDeductFeeDecoratorTestCase(addr, priv, tc)
+			ctx, dfd, args = suite.setupDeductFeeDecoratorTestCase(addr, priv, tc)
+
+			app = suite.GetNetwork().App
 
 			if tc.malleate != nil {
 				tc.malleate()
@@ -296,7 +294,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			ctx = ctx.WithIsCheckTx(tc.checkTx)
 
 			// Create a transaction out of the message
-			tx, err := testutiltx.PrepareCosmosTx(ctx, app, args)
+			tx, err := suite.GetTxFactory().BuildCosmosTx(priv, args)
 			suite.Require().NoError(err, "failed to create transaction")
 
 			// run the ante handler

@@ -71,11 +71,11 @@ func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit ui
 	if gasPrice != nil {
 		fees = sdktypes.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(gasLimit))}}
 	} else {
-		baseFee, err := tf.grpcHandler.GetBaseFee()
+		resp, err := tf.grpcHandler.GetBaseFee()
 		if err != nil {
 			return sdktypes.Coins{}, errorsmod.Wrap(err, "failed to get base fee")
 		}
-		price := baseFee.BaseFee
+		price := resp.BaseFee
 		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}}
 	}
 	return fees, nil
@@ -90,7 +90,7 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 	}
 
 	var gasLimit uint64
-	if txArgs.Gas == 0 {
+	if txArgs.Gas == nil {
 		simulateRes, err := tf.network.Simulate(simulateBytes)
 		if err != nil {
 			return 0, errorsmod.Wrap(err, "failed to simulate tx")
@@ -100,7 +100,7 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 		gasUsed := new(big.Float).SetUint64(simulateRes.GasInfo.GasUsed)
 		gasLimit, _ = gasAdj.Mul(gasAdj, gasUsed).Uint64()
 	} else {
-		gasLimit = txArgs.Gas
+		gasLimit = *txArgs.Gas
 	}
 	return gasLimit, nil
 }

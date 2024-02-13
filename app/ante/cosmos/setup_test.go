@@ -15,6 +15,7 @@ type AnteTestSuite struct {
 func TestAnteTestSuite(t *testing.T) {
 	baseSuite := new(testutils.AnteTestSuite)
 	baseSuite.WithLondonHardForkEnabled(true)
+	baseSuite.WithFeemarketEnabled(true)
 
 	suite.Run(t, &AnteTestSuite{baseSuite})
 }

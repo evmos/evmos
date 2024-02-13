@@ -20,7 +20,7 @@ import (
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/encoding"
 	testutil "github.com/evmos/evmos/v16/testutil"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 )
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
@@ -142,7 +142,7 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 // setupDeductFeeDecoratorTestCase instantiates a new DeductFeeDecorator
 // and prepares the accounts with corresponding balance and staking rewards
 // Returns the decorator and the tx arguments to use on the test case
-func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, priv *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (cosmosante.DeductFeeDecorator, testutiltx.CosmosTxArgs) {
+func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, priv *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (sdk.Context, cosmosante.DeductFeeDecorator, factory.CosmosTxArgs) {
 	suite.SetupTest()
 	nw := suite.GetNetwork()
 	ctx := nw.GetContext()
@@ -156,17 +156,14 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 	var err error
 	ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), ctx, nw.App, addr, tc.balance, tc.rewards...)
 	suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-	ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
-	suite.Require().NoError(err)
 
 	// Create an arbitrary message for testing purposes
 	msg := sdktestutil.NewTestMsg(addr)
 
 	// Set up the transaction arguments
-	return dfd, testutiltx.CosmosTxArgs{
-		TxCfg:      suite.GetClientCtx().TxConfig,
-		Priv:       priv,
-		Gas:        tc.gas,
+	return ctx, dfd, factory.CosmosTxArgs{
+		ChainID:    suite.GetNetwork().GetChainID(),
+		Gas:        &tc.gas,
 		GasPrice:   tc.gasPrice,
 		FeeGranter: tc.feeGranter,
 		Msgs:       []sdk.Msg{msg},

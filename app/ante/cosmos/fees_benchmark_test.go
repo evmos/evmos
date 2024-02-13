@@ -3,10 +3,11 @@ package cosmos_test
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	sdkmath "cosmossdk.io/math"
+	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
 	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
@@ -49,8 +50,6 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 					ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), ctx, nw.App, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
-				s.Require().NoError(err)
 			},
 		},
 		{
@@ -67,8 +66,6 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 					ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), ctx, nw.App, userAddr, sdkmath.ZeroInt(), sdkmath.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				ctx, err = testutil.Commit(ctx, nw.App, time.Second*0, nil)
-				s.Require().NoError(err)
 			},
 		},
 		{
@@ -87,17 +84,21 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		}
 		b.Run(fmt.Sprintf("Case: %s", tc.name), func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
+				var (
+					dfd  cosmosante.DeductFeeDecorator
+					args factory.CosmosTxArgs
+				)
 				// Stop the timer to perform expensive test setup
 				b.StopTimer()
 				addr, priv := testutiltx.NewAccAddressAndKey()
 
 				// Create a new DeductFeeDecorator
-				dfd, args := s.setupDeductFeeDecoratorTestCase(addr, priv, tc)
+				ctx, dfd, args = s.setupDeductFeeDecoratorTestCase(addr, priv, tc)
 
 				ctx = ctx.WithIsCheckTx(tc.checkTx)
 
 				// Create a transaction out of the message
-				tx, _ := testutiltx.PrepareCosmosTx(ctx, nw.App, args)
+				tx, _ := s.GetTxFactory().BuildCosmosTx(priv, args)
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
