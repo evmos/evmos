@@ -43,6 +43,7 @@ type EVMKeeper interface {
 	IsAvailablePrecompile(addr common.Address) bool
 }
 
+// BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
 	bankkeeper.Keeper
 }

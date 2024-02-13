@@ -1,12 +1,10 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
 	"math/big"
-
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -325,36 +323,11 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
-	// set the custom precompiles to the EVM (if any)
-	if cfg.Params.HasCustomPrecompiles() {
-		staticPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
-		activeStaticPrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(staticPrecompiles))
-		copy(activeStaticPrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
-		copy(activeStaticPrecompiles[len(vm.PrecompiledAddressesBerlin):], staticPrecompiles)
-
-		dynamicPrecompiles := cfg.Params.GetActiveDynamicPrecompilesAddrs()
-		activePrecompiles := append(activeStaticPrecompiles, dynamicPrecompiles...)
-
-		// Check if the transaction is sent to an inactive precompile
-		//
-		// NOTE: This has to be checked here instead of in the actual evm.Call method
-		// because evm.WithPrecompiles only populates the EVM with the active precompiles,
-		// so there's no telling if the To address is an inactive precompile further down the call stack.
-		toAddr := msg.To()
-		if toAddr != nil &&
-			slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
-			!slices.Contains(activePrecompiles, *toAddr) {
-			return nil, errorsmod.Wrap(types.ErrInactivePrecompile, "failed to call precompile")
-		}
-
-		// NOTE: this only adds active precompiles to the EVM.
-		// This means that evm.Precompile(addr) will return false for inactive precompiles
-		// even though this is actually a reserved address.
-		activePrempilesMap := k.GetStaticPrecompilesInstances(activeStaticPrecompiles...)
-		dynamicPrecompileMap := k.GetDynamicPrecompileInstance(ctx, dynamicPrecompiles...)
-		// Append the dynamic precompiles to the active precompiles
-		maps.Copy(activePrempilesMap, dynamicPrecompileMap)
-
+	// Set the custom precompiles to the EVM if:
+	// 1. there are custom precompiles
+	// 2. the message is a contract call
+	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
+		activePrecompiles, activePrempilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
 		evm.WithPrecompiles(activePrempilesMap, activePrecompiles)
 	}
 

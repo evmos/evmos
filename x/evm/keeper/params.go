@@ -92,7 +92,7 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 			updatedPrecompiles = append(updatedPrecompiles, address.String())
 		}
 	}
-	updatedPrecompiles = append(updatedPrecompiles, existingPrecompiles...)
+	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
 	sortPrecompiles(updatedPrecompiles)
 	return updatedPrecompiles, nil
 }

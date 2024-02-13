@@ -513,8 +513,8 @@ func NewEvmos(
 	)
 	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.AvailableStaticPrecompiles(
 			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
