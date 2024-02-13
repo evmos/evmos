@@ -26,7 +26,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					s.address,
 					s.address.String(),
