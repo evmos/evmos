@@ -433,9 +433,13 @@ func NewEvmos(
 	)
 
 	evmKeeper := evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper,
+		app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
+		// NOTE: Erc20Keeper is not defined yet, so a pointer is necessary
+		// until another solution is developed
+		&app.Erc20Keeper,
 	)
 
 	app.EvmKeeper = evmKeeper
@@ -509,8 +513,8 @@ func NewEvmos(
 	)
 	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.AvailableStaticPrecompiles(
 			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,

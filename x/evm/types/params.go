@@ -13,7 +13,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/precompiles/p256"
@@ -43,6 +42,8 @@ var (
 		"0x0000000000000000000000000000000000000900", // Stride outpost
 		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
+	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
+	DefaultActiveDynamicPrecompiles = []string{}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []int64{3855}
@@ -62,17 +63,19 @@ func NewParams(
 	config ChainConfig,
 	extraEIPs []int64,
 	activePrecompiles,
-	evmChannels []string,
+	evmChannels,
+	activeDynamicPrecompiles []string,
 ) Params {
 	return Params{
-		EvmDenom:            evmDenom,
-		AllowUnprotectedTxs: allowUnprotectedTxs,
-		EnableCreate:        enableCreate,
-		EnableCall:          enableCall,
-		ExtraEIPs:           extraEIPs,
-		ChainConfig:         config,
-		ActivePrecompiles:   activePrecompiles,
-		EVMChannels:         evmChannels,
+		EvmDenom:                 evmDenom,
+		AllowUnprotectedTxs:      allowUnprotectedTxs,
+		EnableCreate:             enableCreate,
+		EnableCall:               enableCall,
+		ExtraEIPs:                extraEIPs,
+		ChainConfig:              config,
+		ActivePrecompiles:        activePrecompiles,
+		EVMChannels:              evmChannels,
+		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
 	}
 }
 
@@ -82,14 +85,15 @@ func NewParams(
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:            DefaultEVMDenom,
-		EnableCreate:        DefaultEnableCreate,
-		EnableCall:          DefaultEnableCall,
-		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           DefaultExtraEIPs,
-		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   AvailableEVMExtensions,
-		EVMChannels:         DefaultEVMChannels,
+		EvmDenom:                 DefaultEVMDenom,
+		EnableCreate:             DefaultEnableCreate,
+		EnableCall:               DefaultEnableCall,
+		ChainConfig:              DefaultChainConfig(),
+		ExtraEIPs:                DefaultExtraEIPs,
+		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:        AvailableEVMExtensions,
+		EVMChannels:              DefaultEVMChannels,
+		ActiveDynamicPrecompiles: DefaultActiveDynamicPrecompiles,
 	}
 }
 
@@ -141,6 +145,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := ValidatePrecompiles(p.ActiveDynamicPrecompiles); err != nil {
+		return err
+	}
+
 	return validateChannels(p.EVMChannels)
 }
 
@@ -158,16 +166,6 @@ func (p Params) HasCustomPrecompiles() bool {
 	return len(p.ActivePrecompiles) > 0
 }
 
-// GetActivePrecompilesAddrs is a util function that the Active Precompiles
-// as a slice of addresses.
-func (p Params) GetActivePrecompilesAddrs() []common.Address {
-	precompiles := make([]common.Address, len(p.ActivePrecompiles))
-	for i, precompile := range p.ActivePrecompiles {
-		precompiles[i] = common.HexToAddress(precompile)
-	}
-	return precompiles
-}
-
 // IsEVMChannel returns true if the channel provided is in the list of
 // EVM channels
 func (p Params) IsEVMChannel(channel string) bool {
@@ -181,6 +179,15 @@ func (p Params) IsActivePrecompile(address string) bool {
 		return strings.Compare(address, p.ActivePrecompiles[i])
 	})
 
+	return found
+}
+
+// IsActiveDynamicPrecompile returns true if the given precompile address is
+// registered as an active dynamic precompile.
+func (p Params) IsActiveDynamicPrecompile(address string) bool {
+	_, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
+	})
 	return found
 }
 
@@ -265,13 +272,4 @@ func ValidatePrecompiles(i interface{}) error {
 // IsLondon returns if london hardfork is enabled.
 func IsLondon(ethConfig *params.ChainConfig, height int64) bool {
 	return ethConfig.IsLondon(big.NewInt(height))
-}
-
-// IsPrecompileRegistered returns true if the given precompile address is registered in the params.
-func (p Params) IsPrecompileRegistered(address string) bool {
-	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActivePrecompiles[i])
-	})
-
-	return found
 }

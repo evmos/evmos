@@ -133,14 +133,14 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			suite.Require().NotNil(tc.malleate, "malleate must be defined")
 			extensions = tc.malleate()
 
-			err := suite.app.EvmKeeper.AddEVMExtensions(suite.ctx, extensions...)
+			err := suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, extensions...)
 			if tc.expPass {
 				suite.Require().NoError(err, "expected no error adding extensions")
 
 				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
 				suite.Require().Equal(tc.expPrecompiles, activePrecompiles, "expected different active precompiles")
 
-				availablePrecompiles := suite.app.EvmKeeper.GetAvailablePrecompileAddrs()
+				availablePrecompiles := suite.app.EvmKeeper.GetAvailableStaticPrecompileAddrs()
 				for _, expPrecompile := range tc.expPrecompiles {
 					expPrecompileAddr := common.HexToAddress(expPrecompile)
 					suite.Require().Contains(availablePrecompiles, expPrecompileAddr, "expected available precompiles to contain: %s", expPrecompile)
