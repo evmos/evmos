@@ -91,7 +91,7 @@ func AvailableStaticPrecompiles(
 		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
 
-	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, "aevmos", erc20types.OWNER_MODULE)
+	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, utils.BaseDenom, erc20types.OWNER_MODULE)
 	wevmosPrecompile, err := werc20.NewPrecompile(
 		tokenPair,
 		bankKeeper,
