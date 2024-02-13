@@ -84,10 +84,14 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		err = integrationNetwork.UpdateEvmParams(params.Params)
 		Expect(err).To(BeNil(), "failed to update EVM params")
 
-		senderKey = s.keyring.GetKey(1)
+		senderKey = s.keyring.GetKey(0)
 		werc20ExtensionAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		werc20ABI, err = werc20.LoadABI()
 		Expect(err).To(BeNil(), "failed to load WERC-20 ABI")
+
+		werc20TxArgs = evmtypes.EvmTxArgs{
+			To: &werc20ExtensionAddr,
+		}
 
 		expPass = testutil.LogCheckArgs{
 			ABIEvents: werc20ABI.Events,
@@ -286,7 +290,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		BeforeAll(func() {
 			var err error
 			WEVMOSOriginalContractAddr, err = s.factory.DeployContract(
-				s.keyring.GetKey(1).Priv,
+				senderKey.Priv,
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
 					Contract:        testdata.WEVMOSContract,
@@ -568,9 +572,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("querying decimals", func() {
 			It("should return the correct decimals", func() {
-				// FIXME: this is failing with a underflow error???
-				Skip("This is not working as expected ATM. There is an underflow error when executing this.")
-
 				decimalsArgs := factory.CallArgs{
 					ContractABI: werc20ABI,
 					MethodName:  erc20precompile.DecimalsMethod,
@@ -636,9 +637,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			})
 
 			It("should return a zero balance for a new address", func() {
-				// FIXME: This is failing right now with stack underflow error???
-				Skip("This is not working as expected ATM. There is a stack underflow error when executing this.")
-
 				balanceArgs := factory.CallArgs{
 					ContractABI: werc20ABI,
 					MethodName:  erc20precompile.BalanceOfMethod,
@@ -665,9 +663,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("querying allowance", func() {
 			It("should return an existing allowance", func() {
-				// FIXME: this is failing with a stack underflow error???
-				Skip("This is not working as expected ATM. There is a stack underflow error when executing this.")
-
 				grantee := evmosutiltx.GenerateAddress()
 				approveAmount := big.NewInt(100)
 
@@ -687,7 +682,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 					Args:        []interface{}{senderKey.Addr, grantee},
 				}
 
-				// TODO: refactor to use the CallContractAndCheckLogs method
 				res, err := s.factory.ExecuteContractCall(senderKey.Priv, werc20TxArgs, allowanceArgs)
 				Expect(err).ToNot(HaveOccurred(), "failed to query allowance")
 				Expect(res.IsOK()).To(
@@ -706,9 +700,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			})
 
 			It("should return zero if no allowance exists", func() {
-				// FIXME: this is failing with an invalid opcode error???
-				Skip("This is not working as expected ATM. There is an invalid opcode error when executing this.")
-
 				allowanceArgs := factory.CallArgs{
 					ContractABI: werc20ABI,
 					MethodName:  auth.AllowanceMethod,
@@ -737,10 +728,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("querying total supply", func() {
 			It("should return the total supply", func() {
-				// FIXME: this is failing with a stack underflow error???
-				Skip("This is not working as expected ATM. There is a stack underflow error when executing this.")
-
-				expSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
+				expSupply, ok := new(big.Int).SetString("15000000000000000000", 10)
 				Expect(ok).To(BeTrue(), "failed to parse expected supply")
 
 				supplyArgs := factory.CallArgs{
@@ -760,10 +748,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("transferring tokens", func() {
 			It("it should transfer tokens to a receiver using `transfer`", func() {
-				// FIXME: this is failing with an invalid opcode error???
-				Skip("This is not working as expected ATM. There is an invalid opcode error when executing this.")
-
-				receiver := s.keyring.GetKey(1)
+				receiver := s.keyring.GetKey(2)
 				transferAmount := big.NewInt(100)
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), transferAmount.Int64())}
 
@@ -792,6 +777,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 				gasAmount := ethRes.GasUsed * txArgs.GasPrice.Uint64()
 				coinsWithGasIncluded := transferCoins.Add(sdk.NewInt64Coin(s.network.GetDenom(), int64(gasAmount)))
+
 				err = testutils.CheckBalances(
 					s.grpcHandler,
 					[]banktypes.Balance{
@@ -803,10 +789,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			})
 
 			It("it should transfer tokens to a receiver using `transferFrom`", func() {
-				// FIXME: this is failing with an invalid opcode error???
-				Skip("This is not working as expected ATM. There is an invalid opcode error when executing this.")
-
-				// Get receiver address
 				receiver := s.keyring.GetKey(1)
 				transferAmount := big.NewInt(100)
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), transferAmount.Int64())}
