@@ -7,6 +7,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
+	teststypes "github.com/evmos/evmos/v16/types/tests"
 	"github.com/evmos/evmos/v16/x/erc20/keeper"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	erc20mocks "github.com/evmos/evmos/v16/x/erc20/types/mocks"
@@ -236,6 +237,17 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 				pair, _ = suite.app.Erc20Keeper.ToggleConversion(suite.ctx, contractAddr.String())
 			},
 			true,
+			true,
+		},
+		{
+			"not allowed to disable native coin pair",
+			func() {
+				err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, teststypes.UosmoIbcdenom, contractAddr)
+				suite.Require().NoError(err)
+				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
+			},
+			false,
 			true,
 		},
 	}

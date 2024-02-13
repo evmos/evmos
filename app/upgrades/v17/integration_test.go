@@ -124,7 +124,7 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 			)
 
 			// Test that the ERC-20 contract for the IBC native coin has the correct user balance after genesis.
-			balance, err := GetERC20BalanceForAddr(
+			balance, err := testutils.GetERC20BalanceForAddr(
 				ts.factory,
 				ts.keyring.GetPrivKey(erc20Deployer),
 				accountWithERC20s,
@@ -160,7 +160,7 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 		})
 
 		It("should have minted ERC-20 tokens for the contract deployer", func() {
-			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.erc20Contract)
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.erc20Contract)
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC-20 balance")
 			Expect(balance).To(Equal(mintAmount), "expected different balance after minting ERC-20")
 		})
@@ -237,7 +237,7 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 			// NOTE: We check that the ERC20 contract for the native token pair can still be called,
 			// even though the original contract code was deleted, and it is now re-deployed
 			// as a precompiled contract.
-			balance, err := GetERC20BalanceForAddr(
+			balance, err := testutils.GetERC20BalanceForAddr(
 				ts.factory,
 				ts.keyring.GetPrivKey(erc20Deployer),
 				accountWithERC20s,
@@ -258,13 +258,13 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 		})
 
 		It("should not have converted the native ERC-20s", func() {
-			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
 			Expect(balance).To(Equal(mintAmount), "expected different balance after converting ERC20")
 		})
 
 		It("should have withdrawn all WEVMOS tokens", func() {
-			balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.wevmosContract)
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.wevmosContract)
 			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
 			Expect(balance.Int64()).To(Equal(int64(0)), "expected empty WEVMOS balance")
 		})
