@@ -2,6 +2,7 @@ package werc20_test
 
 import (
 	"math/big"
+	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -37,6 +38,12 @@ type WERC20IntegrationTestSuite struct {
 }
 
 const chainID = utils.MainnetChainID + "-1"
+
+func TestWERC20IntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Precompile Suite")
+}
 
 var _ = Describe("WEVMOS Extension -", Ordered, func() {
 	var (
