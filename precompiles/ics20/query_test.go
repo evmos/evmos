@@ -26,7 +26,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 		{
 			"fail - empty args",
 			func() []interface{} { return []interface{}{} },
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			"invalid input arguments",
@@ -36,7 +36,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 			func() []interface{} {
 				return []interface{}{"invalid denom trace"}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			"invalid denom trace",
@@ -50,7 +50,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 					expTrace.IBCDenom(),
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				var out ics20.DenomTraceResponse
 				err := s.precompile.UnpackIntoInterface(&out, ics20.DenomTraceMethod, data)
 				s.Require().NoError(err, "failed to unpack output", err)
@@ -71,7 +71,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 					expTrace.IBCDenom(),
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				var out ics20.DenomTraceResponse
 				err := s.precompile.UnpackIntoInterface(&out, ics20.DenomTraceMethod, data)
 				s.Require().NoError(err, "failed to unpack output", err)
@@ -116,7 +116,7 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 		{
 			"fail - empty args",
 			func() []interface{} { return []interface{}{} },
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			"invalid number of arguments",
@@ -138,7 +138,7 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 					},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				var denomTraces ics20.DenomTracesResponse
 				err := s.precompile.UnpackIntoInterface(&denomTraces, ics20.DenomTracesMethod, data)
 				s.Require().Equal(denomTraces.PageResponse.Total, uint64(3))
@@ -189,7 +189,7 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 		{
 			"success - trace not found, returns empty string",
 			func() []interface{} { return []interface{}{"transfer/channelToB/transfer/channelToA"} },
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				var hash string
 				err := s.precompile.UnpackIntoInterface(&hash, ics20.DenomHashMethod, data)
 				s.Require().NoError(err, "failed to unpack output", err)
@@ -207,7 +207,7 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 					reqTrace.GetFullDenomPath(),
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				var hash string
 				err := s.precompile.UnpackIntoInterface(&hash, ics20.DenomHashMethod, data)
 				s.Require().NoError(err, "failed to unpack output", err)
@@ -262,7 +262,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 1),
