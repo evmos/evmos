@@ -85,7 +85,6 @@ func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.A
 	return testPrivKeys, testAddresses, nil
 }
 
-// TODO refactor with current testutil funcs to remove this helper function
 func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()

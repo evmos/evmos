@@ -20,6 +20,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
 	testutil "github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -281,15 +282,16 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
+	var gasLimit uint64 = 1000000
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	nw := suite.GetNetwork()
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
-		ChainID:   big.NewInt(9000),
+		ChainID:   nw.GetEIP155ChainID(),
 		Nonce:     0,
-		GasLimit:  1000000,
+		GasLimit:  gasLimit,
 		GasFeeCap: nw.App.FeeMarketKeeper.GetBaseFee(nw.GetContext()),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
@@ -440,7 +442,13 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 					},
 				)
 			} else {
-				tx, err = createTx(ctx, priv, tc.msgs...)
+				tx, err = suite.GetTxFactory().BuildCosmosTx(
+					priv,
+					factory.CosmosTxArgs{
+						Gas:  &gasLimit,
+						Msgs: tc.msgs,
+					},
+				)
 			}
 			suite.Require().NoError(err)
 
@@ -457,9 +465,15 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			suite.Require().NoError(err)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
+			header := ctx.BlockHeader()
 			blockRes, err := nw.App.FinalizeBlock(
 				&abci.RequestFinalizeBlock{
+					Height: ctx.BlockHeight()+1,
 					Txs: [][]byte{bz},
+					Hash: header.AppHash,
+					NextValidatorsHash: header.NextValidatorsHash,
+					ProposerAddress: header.ProposerAddress,
+					Time: header.Time.Add(time.Second),
 				},
 			)
 			suite.Require().NoError(err)

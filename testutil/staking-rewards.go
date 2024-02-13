@@ -139,7 +139,11 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards)
 	}
 
-	return ctx, nil
+	// Increase block height in ctx for the rewards calculation
+	// NOTE: this will only work for unit tests that use the context
+	// returned by this function
+	currentHeight := ctx.BlockHeight()
+	return ctx.WithBlockHeight(currentHeight + 1), nil
 }
 
 // GetTotalDelegationRewards returns the total delegation rewards that are currently
