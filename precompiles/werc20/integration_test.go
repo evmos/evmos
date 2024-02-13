@@ -15,6 +15,7 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -32,7 +33,7 @@ type WERC20IntegrationTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
-const chainID = "evmos_9001-1"
+const chainID = utils.MainnetChainID + "-1"
 
 var _ = Describe("WEVMOS Extension -", Ordered, func() {
 	var (
