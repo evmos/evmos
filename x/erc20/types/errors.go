@@ -12,6 +12,7 @@ var (
 	ErrERC20Disabled          = errorsmod.Register(ModuleName, 2, "erc20 module is disabled")
 	ErrInternalTokenPair      = errorsmod.Register(ModuleName, 3, "internal ethereum token mapping error")
 	ErrTokenPairNotFound      = errorsmod.Register(ModuleName, 4, "token pair not found")
+	ErrTokenPairOwnedByModule = errorsmod.Register(ModuleName, 5, "token pair owned by module")
 	ErrTokenPairAlreadyExists = errorsmod.Register(ModuleName, 5, "token pair already exists")
 	ErrUndefinedOwner         = errorsmod.Register(ModuleName, 6, "undefined owner of contract pair")
 	ErrBalanceInvariance      = errorsmod.Register(ModuleName, 7, "post transfer balance invariant failed")
