@@ -1,10 +1,11 @@
 package werc20_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/evmos/evmos/v16/precompiles/authorization"
 	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"math/big"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
