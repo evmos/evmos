@@ -1,6 +1,9 @@
 package utils_test
 
 import (
+	"math/big"
+	"testing"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
@@ -13,8 +16,6 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"github.com/stretchr/testify/require"
-	"math/big"
-	"testing"
 )
 
 func TestGetERC20Balance(t *testing.T) {
