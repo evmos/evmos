@@ -1,10 +1,9 @@
 package utils_test
 
 import (
-	"time"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v16/app"
 	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
 	"github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
@@ -13,6 +12,10 @@ import (
 
 // TestClaimStakingRewardsIfNecessary tests the ClaimStakingRewardsIfNecessary function
 func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
+	var (
+		ctx sdk.Context
+		app *app.Evmos
+	)
 	testcases := []struct {
 		// testcase name
 		name string
@@ -32,19 +35,17 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 			name: "pass - sufficient rewards can be withdrawn",
 			malleate: func(addr sdk.AccAddress) {
 				var err error
-				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), suite.ctx, suite.app, addr, math.ZeroInt(), math.NewInt(1e18),
+				ctx, err = testutil.PrepareAccountsForDelegationRewards(
+					suite.T(), ctx, app, addr, math.ZeroInt(), math.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
-				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1000)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				// Check that the necessary rewards are withdrawn, which means that there are no outstanding
 				// rewards left
-				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				rewards, err := testutil.GetTotalDelegationRewards(ctx, app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 				suite.Require().Empty(rewards, "expected no total rewards to be left")
 			},
@@ -59,18 +60,16 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				// all of the options [A], [B-A], [B-C-A] or [C-A] are possible to be withdrawn, which
 				// increases the complexity of assertions.
 				var err error
-				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), suite.ctx, suite.app, addr, math.ZeroInt(), math.NewInt(1e14), math.NewInt(2e14),
+				ctx, err = testutil.PrepareAccountsForDelegationRewards(
+					suite.T(), ctx, app, addr, math.ZeroInt(), math.NewInt(1e14), math.NewInt(2e14),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
-				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e14)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
-				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
+				rewards, err := testutil.GetTotalDelegationRewards(ctx, app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 
 				// NOTE: The only valid options (because of the non-deterministic iteration over rewards, see comment above)
@@ -94,22 +93,20 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 			name: "pass - user has enough balance to cover transaction fees",
 			malleate: func(addr sdk.AccAddress) {
 				var err error
-				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), suite.ctx, suite.app, addr, math.NewInt(1e15), math.NewInt(1e18),
+				ctx, err = testutil.PrepareAccountsForDelegationRewards(
+					suite.T(), ctx, app, addr, math.NewInt(1e15), math.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
-				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1000)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				// balance should be unchanged as no rewards should have been withdrawn
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
 				suite.Require().Equal(math.NewInt(1e15), balance.Amount, "expected balance to be unchanged")
 
 				// No rewards should be withdrawn
-				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				rewards, err := testutil.GetTotalDelegationRewards(ctx, app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 				suite.Require().Equal(
 					sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e18)}},
@@ -143,10 +140,14 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+			nw := suite.GetNetwork()
+			ctx = nw.GetContext()
+			app = nw.App
+
 			addr, _ := testutiltx.NewAccAddressAndKey()
 			tc.malleate(addr)
 
-			err := anteutils.ClaimStakingRewardsIfNecessary(suite.ctx, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper, addr, tc.amount)
+			err := anteutils.ClaimStakingRewardsIfNecessary(ctx, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, addr, tc.amount)
 
 			if tc.expErr {
 				suite.Require().Error(err)
