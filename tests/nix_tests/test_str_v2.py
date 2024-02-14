@@ -2,31 +2,39 @@ import pytest
 import time
 from web3 import Web3
 
-from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
-from .network import CosmosChain, Evmos
-from .utils import (
-    ADDRS,
-    eth_to_bech32,
-    wait_for_fn,
-    erc20_balance
-)
-
 from .ibc_utils import (
-    ATOM_IBC_DENOM
+    EVMOS_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    prepare_network,
+    get_balances,
 )
+from .network import CosmosChain, Evmos
+from .utils import ADDRS, eth_to_bech32, wait_for_fn, erc20_balance
+from .ibc_utils import ATOM_IBC_DENOM
 
+# uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
+ATOM_2_IBC_DENOM_MULTI_HOP = (
+    "ibc/D219F3A490310B65BDC312B5A644B0D56FFF1789D894B902A49FBF9D2F560B32"
+)
+# uatom from cosmoshub-2 -> cosmoshub-1 IBC representation
+ATOM_1_IBC_DENOM_ATOM_2 = (
+    "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9"
+)
 # The ERC20 address of ATOM on Evmos
-ATOM_ERC20_ADDRESS = Web3.toChecksumAddress("0xf36e4C1F926001CEaDa9cA97ea622B25f41e5eB2")
+ATOM_1_ERC20_ADDRESS = Web3.toChecksumAddress(
+    "0xf36e4C1F926001CEaDa9cA97ea622B25f41e5eB2"
+)
 
 
 @pytest.fixture(scope="module", params=["evmos"])
 def ibc(request, tmp_path_factory):
-    """ Prepare the network """
+    """Prepare the network"""
     name = "str-v2"
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # specify the custom_scenario
-    network = prepare_network(path, name, [evmos_build, "cosmoshub-1"])
+    network = prepare_network(path, name, [evmos_build, "cosmoshub-1", "cosmoshub-2"])
     yield from network
 
 
@@ -49,39 +57,84 @@ def test_str_v2_single_hop(ibc):
     gaia_addr = gaia_cli.address("signer2")
 
     old_dst_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
-    print("the bech32 destination", bech_dst)
-    print(f"balance on evmos before: {old_dst_balance}")
-
-    rsp = gaia_cli.ibc_transfer(gaia_addr, bech_dst, "5000uatom", "channel-0", 1, fees="10000uatom")
+    rsp = gaia_cli.ibc_transfer(
+        gaia_addr, bech_dst, "5000uatom", "channel-0", 1, fees="10000uatom"
+    )
     assert rsp["code"] == 0
 
+    # NOTE: Sleep some time because wait_for_fn doesn't work for some reason ?
     time.sleep(30)
 
-    print("token pairs", evmos_cli.get_token_pairs())
-    print("balance on gaia after", gaia_cli.balances(gaia_addr))
-    print(evmos_cli.evm_params()["params"]["active_precompiles"])
+    w3 = evmos.w3
+    active_dynamic_precompiles = evmos_cli.evm_params()["params"][
+        "active_dynamic_precompiles"
+    ]
+    new_dest_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
+    erc_dest_balance = erc20_balance(w3, ATOM_1_ERC20_ADDRESS, evmos_addr)
 
-    # new_dst_balance_erc20_balance = erc20_balance(evmos.w3, ATOM_ERC20_ADDRESS, evmos_addr)
-    # print("erc20 balance after", new_dst_balance_erc20_balance)
-
-    new_dest_balance = 0
-    def check_balance_after():
-        nonlocal new_dest_balance
-        new_dest_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
-        print("new balance on evmos after", new_dest_balance)
-        assert old_dst_balance < new_dest_balance
-
-    wait_for_fn("balance changed", check_balance_after)
-
+    assert len(active_dynamic_precompiles) == 1
     assert old_dst_balance + 5000 == new_dest_balance
+    assert old_dst_balance + 5000 == erc_dest_balance
 
-# def test_str_v2_multi_hop(ibc):
-#     """
-#     Test Single Token Representation v2 with multi hop Coin.
-#     It should NOT create an ERC20 precompiled contract and token pair.
-#     """
-#     assert_ready(ibc)
-#
-#     cli = ibc.chains["gaia"].cosmos_cli()
-#
-#
+
+def test_str_v2_multi_hop(ibc):
+    """
+    Test Single Token Representation v2 with multi hop Coin.
+    It should NOT create an ERC20 precompiled contract and token pair.
+    """
+    assert_ready(ibc)
+
+    evmos: Evmos = ibc.chains["evmos"]
+    gaia: CosmosChain = ibc.chains["cosmoshub-1"]
+    gaia2: CosmosChain = ibc.chains["cosmoshub-2"]
+
+    evmos_cli = evmos.cosmos_cli()
+    evmos_addr = ADDRS["signer2"]
+    bech_dst = eth_to_bech32(evmos_addr)
+
+    # The starting balance of the destination address
+    evmos_old_balance = get_balance(evmos, bech_dst, ATOM_2_IBC_DENOM_MULTI_HOP)
+
+    # Cosmos hub 1
+    gaia_cli = gaia.cosmos_cli()
+    gaia_addr = gaia_cli.address("signer2")
+    gaia1_old_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
+
+    # Cosmos hub 2
+    gaia2_cli = gaia2.cosmos_cli()
+
+    rsp = gaia2_cli.ibc_transfer(
+        gaia_addr, gaia_addr, "50000uatom", "channel-1", 1, fees="10000uatom"
+    )
+    assert rsp["code"] == 0
+
+    # NOTE: Using time.sleep here because wait_for_fn doesn't work for some reason
+    time.sleep(30)
+
+    new_gaia1_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
+    assert gaia1_old_balance + 50000 == new_gaia1_balance
+
+    rsp = gaia_cli.ibc_transfer(
+        gaia_addr,
+        bech_dst,
+        f"50000{ATOM_1_IBC_DENOM_ATOM_2}",
+        "channel-0",
+        1,
+        fees="10000uatom",
+    )
+    assert rsp["code"] == 0
+
+    # NOTE: Using time.sleep here because wait_for_fn doesn't work for some reason
+    time.sleep(30)
+
+    evmos_balance = get_balance(evmos, bech_dst, ATOM_2_IBC_DENOM_MULTI_HOP)
+    active_dynamic_precompiles = evmos_cli.evm_params()["params"][
+        "active_dynamic_precompiles"
+    ]
+    token_pairs = evmos_cli.get_token_pairs()
+
+    # Here it's only one from the previous one we've registered in the first test
+    assert evmos_old_balance + 50000 == evmos_balance
+    assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
+    assert len(active_dynamic_precompiles) == 1
+    assert len(token_pairs) == 1

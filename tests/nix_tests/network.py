@@ -192,7 +192,7 @@ def setup_custom_evmos(
     if post_init is not None:
         post_init(path, base_port, config)
     proc = subprocess.Popen(
-        ["pystarport", "start", "--data", path], # TODO: remove --quiet
+        ["pystarport", "start", "--data", path, "--quiet"],
         preexec_fn=os.setsid,
     )
     try:

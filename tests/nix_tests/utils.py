@@ -516,3 +516,12 @@ def erc20_balance(w3, erc20_contract_addr, addr):
     info = json.loads(CONTRACTS["IERC20"].read_text())
     contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
     return contract.functions.balanceOf(addr).call()
+
+
+def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
+    info = json.loads(CONTRACTS["IERC20"].read_text())
+    contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
+    tx = contract.functions.transfer(to_addr, amount).build_transaction(
+        {"from": from_addr}
+    )
+    return send_transaction(w3, tx, key)
