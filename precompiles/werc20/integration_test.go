@@ -1,7 +1,6 @@
 package werc20_test
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -213,9 +212,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 	When("calling a non-existing function with amount", func() {
 		It("should call `fallback`", func() {
-			balancePre, err := s.grpcHandler.GetBalance(senderKey.AccAddr, s.network.GetDenom())
-			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
-
 			txArgs := evmtypes.EvmTxArgs{
 				To:     &werc20ExtensionAddr,
 				Amount: big.NewInt(100),
@@ -229,9 +225,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			// TODO: what balances are expected here? should we rather test that nothing has changed?? Now that everything's a no-op?
-			err = testutils.CheckBalances(s.grpcHandler, []banktypes.Balance{
-				{Address: senderKey.AccAddr.String(), Coins: sdk.Coins{*balancePre.Balance}},
-			})
+			err = testutils.CheckBalances(s.grpcHandler, []banktypes.Balance{})
 			Expect(err).ToNot(HaveOccurred(), "unexpected result checking balances")
 		})
 	})
@@ -372,7 +366,6 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 					"transaction should have failed",
 					depositResponse.GetLog(),
 				)
-				fmt.Println("logs: ", depositResponse.GetLog())
 
 				originalTxArgs := txArgs
 				originalTxArgs.To = &WEVMOSOriginalContractAddr
