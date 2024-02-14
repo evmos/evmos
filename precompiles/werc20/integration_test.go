@@ -64,8 +64,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		// TODO: do we need three keys here?
-		keyring := testkeyring.New(3)
+		keyring := testkeyring.New(2)
 		integrationNetwork := network.New(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			network.WithChainID(chainID),
@@ -734,7 +733,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("querying total supply", func() {
 			It("should return the total supply", func() {
-				expSupply, ok := new(big.Int).SetString("15000000000000000000", 10)
+				expSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
 				Expect(ok).To(BeTrue(), "failed to parse expected supply")
 
 				supplyArgs := factory.CallArgs{
@@ -754,7 +753,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 
 		When("transferring tokens", func() {
 			It("it should transfer tokens to a receiver using `transfer`", func() {
-				receiver := s.keyring.GetKey(2)
+				receiver := s.keyring.GetKey(1)
 				transferAmount := big.NewInt(100)
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), transferAmount.Int64())}
 
