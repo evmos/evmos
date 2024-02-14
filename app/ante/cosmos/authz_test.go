@@ -413,11 +413,11 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	for _, tc := range testcases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
+			nw = suite.GetNetwork()
 			var (
 				tx  sdk.Tx
 				err error
 			)
-			nw := suite.GetNetwork()
 			ctx := nw.GetContext()
 			priv := suite.GetKeyring().GetPrivKey(0)
 
