@@ -16,6 +16,7 @@ const (
 // WETH contract to support equality between the native coin and its wrapped
 // ERC-20 (e.g. EVMOS and WEVMOS).
 func (p Precompile) Deposit() ([]byte, error) {
+	// TODO: Shouldn't this raise an error now? It's a no-op right now, but that invites users to waste gas without anything happening. Wouldn't an error be more clear that this is not useful anymore?
 	return nil, nil
 }
 
