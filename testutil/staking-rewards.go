@@ -136,10 +136,16 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 			return sdk.Context{}, fmt.Errorf("failed to get validator: %s", err.Error())
 		}
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(math.NewInt(2))))
-		app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards)
+		if err = app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards); err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to allocate tokens to validator: %s", err.Error())
+		}
 	}
 
-	return ctx, nil
+	// Increase block height in ctx for the rewards calculation
+	// NOTE: this will only work for unit tests that use the context
+	// returned by this function
+	currentHeight := ctx.BlockHeight()
+	return ctx.WithBlockHeight(currentHeight + 1), nil
 }
 
 // GetTotalDelegationRewards returns the total delegation rewards that are currently

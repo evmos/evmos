@@ -13,10 +13,10 @@ import (
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(suite.GetNetwork().App.EvmKeeper.ChainID())
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.network.App.EvmKeeper.ChainID(),
+		ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
@@ -67,12 +67,12 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.evmParamsOption = func(params *evmtypes.Params) {
+			suite.WithEvmParamsOptions(func(params *evmtypes.Params) {
 				params.AllowUnprotectedTxs = tc.allowUnprotectedTxs
-			}
+			})
 			suite.SetupTest()
-			dec := ethante.NewEthSigVerificationDecorator(suite.network.App.EvmKeeper)
-			_, err := dec.AnteHandle(suite.network.GetContext().WithIsReCheckTx(tc.reCheckTx), tc.tx, false, testutil.NextFn)
+			dec := ethante.NewEthSigVerificationDecorator(suite.GetNetwork().App.EvmKeeper)
+			_, err := dec.AnteHandle(suite.GetNetwork().GetContext().WithIsReCheckTx(tc.reCheckTx), tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -81,5 +81,5 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 			}
 		})
 	}
-	suite.evmParamsOption = nil
+	suite.WithEvmParamsOptions(nil)
 }

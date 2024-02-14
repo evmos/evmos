@@ -12,7 +12,7 @@ type CosmosTxArgs struct {
 	// ChainID is the chain's id in cosmos format, e.g. 'evmos_9000-1'
 	ChainID string
 	// Gas to be used on the tx
-	Gas uint64
+	Gas *uint64
 	// GasPrice to use on tx
 	GasPrice *sdkmath.Int
 	// Fees is the fee to be used on the tx (amount and denom)

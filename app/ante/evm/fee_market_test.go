@@ -9,6 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/app/ante/testutils"
 	"github.com/evmos/evmos/v16/testutil"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/types"
@@ -17,10 +18,10 @@ import (
 )
 
 func (suite *AnteTestSuite) TestGasWantedDecorator() {
-	suite.enableFeemarket = true
+	suite.WithFeemarketEnabled(true)
 	suite.SetupTest()
-	ctx := suite.network.GetContext()
-	dec := evm.NewGasWantedDecorator(suite.network.App.EvmKeeper, suite.network.App.FeeMarketKeeper)
+	ctx := suite.GetNetwork().GetContext()
+	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.EvmKeeper, suite.GetNetwork().App.FeeMarketKeeper)
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
@@ -32,7 +33,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	}{
 		{
 			"Cosmos Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				denom := evmtypes.DefaultEVMDenom
 				testMsg := banktypes.MsgSend{
@@ -47,12 +48,12 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Legacy Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				txArgs := evmtypes.EvmTxArgs{
 					To:       &to,
 					GasPrice: big.NewInt(0),
-					GasLimit: TestGasLimit,
+					GasLimit: testutils.TestGasLimit,
 				}
 				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
@@ -60,13 +61,13 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Access List Tx",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
 				txArgs := evmtypes.EvmTxArgs{
 					To:       &to,
 					GasPrice: big.NewInt(0),
-					GasLimit: TestGasLimit,
+					GasLimit: testutils.TestGasLimit,
 					Accesses: &emptyAccessList,
 				}
 				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
@@ -75,14 +76,14 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Ethereum Dynamic Fee Tx (EIP1559)",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				emptyAccessList := ethtypes.AccessList{}
 				txArgs := evmtypes.EvmTxArgs{
 					To:        &to,
 					GasPrice:  big.NewInt(0),
 					GasFeeCap: big.NewInt(100),
-					GasLimit:  TestGasLimit,
+					GasLimit:  testutils.TestGasLimit,
 					GasTipCap: big.NewInt(50),
 					Accesses:  &emptyAccessList,
 				}
@@ -96,9 +97,9 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			func() sdk.Tx {
 				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 				gas := uint64(200000)
-				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
+				acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
-				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
+				suite.GetNetwork().App.AccountKeeper.SetAccount(ctx, acc)
 				builder, err := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				return builder.GetTx()
@@ -107,7 +108,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		},
 		{
 			"Cosmos Tx - gasWanted > max block gas",
-			TestGasLimit,
+			testutils.TestGasLimit,
 			func() sdk.Tx {
 				denom := evmtypes.DefaultEVMDenom
 				testMsg := banktypes.MsgSend{
@@ -133,7 +134,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 
-				gasWanted := suite.network.App.FeeMarketKeeper.GetTransientGasWanted(ctx)
+				gasWanted := suite.GetNetwork().App.FeeMarketKeeper.GetTransientGasWanted(ctx)
 				expectedGasWanted += tc.expectedGasWanted
 				suite.Require().Equal(expectedGasWanted, gasWanted)
 			} else {

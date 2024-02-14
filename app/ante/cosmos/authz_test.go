@@ -20,6 +20,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
 	testutil "github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -281,15 +282,17 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
+	var gasLimit uint64 = 1000000
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
+	nw := suite.GetNetwork()
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
-		ChainID:   big.NewInt(9000),
+		ChainID:   nw.GetEIP155ChainID(),
 		Nonce:     0,
-		GasLimit:  1000000,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasLimit:  gasLimit,
+		GasFeeCap: nw.App.FeeMarketKeeper.GetBaseFee(nw.GetContext()),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},
@@ -410,41 +413,50 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	for _, tc := range testcases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
+			nw = suite.GetNetwork()
 			var (
 				tx  sdk.Tx
 				err error
 			)
+			ctx := nw.GetContext()
+			priv := suite.GetKeyring().GetPrivKey(0)
 
 			if tc.isEIP712 {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
 				cosmosTxArgs := utiltx.CosmosTxArgs{
-					TxCfg:   suite.clientCtx.TxConfig,
-					Priv:    suite.priv,
-					ChainID: suite.ctx.ChainID(),
+					TxCfg:   suite.GetClientCtx().TxConfig,
+					Priv:    priv,
+					ChainID: ctx.ChainID(),
 					Gas:     200000,
 					Fees:    fees,
 					Msgs:    tc.msgs,
 				}
 
 				tx, err = utiltx.CreateEIP712CosmosTx(
-					suite.ctx,
-					suite.app,
+					ctx,
+					nw.App,
 					utiltx.EIP712TxArgs{
 						CosmosTxArgs:       cosmosTxArgs,
 						UseLegacyTypedData: true,
 					},
 				)
 			} else {
-				tx, err = createTx(suite.ctx, suite.priv, tc.msgs...)
+				tx, err = suite.GetTxFactory().BuildCosmosTx(
+					priv,
+					factory.CosmosTxArgs{
+						Gas:  &gasLimit,
+						Msgs: tc.msgs,
+					},
+				)
 			}
 			suite.Require().NoError(err)
 
-			txEncoder := suite.clientCtx.TxConfig.TxEncoder()
+			txEncoder := suite.GetClientCtx().TxConfig.TxEncoder()
 			bz, err := txEncoder(tx)
 			suite.Require().NoError(err)
 
-			resCheckTx, err := suite.app.CheckTx(
+			resCheckTx, err := nw.App.CheckTx(
 				&abci.RequestCheckTx{
 					Tx:   bz,
 					Type: abci.CheckTxType_New,
@@ -453,9 +465,15 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			suite.Require().NoError(err)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
-			blockRes, err := suite.app.FinalizeBlock(
+			header := ctx.BlockHeader()
+			blockRes, err := nw.App.FinalizeBlock(
 				&abci.RequestFinalizeBlock{
-					Txs: [][]byte{bz},
+					Height:             ctx.BlockHeight() + 1,
+					Txs:                [][]byte{bz},
+					Hash:               header.AppHash,
+					NextValidatorsHash: header.NextValidatorsHash,
+					ProposerAddress:    header.ProposerAddress,
+					Time:               header.Time.Add(time.Second),
 				},
 			)
 			suite.Require().NoError(err)

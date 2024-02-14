@@ -8,14 +8,14 @@ import (
 )
 
 func (suite *AnteTestSuite) TestSignatures() {
-	suite.enableFeemarket = false
+	suite.WithFeemarketEnabled(false)
 	suite.SetupTest() // reset
 
-	privKey := suite.keyring.GetPrivKey(0)
+	privKey := suite.GetKeyring().GetPrivKey(0)
 	to := utiltx.GenerateAddress()
 
 	txArgs := evmtypes.EvmTxArgs{
-		ChainID:  suite.network.App.EvmKeeper.ChainID(),
+		ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
 		Nonce:    0,
 		To:       &to,
 		Amount:   big.NewInt(10),
