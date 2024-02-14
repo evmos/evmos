@@ -14,14 +14,14 @@ const (
 
 // Deposit is a no-op and mock function that provides the same interface as the
 // WETH contract to support equality between the native coin and its wrapped
-// ERC-20 (e.g. EVMOS and WEVMOS). It only emits the Deposit event.
+// ERC-20 (e.g. EVMOS and WEVMOS).
 func (p Precompile) Deposit() ([]byte, error) {
 	return nil, nil
 }
 
 // Withdraw is a no-op and mock function that provides the same interface as the
 // WETH contract to support equality between the native coin and its wrapped
-// ERC-20 (e.g. EVMOS and WEVMOS). It only emits the Withdraw event.
+// ERC-20 (e.g. EVMOS and WEVMOS).
 func (p Precompile) Withdraw() ([]byte, error) {
 	return nil, nil
 }
