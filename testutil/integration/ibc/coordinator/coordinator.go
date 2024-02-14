@@ -26,8 +26,8 @@ type Coordinator interface {
 	UpdateTimeForChain(chainID string)
 	// GetChain returns the TestChain for a given chainID.
 	GetChain(chainID string) ibcchain.Chain
-	// GetDummyChainsIds returns the chainIDs for all dummy chains.
-	GetDummyChainsIds() []string
+	// GetDummyChainsIDs returns the chainIDs for all dummy chains.
+	GetDummyChainsIDs() []string
 	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
 	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc authtypes.AccountI)
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will
@@ -55,7 +55,7 @@ var _ Coordinator = (*IntegrationCoordinator)(nil)
 // sync with the network interface.
 type IntegrationCoordinator struct {
 	coord          *ibctesting.Coordinator
-	dummyChainsIds []string
+	dummyChainsIDs []string
 }
 
 // NewIntegrationCoordinator returns a new IntegrationCoordinator with N TestChain's.
@@ -65,12 +65,12 @@ func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Netwo
 		CurrentTime: GlobalTime,
 	}
 	ibcChains := getIBCChains(t, coord, preConfiguredChains)
-	dummyChains, dummyChainsIds := generateDummyChains(t, coord, AmountOfDummyChains)
+	dummyChains, dummyChainsIDs := generateDummyChains(t, coord, AmountOfDummyChains)
 	totalChains := mergeMaps(ibcChains, dummyChains)
 	coord.Chains = totalChains
 	return &IntegrationCoordinator{
 		coord:          coord,
-		dummyChainsIds: dummyChainsIds,
+		dummyChainsIDs: dummyChainsIDs,
 	}
 }
 
@@ -79,9 +79,9 @@ func (c *IntegrationCoordinator) GetChain(chainID string) ibcchain.Chain {
 	return c.coord.Chains[chainID]
 }
 
-// GetDummyChainsIds returns the chainIDs for all dummy chains.
-func (c *IntegrationCoordinator) GetDummyChainsIds() []string {
-	return c.dummyChainsIds
+// GetDummyChainsIDs returns the chainIDs for all dummy chains.
+func (c *IntegrationCoordinator) GetDummyChainsIDs() []string {
+	return c.dummyChainsIDs
 }
 
 // IncrementTime iterates through all the TestChain's and increments their current header time
