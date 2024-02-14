@@ -386,7 +386,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		})
 
 		//// FIXME: should this not just show the normal bank balance?? The deposit is a no-op now??
-		//It("should reflect the correct balances", func() {
+		// It("should reflect the correct balances", func() {
 		//	// Deposit into the WEVMOS contract to have something to withdraw
 		//	// TODO: -- this shouldn't work anymore though???? It should just show the correct
 		//	txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
@@ -418,7 +418,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 		//	//err = .UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
 		//	Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 		//	Expect(erc20Balance).To(Equal(amount), "expected different balance")
-		//})
+		// })
 
 		// NOTE: This is a no-op now, so there is no way of setting up funds to be withdrawn.
 		// We do check that the gas consumption is working as expected.

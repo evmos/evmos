@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) TestAddDynamicEVMExtensions() {
 
 				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
 				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
-				combinedPrecompiles := append(activePrecompiles, activeDynamicPrecompiles...)
+				combinedPrecompiles := append(activePrecompiles, activeDynamicPrecompiles...) //nolint:gocritic // use of append is fine here
 				suite.Require().Equal(tc.expPrecompiles, combinedPrecompiles, "expected different active precompiles")
 
 				for _, expPrecompile := range tc.expPrecompiles {

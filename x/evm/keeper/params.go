@@ -56,10 +56,7 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 	activePrecompiles := params.ActivePrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
+	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
 
 	params.ActivePrecompiles = activePrecompiles
 	return k.SetParams(ctx, params)
@@ -73,17 +70,14 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	activePrecompiles := params.ActiveDynamicPrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
+	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
 
 	// Update params
 	params.ActiveDynamicPrecompiles = activePrecompiles
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) []string {
 	updatedPrecompiles := []string{}
 	for _, address := range addresses {
 		// Check for duplicates
@@ -94,7 +88,8 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 	}
 	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
 	sortPrecompiles(updatedPrecompiles)
-	return updatedPrecompiles, nil
+
+	return updatedPrecompiles
 }
 
 func sortPrecompiles(precompiles []string) {
