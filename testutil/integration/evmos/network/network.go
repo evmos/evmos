@@ -320,7 +320,7 @@ func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxRe
 		return abcitypes.ExecTxResult{}, err
 	}
 	if len(blockRes.TxResults) != 1 {
-		return abcitypes.ExecTxResult{}, fmt.Errorf("Unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
+		return abcitypes.ExecTxResult{}, fmt.Errorf("unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
 	}
 	return *blockRes.TxResults[0], nil
 }
