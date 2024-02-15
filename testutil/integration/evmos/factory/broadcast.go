@@ -39,7 +39,7 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	return res, nil
 }
 
-// ExecuteContractCall executes a contract call with the provided private key
+// ExecuteContractCall executes a contract call with the provided private key.
 func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
 	completeTxArgs, err := tf.GenerateContractCallArgs(txArgs, callArgs)
 	if err != nil {
