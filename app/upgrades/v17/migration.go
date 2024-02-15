@@ -45,11 +45,9 @@ func RunSTRv2Migration(
 
 	// NOTE: it's necessary to register the WEVMOS token as a native token pair before registering
 	// and removing the outdated contract code.
-	registerWEVMOSTokenPair(ctx, erc20Keeper, wrappedContractAddr, nativeDenom)
+	_ = erc20Keeper.AddNewTokenPair(ctx, nativeDenom, wrappedContractAddr)
 
-	// Register the ERC-20 extensions for the native token pairs.
-	//
-	// TODO: Is this necessary? The EVM will instantiate the precompiles as dynamic precompiles on the fly, no?
+	// Register the ERC-20 extensions for the native token pairs and delete the old contract code.
 	return erc20Keeper.RegisterERC20Extensions(ctx)
 }
 

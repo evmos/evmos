@@ -33,6 +33,7 @@ func CreateUpgradeHandler(
 
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
+			// TODO: don't hardcode this, but get EVM native denom
 			nativeDenom = "aevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
