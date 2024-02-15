@@ -67,7 +67,6 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	})
 
 	Context("and the sender account has enough balance to pay for the transaction cost", Ordered, func() {
-
 		var (
 			// rewards are the real accrued rewards
 			rewards sdk.DecCoins
@@ -134,7 +133,6 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	})
 
 	Context("and the sender account neither has enough balance nor sufficient staking rewards to pay for the transaction cost", func() {
-
 		BeforeEach(func() {
 			addr, priv = testutiltx.NewAccAddressAndKey()
 
@@ -186,11 +184,10 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	})
 
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
-		var (
-			// minExpRewards are the minimun rewards that should be accrued
-			// for the test case
-			minExpRewards = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e8), Denom: utils.BaseDenom}}
-		)
+
+		// minExpRewards are the minimun rewards that should be accrued
+		// for the test case
+		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e8), Denom: utils.BaseDenom}}
 
 		BeforeEach(func() {
 			addr, priv = testutiltx.NewAccAddressAndKey()
