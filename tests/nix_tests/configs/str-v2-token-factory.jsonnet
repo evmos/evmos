@@ -149,19 +149,6 @@ config {
          }],
        },
        {
-         id: 'cosmoshub-1',
-         max_gas: 3000000,
-         default_gas: 1000000,
-         gas_multiplier: 1.2,
-         address_type: {
-           derivation: 'cosmos',
-         },
-         gas_price: {
-           price: 1000000,
-           denom: 'uatom',
-         },
-       },
-       {
          id: 'osmosis-1',
          max_gas: 3000000,
          gas_multiplier: 1.2,

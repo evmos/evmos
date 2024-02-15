@@ -91,7 +91,7 @@ func (k Keeper) OnRecvPacket(
 
 	// If the coin denom starts with `factory/` then it is a token factory coin, and we should not convert it
 	// NOTE: Check https://docs.osmosis.zone/osmosis-core/modules/tokenfactory/ for more information
-	if strings.HasPrefix(coin.Denom, "factory/") {
+	if strings.HasPrefix(data.Denom, "factory/") {
 		return ack
 	}
 

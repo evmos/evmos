@@ -1384,6 +1384,7 @@ class CosmosCLI:
                 "tokenfactory",
                 "mint",
                 f"{amount}{denom}",
+                from_,
                 "-y",
                 from_=from_,
                 home=self.data_dir,
