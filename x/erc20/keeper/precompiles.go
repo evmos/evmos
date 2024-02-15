@@ -31,7 +31,6 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 
 		var precompile vm.PrecompiledContract
 		precompile, err = erc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-
 		if err != nil {
 			err = errorsmod.Wrapf(err, "failed to instantiate ERC-20 precompile for denom %s", tokenPair.Denom)
 			return true
