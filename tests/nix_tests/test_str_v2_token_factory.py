@@ -10,7 +10,7 @@ from .utils import (
     wait_for_cosmos_tx_receipt,
 )
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32, wait_for_fn, erc20_balance
+from .utils import ADDRS, eth_to_bech32
 
 # The token factory IBC denom on Evmos
 TOKEN_FACTORY_IBC_DENOM = (
