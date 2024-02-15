@@ -77,6 +77,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
 - (wevmos) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 - (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
+- (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC20 extension registration.
 
 ## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
