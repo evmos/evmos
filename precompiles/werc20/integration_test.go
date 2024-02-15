@@ -8,11 +8,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v16/contracts"
 	auth "github.com/evmos/evmos/v16/precompiles/authorization"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/werc20"
-	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -298,7 +298,7 @@ var _ = Describe("WEVMOS Extension -", Ordered, func() {
 				senderKey.Priv,
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
-					Contract:        testdata.WEVMOSContract,
+					Contract:        contracts.WEVMOSContract,
 					ConstructorArgs: []interface{}{},
 				},
 			)
