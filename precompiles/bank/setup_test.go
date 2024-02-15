@@ -48,7 +48,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithOtherDenoms([]string{is.tokenDenom}),
+		network.WithOtherDenoms([]string{s.tokenDenom}),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
