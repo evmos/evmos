@@ -12,7 +12,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	"github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
@@ -57,21 +56,4 @@ func RunSTRv2Migration(
 	return RegisterERC20Extensions(
 		ctx, authzKeeper, bankKeeper, erc20Keeper, evmKeeper, transferKeeper,
 	)
-}
-
-// registerWEVMOSTokenPair registers the WEVMOS token as an ERC-20 token pair.
-//
-// NOTE: There is no need to deploy a corresponding smart contract, which is this is not using
-// the keeper method to register the Coin.
-func registerWEVMOSTokenPair(
-	ctx sdk.Context,
-	erc20Keeper erc20keeper.Keeper,
-	wrappedContractAddr common.Address,
-	denom string,
-) {
-	tokenPair := types.NewTokenPair(wrappedContractAddr, denom, types.OWNER_MODULE)
-
-	erc20Keeper.SetTokenPair(ctx, tokenPair)
-	erc20Keeper.SetDenomMap(ctx, tokenPair.Denom, tokenPair.GetID())
-	erc20Keeper.SetERC20Map(ctx, wrappedContractAddr, tokenPair.GetID())
 }
