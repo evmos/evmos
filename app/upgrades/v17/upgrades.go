@@ -26,19 +26,32 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		var wrappedContractAddr common.Address
+		var (
+			nativeDenom         string
+			wrappedContractAddr common.Address
+		)
+
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
+			nativeDenom = "aevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
+			nativeDenom = "atevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 		default:
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
 		}
 
-		// Execute the conversion for all ERC20 token pairs for native Cosmos coins to use the ERC20 EVM extension.
+		// Execute the conversion for all ERC20 token pairs for native Cosmos coins to their native representation.
+		//
+		// NOTE: We do NOT need to register the corresponding EVM extensions during the upgrade, because
+		// they will be instantiated as dynamic precompiles during the initialization of the EVM in any given EVM
+		// transaction.
+		//
+		// What is necessary is to register the WEVMOS token as a token pair in the ERC-20 module, so it will be
+		// correctly registered as an active precompile.
 		cacheCtx, writeFn := ctx.CacheContext()
-		if err := ConvertToNativeCoinExtensions(cacheCtx, logger, ak, bk, erck, wrappedContractAddr); err != nil {
+		if err := RunSTRv2Migration(cacheCtx, logger, ak, bk, erck, wrappedContractAddr, nativeDenom); err != nil {
 			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
 		} else {
 			// Write the cache to the context

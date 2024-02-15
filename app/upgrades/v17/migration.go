@@ -11,17 +11,19 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
-// ConvertToNativeCoinExtensions converts all the registered ERC20 tokens of Cosmos native token pairs
-// back to the native representation and registers the (W)ERC20 precompiles for each token pair.
-func ConvertToNativeCoinExtensions(
+// RunSTRv2Migration converts all the registered ERC-20 tokens of Cosmos native token pairs
+// back to the native representation and registers the WEVMOS token as an ERC-20 token pair.
+func RunSTRv2Migration(
 	ctx sdk.Context,
 	logger log.Logger,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	wrappedContractAddr common.Address,
+	nativeDenom string,
 ) error {
 	// Filter all token pairs for the ones that are for Cosmos native coins.
 	nativeTokenPairs := getNativeTokenPairs(ctx, erc20Keeper)
@@ -41,14 +43,29 @@ func ConvertToNativeCoinExtensions(
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 
-	// Instantiate the (W)ERC20 Precompile for each registered IBC Coin
+	// NOTE: it's necessary to register the WEVMOS token as a native token pair before registering
+	// and removing the outdated contract code.
+	registerWEVMOSTokenPair(ctx, erc20Keeper, wrappedContractAddr, nativeDenom)
 
-	// IMPORTANT (@fedekunze): This logic needs to be included on EVERY UPGRADE
-	// from now on because the AvailablePrecompiles function does not have access
-	// to the state (in this case, the registered token pairs).
-	if err := erc20Keeper.RegisterERC20Extensions(ctx); err != nil {
-		return errorsmod.Wrap(err, "failed to register ERC-20 extensions")
-	}
+	// Register the ERC-20 extensions for the native token pairs.
+	//
+	// TODO: Is this necessary? The EVM will instantiate the precompiles as dynamic precompiles on the fly, no?
+	return erc20Keeper.RegisterERC20Extensions(ctx)
+}
 
-	return nil
+// registerWEVMOSTokenPair registers the WEVMOS token as an ERC-20 token pair.
+//
+// NOTE: There is no need to deploy a corresponding smart contract, which is this is not using
+// the keeper method to register the Coin.
+func registerWEVMOSTokenPair(
+	ctx sdk.Context,
+	erc20Keeper erc20keeper.Keeper,
+	wrappedContractAddr common.Address,
+	denom string,
+) {
+	tokenPair := types.NewTokenPair(wrappedContractAddr, denom, types.OWNER_MODULE)
+
+	erc20Keeper.SetTokenPair(ctx, tokenPair)
+	erc20Keeper.SetDenomMap(ctx, tokenPair.Denom, tokenPair.GetID())
+	erc20Keeper.SetERC20Map(ctx, wrappedContractAddr, tokenPair.GetID())
 }

@@ -26,7 +26,7 @@ func (tp TokenPair) GetID() []byte {
 	return tmhash.Sum([]byte(id))
 }
 
-// GetErc20Contract casts the hex string address of the ERC20 to common.Address
+// GetERC20Contract casts the hex string address of the ERC20 to common.Address
 func (tp TokenPair) GetERC20Contract() common.Address {
 	return common.HexToAddress(tp.Erc20Address)
 }

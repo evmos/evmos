@@ -15,6 +15,8 @@ import (
 )
 
 // RegisterERC20Extensions registers the ERC20 precompiles with the EVM.
+//
+// TODO: This is only used within the migration process - should we move it there? why have this in the keeper?
 func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	precompiles := make([]vm.PrecompiledContract, 0)
 
