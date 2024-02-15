@@ -48,8 +48,8 @@ func RunSTRv2Migration(
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 
-	// NOTE: it's necessary to register the WEVMOS token as a native token pair before registering
-	// and removing the outdated contract code.
+	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
+	// the dynamic EVM extensions (which is relying on the registered token pairs).
 	_ = erc20Keeper.AddNewTokenPair(ctx, nativeDenom, wrappedContractAddr)
 
 	// Register the ERC-20 extensions for the native token pairs and delete the old contract code.
