@@ -25,7 +25,6 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/precompiles/werc20"
 	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
@@ -91,8 +90,9 @@ func AvailableStaticPrecompiles(
 		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
 
+	// TODO: move this to the dynamic precompiles
 	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, utils.BaseDenom, erc20types.OWNER_MODULE)
-	wevmosPrecompile, err := werc20.NewPrecompile(
+	wevmosPrecompile, err := erc20precompile.NewPrecompile(
 		tokenPair,
 		bankKeeper,
 		authzKeeper,

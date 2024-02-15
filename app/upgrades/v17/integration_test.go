@@ -219,20 +219,6 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 			Expect(balancePostRes.Balance.String()).To(Equal(balancePre.AddAmount(sentWEVMOS).String()), "expected different balance after converting WEVMOS back to unwrapped denom")
 		})
 
-		// It("should have registered only the native token pair as an active precompile", func() {
-		// 	// We check that the token pair was registered as an active precompile.
-		// 	evmParamsRes, err := ts.handler.GetEvmParams()
-		// 	Expect(err).ToNot(HaveOccurred(), "failed to get EVM params")
-		// 	Expect(evmParamsRes.Params.ActivePrecompiles).To(
-		// 		ContainElement(ts.nativeTokenPair.GetERC20Contract().String()),
-		// 		"expected precompile to be registered",
-		// 	)
-		// 	Expect(evmParamsRes.Params.ActivePrecompiles).ToNot(
-		// 		ContainElement(ts.nonNativeTokenPair.GetERC20Contract().String()),
-		// 		"expected no precompile to be registered for non-native token pairs",
-		// 	)
-		// })
-
 		It("should enable getting the same account balance through the bank and the ERC-20 contract", func() {
 			// NOTE: We check that the ERC20 contract for the native token pair can still be called,
 			// even though the original contract code was deleted, and it is now re-deployed

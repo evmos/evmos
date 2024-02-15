@@ -11,32 +11,24 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
-	"github.com/evmos/evmos/v16/precompiles/werc20"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // RegisterERC20Extensions registers the ERC20 precompiles with the EVM.
 func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	precompiles := make([]vm.PrecompiledContract, 0)
-	params := k.evmKeeper.GetParams(ctx)
-	evmDenom := params.EvmDenom
 
 	var err error
 	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
-		if tokenPair.ContractOwner != types.OWNER_MODULE ||
+		if !tokenPair.IsNativeCoin() ||
 			k.evmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract()) {
 			return false
 		}
 
 		var precompile vm.PrecompiledContract
-
-		if tokenPair.Denom == evmDenom {
-			precompile, err = werc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-		} else {
-			precompile, err = erc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-		}
+		precompile, err = erc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 
 		if err != nil {
 			err = errorsmod.Wrapf(err, "failed to instantiate ERC-20 precompile for denom %s", tokenPair.Denom)
