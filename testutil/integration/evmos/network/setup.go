@@ -224,7 +224,8 @@ func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.
 	return delegations
 }
 
-// createDelegations creates delegations for the given validators and account
+// getValidatorsSlashingGen creates the validators signingInfos and missedBlocks
+// records necessary for the slashing module genesis
 func getValidatorsSlashingGen(validators []stakingtypes.Validator, sk slashingtypes.StakingKeeper) (SlashingCustomGenesisState, error) {
 	valCount := len(validators)
 	signInfo := make([]slashingtypes.SigningInfo, valCount)
