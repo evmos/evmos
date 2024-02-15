@@ -149,6 +149,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
 	jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+    # 0xD4949664cD82660AaE99bEdc034a0deA8A0bd517
+	wevmos_address="0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	jq -r --arg wevmos_address "$wevmos_address" '.app_state["erc20"]["token_pairs"] += [{"erc20_address":$wevmos_address, "denom": "aevmos", "enabled": true, "contract_owner": 1 }]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	
 	# Set base fee in genesis
 	jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 

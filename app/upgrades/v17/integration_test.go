@@ -102,17 +102,23 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 		It("should have registered a native token pair", func() {
 			res, err := ts.handler.GetTokenPairs()
 			Expect(err).ToNot(HaveOccurred(), "failed to get token pairs")
-			Expect(res.TokenPairs).To(HaveLen(1), "unexpected number of token pairs")
-			Expect(res.TokenPairs[0].Denom).To(Equal(XMPL), "expected different denom")
+			Expect(res.TokenPairs).To(HaveLen(2), "unexpected number of token pairs")
+			Expect(res.TokenPairs[0].Denom).To(Equal(AEVMOS), "expected different denom")
 			Expect(res.TokenPairs[0].IsNativeCoin()).To(BeTrue(), "expected token pair to be for a native coin")
-
 			Expect(res.TokenPairs[0].Erc20Address).To(
+				Equal(WEVMOSContractMainnet),
+				"expected different ERC-20 contract",
+			)
+
+			Expect(res.TokenPairs[1].Denom).To(Equal(XMPL), "expected different denom")
+			Expect(res.TokenPairs[1].IsNativeCoin()).To(BeTrue(), "expected token pair to be for a native coin")
+			Expect(res.TokenPairs[1].Erc20Address).To(
 				Equal(common.BytesToAddress(SmartContractAddress.Bytes()).String()),
 				"expected different ERC-20 contract",
 			)
 
 			// Assign the native token pair to the test suite for later use.
-			ts.nativeTokenPair = res.TokenPairs[0]
+			ts.nativeTokenPair = res.TokenPairs[1]
 		})
 
 		It("should show separate ERC-20 and bank balances", func() {
@@ -155,7 +161,7 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 		It("should have registered a non-native token pair", func() {
 			res, err := ts.handler.GetTokenPairs()
 			Expect(err).ToNot(HaveOccurred(), "failed to get token pairs")
-			Expect(res.TokenPairs).To(HaveLen(2), "unexpected number of token pairs")
+			Expect(res.TokenPairs).To(HaveLen(3), "unexpected number of token pairs")
 			Expect(res.TokenPairs).To(ContainElement(ts.nonNativeTokenPair), "non-native token pair not found")
 		})
 

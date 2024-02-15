@@ -16,6 +16,8 @@ import (
 )
 
 const (
+	// WEVMOSContractMainnet is the contract address
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
 	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
 	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials
 	// SmartContractCode is the hex representation of the smart contract code that is set in genesis.
@@ -132,12 +134,20 @@ func createGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 
 	// Add token pairs to genesis
 	erc20GenesisState := erc20types.DefaultGenesisState()
-	erc20GenesisState.TokenPairs = []erc20types.TokenPair{{
-		Erc20Address:  erc20TokenPairHex,
-		Denom:         XMPL,
-		Enabled:       true,
-		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-	}}
+	erc20GenesisState.TokenPairs = []erc20types.TokenPair{
+		{
+			Erc20Address:  erc20TokenPairHex,
+			Denom:         XMPL,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		},
+		{
+			Erc20Address:  WEVMOSContractMainnet,
+			Denom:         AEVMOS,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		},
+	}
 
 	// Add the smart contracts to the EVM genesis
 	evmGenesisState := evmtypes.DefaultGenesisState()
