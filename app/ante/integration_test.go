@@ -184,7 +184,6 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	})
 
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
-
 		// minExpRewards are the minimun rewards that should be accrued
 		// for the test case
 		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e8), Denom: utils.BaseDenom}}
