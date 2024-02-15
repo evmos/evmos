@@ -138,6 +138,14 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
+
+	// Get the corresponding slashing info and missed block info
+	// for the created validators
+	slashingParams, err := getValidatorsSlashingGen(validators, evmosApp.StakingKeeper)
+	if err != nil {
+		return err
+	}
+
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
 		evmosApp,
@@ -145,6 +153,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			genAccounts: genAccounts,
 			staking:     stakingParams,
 			bank:        bankParams,
+			slashing:    slashingParams,
 		},
 	)
 
