@@ -31,9 +31,8 @@ def ibc(request, tmp_path_factory):
 
 def test_str_v2_token_factory(ibc):
     """
-    Test Single Token Representation v2 with single hop Coin.
-    It should automatically create an ERC20 precompiled contract.
-    And register a token pair.
+    Test Single Token Representation v2 with a token factory Coin from Osmosis.
+    It should not create an ECR20 extension contract for the token factory coin.
     """
     assert_ready(ibc)
 
