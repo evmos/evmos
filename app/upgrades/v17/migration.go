@@ -8,10 +8,13 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	"github.com/evmos/evmos/v16/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 // RunSTRv2Migration converts all the registered ERC-20 tokens of Cosmos native token pairs
@@ -20,8 +23,11 @@ func RunSTRv2Migration(
 	ctx sdk.Context,
 	logger log.Logger,
 	accountKeeper authkeeper.AccountKeeper,
+	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
+	transferKeeper transferkeeper.Keeper,
 	wrappedContractAddr common.Address,
 	nativeDenom string,
 ) error {
@@ -48,7 +54,9 @@ func RunSTRv2Migration(
 	_ = erc20Keeper.AddNewTokenPair(ctx, nativeDenom, wrappedContractAddr)
 
 	// Register the ERC-20 extensions for the native token pairs and delete the old contract code.
-	return erc20Keeper.RegisterERC20Extensions(ctx)
+	return RegisterERC20Extensions(
+		ctx, authzKeeper, bankKeeper, erc20Keeper, evmKeeper, transferKeeper,
+	)
 }
 
 // registerWEVMOSTokenPair registers the WEVMOS token as an ERC-20 token pair.
