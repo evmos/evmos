@@ -8,21 +8,15 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/evmos/evmos/v16/utils"
-
-	"github.com/evmos/evmos/v16/precompiles/bech32"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/maps"
-
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
+	"github.com/evmos/evmos/v16/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
@@ -31,9 +25,14 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
+	"github.com/evmos/evmos/v16/precompiles/werc20"
+	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
+	"golang.org/x/exp/maps"
 )
 
 // AvailableStaticPrecompiles returns the list of all available precompiled contracts.
@@ -92,6 +91,17 @@ func AvailableStaticPrecompiles(
 		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
 
+	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, utils.BaseDenom, erc20types.OWNER_MODULE)
+	wevmosPrecompile, err := werc20.NewPrecompile(
+		tokenPair,
+		bankKeeper,
+		authzKeeper,
+		transferKeeper,
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate wevmos precompile: %w", err))
+	}
+
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
 		transferKeeper,
@@ -130,6 +140,9 @@ func AvailableStaticPrecompiles(
 	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
 	precompiles[osmosisOutpost.Address()] = osmosisOutpost
+
+	// Wevmos
+	precompiles[WEVMOSAddress] = wevmosPrecompile
 
 	return precompiles
 }

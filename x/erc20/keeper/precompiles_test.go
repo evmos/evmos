@@ -41,8 +41,8 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract())
-				suite.Require().True(available, "expected precompile to be registered")
+				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
+				suite.Require().Contains(activeDynamicPrecompiles, tokenPair.GetERC20Contract().String(), "expected precompile to be registered")
 
 				// Check that the precompile is set as active
 				suite.requireActivePrecompiles(
@@ -58,8 +58,8 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(ibcTokenPair.GetERC20Contract())
-				suite.Require().True(available, "expected precompile to be registered")
+				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
+				suite.Require().Contains(activeDynamicPrecompiles, ibcTokenPair.GetERC20Contract().String(), "expected precompile to be registered")
 
 				// Check that the precompile is set as active
 				suite.requireActivePrecompiles(
@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			},
 		},
 		{
-			name: "pass - already registered precompile token pair is skipped",
+			name: "fail - already registered precompile",
 			malleate: func() {
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, tokenPair)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, otherTokenPair)
@@ -93,12 +93,12 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 				err = suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, tokenPrecompile)
 				suite.Require().NoError(err, "expected no error adding precompile to EVM keeper")
 			},
-			expPass: true,
+			expPass:     false,
+			errContains: "precompile already registered",
 			postCheck: func() {
 				// Check that active precompiles contain the already registered precompile
-				// as well as the other token pair
-				expPrecompiles := append(evmtypes.AvailableEVMExtensions, tokenPair.Erc20Address, otherTokenPair.Erc20Address) //nolint:gocritic // Okay not to store to same slice here after appending
-				slices.Sort(expPrecompiles)                                                                                    // NOTE: the precompiles are sorted so we need to sort the expected slice as well
+				expPrecompiles := append(evmtypes.AvailableEVMExtensions, tokenPair.Erc20Address) //nolint:gocritic // Okay not to store to same slice here after appending
+				slices.Sort(expPrecompiles)                                                       // NOTE: the precompiles are sorted so we need to sort the expected slice as well
 
 				suite.requireActivePrecompiles(expPrecompiles)
 			},
@@ -116,8 +116,8 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			expPass: true,
 			postCheck: func() {
 				// Check that the precompile was not registered
-				available := suite.app.EvmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract())
-				suite.Require().True(available, "expected precompile to be registered")
+				activeDynamicPrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActiveDynamicPrecompiles
+				suite.Require().Contains(activeDynamicPrecompiles, tokenPair.GetERC20Contract().String(), "expected precompile to be registered")
 			},
 		},
 	}

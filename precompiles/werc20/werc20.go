@@ -40,6 +40,12 @@ const (
 	WithdrawRequiredGas uint64 = 9207
 )
 
+// LoadABI loads the staking ABI from the embedded abi.json file
+// for the staking precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, abiPath)
+}
+
 // NewPrecompile creates a new WERC20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
@@ -48,7 +54,7 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, abiPath)
+	newABI, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}

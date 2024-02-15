@@ -378,7 +378,7 @@ func (suite *KeeperTestSuite) requireActivePrecompiles(precompiles []string) {
 	params := suite.app.EvmKeeper.GetParams(suite.ctx)
 	suite.Require().Equal(
 		precompiles,
-		params.ActivePrecompiles,
+		append(params.ActivePrecompiles, params.ActiveDynamicPrecompiles...),
 		"expected different active precompiles",
 	)
 }

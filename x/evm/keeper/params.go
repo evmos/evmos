@@ -3,7 +3,6 @@
 package keeper
 
 import (
-	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -57,13 +56,9 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 	activePrecompiles := params.ActivePrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
+	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
 
 	params.ActivePrecompiles = activePrecompiles
-
 	return k.SetParams(ctx, params)
 }
 
@@ -75,28 +70,26 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	activePrecompiles := params.ActiveDynamicPrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
+	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
 
 	// Update params
 	params.ActiveDynamicPrecompiles = activePrecompiles
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) []string {
 	updatedPrecompiles := []string{}
 	for _, address := range addresses {
 		// Check for duplicates
-		if slices.Contains(existingPrecompiles, address.String()) {
-			return nil, fmt.Errorf("precompile already registered: %s", address)
+		if !slices.Contains(existingPrecompiles, address.String()) {
+			// return nil, fmt.Errorf("precompile already registered: %s", address)
+			updatedPrecompiles = append(updatedPrecompiles, address.String())
 		}
-		updatedPrecompiles = append(updatedPrecompiles, address.String())
 	}
 	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
 	sortPrecompiles(updatedPrecompiles)
-	return updatedPrecompiles, nil
+
+	return updatedPrecompiles
 }
 
 func sortPrecompiles(precompiles []string) {

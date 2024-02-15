@@ -43,7 +43,7 @@ var (
 		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
 	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
-	DefaultActiveDynamicPrecompiles = []string{}
+	DefaultActiveDynamicPrecompiles []string
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []int64{3855}
@@ -62,8 +62,8 @@ func NewParams(
 	enableCall bool,
 	config ChainConfig,
 	extraEIPs []int64,
-	activePrecompiles,
-	evmChannels,
+	activePrecompiles []string,
+	evmChannels []string,
 	activeDynamicPrecompiles []string,
 ) Params {
 	return Params{
