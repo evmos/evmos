@@ -1,6 +1,5 @@
 import pytest
 import time
-from web3 import Web3
 
 from .ibc_utils import (
     EVMOS_IBC_DENOM,
