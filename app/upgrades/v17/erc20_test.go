@@ -1,6 +1,8 @@
 package v17_test
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
@@ -11,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 // SetupNetwork sets up a new test network and returns the network and the grpc handler.
