@@ -2,11 +2,9 @@ import pytest
 import time
 
 from .ibc_utils import (
-    EVMOS_IBC_DENOM,
     assert_ready,
     get_balance,
     prepare_network,
-    get_balances,
 )
 from .utils import (
     wait_for_cosmos_tx_receipt,
