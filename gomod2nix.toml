@@ -703,8 +703,8 @@ schema = 3
     version = "v0.0.0-20240108191215-35c7eff3a6b1"
     hash = "sha256-bwWoFG+H827aJ3VunK7emdQz3BQlTTjWlM513kTZqSo="
   [mod."google.golang.org/grpc"]
-    version = "v1.61.0"
-    hash = "sha256-+LvlQyeIaM0GgOQoa3rVmM9OS0UtbdK54Fvl3dgJEt8="
+    version = "v1.61.1"
+    hash = "sha256-IhktITVoap1VEFwRjjZp5Kx6EM7DNF0+xPWA9zeZaOU="
   [mod."google.golang.org/protobuf"]
     version = "v1.32.0"
     hash = "sha256-GJuTkMGHCzHbyK4yD5kY4oMn8wQWqgkeBK//yVDqHJk="
