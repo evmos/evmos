@@ -133,7 +133,8 @@ func (_m *QueryClient) TokenPairs(ctx context.Context, in *types.QueryTokenPairs
 func NewQueryClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *QueryClient {
+},
+) *QueryClient {
 	mock := &QueryClient{}
 	mock.Mock.Test(t)
 

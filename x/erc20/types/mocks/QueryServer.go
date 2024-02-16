@@ -109,7 +109,8 @@ func (_m *QueryServer) TokenPairs(_a0 context.Context, _a1 *types.QueryTokenPair
 func NewQueryServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *QueryServer {
+},
+) *QueryServer {
 	mock := &QueryServer{}
 	mock.Mock.Test(t)
 
