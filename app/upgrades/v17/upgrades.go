@@ -32,18 +32,14 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		var (
-			nativeDenom         string
-			wrappedContractAddr common.Address
-		)
+		// Get EVM denomination
+		evmDenom := ek.GetParams(ctx).EvmDenom
 
+		var wrappedContractAddr common.Address
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
-			// TODO: don't hardcode this, but get EVM native denom
-			nativeDenom = "aevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
-			nativeDenom = "atevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 		default:
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
@@ -67,7 +63,7 @@ func CreateUpgradeHandler(
 			ek,
 			tk,
 			wrappedContractAddr,
-			nativeDenom,
+			evmDenom,
 		); err != nil {
 			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
 		} else {
