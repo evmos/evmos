@@ -42,8 +42,7 @@ func (_m *Subspace) WithKeyTable(table paramstypes.KeyTable) paramstypes.Subspac
 func NewSubspace(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *Subspace {
+}) *Subspace {
 	mock := &Subspace{}
 	mock.Mock.Test(t)
 
