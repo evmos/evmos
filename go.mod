@@ -50,7 +50,7 @@ require (
 	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0
-	google.golang.org/grpc v1.61.0
+	google.golang.org/grpc v1.61.1
 	google.golang.org/protobuf v1.32.0
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -253,7 +253,7 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// use Cosmos-SDK fork to enable Ledger functionality
-	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.47.5-evmos.2
+	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.47.8-evmos
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc2
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
