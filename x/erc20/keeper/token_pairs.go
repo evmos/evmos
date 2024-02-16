@@ -19,10 +19,15 @@ func (k *Keeper) CreateNewTokenPair(ctx sdk.Context, denom string, owner types.O
 	if err != nil {
 		return types.TokenPair{}, err
 	}
+	k.SetToken(ctx, pair)
+	return pair, nil
+}
+
+// SetToken stores a token pair, denom map and erc20 map.
+func (k *Keeper) SetToken(ctx sdk.Context, pair types.TokenPair) {
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, pair.GetERC20Contract(), pair.GetID())
-	return pair, nil
 }
 
 // GetTokenPairs gets all registered token tokenPairs.

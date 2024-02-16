@@ -33,10 +33,8 @@ func RunSTRv2Migration(
 ) error {
 	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
 	// the dynamic EVM extensions (which is relying on the registered token pairs).
-	_, err := erc20Keeper.CreateNewTokenPair(ctx, nativeDenom, types.OWNER_MODULE)
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to add new token pair")
-	}
+	pair := types.NewTokenPair(wrappedContractAddr, nativeDenom, types.OWNER_MODULE)
+	erc20Keeper.SetToken(ctx, pair)
 
 	// Filter all token pairs for the ones that are for Cosmos native coins.
 	nativeTokenPairs := getNativeTokenPairs(ctx, erc20Keeper)
