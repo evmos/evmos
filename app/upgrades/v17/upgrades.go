@@ -7,12 +7,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/utils"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0
@@ -20,23 +23,23 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ak authkeeper.AccountKeeper,
+	authzKeeper authzkeeper.Keeper,
 	bk bankkeeper.Keeper,
 	erck erc20keeper.Keeper,
+	ek *evmkeeper.Keeper,
+	tk transferkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		var (
-			nativeDenom         string
-			wrappedContractAddr common.Address
-		)
+		// Get EVM denomination
+		evmDenom := ek.GetParams(ctx).EvmDenom
 
+		var wrappedContractAddr common.Address
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
-			nativeDenom = "aevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
-			nativeDenom = "atevmos"
 			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 		default:
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
@@ -51,7 +54,17 @@ func CreateUpgradeHandler(
 		// What is necessary is to register the WEVMOS token as a token pair in the ERC-20 module, so it will be
 		// correctly registered as an active precompile.
 		cacheCtx, writeFn := ctx.CacheContext()
-		if err := RunSTRv2Migration(cacheCtx, logger, ak, bk, erck, wrappedContractAddr, nativeDenom); err != nil {
+		if err := RunSTRv2Migration(cacheCtx,
+			logger,
+			ak,
+			authzKeeper,
+			bk,
+			erck,
+			ek,
+			tk,
+			wrappedContractAddr,
+			evmDenom,
+		); err != nil {
 			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
 		} else {
 			// Write the cache to the context

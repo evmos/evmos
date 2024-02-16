@@ -194,8 +194,11 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 				ts.network.GetContext(),
 				logger,
 				ts.network.App.AccountKeeper,
+				ts.network.App.AuthzKeeper,
 				ts.network.App.BankKeeper,
 				ts.network.App.Erc20Keeper,
+				ts.network.App.EvmKeeper,
+				ts.network.App.TransferKeeper,
 				ts.wevmosContract,
 				ts.network.GetDenom(),
 			)

@@ -374,15 +374,6 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 	)
 }
 
-func (suite *KeeperTestSuite) requireActivePrecompiles(precompiles []string) {
-	params := suite.app.EvmKeeper.GetParams(suite.ctx)
-	suite.Require().Equal(
-		precompiles,
-		append(params.ActivePrecompiles, params.ActiveDynamicPrecompiles...),
-		"expected different active precompiles",
-	)
-}
-
 func (suite *KeeperTestSuite) sendAndReceiveMessage(
 	path *ibctesting.Path,
 	originEndpoint *ibctesting.Endpoint,
