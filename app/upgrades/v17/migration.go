@@ -12,6 +12,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
@@ -30,6 +31,13 @@ func RunSTRv2Migration(
 	wrappedContractAddr common.Address,
 	nativeDenom string,
 ) error {
+	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
+	// the dynamic EVM extensions (which is relying on the registered token pairs).
+	_, err := erc20Keeper.CreateNewTokenPair(ctx, nativeDenom, types.OWNER_MODULE)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to add new token pair")
+	}
+
 	// Filter all token pairs for the ones that are for Cosmos native coins.
 	nativeTokenPairs := getNativeTokenPairs(ctx, erc20Keeper)
 
@@ -47,10 +55,6 @@ func RunSTRv2Migration(
 	); err != nil {
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
-
-	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
-	// the dynamic EVM extensions (which is relying on the registered token pairs).
-	_ = erc20Keeper.AddNewTokenPair(ctx, nativeDenom, wrappedContractAddr)
 
 	// Register the ERC-20 extensions for the native token pairs and delete the old contract code.
 	return RegisterERC20Extensions(

@@ -13,6 +13,18 @@ import (
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
+// CreateNewTokenPair creates a new token pair and stores it in the state.
+func (k *Keeper) CreateNewTokenPair(ctx sdk.Context, denom string, owner types.Owner) (types.TokenPair, error) {
+	pair, err := types.NewTokenPairV2(denom, owner)
+	if err != nil {
+		return types.TokenPair{}, err
+	}
+	k.SetTokenPair(ctx, pair)
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	k.SetERC20Map(ctx, pair.GetERC20Contract(), pair.GetID())
+	return pair, nil
+}
+
 // GetTokenPairs gets all registered token tokenPairs.
 func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	tokenPairs := []types.TokenPair{}
