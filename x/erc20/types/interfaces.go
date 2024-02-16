@@ -41,6 +41,7 @@ type EVMKeeper interface {
 	AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailablePrecompile(addr common.Address) bool
+	EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

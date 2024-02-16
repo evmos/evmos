@@ -1162,6 +1162,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.AccountKeeper,
 			app.BankKeeper,
 			app.Erc20Keeper,
+			app.EvmKeeper,
 		),
 	)
 

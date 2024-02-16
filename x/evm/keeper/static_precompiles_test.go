@@ -72,13 +72,6 @@ func (suite *KeeperTestSuite) TestAddDynamicEVMExtensions() {
 		expPrecompiles []string
 	}{
 		{
-			name: "no-op - already registered precompile",
-			malleate: func() []vm.PrecompiledContract {
-				return []vm.PrecompiledContract{stakingprecompile.Precompile{}}
-			},
-			errContains: "precompile already registered",
-		},
-		{
 			name: "fail - add multiple precompiles with duplicates",
 			malleate: func() []vm.PrecompiledContract {
 				return []vm.PrecompiledContract{dummyPrecompile, dummyPrecompile}

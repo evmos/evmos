@@ -25,10 +25,8 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/precompiles/werc20"
 	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	"github.com/evmos/evmos/v16/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
@@ -91,17 +89,6 @@ func AvailableStaticPrecompiles(
 		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
 
-	tokenPair := erc20types.NewTokenPair(WEVMOSAddress, utils.BaseDenom, erc20types.OWNER_MODULE)
-	wevmosPrecompile, err := werc20.NewPrecompile(
-		tokenPair,
-		bankKeeper,
-		authzKeeper,
-		transferKeeper,
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate wevmos precompile: %w", err))
-	}
-
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
 		transferKeeper,
@@ -140,9 +127,6 @@ func AvailableStaticPrecompiles(
 	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
 	precompiles[osmosisOutpost.Address()] = osmosisOutpost
-
-	// Wevmos
-	precompiles[WEVMOSAddress] = wevmosPrecompile
 
 	return precompiles
 }
