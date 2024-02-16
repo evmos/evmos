@@ -453,6 +453,9 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 	suite.Require().True(ok)
 
 	messages, ok := interfaceMessages.([]interface{})
+	// If passing an empty msgs array
+	// the interfaceMessages is nil
+	// in that case, don't try to iterate the messages
 	if ok {
 		// Verify message contents
 		for i, msg := range messages {
