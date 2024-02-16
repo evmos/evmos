@@ -163,7 +163,7 @@ func (p Params) EIPs() []int {
 
 // HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
 func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActivePrecompiles) > 0
+	return len(p.ActivePrecompiles) > 0 || len(p.ActiveDynamicPrecompiles) > 0
 }
 
 // IsEVMChannel returns true if the channel provided is in the list of
