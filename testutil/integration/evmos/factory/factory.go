@@ -63,8 +63,8 @@ type TxFactory interface {
 	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs.
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
-	// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
-	GetEvmTransactionResponseFromTxResult(txResult abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error)
+	// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+	GetEvmTxResponseFromTxResult(txResult abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -92,30 +92,16 @@ func New(
 	}
 }
 
-// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
-func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
+// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+func (tf *IntegrationTxFactory) GetEvmTxResponseFromTxResult(
 	txResult abcitypes.ResponseDeliverTx,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
-	var txData sdktypes.TxMsgData
-	if err := tf.ec.Codec.Unmarshal(txResult.Data, &txData); err != nil {
-		return nil, errorsmod.Wrap(err, "failed to unmarshal tx data")
-	}
-
-	if len(txData.MsgResponses) != 1 {
-		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
-	}
-
-	var evmRes evmtypes.MsgEthereumTxResponse
-	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
-		return nil, errorsmod.Wrap(err, "failed to unmarshal evm tx response")
-	}
-
-	return &evmRes, nil
+	return evmtypes.DecodeTxResponse(txResult.Data)
 }
 
-// populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
+// populateEvmTxArgsWithDefault populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
-func (tf *IntegrationTxFactory) populateEvmTxArgs(
+func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 	fromAddr common.Address,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {

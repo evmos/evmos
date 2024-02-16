@@ -22,17 +22,17 @@ func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address,
 	defaultArgs := evmtypes.EvmTxArgs{}
 	switch txType {
 	case gethtypes.DynamicFeeTxType:
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	case gethtypes.AccessListTxType:
 		defaultArgs.Accesses = &gethtypes.AccessList{{
 			Address:     sender,
 			StorageKeys: []common.Hash{{0}},
 		}}
 		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	case gethtypes.LegacyTxType:
 		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	default:
 		return evmtypes.EvmTxArgs{}, errors.New("tx type not supported")
 	}
@@ -86,7 +86,7 @@ func (tf *IntegrationTxFactory) GenerateMsgEthereumTx(
 ) (evmtypes.MsgEthereumTx, error) {
 	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
 	// Fill TxArgs with default values
-	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
+	txArgs, err := tf.populateEvmTxArgsWithDefault(fromAddr, txArgs)
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
