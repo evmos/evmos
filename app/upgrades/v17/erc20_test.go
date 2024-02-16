@@ -54,10 +54,6 @@ func TestRegisterERC20Extensions(t *testing.T) {
 			},
 			expPass: true,
 			postCheck: func() {
-				// Check that the precompile was registered
-				activeDynamicPrecompiles := network.App.EvmKeeper.GetParams(network.GetContext()).ActiveDynamicPrecompiles
-				require.Contains(t, activeDynamicPrecompiles, nativeTokenPair.GetERC20Contract().String(), "expected precompile to be registered")
-
 				// Check that the precompile is set as active
 				requireActiveDynamicPrecompiles(
 					t, network.GetContext(), network.App.EvmKeeper,
@@ -72,10 +68,6 @@ func TestRegisterERC20Extensions(t *testing.T) {
 			},
 			expPass: true,
 			postCheck: func() {
-				// Check that the precompile was registered
-				activeDynamicPrecompiles := network.App.EvmKeeper.GetParams(network.GetContext()).ActiveDynamicPrecompiles
-				require.Contains(t, activeDynamicPrecompiles, ibcTokenPair.GetERC20Contract().String(), "expected precompile to be registered")
-
 				// Check that the precompile is set as active
 				requireActiveDynamicPrecompiles(
 					t, network.GetContext(), network.App.EvmKeeper,
