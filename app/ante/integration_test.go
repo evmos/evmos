@@ -139,10 +139,9 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			// this is a new address that does not exist on chain.
 			// Transfer 1 aevmos to this account so it is
 			// added on chain
-			err := integrationutils.FundAccount(
-				s.factory,
-				s.keyring.GetPrivKey(0),
-				addr.String(),
+			err := s.factory.FundAccount(
+				s.keyring.GetKey(0),
+				addr,
 				sdk.Coins{
 					sdk.Coin{
 						Amount: sdkmath.NewInt(1),
@@ -193,10 +192,9 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// this is a new address that does not exist on chain.
 			// Transfer some funds to stake
-			err := integrationutils.FundAccount(
-				s.factory,
-				s.keyring.GetPrivKey(0),
-				addr.String(),
+			err := s.factory.FundAccount(
+				s.keyring.GetKey(0),
+				addr,
 				sdk.Coins{
 					sdk.Coin{
 						Amount: sdkmath.NewInt(1e18),

@@ -6,12 +6,9 @@ package utils
 import (
 	"fmt"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 )
 
 // CheckBalances checks that the given accounts have the expected balances and
@@ -34,31 +31,5 @@ func CheckBalances(handler grpc.Handler, balances []banktypes.Balance) error {
 		}
 	}
 
-	return nil
-}
-
-// FundAccount is a helper function that funds a new account using
-// the private key of an existing account with funds
-func FundAccount(tf factory.TxFactory, funderPriv cryptotypes.PrivKey, addressToFund string, amount sdk.Coins) error {
-	funder := sdk.AccAddress(funderPriv.PubKey().Address())
-
-	msg := &banktypes.MsgSend{
-		FromAddress: funder.String(),
-		ToAddress:   addressToFund,
-		Amount:      amount,
-	}
-	res, err := tf.ExecuteCosmosTx(
-		funderPriv,
-		commonfactory.CosmosTxArgs{
-			Msgs: []sdk.Msg{msg},
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	if res.Code != 0 {
-		return fmt.Errorf("recevied an error code %d when funding account %s. Logs: %s", res.Code, addressToFund, res.Log)
-	}
 	return nil
 }
