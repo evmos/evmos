@@ -5,22 +5,22 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
-
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v16/precompiles/bank"
-
+	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -51,12 +51,62 @@ func (is *IntegrationTestSuite) SetupTest() {
 	// FIXME the RegisterCoin logic will need to be refactored
 	// once logic is integrated
 	// with the protocol via genesis and/or a transaction
-	is.tokenDenom = "xmpl"
+	is.tokenDenom = xmplDenom
+
+	// Need a custom genesis to include:
+	// 1. erc20 tokenPairs
+	// 2. evm account with code & storage
+	// 3. register xmpl denom meta in bank
+	customGen := network.CustomGenesisState{}
+	evmGen := evmtypes.DefaultGenesisState()
+	// TODO add code and storage here
+	evmGen.Accounts = append(
+		evmGen.Accounts,
+		evmtypes.GenesisAccount{
+			Address: erc20precompile.WEVMOSContractTestnet,
+			Code:    wevmosContractCode,
+			Storage: wevmosContractStorage,
+		},
+		evmtypes.GenesisAccount{
+			Address: xmplErc20Addr,
+			Code:    xmplContractCode,
+			Storage: xmplContractStorage,
+		},
+	)
+
+	customGen[evmtypes.ModuleName] = evmGen
+
+	// 1 - add EVMOS and XMPL token pairs to genesis
+	erc20Gen := erc20types.DefaultGenesisState()
+	erc20Gen.TokenPairs = append(
+		erc20Gen.TokenPairs,
+		erc20types.TokenPair{
+			Erc20Address:  erc20precompile.WEVMOSContractTestnet,
+			Denom:         utils.BaseDenom,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE,
+		},
+		erc20types.TokenPair{
+			Erc20Address:  xmplErc20Addr,
+			Denom:         xmplDenom,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE,
+		},
+	)
+	customGen[erc20types.ModuleName] = erc20Gen
+
+	// 2 - Add EVM account with corresponding code and storage
+
+	// 3 - Add EVMOS and XMPL denom metadata to bank module genesis
+	bankGen := banktypes.DefaultGenesisState()
+	bankGen.DenomMetadata = append(bankGen.DenomMetadata, evmosMetadata, xmplMetadata)
+	customGen[banktypes.ModuleName] = bankGen
 
 	keyring := keyring.New(2)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{is.tokenDenom}),
+		network.WithCustomGenesis(customGen),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
@@ -83,26 +133,6 @@ func (is *IntegrationTestSuite) SetupTest() {
 	Expect(err).ToNot(HaveOccurred(), "failed to register coin")
 
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
-
-	xmplMetadata := banktypes.Metadata{
-		Description: "An exemplary token",
-		Base:        is.tokenDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    is.tokenDenom,
-				Exponent: 0,
-				Aliases:  []string{is.tokenDenom},
-			},
-			{
-				Denom:    is.tokenDenom,
-				Exponent: 18,
-			},
-		},
-		Name:    "Exemplary",
-		Symbol:  "XMPL",
-		Display: is.tokenDenom,
-	}
 
 	// FIXME need to refactor this once the RegisterCoin logic is integrated
 	// with the protocol via genesis and/or a transaction

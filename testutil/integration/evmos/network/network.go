@@ -226,6 +226,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.valSet = valSet
 	n.valSigners = valSigners
 
+	// TODO remove this
 	// Register EVMOS in denom metadata
 	evmosMetadata := banktypes.Metadata{
 		Description: "The native token of Evmos",

@@ -33,6 +33,7 @@ import (
 	"github.com/evmos/evmos/v16/types"
 	evmosutil "github.com/evmos/evmos/v16/utils"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -53,6 +54,7 @@ type defaultGenesisParams struct {
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
 	evmtypes.ModuleName:       genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	erc20types.ModuleName:     genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
 	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),

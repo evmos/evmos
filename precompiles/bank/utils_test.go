@@ -4,10 +4,12 @@ import (
 	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
@@ -107,3 +109,61 @@ func Max(x, y int) int {
 	}
 	return y
 }
+
+// XMPL Token metadata to use on tests
+const (
+	xmplDenom     = "xmpl"
+	xmplErc20Addr = "0x5db67696C3c088DfBf588d3dd849f44266ffffff"
+)
+
+var xmplMetadata = banktypes.Metadata{
+	Description: "An exemplary token",
+	Base:        xmplDenom,
+	// NOTE: Denom units MUST be increasing
+	DenomUnits: []*banktypes.DenomUnit{
+		{
+			Denom:    xmplDenom,
+			Exponent: 0,
+			Aliases:  []string{xmplDenom},
+		},
+		{
+			Denom:    xmplDenom,
+			Exponent: 18,
+		},
+	},
+	Name:    "Exemplary",
+	Symbol:  "XMPL",
+	Display: xmplDenom,
+}
+
+// EVMOS Token metadata to use on tests
+var evmosMetadata = banktypes.Metadata{
+	Description: "The native token of Evmos",
+	Base:        utils.BaseDenom,
+	DenomUnits: []*banktypes.DenomUnit{
+		{
+			Denom:    utils.BaseDenom,
+			Exponent: 0,
+			Aliases:  []string{utils.BaseDenom},
+		},
+		{
+			Denom:    utils.BaseDenom,
+			Exponent: 18,
+		},
+	},
+	Name:    "Evmos",
+	Symbol:  "EVMOS",
+	Display: utils.BaseDenom,
+}
+
+// TODO ERC20 contract code for token pairs
+const (
+	wevmosContractCode = "TODO"
+	xmplContractCode   = "TODO"
+)
+
+// TODO ERC20 contract storage for token pairs 'aevmos' and 'xmpl'
+var (
+	wevmosContractStorage = evmtypes.Storage{}
+	xmplContractStorage   = evmtypes.Storage{}
+)

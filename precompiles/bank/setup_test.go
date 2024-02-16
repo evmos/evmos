@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
@@ -40,7 +39,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() sdk.Context {
-	s.tokenDenom = "xmpl"
+	s.tokenDenom = xmplDenom
 
 	keyring := testkeyring.New(2)
 	integrationNetwork := network.NewUnitTestNetwork(
@@ -70,26 +69,6 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.Require().NoError(err, "failed to register coin")
 
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
-
-	xmplMetadata := banktypes.Metadata{
-		Description: "An exemplary token",
-		Base:        s.tokenDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 0,
-				Aliases:  []string{s.tokenDenom},
-			},
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 18,
-			},
-		},
-		Name:    "Exemplary",
-		Symbol:  "XMPL",
-		Display: s.tokenDenom,
-	}
 
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
