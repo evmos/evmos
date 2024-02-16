@@ -66,12 +66,12 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.network = integrationNetwork
 
 	// Register EVMOS
-	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(s.network.GetContext(), s.bondDenom)
+	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, s.bondDenom)
 	s.Require().True(found, "expected evmos denom metadata")
 
 	// FIXME need to refactor this once the RegisterCoin logic is integrated
 	// with the protocol via genesis and/or a transaction
-	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
+	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
@@ -98,7 +98,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	// FIXME need to refactor this once the RegisterCoin logic is integrated
 	// with the protocol via genesis and/or a transaction
-	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
+	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
