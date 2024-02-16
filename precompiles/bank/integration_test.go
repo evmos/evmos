@@ -5,9 +5,11 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
@@ -18,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -56,25 +59,10 @@ func (is *IntegrationTestSuite) SetupTest() {
 	// Need a custom genesis to include:
 	// 1. erc20 tokenPairs
 	// 2. evm account with code & storage
-	// 3. register xmpl denom meta in bank
+	// 3. add accounts corresponding to the erc20 contracts
+	//    in the auth module
+	// 4. register xmpl y wevmos denom meta in bank
 	customGen := network.CustomGenesisState{}
-	evmGen := evmtypes.DefaultGenesisState()
-	// TODO add code and storage here
-	evmGen.Accounts = append(
-		evmGen.Accounts,
-		evmtypes.GenesisAccount{
-			Address: erc20precompile.WEVMOSContractTestnet,
-			Code:    wevmosContractCode,
-			Storage: wevmosContractStorage,
-		},
-		evmtypes.GenesisAccount{
-			Address: xmplErc20Addr,
-			Code:    xmplContractCode,
-			Storage: xmplContractStorage,
-		},
-	)
-
-	customGen[evmtypes.ModuleName] = evmGen
 
 	// 1 - add EVMOS and XMPL token pairs to genesis
 	erc20Gen := erc20types.DefaultGenesisState()
@@ -96,8 +84,51 @@ func (is *IntegrationTestSuite) SetupTest() {
 	customGen[erc20types.ModuleName] = erc20Gen
 
 	// 2 - Add EVM account with corresponding code and storage
+	evmGen := evmtypes.DefaultGenesisState()
+	evmGen.Accounts = append(
+		evmGen.Accounts,
+		evmtypes.GenesisAccount{
+			Address: erc20precompile.WEVMOSContractTestnet,
+			Code:    erc20ContractCode,
+			Storage: wevmosContractStorage,
+		},
+		evmtypes.GenesisAccount{
+			Address: xmplErc20Addr,
+			Code:    erc20ContractCode,
+			Storage: xmplContractStorage,
+		},
+	)
 
-	// 3 - Add EVMOS and XMPL denom metadata to bank module genesis
+	customGen[evmtypes.ModuleName] = evmGen
+
+	// 3 - Add accounts corresponding to the ERC20 contracts in auth module
+	authGen := authtypes.DefaultGenesisState()
+	wevmosAddr := common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
+	xmplAddr := common.HexToAddress(xmplErc20Addr)
+
+	// provide only the address and code hash,
+	// then the setup will determine the account number
+	codeHash := crypto.Keccak256Hash(common.Hex2Bytes(erc20ContractCode)).String()
+	genAccs := []authtypes.GenesisAccount{
+		&evmostypes.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(wevmosAddr.Bytes(), nil, 0, 0),
+			CodeHash:    codeHash,
+		},
+		&evmostypes.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(xmplAddr.Bytes(), nil, 0, 0),
+			CodeHash:    codeHash,
+		},
+	}
+	packedAccs, err := authtypes.PackAccounts(genAccs)
+	Expect(err).ToNot(HaveOccurred())
+
+	authGen.Accounts = append(
+		authGen.Accounts,
+		packedAccs...,
+	)
+	customGen[authtypes.ModuleName] = authGen
+
+	// 4 - Add EVMOS and XMPL denom metadata to bank module genesis
 	bankGen := banktypes.DefaultGenesisState()
 	bankGen.DenomMetadata = append(bankGen.DenomMetadata, evmosMetadata, xmplMetadata)
 	customGen[banktypes.ModuleName] = bankGen
@@ -123,23 +154,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.keyring = keyring
 	is.network = integrationNetwork
 
-	// Register EVMOS
-	evmosMetadata, found := is.network.App.BankKeeper.GetDenomMetaData(is.network.GetContext(), is.bondDenom)
-	Expect(found).To(BeTrue(), "failed to get denom metadata")
-
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
-	tokenPair, err := is.network.App.Erc20Keeper.RegisterCoin(is.network.GetContext(), evmosMetadata)
-	Expect(err).ToNot(HaveOccurred(), "failed to register coin")
-
-	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
-
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
-	tokenPair, err = is.network.App.Erc20Keeper.RegisterCoin(is.network.GetContext(), xmplMetadata)
-	Expect(err).ToNot(HaveOccurred(), "failed to register coin")
-
-	is.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
+	is.evmosAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	is.precompile = is.setupBankPrecompile()
 }
 
