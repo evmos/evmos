@@ -3,6 +3,7 @@ package bank_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/bank"
@@ -38,11 +39,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (s *PrecompileTestSuite) SetupTest() {
-	// Mint and register a second coin for testing purposes
-	// FIXME the RegisterCoin logic will need to be refactored
-	// once logic is integrated
-	// with the protocol via genesis and/or a transaction
+func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.tokenDenom = "xmpl"
 
 	keyring := testkeyring.New(2)
@@ -69,8 +66,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, s.bondDenom)
 	s.Require().True(found, "expected evmos denom metadata")
 
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
@@ -96,12 +91,11 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Display: s.tokenDenom,
 	}
 
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	s.precompile = s.setupBankPrecompile()
+	return ctx
 }

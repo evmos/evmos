@@ -26,3 +26,9 @@ func (gqh *IntegrationHandler) GetAllBalances(address sdktypes.AccAddress) (*ban
 		Address: address.String(),
 	})
 }
+
+// GetTotalSupply returns all the balances for the given address.
+func (gqh *IntegrationHandler) GetTotalSupply() (*banktypes.QueryTotalSupplyResponse, error) {
+	bankClient := gqh.network.GetBankClient()
+	return bankClient.TotalSupply(context.Background(), &banktypes.QueryTotalSupplyRequest{})
+}
