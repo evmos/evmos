@@ -9,10 +9,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
@@ -89,4 +92,10 @@ func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: &n.app.StakingKeeper})
 	return stakingtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetDistrClient() distrtypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	distrtypes.RegisterQueryServer(queryHelper, distrkeeper.Querier{Keeper: n.app.DistrKeeper})
+	return distrtypes.NewQueryClient(queryHelper)
 }
