@@ -58,6 +58,6 @@ func RunSTRv2Migration(
 
 	// Register the ERC-20 extensions for the native token pairs and delete the old contract code.
 	return RegisterERC20Extensions(
-		ctx, authzKeeper, bankKeeper, erc20Keeper, evmKeeper, transferKeeper,
+		ctx, erc20Keeper, evmKeeper,
 	)
 }
