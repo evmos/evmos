@@ -33,14 +33,8 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string, contractAddr common.Address) error {
 	pair := k.AddNewTokenPair(ctx, denom, contractAddr)
 
-	// Register a new precompile address
-	newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-	if err != nil {
-		return err
-	}
-
 	// Add to existing EVM extensions
-	return k.evmKeeper.AddDynamicPrecompiles(ctx, newPrecompile)
+	return k.evmKeeper.EnableDynamicPrecompiles(ctx, pair.GetERC20Contract())
 }
 
 // AddNewTokenPair creates a new token pair for a given contract address and denom
