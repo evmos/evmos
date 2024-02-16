@@ -8,7 +8,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
-// GetDelegationTotalRewards returns the total delegation rewards delegation for the given delegator.
+// GetDelegationTotalRewards returns the total delegation rewards for the given delegator.
 func (gqh *IntegrationHandler) GetDelegationTotalRewards(delegatorAddress string) (*distrtypes.QueryDelegationTotalRewardsResponse, error) {
 	distrClient := gqh.network.GetDistrClient()
 	return distrClient.DelegationTotalRewards(context.Background(), &distrtypes.QueryDelegationTotalRewardsRequest{
