@@ -39,16 +39,14 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	return res, nil
 }
 
-// ExecuteContractCall executes a contract call with the provided private key
+// ExecuteContractCall executes a contract call with the provided private key.
 func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
-	// Create MsgEthereumTx that calls the contract
-	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+	completeTxArgs, err := tf.GenerateContractCallArgs(txArgs, callArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate contract call args")
 	}
-	txArgs.Input = input
 
-	return tf.ExecuteEthTx(privKey, txArgs)
+	return tf.ExecuteEthTx(privKey, completeTxArgs)
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -61,26 +59,16 @@ func (tf *IntegrationTxFactory) DeployContract(
 ) (common.Address, error) {
 	// Get account's nonce to create contract hash
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	account, err := tf.grpcHandler.GetEvmAccount(from)
+	completeTxArgs, err := tf.GenerateDeployContractArgs(from, txArgs, deploymentData)
 	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
+		return common.Address{}, errorsmod.Wrap(err, "failed to generate contract call args")
 	}
-	nonce := account.GetNonce()
 
-	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
-	if err != nil {
-		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
-	}
-	data := deploymentData.Contract.Bin
-	data = append(data, ctorArgs...)
-
-	txArgs.Input = data
-	txArgs.Nonce = nonce
-	res, err := tf.ExecuteEthTx(priv, txArgs)
+	res, err := tf.ExecuteEthTx(priv, completeTxArgs)
 	if err != nil || !res.IsOK() {
 		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
-	return crypto.CreateAddress(from, nonce), nil
+	return crypto.CreateAddress(from, completeTxArgs.Nonce), nil
 }
 
 // CallContractAndCheckLogs is a helper function to call a contract and check the logs using
