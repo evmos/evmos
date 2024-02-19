@@ -62,9 +62,6 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.network = integrationNetwork
 
 	// Register EVMOS
-	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, s.bondDenom)
-	s.Require().True(found, "expected evmos denom metadata")
-
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
