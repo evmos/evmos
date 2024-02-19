@@ -62,7 +62,7 @@ func NewParams(
 	enableCall bool,
 	config ChainConfig,
 	extraEIPs []int64,
-	activePrecompiles []string,
+	ActiveStaticPrecompiles []string,
 	evmChannels []string,
 	activeDynamicPrecompiles []string,
 ) Params {
@@ -73,7 +73,7 @@ func NewParams(
 		EnableCall:               enableCall,
 		ExtraEIPs:                extraEIPs,
 		ChainConfig:              config,
-		ActivePrecompiles:        activePrecompiles,
+		ActiveStaticPrecompiles:  ActiveStaticPrecompiles,
 		EVMChannels:              evmChannels,
 		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
 	}
@@ -81,7 +81,7 @@ func NewParams(
 
 // DefaultParams returns default evm parameters
 // ExtraEIPs is empty to prevent overriding the latest hard fork instruction set
-// ActivePrecompiles is empty to prevent overriding the default precompiles
+// ActiveStaticPrecompiles is empty to prevent overriding the default precompiles
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
@@ -91,7 +91,7 @@ func DefaultParams() Params {
 		ChainConfig:              DefaultChainConfig(),
 		ExtraEIPs:                DefaultExtraEIPs,
 		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:        AvailableEVMExtensions,
+		ActiveStaticPrecompiles:  AvailableEVMExtensions,
 		EVMChannels:              DefaultEVMChannels,
 		ActiveDynamicPrecompiles: DefaultActiveDynamicPrecompiles,
 	}
@@ -141,7 +141,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
+	if err := ValidatePrecompiles(p.ActiveStaticPrecompiles); err != nil {
 		return err
 	}
 
@@ -161,9 +161,9 @@ func (p Params) EIPs() []int {
 	return eips
 }
 
-// HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
+// HasCustomPrecompiles returns true if the ActiveStaticPrecompiles slice is not empty.
 func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActivePrecompiles) > 0 || len(p.ActiveDynamicPrecompiles) > 0
+	return len(p.ActiveStaticPrecompiles) > 0 || len(p.ActiveDynamicPrecompiles) > 0
 }
 
 // IsEVMChannel returns true if the channel provided is in the list of
@@ -175,8 +175,8 @@ func (p Params) IsEVMChannel(channel string) bool {
 // IsActivePrecompile returns true if the given precompile address is
 // registered as an active precompile.
 func (p Params) IsActivePrecompile(address string) bool {
-	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActivePrecompiles[i])
+	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActiveStaticPrecompiles[i])
 	})
 
 	return found

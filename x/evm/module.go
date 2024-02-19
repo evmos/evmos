@@ -144,6 +144,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 5, m.Migrate5to6); err != nil {
 		panic(err)
 	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 16, m.Migrate16to17); err != nil {
+		panic(err)
+	}
 }
 
 // BeginBlock returns the begin block for the evm module.

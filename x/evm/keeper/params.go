@@ -27,7 +27,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
 	// in params.IsActivePrecompile.
-	slices.Sort(params.ActivePrecompiles)
+	slices.Sort(params.ActiveStaticPrecompiles)
 
 	if err := params.Validate(); err != nil {
 		return err
@@ -54,7 +54,7 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 // of active precompiles.
 func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	params := k.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
+	activePrecompiles := params.ActiveStaticPrecompiles
 
 	// Append and sort the new precompiles
 	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
@@ -62,7 +62,7 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 		return err
 	}
 
-	params.ActivePrecompiles = updatedPrecompiles
+	params.ActiveStaticPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 

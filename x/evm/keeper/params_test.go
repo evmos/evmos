@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			name: "success - Active precompiles are sorted when setting params",
 			paramsFun: func() interface{} {
-				params.ActivePrecompiles = []string{
+				params.ActiveStaticPrecompiles = []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				}
@@ -113,7 +113,7 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			getFun: func() interface{} {
 				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-				return evmParams.GetActivePrecompiles()
+				return evmParams.GetActiveStaticPrecompiles()
 			},
 			expected: true,
 		},

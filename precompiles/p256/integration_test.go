@@ -114,12 +114,12 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 			params := evmtypes.DefaultParams()
 			addr := s.precompileAddress.String()
 			var activePrecompiles []string
-			for _, precompile := range params.ActivePrecompiles {
+			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != addr {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActivePrecompiles = activePrecompiles
+			params.ActiveStaticPrecompiles = activePrecompiles
 			err := s.network.UpdateEvmParams(params)
 			Expect(err).To(BeNil())
 		})
