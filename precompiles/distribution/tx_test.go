@@ -394,7 +394,6 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(data []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				fmt.Print(balance.Sub(prevBalance))
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(rewardsAmt))
 			},
 			20000,
@@ -425,7 +424,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			// get previous balance to compare final balance in the postCheck func
 			prevBalance = s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
 
-			bz, err := s.precompile.ClaimRewards(ctx, s.keyring.GetAddr(0), contract, s.getStateDB(ctx), &method, tc.malleate())
+			bz, err := s.precompile.ClaimRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

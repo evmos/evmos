@@ -6,10 +6,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	evmosutil "github.com/evmos/evmos/v16/testutil"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -56,17 +53,6 @@ func (s *PrecompileTestSuite) prepareStakingRewards(ctx sdk.Context, stkRs ...st
 		}
 	}
 	return ctx, nil
-}
-
-// getStateDB is a helper function used in unit tests only
-// to get a stateDB instance from the provided context
-func (s *PrecompileTestSuite) getStateDB(ctx sdk.Context) *statedb.StateDB {
-	headerHash := ctx.HeaderHash()
-	return statedb.New(
-		ctx,
-		s.network.App.EvmKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
-	)
 }
 
 // mintCoinsForDistrMod is a helper function to mint a specific amount of coins from the
