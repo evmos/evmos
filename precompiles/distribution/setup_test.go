@@ -4,22 +4,16 @@ import (
 	"testing"
 
 	"github.com/evmos/evmos/v16/precompiles/distribution"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	cmttypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v16/app"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -28,20 +22,13 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx        sdk.Context
-	app        *evmosapp.Evmos
-	address    common.Address
-	validators []stakingtypes.Validator
-	valSet     *cmttypes.ValidatorSet
-	ethSigner  ethtypes.Signer
-	privKey    cryptotypes.PrivKey
-	signer     keyring.Signer
-	bondDenom  string
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
 	precompile *distribution.Precompile
-	stateDB    *statedb.StateDB
-
-	queryClientEVM evmtypes.QueryClient
+	bondDenom  string
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
@@ -54,5 +41,37 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+	keyring := testkeyring.New(2)
+	integrationNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	ctx := integrationNetwork.GetContext()
+	sk := integrationNetwork.App.StakingKeeper
+	bondDenom, err := sk.BondDenom(ctx)
+	s.Require().NoError(err, "failed to get bond denom")
+	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+
+	s.bondDenom = bondDenom
+	s.factory = txFactory
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.network = integrationNetwork
+	s.precompile = s.setupDistrPrecompile()
+}
+
+// setupBankPrecompile is a helper function to set up an instance of the Bank precompile for
+// a given token denomination.
+func (s *PrecompileTestSuite) setupDistrPrecompile() *distribution.Precompile {
+	precompile, err := distribution.NewPrecompile(
+		s.network.App.DistrKeeper,
+		s.network.App.StakingKeeper,
+		s.network.App.AuthzKeeper,
+	)
+
+	s.Require().NoError(err, "failed to create bank precompile")
+
+	return precompile
 }
