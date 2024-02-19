@@ -134,8 +134,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 			}
 
 			_, err := s.factory.ExecuteEthTx(senderKey.Priv, args)
-			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+			Expect(err).To(BeNil(), "expected no error since contract doesnt exists")
 		},
 			Entry(
 				"valid signature",

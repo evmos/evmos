@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,9 +57,12 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 	activePrecompiles := params.ActivePrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
+	}
 
-	params.ActivePrecompiles = activePrecompiles
+	params.ActivePrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 
@@ -70,26 +74,30 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	activePrecompiles := params.ActiveDynamicPrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles = appendPrecompiles(activePrecompiles, addresses...)
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
+	}
 
 	// Update params
-	params.ActiveDynamicPrecompiles = activePrecompiles
+	params.ActiveDynamicPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) []string {
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
 	updatedPrecompiles := []string{}
 	for _, address := range addresses {
+		strAddress := address.String()
 		// Check for duplicates
-		if !slices.Contains(existingPrecompiles, address.String()) {
-			// return nil, fmt.Errorf("precompile already registered: %s", address)
-			updatedPrecompiles = append(updatedPrecompiles, address.String())
+		if slices.Contains(existingPrecompiles, strAddress) {
+			return nil, fmt.Errorf("precompile already registered: %s", address)
 		}
+		updatedPrecompiles = append(updatedPrecompiles, strAddress)
 	}
 	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
 	sortPrecompiles(updatedPrecompiles)
 
-	return updatedPrecompiles
+	return updatedPrecompiles, nil
 }
 
 func sortPrecompiles(precompiles []string) {

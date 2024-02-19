@@ -80,6 +80,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	Describe("when the precompile is not enabled in the EVM params", func() {
 		It("should return an error", func() {
+			delegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			expectedDelegation := delegation.Shares.BigInt().Int64()
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
 			var activePrecompiles []string
@@ -99,12 +101,11 @@ var _ = Describe("Calling staking precompile directly", func() {
 					s.address, valAddr.String(), big.NewInt(2e18),
 				)
 
-			failCheck := defaultLogCheck.
-				WithErrContains("precompile not enabled")
-
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, defaultLogCheck)
 			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+
+			delegation, _ = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			Expect(delegation.Shares.BigInt().Int64()).To(Equal(expectedDelegation))
 		})
 	})
 

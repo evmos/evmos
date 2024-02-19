@@ -98,6 +98,31 @@ func (_m *EVMKeeper) DeleteAccount(ctx types.Context, addr common.Address) error
 	return r0
 }
 
+// EnableDynamicPrecompiles provides a mock function with given fields: ctx, addresses
+func (_m *EVMKeeper) EnableDynamicPrecompiles(ctx types.Context, addresses ...common.Address) error {
+	_va := make([]interface{}, len(addresses))
+	for _i := range addresses {
+		_va[_i] = addresses[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnableDynamicPrecompiles")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(types.Context, ...common.Address) error); ok {
+		r0 = rf(ctx, addresses...)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // EstimateGasInternal provides a mock function with given fields: c, req, fromType
 func (_m *EVMKeeper) EstimateGasInternal(c context.Context, req *evmtypes.EthCallRequest, fromType evmtypes.CallType) (*evmtypes.EstimateGasResponse, error) {
 	ret := _m.Called(c, req, fromType)

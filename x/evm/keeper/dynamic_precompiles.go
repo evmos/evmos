@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v16/x/evm/types"
+	"golang.org/x/exp/slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -43,4 +44,10 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 		addresses = append(addresses, hexAddress)
 	}
 	return addresses, activePrecompileMap
+}
+
+// IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
+// EVM keeper's available dynamic precompiles precompiles params.
+func (k Keeper) IsAvailableDynamicPrecompile(ctx sdk.Context, address string) bool {
+	return slices.Contains(k.GetParams(ctx).ActiveDynamicPrecompiles, address)
 }

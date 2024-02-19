@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,7 +14,6 @@ import (
 	"github.com/evmos/evmos/v16/utils"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0
@@ -23,11 +21,9 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ak authkeeper.AccountKeeper,
-	authzKeeper authzkeeper.Keeper,
 	bk bankkeeper.Keeper,
 	erck erc20keeper.Keeper,
 	ek *evmkeeper.Keeper,
-	tk transferkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -57,11 +53,9 @@ func CreateUpgradeHandler(
 		if err := RunSTRv2Migration(cacheCtx,
 			logger,
 			ak,
-			authzKeeper,
 			bk,
 			erck,
 			ek,
-			tk,
 			wrappedContractAddr,
 			evmDenom,
 		); err != nil {
