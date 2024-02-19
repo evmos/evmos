@@ -11,7 +11,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
-
 	params := types.DefaultParams()
 	params.ActiveDynamicPrecompiles = []string{erc20precompile.WEVMOSContractMainnet}
 
@@ -49,7 +48,6 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 
 			addresses, _ := suite.app.EvmKeeper.GetDynamicPrecompilesInstances(s.ctx, &tc.params)
 			suite.Require().Equal(tc.expected, addresses)
-
 		})
 	}
 }
