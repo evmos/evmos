@@ -435,7 +435,6 @@ var _ = Describe("Bank Extension -", func() {
 		})
 
 		Context("totalSupply query", func() {
-
 			It("should return the correct total supply", func() {
 				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, TotalSupplyOf)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
