@@ -28,6 +28,7 @@ import (
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v16/types"
@@ -47,6 +48,7 @@ type genSetupFn func(evmosApp *app.Evmos, genesisState types.GenesisState, custo
 type defaultGenesisParams struct {
 	genAccounts []authtypes.GenesisAccount
 	staking     StakingCustomGenesisState
+	slashing    SlashingCustomGenesisState
 	bank        BankCustomGenesisState
 }
 
@@ -225,6 +227,37 @@ func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.
 	return delegations
 }
 
+// getValidatorsSlashingGen creates the validators signingInfos and missedBlocks
+// records necessary for the slashing module genesis
+func getValidatorsSlashingGen(validators []stakingtypes.Validator, sk slashingtypes.StakingKeeper) (SlashingCustomGenesisState, error) {
+	valCount := len(validators)
+	signInfo := make([]slashingtypes.SigningInfo, valCount)
+	missedBlocks := make([]slashingtypes.ValidatorMissedBlocks, valCount)
+	for i, val := range validators {
+		consAddrBz, err := val.GetConsAddr()
+		if err != nil {
+			return SlashingCustomGenesisState{}, err
+		}
+		consAddr, err := sk.ConsensusAddressCodec().BytesToString(consAddrBz)
+		if err != nil {
+			return SlashingCustomGenesisState{}, err
+		}
+		signInfo[i] = slashingtypes.SigningInfo{
+			Address: consAddr,
+			ValidatorSigningInfo: slashingtypes.ValidatorSigningInfo{
+				Address: consAddr,
+			},
+		}
+		missedBlocks[i] = slashingtypes.ValidatorMissedBlocks{
+			Address: consAddr,
+		}
+	}
+	return SlashingCustomGenesisState{
+		signingInfo:  signInfo,
+		missedBlocks: missedBlocks,
+	}, nil
+}
+
 // StakingCustomGenesisState defines the staking genesis state
 type StakingCustomGenesisState struct {
 	denom string
@@ -273,6 +306,23 @@ func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 		[]banktypes.SendEnabled{},
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	return genesisState
+}
+
+// SlashingCustomGenesisState defines the corresponding
+// validators signing info and missed blocks for the genesis state
+type SlashingCustomGenesisState struct {
+	signingInfo  []slashingtypes.SigningInfo
+	missedBlocks []slashingtypes.ValidatorMissedBlocks
+}
+
+// setDefaultSlashingGenesisState sets the default slashing genesis state
+func setDefaultSlashingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams SlashingCustomGenesisState) types.GenesisState {
+	slashingGen := slashingtypes.DefaultGenesisState()
+	slashingGen.SigningInfos = overwriteParams.signingInfo
+	slashingGen.MissedBlocks = overwriteParams.missedBlocks
+
+	genesisState[slashingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(slashingGen)
 	return genesisState
 }
 
@@ -376,6 +426,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
 
 	return genesisState
 }

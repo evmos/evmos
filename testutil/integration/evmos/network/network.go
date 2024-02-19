@@ -137,6 +137,14 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
+
+	// Get the corresponding slashing info and missed block info
+	// for the created validators
+	slashingParams, err := getValidatorsSlashingGen(validators, evmosApp.StakingKeeper)
+	if err != nil {
+		return err
+	}
+
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
 		evmosApp,
@@ -144,6 +152,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			genAccounts: genAccounts,
 			staking:     stakingParams,
 			bank:        bankParams,
+			slashing:    slashingParams,
 		},
 	)
 
@@ -285,7 +294,7 @@ func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxRe
 		return abcitypes.ExecTxResult{}, err
 	}
 	if len(blockRes.TxResults) != 1 {
-		return abcitypes.ExecTxResult{}, fmt.Errorf("Unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
+		return abcitypes.ExecTxResult{}, fmt.Errorf("unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
 	}
 	return *blockRes.TxResults[0], nil
 }

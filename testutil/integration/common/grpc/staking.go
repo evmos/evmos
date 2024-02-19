@@ -8,7 +8,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// GetBalance returns the balance for the given address.
+// GetDelegation returns the delegation for the given delegator and validator addresses.
 func (gqh *IntegrationHandler) GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error) {
 	stakingClient := gqh.network.GetStakingClient()
 	return stakingClient.Delegation(context.Background(), &stakingtypes.QueryDelegationRequest{
