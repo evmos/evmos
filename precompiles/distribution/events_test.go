@@ -13,6 +13,7 @@ import (
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
@@ -216,7 +217,10 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 }
 
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
-	var ctx sdk.Context
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+	)
 	testCases := []struct {
 		name      string
 		coins     sdk.Coins
@@ -226,7 +230,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 			"success",
 			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[distribution.EventTypeClaimRewards]
@@ -246,7 +250,8 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
-			err := s.precompile.EmitClaimRewardsEvent(ctx, s.network.GetStateDB(), s.keyring.GetAddr(0), tc.coins)
+			stDB = s.network.GetStateDB()
+			err := s.precompile.EmitClaimRewardsEvent(ctx, stDB, s.keyring.GetAddr(0), tc.coins)
 			s.Require().NoError(err)
 			tc.postCheck()
 		})
