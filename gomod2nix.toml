@@ -17,8 +17,8 @@ schema = 3
     version = "v1.30.1"
     hash = "sha256-4lC0XaLSQDnVBmNLIauiWnGXq+Ax57r8fcMxXFMCCNE="
   [mod."cosmossdk.io/api"]
-    version = "v0.3.1"
-    hash = "sha256-yQUn04n0/s3DpNWu7TF3NG+awWKxgvRpV9CYIV+dR7k="
+    version = "v0.7.3"
+    hash = "sha256-G72m5tUKLrpl89YKM/S7J/e8rYkqctuDOqHbqxyzTBI="
   [mod."cosmossdk.io/core"]
     version = "v0.6.1"
     hash = "sha256-ZrOwB01JLAIQIICpmrVdgsC8WValoldJ6BLcq1rGmRc="
@@ -163,8 +163,8 @@ schema = 3
     version = "v1.2.0"
     hash = "sha256-Hd19V0RCiMoCL67NsqvWIsvWF8KM3LnuJTbYjWtQkEo="
   [mod."github.com/cosmos/gogoproto"]
-    version = "v1.4.10"
-    hash = "sha256-Anm4O3bUONsN7J9Psg9E+oQasmUyoGc7UE1aaHJaehE="
+    version = "v1.4.11"
+    hash = "sha256-hXJIGN8Arg09ldCgrSyYZK+xMelYavEj2I3ltxJfAqE="
   [mod."github.com/cosmos/iavl"]
     version = "v0.21.0-alpha.1.0.20230904092046-df3db2d96583"
     hash = "sha256-3Va8Ljq63IXty0oHlRpqfsC6WsMut6TWZ2R+/nYtfTU="
@@ -661,8 +661,8 @@ schema = 3
     version = "v0.19.0"
     hash = "sha256-Vi6vY/eWNlYQ9l3Y+gA+X2+h2CmzEOrBRVFO/cnrPWc="
   [mod."golang.org/x/exp"]
-    version = "v0.0.0-20230711153332-06a737ee72cb"
-    hash = "sha256-Cbw10ZJ+jATPV232G47xZrn6ExO1FDtiT6nlMRCH7EI="
+    version = "v0.0.0-20230811145659-89c5cff77bcb"
+    hash = "sha256-z/WuemZcUyYQIyGOOmdgVlg+3TPXA+TZmiVMH3xdJL0="
   [mod."golang.org/x/mod"]
     version = "v0.14.0"
     hash = "sha256-sx3hWp5l99DBfIrn821ohfoBwvaITSHMWbzPvX0btLM="
