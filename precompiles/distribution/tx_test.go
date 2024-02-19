@@ -315,7 +315,11 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 }
 
 func (s *PrecompileTestSuite) TestClaimRewards() {
-	var ctx sdk.Context
+	var (
+		ctx         sdk.Context
+		prevBalance sdk.Coin
+		rewardsAmt  = math.NewInt(1e18)
+	)
 	method := s.precompile.Methods[distribution.ClaimRewardsMethod]
 
 	testCases := []struct {
@@ -372,7 +376,9 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(data []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
+				// twice the rewards amount (rewards from 2 validators)
+				expRewards := rewardsAmt.Mul(math.NewInt(2))
+				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewards))
 			},
 			20000,
 			false,
@@ -388,7 +394,8 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(data []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6e18))
+				fmt.Print(balance.Sub(prevBalance))
+				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(rewardsAmt))
 			},
 			20000,
 			false,
@@ -404,17 +411,21 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			// Sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
-
 			// Distribute rewards to the 2 validators, 1 EVMOS each
 			for _, val := range s.network.GetValidators() {
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, rewardsAmt))
+				// fund the distribution module to pay the rewards
+				err := s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err)
+				// allocate the rewards to the validators
+				err = s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				s.Require().NoError(err)
 			}
 
-			bz, err := s.precompile.ClaimRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			// get previous balance to compare final balance in the postCheck func
+			prevBalance = s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
+
+			bz, err := s.precompile.ClaimRewards(ctx, s.keyring.GetAddr(0), contract, s.getStateDB(ctx), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

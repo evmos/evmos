@@ -12,7 +12,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
@@ -94,14 +93,12 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 		{
 			"success",
 			func() []interface{} {
-				// FIXME this could be broken
-				// One way is to use the accKeeper.AddressCodec().StringToBytes(string)
-				addr := sdk.AccAddress(s.network.GetValidators()[0].GetOperator())
-				// fund del account to make self-delegation
-				err := testutil.FundAccountWithBaseDenom(ctx, s.network.App.BankKeeper, addr, 10)
+				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
+				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
 				s.Require().NoError(err)
+
 				// make a self delegation
-				_, err = s.network.App.StakingKeeper.Delegate(ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
+				_, err = s.network.App.StakingKeeper.Delegate(ctx, valAddrBz, math.NewInt(1), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
@@ -487,7 +484,10 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 }
 
 func (s *PrecompileTestSuite) TestDelegationRewards() {
-	var ctx sdk.Context
+	var (
+		ctx sdk.Context
+		err error
+	)
 	method := s.precompile.Methods[distribution.DelegationRewardsMethod]
 
 	testCases := []distrTestCases{
@@ -555,8 +555,8 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 		{
 			"success - with rewards",
 			func() []interface{} {
-				// TODO fixme use the WaitToAccrueRewards function
-				// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				s.Require().NoError(err, "failed to prepare staking rewards", err)
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					s.network.GetValidators()[0].OperatorAddress,
@@ -599,7 +599,10 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 }
 
 func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
-	var ctx sdk.Context
+	var (
+		ctx sdk.Context
+		err error
+	)
 	method := s.precompile.Methods[distribution.DelegationTotalRewardsMethod]
 
 	testCases := []distrTestCases{
@@ -666,8 +669,9 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 		{
 			"success - with rewards",
 			func() []interface{} {
-				// TODO FIXME
-				// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				s.Require().NoError(err, "failed to prepare staking rewards", err)
+
 				return []interface{}{
 					s.keyring.GetAddr(0),
 				}
