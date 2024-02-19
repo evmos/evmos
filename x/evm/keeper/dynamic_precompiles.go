@@ -32,7 +32,7 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
 	addresses := make([]common.Address, len(params.ActiveDynamicPrecompiles))
 
-	for _, address := range params.ActiveDynamicPrecompiles {
+	for i, address := range params.ActiveDynamicPrecompiles {
 		hexAddress := common.HexToAddress(address)
 
 		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, hexAddress)
@@ -41,7 +41,7 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 		}
 
 		activePrecompileMap[hexAddress] = precompile
-		addresses = append(addresses, hexAddress)
+		addresses[i] = hexAddress
 	}
 	return addresses, activePrecompileMap
 }
