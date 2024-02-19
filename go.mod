@@ -3,7 +3,7 @@ module github.com/evmos/evmos/v16
 go 1.21
 
 require (
-	cosmossdk.io/api v0.3.1
+	cosmossdk.io/api v0.7.3
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/math v1.2.0
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
@@ -16,7 +16,7 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.47.8
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/gogoproto v1.4.10
+	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/ibc-go/v7 v7.3.2
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f
@@ -46,7 +46,7 @@ require (
 	github.com/zondax/hid v0.9.2
 	go.opencensus.io v0.24.0
 	golang.org/x/crypto v0.19.0
-	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
+	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0
