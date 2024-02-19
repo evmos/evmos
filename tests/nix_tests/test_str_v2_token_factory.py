@@ -1,16 +1,10 @@
-import pytest
 import time
 
-from .ibc_utils import (
-    assert_ready,
-    get_balance,
-    prepare_network,
-)
-from .utils import (
-    wait_for_cosmos_tx_receipt,
-)
+import pytest
+
+from .ibc_utils import assert_ready, get_balance, prepare_network
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32
+from .utils import ADDRS, eth_to_bech32, wait_for_cosmos_tx_receipt
 
 # The token factory IBC denom on Evmos
 TOKEN_FACTORY_IBC_DENOM = (
