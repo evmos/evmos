@@ -26,7 +26,7 @@ contract Storage {
         return number;
     }
 
-    function shouldRevert() public {
+    function shouldRevert() pure public {
         require(false, 'This must REVERT');
     }
 }

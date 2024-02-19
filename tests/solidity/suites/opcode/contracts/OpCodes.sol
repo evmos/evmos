@@ -185,8 +185,9 @@ contract OpCodes {
          mstore(x,sig) //Place signature at beginning of empty storage
          mstore(add(x,0x04),a) // first address parameter. just after signature
          mstore(add(x,0x24),a) // 2nd address parameter - first padded. add 32 bytes (not 20 bytes)
-         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before function call. so it is used by called function.
-          // new free pointer position after the output values of the called function.
+         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before 
+         // function call. so it is used by called function.
+         // new free pointer position after the output values of the called function.
 
          let success := call(
                          5000, //5k gas
@@ -204,8 +205,9 @@ contract OpCodes {
          mstore(x,sig) //Place signature at beginning of empty storage
          mstore(add(x,0x04),a) // first address parameter. just after signature
          mstore(add(x,0x24),a) // 2nd address parameter - first padded. add 32 bytes (not 20 bytes)
-         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before function call. so it is used by called function.
-          // new free pointer position after the output values of the called function.
+         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before 
+         // function call. so it is used by called function.
+         // new free pointer position after the output values of the called function.
 
          let success := callcode(
                          5000, //5k gas
@@ -223,8 +225,9 @@ contract OpCodes {
          mstore(x,sig) //Place signature at beginning of empty storage
          mstore(add(x,0x04),a) // first address parameter. just after signature
          mstore(add(x,0x24),a) // 2nd address parameter - first padded. add 32 bytes (not 20 bytes)
-         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before function call. so it is used by called function.
-          // new free pointer position after the output values of the called function.
+         mstore(0x40,add(x,0x64)) // this is missing in other examples. Set free pointer before 
+         // function call. so it is used by called function.
+         // new free pointer position after the output values of the called function.
 
          let success := delegatecall(
                          5000, //5k gas
