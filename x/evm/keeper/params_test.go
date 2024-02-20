@@ -156,7 +156,8 @@ func (suite *KeeperTestSuite) TestEnableStaticPrecompiles() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-			suite.app.EvmKeeper.EnableStaticPrecompiles(s.ctx, tc.addresses...)
+			err := suite.app.EvmKeeper.EnableStaticPrecompiles(s.ctx, tc.addresses...)
+			suite.Require().NoError(err)
 
 			updated := suite.app.EvmKeeper.GetParams(s.ctx).ActivePrecompiles
 			suite.Require().Equal(tc.expectedaddresses, updated)

@@ -105,7 +105,8 @@ func (suite *KeeperTestSuite) TestIsAvailableDynamicPrecompile() {
 
 			params := types.DefaultParams()
 			params.ActiveDynamicPrecompiles = []string{erc20precompile.WEVMOSContractMainnet}
-			suite.app.EvmKeeper.SetParams(s.ctx, params)
+			err := suite.app.EvmKeeper.SetParams(s.ctx, params)
+			suite.Require().NoError(err)
 
 			available := suite.app.EvmKeeper.IsAvailableDynamicPrecompile(s.ctx, tc.address)
 			suite.Require().Equal(tc.expAvailable, available)
