@@ -7,6 +7,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -17,7 +18,10 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
-	var ctx sdk.Context
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+	)
 	method := s.precompile.Methods[distribution.SetWithdrawAddressMethod]
 	testCases := []struct {
 		name        string
@@ -36,7 +40,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 				}
 			},
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
@@ -60,12 +64,14 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 	for _, tc := range testCases {
 		s.SetupTest()
 		ctx = s.network.GetContext()
+		stDB = s.network.GetStateDB()
+
 		contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 		ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.SetWithdrawAddress(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
+		_, err := s.precompile.SetWithdrawAddress(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 		if tc.expError {
 			s.Require().Error(err)
@@ -78,11 +84,15 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 }
 
 func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
-	var ctx sdk.Context
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+		amt  = math.NewInt(1e18)
+	)
 	method := s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod]
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(val stakingtypes.Validator) []interface{}
 		postCheck   func()
 		gas         uint64
 		expError    bool
@@ -90,19 +100,22 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
+			func(val stakingtypes.Validator) []interface{} {
+				var err error
+
+				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{
+					Validator: val,
+					Delegator: s.keyring.GetAccAddr(0),
+					RewardAmt: amt,
+				})
 				s.Require().NoError(err)
-				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.keyring.GetAddr(0),
-					operatorAddress,
+					val.OperatorAddress,
 				}
 			},
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
@@ -120,7 +133,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				s.Require().NoError(err)
 				s.Require().Equal(s.keyring.GetAddr(0), delegatorRewards.DelegatorAddress)
 				s.Require().Equal(optHexAddr, delegatorRewards.ValidatorAddress)
-				s.Require().Equal(big.NewInt(1000000000000000000), delegatorRewards.Amount)
+				s.Require().Equal(amt.BigInt(), delegatorRewards.Amount)
 			},
 			20000,
 			false,
@@ -131,12 +144,14 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 	for _, tc := range testCases {
 		s.SetupTest()
 		ctx = s.network.GetContext()
+		stDB = s.network.GetStateDB()
+
 		contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 		ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.WithdrawDelegatorRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
+		_, err := s.precompile.WithdrawDelegatorRewards(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate(s.network.GetValidators()[0]))
 
 		if tc.expError {
 			s.Require().Error(err)
@@ -149,7 +164,11 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 }
 
 func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
-	var ctx sdk.Context
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+		amt  = math.NewInt(1e18)
+	)
 	method := s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod]
 	testCases := []struct {
 		name        string
@@ -164,17 +183,21 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecFromInt(amt))}
 				// set outstanding rewards
 				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
 				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				// set funds to distr mod to pay for commission
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt))
+				err = s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err)
 				return []interface{}{
 					operatorAddress,
 				}
 			},
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
@@ -187,7 +210,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 				err := cmn.UnpackLog(s.precompile.ABI, &validatorRewards, distribution.EventTypeWithdrawValidatorCommission, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(crypto.Keccak256Hash([]byte(s.network.GetValidators()[0].OperatorAddress)), validatorRewards.ValidatorAddress)
-				s.Require().Equal(big.NewInt(100000000000000000), validatorRewards.Commission)
+				s.Require().Equal(amt.BigInt(), validatorRewards.Commission)
 			},
 			20000,
 			false,
@@ -198,13 +221,17 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	for _, tc := range testCases {
 		s.SetupTest()
 		ctx = s.network.GetContext()
-		validatorAddress := common.BytesToAddress([]byte(s.network.GetValidators()[0].GetOperator()))
+		stDB = s.network.GetStateDB()
+
+		valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+		s.Require().NoError(err)
+		validatorAddress := common.BytesToAddress(valAddr)
 		contract := vm.NewContract(vm.AccountRef(validatorAddress), s.precompile, big.NewInt(0), tc.gas)
 		ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.WithdrawValidatorCommission(ctx, validatorAddress, contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
+		_, err = s.precompile.WithdrawValidatorCommission(ctx, validatorAddress, contract, stDB, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 		if tc.expError {
 			s.Require().Error(err)

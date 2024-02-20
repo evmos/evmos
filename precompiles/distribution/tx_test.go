@@ -78,9 +78,9 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 				}
 			},
 			func() {
-				withdrawerAddr, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(ctx, s.keyring.GetAddr(0).Bytes())
+				withdrawerAddr, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(ctx, s.keyring.GetAccAddr(0))
 				s.Require().NoError(err)
-				s.Require().Equal(withdrawerAddr.Bytes(), s.keyring.GetAddr(0).Bytes())
+				s.Require().Equal(withdrawerAddr.String(), s.keyring.GetAccAddr(0).String())
 			},
 			20000,
 			false,
