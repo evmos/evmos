@@ -75,7 +75,7 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...string) ([]str
 		}
 	}
 
-    exstingLength := len(existingPrecompiles)
+	exstingLength := len(existingPrecompiles)
 	updatedPrecompiles := make([]string, exstingLength+len(addresses))
 	copy(updatedPrecompiles, existingPrecompiles)
 	copy(updatedPrecompiles[exstingLength:], addresses)

@@ -88,7 +88,8 @@ func (_m *AccountKeeper) GetSequence(_a0 types.Context, _a1 types.AccAddress) (u
 func NewAccountKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *AccountKeeper {
+},
+) *AccountKeeper {
 	mock := &AccountKeeper{}
 	mock.Mock.Test(t)
 
