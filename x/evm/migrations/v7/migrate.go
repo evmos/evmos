@@ -56,7 +56,7 @@ func MigrateStore(
 	}
 	params.AllowUnprotectedTxs = paramsV6.AllowUnprotectedTxs
 	params.ActiveStaticPrecompiles = paramsV6.ActivePrecompiles
-	params.EVMChannels = types.DefaultEVMChannels
+	params.EVMChannels = paramsV6.EVMChannels
 
 	// DefaultEVMChannels are for Evmos mainnet
 	// leave empty for testnet
