@@ -50,7 +50,7 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 }
 
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
-// of active precompiles.
+// of active dynamic precompiles.
 func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
@@ -64,6 +64,22 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) e
 
 	// Update params
 	params.ActiveDynamicPrecompiles = updatedPrecompiles
+	return k.SetParams(ctx, params)
+}
+
+// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
+// of active static precompiles.
+func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...string) error {
+	params := k.GetParams(ctx)
+	activePrecompiles := params.ActiveStaticPrecompiles
+
+	// Append and sort the new precompiles
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
+	}
+
+	params.ActiveStaticPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 

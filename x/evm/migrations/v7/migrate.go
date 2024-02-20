@@ -12,8 +12,8 @@ import (
 	v6types "github.com/evmos/evmos/v16/x/evm/migrations/v7/types"
 )
 
-// MigrateStore migrates the x/evm module state from the consensus version 5 to
-// version 6. Specifically, it adds the new EVMChannels param.
+// MigrateStore migrates the x/evm module state from the consensus version 6 to
+// version 7. Specifically, it adds the new EVMChannels param.
 func MigrateStore(
 	ctx sdk.Context,
 	storeKey storetypes.StoreKey,

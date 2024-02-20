@@ -172,9 +172,9 @@ func (p Params) IsEVMChannel(channel string) bool {
 	return slices.Contains(p.EVMChannels, channel)
 }
 
-// IsActivePrecompile returns true if the given precompile address is
+// IsActiveStaticPrecompile returns true if the given precompile address is
 // registered as an active precompile.
-func (p Params) IsActivePrecompile(address string) bool {
+func (p Params) IsActiveStaticPrecompile(address string) bool {
 	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
 		return strings.Compare(address, p.ActiveStaticPrecompiles[i])
 	})

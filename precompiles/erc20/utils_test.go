@@ -212,7 +212,6 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 	address := utiltx.GenerateAddress()
 	tokenPair := erc20types.NewTokenPair(address, denom, erc20types.OWNER_MODULE)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
-	// s.network.App.Erc20Keeper.SetDenomMap(s.network.GetContext(), tokenPair.Denom, tokenPair.GetID())
 	s.network.App.Erc20Keeper.SetERC20Map(s.network.GetContext(), address, tokenPair.GetID())
 
 	precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)

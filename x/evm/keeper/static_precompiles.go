@@ -4,9 +4,7 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
-	"sort"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -187,26 +185,4 @@ func (k Keeper) GetStaticPrecompilesInstances(
 func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	_, ok := k.precompiles[address]
 	return ok
-}
-
-// TODO: this is not being used
-// GetAvailableStaticPrecompileAddrs returns the list of available precompile addresses.
-//
-// NOTE: uses index based approach instead of append because it's supposed to be faster.
-// Check https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map.
-func (k Keeper) GetAvailableStaticPrecompileAddrs() []common.Address {
-	addresses := make([]common.Address, len(k.precompiles))
-	i := 0
-
-	//#nosec G705 -- two operations in for loop here are fine
-	for address := range k.precompiles {
-		addresses[i] = address
-		i++
-	}
-
-	sort.Slice(addresses, func(i, j int) bool {
-		return bytes.Compare(addresses[i].Bytes(), addresses[j].Bytes()) == -1
-	})
-
-	return addresses
 }

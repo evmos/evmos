@@ -29,14 +29,14 @@ func TestMigrate(t *testing.T) {
 	chainConfig := types.DefaultChainConfig()
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
-	var chainCfgv16 v6types.V6ChainConfig
-	err = json.Unmarshal(bz, &chainCfgv16)
+	var chainCfgv6 v6types.V6ChainConfig
+	err = json.Unmarshal(bz, &chainCfgv6)
 	require.NoError(t, err)
-	v16Params := v6types.V6Params{
+	v6Params := v6types.V6Params{
 		EvmDenom:            types.DefaultEVMDenom,
 		EnableCreate:        types.DefaultEnableCreate,
 		EnableCall:          types.DefaultEnableCall,
-		ChainConfig:         chainCfgv16,
+		ChainConfig:         chainCfgv6,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   types.AvailableEVMExtensions,
@@ -44,8 +44,8 @@ func TestMigrate(t *testing.T) {
 	}
 
 	// Set the params in the store
-	paramsV16Bz := cdc.MustMarshal(&v16Params)
-	kvStore.Set(types.KeyPrefixParams, paramsV16Bz)
+	paramsV6Bz := cdc.MustMarshal(&v6Params)
+	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
 
 	err = v7.MigrateStore(ctx, storeKey, cdc)
 	require.NoError(t, err)

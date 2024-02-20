@@ -327,8 +327,8 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	// 1. there are custom precompiles
 	// 2. the message is a contract call
 	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
-		activePrecompiles, activePrempilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
-		evm.WithPrecompiles(activePrempilesMap, activePrecompiles)
+		activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
+		evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
 	}
 
 	leftoverGas := msg.Gas()

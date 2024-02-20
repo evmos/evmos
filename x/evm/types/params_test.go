@@ -199,7 +199,7 @@ func TestIsActivePrecompile(t *testing.T) {
 			require.NotNil(t, tc.malleate, "test case must provide malleate function")
 			params, precompile := tc.malleate()
 
-			active := params.IsActivePrecompile(precompile)
+			active := params.IsActiveStaticPrecompile(precompile)
 			require.Equal(t, tc.expActive, active, "expected different active status for precompile: %s", precompile)
 		})
 	}

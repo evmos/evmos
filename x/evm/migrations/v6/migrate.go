@@ -8,8 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/utils"
 
-	// "github.com/evmos/evmos/v16/x/evm/types"
-
 	v5types "github.com/evmos/evmos/v16/x/evm/migrations/v6/types"
 	"github.com/evmos/evmos/v16/x/evm/migrations/v7/types"
 )

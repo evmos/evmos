@@ -81,14 +81,7 @@ func (suite *KeeperTestSuite) TestAddDynamicEVMExtensions() {
 		{
 			name: "fail - precompile already in active precompiles",
 			malleate: func() []vm.PrecompiledContract {
-				// TODO: check if this is still correct with the new changes?
-				//
-				// NOTE: we adjust the EVM params here by adding as a dynamic extension
-				// because the default active precompiles are all part of the available precompiles on the keeper
-				// and would not trigger the error on ValidatePrecompiles.
-				//
-				// We add the dummy precompile to the active precompiles to trigger the error.
-
+				// We add the dummy precompile to the active dynamic precompiles to trigger the error.
 				err := suite.app.EvmKeeper.AddDynamicPrecompiles(suite.ctx, dummyPrecompile)
 				suite.Require().NoError(err, "expected no error adding extensions")
 
