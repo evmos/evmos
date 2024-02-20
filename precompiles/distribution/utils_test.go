@@ -62,7 +62,7 @@ func (s *PrecompileTestSuite) mintCoinsForDistrMod(ctx sdk.Context, amount sdk.C
 
 // fundAccountWithBaseDenom is a helper function to fund a given address with the chain's
 // base denomination.
-func (s *PrecompileTestSuite) fundAccountWithBaseDenom(ctx sdk.Context,addr sdk.AccAddress, amount math.Int) error {
+func (s *PrecompileTestSuite) fundAccountWithBaseDenom(ctx sdk.Context, addr sdk.AccAddress, amount math.Int) error {
 	coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, amount))
 	if err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins); err != nil {
 		return err
