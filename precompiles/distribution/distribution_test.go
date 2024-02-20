@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -181,7 +180,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				GasPrice:  app.MainnetMinGasPrices.BigInt(),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
-				Accesses:  &ethtypes.AccessList{},
+				Accesses:  &gethtypes.AccessList{},
 			}
 			msgEthereumTx, err := s.factory.GenerateMsgEthereumTx(s.keyring.GetPrivKey(0), txArgs)
 			s.Require().NoError(err, "failed to generate Ethereum message")

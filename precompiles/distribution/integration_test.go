@@ -665,6 +665,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), contractAddr.Bytes())
+			Expect(err).To(BeNil(), "error while calling GetDelegatorWithdrawAddr: %v", err)
 			Expect(withdrawer.Bytes()).To(Equal(newWithdrawer.Bytes()))
 		})
 	})
