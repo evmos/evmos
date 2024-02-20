@@ -23,14 +23,17 @@ message Params {
   // allow_unprotected_txs defines if replay-protected (i.e non EIP155
   // signed) transactions can be executed on the state machine.
   bool allow_unprotected_txs = 6;
-  // active_static_precompiles defines the slice of hex addresses of the precompiled
-  // contracts that are active
-  repeated string active_static_precompiles = 7;
+  //reanamed active_precompiles to active_static_precompiles
+  reserved 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
   // active_dynamic_precompiles defines the slice of hex addresses of the
   // precompiled contracts that are active and can be dynamically added
   repeated string active_dynamic_precompiles = 9;
+  // active_static_precompiles defines the slice of hex addresses of the precompiled
+  // contracts that are active
+  repeated string active_static_precompiles = 10;
+  
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
