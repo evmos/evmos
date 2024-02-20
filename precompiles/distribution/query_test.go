@@ -648,18 +648,14 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				var out distribution.DelegationTotalRewardsOutput
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				s.Require().Equal(2, len(out.Rewards))
-				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.network.GetValidators()[0].OperatorAddress {
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out.Rewards[1].ValidatorAddress)
-				} else {
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out.Rewards[1].ValidatorAddress)
-				}
+
+				validatorsCount := len(s.network.GetValidators())
+				s.Require().Equal(validatorsCount, len(out.Rewards))
+
 				// no rewards
 				s.Require().Equal(0, len(out.Rewards[0].Reward))
 				s.Require().Equal(0, len(out.Rewards[1].Reward))
+				s.Require().Equal(0, len(out.Rewards[2].Reward))
 				s.Require().Equal(0, len(out.Total))
 			},
 			100000,
@@ -683,28 +679,29 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				)
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				s.Require().Equal(2, len(out.Rewards))
+
+				validators := s.network.GetValidators()
+				valWithRewards := validators[0]
+				validatorsCount := len(s.network.GetValidators())
+				s.Require().Equal(validatorsCount, len(out.Rewards))
 
 				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.network.GetValidators()[0].OperatorAddress {
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out.Rewards[1].ValidatorAddress)
-					s.Require().Equal(0, len(out.Rewards[1].Reward))
-				} else {
-					i = 1
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out.Rewards[1].ValidatorAddress)
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(0, len(out.Rewards[0].Reward))
+				for index, or := range out.Rewards {
+					if or.ValidatorAddress == valWithRewards.OperatorAddress {
+						i = index
+					} else {
+						s.Require().Equal(0, len(out.Rewards[index].Reward))
+					}
 				}
 
 				// only validator[i] has rewards
 				s.Require().Equal(1, len(out.Rewards[i].Reward))
 				s.Require().Equal(s.bondDenom, out.Rewards[i].Reward[0].Denom)
 				s.Require().Equal(uint8(math.LegacyPrecision), out.Rewards[i].Reward[0].Precision)
-				s.Require().Equal(testRewards, out.Rewards[i].Reward[0].Amount.Int64())
+				s.Require().Equal(testRewards.Int64(), out.Rewards[i].Reward[0].Amount.Int64())
 
 				s.Require().Equal(1, len(out.Total))
-				s.Require().Equal(testRewards, out.Total[0].Amount.Int64())
+				s.Require().Equal(testRewards.Int64(), out.Total[0].Amount.Int64())
 			},
 			100000,
 			false,
@@ -716,9 +713,12 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.DelegationTotalRewards(ctx, contract, &method, tc.malleate())
+			args := tc.malleate()
+			bz, err := s.precompile.DelegationTotalRewards(ctx, contract, &method, args)
 
 			if tc.expErr {
 				s.Require().Error(err)
