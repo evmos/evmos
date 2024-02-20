@@ -62,7 +62,7 @@ func NewParams(
 	enableCall bool,
 	config ChainConfig,
 	extraEIPs []int64,
-	ActiveStaticPrecompiles []string,
+	activeStaticPrecompiles []string,
 	evmChannels []string,
 	activeDynamicPrecompiles []string,
 ) Params {
@@ -73,7 +73,7 @@ func NewParams(
 		EnableCall:               enableCall,
 		ExtraEIPs:                extraEIPs,
 		ChainConfig:              config,
-		ActiveStaticPrecompiles:  ActiveStaticPrecompiles,
+		ActiveStaticPrecompiles:  activeStaticPrecompiles,
 		EVMChannels:              evmChannels,
 		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
 	}
