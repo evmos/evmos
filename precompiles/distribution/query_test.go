@@ -196,7 +196,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				// set outstanding rewards
 				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
 				s.Require().NoError(err)
-				
+
 				err = s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valRewards})
 				s.Require().NoError(err)
 
@@ -350,7 +350,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					"invalid", uint64(1), uint64(5), query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -365,7 +365,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -380,7 +380,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -434,7 +434,9 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes",
 			func() []interface{} {
-				err := s.network.App.DistrKeeper.SetValidatorSlashEvent(ctx, sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+				err = s.network.App.DistrKeeper.SetValidatorSlashEvent(ctx, valAddr, 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				s.Require().NoError(err)
 				return []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
@@ -458,7 +460,9 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes w/pagination",
 			func() []interface{} {
-				err := s.network.App.DistrKeeper.SetValidatorSlashEvent(ctx, sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+				err = s.network.App.DistrKeeper.SetValidatorSlashEvent(ctx, valAddr, 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				s.Require().NoError(err)
 				return []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
