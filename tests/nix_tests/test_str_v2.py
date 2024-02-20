@@ -137,4 +137,4 @@ def test_str_v2_multi_hop(ibc):
     assert evmos_old_balance + 50000 == evmos_balance
     assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
     assert len(active_dynamic_precompiles) == 1
-    assert len(token_pairs) == 1
+    assert len(token_pairs) == 2
