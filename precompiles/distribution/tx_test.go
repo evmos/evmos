@@ -231,7 +231,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 }
 
 func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
-	var ctx sdk.Context
+	var (
+		ctx         sdk.Context
+		prevBalance sdk.Coin
+	)
 	method := s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod]
 
 	testCases := []struct {
@@ -244,7 +247,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
 			func(data []byte) {},
@@ -254,7 +257,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					nil,
 				}
@@ -262,31 +265,41 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			func(data []byte) {},
 			200000,
 			true,
-			"invalid validator address",
+			"empty address string is not allowed",
 		},
 		{
 			"success - withdraw all commission from a single validator",
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				amt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, amt)}
 				// set outstanding rewards
 				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
 				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+
+				// fund distr mod to pay for rewards + commission
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt.Mul(math.LegacyNewDec(2)).RoundInt()))
+				err = s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err)
 				return []interface{}{
 					operatorAddress,
 				}
 			},
 			func(data []byte) {
 				var coins []cmn.Coin
+				amt := math.NewInt(100000000000000000)
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawValidatorCommissionMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
-				s.Require().Equal(coins[0].Amount, big.NewInt(100000000000000000))
+				s.Require().Equal(coins[0].Amount, amt.BigInt())
+
 				// Check bank balance after the withdrawal of commission
-				balance := s.network.App.BankKeeper.GetBalance(ctx, []byte(s.network.GetValidators()[0].GetOperator()), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(100000000000000000))
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+				balance := s.network.App.BankKeeper.GetBalance(ctx, valAddr.Bytes(), utils.BaseDenom)
+				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(amt))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			20000,
@@ -299,12 +312,13 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
-			// Sanity check to make sure the starting balance is always 0
-			balance := s.network.App.BankKeeper.GetBalance(ctx, []byte(s.network.GetValidators()[0].GetOperator()), utils.BaseDenom)
-			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(0))
-			s.Require().Equal(balance.Denom, utils.BaseDenom)
 
-			validatorAddress := common.BytesToAddress([]byte(s.network.GetValidators()[0].GetOperator()))
+			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().NoError(err)
+
+			prevBalance = s.network.App.BankKeeper.GetBalance(ctx, valAddr.Bytes(), utils.BaseDenom)
+
+			validatorAddress := common.BytesToAddress(valAddr.Bytes())
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, validatorAddress, s.precompile, tc.gas)
 
