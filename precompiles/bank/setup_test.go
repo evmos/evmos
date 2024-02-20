@@ -42,15 +42,15 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.tokenDenom = xmplDenom
 
 	keyring := testkeyring.New(2)
-	integrationNetwork := network.NewUnitTestNetwork(
+	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{s.tokenDenom}),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
 
-	ctx := integrationNetwork.GetContext()
-	sk := integrationNetwork.App.StakingKeeper
+	ctx := unitNetwork.GetContext()
+	sk := unitNetwork.App.StakingKeeper
 	bondDenom, err := sk.BondDenom(ctx)
 	s.Require().NoError(err, "failed to get bond denom")
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
@@ -59,7 +59,7 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.network = integrationNetwork
+	s.network = unitNetwork
 
 	// Register EVMOS
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)

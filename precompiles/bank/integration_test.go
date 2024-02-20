@@ -41,8 +41,6 @@ type IntegrationTestSuite struct {
 	bondDenom, tokenDenom string
 	evmosAddr, xmplAddr   common.Address
 
-	// tokenDenom is the specific token denomination used in testing the Bank precompile.
-	// This denomination is used to instantiate the precompile.
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -63,7 +61,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	// 2. evm account with code & storage
 	// 3. add accounts corresponding to the erc20 contracts
 	//    in the auth module
-	// 4. register xmpl y wevmos denom meta in bank
+	// 4. register xmpl and wevmos denom meta in bank
 	customGen := network.CustomGenesisState{}
 
 	// 1 - add EVMOS and XMPL token pairs to genesis
