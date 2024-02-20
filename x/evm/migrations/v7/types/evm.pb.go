@@ -24,8 +24,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// V16Params defines the EVM module parameters
-type V16Params struct {
+// V6Params defines the EVM module parameters
+type V6Params struct {
 	// evm_denom represents the token denomination used to run the EVM state
 	// transitions.
 	EvmDenom string `protobuf:"bytes,1,opt,name=evm_denom,json=evmDenom,proto3" json:"evm_denom,omitempty" yaml:"evm_denom"`
@@ -50,16 +50,16 @@ type V16Params struct {
 	ActiveDynamicPrecompiles []string `protobuf:"bytes,9,rep,name=active_dynamic_precompiles,json=activeDynamicPrecompiles,proto3" json:"active_dynamic_precompiles,omitempty"`
 }
 
-func (m *V16Params) Reset()         { *m = V16Params{} }
-func (m *V16Params) String() string { return proto.CompactTextString(m) }
-func (*V16Params) ProtoMessage()    {}
-func (*V16Params) Descriptor() ([]byte, []int) {
+func (m *V6Params) Reset()         { *m = V6Params{} }
+func (m *V6Params) String() string { return proto.CompactTextString(m) }
+func (*V6Params) ProtoMessage()    {}
+func (*V6Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{0}
 }
-func (m *V16Params) XXX_Unmarshal(b []byte) error {
+func (m *V6Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *V16Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
 	} else {
@@ -71,75 +71,75 @@ func (m *V16Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *V16Params) XXX_Merge(src proto.Message) {
+func (m *V6Params) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Params.Merge(m, src)
 }
-func (m *V16Params) XXX_Size() int {
+func (m *V6Params) XXX_Size() int {
 	return m.Size()
 }
-func (m *V16Params) XXX_DiscardUnknown() {
+func (m *V6Params) XXX_DiscardUnknown() {
 	xxx_messageInfo_Params.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *V16Params) GetEvmDenom() string {
+func (m *V6Params) GetEvmDenom() string {
 	if m != nil {
 		return m.EvmDenom
 	}
 	return ""
 }
 
-func (m *V16Params) GetEnableCreate() bool {
+func (m *V6Params) GetEnableCreate() bool {
 	if m != nil {
 		return m.EnableCreate
 	}
 	return false
 }
 
-func (m *V16Params) GetEnableCall() bool {
+func (m *V6Params) GetEnableCall() bool {
 	if m != nil {
 		return m.EnableCall
 	}
 	return false
 }
 
-func (m *V16Params) GetExtraEIPs() []int64 {
+func (m *V6Params) GetExtraEIPs() []int64 {
 	if m != nil {
 		return m.ExtraEIPs
 	}
 	return nil
 }
 
-func (m *V16Params) GetChainConfig() ChainConfig {
+func (m *V6Params) GetChainConfig() ChainConfig {
 	if m != nil {
 		return m.ChainConfig
 	}
 	return ChainConfig{}
 }
 
-func (m *V16Params) GetAllowUnprotectedTxs() bool {
+func (m *V6Params) GetAllowUnprotectedTxs() bool {
 	if m != nil {
 		return m.AllowUnprotectedTxs
 	}
 	return false
 }
 
-func (m *V16Params) GetActivePrecompiles() []string {
+func (m *V6Params) GetActivePrecompiles() []string {
 	if m != nil {
 		return m.ActivePrecompiles
 	}
 	return nil
 }
 
-func (m *V16Params) GetEVMChannels() []string {
+func (m *V6Params) GetEVMChannels() []string {
 	if m != nil {
 		return m.EVMChannels
 	}
 	return nil
 }
 
-func (m *V16Params) GetActiveDynamicPrecompiles() []string {
+func (m *V6Params) GetActiveDynamicPrecompiles() []string {
 	if m != nil {
 		return m.ActiveDynamicPrecompiles
 	}
@@ -705,7 +705,7 @@ func (m *TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
-	proto.RegisterType((*V16Params)(nil), "ethermint.evm.v1.Params")
+	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.Params")
 	proto.RegisterType((*ChainConfig)(nil), "ethermint.evm.v1.ChainConfig")
 	proto.RegisterType((*State)(nil), "ethermint.evm.v1.State")
 	proto.RegisterType((*TransactionLogs)(nil), "ethermint.evm.v1.TransactionLogs")
@@ -827,7 +827,7 @@ var fileDescriptor_d21ecc92c8c8583e = []byte{
 	0x9f, 0x0f, 0x00, 0x00,
 }
 
-func (m *V16Params) Marshal() (dAtA []byte, err error) {
+func (m *V6Params) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -837,12 +837,12 @@ func (m *V16Params) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V16Params) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6Params) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V16Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1600,7 +1600,7 @@ func encodeVarintEvm(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *V16Params) Size() (n int) {
+func (m *V6Params) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1912,7 +1912,7 @@ func sovEvm(x uint64) (n int) {
 func sozEvm(x uint64) (n int) {
 	return sovEvm(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *V16Params) Unmarshal(dAtA []byte) error {
+func (m *V6Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {

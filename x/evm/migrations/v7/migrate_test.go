@@ -1,6 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package v17_test
+package v7_test
 
 import (
 	"encoding/json"
@@ -12,8 +12,8 @@ import (
 
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
-	v17 "github.com/evmos/evmos/v16/x/evm/migrations/v17"
-	v16types "github.com/evmos/evmos/v16/x/evm/migrations/v17/types"
+	v7 "github.com/evmos/evmos/v16/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v16/x/evm/migrations/v7/types"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -29,10 +29,10 @@ func TestMigrate(t *testing.T) {
 	chainConfig := types.DefaultChainConfig()
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
-	var chainCfgv16 v16types.ChainConfig
+	var chainCfgv16 v6types.ChainConfig
 	err = json.Unmarshal(bz, &chainCfgv16)
 	require.NoError(t, err)
-	v16Params := v16types.V16Params{
+	v16Params := v6types.V6Params{
 		EvmDenom:            types.DefaultEVMDenom,
 		EnableCreate:        types.DefaultEnableCreate,
 		EnableCall:          types.DefaultEnableCall,
@@ -46,7 +46,7 @@ func TestMigrate(t *testing.T) {
 	paramsV16Bz := cdc.MustMarshal(&v16Params)
 	kvStore.Set(types.KeyPrefixParams, paramsV16Bz)
 
-	err = v17.MigrateStore(ctx, storeKey, cdc)
+	err = v7.MigrateStore(ctx, storeKey, cdc)
 	require.NoError(t, err)
 
 	paramsBz := kvStore.Get(types.KeyPrefixParams)

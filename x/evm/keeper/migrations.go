@@ -4,10 +4,10 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v17 "github.com/evmos/evmos/v16/x/evm/migrations/v17"
 	v4 "github.com/evmos/evmos/v16/x/evm/migrations/v4"
 	v5 "github.com/evmos/evmos/v16/x/evm/migrations/v5"
 	v6 "github.com/evmos/evmos/v16/x/evm/migrations/v6"
+	v7 "github.com/evmos/evmos/v16/x/evm/migrations/v7"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -41,6 +41,6 @@ func (m Migrator) Migrate5to6(ctx sdk.Context) error {
 }
 
 // Migrate5to6 migrates the store from consensus version 5 to 6
-func (m Migrator) Migrate16to17(ctx sdk.Context) error {
-	return v17.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
+func (m Migrator) Migrate6to7(ctx sdk.Context) error {
+	return v7.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }

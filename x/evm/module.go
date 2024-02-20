@@ -145,7 +145,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 		panic(err)
 	}
 
-	if err := cfg.RegisterMigration(types.ModuleName, 16, m.Migrate16to17); err != nil {
+	if err := cfg.RegisterMigration(types.ModuleName, 6, m.Migrate6to7); err != nil {
 		panic(err)
 	}
 }
