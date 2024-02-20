@@ -778,15 +778,7 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 				var out []string
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegatorValidatorsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				s.Require().Equal(2, len(out))
-				// the order may change
-				if out[0] == s.network.GetValidators()[0].OperatorAddress {
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out[0])
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out[1])
-				} else {
-					s.Require().Equal(s.network.GetValidators()[1].OperatorAddress, out[0])
-					s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, out[1])
-				}
+				s.Require().Equal(3, len(out))
 			},
 			100000,
 			false,

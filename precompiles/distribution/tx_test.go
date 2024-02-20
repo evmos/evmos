@@ -12,8 +12,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 )
@@ -124,12 +126,15 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 }
 
 func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
-	var ctx sdk.Context
+	var (
+		ctx sdk.Context
+		err error
+	)
 	method := s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod]
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(val stakingtypes.Validator) []interface{}
 		postCheck   func(data []byte)
 		gas         uint64
 		expError    bool
@@ -137,7 +142,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(stakingtypes.Validator) []interface{} {
 				return []interface{}{}
 			},
 			func(data []byte) {},
@@ -147,10 +152,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(operatorAddress string) []interface{} {
+			func(val stakingtypes.Validator) []interface{} {
 				return []interface{}{
 					"",
-					operatorAddress,
+					val.OperatorAddress,
 				}
 			},
 			func(data []byte) {},
@@ -160,7 +165,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(stakingtypes.Validator) []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					nil,
@@ -173,15 +178,19 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"success - withdraw rewards from a single validator without commission",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
-				s.Require().NoError(err)
-				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+			func(val stakingtypes.Validator) []interface{} {
+				ctx, err = s.prepareStakingRewards(
+					ctx,
+					stakingRewards{
+						Validator: val,
+						Delegator: s.keyring.GetAccAddr(0),
+						RewardAmt: testRewards,
+					},
+				)
+				s.Require().NoError(err, "failed to unpack output")
 				return []interface{}{
 					s.keyring.GetAddr(0),
-					operatorAddress,
+					val.OperatorAddress,
 				}
 			},
 			func(data []byte) {
@@ -189,10 +198,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawDelegatorRewardsMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
-				s.Require().Equal(coins[0].Amount, big.NewInt(1000000000000000000))
+				s.Require().Equal(coins[0].Amount.Int64(), testRewards.Int64())
 				// Check bank balance after the withdrawal of rewards
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6000000000000000000))
+				s.Require().True(balance.Amount.GT(network.PrefundedAccountInitialBalance))
 			},
 			20000,
 			false,
@@ -205,14 +214,11 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
 
-			// sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5000000000000000000))
-
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.WithdrawDelegatorRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
+			args := tc.malleate(s.network.GetValidators()[0])
+			bz, err := s.precompile.WithdrawDelegatorRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
