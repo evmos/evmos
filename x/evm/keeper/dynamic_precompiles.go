@@ -15,10 +15,10 @@ import (
 
 // AddDynamicPrecompiles adds the given precompiles to the list of active precompiles
 func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	addresses := make([]common.Address, len(precompiles))
+	addresses := make([]string, len(precompiles))
 	for i, precompile := range precompiles {
 		address := precompile.Address()
-		addresses[i] = address
+		addresses[i] = address.String()
 	}
 
 	return k.EnableDynamicPrecompiles(ctx, addresses...)

@@ -7,7 +7,6 @@ import (
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
@@ -52,7 +51,7 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active precompiles.
-func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
 	activePrecompiles := params.ActiveDynamicPrecompiles
@@ -68,19 +67,20 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
-	updatedPrecompiles := []string{}
-	for _, address := range addresses {
-		strAddress := address.String()
-		// Check for duplicates
-		if slices.Contains(existingPrecompiles, strAddress) {
-			return nil, fmt.Errorf("precompile already registered: %s", address)
+func appendPrecompiles(existingPrecompiles []string, addresses ...string) ([]string, error) {
+	// check for duplicates
+	for i := range addresses {
+		if slices.Contains(existingPrecompiles, addresses[i]) {
+			return nil, fmt.Errorf("precompile already registered: %s", addresses[i])
 		}
-		updatedPrecompiles = append(updatedPrecompiles, strAddress)
 	}
-	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
-	sortPrecompiles(updatedPrecompiles)
 
+    exstingLength := len(existingPrecompiles)
+	updatedPrecompiles := make([]string, exstingLength+len(addresses))
+	copy(updatedPrecompiles, existingPrecompiles)
+	copy(updatedPrecompiles[exstingLength:], addresses)
+
+	sortPrecompiles(updatedPrecompiles)
 	return updatedPrecompiles, nil
 }
 

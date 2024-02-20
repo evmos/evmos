@@ -99,7 +99,7 @@ func (_m *EVMKeeper) DeleteAccount(ctx types.Context, addr common.Address) error
 }
 
 // EnableDynamicPrecompiles provides a mock function with given fields: ctx, addresses
-func (_m *EVMKeeper) EnableDynamicPrecompiles(ctx types.Context, addresses ...common.Address) error {
+func (_m *EVMKeeper) EnableDynamicPrecompiles(ctx types.Context, addresses ...string) error {
 	_va := make([]interface{}, len(addresses))
 	for _i := range addresses {
 		_va[_i] = addresses[_i]
@@ -114,7 +114,7 @@ func (_m *EVMKeeper) EnableDynamicPrecompiles(ctx types.Context, addresses ...co
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(types.Context, ...common.Address) error); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, ...string) error); ok {
 		r0 = rf(ctx, addresses...)
 	} else {
 		r0 = ret.Error(0)
@@ -214,8 +214,7 @@ func (_m *EVMKeeper) IsAvailablePrecompile(addr common.Address) bool {
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *EVMKeeper {
+}) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 

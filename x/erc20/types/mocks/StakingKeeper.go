@@ -35,8 +35,7 @@ func (_m *StakingKeeper) BondDenom(ctx types.Context) string {
 func NewStakingKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *StakingKeeper {
+}) *StakingKeeper {
 	mock := &StakingKeeper{}
 	mock.Mock.Test(t)
 

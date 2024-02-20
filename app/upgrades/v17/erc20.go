@@ -6,7 +6,6 @@ package v17
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
@@ -18,7 +17,7 @@ func RegisterERC20Extensions(
 	erc20Keeper erc20keeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
-	precompiles := make([]common.Address, 0)
+	precompiles := make([]string, 0)
 
 	var err error
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
@@ -43,7 +42,7 @@ func RegisterERC20Extensions(
 			return true
 		}
 
-		precompiles = append(precompiles, address)
+		precompiles = append(precompiles, address.String())
 		return false
 	})
 

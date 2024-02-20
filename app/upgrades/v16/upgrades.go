@@ -35,7 +35,7 @@ func CreateUpgradeHandler(
 		if utils.IsTestnet(ctx.ChainID()) {
 			p256Address := p256.Precompile{}.Address()
 			bech32Address := bech32.Precompile{}.Address()
-			if err := ek.EnableDynamicPrecompiles(ctx, p256Address, bech32Address); err != nil {
+			if err := ek.EnableDynamicPrecompiles(ctx, p256Address.String(), bech32Address.String()); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
 		}
@@ -43,7 +43,7 @@ func CreateUpgradeHandler(
 		// enable stride and osmosis outposts
 		strideAddress := strideoutpost.Precompile{}.Address()
 		osmosisAddress := osmosisoutpost.Precompile{}.Address()
-		if err := ek.EnableDynamicPrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
+		if err := ek.EnableDynamicPrecompiles(ctx, strideAddress.String(), osmosisAddress.String()); err != nil {
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
