@@ -29,7 +29,7 @@ func TestMigrate(t *testing.T) {
 	chainConfig := types.DefaultChainConfig()
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
-	var chainCfgv16 v6types.ChainConfig
+	var chainCfgv16 v6types.V6ChainConfig
 	err = json.Unmarshal(bz, &chainCfgv16)
 	require.NoError(t, err)
 	v16Params := v6types.V6Params{
@@ -40,6 +40,7 @@ func TestMigrate(t *testing.T) {
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   types.AvailableEVMExtensions,
+		EVMChannels:         types.DefaultEVMChannels,
 	}
 
 	// Set the params in the store
