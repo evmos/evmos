@@ -87,17 +87,22 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 			func(bz []byte) {},
 			100000,
 			true,
-			"delegation does not exist",
+			"no delegation for (address, validator) tuple",
 		},
 		{
 			"success",
 			func() []interface{} {
-				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
-				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+				s.Require().NoError(err)
+
+				// fund account for self delegation
+				amt := math.NewInt(1)
+				err = s.fundAccountWithBaseDenom(ctx, valAddr.Bytes(), amt)
 				s.Require().NoError(err)
 
 				// make a self delegation
-				_, err = s.network.App.StakingKeeper.Delegate(ctx, valAddrBz, math.NewInt(1), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
+				_, err = s.network.App.StakingKeeper.Delegate(ctx, valAddr.Bytes(), amt, stakingtypes.Unspecified, s.network.GetValidators()[0], true)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
@@ -107,8 +112,11 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 				var out distribution.ValidatorDistributionInfoOutput
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				expAddr := sdk.AccAddress(s.network.GetValidators()[0].GetOperator())
-				s.Require().Equal(expAddr.String(), out.DistributionInfo.OperatorAddress)
+
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+
+				s.Require().Equal(sdk.AccAddress(valAddr.Bytes()).String(), out.DistributionInfo.OperatorAddress)
 				s.Require().Equal(0, len(out.DistributionInfo.Commission))
 				s.Require().Equal(0, len(out.DistributionInfo.SelfBondRewards))
 			},
