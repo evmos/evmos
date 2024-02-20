@@ -13,7 +13,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
-
 	testcases := []struct {
 		name               string
 		actual             []string
