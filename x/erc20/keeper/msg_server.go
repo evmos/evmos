@@ -359,11 +359,7 @@ func (k Keeper) ConvertCoinNativeERC20(
 	}
 
 	// Check for unexpected `Approval` event in logs
-	if err := k.monitorApprovalEvent(res); err != nil {
-		return err
-	}
-
-	return nil
+	return k.monitorApprovalEvent(res)
 }
 
 //	LegacyConvertCoinNativeCoin handles the coin conversion for a native Cosmos coin
