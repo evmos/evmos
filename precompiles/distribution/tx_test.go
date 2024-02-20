@@ -407,24 +407,30 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
 
-			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
+			var (
+				contract *vm.Contract
+				err      error
+			)
+			addr := s.keyring.GetAddr(0)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, addr, s.precompile, tc.gas)
 
-			// Distribute rewards to the 2 validators, 1 EVMOS each
-			for _, val := range s.network.GetValidators() {
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, rewardsAmt))
-				// fund the distribution module to pay the rewards
-				err := s.mintCoinsForDistrMod(ctx, coins)
-				s.Require().NoError(err)
-				// allocate the rewards to the validators
-				err = s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
-				s.Require().NoError(err)
+			validators := s.network.GetValidators()
+			srs := make([]stakingRewards, len(validators))
+			for i, val := range validators {
+				srs[i] = stakingRewards{
+					Delegator: addr.Bytes(),
+					Validator: val,
+					RewardAmt: rewardsAmt,
+				}
 			}
 
-			// get previous balance to compare final balance in the postCheck func
-			prevBalance = s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
+			ctx, err = s.prepareStakingRewards(ctx, srs...)
+			s.Require().NoError(err)
 
-			bz, err := s.precompile.ClaimRewards(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			// get previous balance to compare final balance in the postCheck func
+			prevBalance = s.network.App.BankKeeper.GetBalance(ctx, addr.Bytes(), utils.BaseDenom)
+
+			bz, err := s.precompile.ClaimRewards(ctx, addr, contract, s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

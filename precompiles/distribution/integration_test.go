@@ -463,7 +463,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-			Expect(rewards[0].Amount.Int64()).To(Equal(expDelegationRewards))
+			Expect(rewards[0].Amount.Int64()).To(Equal(testRewards))
 		})
 
 		It("should get delegators's total rewards - delegationTotalRewards query", func() {
@@ -501,10 +501,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 			Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
 			Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
-			Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
+			Expect(testRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 			Expect(1).To(Equal(len(out.Total)))
-			Expect(expDelegationRewards).To(Equal(out.Total[0].Amount.Int64()))
+			Expect(testRewards).To(Equal(out.Total[0].Amount.Int64()))
 		})
 
 		It("should get all validators a delegators has delegated to - delegatorValidators query", func() {
@@ -1281,7 +1281,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(len(rewards)).To(Equal(1))
 				Expect(len(rewards)).To(Equal(1))
 				Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-				Expect(rewards[0].Amount.Int64()).To(Equal(expDelegationRewards))
+				Expect(rewards[0].Amount.Int64()).To(Equal(testRewards))
 			})
 		})
 
@@ -1338,10 +1338,10 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 				Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
 				Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
-				Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
+				Expect(testRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 				Expect(1).To(Equal(len(out.Total)))
-				Expect(expDelegationRewards).To(Equal(out.Total[0].Amount.Int64()))
+				Expect(testRewards).To(Equal(out.Total[0].Amount.Int64()))
 			})
 		})
 

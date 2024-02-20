@@ -6,7 +6,6 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmosutil "github.com/evmos/evmos/v16/testutil"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -22,32 +21,18 @@ type stakingRewards struct {
 // such that the given amount of tokens is outstanding as a staking reward for the account.
 //
 // The setup is done in the following way:
-//   - Fund the account with the given address with the given rewards amount.
-//   - Delegate the rewards amount to the validator specified
+//   - Fund distribution module to pay for rewards.
 //   - Allocate rewards to the validator.
 func (s *PrecompileTestSuite) prepareStakingRewards(ctx sdk.Context, stkRs ...stakingRewards) (sdk.Context, error) {
 	for _, r := range stkRs {
-		// fund account to make delegation
-		if err := evmosutil.FundAccountWithBaseDenom(ctx, s.network.App.BankKeeper, r.Delegator, r.RewardAmt.Int64()); err != nil {
-			return ctx, err
-		}
 		// set distribution module account balance which pays out the rewards
-		distrAcc := s.network.App.DistrKeeper.GetDistributionAccount(ctx)
-		if err := evmosutil.FundModuleAccount(ctx, s.network.App.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(s.bondDenom, r.RewardAmt))); err != nil {
+		coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, r.RewardAmt))
+		if err := s.mintCoinsForDistrMod(ctx, coins); err != nil {
 			return ctx, err
 		}
 
-		// make a delegation
-		if _, err := s.network.App.StakingKeeper.Delegate(ctx, r.Delegator, r.RewardAmt, stakingtypes.Unspecified, r.Validator, true); err != nil {
-			return ctx, err
-		}
-
-		// end block to bond validator and increase block height
-		if _, err := s.network.App.StakingKeeper.EndBlocker(ctx); err != nil {
-			return ctx, err
-		}
-		// allocate rewards to validator (of these 50% will be paid out to the delegator)
-		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(math.NewInt(2))))
+		// allocate rewards to validator
+		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt))
 		if err := s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, r.Validator, allocatedRewards); err != nil {
 			return ctx, err
 		}

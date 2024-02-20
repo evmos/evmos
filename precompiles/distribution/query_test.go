@@ -19,9 +19,8 @@ import (
 )
 
 var (
-	expDelegationRewards int64 = 2000000000000000000
-	expValAmount         int64 = 1
-	rewards, _                 = math.NewIntFromString("1000000000000000000")
+	expValAmount   int64 = 1
+	testRewards, _       = math.NewIntFromString("1000000000000000000")
 )
 
 type distrTestCases struct {
@@ -532,7 +531,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 			func(bz []byte) {},
 			100000,
 			true,
-			"delegation does not exist",
+			"no delegation for (address, validator) tuple",
 		},
 		{
 			"success - existent validator & delegation, but no rewards",
@@ -555,7 +554,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 		{
 			"success - with rewards",
 			func() []interface{} {
-				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], testRewards})
 				s.Require().NoError(err, "failed to prepare staking rewards", err)
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -569,7 +568,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				s.Require().Equal(1, len(out))
 				s.Require().Equal(uint8(18), out[0].Precision)
 				s.Require().Equal(s.bondDenom, out[0].Denom)
-				s.Require().Equal(expDelegationRewards, out[0].Amount.Int64())
+				s.Require().Equal(testRewards.Int64(), out[0].Amount.Int64())
 			},
 			100000,
 			false,
@@ -584,7 +583,8 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 			ctx = s.network.GetContext()
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.DelegationRewards(ctx, contract, &method, tc.malleate())
+			args := tc.malleate()
+			bz, err := s.precompile.DelegationRewards(ctx, contract, &method, args)
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -669,7 +669,7 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 		{
 			"success - with rewards",
 			func() []interface{} {
-				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{s.keyring.GetAccAddr(0), s.network.GetValidators()[0], testRewards})
 				s.Require().NoError(err, "failed to prepare staking rewards", err)
 
 				return []interface{}{
@@ -701,10 +701,10 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				s.Require().Equal(1, len(out.Rewards[i].Reward))
 				s.Require().Equal(s.bondDenom, out.Rewards[i].Reward[0].Denom)
 				s.Require().Equal(uint8(math.LegacyPrecision), out.Rewards[i].Reward[0].Precision)
-				s.Require().Equal(expDelegationRewards, out.Rewards[i].Reward[0].Amount.Int64())
+				s.Require().Equal(testRewards, out.Rewards[i].Reward[0].Amount.Int64())
 
 				s.Require().Equal(1, len(out.Total))
-				s.Require().Equal(expDelegationRewards, out.Total[0].Amount.Int64())
+				s.Require().Equal(testRewards, out.Total[0].Amount.Int64())
 			},
 			100000,
 			false,
