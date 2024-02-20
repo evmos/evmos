@@ -75,7 +75,6 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 
 			addresses, _ := suite.app.EvmKeeper.GetDynamicPrecompilesInstances(s.ctx, &params)
 			suite.Require().Equal(tc.expected, addresses)
-
 		})
 	}
 }
