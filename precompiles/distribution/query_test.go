@@ -153,7 +153,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 
 	testCases := []distrTestCases{
 		{
-			"success - nonexistent validator address",
+			"fail - nonexistent validator address",
 			func() []interface{} {
 				pv := mock.NewPV()
 				pk, err := pv.GetPubKey()
@@ -169,8 +169,8 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				s.Require().Equal(0, len(out))
 			},
 			100000,
-			false,
-			"",
+			true,
+			"validator does not exist",
 		},
 		{
 			"success - existent validator, no outstanding rewards",
@@ -194,7 +194,10 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 			func() []interface{} {
 				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
-				err := s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), types.ValidatorOutstandingRewards{Rewards: valRewards})
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err)
+				
+				err = s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valRewards})
 				s.Require().NoError(err)
 
 				return []interface{}{
