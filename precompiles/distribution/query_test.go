@@ -235,7 +235,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 
 	testCases := []distrTestCases{
 		{
-			"success - nonexistent validator address",
+			"fail - nonexistent validator address",
 			func() []interface{} {
 				pv := mock.NewPV()
 				pk, err := pv.GetPubKey()
@@ -251,8 +251,8 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 				s.Require().Equal(0, len(out))
 			},
 			100000,
-			false,
-			"",
+			true,
+			"validator does not exist",
 		},
 		{
 			"success - existent validator, no accumulated commission",
@@ -274,11 +274,21 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 		{
 			"success - with accumulated commission",
 			func() []interface{} {
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-				err := s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), types.ValidatorAccumulatedCommission{Commission: valCommission})
+				commAmt := math.LegacyNewDec(1)
+				validator := s.network.GetValidators()[0]
+				valAddr, err := sdk.ValAddressFromBech32(validator.GetOperator())
 				s.Require().NoError(err)
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, commAmt)}
+				err = s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.Require().NoError(err)
+
+				// set distribution module account balance which pays out the commission
+				coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, commAmt.RoundInt()))
+				err = s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.network.GetValidators()[0].OperatorAddress,
+					validator.OperatorAddress,
 				}
 			},
 			func(bz []byte) {
