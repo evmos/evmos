@@ -128,39 +128,3 @@ func (suite *KeeperTestSuite) TestParams() {
 		})
 	}
 }
-
-func (suite *KeeperTestSuite) TestEnableStaticPrecompiles() {
-	params := types.DefaultParams()
-
-	testCases := []struct {
-		name              string
-		addresses         []common.Address
-		expectedaddresses []string
-	}{
-		{
-			"success - default precompiles",
-			[]common.Address{},
-			params.ActiveStaticPrecompiles,
-		},
-		{
-			"success - Add a static precompile",
-			[]common.Address{common.HexToAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")},
-			append(params.ActiveStaticPrecompiles, "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"),
-		},
-		{
-			"success - Add several static precompiles / and sort",
-			[]common.Address{common.HexToAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"), common.HexToAddress("0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47")},
-			append(params.ActiveStaticPrecompiles, "0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47", "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"),
-		},
-	}
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			suite.SetupTest()
-			err := suite.app.EvmKeeper.EnableStaticPrecompiles(s.ctx, tc.addresses...)
-			suite.Require().NoError(err)
-
-			updated := suite.app.EvmKeeper.GetParams(s.ctx).ActiveStaticPrecompiles
-			suite.Require().Equal(tc.expectedaddresses, updated)
-		})
-	}
-}
