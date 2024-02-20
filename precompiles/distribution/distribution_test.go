@@ -59,7 +59,10 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 
 // TestRun tests the precompile's Run method.
 func (s *PrecompileTestSuite) TestRun() {
-	var ctx sdk.Context
+	var (
+		ctx sdk.Context
+		err error
+	)
 	testcases := []struct {
 		name        string
 		malleate    func() (common.Address, []byte)
@@ -95,11 +98,17 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().NoError(err)
 				caller := common.BytesToAddress(valAddr)
 
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				commAmt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, commAmt)}
 				// set outstanding rewards
 				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
 				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+
+				// set distribution module account balance which pays out the rewards
+				coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, commAmt.RoundInt()))
+				err = s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err, "failed to fund distr module account")
 
 				input, err := s.precompile.Pack(
 					distribution.WithdrawValidatorCommissionMethod,
@@ -114,16 +123,21 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - withdraw delegator rewards transaction",
 			malleate: func() (common.Address, []byte) {
-				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
-				s.Require().NoError(err)
-				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				val := s.network.GetValidators()[0]
+				ctx, err = s.prepareStakingRewards(
+					ctx,
+					stakingRewards{
+						Delegator: s.keyring.GetAccAddr(0),
+						Validator: val,
+						RewardAmt: testRewardsAmt,
+					},
+				)
+				s.Require().NoError(err, "failed to prepare staking rewards")
 
 				input, err := s.precompile.Pack(
 					distribution.WithdrawDelegatorRewardsMethod,
 					s.keyring.GetAddr(0),
-					valAddr.String(),
+					val.OperatorAddress,
 				)
 				s.Require().NoError(err, "failed to pack input")
 
@@ -135,11 +149,15 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - claim rewards transaction",
 			malleate: func() (common.Address, []byte) {
-				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
-				s.Require().NoError(err)
-				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				ctx, err = s.prepareStakingRewards(
+					ctx,
+					stakingRewards{
+						Delegator: s.keyring.GetAccAddr(0),
+						Validator: s.network.GetValidators()[0],
+						RewardAmt: testRewardsAmt,
+					},
+				)
+				s.Require().NoError(err, "failed to prepare staking rewards")
 
 				input, err := s.precompile.Pack(
 					distribution.ClaimRewardsMethod,

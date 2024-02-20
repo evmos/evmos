@@ -184,7 +184,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 					stakingRewards{
 						Validator: val,
 						Delegator: s.keyring.GetAccAddr(0),
-						RewardAmt: testRewards,
+						RewardAmt: testRewardsAmt,
 					},
 				)
 				s.Require().NoError(err, "failed to unpack output")
@@ -198,7 +198,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawDelegatorRewardsMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
-				s.Require().Equal(coins[0].Amount.Int64(), testRewards.Int64())
+				s.Require().Equal(coins[0].Amount.Int64(), testRewardsAmt.Int64())
 				// Check bank balance after the withdrawal of rewards
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
 				s.Require().True(balance.Amount.GT(network.PrefundedAccountInitialBalance))
