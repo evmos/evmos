@@ -23,6 +23,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+    epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
@@ -98,4 +99,10 @@ func (n *IntegrationNetwork) GetDistrClient() distrtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	distrtypes.RegisterQueryServer(queryHelper, distrkeeper.Querier{Keeper: n.app.DistrKeeper})
 	return distrtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetEpochsClient() epochstypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	epochstypes.RegisterQueryServer(queryHelper, n.app.EpochsKeeper)
+	return epochstypes.NewQueryClient(queryHelper)
 }
