@@ -4,6 +4,8 @@
 package keeper_test
 
 import (
+	"errors"
+
 	"github.com/ethereum/go-ethereum/common"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
@@ -12,29 +14,33 @@ import (
 
 func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 
-	params := types.DefaultParams()
-	params.ActiveDynamicPrecompiles = []string{erc20precompile.WEVMOSContractMainnet}
-
 	testcases := []struct {
-		name     string
-		params   types.Params
-		expected []common.Address
+		name               string
+		actual             []string
+		expected           []common.Address
+		expectPanic        bool
+		expectErrorMessage string
 	}{
 		{
-			name:     "pass - empty precompiles",
-			params:   types.DefaultParams(),
-			expected: []common.Address{},
+			name:               "pass - empty precompiles",
+			actual:             []string{},
+			expected:           []common.Address{},
+			expectPanic:        false,
+			expectErrorMessage: "",
 		},
-		// {
-		// 	TODO: test panic
-		// 	name:     "fail - unavailable precompile",
-		// 	params:   params,
-		// 	expected: []common.Address{common.HexToAddress("0x0000000000000000000000000000000000099999")},
-		// },
 		{
-			name:     "pass - precompile",
-			params:   params,
-			expected: []common.Address{common.HexToAddress(erc20precompile.WEVMOSContractMainnet)},
+			name:               "fail - unavailable precompile",
+			actual:             []string{"0x0000000000000000000000000000000000099999"},
+			expected:           []common.Address{common.HexToAddress("0x0000000000000000000000000000000000099999")},
+			expectPanic:        true,
+			expectErrorMessage: "precompiled contract not initialized: 0x0000000000000000000000000000000000099999",
+		},
+		{
+			name:               "pass - precompile",
+			actual:             []string{erc20precompile.WEVMOSContractMainnet},
+			expected:           []common.Address{common.HexToAddress(erc20precompile.WEVMOSContractMainnet)},
+			expectPanic:        false,
+			expectErrorMessage: "",
 		},
 	}
 
@@ -44,10 +50,30 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
+			defer func() {
+				var err error
+				if r := recover(); r != nil {
+					switch x := r.(type) {
+					case string:
+						err = errors.New(x)
+					case error:
+						err = x
+					default:
+						// Fallback err (per specs, error strings should be lowercase w/o punctuation
+						err = errors.New("unknown panic")
+					}
+					suite.Require().True(tc.expectPanic)
+					suite.Require().Contains(err.Error(), tc.expectErrorMessage)
+				}
+			}()
+
+			params := types.DefaultParams()
+			params.ActiveDynamicPrecompiles = tc.actual
+
 			pair := erc20types.NewTokenPair(common.HexToAddress(erc20precompile.WEVMOSContractMainnet), "aevmos", erc20types.OWNER_MODULE)
 			suite.app.Erc20Keeper.SetToken(s.ctx, pair)
 
-			addresses, _ := suite.app.EvmKeeper.GetDynamicPrecompilesInstances(s.ctx, &tc.params)
+			addresses, _ := suite.app.EvmKeeper.GetDynamicPrecompilesInstances(s.ctx, &params)
 			suite.Require().Equal(tc.expected, addresses)
 
 		})
