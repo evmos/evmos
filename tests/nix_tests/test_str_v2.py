@@ -2,16 +2,14 @@ import pytest
 import time
 from web3 import Web3
 
+from .ibc_utils import ATOM_IBC_DENOM
 from .ibc_utils import (
-    EVMOS_IBC_DENOM,
     assert_ready,
     get_balance,
     prepare_network,
-    get_balances,
 )
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32, wait_for_fn, erc20_balance
-from .ibc_utils import ATOM_IBC_DENOM
+from .utils import ADDRS, eth_to_bech32, erc20_balance, wait_for_ack
 
 # uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
 ATOM_2_IBC_DENOM_MULTI_HOP = (
@@ -62,8 +60,7 @@ def test_str_v2_single_hop(ibc):
     )
     assert rsp["code"] == 0
 
-    # NOTE: Sleep some time because wait_for_fn doesn't work for some reason ?
-    time.sleep(30)
+    wait_for_ack(evmos_cli, "Evmos")
 
     w3 = evmos.w3
     active_dynamic_precompiles = evmos_cli.evm_params()["params"][
@@ -108,8 +105,7 @@ def test_str_v2_multi_hop(ibc):
     )
     assert rsp["code"] == 0
 
-    # NOTE: Using time.sleep here because wait_for_fn doesn't work for some reason
-    time.sleep(30)
+    time.sleep(25)
 
     new_gaia1_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
     assert gaia1_old_balance + 50000 == new_gaia1_balance
@@ -124,8 +120,7 @@ def test_str_v2_multi_hop(ibc):
     )
     assert rsp["code"] == 0
 
-    # NOTE: Using time.sleep here because wait_for_fn doesn't work for some reason
-    time.sleep(30)
+    wait_for_ack(evmos_cli, "Evmos")
 
     evmos_balance = get_balance(evmos, bech_dst, ATOM_2_IBC_DENOM_MULTI_HOP)
     active_dynamic_precompiles = evmos_cli.evm_params()["params"][
