@@ -9,10 +9,10 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
-	// //nolint:revive // dot imports are fine for Ginkgo
-	// . "github.com/onsi/ginkgo/v2"
-	// //nolint:revive // dot imports are fine for Ginkgo
-	// . "github.com/onsi/gomega"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -33,45 +33,39 @@ type PrecompileTestSuite struct {
 
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
-	suite.Run(t, s)
+	// suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests
-	// RegisterFailHandler(Fail)
-	// RunSpecs(t, "Distribution Precompile Suite")
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Distribution Precompile Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
-	integrationNetwork := network.NewUnitTestNetwork(
+	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
+	grpcHandler := grpc.NewIntegrationHandler(nw)
+	txFactory := factory.New(nw, grpcHandler)
 
-	ctx := integrationNetwork.GetContext()
-	sk := integrationNetwork.App.StakingKeeper
+	ctx := nw.GetContext()
+	sk := nw.App.StakingKeeper
 	bondDenom, err := sk.BondDenom(ctx)
-	s.Require().NoError(err, "failed to get bond denom")
-	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+	if err != nil {
+		panic(err)
+	}
 
 	s.bondDenom = bondDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.network = integrationNetwork
-	s.precompile = s.setupDistrPrecompile()
-}
-
-// setupBankPrecompile is a helper function to set up an instance of the Bank precompile for
-// a given token denomination.
-func (s *PrecompileTestSuite) setupDistrPrecompile() *distribution.Precompile {
-	precompile, err := distribution.NewPrecompile(
+	s.network = nw
+	s.precompile, err = distribution.NewPrecompile(
 		s.network.App.DistrKeeper,
 		s.network.App.StakingKeeper,
 		s.network.App.AuthzKeeper,
 	)
-
-	s.Require().NoError(err, "failed to create bank precompile")
-
-	return precompile
+	if err != nil {
+		panic(err)
+	}
 }

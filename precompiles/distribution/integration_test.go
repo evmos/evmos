@@ -6,21 +6,24 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v16/utils"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -568,12 +571,18 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 	BeforeEach(func() {
 		s.SetupTest()
-		// TODO FIXME
-		// contractAddr, err = s.factory.DeployContract(contracts.DistributionCallerContract)
+
+		contractAddr, err = s.factory.DeployContract(
+			s.keyring.GetPrivKey(0),
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: contracts.DistributionCallerContract,
+			},
+		)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 
 		// NextBlock the smart contract
-		s.network.NextBlock()
+		Expect(s.network.NextBlock()).To(BeNil(), "error calling NextBlock: %v", err)
 
 		// check contract was correctly deployed
 		cAcc := s.network.App.EvmKeeper.GetAccount(s.network.GetContext(), contractAddr)
