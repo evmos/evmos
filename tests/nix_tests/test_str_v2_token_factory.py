@@ -50,7 +50,7 @@ def test_str_v2_token_factory(ibc):
     )
     assert rsp["code"] == 0
 
-    wait_for_ack(evmos, "Evmos")
+    wait_for_ack(evmos_cli, "Evmos")
 
     token_pairs = evmos_cli.get_token_pairs()
     assert len(token_pairs) == 0
