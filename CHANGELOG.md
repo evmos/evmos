@@ -49,6 +49,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2290](https://github.com/evmos/evmos/pull/2290) Add migration logic for STR v2 to upgrade handler.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 - (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
+- (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 
 
 ### Bug Fixes
@@ -85,6 +86,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
+- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
