@@ -3,7 +3,7 @@ package bank_test
 import (
 	"testing"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
@@ -38,23 +38,19 @@ func TestPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (s *PrecompileTestSuite) SetupTest() {
-	// Mint and register a second coin for testing purposes
-	// FIXME the RegisterCoin logic will need to be refactored
-	// once logic is integrated
-	// with the protocol via genesis and/or a transaction
-	s.tokenDenom = "xmpl"
+func (s *PrecompileTestSuite) SetupTest() sdk.Context {
+	s.tokenDenom = xmplDenom
 
 	keyring := testkeyring.New(2)
-	integrationNetwork := network.NewUnitTestNetwork(
+	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithOtherDenoms([]string{is.tokenDenom}),
+		network.WithOtherDenoms([]string{s.tokenDenom}),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
 
-	ctx := integrationNetwork.GetContext()
-	sk := integrationNetwork.App.StakingKeeper
+	ctx := unitNetwork.GetContext()
+	sk := unitNetwork.App.StakingKeeper
 	bondDenom, err := sk.BondDenom(ctx)
 	s.Require().NoError(err, "failed to get bond denom")
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
@@ -63,45 +59,19 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.network = integrationNetwork
+	s.network = unitNetwork
 
 	// Register EVMOS
-	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(s.network.GetContext(), s.bondDenom)
-	s.Require().True(found, "expected evmos denom metadata")
-
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
-	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
+	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
-	xmplMetadata := banktypes.Metadata{
-		Description: "An exemplary token",
-		Base:        s.tokenDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 0,
-				Aliases:  []string{s.tokenDenom},
-			},
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 18,
-			},
-		},
-		Name:    "Exemplary",
-		Symbol:  "XMPL",
-		Display: s.tokenDenom,
-	}
-
-	// FIXME need to refactor this once the RegisterCoin logic is integrated
-	// with the protocol via genesis and/or a transaction
-	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
+	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	s.precompile = s.setupBankPrecompile()
+	return ctx
 }
