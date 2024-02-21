@@ -31,7 +31,7 @@ KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
-WEVMOS_ADDRESS = Web3.toChecksumAddress("0x5db67696C3c088DfBf588d3dd849f44266ff0ffa")
+WEVMOS_ADDRESS = Web3.toChecksumAddress("0x5db67696C3c088DfBf588d3dd849f44266ff0ffa") # ERC20 precompile for WEVMOS
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
