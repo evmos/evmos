@@ -237,9 +237,11 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			}
 
 			if tc.precompileAddr != emptyAddress {
-				suite.Require().True(unitNetwork.App.EvmKeeper.IsAvailablePrecompile(tc.precompileAddr))
+				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+				suite.Require().Contains(activeDynamicPrecompiles, tc.precompileAddr.String())
 			} else {
-				suite.Require().False(unitNetwork.App.EvmKeeper.IsAvailablePrecompile(tc.precompileAddr))
+				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+				suite.Require().NotContains(activeDynamicPrecompiles, tc.precompileAddr.String())
 			}
 		})
 	}

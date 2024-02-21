@@ -48,6 +48,8 @@ type Keeper struct {
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
 	feeMarketKeeper types.FeeMarketKeeper
+	// Erc20Keeper
+	erc20Keeper types.Erc20Keeper
 
 	// chain ID number obtained from the context's chain id
 	eip155ChainID *big.Int
@@ -77,6 +79,7 @@ func NewKeeper(
 	fmk types.FeeMarketKeeper,
 	tracer string,
 	ss paramstypes.Subspace,
+	erc20Keeper types.Erc20Keeper,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -100,6 +103,7 @@ func NewKeeper(
 		transientKey:    transientKey,
 		tracer:          tracer,
 		ss:              ss,
+		erc20Keeper:     erc20Keeper,
 	}
 }
 

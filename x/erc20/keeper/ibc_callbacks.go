@@ -14,7 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/utils"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -108,12 +107,7 @@ func (k Keeper) OnRecvPacket(
 	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
 	// IsNativeFromSourceChain will check if the coin is native from the source chain.
 	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsNativeFromSourceChain(data.Denom):
-		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
-		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(err)
-		}
-
-		if err := k.RegisterERC20Extension(ctx, coin.Denom, contractAddr); err != nil {
+		if err := k.RegisterERC20Extension(ctx, coin.Denom); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 		return ack

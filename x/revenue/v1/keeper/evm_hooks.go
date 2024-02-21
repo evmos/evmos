@@ -60,7 +60,7 @@ func (k Keeper) PostTxProcessing(
 	evmParams := k.evmKeeper.GetParams(ctx)
 
 	var withdrawer sdk.AccAddress
-	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
+	containsPrecompile := slices.Contains(evmParams.ActiveStaticPrecompiles, contract.String())
 	// if the contract is not a precompile, check if the contract is registered in the revenue module.
 	// else, return and avoid performing unnecessary logic
 	if !containsPrecompile {

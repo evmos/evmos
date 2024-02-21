@@ -15,6 +15,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -100,6 +101,11 @@ func UnpackEthMsg(msg sdk.Msg) (
 	// sender address should be in the tx cache from the previous AnteHandle call
 	from = msgEthTx.GetFrom()
 	return msgEthTx, txData, from, nil
+}
+
+// IsContractCall checks if the message is a contract call
+func IsContractCall(msg core.Message) bool {
+	return msg.To() != nil && msg.Data() != nil
 }
 
 // BinSearch executes the binary search and hone in on an executable gas limit

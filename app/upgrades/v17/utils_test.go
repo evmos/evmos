@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -150,7 +149,7 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 	wevmosAddr, err := ts.factory.DeployContract(
 		ts.keyring.GetPrivKey(erc20Deployer),
 		evmtypes.EvmTxArgs{},
-		testfactory.ContractDeploymentData{Contract: testdata.WEVMOSContract},
+		testfactory.ContractDeploymentData{Contract: contracts.WEVMOSContract},
 	)
 	if err != nil {
 		return &ConvertERC20CoinsTestSuite{}, errorsmod.Wrap(err, "failed to deploy WEVMOS contract")

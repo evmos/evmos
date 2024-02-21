@@ -11,8 +11,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
@@ -50,6 +52,11 @@ type FeeMarketKeeper interface {
 	GetParams(ctx sdk.Context) feemarkettypes.Params
 	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	CalculateBaseFee(ctx sdk.Context) *big.Int
+}
+
+// Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
+type Erc20Keeper interface {
+	InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error)
 }
 
 // Event Hooks

@@ -22,6 +22,23 @@ import (
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
+// Embed abi json file to the executable binary. Needed when importing as dependency.
+//
+//go:embed abi.json
+var f embed.FS
+
+var _ vm.PrecompiledContract = &Precompile{}
+
+var abiInstance abi.ABI
+
+func init() {
+	var err error
+	abiInstance, err = cmn.LoadABI(f, abiPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to load abi: %w", err))
+	}
+}
+
 const (
 	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 	abiPath = "abi.json"
@@ -46,13 +63,6 @@ const (
 	GasAllowance         = 3_225
 )
 
-// Embed abi json file to the executable binary. Needed when importing as dependency.
-//
-//go:embed abi.json
-var f embed.FS
-
-var _ vm.PrecompiledContract = &Precompile{}
-
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
@@ -69,14 +79,9 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, abiPath)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  newABI,
+			ABI:                  abiInstance,
 			AuthzKeeper:          authzKeeper,
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			KvGasConfig:          storetypes.GasConfig{},
