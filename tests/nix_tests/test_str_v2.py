@@ -1,22 +1,19 @@
-import pytest
 import time
+
+import pytest
 from web3 import Web3
 
-from .ibc_utils import ATOM_IBC_DENOM
-from .ibc_utils import (
-    assert_ready,
-    get_balance,
-    prepare_network,
-)
+from .ibc_utils import ATOM_IBC_DENOM, assert_ready, get_balance, prepare_network
 from .network import CosmosChain, Evmos
 from .utils import (
     ADDRS,
-    eth_to_bech32,
-    erc20_balance,
-    wait_for_ack,
-    erc20_transfer,
-    WEVMOS_ADDRESS,
     KEYS,
+    WEVMOS_ADDRESS,
+    erc20_balance,
+    erc20_transfer,
+    eth_to_bech32,
+    wait_for_ack,
+    wait_for_fn,
 )
 
 # uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
@@ -113,7 +110,12 @@ def test_str_v2_multi_hop(ibc):
     )
     assert rsp["code"] == 0
 
-    time.sleep(30)
+    new_dst_balance = 0
+    def check_balance_change():
+        nonlocal new_dst_balance
+        new_dst_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
+        return gaia1_old_balance != new_dst_balance
+    wait_for_fn("balance change", check_balance_change)
 
     new_gaia1_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
     assert gaia1_old_balance + 50000 == new_gaia1_balance
