@@ -9,7 +9,15 @@ from .ibc_utils import (
     prepare_network,
 )
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32, erc20_balance, wait_for_ack, erc20_transfer, WEVMOS_ADDRESS, KEYS
+from .utils import (
+    ADDRS,
+    eth_to_bech32,
+    erc20_balance,
+    wait_for_ack,
+    erc20_transfer,
+    WEVMOS_ADDRESS,
+    KEYS,
+)
 
 # uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
 ATOM_2_IBC_DENOM_MULTI_HOP = (
@@ -149,7 +157,9 @@ def test_wevmos_precompile_transfer(ibc):
     w3 = evmos.w3
     signer2_balance = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
 
-    receipt = erc20_transfer(w3, WEVMOS_ADDRESS, signer1, signer2, 1000000, KEYS["signer1"])
+    receipt = erc20_transfer(
+        w3, WEVMOS_ADDRESS, signer1, signer2, 1000000, KEYS["signer1"]
+    )
     assert receipt.status == 1
 
     signer_2_balance_after = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
