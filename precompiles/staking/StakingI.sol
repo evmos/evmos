@@ -237,7 +237,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @param delegatorAddress The address of the delegator.
     /// @param srcValidatorAddress Defines the validator address to redelegate from.
     /// @param dstValidatorAddress Defines the validator address to redelegate to.
-    /// @return redelegation The active redelegations for the given delegator, source and destination validator combination.
+    /// @return redelegation The active redelegations for the given delegator, source and destination 
+    /// validator combination.
     function redelegation(
         address delegatorAddress,
         string memory srcValidatorAddress,
