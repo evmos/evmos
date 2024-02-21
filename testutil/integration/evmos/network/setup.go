@@ -59,6 +59,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
+	epochstypes.ModuleName:    genStateSetter[*epochstypes.GenesisState](epochstypes.ModuleName),
 	consensustypes.ModuleName: func(_ *app.Evmos, genesisState types.GenesisState, _ interface{}) (types.GenesisState, error) {
 		// no-op. Consensus does not have a genesis state on the application
 		// but the params are used on it
@@ -418,6 +419,8 @@ func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesis
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			return genesisState, fmt.Errorf("Bro, genesis generator not found for: %s", mod)
 		}
 	}
 	return genesisState, err

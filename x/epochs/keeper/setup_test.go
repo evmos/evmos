@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"testing"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -39,28 +41,32 @@ func TestKeeperTestSuite(t *testing.T) {
 	RunSpecs(t, "Keeper Suite")
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+// SetupTest is the setup function for epoch module tests. If epochsInfo is provided empty
+// the default genesis for the epoch module is used.
+func (s *KeeperTestSuite) SetupTest(epochsInfo []types.EpochInfo) sdktypes.Context {
 	keys := keyring.New(1)
+
+	customGenesis := network.CustomGenesisState{}
+	epochsGenesis := types.DefaultGenesisState()
+
+	if len(epochsInfo) > 0 {
+		epochsGenesis = types.NewGenesisState(epochsInfo)
+	}
+
+	customGenesis[types.ModuleName] = epochsGenesis
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
 	)
+
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
-
-    // nw.NextBlock()
-    
-	identifiers := []string{types.WeekEpochID, types.DayEpochID}
-	for _, identifier := range identifiers {
-        ctx := nw.GetContext()
-		epoch, found := nw.App.EpochsKeeper.GetEpochInfo(ctx, identifier)
-		s.Require().True(found)
-		epoch.StartTime = ctx.BlockTime()
-		epoch.CurrentEpochStartHeight = ctx.BlockHeight()
-		nw.App.EpochsKeeper.SetEpochInfo(ctx, epoch)
-	}
 
 	s.keyring = keys
 	s.network = nw
 	s.handler = gh
 	s.factory = tf
+
+	return nw.GetContext()
 }

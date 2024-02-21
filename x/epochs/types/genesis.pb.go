@@ -29,8 +29,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// EpochInfo defines the message interface containing the relevant informations about
-// an epoch.
+// EpochInfo defines the type containing the relevant information about an epoch.
 type EpochInfo struct {
 	// identifier of the epoch
 	Identifier string `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`

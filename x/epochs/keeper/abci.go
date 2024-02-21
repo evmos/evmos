@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -30,10 +31,12 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 
 		switch {
 		case shouldInitialEpochStart:
+            fmt.Println("WE ARE STARTING")
 			epochInfo.StartInitialEpoch()
 
 			logger.Info("starting epoch", "identifier", epochInfo.Identifier)
 		case shouldEpochEnd:
+            fmt.Println("WE ARE FINISHING")
 			epochInfo.EndEpoch()
 
 			logger.Info("ending epoch", "identifier", epochInfo.Identifier)
