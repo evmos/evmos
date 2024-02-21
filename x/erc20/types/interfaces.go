@@ -49,11 +49,6 @@ type BankKeeper interface {
 	bankkeeper.Keeper
 }
 
-// BankKeeper defines the expected interface needed to retrieve account balances.
-type BankKeeper interface {
-	bankkeeper.Keeper
-}
-
 type (
 	LegacyParams = paramtypes.ParamSet
 	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
