@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 			func() types.EvmHooks {
 				return &FailureHook{}
 			},
-			func(hook types.EvmHooks, result error) {
+			func(_ types.EvmHooks, result error) {
 				suite.Require().Error(result)
 			},
 		},

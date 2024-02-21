@@ -114,10 +114,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
-		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+		bz, err = p.Deposit()
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
-		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+		bz, err = p.Withdraw()
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)

@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
@@ -32,8 +33,6 @@ type TxFactory interface {
 
 	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
 	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
-	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
-	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
 
@@ -54,6 +53,18 @@ type TxFactory interface {
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
 	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error)
+	// GenerateDeployContractArgs generates the txArgs for a contract deployment.
+	GenerateDeployContractArgs(from common.Address, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (evmtypes.EvmTxArgs, error)
+	// GenerateContractCallArgs generates the txArgs for a contract call.
+	GenerateContractCallArgs(txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (evmtypes.EvmTxArgs, error)
+	// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
+	GenerateMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
+	// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
+	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
+	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs.
+	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+	GetEvmTxResponseFromTxResult(txResult abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -81,26 +92,16 @@ func New(
 	}
 }
 
-// createMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
-// If any of the arguments are not provided, they will be populated with default values.
-func (tf *IntegrationTxFactory) createMsgEthereumTx(
-	privKey cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-) (evmtypes.MsgEthereumTx, error) {
-	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
-	// Fill TxArgs with default values
-	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
-	if err != nil {
-		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
-	}
-	msg := buildMsgEthereumTx(txArgs, fromAddr)
-
-	return msg, nil
+// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+func (tf *IntegrationTxFactory) GetEvmTxResponseFromTxResult(
+	txResult abcitypes.ResponseDeliverTx,
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	return evmtypes.DecodeTxResponse(txResult.Data)
 }
 
-// populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
+// populateEvmTxArgsWithDefault populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
-func (tf *IntegrationTxFactory) populateEvmTxArgs(
+func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 	fromAddr common.Address,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
