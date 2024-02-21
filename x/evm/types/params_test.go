@@ -52,7 +52,7 @@ func TestParamsValidate(t *testing.T) {
 			name: "unsorted precompiles",
 			params: Params{
 				EvmDenom: DefaultEVMDenom,
-				ActivePrecompiles: []string{
+				ActiveStaticPrecompiles: []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				},
@@ -184,7 +184,7 @@ func TestIsActivePrecompile(t *testing.T) {
 		{
 			name: "active precompile",
 			malleate: func() (Params, string) {
-				return Params{ActivePrecompiles: []string{precompileAddr}}, precompileAddr
+				return Params{ActiveStaticPrecompiles: []string{precompileAddr}}, precompileAddr
 			},
 			expActive: true,
 		},
@@ -199,7 +199,7 @@ func TestIsActivePrecompile(t *testing.T) {
 			require.NotNil(t, tc.malleate, "test case must provide malleate function")
 			params, precompile := tc.malleate()
 
-			active := params.IsActivePrecompile(precompile)
+			active := params.IsActiveStaticPrecompile(precompile)
 			require.Equal(t, tc.expActive, active, "expected different active status for precompile: %s", precompile)
 		})
 	}

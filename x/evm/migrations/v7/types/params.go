@@ -13,6 +13,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/precompiles/p256"
@@ -42,8 +43,6 @@ var (
 		"0x0000000000000000000000000000000000000900", // Stride outpost
 		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
-	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
-	DefaultActiveDynamicPrecompiles []string
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs   = []int64{3855}
@@ -54,46 +53,43 @@ var (
 	}
 )
 
-// NewParams creates a new Params instance
-func NewParams(
+// NewV6Params creates a new V6Params instance
+func NewV6Params(
 	evmDenom string,
 	allowUnprotectedTxs,
 	enableCreate,
 	enableCall bool,
-	config ChainConfig,
+	config V6ChainConfig,
 	extraEIPs []int64,
-	activeStaticPrecompiles []string,
+	activePrecompiles,
 	evmChannels []string,
-	activeDynamicPrecompiles []string,
-) Params {
-	return Params{
-		EvmDenom:                 evmDenom,
-		AllowUnprotectedTxs:      allowUnprotectedTxs,
-		EnableCreate:             enableCreate,
-		EnableCall:               enableCall,
-		ExtraEIPs:                extraEIPs,
-		ChainConfig:              config,
-		ActiveStaticPrecompiles:  activeStaticPrecompiles,
-		EVMChannels:              evmChannels,
-		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
+) V6Params {
+	return V6Params{
+		EvmDenom:            evmDenom,
+		AllowUnprotectedTxs: allowUnprotectedTxs,
+		EnableCreate:        enableCreate,
+		EnableCall:          enableCall,
+		ExtraEIPs:           extraEIPs,
+		ChainConfig:         config,
+		ActivePrecompiles:   activePrecompiles,
+		EVMChannels:         evmChannels,
 	}
 }
 
-// DefaultParams returns default evm parameters
+// DefaultV6Params returns default evm parameters
 // ExtraEIPs is empty to prevent overriding the latest hard fork instruction set
-// ActiveStaticPrecompiles is empty to prevent overriding the default precompiles
+// ActivePrecompiles is empty to prevent overriding the default precompiles
 // from the EVM configuration.
-func DefaultParams() Params {
-	return Params{
-		EvmDenom:                 DefaultEVMDenom,
-		EnableCreate:             DefaultEnableCreate,
-		EnableCall:               DefaultEnableCall,
-		ChainConfig:              DefaultChainConfig(),
-		ExtraEIPs:                DefaultExtraEIPs,
-		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
-		ActiveStaticPrecompiles:  AvailableEVMExtensions,
-		EVMChannels:              DefaultEVMChannels,
-		ActiveDynamicPrecompiles: DefaultActiveDynamicPrecompiles,
+func DefaultV6Params() V6Params {
+	return V6Params{
+		EvmDenom:            DefaultEVMDenom,
+		EnableCreate:        DefaultEnableCreate,
+		EnableCall:          DefaultEnableCall,
+		ChainConfig:         DefaultChainConfig(),
+		ExtraEIPs:           DefaultExtraEIPs,
+		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:   AvailableEVMExtensions,
+		EVMChannels:         DefaultEVMChannels,
 	}
 }
 
@@ -116,7 +112,7 @@ func validateChannels(i interface{}) error {
 }
 
 // Validate performs basic validation on evm parameters.
-func (p Params) Validate() error {
+func (p V6Params) Validate() error {
 	if err := validateEVMDenom(p.EvmDenom); err != nil {
 		return err
 	}
@@ -141,11 +137,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := ValidatePrecompiles(p.ActiveStaticPrecompiles); err != nil {
-		return err
-	}
-
-	if err := ValidatePrecompiles(p.ActiveDynamicPrecompiles); err != nil {
+	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
 		return err
 	}
 
@@ -153,7 +145,7 @@ func (p Params) Validate() error {
 }
 
 // EIPs returns the ExtraEIPS as a int slice
-func (p Params) EIPs() []int {
+func (p V6Params) EIPs() []int {
 	eips := make([]int, len(p.ExtraEIPs))
 	for i, eip := range p.ExtraEIPs {
 		eips[i] = int(eip)
@@ -161,33 +153,34 @@ func (p Params) EIPs() []int {
 	return eips
 }
 
-// HasCustomPrecompiles returns true if the ActiveStaticPrecompiles slice is not empty.
-func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActiveStaticPrecompiles) > 0 || len(p.ActiveDynamicPrecompiles) > 0
+// HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
+func (p V6Params) HasCustomPrecompiles() bool {
+	return len(p.ActivePrecompiles) > 0
+}
+
+// GetActivePrecompilesAddrs is a util function that the Active Precompiles
+// as a slice of addresses.
+func (p V6Params) GetActivePrecompilesAddrs() []common.Address {
+	precompiles := make([]common.Address, len(p.ActivePrecompiles))
+	for i, precompile := range p.ActivePrecompiles {
+		precompiles[i] = common.HexToAddress(precompile)
+	}
+	return precompiles
 }
 
 // IsEVMChannel returns true if the channel provided is in the list of
 // EVM channels
-func (p Params) IsEVMChannel(channel string) bool {
+func (p V6Params) IsEVMChannel(channel string) bool {
 	return slices.Contains(p.EVMChannels, channel)
 }
 
-// IsActiveStaticPrecompile returns true if the given precompile address is
+// IsActivePrecompile returns true if the given precompile address is
 // registered as an active precompile.
-func (p Params) IsActiveStaticPrecompile(address string) bool {
-	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActiveStaticPrecompiles[i])
+func (p V6Params) IsActivePrecompile(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
 	})
 
-	return found
-}
-
-// IsActiveDynamicPrecompile returns true if the given precompile address is
-// registered as an active dynamic precompile.
-func (p Params) IsActiveDynamicPrecompile(address string) bool {
-	_, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
-	})
 	return found
 }
 
@@ -231,7 +224,7 @@ func validateEIPs(i interface{}) error {
 }
 
 func validateChainConfig(i interface{}) error {
-	cfg, ok := i.(ChainConfig)
+	cfg, ok := i.(V6ChainConfig)
 	if !ok {
 		return fmt.Errorf("invalid chain config type: %T", i)
 	}

@@ -16,10 +16,10 @@ func (k *Keeper) GetActivePrecompilesInstances(
 	ctx sdktypes.Context,
 	params types.Params,
 ) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
-	staticAddresses, activePrempilesMap := k.GetStaticPrecompilesInstances(&params)
+	staticAddresses, staticPrecompilesMap := k.GetStaticPrecompilesInstances(&params)
 	dynamicAddresses, dynamicPrecompileMap := k.GetDynamicPrecompilesInstances(ctx, &params)
 	// Append the dynamic precompiles to the active precompiles
-	maps.Copy(activePrempilesMap, dynamicPrecompileMap)
+	maps.Copy(staticPrecompilesMap, dynamicPrecompileMap)
 
 	// Append the dynamic precompiles to the active precompiles addresses
 	staticLen := len(staticAddresses)
@@ -29,5 +29,5 @@ func (k *Keeper) GetActivePrecompilesInstances(
 	copy(addresses[:staticLen], staticAddresses)
 	copy(addresses[staticLen:], dynamicAddresses)
 
-	return addresses, activePrempilesMap
+	return addresses, staticPrecompilesMap
 }

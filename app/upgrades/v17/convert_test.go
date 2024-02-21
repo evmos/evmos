@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	grpchandler "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -50,7 +49,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				wevmosAddr, err := ts.factory.DeployContract(
 					ts.keyring.GetPrivKey(erc20Deployer),
 					evmtypes.EvmTxArgs{},
-					testfactory.ContractDeploymentData{Contract: testdata.WEVMOSContract},
+					testfactory.ContractDeploymentData{Contract: contracts.WEVMOSContract},
 				)
 				require.NoError(t, err, "failed to deploy WEVMOS contract")
 
@@ -69,7 +68,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				wevmosAddr, err := ts.factory.DeployContract(
 					ts.keyring.GetPrivKey(erc20Deployer),
 					evmtypes.EvmTxArgs{},
-					testfactory.ContractDeploymentData{Contract: testdata.WEVMOSContract},
+					testfactory.ContractDeploymentData{Contract: contracts.WEVMOSContract},
 				)
 				require.NoError(t, err, "failed to deploy WEVMOS contract")
 

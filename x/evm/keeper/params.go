@@ -7,7 +7,6 @@ import (
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
@@ -27,7 +26,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
 	// in params.IsActivePrecompile.
-	slices.Sort(params.ActivePrecompiles)
+	slices.Sort(params.ActiveStaticPrecompiles)
 
 	if err := params.Validate(); err != nil {
 		return err
@@ -50,51 +49,53 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	return params
 }
 
-// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
-// of active precompiles.
-func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
-	params := k.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
-
-	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
-
-	params.ActivePrecompiles = activePrecompiles
-
-	return k.SetParams(ctx, params)
-}
-
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
-// of active precompiles.
-func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+// of active dynamic precompiles.
+func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
 	activePrecompiles := params.ActiveDynamicPrecompiles
 
 	// Append and sort the new precompiles
-	activePrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
 	if err != nil {
 		return err
 	}
 
 	// Update params
-	params.ActiveDynamicPrecompiles = activePrecompiles
+	params.ActiveDynamicPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
-	updatedPrecompiles := []string{}
-	for _, address := range addresses {
-		// Check for duplicates
-		if slices.Contains(existingPrecompiles, address.String()) {
-			return nil, fmt.Errorf("precompile already registered: %s", address)
-		}
-		updatedPrecompiles = append(updatedPrecompiles, address.String())
+// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
+// of active static precompiles.
+func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...string) error {
+	params := k.GetParams(ctx)
+	activePrecompiles := params.ActiveStaticPrecompiles
+
+	// Append and sort the new precompiles
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
 	}
-	updatedPrecompiles = append(existingPrecompiles, updatedPrecompiles...)
+
+	params.ActiveStaticPrecompiles = updatedPrecompiles
+	return k.SetParams(ctx, params)
+}
+
+func appendPrecompiles(existingPrecompiles []string, addresses ...string) ([]string, error) {
+	// check for duplicates
+	for i := range addresses {
+		if slices.Contains(existingPrecompiles, addresses[i]) {
+			return nil, fmt.Errorf("precompile already registered: %s", addresses[i])
+		}
+	}
+
+	exstingLength := len(existingPrecompiles)
+	updatedPrecompiles := make([]string, exstingLength+len(addresses))
+	copy(updatedPrecompiles, existingPrecompiles)
+	copy(updatedPrecompiles[exstingLength:], addresses)
+
 	sortPrecompiles(updatedPrecompiles)
 	return updatedPrecompiles, nil
 }

@@ -4,25 +4,17 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
-	"sort"
-
-	"github.com/evmos/evmos/v16/utils"
-
-	"github.com/evmos/evmos/v16/precompiles/bech32"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/maps"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
+	"github.com/evmos/evmos/v16/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
 	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
@@ -31,9 +23,12 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
+	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
+	"golang.org/x/exp/maps"
 )
 
 // AvailableStaticPrecompiles returns the list of all available precompiled contracts.
@@ -154,12 +149,12 @@ func (k Keeper) GetStaticPrecompilesInstances(
 	params *types.Params,
 ) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-	activeLen := len(params.ActivePrecompiles)
+	activeLen := len(params.ActiveStaticPrecompiles)
 	totalLen := activeLen + len(vm.PrecompiledAddressesBerlin)
 	addresses := make([]common.Address, totalLen)
 	// Append the Berlin precompiles to the active precompiles addresses
 	// Add params precompiles
-	for i, address := range params.ActivePrecompiles {
+	for i, address := range params.ActiveStaticPrecompiles {
 		hexAddress := common.HexToAddress(address)
 
 		precompile, ok := k.precompiles[hexAddress]
@@ -190,26 +185,4 @@ func (k Keeper) GetStaticPrecompilesInstances(
 func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	_, ok := k.precompiles[address]
 	return ok
-}
-
-// TODO: this is not being used
-// GetAvailableStaticPrecompileAddrs returns the list of available precompile addresses.
-//
-// NOTE: uses index based approach instead of append because it's supposed to be faster.
-// Check https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map.
-func (k Keeper) GetAvailableStaticPrecompileAddrs() []common.Address {
-	addresses := make([]common.Address, len(k.precompiles))
-	i := 0
-
-	//#nosec G705 -- two operations in for loop here are fine
-	for address := range k.precompiles {
-		addresses[i] = address
-		i++
-	}
-
-	sort.Slice(addresses, func(i, j int) bool {
-		return bytes.Compare(addresses[i].Bytes(), addresses[j].Bytes()) == -1
-	})
-
-	return addresses
 }

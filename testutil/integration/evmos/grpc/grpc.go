@@ -20,6 +20,7 @@ type Handler interface {
 	commongrpc.Handler
 
 	// ERC-20 methods
+	GetTokenPair(denom string) (*erc20types.QueryTokenPairResponse, error)
 	GetTokenPairs() (*erc20types.QueryTokenPairsResponse, error)
 
 	// EVM methods
