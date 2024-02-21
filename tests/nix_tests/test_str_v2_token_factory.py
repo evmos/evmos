@@ -53,7 +53,7 @@ def test_str_v2_token_factory(ibc):
     wait_for_ack(evmos_cli, "Evmos")
 
     token_pairs = evmos_cli.get_token_pairs()
-    assert len(token_pairs) == 0
+    assert len(token_pairs) == 1
 
     # TODO: Uncomment this once the refactor PR is merged
     active_dynamic_precompiles = evmos_cli.evm_params()["active_dynamic_precompiles"]
