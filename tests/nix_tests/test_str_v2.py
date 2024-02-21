@@ -1,5 +1,3 @@
-import time
-
 import pytest
 from web3 import Web3
 
@@ -111,10 +109,12 @@ def test_str_v2_multi_hop(ibc):
     assert rsp["code"] == 0
 
     new_dst_balance = 0
+
     def check_balance_change():
         nonlocal new_dst_balance
         new_dst_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
         return gaia1_old_balance != new_dst_balance
+
     wait_for_fn("balance change", check_balance_change)
 
     new_gaia1_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
