@@ -69,7 +69,7 @@ def test_str_v2_single_hop(ibc):
     new_dest_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
     erc_dest_balance = erc20_balance(w3, ATOM_1_ERC20_ADDRESS, evmos_addr)
 
-    assert len(active_dynamic_precompiles) == 1
+    assert len(active_dynamic_precompiles) == 2
     assert old_dst_balance + 5000 == new_dest_balance
     assert old_dst_balance + 5000 == erc_dest_balance
 
@@ -130,8 +130,8 @@ def test_str_v2_multi_hop(ibc):
 
     # Here it's only one from the previous one we've registered in the first test
     assert evmos_old_balance + 50000 == evmos_balance
-    assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
-    assert len(active_dynamic_precompiles) == 1
+    assert active_dynamic_precompiles[1] == ATOM_1_ERC20_ADDRESS
+    assert len(active_dynamic_precompiles) == 2
     assert len(token_pairs) == 2
 
 
