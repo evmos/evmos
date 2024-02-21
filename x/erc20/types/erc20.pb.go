@@ -131,8 +131,7 @@ func (m *TokenPair) GetContractOwner() Owner {
 }
 
 // Deprecated: RegisterCoinProposal is a gov Content type to register a token pair for a
-// native Cosmos coin. We're keeping it to remove the existing proposals from
-// store. After that, remove this message.
+// native Cosmos coin. We're keeping it to not break existing proposals on chain.
 type RegisterCoinProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`

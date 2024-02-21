@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/precompiles/staking"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -18,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/testutil"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -503,7 +503,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000800")
 					gasTipCap := big.NewInt(100000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-					stakingPrecompile := s.app.EvmKeeper.Precompiles(contractAddress)[contractAddress].(*staking.Precompile)
+					evmParams := s.app.EvmKeeper.GetParams(s.ctx)
+					_, activePrecompilesMap := s.app.EvmKeeper.GetStaticPrecompilesInstances(&evmParams)
+					stakingPrecompile := activePrecompilesMap[contractAddress].(*staking.Precompile)
 					data, err := stakingPrecompile.ABI.Pack("delegate", common.BytesToAddress(userAddress), s.validator.OperatorAddress, big.NewInt(1e18))
 					Expect(err).To(BeNil())
 					res := contractInteract(

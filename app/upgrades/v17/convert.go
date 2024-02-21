@@ -15,7 +15,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -138,7 +137,7 @@ func WithdrawWEVMOS(
 	from, wevmosContract common.Address,
 	erc20Keeper erc20keeper.Keeper,
 ) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
-	balance := erc20Keeper.BalanceOf(ctx, testdata.WEVMOSContract.ABI, wevmosContract, from)
+	balance := erc20Keeper.BalanceOf(ctx, contracts.WEVMOSContract.ABI, wevmosContract, from)
 	if balance == nil {
 		return common.Big0, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())
 	}
@@ -149,7 +148,7 @@ func WithdrawWEVMOS(
 	}
 
 	// call withdraw method from the account
-	data, err := testdata.WEVMOSContract.ABI.Pack("withdraw", balance)
+	data, err := contracts.WEVMOSContract.ABI.Pack("withdraw", balance)
 	if err != nil {
 		return balance, nil, errorsmod.Wrap(err, "failed to pack data for withdraw method")
 	}
