@@ -50,8 +50,10 @@ interface ICS20I is IICS20Authorization {
     /// @param amount the amount of the Coin to be transferred to the receiver
     /// @param sender the hex address of the sender
     /// @param receiver the bech32 address of the receiver
-    /// @param timeoutHeight the timeout height relative to the current block height. The timeout is disabled when set to 0
-    /// @param timeoutTimestamp the timeout timestamp in absolute nanoseconds since unix epoch. The timeout is disabled when set to 0
+    /// @param timeoutHeight the timeout height relative to the current block height. 
+    /// The timeout is disabled when set to 0
+    /// @param timeoutTimestamp the timeout timestamp in absolute nanoseconds since unix epoch. 
+    /// The timeout is disabled when set to 0
     /// @param memo optional memo
     /// @return nextSequence sequence number of the transfer packet sent
     function transfer(
