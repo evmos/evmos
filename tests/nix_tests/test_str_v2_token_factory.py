@@ -1,10 +1,8 @@
-import time
-
 import pytest
 
 from .ibc_utils import assert_ready, get_balance, prepare_network
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32, wait_for_cosmos_tx_receipt
+from .utils import ADDRS, eth_to_bech32, wait_for_ack, wait_for_cosmos_tx_receipt
 
 # The token factory IBC denom on Evmos
 TOKEN_FACTORY_IBC_DENOM = (
@@ -52,15 +50,14 @@ def test_str_v2_token_factory(ibc):
     )
     assert rsp["code"] == 0
 
-    # NOTE: Sleep some time because wait_for_fn doesn't work for some reason ?
-    time.sleep(30)
+    wait_for_ack(evmos, "Evmos")
 
     token_pairs = evmos_cli.get_token_pairs()
     assert len(token_pairs) == 0
 
     # TODO: Uncomment this once the refactor PR is merged
-    # active_dynamic_precompiles = evmos_cli.evm_params()["active_dynamic_precompiles"]
-    # assert len(active_dynamic_precompiles) == 0
+    active_dynamic_precompiles = evmos_cli.evm_params()["active_dynamic_precompiles"]
+    assert len(active_dynamic_precompiles) == 0
 
     balance = get_balance(evmos, bech_dst, TOKEN_FACTORY_IBC_DENOM)
     assert balance == 100
