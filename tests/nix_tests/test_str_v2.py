@@ -9,7 +9,7 @@ from .ibc_utils import (
     prepare_network,
 )
 from .network import CosmosChain, Evmos
-from .utils import ADDRS, eth_to_bech32, erc20_balance, wait_for_ack
+from .utils import ADDRS, eth_to_bech32, erc20_balance, wait_for_ack, erc20_transfer, WEVMOS_ADDRESS, KEYS
 
 # uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
 ATOM_2_IBC_DENOM_MULTI_HOP = (
@@ -105,7 +105,7 @@ def test_str_v2_multi_hop(ibc):
     )
     assert rsp["code"] == 0
 
-    time.sleep(25)
+    time.sleep(30)
 
     new_gaia1_balance = get_balance(gaia, gaia_addr, ATOM_1_IBC_DENOM_ATOM_2)
     assert gaia1_old_balance + 50000 == new_gaia1_balance
@@ -133,3 +133,24 @@ def test_str_v2_multi_hop(ibc):
     assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
     assert len(active_dynamic_precompiles) == 1
     assert len(token_pairs) == 2
+
+
+def test_wevmos_precompile_transfer(ibc):
+    """
+    Test the ERC20 transfer from one signer to another using the now
+    registered ERC20 precompiled contract for WEVMOS.
+    """
+    assert_ready(ibc)
+
+    evmos: Evmos = ibc.chains["evmos"]
+    signer1 = ADDRS["signer1"]
+    signer2 = ADDRS["signer2"]
+
+    w3 = evmos.w3
+    signer2_balance = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
+
+    receipt = erc20_transfer(w3, WEVMOS_ADDRESS, signer1, signer2, 1000000, KEYS["signer1"])
+    assert receipt.status == 1
+
+    signer_2_balance_after = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
+    assert signer_2_balance_after == signer2_balance + 1000000

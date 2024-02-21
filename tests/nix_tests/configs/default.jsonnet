@@ -56,6 +56,7 @@
         evm: {
           params: {
             evm_denom: 'aevmos',
+            active_dynamic_precompiles: ['0x5db67696C3c088DfBf588d3dd849f44266ff0ffa'],
           },
         },
         crisis: {
@@ -110,11 +111,11 @@
           },
         },
         erc20: {
-          'token_pairs': [{
-            'erc20_address': '0x5db67696C3c088DfBf588d3dd849f44266ff0ffa',
-            'denom': 'aevmos',
-            'enabled': true,
-            'contract_owner': 1,
+          token_pairs: [{
+            erc20_address: '0x5db67696C3c088DfBf588d3dd849f44266ff0ffa',
+            denom: 'aevmos',
+            enabled: true,
+            contract_owner: 1,
           }],
         }
       },
