@@ -45,8 +45,8 @@ import sources.nixpkgs {
       gaiad = pkgs.callPackage ./bin.nix {
         appName = "gaiad";
         version = "v11.0.0";
-        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-darwin-arm64";
-        sha256 = "sha256-U9D/5Ng1PlHQvlQ+33ZN4DPiTXA9TECCRKFB5jWydig=";
+        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-linux-amd64";
+        sha256 = "sha256-JY3y7sWyL4uq3JiOGE+/0q5vn4iOn0RhoRDMNl/oYwA=";
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
