@@ -401,6 +401,8 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 			// and a fair benchmark
 			b.StopTimer()
 			keyring := testkeyring.New(dynamicAccs)
+
+			// Custom genesis state to add erc20 token pairs for dynamic precompiles
 			customGenesisState := generateCustomGenesisState(keyring)
 
 			sender := keyring.AddKey()
@@ -465,7 +467,6 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 					}
 					if resp.Failed() {
 						fmt.Println("Transaction failed: ", resp.VmError)
-						fmt.Println("Gas used after execution: ", resp.GasUsed)
 						break
 					}
 				}
