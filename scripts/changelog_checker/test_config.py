@@ -11,8 +11,5 @@ class TestGetAllowedCategories:
             "evm" in allowed_categories
         ), "expected module to be in allowed categories"
         assert (
-            "osmosis-outpost" in allowed_categories
-        ), "expected outpost to be in allowed categories"
-        assert (
             "distribution-precompile" in allowed_categories
         ), "expected precompile to be in allowed categories"
