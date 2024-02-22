@@ -3,6 +3,9 @@ package keeper_test
 import (
 	"errors"
 	"math/big"
+	"sort"
+
+	"fmt"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -11,8 +14,21 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	evmostypes "github.com/evmos/evmos/v16/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"github.com/stretchr/testify/require"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
 var templateAccessListTx = &ethtypes.AccessListTx{
@@ -342,5 +358,258 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 
 		require.NoError(b, err)
 		require.False(b, resp.Failed())
+	}
+}
+
+type benchmarkSuite struct {
+	network     *network.UnitTestNetwork
+	grpcHandler grpc.Handler
+	txFactory   factory.TxFactory
+	keyring     testkeyring.Keyring
+}
+
+// Setup
+var table = []struct {
+	txType       string
+	dynamic_accs []int
+}{
+	{
+		txType:       "transfer",
+		dynamic_accs: []int{1, 50},
+	},
+	{
+		txType:       "deployment",
+		dynamic_accs: []int{1, 50},
+	},
+	{
+		txType:       "contract_call",
+		dynamic_accs: []int{1, 50},
+	},
+	{
+		txType:       "static_precompile",
+		dynamic_accs: []int{1, 50},
+	},
+	{
+		txType:       "dynamic_precompile",
+		dynamic_accs: []int{1, 50},
+	},
+}
+
+func BenchmarkApplyTransactionV2(b *testing.B) {
+	for _, v := range table {
+		for _, dynamicAccs := range v.dynamic_accs {
+			// Reset chain on every tx type to have a clean state
+			// and a fair benchmark
+			b.StopTimer()
+			keyring := testkeyring.New(dynamicAccs)
+			customGenesisState := generateCustomGenesisState(keyring)
+
+			sender := keyring.AddKey()
+			recipient := keyring.AddKey()
+
+			unitNetwork := network.NewUnitTestNetwork(
+				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+				network.WithCustomGenesis(customGenesisState),
+			)
+
+			grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+			txFactory := factory.New(unitNetwork, grpcHandler)
+			suite := benchmarkSuite{
+				network:     unitNetwork,
+				grpcHandler: grpcHandler,
+				txFactory:   txFactory,
+				keyring:     keyring,
+			}
+
+			// Disable revenue to avoid gas refund issues
+			params := unitNetwork.App.RevenueKeeper.GetParams(unitNetwork.GetContext())
+			params.EnableRevenue = false
+			err := unitNetwork.App.RevenueKeeper.SetParams(unitNetwork.GetContext(), params)
+			if err != nil {
+				break
+			}
+			b.StartTimer()
+
+			b.Run(fmt.Sprintf("tx_type_%v_%v", v.txType, dynamicAccs), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					// Stop timer while building the tx setup
+					b.StopTimer()
+					// Start with a clean block
+					if err := unitNetwork.NextBlock(); err != nil {
+						fmt.Println(err)
+						break
+					}
+
+					// Generate fresh tx type
+					tx, err := suite.generateTxType(v.txType, sender, recipient)
+					if err != nil {
+						fmt.Println(err)
+						break
+					}
+
+					gasMeter := evmostypes.NewInfiniteGasMeterWithLimit(tx.Gas())
+					ctx := unitNetwork.GetContext().WithGasMeter(gasMeter).
+						WithKVGasConfig(storetypes.GasConfig{}).
+						WithTransientKVGasConfig(storetypes.GasConfig{})
+
+					// Function under benchmark
+					b.StartTimer()
+					resp, err := unitNetwork.App.EvmKeeper.ApplyTransaction(
+						ctx,
+						tx,
+					)
+
+					// Run benchmark
+					if err != nil {
+						fmt.Println(err)
+						break
+					}
+					if resp.Failed() {
+						fmt.Println("Transaction failed: ", resp.VmError)
+						fmt.Println("Gas used after execution: ", resp.GasUsed)
+						break
+					}
+				}
+			})
+		}
+	}
+}
+
+func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int) (*gethtypes.Transaction, error) {
+	senderKey := suite.keyring.GetKey(sender)
+
+	var (
+		args types.EvmTxArgs
+		err  error
+	)
+
+	switch txType {
+	case "transfer":
+		recipient := suite.keyring.GetAddr(recipient)
+		args = types.EvmTxArgs{
+			To:     &recipient,
+			Amount: big.NewInt(1000000),
+		}
+	case "deployment":
+		args, err = suite.txFactory.GenerateDeployContractArgs(
+			senderKey.Addr,
+			types.EvmTxArgs{},
+			factory.ContractDeploymentData{
+				Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+				ConstructorArgs: []interface{}{"Coin", "CTKN", uint8(18)},
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+	case "contract_call":
+		var (
+			name     = "Coin Token 2"
+			symbol   = "CTKN2"
+			decimals = uint8(18)
+		)
+		wevmosAddr, err := suite.txFactory.DeployContract(
+			senderKey.Priv,
+			types.EvmTxArgs{},
+			factory.ContractDeploymentData{
+				Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+				ConstructorArgs: []interface{}{name, symbol, decimals},
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+		callArgs := types.EvmTxArgs{
+			To: &wevmosAddr,
+		}
+		args, err = suite.txFactory.GenerateContractCallArgs(callArgs,
+			factory.CallArgs{
+				ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{suite.keyring.GetAddr(1), big.NewInt(100)},
+			},
+		)
+	case "static_precompile":
+		contractAddress := common.HexToAddress(staking.PrecompileAddress)
+		txArgs := types.EvmTxArgs{
+			To: &contractAddress,
+		}
+		contractABI, err := staking.LoadABI()
+		if err != nil {
+			return nil, err
+		}
+
+		validatorAddress := suite.network.GetValidators()[1].OperatorAddress
+		callArgs := factory.CallArgs{
+			ContractABI: contractABI,
+			MethodName:  staking.DelegationMethod,
+			Args:        []interface{}{senderKey.Addr, validatorAddress},
+		}
+
+		args, err = suite.txFactory.GenerateContractCallArgs(txArgs, callArgs)
+		if err != nil {
+			return nil, err
+		}
+	case "dynamic_precompile":
+		dynamicContract := suite.keyring.GetAddr(1)
+		callArgs := types.EvmTxArgs{
+			To: &dynamicContract,
+		}
+		args, err = suite.txFactory.GenerateContractCallArgs(
+			callArgs,
+			factory.CallArgs{
+				ContractABI: erc20.GetABI(),
+				MethodName:  erc20.BalanceOfMethod,
+				Args:        []interface{}{suite.keyring.GetAddr(sender)},
+			},
+		)
+	default:
+		return nil, fmt.Errorf("unknown tx type: %v", txType)
+	}
+
+	msg, err := suite.txFactory.GenerateMsgEthereumTx(senderKey.Priv, args)
+	if err != nil {
+		return nil, err
+	}
+
+	signMsg, err := suite.txFactory.SignMsgEthereumTx(senderKey.Priv, msg)
+	if err != nil {
+		return nil, err
+	}
+	return signMsg.AsTransaction(), nil
+}
+
+func sortPrecompiles(precompiles []string) {
+	sort.Slice(precompiles, func(i, j int) bool {
+		return precompiles[i] < precompiles[j]
+	})
+}
+
+const ERC20_DENOM = "RAMA"
+
+func generateCustomGenesisState(keyring testkeyring.Keyring) network.CustomGenesisState {
+	addresses := keyring.GetAllAccs()
+	tokenPairs := make([]erc20types.TokenPair, len(addresses))
+	precompileAddresses := make([]string, len(addresses))
+
+	for i := range addresses {
+		tokenPairs[i] = erc20types.TokenPair{
+			Erc20Address:  addresses[i].String(),
+			Denom:         ERC20_DENOM,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE,
+		}
+		precompileAddresses[i] = addresses[i].String()
+	}
+
+	erc20GenesisState := erc20types.DefaultGenesisState()
+	erc20GenesisState.TokenPairs = tokenPairs
+	evmGenesisState := evmtypes.DefaultGenesisState()
+	sortPrecompiles(precompileAddresses)
+	evmGenesisState.Params.ActiveDynamicPrecompiles = precompileAddresses
+
+	return network.CustomGenesisState{
+		evmtypes.ModuleName:   evmGenesisState,
+		erc20types.ModuleName: erc20GenesisState,
 	}
 }

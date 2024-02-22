@@ -3,6 +3,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -390,6 +391,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
 			Expect(err).To(BeNil())
 			Expect(delegateResponse.IsOK()).To(Equal(true), "transaction should have succeeded", delegateResponse.GetLog())
+
+			fmt.Println("THIS IS THE TRUTH: ", delegateResponse.GasUsed)
 
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
