@@ -584,7 +584,7 @@ func sortPrecompiles(precompiles []string) {
 	})
 }
 
-const ERC20_DENOM = "RAMA"
+const ERC20_DENOM = "ABCD"
 
 func generateCustomGenesisState(keyring testkeyring.Keyring) network.CustomGenesisState {
 	addresses := keyring.GetAllAccs()
