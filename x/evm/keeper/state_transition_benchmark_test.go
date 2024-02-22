@@ -368,7 +368,6 @@ type benchmarkSuite struct {
 	keyring     testkeyring.Keyring
 }
 
-// Setup
 var table = []struct {
 	txType       string
 	dynamic_accs []int
