@@ -757,7 +757,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// 				TRANSACTIONS
 	// =====================================
 	Context("setWithdrawAddress", func() {
-
 		// newWithdrawer is the address to set the withdraw address to
 		newWithdrawer := differentAddr
 
@@ -794,7 +793,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	})
 
 	Context("setWithdrawerAddress with contract as delegator", func() {
-
 		// newWithdrawer is the address to set the withdraw address to
 		newWithdrawer := differentAddr
 
