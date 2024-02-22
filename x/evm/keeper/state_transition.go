@@ -4,7 +4,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
 
 	tmtypes "github.com/cometbft/cometbft/types"

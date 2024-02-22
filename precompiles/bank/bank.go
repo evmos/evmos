@@ -57,9 +57,9 @@ func NewPrecompile(
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
 	// NOTE: we set an empty gas configuration to avoid extra gas costs
 	// during the run execution

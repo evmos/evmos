@@ -3,7 +3,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"

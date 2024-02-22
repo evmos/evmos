@@ -2,10 +2,9 @@ package keeper_test
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 	"sort"
-
-	"fmt"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -19,7 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/staking"
@@ -28,7 +26,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
 var templateAccessListTx = &ethtypes.AccessListTx{
@@ -369,34 +366,34 @@ type benchmarkSuite struct {
 }
 
 var table = []struct {
-	txType       string
-	dynamic_accs []int
+	txType      string
+	dynamicAccs []int
 }{
 	{
-		txType:       "transfer",
-		dynamic_accs: []int{1, 50},
+		txType:      "transfer",
+		dynamicAccs: []int{1, 50},
 	},
 	{
-		txType:       "deployment",
-		dynamic_accs: []int{1, 50},
+		txType:      "deployment",
+		dynamicAccs: []int{1, 50},
 	},
 	{
-		txType:       "contract_call",
-		dynamic_accs: []int{1, 50},
+		txType:      "contract_call",
+		dynamicAccs: []int{1, 50},
 	},
 	{
-		txType:       "static_precompile",
-		dynamic_accs: []int{1, 50},
+		txType:      "static_precompile",
+		dynamicAccs: []int{1, 50},
 	},
 	{
-		txType:       "dynamic_precompile",
-		dynamic_accs: []int{1, 50},
+		txType:      "dynamic_precompile",
+		dynamicAccs: []int{1, 50},
 	},
 }
 
 func BenchmarkApplyTransactionV2(b *testing.B) {
 	for _, v := range table {
-		for _, dynamicAccs := range v.dynamic_accs {
+		for _, dynamicAccs := range v.dynamicAccs {
 			// Reset chain on every tx type to have a clean state
 			// and a fair benchmark
 			b.StopTimer()
@@ -405,9 +402,12 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 			// Custom genesis state to add erc20 token pairs for dynamic precompiles
 			customGenesisState := generateCustomGenesisState(keyring)
 
+			// Avoid overlapping with dynamic precompiles addresses
 			sender := keyring.AddKey()
 			recipient := keyring.AddKey()
 
+			// Because we are not going thorugh the ante handler,
+			// we need to configure the context to execution mode
 			unitNetwork := network.NewUnitTestNetwork(
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 				network.WithCustomGenesis(customGenesisState),
@@ -429,12 +429,9 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 			if err != nil {
 				break
 			}
-			b.StartTimer()
 
 			b.Run(fmt.Sprintf("tx_type_%v_%v", v.txType, dynamicAccs), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					// Stop timer while building the tx setup
-					b.StopTimer()
 					// Start with a clean block
 					if err := unitNetwork.NextBlock(); err != nil {
 						fmt.Println(err)
@@ -453,14 +450,14 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 						WithKVGasConfig(storetypes.GasConfig{}).
 						WithTransientKVGasConfig(storetypes.GasConfig{})
 
-					// Function under benchmark
 					b.StartTimer()
+					// Run benchmark
 					resp, err := unitNetwork.App.EvmKeeper.ApplyTransaction(
 						ctx,
 						tx,
 					)
+					b.StopTimer()
 
-					// Run benchmark
 					if err != nil {
 						fmt.Println(err)
 						break
@@ -475,25 +472,23 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 	}
 }
 
-func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int) (*gethtypes.Transaction, error) {
+func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int) (*ethtypes.Transaction, error) {
 	senderKey := suite.keyring.GetKey(sender)
 
-	var (
-		args types.EvmTxArgs
-		err  error
-	)
+	var args evmtypes.EvmTxArgs
 
 	switch txType {
 	case "transfer":
 		recipient := suite.keyring.GetAddr(recipient)
-		args = types.EvmTxArgs{
+		args = evmtypes.EvmTxArgs{
 			To:     &recipient,
 			Amount: big.NewInt(1000000),
 		}
 	case "deployment":
+		var err error
 		args, err = suite.txFactory.GenerateDeployContractArgs(
 			senderKey.Addr,
-			types.EvmTxArgs{},
+			evmtypes.EvmTxArgs{},
 			factory.ContractDeploymentData{
 				Contract:        contracts.ERC20MinterBurnerDecimalsContract,
 				ConstructorArgs: []interface{}{"Coin", "CTKN", uint8(18)},
@@ -510,7 +505,7 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 		)
 		wevmosAddr, err := suite.txFactory.DeployContract(
 			senderKey.Priv,
-			types.EvmTxArgs{},
+			evmtypes.EvmTxArgs{},
 			factory.ContractDeploymentData{
 				Contract:        contracts.ERC20MinterBurnerDecimalsContract,
 				ConstructorArgs: []interface{}{name, symbol, decimals},
@@ -519,7 +514,7 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 		if err != nil {
 			return nil, err
 		}
-		callArgs := types.EvmTxArgs{
+		callArgs := evmtypes.EvmTxArgs{
 			To: &wevmosAddr,
 		}
 		args, err = suite.txFactory.GenerateContractCallArgs(callArgs,
@@ -529,9 +524,12 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 				Args:        []interface{}{suite.keyring.GetAddr(1), big.NewInt(100)},
 			},
 		)
+		if err != nil {
+			return nil, err
+		}
 	case "static_precompile":
 		contractAddress := common.HexToAddress(staking.PrecompileAddress)
-		txArgs := types.EvmTxArgs{
+		txArgs := evmtypes.EvmTxArgs{
 			To: &contractAddress,
 		}
 		contractABI, err := staking.LoadABI()
@@ -552,9 +550,10 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 		}
 	case "dynamic_precompile":
 		dynamicContract := suite.keyring.GetAddr(1)
-		callArgs := types.EvmTxArgs{
+		callArgs := evmtypes.EvmTxArgs{
 			To: &dynamicContract,
 		}
+		var err error
 		args, err = suite.txFactory.GenerateContractCallArgs(
 			callArgs,
 			factory.CallArgs{
@@ -563,6 +562,9 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 				Args:        []interface{}{suite.keyring.GetAddr(sender)},
 			},
 		)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("unknown tx type: %v", txType)
 	}
@@ -571,11 +573,11 @@ func (suite *benchmarkSuite) generateTxType(txType string, sender, recipient int
 	if err != nil {
 		return nil, err
 	}
-
 	signMsg, err := suite.txFactory.SignMsgEthereumTx(senderKey.Priv, msg)
 	if err != nil {
 		return nil, err
 	}
+
 	return signMsg.AsTransaction(), nil
 }
 
@@ -585,7 +587,7 @@ func sortPrecompiles(precompiles []string) {
 	})
 }
 
-const ERC20_DENOM = "ABCD"
+const DENOM = "ABCD"
 
 func generateCustomGenesisState(keyring testkeyring.Keyring) network.CustomGenesisState {
 	addresses := keyring.GetAllAccs()
@@ -595,7 +597,7 @@ func generateCustomGenesisState(keyring testkeyring.Keyring) network.CustomGenes
 	for i := range addresses {
 		tokenPairs[i] = erc20types.TokenPair{
 			Erc20Address:  addresses[i].String(),
-			Denom:         ERC20_DENOM,
+			Denom:         DENOM,
 			Enabled:       true,
 			ContractOwner: erc20types.OWNER_MODULE,
 		}
