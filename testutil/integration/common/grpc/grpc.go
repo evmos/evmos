@@ -36,6 +36,8 @@ type Handler interface {
 
 	// Distribution methods
 	GetDelegationTotalRewards(delegatorAddress string) (*distrtypes.QueryDelegationTotalRewardsResponse, error)
+	GetDelegatorWithdrawAddr(delegatorAddress string) (*distrtypes.QueryDelegatorWithdrawAddressResponse, error)
+	GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

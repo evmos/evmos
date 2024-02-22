@@ -7,6 +7,7 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -38,6 +39,12 @@ type TxFactory interface {
 	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
 	// base denomination.
 	FundAccountWithBaseDenom(sender keyring.Key, receiver sdktypes.AccAddress, amount sdkmath.Int) error
+
+	// Delegate is a method to create and broadcast a MsgDelegate
+	Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error
+
+	// SetWithdrawAddress is a method to create and broadcast a MsgSetWithdrawAddress
+	SetWithdrawAddress(delegatorPriv cryptotypes.PrivKey, withdrawerAddr sdk.AccAddress) error
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)

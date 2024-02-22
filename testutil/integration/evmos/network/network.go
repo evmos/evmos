@@ -113,7 +113,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	totalBonded := bondedAmt.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, bondedAmt)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmt, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		sdktypes.NewCoin(n.cfg.denom, totalBonded),
 	)
 
-	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
+	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)

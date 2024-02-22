@@ -3,14 +3,10 @@
 package distribution_test
 
 import (
-	"fmt"
-	"math/big"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -19,8 +15,8 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v16/testutil"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -34,15 +30,13 @@ import (
 // General variables used for integration tests
 var (
 	// differentAddr is an address generated for testing purposes that e.g. raises the different origin error
-	differentAddr = testutiltx.GenerateAddress()
-	// expRewardAmt is the expected amount of rewards
-	expRewardAmt = big.NewInt(2000000000000000000)
+	differentAddr, diffKey = testutiltx.NewAddrKey()
 	// gasPrice is the gas price used for the transactions
-	gasPrice = big.NewInt(1e9)
-	// defaultCallArgs  are the default arguments for calling the smart contract
+	gasPrice = math.NewInt(1e9)
+	// callArgs  are the default arguments for calling the smart contract
 	//
 	// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-	defaultCallArgs contracts.CallArgs
+	callArgs factory.CallArgs
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
@@ -52,17 +46,21 @@ var (
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
 	outOfGasCheck testutil.LogCheckArgs
+	// txArgs are the EVM transaction arguments to use in the transactions
+	txArgs evmtypes.EvmTxArgs
+	// minExpRewardOrCommission is the minimun coins expected for validator's rewards or commission
+	// required for the tests
+	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, testRewardsAmt))
 )
 
 var _ = Describe("Calling distribution precompile from EOA", func() {
+
 	BeforeEach(func() {
 		s.SetupTest()
 
 		// set the default call arguments
-		defaultCallArgs = contracts.CallArgs{
-			ContractAddr: s.precompile.Address(),
-			ContractABI:  s.precompile.ABI,
-			PrivKey:      s.keyring.GetPrivKey(0),
+		callArgs = factory.CallArgs{
+			ContractABI: s.precompile.ABI,
 		}
 
 		defaultLogCheck = testutil.LogCheckArgs{
@@ -71,6 +69,13 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
+
+		// reset tx args each test to avoid keeping custom
+		// values of previous tests (e.g. gasLimit)
+		precompileAddr := s.precompile.Address()
+		txArgs = evmtypes.EvmTxArgs{
+			To: &precompileAddr,
+		}
 	})
 
 	// =====================================
@@ -78,185 +83,239 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	// =====================================
 	Describe("Execute SetWithdrawAddress transaction", func() {
 		const method = distribution.SetWithdrawAddressMethod
-		// defaultSetWithdrawArgs are the default arguments to set the withdraw address
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
-		var defaultSetWithdrawArgs contracts.CallArgs
 
 		BeforeEach(func() {
 			// set the default call arguments
-			defaultSetWithdrawArgs = defaultCallArgs.WithMethodName(method)
+			callArgs.MethodName = method
+
 		})
 
 		It("should return error if the provided gasLimit is too low", func() {
-			setWithdrawArgs := defaultSetWithdrawArgs.
-				WithGasLimit(30000).
-				WithArgs(s.keyring.GetAddr(0), differentAddr.String())
+			txArgs.GasLimit = 30000
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawArgs, outOfGasCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring("out of gas"), "expected out of gas error")
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				differentAddr.String(),
+			}
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				outOfGasCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
 
 			// withdraw address should remain unchanged
-			withdrawAddr, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
+			delAddr := s.keyring.GetAccAddr(0).String()
+			res, err := s.grpcHandler.GetDelegatorWithdrawAddr(delAddr)
 			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawAddr.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()), "expected withdraw address to remain unchanged")
+			Expect(res.WithdrawAddress).To(Equal(delAddr), "expected withdraw address to remain unchanged")
 		})
 
 		It("should return error if the origin is different than the delegator", func() {
-			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(differentAddr, s.keyring.GetAddr(0).String())
+			callArgs.Args = []interface{}{
+				differentAddr,
+				s.keyring.GetAddr(0).String(),
+			}
 
 			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawArgs, withdrawAddrSetCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), differentAddr)), "expected different origin error")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawAddrSetCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
 		It("should set withdraw address", func() {
 			// initially, withdraw address should be same as address
-			withdrawAddr, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
-			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawAddr.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
+			res, err := s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil(), "error while querying withdraw address")
+			Expect(res.WithdrawAddress).To(Equal(s.keyring.GetAccAddr(0).String()))
 
-			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(s.keyring.GetAddr(0), differentAddr.String())
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				differentAddr.String(),
+			}
 
 			withdrawAddrSetCheck := passCheck.
 				WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawArgs, withdrawAddrSetCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawAddrSetCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
+			// persist state changes
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
+
 			// withdraw should be updated
-			withdrawAddr, err = s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
-			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawAddr.Bytes()).To(Equal(differentAddr.Bytes()), "expected different withdraw address")
+			res, err = s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil(), "error while querying withdraw address")
+			Expect(res.WithdrawAddress).To(Equal(sdk.AccAddress(differentAddr.Bytes()).String()), "expected different withdraw address")
 		})
 	})
 
 	Describe("Execute WithdrawDelegatorRewards transaction", func() {
-		// defaultWithdrawRewardsArgs are the default arguments to withdraw rewards
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
-		var defaultWithdrawRewardsArgs contracts.CallArgs
-
+		var accruedRewards sdk.DecCoins
 		BeforeEach(func() {
+			var err error
 			// set the default call arguments
-			defaultWithdrawRewardsArgs = defaultCallArgs.WithMethodName(distribution.WithdrawDelegatorRewardsMethod)
-			// FIXME will need to use the WaitToAccrueRewards func
-			// // s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+			callArgs.MethodName = distribution.WithdrawDelegatorRewardsMethod
+
+			accruedRewards, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
 		})
 
 		It("should return error if the origin is different than the delegator", func() {
-			withdrawRewardsArgs := defaultWithdrawRewardsArgs.WithArgs(differentAddr, s.network.GetValidators()[0].OperatorAddress)
+			callArgs.Args = []interface{}{
+				differentAddr,
+				s.network.GetValidators()[0].OperatorAddress,
+			}
 
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawRewardsArgs, withdrawalCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), differentAddr)), "expected different origin error")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
 		It("should withdraw delegation rewards", func() {
 			// get initial balance
-			initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(initialBalance.Amount))
+			queryRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			initialBalance := queryRes.Balance
 
-			withdrawRewardsArgs := defaultWithdrawRewardsArgs.
-				WithArgs(s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress).
-				WithGasPrice(gasPrice)
+			txArgs.GasPrice = gasPrice.BigInt()
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				s.network.GetValidators()[0].OperatorAddress,
+			}
 
 			withdrawalCheck := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			res, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawRewardsArgs, withdrawalCheck)
+			res, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
 
 			var rewards []cmn.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
+
+			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+			// The query is from only 1 validator, thus, the expected reward
+			// for this delegation is totalAccruedRewards / validatorsCount (3)
+			valCount := len(s.network.GetValidators())
+			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+			expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(int64(valCount)))
+
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-			Expect(rewards[0].Amount).To(Equal(expRewardAmt))
+			Expect(rewards[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 
 			// check that the rewards were added to the balance
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			fees := gasPrice.Int64() * res.GasUsed
-			expFinal := initialBalance.Amount.Int64() + expRewardAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
+			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
+			expFinal := initialBalance.Amount.Add(expRewardPerValidator.TruncateInt()).Sub(fees)
+			Expect(queryRes.Balance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
 
 	Describe("Validator Commission: Execute WithdrawValidatorCommission tx", func() {
 		var (
-			// defaultWithdrawCommissionArgs are the default arguments to withdraw commission
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
-			defaultWithdrawCommissionArgs contracts.CallArgs
-
 			// expCommAmt is the expected commission amount
-			expCommAmt = big.NewInt(1)
-			// commDec is the commission rate
-			commDec  = math.LegacyNewDec(1)
-			valAddr  sdk.ValAddress
-			stakeAmt math.Int
+			expCommAmt        = math.NewInt(1)
+			accruedCommission sdk.DecCoins
 		)
 
 		BeforeEach(func() {
 			// set the default call arguments
-			defaultWithdrawCommissionArgs = defaultCallArgs.WithMethodName(
-				distribution.WithdrawValidatorCommissionMethod,
+			callArgs.MethodName = distribution.WithdrawValidatorCommissionMethod
+			valAddr := sdk.ValAddress(s.validatorsKeys[0].AccAddr)
+
+			var err error
+			accruedCommission, err = testutils.WaitToAccrueCommission(
+				s.network, s.grpcHandler,
+				valAddr.String(),
+				sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, expCommAmt)),
 			)
+			Expect(err).To(BeNil())
 
-			// create a validator with s.keyring.GetAddr(0) and s.keyring.GetPrivKey(0) because this account is
-			// used for signing txs
-			stakeAmt = math.NewInt(100)
-			testutil.CreateValidator(s.network.GetContext(), s.T(), s.keyring.GetPrivKey(0).PubKey(), s.network.App.StakingKeeper, stakeAmt)
-
-			// set some validator commission
-			valAddr = s.keyring.GetAddr(0).Bytes()
-			val, err := s.network.App.StakingKeeper.Validator(s.network.GetContext(), valAddr)
-			Expect(err).To(BeNil(), "error while calling the precompile")
-			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, commDec)}
-
-			s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(s.network.GetContext(), valAddr, distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
-			s.network.App.DistrKeeper.AllocateTokensToValidator(s.network.GetContext(), val, sdk.DecCoins{sdk.NewDecCoin(s.bondDenom, stakeAmt)})
+			// Send some funds to the validator to pay for fees
+			err = s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 		})
 
 		It("should return error if the provided gasLimit is too low", func() {
-			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
-				WithGasLimit(50000).
-				WithArgs(valAddr.String())
+			txArgs.GasLimit = 50000
+			callArgs.Args = []interface{}{
+				s.network.GetValidators()[0].OperatorAddress,
+			}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawCommissionArgs, outOfGasCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring("out of gas"), "expected out of gas error")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.validatorsKeys[0].Priv,
+				txArgs,
+				callArgs,
+				outOfGasCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
 		It("should return error if the origin is different than the validator", func() {
-			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(s.network.GetValidators()[0].OperatorAddress)
-			validatorHexAddr := common.BytesToAddress([]byte(s.network.GetValidators()[0].GetOperator()))
+			callArgs.Args = []interface{}{
+				s.network.GetValidators()[0].OperatorAddress,
+			}
+
+			validatorHexAddr := common.BytesToAddress(s.validatorsKeys[0].AccAddr)
 
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), validatorHexAddr.String())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawCommissionArgs, withdrawalCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), validatorHexAddr)), "expected different origin error")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
 		It("should withdraw validator commission", func() {
 			// initial balance should be the initial amount minus the staked amount used to create the validator
-			initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(math.NewInt(4999999999999999900)))
+			queryRes, err := s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
 
-			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
-				WithArgs(valAddr.String()).
-				WithGasPrice(gasPrice)
+			initialBalance := queryRes.Balance
+
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+			txArgs.GasPrice = gasPrice.BigInt()
 
 			withdrawalCheck := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
 
-			res, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawCommissionArgs, withdrawalCheck)
+			res, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.validatorsKeys[0].Priv,
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var comm []cmn.Coin
@@ -264,12 +323,20 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(len(comm)).To(Equal(1))
 			Expect(comm[0].Denom).To(Equal(s.bondDenom))
-			Expect(comm[0].Amount).To(Equal(expCommAmt))
 
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			fees := gasPrice.Int64() * res.GasUsed
-			expFinal := initialBalance.Amount.Int64() + expCommAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to the final balance after withdrawing commission")
+			accruedCommissionAmt := accruedCommission.AmountOf(s.bondDenom).TruncateInt()
+			Expect(comm[0].Amount).To(Equal(accruedCommissionAmt.BigInt()))
+
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			queryRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			finalBalance := queryRes.Balance
+
+			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
+			expFinal := initialBalance.Amount.Add(accruedCommissionAmt).Sub(fees)
+
+			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to the final balance after withdrawing commission")
 		})
 	})
 
@@ -277,40 +344,78 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		// defaultWithdrawRewardsArgs are the default arguments to withdraw rewards
 		//
 		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
-		var defaultClaimRewardsArgs contracts.CallArgs
-		startingBalance := math.NewInt(5e18)
-		expectedBalance := math.NewInt(8999665039062500000)
+		var accruedRewards sdk.DecCoins
 
 		BeforeEach(func() {
+			var err error
 			// set the default call arguments
-			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(distribution.ClaimRewardsMethod)
-			// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
-			// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[1], rewards})
+			callArgs.MethodName = distribution.ClaimRewardsMethod
+			accruedRewards, err = testutils.WaitToAccrueRewards(
+				s.network,
+				s.grpcHandler,
+				s.keyring.GetAccAddr(0).String(),
+				minExpRewardOrCommission)
+			Expect(err).To(BeNil(), "error waiting to accrue rewards")
 		})
 
 		It("should return err if the origin is different than the delegator", func() {
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(differentAddr, uint32(1))
+
+			callArgs.Args = []interface{}{
+				differentAddr, uint32(1),
+			}
 
 			claimRewardsCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, claimRewardsCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), differentAddr)), "expected different origin error")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				claimRewardsCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
 		It("should claim all rewards from all validators", func() {
-			initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(startingBalance))
+			queryRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			initialBalance := queryRes.Balance
 
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(s.keyring.GetAddr(0), uint32(2))
+			valCount := len(s.network.GetValidators())
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0), uint32(valCount),
+			}
+
+			// get base fee to use in tx to then calculate fee paid
+			bfQuery, err := s.grpcHandler.GetBaseFee()
+			Expect(err).To(BeNil(), "error while calling BaseFee")
+			gasPrice := bfQuery.BaseFee
+			txArgs.GasPrice = gasPrice.BigInt()
+
 			claimRewardsCheck := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, claimRewardsCheck)
+			txRes, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				claimRewardsCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
+
 			// check that the rewards were added to the balance
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Equal(expectedBalance)).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
+			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+
+			// get the fee paid and calulate the expFinalBalance
+			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed))
+			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom).TruncateInt()
+			// expected balance is initial + rewards - fee
+			expBalanceAmt := initialBalance.Amount.Add(accruedRewardsAmt).Sub(fee)
+
+			finalBalance := queryRes.Balance
+			Expect(finalBalance.Amount).To(Equal(expBalanceAmt), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
 
@@ -319,66 +424,98 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	// =====================================
 	Describe("Execute queries", func() {
 		It("should get validator distribution info - validatorDistributionInfo query", func() {
-			// FIXME this could be broken
-			// One way is to use the accKeeper.AddressCodec().StringToBytes(string)
-			addr := sdk.AccAddress(s.network.GetValidators()[0].GetOperator())
 			// fund validator account to make self-delegation
-			err := evmosutil.FundAccountWithBaseDenom(s.network.GetContext(), s.network.App.BankKeeper, addr, 10)
+			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
+			// persist changes
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			opAddr := s.network.GetValidators()[0].OperatorAddress
+			// use the validator priv key
 			// make a self delegation
-			_, err = s.network.App.StakingKeeper.Delegate(s.network.GetContext(), addr, math.NewInt(1), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
+			err = s.factory.Delegate(s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
 			Expect(err).To(BeNil())
+			// persist changes
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			valDistArgs := defaultCallArgs.
-				WithMethodName(distribution.ValidatorDistributionInfoMethod).
-				WithArgs(s.network.GetValidators()[0].OperatorAddress)
+			callArgs.MethodName = distribution.ValidatorDistributionInfoMethod
+			callArgs.Args = []interface{}{opAddr}
+			txArgs.GasLimit = 200_000
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, valDistArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.validatorsKeys[0].Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var out distribution.ValidatorDistributionInfoOutput
 			err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 
-			expAddr := s.network.GetValidators()[0].GetOperator()
+			expAddr := s.validatorsKeys[0].AccAddr.String()
 			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
 			Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
 			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
 
-		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() { //nolint:dupl
-			valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-			// set outstanding rewards
-			err := s.network.App.DistrKeeper.SetValidatorOutstandingRewards(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
-			Expect(err).To(BeNil(), "error while calling the precompile")
+		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() {
+			accruedRewards, err := testutils.WaitToAccrueRewards(
+				s.network,
+				s.grpcHandler,
+				s.keyring.GetAccAddr(0).String(),
+				minExpRewardOrCommission)
+			Expect(err).To(BeNil(), "error waiting to accrue rewards")
 
-			valOutRewardsArgs := defaultCallArgs.
-				WithMethodName(distribution.ValidatorOutstandingRewardsMethod).
-				WithArgs(s.network.GetValidators()[0].OperatorAddress)
+			callArgs.MethodName = distribution.ValidatorOutstandingRewardsMethod
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, valOutRewardsArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var rewards []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
+
 			Expect(uint8(18)).To(Equal(rewards[0].Precision))
 			Expect(s.bondDenom).To(Equal(rewards[0].Denom))
-			Expect(expValAmount).To(Equal(rewards[0].Amount.Int64()))
+
+			// the expected rewards should be the accruedRewards per validator
+			// plus the 5% commission
+			expRewardAmt := accruedRewards.AmountOf(s.bondDenom).
+				Quo(math.LegacyNewDec(3)).             // divide by validators count
+				Quo(math.LegacyNewDecWithPrec(95, 2)). // add 5% commission
+				Ceil().                                // round up to get the same value
+				TruncateInt()
+
+			Expect(rewards[0].Amount).To(Equal(expRewardAmt.BigInt()))
 		})
 
 		It("should get validator commission - validatorCommission query", func() { //nolint:dupl
-			// set commission
-			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-			err := s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			opAddr := s.network.GetValidators()[0].OperatorAddress
+			accruedCommission, err := testutils.WaitToAccrueCommission(
+				s.network,
+				s.grpcHandler,
+				opAddr,
+				minExpRewardOrCommission)
+			Expect(err).To(BeNil(), "error waiting to accrue rewards")
 
-			valCommArgs := defaultCallArgs.
-				WithMethodName(distribution.ValidatorCommissionMethod).
-				WithArgs(s.network.GetValidators()[0].OperatorAddress)
+			callArgs.MethodName = distribution.ValidatorCommissionMethod
+			callArgs.Args = []interface{}{opAddr}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, valCommArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var commission []cmn.DecCoin
@@ -387,7 +524,9 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(len(commission)).To(Equal(1))
 			Expect(uint8(18)).To(Equal(commission[0].Precision))
 			Expect(s.bondDenom).To(Equal(commission[0].Denom))
-			Expect(expValAmount).To(Equal(commission[0].Amount.Int64()))
+
+			expCommissionAmt := accruedCommission.AmountOf(s.bondDenom).TruncateInt()
+			Expect(commission[0].Amount).To(Equal(expCommissionAmt.BigInt()))
 		})
 
 		Context("validatorSlashes query query", func() {
@@ -397,16 +536,20 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				err := s.network.App.DistrKeeper.SetValidatorSlashEvent(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2, 1, slashEvent)
 				Expect(err).To(BeNil(), "error while calling the precompile")
 
-				valSlashArgs := defaultCallArgs.
-					WithMethodName(distribution.ValidatorSlashesMethod).
-					WithArgs(
-						s.network.GetValidators()[0].OperatorAddress,
-						uint64(1), uint64(5),
-						query.PageRequest{},
-					)
+				callArgs.MethodName = distribution.ValidatorSlashesMethod
+				callArgs.Args = []interface{}{
+					s.network.GetValidators()[0].OperatorAddress,
+					uint64(1), uint64(5),
+					query.PageRequest{},
+				}
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, valSlashArgs, passCheck)
-				Expect(err).To(BeNil(), "error while calling the precompile")
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
 
 				var out distribution.ValidatorSlashesOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
@@ -423,19 +566,23 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				// set 2 slashing events for validator[0]
 				// slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2)
 
-				valSlashArgs := defaultCallArgs.
-					WithMethodName(distribution.ValidatorSlashesMethod).
-					WithArgs(
-						s.network.GetValidators()[0].OperatorAddress,
-						uint64(1), uint64(5),
-						query.PageRequest{
-							Limit:      1,
-							CountTotal: true,
-						},
-					)
+				callArgs.MethodName = distribution.ValidatorSlashesMethod
+				callArgs.Args = []interface{}{
+					s.network.GetValidators()[0].OperatorAddress,
+					uint64(1), uint64(5),
+					query.PageRequest{
+						Limit:      1,
+						CountTotal: true,
+					},
+				}
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, valSlashArgs, passCheck)
-				Expect(err).To(BeNil(), "error while calling the precompile")
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
 
 				var out distribution.ValidatorSlashesOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
@@ -451,104 +598,110 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should get delegation rewards - delegationRewards query", func() {
-			// TODO FIXME
-			// // s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+			accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
 
-			delRewardsArgs := defaultCallArgs.
-				WithMethodName(distribution.DelegationRewardsMethod).
-				WithArgs(s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress)
+			callArgs.MethodName = distribution.DelegationRewardsMethod
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				s.network.GetValidators()[0].OperatorAddress,
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, delRewardsArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var rewards []cmn.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
+
+			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+			// The query is from only 1 validator, thus, the expected reward
+			// for this delegation is totalAccruedRewards / validatorsCount (3)
+			expRewardAmt := accruedRewards.AmountOf(s.bondDenom).Quo(math.LegacyNewDec(3))
+
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-			Expect(rewards[0].Amount.Int64()).To(Equal(testRewardsAmt))
+			Expect(rewards[0].Amount).To(Equal(expRewardAmt.TruncateInt().BigInt()))
 		})
 
 		It("should get delegators's total rewards - delegationTotalRewards query", func() {
-			// set rewards
-			// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+			// wait for rewards to accrue
+			accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
 
-			delTotalRewardsArgs := defaultCallArgs.
-				WithMethodName(distribution.DelegationTotalRewardsMethod).
-				WithArgs(s.keyring.GetAddr(0))
+			callArgs.MethodName = distribution.DelegationTotalRewardsMethod
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, delTotalRewardsArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var (
-				out distribution.DelegationTotalRewardsOutput
-				i   int
-			)
+			var out distribution.DelegationTotalRewardsOutput
+
 			err = s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(2).To(Equal(len(out.Rewards)))
+			Expect(3).To(Equal(len(out.Rewards)))
+
+			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+			// The query is from only 1 validator, thus, the expected reward
+			// for this delegation is totalAccruedRewards / validatorsCount (3)
+			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+			expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(3))
 
 			// the response order may change
-			if out.Rewards[0].ValidatorAddress == s.network.GetValidators()[0].OperatorAddress {
-				Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-				Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-				Expect(0).To(Equal(len(out.Rewards[1].Reward)))
-			} else {
-				i = 1
-				Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-				Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-				Expect(0).To(Equal(len(out.Rewards[0].Reward)))
+			for _, or := range out.Rewards {
+				Expect(1).To(Equal(len(or.Reward)))
+				Expect(or.Reward[0].Denom).To(Equal(s.bondDenom))
+				Expect(or.Reward[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 			}
 
-			// only validator[i] has rewards
-			Expect(1).To(Equal(len(out.Rewards[i].Reward)))
-			Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-			Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
-			Expect(testRewardsAmt).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
-
 			Expect(1).To(Equal(len(out.Total)))
-			Expect(testRewardsAmt).To(Equal(out.Total[0].Amount.Int64()))
+			Expect(out.Total[0].Amount).To(Equal(accruedRewardsAmt.TruncateInt().BigInt()))
 		})
 
 		It("should get all validators a delegators has delegated to - delegatorValidators query", func() {
-			delValArgs := defaultCallArgs.
-				WithMethodName(distribution.DelegatorValidatorsMethod).
-				WithArgs(s.keyring.GetAddr(0))
+			callArgs.MethodName = distribution.DelegatorValidatorsMethod
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, delValArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var validators []string
 			err = s.precompile.UnpackIntoInterface(&validators, distribution.DelegatorValidatorsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(2).To(Equal(len(validators)))
-
-			// the response order may change
-			if validators[0] == s.network.GetValidators()[0].OperatorAddress {
-				Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(validators[0]))
-				Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(validators[1]))
-			} else {
-				Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(validators[0]))
-				Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(validators[1]))
-			}
+			Expect(3).To(Equal(len(validators)))
 		})
 
 		It("should get withdraw address - delegatorWithdrawAddress query", func() {
-			// set the withdraw address
-			err := s.network.App.DistrKeeper.SetWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), differentAddr.Bytes())
-			Expect(err).To(BeNil())
+			callArgs.MethodName = distribution.DelegatorWithdrawAddressMethod
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 
-			delWithdrawAddrArgs := defaultCallArgs.
-				WithMethodName(distribution.DelegatorWithdrawAddressMethod).
-				WithArgs(s.keyring.GetAddr(0))
-
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, delWithdrawAddrArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			// get the bech32 encoding
-			expAddr := sdk.AccAddress(differentAddr.Bytes())
+			expAddr := s.keyring.GetAccAddr(0)
 			Expect(withdrawAddr[0]).To(Equal(expAddr.String()))
 		})
 	})
@@ -556,9 +709,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 var _ = Describe("Calling distribution precompile from another contract", func() {
 	var (
-		// initBalanceAmt is the initial balance for testing
-		initBalanceAmt = math.NewInt(5000000000000000000)
-
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
 		// err is a basic error type
@@ -590,10 +740,14 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 
 		// populate default call args
-		defaultCallArgs = contracts.CallArgs{
-			ContractAddr: contractAddr,
-			ContractABI:  contracts.DistributionCallerContract.ABI,
-			PrivKey:      s.keyring.GetPrivKey(0),
+		callArgs = factory.CallArgs{
+			ContractABI: contracts.DistributionCallerContract.ABI,
+		}
+
+		// reset tx args each test to avoid keeping custom
+		// values of previous tests (e.g. gasLimit)
+		txArgs = evmtypes.EvmTxArgs{
+			To: &contractAddr,
 		}
 
 		// default log check arguments
@@ -607,10 +761,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// =====================================
 	Context("setWithdrawAddress", func() {
 		var (
-			// defaultSetWithdrawAddrArgs are the default arguments for the set withdraw address call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultSetWithdrawAddrArgs contracts.CallArgs
 			// newWithdrawer is the address to set the withdraw address to
 			newWithdrawer = differentAddr
 		)
@@ -622,33 +772,33 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(withdrawer.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
 
 			// populate default arguments
-			defaultSetWithdrawAddrArgs = defaultCallArgs.WithMethodName(
-				"testSetWithdrawAddress",
-			)
+			callArgs.MethodName = "testSetWithdrawAddress"
 		})
 
 		It("should set withdraw address successfully", func() {
-			setWithdrawAddrArgs := defaultSetWithdrawAddrArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0), newWithdrawer.String(),
-			)
+			}
 
 			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawAddrArgs, setWithdrawCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				setWithdrawCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
-			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
+			queryRes, err := s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawer.Bytes()).To(Equal(newWithdrawer.Bytes()))
+			Expect(queryRes.WithdrawAddress).To(Equal(sdk.AccAddress(newWithdrawer.Bytes()).String()))
 		})
 	})
 
 	Context("setWithdrawerAddress with contract as delegator", func() {
 		var (
-			// defaultSetWithdrawAddrArgs are the default arguments for the set withdraw address call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultSetWithdrawAddrArgs contracts.CallArgs
 			// newWithdrawer is the address to set the withdraw address to
 			newWithdrawer = differentAddr
 		)
@@ -660,17 +810,19 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(withdrawer.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
 
 			// populate default arguments
-			defaultSetWithdrawAddrArgs = defaultCallArgs.WithMethodName(
-				"testSetWithdrawAddressFromContract",
-			)
+			callArgs.MethodName = "testSetWithdrawAddressFromContract"
 		})
 
 		It("should set withdraw address successfully without origin check", func() {
-			setWithdrawAddrArgs := defaultSetWithdrawAddrArgs.WithArgs(newWithdrawer.String())
-
+			callArgs.Args = []interface{}{newWithdrawer.String()}
 			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawAddrArgs, setWithdrawCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				setWithdrawCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), contractAddr.Bytes())
@@ -681,138 +833,213 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 	Context("withdrawDelegatorRewards", func() {
 		var (
-			// defaultWithdrawDelRewardsArgs are the default arguments for the withdraw delegator rewards call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultWithdrawDelRewardsArgs contracts.CallArgs
 			// initialBalance is the initial balance of the delegator
-			initialBalance sdk.Coin
+			initialBalance *sdk.Coin
+			accruedRewards sdk.DecCoins
 		)
 
 		BeforeEach(func() {
-			// set some rewards for s.keyring.GetAddr(0) & another address
-			// s.prepareStakingRewards([]stakingRewards{
-			// 	{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards},
-			// 	{differentAddr.Bytes(), s.network.GetValidators()[0], rewards},
-			// }...)
+			// fund the diffAddr
+			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			initialBalance = s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			// make a delegation
+			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			// populate default arguments
-			defaultWithdrawDelRewardsArgs = defaultCallArgs.WithMethodName(
-				"testWithdrawDelegatorRewards",
-			)
+			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
+			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
+
+			// check if s.keyring.GetAddr(0) accrued rewards too
+			res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil())
+
+			accruedRewards = res.Total
+			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+			Expect(accruedRewardsAmt.IsPositive()).To(BeTrue())
+
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialBalance = balRes.Balance
+
+			callArgs.MethodName = "testWithdrawDelegatorRewards"
+
+			// set gas price to calculate fees paid
+			txArgs.GasPrice = gasPrice.BigInt()
 		})
 
 		It("should not withdraw rewards when sending from a different address", func() {
-			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
-				differentAddr, s.network.GetValidators()[0].OperatorAddress,
-			)
+			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			differentAddrInitialBalance := balRes.Balance
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawDelRewardsArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			callArgs.Args = []interface{}{
+				differentAddr, s.network.GetValidators()[0].OperatorAddress,
+			}
+
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Uint64() <= initialBalance.Amount.Uint64()).To(BeTrue())
+			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			Expect(finalBalance.Amount.LTE(initialBalance.Amount)).To(BeTrue())
 
 			// differentAddr balance should remain unchanged
-			differentAddrFinalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), differentAddr.Bytes(), s.bondDenom)
-			Expect(differentAddrFinalBalance.Amount).To(Equal(math.ZeroInt()))
+			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			differentAddrFinalBalance := balRes.Balance
+			Expect(differentAddrFinalBalance.Amount).To(Equal(differentAddrInitialBalance.Amount))
 		})
 
 		It("should withdraw rewards successfully", func() {
-			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initBalanceAmt := balRes.Balance.Amount
+
+			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress,
-			)
+			}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawDelRewardsArgs, logCheckArgs)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
-			// balance should remain unchanged
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			// balance should increase
+			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+
+			Expect(balRes.Balance.Amount.GT(initBalanceAmt)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
 		It("should withdraw rewards successfully to the new withdrawer address", func() {
-			initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), differentAddr.Bytes(), s.bondDenom)
-			// Set new withdrawer address
-			err := s.network.App.DistrKeeper.SetWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), differentAddr.Bytes())
+			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
+			initialBalance := balRes.Balance
+			// Set new withdrawer address
+			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), differentAddr.Bytes())
+			Expect(err).To(BeNil())
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress,
-			)
+			}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawDelRewardsArgs, logCheckArgs)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+
+			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+			// The tx is from only 1 validator, thus, the expected reward
+			// for this delegation is totalAccruedRewards / validatorsCount (3)
+			valCount := len(s.network.GetValidators())
+			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+			expReward := accruedRewardsAmt.
+				Quo(math.LegacyNewDec(int64(valCount))). // divide by validator number
+				Mul(math.LegacyNewDecWithPrec(95, 2)).   // 5% commission
+				TruncateInt()
 
 			// should increase balance by rewards
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), differentAddr.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			Expect(balRes.Balance.Amount).To(Equal(initialBalance.Amount.Add(expReward)), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
 	Context("withdrawDelegatorRewards with contract as delegator", func() {
 		var (
-			// defaultWithdrawDelRewardsArgs are the default arguments for the withdraw delegator rewards call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultWithdrawDelRewardsArgs contracts.CallArgs
 			// initialBalance is the initial balance of the delegator
-			initialBalance sdk.Coin
+			initialBalance    *sdk.Coin
+			accruedRewardsAmt math.Int
 		)
 
 		BeforeEach(func() {
-			// set some rewards for s.keyring.GetAddr(0) & another address
-			// s.prepareStakingRewards([]stakingRewards{
-			// 	{
-			// 		Delegator: contractAddr.Bytes(),
-			// 		Validator: s.network.GetValidators()[0],
-			// 		RewardAmt: rewards,
-			// 	},
-			// }...)
+			// fund the diffAddr
+			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			initialBalance = s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAddr.Bytes(), s.bondDenom)
+			// make a delegation
+			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
+			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
+
+			// check if s.keyring.GetAddr(0) accrued rewards too
+			res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil())
+
+			accruedRewardsAmt = res.Total.AmountOf(s.bondDenom).TruncateInt()
+			Expect(accruedRewardsAmt.IsPositive()).To(BeTrue())
+
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			balRes.Balance = initialBalance
 
 			// populate default arguments
-			defaultWithdrawDelRewardsArgs = defaultCallArgs.WithMethodName(
-				"testWithdrawDelegatorRewardsFromContract",
-			)
+			callArgs.MethodName = "testWithdrawDelegatorRewardsFromContract"
 		})
 
 		It("should withdraw rewards successfully without origin check", func() {
-			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(s.network.GetValidators()[0].OperatorAddress)
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 
 			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawDelRewardsArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// balance should increase
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
 	Context("withdrawValidatorCommission", func() {
 		var (
-			// defaultWithdrawValCommArgs are the default arguments for the withdraw validator commission call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultWithdrawValCommArgs contracts.CallArgs
 			// commDec is the commission rate of the validator
 			commDec = math.LegacyNewDec(1)
 			// valAddr is the address of the validator
 			valAddr sdk.ValAddress
 			// initialBalance is the initial balance of the delegator
-			initialBalance sdk.Coin
+			initialBalance *sdk.Coin
 		)
 
 		BeforeEach(func() {
@@ -843,224 +1070,306 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				s.network.App.DistrKeeper.AllocateTokensToValidator(s.network.GetContext(), val, sdk.DecCoins{sdk.NewDecCoin(s.bondDenom, stakeAmt)})
 			}
 
-			initialBalance = s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialBalance = balRes.Balance
 
 			// populate default arguments
-			defaultWithdrawValCommArgs = defaultCallArgs.WithMethodName(
-				"testWithdrawValidatorCommission",
-			)
+			callArgs.MethodName = "testWithdrawValidatorCommission"
 		})
 
 		It("should not withdraw commission from validator when sending from a different address", func() {
-			withdrawValCommArgs := defaultWithdrawValCommArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				s.network.GetValidators()[0].OperatorAddress,
-			)
+			}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawValCommArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// balance should be equal as initial balance or less (because of fees)
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Uint64() <= initialBalance.Amount.Uint64()).To(BeTrue())
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			Expect(finalBalance.Amount.LTE(initialBalance.Amount)).To(BeTrue())
 
 			// validator's balance should remain unchanged
-			valFinalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sdk.AccAddress(s.network.GetValidators()[0].GetOperator()), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil())
+			valFinalBalance := balRes.Balance
 			Expect(valFinalBalance.Amount).To(Equal(math.ZeroInt()))
 		})
 
 		It("should withdraw commission successfully", func() {
-			withdrawValCommArgs := defaultWithdrawValCommArgs.
-				WithArgs(valAddr.String()).
-				WithGasPrice(gasPrice)
+			callArgs.Args = []interface{}{valAddr.String()}
+			txArgs.GasPrice = gasPrice.BigInt()
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
 
-			res, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, withdrawValCommArgs, logCheckArgs)
+			res, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			fees := gasPrice.Int64() * res.GasUsed
-			expFinal := initialBalance.Amount.Int64() + expValAmount - fees
-			Expect(finalBalance.Amount).To(Equal(math.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
+			expFinal := initialBalance.Amount.Add(math.NewInt(expValAmount)).Sub(fees)
+			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance + validator commission - fees")
 		})
 	})
 
 	Context("claimRewards", func() {
 		var (
-			// defaultClaimRewardsArgs are the default arguments for the claim rewards call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultClaimRewardsArgs contracts.CallArgs
 			// initialBalance is the initial balance of the delegator
-			initialBalance sdk.Coin
+			initialBalance    *sdk.Coin
+			accruedRewardsAmt math.Int
 		)
 
 		BeforeEach(func() {
-			// set some rewards for s.keyring.GetAddr(0) & another address
-			// s.prepareStakingRewards([]stakingRewards{
-			// 	{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards},
-			// 	{differentAddr.Bytes(), s.network.GetValidators()[0], rewards},
-			// }...)
+			// fund the diffAddr
+			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			initialBalance = s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			// make a delegation
+			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
+			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
+
+			// check if s.keyring.GetAddr(0) accrued rewards too
+			res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil())
+
+			accruedRewardsAmt = res.Total.AmountOf(s.bondDenom).TruncateInt()
+			Expect(accruedRewardsAmt.IsPositive()).To(BeTrue())
+
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialBalance = balRes.Balance
 
 			// populate default arguments
-			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
-				"testClaimRewards",
-			)
+			callArgs.MethodName = "testClaimRewards"
 		})
 
 		It("should not claim rewards when sending from a different address", func() {
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(
-				differentAddr, uint32(1),
-			)
+			callArgs.Args = []interface{}{differentAddr, uint32(1)}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Uint64() <= initialBalance.Amount.Uint64()).To(BeTrue())
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			Expect(finalBalance.Amount.LTE(initialBalance.Amount)).To(BeTrue())
 
 			// differentAddr balance should remain unchanged
-			differentAddrFinalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			differentAddrFinalBalance := balRes.Balance
 			Expect(differentAddrFinalBalance.Amount).To(Equal(math.ZeroInt()))
 		})
 
 		It("should claim rewards successfully", func() {
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(
-				s.keyring.GetAddr(0), uint32(2),
-			)
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0), uint32(2)}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeClaimRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should remain unchanged
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after claiming rewards")
 		})
 	})
 
 	Context("claimRewards with contract as delegator", func() {
 		var (
-			// defaultClaimRewardsArgs are the default arguments for the  claim rewards call
-			//
-			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-			defaultClaimRewardsArgs contracts.CallArgs
 			// expectedBalance is the total after claiming from both validators
-			expectedBalance sdk.Coin
+			expectedBalance   sdk.Coin
+			accruedRewardsAmt math.Int
 		)
 
 		BeforeEach(func() {
-			// set some rewards for s.keyring.GetAddr(0) & another address
-			// s.prepareStakingRewards([]stakingRewards{
-			// 	{
-			// 		Delegator: contractAddr.Bytes(),
-			// 		Validator: s.network.GetValidators()[0],
-			// 		RewardAmt: rewards,
-			// 	}, {
-			// 		Delegator: contractAddr.Bytes(),
-			// 		Validator: s.network.GetValidators()[1],
-			// 		RewardAmt: rewards,
-			// 	},
-			// }...)
+			// fund the diffAddr
+			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// make a delegation
+			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
+			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
+
+			// check if s.keyring.GetAddr(0) accrued rewards too
+			res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil())
+
+			accruedRewardsAmt = res.Total.AmountOf(s.bondDenom).TruncateInt()
+			Expect(accruedRewardsAmt.IsPositive()).To(BeTrue())
 
 			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}
 
 			// populate default arguments
-			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
-				"testClaimRewards",
-			)
+			callArgs.MethodName = "testClaimRewards"
 		})
 
 		It("should withdraw rewards successfully without origin check", func() {
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(contractAddr, uint32(2))
+			callArgs.Args = []interface{}{contractAddr, uint32(2)}
 
 			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should increase
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.Equal(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			balanceRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialBalance := balanceRes.Balance
 
-			err := s.network.App.DistrKeeper.SetWithdrawAddr(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAddr(0).Bytes())
+			// TODO refactor, need to do this using the contract tx
+			err = s.network.App.DistrKeeper.SetWithdrawAddr(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAddr(0).Bytes())
 			Expect(err).To(BeNil())
 
-			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(contractAddr, uint32(2))
+			callArgs.Args = []interface{}{contractAddr, uint32(2)}
 
 			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, claimRewardsArgs, logCheckArgs)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should increase
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
 	Context("Forbidden operations", func() {
 		It("should revert state: modify withdraw address & then try to withdraw rewards corresponding to another user", func() {
-			// set rewards to another user
-			// s.prepareStakingRewards(stakingRewards{differentAddr.Bytes(), s.network.GetValidators()[0], rewards})
+			// check signer address balance should've decreased (fees paid)
+			balanceRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			initBalanceAmt := balanceRes.Balance.Amount
 
-			revertArgs := defaultCallArgs.
-				WithMethodName("testRevertState").
-				WithArgs(
-					differentAddr.String(), differentAddr, s.network.GetValidators()[0].OperatorAddress,
-				)
+			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			Expect(err).To(BeNil())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, revertArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			callArgs.MethodName = "testRevertState"
+			callArgs.Args = []interface{}{
+				differentAddr.String(), differentAddr, s.network.GetValidators()[0].OperatorAddress,
+			}
+
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check withdraw address didn't change
-			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
+			res, err := s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawer.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
+			Expect(res.WithdrawAddress).To(Equal(s.keyring.GetAccAddr(0).String()))
 
 			// check signer address balance should've decreased (fees paid)
-			finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Uint64() <= initBalanceAmt.Uint64()).To(BeTrue())
+			balanceRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			Expect(balanceRes.Balance.Amount.LTE(initBalanceAmt)).To(BeTrue())
 
 			// check other address' balance remained unchanged
-			finalBalance = s.network.App.BankKeeper.GetBalance(s.network.GetContext(), differentAddr.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount).To(Equal(math.ZeroInt()))
+			balanceRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			Expect(balanceRes.Balance.Amount).To(Equal(math.ZeroInt()))
 		})
 
 		It("should not allow to call SetWithdrawAddress using delegatecall", func() {
-			setWithdrawAddrArgs := defaultCallArgs.
-				WithMethodName("delegateCallSetWithdrawAddress").
-				WithArgs(s.keyring.GetAddr(0), differentAddr.String())
+			callArgs.MethodName = "delegateCallSetWithdrawAddress"
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0), differentAddr.String()}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawAddrArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check withdraw address didn't change
-			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
+			res, err := s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawer.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
+			Expect(res.WithdrawAddress).To(Equal(s.keyring.GetAccAddr(0).String()))
 		})
 
 		It("should not allow to call txs (SetWithdrawAddress) using staticcall", func() {
-			setWithdrawAddrArgs := defaultCallArgs.
-				WithMethodName("staticCallSetWithdrawAddress").
-				WithArgs(s.keyring.GetAddr(0), differentAddr.String())
+			callArgs.MethodName = "staticCallSetWithdrawAddress"
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0), differentAddr.String()}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, setWithdrawAddrArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 			// check withdraw address didn't change
-			withdrawer, err := s.network.App.DistrKeeper.GetDelegatorWithdrawAddr(s.network.GetContext(), s.keyring.GetAddr(0).Bytes())
+			res, err := s.grpcHandler.GetDelegatorWithdrawAddr(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil(), "error while calling the precompile")
-			Expect(withdrawer.Bytes()).To(Equal(s.keyring.GetAddr(0).Bytes()))
+			Expect(res.WithdrawAddress).To(Equal(s.keyring.GetAccAddr(0).String()))
 		})
 	})
 
@@ -1069,27 +1378,34 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// ===================================
 	Context("Distribution precompile queries", func() {
 		Context("get validator distribution info", func() {
-			// defaultValDistArgs are the default arguments for the getValidatorDistributionInfo query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultValDistArgs contracts.CallArgs
 
 			BeforeEach(func() {
-				addr := sdk.AccAddress(s.network.GetValidators()[0].GetOperator())
 				// fund validator account to make self-delegation
-				err := evmosutil.FundAccountWithBaseDenom(s.network.GetContext(), s.network.App.BankKeeper, addr, 10)
+				err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 				Expect(err).To(BeNil())
-				// make a self delegation
-				_, err = s.network.App.StakingKeeper.Delegate(s.network.GetContext(), addr, math.NewInt(1), stakingtypes.Unspecified, s.network.GetValidators()[0], true)
-				Expect(err).To(BeNil())
+				// persist changes
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				defaultValDistArgs = defaultCallArgs.
-					WithMethodName("getValidatorDistributionInfo").
-					WithArgs(s.network.GetValidators()[0].OperatorAddress)
+				opAddr := s.network.GetValidators()[0].OperatorAddress
+				// use the validator priv key
+				// make a self delegation
+				err = s.factory.Delegate(s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+				Expect(err).To(BeNil())
+				// persist changes
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				callArgs.MethodName = "getValidatorDistributionInfo"
+				callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+				txArgs.GasLimit = 200_000
 			})
 
 			It("should get validator distribution info", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValDistArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out distribution.ValidatorDistributionInfoOutput
@@ -1104,19 +1420,19 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		Context("get validator outstanding rewards", func() { //nolint:dupl
-			// defaultValOutRewardsArgs are the default arguments for the getValidatorOutstandingRewards query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultValOutRewardsArgs contracts.CallArgs
 
 			BeforeEach(func() {
-				defaultValOutRewardsArgs = defaultCallArgs.
-					WithMethodName("getValidatorOutstandingRewards").
-					WithArgs(s.network.GetValidators()[0].OperatorAddress)
+				callArgs.MethodName = "getValidatorOutstandingRewards"
+				callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 			})
 
 			It("should not get rewards - validator without outstanding rewards", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValOutRewardsArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var rewards []cmn.DecCoin
@@ -1126,12 +1442,15 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			})
 
 			It("should get rewards - validator with outstanding rewards", func() {
-				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-				// set outstanding rewards
-				err := s.network.App.DistrKeeper.SetValidatorOutstandingRewards(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
+				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 				Expect(err).To(BeNil(), "error while calling the precompile")
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValOutRewardsArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var rewards []cmn.DecCoin
@@ -1140,24 +1459,29 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(len(rewards)).To(Equal(1))
 				Expect(uint8(18)).To(Equal(rewards[0].Precision))
 				Expect(s.bondDenom).To(Equal(rewards[0].Denom))
-				Expect(expValAmount).To(Equal(rewards[0].Amount.Int64()))
+
+				// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+				// The query is from only 1 validator, thus, the expected reward
+				// for this delegation is totalAccruedRewards / validatorsCount (3)
+				accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+				expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(3))
+				Expect(rewards[0].Amount).To(Equal(expRewardPerValidator.BigInt()))
 			})
 		})
 
 		Context("get validator commission", func() { //nolint:dupl
-			// defaultValCommArgs are the default arguments for the getValidatorCommission query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultValCommArgs contracts.CallArgs
-
 			BeforeEach(func() {
-				defaultValCommArgs = defaultCallArgs.
-					WithMethodName("getValidatorCommission").
-					WithArgs(s.network.GetValidators()[0].OperatorAddress)
+				callArgs.MethodName = "getValidatorCommission"
+				callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 			})
 
 			It("should not get commission - validator without commission", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValCommArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var commission []cmn.DecCoin
@@ -1167,12 +1491,19 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			})
 
 			It("should get commission - validator with commission", func() {
-				// set commission
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-				err := s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
-				Expect(err).To(BeNil(), "error while calling contract")
+				err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, testRewardsAmt)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValCommArgs, passCheck)
+				accruedCommission, err := testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
+				Expect(err).To(BeNil())
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.validatorsKeys[0].Priv,
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var commission []cmn.DecCoin
@@ -1181,7 +1512,9 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(len(commission)).To(Equal(1))
 				Expect(uint8(18)).To(Equal(commission[0].Precision))
 				Expect(s.bondDenom).To(Equal(commission[0].Denom))
-				Expect(expValAmount).To(Equal(commission[0].Amount.Int64()))
+
+				accruedCommissionAmt := accruedCommission.AmountOf(s.bondDenom).TruncateInt()
+				Expect(commission[0].Amount).To(Equal(accruedCommissionAmt.BigInt()))
 			})
 		})
 
@@ -1192,17 +1525,21 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			var defaultValSlashArgs contracts.CallArgs
 
 			BeforeEach(func() {
-				defaultValSlashArgs = defaultCallArgs.
-					WithMethodName("getValidatorSlashes").
-					WithArgs(
-						s.network.GetValidators()[0].OperatorAddress,
-						uint64(1), uint64(5),
-						query.PageRequest{},
-					)
+				callArgs.MethodName = "getValidatorSlashes"
+				callArgs.Args = []interface{}{
+					s.network.GetValidators()[0].OperatorAddress,
+					uint64(1), uint64(5),
+					query.PageRequest{},
+				}
 			})
 
 			It("should not get slashing events - validator without slashes", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValSlashArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out distribution.ValidatorSlashesOutput
@@ -1216,7 +1553,12 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				// set slash event
 				// slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 1)
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValSlashArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out distribution.ValidatorSlashesOutput
@@ -1244,7 +1586,12 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 					},
 				}
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultValSlashArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out distribution.ValidatorSlashesOutput
@@ -1259,19 +1606,26 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		Context("get delegation rewards", func() {
-			// defaultDelRewardsArgs are the default arguments for the getDelegationRewards query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultDelRewardsArgs contracts.CallArgs
-
 			BeforeEach(func() {
-				defaultDelRewardsArgs = defaultCallArgs.
-					WithMethodName("getDelegationRewards").
-					WithArgs(s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress)
+				callArgs.MethodName = "getDelegationRewards"
+				callArgs.Args = []interface{}{s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress}
 			})
 
 			It("should not get rewards - no rewards available", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultDelRewardsArgs, passCheck)
+				valAddr := s.network.GetValidators()[0].OperatorAddress
+				callArgs.Args = []interface{}{s.keyring.GetAddr(1), valAddr}
+
+				// create a delegation
+				err := s.factory.Delegate(s.keyring.GetPrivKey(1), valAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(1),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var rewards []cmn.DecCoin
@@ -1280,9 +1634,15 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(len(rewards)).To(Equal(0))
 			})
 			It("should get rewards", func() {
-				// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
+				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+				Expect(err).To(BeNil())
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultDelRewardsArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var rewards []cmn.DecCoin
@@ -1291,116 +1651,117 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(len(rewards)).To(Equal(1))
 				Expect(len(rewards)).To(Equal(1))
 				Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-				Expect(rewards[0].Amount.Int64()).To(Equal(testRewardsAmt))
+
+				// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+				// The query is from only 1 validator, thus, the expected reward
+				// for this delegation is totalAccruedRewards / validatorsCount (3)
+				accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+				expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(3)).TruncateInt()
+
+				Expect(rewards[0].Amount).To(Equal(expRewardPerValidator.BigInt()))
 			})
 		})
 
 		Context("get delegator's total rewards", func() {
-			// defaultDelTotalRewardsArgs are the default arguments for the getDelegationTotalRewards query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultDelTotalRewardsArgs contracts.CallArgs
 
 			BeforeEach(func() {
-				defaultDelTotalRewardsArgs = defaultCallArgs.
-					WithMethodName("getDelegationTotalRewards").
-					WithArgs(s.keyring.GetAddr(0))
+				callArgs.MethodName = "getDelegationTotalRewards"
+				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 			})
 
 			It("should not get rewards - no rewards available", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultDelTotalRewardsArgs, passCheck)
+				// Create a delegation
+				err := s.factory.Delegate(s.keyring.GetPrivKey(1), s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				callArgs.Args = []interface{}{s.keyring.GetAddr(1)}
+				txArgs.GasLimit = 200_000 //set gas limit to avoid out of gas error
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(1),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out distribution.DelegationTotalRewardsOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(out.Rewards)).To(Equal(2))
+				Expect(len(out.Rewards)).To(Equal(1))
 				Expect(len(out.Rewards[0].Reward)).To(Equal(0))
-				Expect(len(out.Rewards[1].Reward)).To(Equal(0))
 			})
-			It("should get total rewards", func() {
-				// set rewards
-				// s.prepareStakingRewards(stakingRewards{s.keyring.GetAddr(0).Bytes(), s.network.GetValidators()[0], rewards})
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultDelTotalRewardsArgs, passCheck)
+			It("should get total rewards", func() {
+				// wait to get rewards
+				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+				Expect(err).To(BeNil())
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var (
-					out distribution.DelegationTotalRewardsOutput
-					i   int
-				)
+				var out distribution.DelegationTotalRewardsOutput
+
 				err = s.precompile.UnpackIntoInterface(&out, distribution.DelegationTotalRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 
+				// The accrued rewards are based on 3 equal delegations to the existing 3 validators
+				accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
+				expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(3))
+
 				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.network.GetValidators()[0].OperatorAddress {
-					Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-					Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-					Expect(0).To(Equal(len(out.Rewards[1].Reward)))
-				} else {
-					i = 1
-					Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-					Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-					Expect(0).To(Equal(len(out.Rewards[0].Reward)))
+				for _, or := range out.Rewards {
+					Expect(1).To(Equal(len(or.Reward)))
+					Expect(or.Reward[0].Denom).To(Equal(s.bondDenom))
+					Expect(or.Reward[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 				}
 
-				// only validator[i] has rewards
-				Expect(1).To(Equal(len(out.Rewards[i].Reward)))
-				Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-				Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
-				Expect(testRewardsAmt).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
-
 				Expect(1).To(Equal(len(out.Total)))
-				Expect(testRewardsAmt).To(Equal(out.Total[0].Amount.Int64()))
+				Expect(out.Total[0].Amount).To(Equal(accruedRewardsAmt.TruncateInt().BigInt()))
 			})
 		})
 
 		Context("get all delegator validators", func() {
-			// defaultDelValArgs are the default arguments for the getDelegatorValidators query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultDelValArgs contracts.CallArgs
 
 			BeforeEach(func() {
-				defaultDelValArgs = defaultCallArgs.
-					WithMethodName("getDelegatorValidators").
-					WithArgs(s.keyring.GetAddr(0))
+				callArgs.MethodName = "getDelegatorValidators"
+				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 			})
 
 			It("should get all validators a delegator has delegated to", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultDelValArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var validators []string
 				err = s.precompile.UnpackIntoInterface(&validators, distribution.DelegatorValidatorsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(2).To(Equal(len(validators)))
-
-				// the response order may change
-				if validators[0] == s.network.GetValidators()[0].OperatorAddress {
-					Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(validators[0]))
-					Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(validators[1]))
-				} else {
-					Expect(s.network.GetValidators()[1].OperatorAddress).To(Equal(validators[0]))
-					Expect(s.network.GetValidators()[0].OperatorAddress).To(Equal(validators[1]))
-				}
+				Expect(3).To(Equal(len(validators)))
 			})
 		})
 
 		Context("get withdraw address", func() {
-			// defaultWithdrawAddrArgs are the default arguments for the getDelegatorWithdrawAddress query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultWithdrawAddrArgs contracts.CallArgs
-
 			BeforeEach(func() {
-				defaultWithdrawAddrArgs = defaultCallArgs.
-					WithMethodName("getDelegatorWithdrawAddress").
-					WithArgs(s.keyring.GetAddr(0))
+				callArgs.MethodName = "getDelegatorWithdrawAddress"
+				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 			})
 
 			It("should get withdraw address", func() {
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, defaultWithdrawAddrArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)
@@ -1411,11 +1772,15 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			})
 
 			It("should call GetWithdrawAddress using staticcall", func() {
-				staticCallArgs := defaultCallArgs.
-					WithMethodName("staticCallGetWithdrawAddress").
-					WithArgs(s.keyring.GetAddr(0))
+				callArgs.MethodName = "staticCallGetWithdrawAddress"
+				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, staticCallArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)

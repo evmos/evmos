@@ -26,6 +26,7 @@ type Config struct {
 	denom              string
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
+	operatorsAddrs      []sdktypes.AccAddress
 }
 
 type CustomGenesisState map[string]interface{}
@@ -120,5 +121,12 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.otherCoinDenom = otherDenoms
+	}
+}
+
+// WithOtherDenoms sets other possible coin denominations for the network.
+func WithValidatorOperators(keys []sdktypes.AccAddress) ConfigOption {
+	return func(cfg *Config) {
+		cfg.operatorsAddrs = keys
 	}
 }

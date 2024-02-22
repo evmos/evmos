@@ -3,6 +3,9 @@ package distribution_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -27,8 +30,9 @@ type PrecompileTestSuite struct {
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	precompile *distribution.Precompile
-	bondDenom  string
+	precompile     *distribution.Precompile
+	bondDenom      string
+	validatorsKeys []testkeyring.Key
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
@@ -41,9 +45,23 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
+
+	// enable inflation for staking rewards
+	customGen := network.CustomGenesisState{}
+	customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()
+
 	keyring := testkeyring.New(2)
+	s.validatorsKeys = generateKeys(3)
+
+	operatorsAddr := make([]sdk.AccAddress, 3)
+	for i, k := range s.validatorsKeys {
+		operatorsAddr[i] = k.AccAddr
+	}
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGen),
+		network.WithValidatorOperators(operatorsAddr),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(nw)
 	txFactory := factory.New(nw, grpcHandler)
