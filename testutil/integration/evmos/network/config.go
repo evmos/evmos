@@ -26,7 +26,7 @@ type Config struct {
 	denom              string
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
-	operatorsAddrs      []sdktypes.AccAddress
+	operatorsAddrs     []sdktypes.AccAddress
 }
 
 type CustomGenesisState map[string]interface{}

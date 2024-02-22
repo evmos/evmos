@@ -45,7 +45,6 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-
 	// enable inflation for staking rewards
 	customGen := network.CustomGenesisState{}
 	customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()

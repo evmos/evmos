@@ -54,7 +54,6 @@ var (
 )
 
 var _ = Describe("Calling distribution precompile from EOA", func() {
-
 	BeforeEach(func() {
 		s.SetupTest()
 
@@ -87,7 +86,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		BeforeEach(func() {
 			// set the default call arguments
 			callArgs.MethodName = method
-
 		})
 
 		It("should return error if the provided gasLimit is too low", func() {
@@ -359,7 +357,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should return err if the origin is different than the delegator", func() {
-
 			callArgs.Args = []interface{}{
 				differentAddr, uint32(1),
 			}
@@ -760,10 +757,9 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// 				TRANSACTIONS
 	// =====================================
 	Context("setWithdrawAddress", func() {
-		var (
-			// newWithdrawer is the address to set the withdraw address to
-			newWithdrawer = differentAddr
-		)
+
+		// newWithdrawer is the address to set the withdraw address to
+		newWithdrawer := differentAddr
 
 		BeforeEach(func() {
 			// withdraw address should be same as address
@@ -798,10 +794,9 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	})
 
 	Context("setWithdrawerAddress with contract as delegator", func() {
-		var (
-			// newWithdrawer is the address to set the withdraw address to
-			newWithdrawer = differentAddr
-		)
+
+		// newWithdrawer is the address to set the withdraw address to
+		newWithdrawer := differentAddr
 
 		BeforeEach(func() {
 			// withdraw address should be same as address
@@ -1378,7 +1373,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// ===================================
 	Context("Distribution precompile queries", func() {
 		Context("get validator distribution info", func() {
-
 			BeforeEach(func() {
 				// fund validator account to make self-delegation
 				err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
@@ -1663,7 +1657,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		Context("get delegator's total rewards", func() {
-
 			BeforeEach(func() {
 				callArgs.MethodName = "getDelegationTotalRewards"
 				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
@@ -1676,7 +1669,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				callArgs.Args = []interface{}{s.keyring.GetAddr(1)}
-				txArgs.GasLimit = 200_000 //set gas limit to avoid out of gas error
+				txArgs.GasLimit = 200_000 // set gas limit to avoid out of gas error
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(1),
 					txArgs,
@@ -1727,7 +1720,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		Context("get all delegator validators", func() {
-
 			BeforeEach(func() {
 				callArgs.MethodName = "getDelegatorValidators"
 				callArgs.Args = []interface{}{s.keyring.GetAddr(0)}
