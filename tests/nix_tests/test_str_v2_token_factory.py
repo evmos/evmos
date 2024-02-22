@@ -55,8 +55,7 @@ def test_str_v2_token_factory(ibc):
     token_pairs = evmos_cli.get_token_pairs()
     assert len(token_pairs) == 1
 
-    # TODO: Uncomment this once the refactor PR is merged
-    active_dynamic_precompiles = evmos_cli.evm_params()["active_dynamic_precompiles"]
+    active_dynamic_precompiles = evmos_cli.evm_params()["params"]["active_dynamic_precompiles"]
     assert len(active_dynamic_precompiles) == 1
 
     balance = get_balance(evmos, bech_dst, TOKEN_FACTORY_IBC_DENOM)
