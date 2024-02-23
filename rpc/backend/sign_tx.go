@@ -23,6 +23,10 @@ import (
 // SendTransaction sends transaction based on received args using Node's key to sign it
 func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, error) {
 	// Look up the wallet containing the requested signer
+	if b.cfg.JSONRPC.Enable && !b.cfg.JSONRPC.AllowInsecureUnlock {
+		b.logger.Error("Account unlock with HTTP access is forbidden")
+		return common.Hash{}, fmt.Errorf("Account unlock with HTTP access is forbidden!")
+	}
 	_, err := b.clientCtx.Keyring.KeyByAddress(sdk.AccAddress(args.GetFrom().Bytes()))
 	if err != nil {
 		b.logger.Error("failed to find key in keyring", "address", args.GetFrom(), "error", err.Error())
