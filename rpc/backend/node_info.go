@@ -21,6 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/evmos/v16/rpc/types"
 	"github.com/evmos/evmos/v16/server/config"
@@ -32,6 +33,10 @@ import (
 func (b *Backend) Accounts() ([]common.Address, error) {
 	addresses := make([]common.Address, 0) // return [] instead of nil if empty
 
+	if b.cfg.JSONRPC.Enable && !b.cfg.JSONRPC.AllowInsecureUnlock {
+		b.logger.Error("Account unlock with HTTP access is forbidden")
+		return addresses, fmt.Errorf("Account unlock with HTTP access is forbidden!")
+	}
 	infos, err := b.clientCtx.Keyring.List()
 	if err != nil {
 		return addresses, err
@@ -77,6 +82,11 @@ func (b *Backend) Syncing() (interface{}, error) {
 
 // SetEtherbase sets the etherbase of the miner
 func (b *Backend) SetEtherbase(etherbase common.Address) bool {
+	if b.cfg.JSONRPC.Enable && !b.cfg.JSONRPC.AllowInsecureUnlock {
+		b.logger.Error("Account unlock with HTTP access is forbidden")
+		return false
+	}
+
 	delAddr, err := b.GetCoinbase()
 	if err != nil {
 		b.logger.Debug("failed to get coinbase address", "error", err.Error())
@@ -218,6 +228,10 @@ func (b *Backend) ImportRawKey(privkey, password string) (common.Address, error)
 func (b *Backend) ListAccounts() ([]common.Address, error) {
 	addrs := []common.Address{}
 
+	if b.cfg.JSONRPC.Enable && !b.cfg.JSONRPC.AllowInsecureUnlock {
+		b.logger.Error("Account unlock with HTTP access is forbidden")
+		return addrs, fmt.Errorf("Account unlock with HTTP access is forbidden!")
+	}
 	list, err := b.clientCtx.Keyring.List()
 	if err != nil {
 		return nil, err
