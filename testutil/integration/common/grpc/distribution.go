@@ -16,7 +16,16 @@ func (gqh *IntegrationHandler) GetDelegationTotalRewards(delegatorAddress string
 	})
 }
 
-// GetDelegationTotalRewards returns the total delegation rewards for the given delegator.
+// GetDelegationRewards returns the  delegation rewards for the given delegator and validator.
+func (gqh *IntegrationHandler) GetDelegationRewards(delegatorAddress string, validatorAddress string) (*distrtypes.QueryDelegationRewardsResponse, error) {
+	distrClient := gqh.network.GetDistrClient()
+	return distrClient.DelegationRewards(context.Background(), &distrtypes.QueryDelegationRewardsRequest{
+		DelegatorAddress: delegatorAddress,
+		ValidatorAddress: validatorAddress,
+	})
+}
+
+// GetDelegatorWithdrawAddr returns the withdraw address the given delegator.
 func (gqh *IntegrationHandler) GetDelegatorWithdrawAddr(delegatorAddress string) (*distrtypes.QueryDelegatorWithdrawAddressResponse, error) {
 	distrClient := gqh.network.GetDistrClient()
 	return distrClient.DelegatorWithdrawAddress(context.Background(), &distrtypes.QueryDelegatorWithdrawAddressRequest{
@@ -24,7 +33,7 @@ func (gqh *IntegrationHandler) GetDelegatorWithdrawAddr(delegatorAddress string)
 	})
 }
 
-// GetDelegationTotalRewards returns the total delegation rewards for the given delegator.
+// GetValidatorCommission returns the commission for the given validator.
 func (gqh *IntegrationHandler) GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error) {
 	distrClient := gqh.network.GetDistrClient()
 	return distrClient.ValidatorCommission(context.Background(), &distrtypes.QueryValidatorCommissionRequest{

@@ -36,6 +36,7 @@ type Handler interface {
 
 	// Distribution methods
 	GetDelegationTotalRewards(delegatorAddress string) (*distrtypes.QueryDelegationTotalRewardsResponse, error)
+	GetDelegationRewards(delegatorAddress string, validatorAddress string) (*distrtypes.QueryDelegationRewardsResponse, error)
 	GetDelegatorWithdrawAddr(delegatorAddress string) (*distrtypes.QueryDelegatorWithdrawAddressResponse, error)
 	GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error)
 }

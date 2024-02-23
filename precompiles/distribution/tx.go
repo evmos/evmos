@@ -48,7 +48,7 @@ func (p Precompile) ClaimRewards(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorAddr
+	isContractDelegator := (contract.CallerAddress == delegatorAddr) && (origin != delegatorAddr)
 	if !isContractDelegator && origin != delegatorAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
@@ -97,7 +97,7 @@ func (p Precompile) SetWithdrawAddress(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr
+	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
@@ -130,7 +130,7 @@ func (p Precompile) WithdrawDelegatorRewards(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr
+	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
