@@ -1,4 +1,4 @@
-FROM golang:1.22rc2-bullseye as build-env
+FROM golang:bullseye as build-env
 
 # Install minimum necessary dependencies
 ENV PACKAGES curl make git libc-dev bash gcc
@@ -18,7 +18,7 @@ COPY . .
 RUN make build-linux
 
 # Final image
-FROM golang:1.22rc2-bullseye as final
+FROM golang:bullseye as final
 
 WORKDIR /
 

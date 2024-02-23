@@ -7,7 +7,8 @@ import "../StakingI.sol" as staking;
 /// @author Evmos Core Team
 /// @dev This contract is used to test external contract calls to the staking precompile.
 contract StakingCaller {
-    /// counter is used to test the state persistence bug, when EVM and Cosmos state were both changed in the same function.
+    /// counter is used to test the state persistence bug, when EVM and Cosmos state were both 
+    /// changed in the same function.
     uint256 public counter;
     string[] private delegateMethod = [staking.MSG_DELEGATE];
 
@@ -239,7 +240,8 @@ contract StakingCaller {
         );
     }
 
-    /// @dev This function is used to test the behaviour when executing transactions using special function calling opcodes,
+    /// @dev This function is used to test the behaviour when executing transactions using special 
+    /// function calling opcodes,
     /// like call, delegatecall, staticcall, and callcode.
     /// @param _addr The address to approve.
     /// @param _validatorAddr The validator address to delegate from.
@@ -392,7 +394,9 @@ contract StakingCaller {
                     revert(0, 0)
                 }
             }
-            coin = staking.Coin(denom, amt); // NOTE: this is returning a blank denom because unpacking the denom is not straightforward and hasn't been solved, which is okay for this generic test case
+            // NOTE: this is returning a blank denom because unpacking the denom is not 
+            // straightforward and hasn't been solved, which is okay for this generic test case.
+            coin = staking.Coin(denom, amt); 
         } else {
             revert("invalid calltype");
         }
