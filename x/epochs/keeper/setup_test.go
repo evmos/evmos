@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"testing"
+	"time"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
@@ -17,6 +18,13 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/stretchr/testify/suite"
+)
+
+const (
+	day             = time.Hour * 24
+	week            = time.Hour * 24 * 7
+	month           = time.Hour * 24 * 31
+	monthIdentifier = "month"
 )
 
 // KeeperTestSuite is the implementation of the test suite for the
