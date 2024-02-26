@@ -97,15 +97,9 @@ $ %s debug addr 0x00000Be6819f41400225702D32d3dd23663Dd690 --prefix evmos`, vers
 					return err
 				}
 				if prefix == "" {
-					bech32AccAddress, err := sdk.Bech32ifyAddressBytes(cfg.Bech32Prefix, addr)
-					if err != nil {
-						return err
-					}
+					bech32AccAddress := sdk.AccAddress(addr)
 
-					bech32ValAddress, err := sdk.Bech32ifyAddressBytes(cfg.Bech32PrefixValAddr, addr)
-					if err != nil {
-						return err
-					}
+					bech32ValAddress := sdk.ValAddress(addr)
 
 					cmd.Printf("Bech32 Acc %s\n", bech32AccAddress)
 					cmd.Printf("Bech32 Val %s\n", bech32ValAddress)
