@@ -34,6 +34,7 @@ import (
 	"github.com/evmos/evmos/v16/types"
 	evmosutil "github.com/evmos/evmos/v16/utils"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -55,10 +56,12 @@ type defaultGenesisParams struct {
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
 	evmtypes.ModuleName:       genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	erc20types.ModuleName:     genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
 	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
+	authtypes.ModuleName:      setAuthGenesisState,
 	consensustypes.ModuleName: func(_ *app.Evmos, genesisState types.GenesisState, _ interface{}) (types.GenesisState, error) {
 		// no-op. Consensus does not have a genesis state on the application
 		// but the params are used on it
@@ -414,6 +417,26 @@ func setDefaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
 	return genesisState
+}
+
+// setAuthGenesisState updates the bank genesis state with custom genesis state
+func setAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis interface{}) (types.GenesisState, error) {
+	customGen, ok := customGenesis.(*authtypes.GenesisState)
+	if !ok {
+		return nil, fmt.Errorf("invalid type %T for auth module genesis state", customGenesis)
+	}
+
+	authGen := &authtypes.GenesisState{}
+	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[authtypes.ModuleName], authGen)
+
+	if len(customGen.Accounts) > 0 {
+		authGen.Accounts = append(authGen.Accounts, customGen.Accounts...)
+	}
+
+	authGen.Params = customGen.Params
+
+	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGen)
+	return genesisState, nil
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state

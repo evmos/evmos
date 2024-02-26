@@ -59,7 +59,7 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
-		balances = createBalances(cfg.preFundedAccounts, []string{cfg.denom})
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, cfg.denom))
 	}
 
 	// append validators to genesis accounts and balances
