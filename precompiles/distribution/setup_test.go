@@ -37,6 +37,7 @@ type PrecompileTestSuite struct {
 
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
+	// TODO uncomment this
 	// suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests
