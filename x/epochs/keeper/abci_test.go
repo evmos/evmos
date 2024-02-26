@@ -15,8 +15,8 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 		found     bool
 		ctx       sdktypes.Context
 	)
-    day   := time.Hour * 24
-    month := time.Hour * 24 * 31
+	day := time.Hour * 24
+	month := time.Hour * 24 * 31
 
 	testCases := []struct {
 		name                       string
@@ -176,8 +176,8 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 
 func (suite *KeeperTestSuite) TestEpochStartingOneMonthAfterInitGenesis() {
 	now := time.Now()
-    week  := time.Hour * 24 * 7
-    month := time.Hour * 24 * 31
+	week := time.Hour * 24 * 7
+	month := time.Hour * 24 * 31
 
 	identifier := "month"
 	epochsInfo := []types.EpochInfo{
@@ -213,7 +213,7 @@ func (suite *KeeperTestSuite) TestEpochStartingOneMonthAfterInitGenesis() {
 	suite.Require().Equal(false, epochInfo.EpochCountingStarted, "expected epoch counting not started")
 
 	// After 1 month.
-    nowPlusMonth := now.Add(month)
+	nowPlusMonth := now.Add(month)
 	ctx = ctx.WithBlockHeight(3).WithBlockTime(nowPlusMonth)
 	suite.network.App.EpochsKeeper.BeginBlocker(ctx)
 

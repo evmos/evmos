@@ -7,7 +7,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestEpochLifeCycle() {
-    // The default genesis includes day and week epochs.
+	// The default genesis includes day and week epochs.
 	suite.SetupTest([]types.EpochInfo{})
 
 	epochInfo := types.EpochInfo{
@@ -18,7 +18,7 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 		CurrentEpochStartTime: time.Time{},
 		EpochCountingStarted:  false,
 	}
-    ctx := suite.network.GetContext()
+	ctx := suite.network.GetContext()
 	suite.network.App.EpochsKeeper.SetEpochInfo(ctx, epochInfo)
 	epochInfoSaved, found := suite.network.App.EpochsKeeper.GetEpochInfo(ctx, "month")
 	suite.Require().True(found)
