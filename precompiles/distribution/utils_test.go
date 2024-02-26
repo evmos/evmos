@@ -6,6 +6,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
@@ -69,6 +70,13 @@ func (s *PrecompileTestSuite) fundAccountWithBaseDenom(ctx sdk.Context, addr sdk
 		return err
 	}
 	return s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, coins)
+}
+
+func (s *PrecompileTestSuite) getStakingPrecompile() (*staking.Precompile, error) {
+	return staking.NewPrecompile(
+		s.network.App.StakingKeeper,
+		s.network.App.AuthzKeeper,
+	)
 }
 
 func generateKeys(count int) []keyring.Key {

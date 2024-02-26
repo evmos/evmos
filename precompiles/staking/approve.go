@@ -243,18 +243,29 @@ func (p Precompile) createStakingAuthz(
 	authzType stakingtypes.AuthorizationType,
 ) error {
 	// Get all available validators and filter out jailed validators
+	var iterErr error
 	validators := make([]sdk.ValAddress, 0)
 	if err := p.stakingKeeper.IterateValidators(
 		ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, sdk.ValAddress(validator.GetOperator()))
+			var valAddr sdk.ValAddress
+			valAddr, iterErr = sdk.ValAddressFromBech32(validator.GetOperator())
+			if iterErr != nil {
+				return
+			}
+			validators = append(validators, valAddr)
 			return
 		},
 	); err != nil {
 		return err
 	}
+
+	if iterErr != nil {
+		return iterErr
+	}
+
 	stakingAuthz, err := stakingtypes.NewStakeAuthorization(validators, nil, authzType, coin)
 	if err != nil {
 		return err
