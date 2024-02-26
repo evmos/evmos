@@ -442,8 +442,6 @@ func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesis
 			if err != nil {
 				return genesisState, err
 			}
-		} else {
-			return genesisState, fmt.Errorf("Bro, genesis generator not found for: %s", mod)
 		}
 	}
 	return genesisState, err
