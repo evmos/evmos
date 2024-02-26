@@ -58,7 +58,7 @@ func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccou
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
-		balances = createBalances(cfg.preFundedAccounts, []string{cfg.denom})
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, cfg.denom))
 	}
 
 	return

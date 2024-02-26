@@ -5,11 +5,16 @@ import (
 
 	"cosmossdk.io/math"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/precompiles/bank"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {
+	var ctx sdk.Context
+	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	s.SetupTest()
 	method := s.precompile.Methods[bank.BalancesMethod]
 
 	testcases := []struct {
@@ -53,7 +58,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 			[]bank.Balance{},
 		},
 		{
-			"pass - EVMOS balance present",
+			"pass - Initial balances present",
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -61,15 +66,21 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			[]bank.Balance{{
-				ContractAddress: s.evmosAddr,
-				Amount:          big.NewInt(4e18),
-			}},
+			[]bank.Balance{
+				{
+					ContractAddress: s.evmosAddr,
+					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+				},
+				{
+					ContractAddress: s.xmplAddr,
+					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+				},
+			},
 		},
 		{
-			"pass - EVMOS and XMPL balances present",
+			"pass - EVMOS and XMPL balances present - mint extra XMPL",
 			func() []interface{} {
-				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), math.NewInt(1e18))
+				ctx = s.mintAndSendXMPLCoin(ctx, s.keyring.GetAccAddr(0), math.NewInt(1e18))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 				}
@@ -78,10 +89,10 @@ func (s *PrecompileTestSuite) TestBalances() {
 			"",
 			[]bank.Balance{{
 				ContractAddress: s.evmosAddr,
-				Amount:          big.NewInt(4e18),
+				Amount:          network.PrefundedAccountInitialBalance.BigInt(),
 			}, {
 				ContractAddress: s.xmplAddr,
-				Amount:          big.NewInt(1e18),
+				Amount:          network.PrefundedAccountInitialBalance.Add(math.NewInt(1e18)).BigInt(),
 			}},
 		},
 	}
@@ -90,10 +101,10 @@ func (s *PrecompileTestSuite) TestBalances() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			ctx = s.SetupTest() // reset the chain each test
 
 			bz, err := s.precompile.Balances(
-				s.network.GetContext(),
+				ctx,
 				nil,
 				&method,
 				tc.malleate(),
@@ -113,10 +124,15 @@ func (s *PrecompileTestSuite) TestBalances() {
 }
 
 func (s *PrecompileTestSuite) TestTotalSupply() {
+	var ctx sdk.Context
+	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	s.SetupTest()
 	method := s.precompile.Methods[bank.TotalSupplyMethod]
 
-	evmosTotalSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
-	s.Require().True(ok)
+	totSupplRes, err := s.grpcHandler.GetTotalSupply()
+	s.Require().NoError(err)
+	evmosTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
+	xmplTotalSupply := totSupplRes.Supply.AmountOf(s.tokenDenom)
 
 	testcases := []struct {
 		name      string
@@ -126,14 +142,14 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
-				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), math.NewInt(1e18))
+				ctx = s.mintAndSendXMPLCoin(ctx, s.keyring.GetAccAddr(0), math.NewInt(1e18))
 			},
 			[]bank.Balance{{
 				ContractAddress: s.evmosAddr,
-				Amount:          evmosTotalSupply,
+				Amount:          evmosTotalSupply.BigInt(),
 			}, {
 				ContractAddress: s.xmplAddr,
-				Amount:          big.NewInt(1e18),
+				Amount:          xmplTotalSupply.Add(math.NewInt(1e18)).BigInt(),
 			}},
 		},
 	}
@@ -142,10 +158,10 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			s.SetupTest()
-
+			ctx = s.SetupTest()
+			tc.malleate()
 			bz, err := s.precompile.TotalSupply(
-				s.network.GetContext(),
+				ctx,
 				nil,
 				&method,
 				nil,
@@ -161,10 +177,14 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 }
 
 func (s *PrecompileTestSuite) TestSupplyOf() {
+	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	s.SetupTest()
 	method := s.precompile.Methods[bank.SupplyOfMethod]
 
-	evmosTotalSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
-	s.Require().True(ok)
+	totSupplRes, err := s.grpcHandler.GetTotalSupply()
+	s.Require().NoError(err)
+	evmosTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
+	xmplTotalSupply := totSupplRes.Supply.AmountOf(s.tokenDenom)
 
 	testcases := []struct {
 		name        string
@@ -215,7 +235,7 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			},
 			false,
 			"",
-			big.NewInt(1e18),
+			xmplTotalSupply.BigInt(),
 		},
 
 		{
@@ -227,7 +247,7 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			},
 			false,
 			"",
-			evmosTotalSupply,
+			evmosTotalSupply.BigInt(),
 		},
 	}
 
@@ -235,10 +255,10 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			ctx := s.SetupTest()
 
 			bz, err := s.precompile.SupplyOf(
-				s.network.GetContext(),
+				ctx,
 				nil,
 				&method,
 				tc.malleate(),
