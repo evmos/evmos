@@ -15,13 +15,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"cosmossdk.io/simapp/params"
+	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cometbft/cometbft/libs/log"
-
-	"cosmossdk.io/simapp/params"
-	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"

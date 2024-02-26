@@ -86,6 +86,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
+- (debug) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
