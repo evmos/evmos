@@ -103,10 +103,6 @@ var (
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
-	// Create funded accounts based on the config and
-	// create genesis accounts
-	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
-
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
@@ -117,6 +113,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	if err != nil {
 		return err
 	}
+
+	// Create funded accounts based on the config and
+	// create genesis accounts
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
 		fundedAccountBalances,

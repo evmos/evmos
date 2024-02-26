@@ -45,6 +45,10 @@ type TxFactory interface {
 
 	// SetWithdrawAddress is a method to create and broadcast a MsgSetWithdrawAddress
 	SetWithdrawAddress(delegatorPriv cryptotypes.PrivKey, withdrawerAddr sdk.AccAddress) error
+	// WithdrawDelegationRewards is a method to create and broadcast a MsgWithdrawDelegationRewards
+	WithdrawDelegationRewards(delegatorPriv cryptotypes.PrivKey, validatorAddr string) error
+	// WithdrawValidatorCommission is a method to create and broadcast a MsgWithdrawValidatorCommission
+	WithdrawValidatorCommission(validatorPriv cryptotypes.PrivKey) error
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)

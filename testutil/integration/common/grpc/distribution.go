@@ -40,3 +40,11 @@ func (gqh *IntegrationHandler) GetValidatorCommission(validatorAddress string) (
 		ValidatorAddress: validatorAddress,
 	})
 }
+
+// GetValidatorOutstandingRewards returns the  delegation rewards for the given delegator and validator.
+func (gqh *IntegrationHandler) GetValidatorOutstandingRewards(validatorAddress string) (*distrtypes.QueryValidatorOutstandingRewardsResponse, error) {
+	distrClient := gqh.network.GetDistrClient()
+	return distrClient.ValidatorOutstandingRewards(context.Background(), &distrtypes.QueryValidatorOutstandingRewardsRequest{
+		ValidatorAddress: validatorAddress,
+	})
+}
