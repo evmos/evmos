@@ -3,7 +3,10 @@ package distribution_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
 	"github.com/evmos/evmos/v16/precompiles/distribution"
@@ -30,9 +33,10 @@ type PrecompileTestSuite struct {
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	precompile     *distribution.Precompile
-	bondDenom      string
-	validatorsKeys []testkeyring.Key
+	precompile           *distribution.Precompile
+	bondDenom            string
+	validatorsKeys       []testkeyring.Key
+	withValidatorSlashes bool
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
@@ -46,12 +50,32 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
+	keyring := testkeyring.New(2)
+	s.validatorsKeys = generateKeys(3)
+
 	// enable inflation for staking rewards
 	customGen := network.CustomGenesisState{}
 	customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()
 
-	keyring := testkeyring.New(2)
-	s.validatorsKeys = generateKeys(3)
+	// set some slashing events for integration test
+	distrGen := distrtypes.DefaultGenesisState()
+	if s.withValidatorSlashes {
+		distrGen.ValidatorSlashEvents = []distrtypes.ValidatorSlashEventRecord{
+			{
+				ValidatorAddress:    sdk.ValAddress(s.validatorsKeys[0].Addr.Bytes()).String(),
+				Height:              0,
+				Period:              1,
+				ValidatorSlashEvent: distrtypes.NewValidatorSlashEvent(1, math.LegacyNewDecWithPrec(5, 2)),
+			},
+			{
+				ValidatorAddress:    sdk.ValAddress(s.validatorsKeys[0].Addr.Bytes()).String(),
+				Height:              1,
+				Period:              1,
+				ValidatorSlashEvent: distrtypes.NewValidatorSlashEvent(1, math.LegacyNewDecWithPrec(5, 2)),
+			},
+		}
+	}
+	customGen[distrtypes.ModuleName] = distrGen
 
 	operatorsAddr := make([]sdk.AccAddress, 3)
 	for i, k := range s.validatorsKeys {

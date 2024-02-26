@@ -8,7 +8,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -593,12 +592,16 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(commission[0].Amount).To(Equal(expCommissionAmt.BigInt()))
 		})
 
-		Context("validatorSlashes query query", func() {
+		Context("validatorSlashes query query", Ordered, func() {
+			BeforeAll(func() {
+				s.withValidatorSlashes = true
+				s.SetupTest()
+			})
+			AfterAll(func() {
+				s.withValidatorSlashes = false
+			})
+
 			It("should get validator slashing events (default pagination)", func() {
-				// set slash event
-				slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)}
-				err := s.network.App.DistrKeeper.SetValidatorSlashEvent(s.network.GetContext(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2, 1, slashEvent)
-				Expect(err).To(BeNil(), "error while calling the precompile")
 
 				callArgs.MethodName = distribution.ValidatorSlashesMethod
 				callArgs.Args = []interface{}{
@@ -618,18 +621,17 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				var out distribution.ValidatorSlashesOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(out.Slashes)).To(Equal(1))
-				Expect(slashEvent.Fraction.BigInt()).To(Equal(out.Slashes[0].Fraction.Value))
-				Expect(slashEvent.ValidatorPeriod).To(Equal(out.Slashes[0].ValidatorPeriod))
-				Expect(uint64(1)).To(Equal(out.PageResponse.Total))
+				Expect(len(out.Slashes)).To(Equal(2))
+				// expected values according to the values used on test setup (custom genesis)
+				for _, s := range out.Slashes {
+					Expect(s.Fraction.Value).To(Equal(math.LegacyNewDecWithPrec(5, 2).BigInt()))
+					Expect(s.ValidatorPeriod).To(Equal(uint64(1)))
+				}
+				Expect(uint64(2)).To(Equal(out.PageResponse.Total))
 				Expect(out.PageResponse.NextKey).To(BeEmpty())
 			})
 
 			It("should get validator slashing events - query w/pagination limit = 1)", func() {
-				// TODO fixme, this should be done with a custom genesis
-				// set 2 slashing events for validator[0]
-				// slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2)
-
 				callArgs.MethodName = distribution.ValidatorSlashesMethod
 				callArgs.Args = []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
@@ -651,10 +653,9 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				var out distribution.ValidatorSlashesOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				// TODO FIXME
-				// Expect(len(out.Slashes)).To(Equal(1))
-				// Expect(slashEvent.Fraction.BigInt()).To(Equal(out.Slashes[0].Fraction.Value))
-				// Expect(slashEvent.ValidatorPeriod).To(Equal(out.Slashes[0].ValidatorPeriod))
+				Expect(len(out.Slashes)).To(Equal(1))
+				Expect(out.Slashes[0].Fraction.Value).To(Equal(math.LegacyNewDecWithPrec(5, 2).BigInt()))
+				Expect(out.Slashes[0].ValidatorPeriod).To(Equal(uint64(1)))
 				// total slashes count is 2
 				Expect(uint64(2)).To(Equal(out.PageResponse.Total))
 				Expect(out.PageResponse.NextKey).NotTo(BeEmpty())
@@ -1677,12 +1678,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 		})
 
-		Context("get validator slashing events", func() {
-			// defaultValSlashArgs are the default arguments for the getValidatorSlashes query
-			//
-			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
-			var defaultValSlashArgs contracts.CallArgs
-
+		Context("get validator slashing events", Ordered, func() {
 			BeforeEach(func() {
 				callArgs.MethodName = "getValidatorSlashes"
 				callArgs.Args = []interface{}{
@@ -1690,6 +1686,16 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 					uint64(1), uint64(5),
 					query.PageRequest{},
 				}
+			})
+
+			AfterEach(func() {
+				// NOTE: The first test case will not have the slashes
+				// so keep this in mind when adding/removing new testcases
+				s.withValidatorSlashes = true
+			})
+
+			AfterAll(func() {
+				s.withValidatorSlashes = false
 			})
 
 			It("should not get slashing events - validator without slashes", func() {
@@ -1708,10 +1714,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 
 			It("should get slashing events - validator with slashes (default pagination)", func() {
-				// TODO fixme using custom genesis
-				// set slash event
-				// slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 1)
-
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
 					txArgs,
@@ -1723,20 +1725,19 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				var out distribution.ValidatorSlashesOutput
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				Expect(len(out.Slashes)).To(Equal(1))
-				// Expect(slashEvent.Fraction.BigInt()).To(Equal(out.Slashes[0].Fraction.Value))
-				// Expect(slashEvent.ValidatorPeriod).To(Equal(out.Slashes[0].ValidatorPeriod))
-				Expect(uint64(1)).To(Equal(out.PageResponse.Total))
+				Expect(len(out.Slashes)).To(Equal(2))
+				// expected values according to the values used on test setup (custom genesis)
+				for _, s := range out.Slashes {
+					Expect(s.Fraction.Value).To(Equal(math.LegacyNewDecWithPrec(5, 2).BigInt()))
+					Expect(s.ValidatorPeriod).To(Equal(uint64(1)))
+				}
+				Expect(uint64(2)).To(Equal(out.PageResponse.Total))
 				Expect(out.PageResponse.NextKey).To(BeEmpty())
 			})
 
 			It("should get slashing events - validator with slashes w/pagination", func() {
-				// TODO fixme using custom genesis
-				// set 2 slashing events
-				// slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), 2)
-
 				// set pagination
-				defaultValSlashArgs.Args = []interface{}{
+				callArgs.Args = []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
 					uint64(1), uint64(5),
 					query.PageRequest{
@@ -1757,11 +1758,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(out.Slashes)).To(Equal(1))
-				// Expect(slashEvent.Fraction.BigInt()).To(Equal(out.Slashes[0].Fraction.Value))
-				// Expect(slashEvent.ValidatorPeriod).To(Equal(out.Slashes[0].ValidatorPeriod))
+				Expect(out.Slashes[0].Fraction.Value).To(Equal(math.LegacyNewDecWithPrec(5, 2).BigInt()))
+				Expect(out.Slashes[0].ValidatorPeriod).To(Equal(uint64(1)))
 				Expect(uint64(2)).To(Equal(out.PageResponse.Total))
 				Expect(out.PageResponse.NextKey).NotTo(BeEmpty())
 			})
+
 		})
 
 		Context("get delegation rewards", func() {

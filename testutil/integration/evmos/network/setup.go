@@ -26,6 +26,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -60,6 +61,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
+	distrtypes.ModuleName:     genStateSetter[*distrtypes.GenesisState](distrtypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
 	authtypes.ModuleName:      setAuthGenesisState,
 	consensustypes.ModuleName: func(_ *app.Evmos, genesisState types.GenesisState, _ interface{}) (types.GenesisState, error) {
