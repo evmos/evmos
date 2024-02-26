@@ -9,6 +9,7 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
@@ -43,13 +44,19 @@ type Precompile struct {
 	erc20Keeper erc20keeper.Keeper
 }
 
+// LoadABI loads the staking ABI from the embedded abi.json file
+// for the staking precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
+}
+
 // NewPrecompile creates a new bank Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, "abi.json")
+	abi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +65,7 @@ func NewPrecompile(
 	// during the run execution
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  newABI,
+			ABI:                  abi,
 			KvGasConfig:          storetypes.GasConfig{},
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},

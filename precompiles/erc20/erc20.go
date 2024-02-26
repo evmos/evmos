@@ -63,6 +63,11 @@ const (
 	GasAllowance         = 3_225
 )
 
+// GetABI returns the ERC-20 precompile ABI.
+func GetABI() abi.ABI {
+	return abiInstance
+}
+
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile

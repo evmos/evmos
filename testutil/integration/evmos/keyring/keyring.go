@@ -36,6 +36,8 @@ type Keyring interface {
 	GetAccAddr(index int) sdktypes.AccAddress
 	// GetAllAccAddrs returns all the SDK addresses of the accounts in the keyring.
 	GetAllAccAddrs() []sdktypes.AccAddress
+	// GetAllAccs returns all the common addresses of the accounts in the keyring.
+	GetAllAccs() []common.Address
 	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
 
@@ -85,6 +87,15 @@ func (kr *IntegrationKeyring) GetAllAccAddrs() []sdktypes.AccAddress {
 	accs := make([]sdktypes.AccAddress, 0, len(kr.keys))
 	for _, key := range kr.keys {
 		accs = append(accs, key.AccAddr)
+	}
+	return accs
+}
+
+// GetAllAccs returns all the common addresses of the accounts in the keyring.
+func (kr *IntegrationKeyring) GetAllAccs() []common.Address {
+	accs := make([]common.Address, 0, len(kr.keys))
+	for _, key := range kr.keys {
+		accs = append(accs, key.Addr)
 	}
 	return accs
 }
