@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	cfg "github.com/evmos/evmos/v16/cmd/config"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	evmos "github.com/evmos/evmos/v16/types"
 
