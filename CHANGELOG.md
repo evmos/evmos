@@ -69,6 +69,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+- (evm) [#2307](https://github.com/evmos/evmos/pull/2307) Add global BuildEVMExecutionCtx function.
 - (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
 - (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
