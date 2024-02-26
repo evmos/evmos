@@ -1,17 +1,12 @@
 package keeper_test
 
 import (
+	"fmt"
 	"time"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v16/x/epochs/types"
-)
-
-const (
-	day   = time.Hour * 24
-	week  = time.Hour * 24 * 7
-	month = time.Hour * 24 * 31
 )
 
 func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
@@ -20,6 +15,8 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 		found     bool
 		ctx       sdktypes.Context
 	)
+    day   := time.Hour * 24
+    month := time.Hour * 24 * 31
 
 	testCases := []struct {
 		name                       string
@@ -142,7 +139,7 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			identifier := "month"
 
 			// custom genesis defines an epoch that is not yet start but that should start at
@@ -179,6 +176,8 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 
 func (suite *KeeperTestSuite) TestEpochStartingOneMonthAfterInitGenesis() {
 	now := time.Now()
+    week  := time.Hour * 24 * 7
+    month := time.Hour * 24 * 31
 
 	identifier := "month"
 	epochsInfo := []types.EpochInfo{
