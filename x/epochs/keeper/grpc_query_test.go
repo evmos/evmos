@@ -2,7 +2,10 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
@@ -10,25 +13,25 @@ import (
 	"github.com/evmos/evmos/v16/x/epochs/types"
 )
 
-func (suite *KeeperTestSuite) TestEpochInfo() {
+func TestEpochInfo(t *testing.T) {
 	var (
+        // suite is defined here so it is available inside the malleate function.
+		suite  *KeeperTestSuite
 		req    *types.QueryEpochsInfoRequest
 		expRes *types.QueryEpochsInfoResponse
 	)
 
-	day := time.Hour * 24
-	week := time.Hour * 24 * 7
-
 	testCases := []struct {
 		name     string
-		malleate func(ctx sdktypes.Context) sdktypes.Context
+		malleate func() sdktypes.Context
 		expPass  bool
 	}{
 		{
 			"pass - default EpochInfos",
-			func(ctx sdktypes.Context) sdktypes.Context {
+			func() sdktypes.Context {
 				req = &types.QueryEpochsInfoRequest{}
 
+                ctx := suite.network.GetContext()
 				currentBlockHeight := ctx.BlockHeight()
 				currentBlockTime := ctx.BlockTime()
 
@@ -70,7 +73,8 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 		},
 		{
 			"set epoch info",
-			func(ctx sdktypes.Context) sdktypes.Context {
+			func() sdktypes.Context {
+                ctx := suite.network.GetContext()
 				currentBlockHeight := ctx.BlockHeight()
 				currentBlockTime := ctx.BlockTime()
 
@@ -127,26 +131,27 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			// Default epoch infos at genesis with day and week.
-			suite.SetupTest([]types.EpochInfo{})
-
+			suite = SetupTest([]types.EpochInfo{})
 			ctx := suite.network.GetContext()
-			ctx = tc.malleate(ctx)
+
+			ctx = tc.malleate()
 
 			res, err := suite.network.GetEpochsClient().EpochInfos(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			}
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestCurrentEpoch() {
+func TestCurrentEpoch(t *testing.T) {
 	var (
+		suite  *KeeperTestSuite
 		req    *types.QueryCurrentEpochRequest
 		expRes *types.QueryCurrentEpochResponse
 	)
@@ -187,18 +192,18 @@ func (suite *KeeperTestSuite) TestCurrentEpoch() {
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest([]types.EpochInfo{})
-
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			suite = SetupTest([]types.EpochInfo{})
 			ctx := suite.network.GetContext()
+
 			tc.malleate()
 
 			res, err := suite.network.GetEpochsClient().CurrentEpoch(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			}
 		})
 	}

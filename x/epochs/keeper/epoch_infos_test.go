@@ -1,14 +1,17 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/evmos/evmos/v16/x/epochs/types"
 )
 
-func (suite *KeeperTestSuite) TestEpochLifeCycle() {
+func TestEpochLifeCycle(t *testing.T) {
 	// The default genesis includes day and week epochs.
-	suite.SetupTest([]types.EpochInfo{})
+	suite := SetupTest([]types.EpochInfo{})
 
 	epochInfo := types.EpochInfo{
 		Identifier:            monthIdentifier,
@@ -21,12 +24,12 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	ctx := suite.network.GetContext()
 	suite.network.App.EpochsKeeper.SetEpochInfo(ctx, epochInfo)
 	epochInfoSaved, found := suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
-	suite.Require().True(found)
-	suite.Require().Equal(epochInfo, epochInfoSaved)
+	require.True(t, found)
+	require.Equal(t, epochInfo, epochInfoSaved)
 
 	allEpochs := suite.network.App.EpochsKeeper.AllEpochInfos(ctx)
-	suite.Require().Len(allEpochs, 3)
-	suite.Require().Equal(allEpochs[0].Identifier, types.DayEpochID) // alphabetical order
-	suite.Require().Equal(allEpochs[1].Identifier, monthIdentifier)
-	suite.Require().Equal(allEpochs[2].Identifier, types.WeekEpochID)
+	require.Len(t, allEpochs, 3)
+	require.Equal(t, allEpochs[0].Identifier, types.DayEpochID) // alphabetical order
+	require.Equal(t, allEpochs[1].Identifier, monthIdentifier)
+	require.Equal(t, allEpochs[2].Identifier, types.WeekEpochID)
 }
