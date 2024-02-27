@@ -194,11 +194,10 @@ func TestCurrentEpoch(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			suite = SetupTest([]types.EpochInfo{})
-			ctx := suite.network.GetContext()
 
 			tc.malleate()
 
-			res, err := suite.network.GetEpochsClient().CurrentEpoch(ctx, req)
+			res, err := suite.network.GetEpochsClient().CurrentEpoch(suite.network.GetContext(), req)
 			if tc.expPass {
 				require.NoError(t, err)
 				require.Equal(t, expRes, res)
