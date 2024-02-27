@@ -897,15 +897,22 @@ func (app *Evmos) setPostHandler() {
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	// Perform any scheduled forks before executing the modules logic
-	//
-	// NOTE: there are no scheduled forks currently, uncomment when needed
-	// app.ScheduleForkUpgrade(ctx)
+	logger := ctx.Logger().With("context", "STRv2 migration")
+
+	// Log the token supply for the individual registered token pairs
+	err := v17.LogTokenPairBalances(
+		ctx,
+		logger,
+		app.BankKeeper,
+		app.Erc20Keeper,
+	)
+	if err != nil {
+		logger.Error("failed to log token pair balances (pre)", "error", err)
+	}
 
 	// Run the STR v2 migration logic and then panic to stop the execution
-	start := time.Now()
-	logger := ctx.Logger().With("context", "STRv2 migration")
 	logger.Info("running STR v2 migration")
+	start := time.Now()
 
 	var wevmosContract ethcommon.Address
 	if utils.IsMainnet(ctx.ChainID()) {
@@ -916,7 +923,7 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 		panic("unknown chain id")
 	}
 
-	err := v17.ConvertToNativeCoinExtensions(
+	err = v17.ConvertToNativeCoinExtensions(
 		ctx,
 		logger,
 		app.AccountKeeper,
@@ -929,6 +936,18 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 	}
 
 	logger.Info(fmt.Sprintf("STR v2 migration took %s\n", time.Since(start)))
+
+	err = v17.LogTokenPairBalances(
+		ctx,
+		logger,
+		app.BankKeeper,
+		app.Erc20Keeper,
+	)
+	if err != nil {
+		logger.Error("failed to log token pair balances (post)", "error", err)
+	}
+
+	// We are exciting the binary here because it'll have a consensus error anyways
 	os.Exit(1)
 
 	return app.mm.BeginBlock(ctx, req)

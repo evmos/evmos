@@ -52,3 +52,44 @@ func ConvertToNativeCoinExtensions(
 
 	return nil
 }
+
+// LogTokenPairBalances logs the total balances of each token pair.
+func LogTokenPairBalances(
+	ctx sdk.Context,
+	logger log.Logger,
+	bankKeeper bankkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
+	// evmKeeper evmkeeper.Keeper,
+) error {
+	//chainID, err := strconv.Atoi(ctx.ChainID())
+	//if err != nil {
+	//	return errorsmod.Wrap(err, "failed to convert chainID to int")
+	//}
+
+	tokenPairs := erc20Keeper.GetTokenPairs(ctx)
+	for _, tokenPair := range tokenPairs {
+		//// Log the total balance of the token pair
+		//ret, err := evmKeeper.EthCall(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
+		//	ChainId: int64(chainID),
+		//})
+		//if err != nil {
+		//	logger.Error(
+		//		fmt.Sprintf("failed to get total supply for token pair %q", tokenPair.Denom),
+		//		"error",
+		//		err.Error(),
+		//	)
+		//}
+
+		bankSupply := bankKeeper.GetSupply(ctx, tokenPair.Denom)
+
+		logger.Info(
+			"token pair balances",
+			"token_pair", tokenPair.Denom,
+			//// TODO: add ERC-20 supply by calling EthCall
+			//"erc20 supply", totalSupply,
+			"bank supply", bankSupply.Amount.String(),
+		)
+	}
+
+	return nil
+}
