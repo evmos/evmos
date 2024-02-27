@@ -914,7 +914,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	})
 
 	Context("withdrawDelegatorRewards", func() {
-
 		// initialBalance is the initial balance of the delegator
 		var initialBalance *sdk.Coin
 
