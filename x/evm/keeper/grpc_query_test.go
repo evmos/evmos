@@ -518,7 +518,7 @@ func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
 				resp := &types.QueryValidatorAccountResponse{
 					AccountAddress: val.OperatorAddress,
 					Sequence:       0,
-					AccountNumber:  0,
+					AccountNumber:  1,
 				}
 
 				return req, resp
