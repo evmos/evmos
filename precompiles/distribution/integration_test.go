@@ -1666,10 +1666,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 
 			It("should get commission - validator with commission", func() {
-				err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, testRewardsAmt)
-				Expect(err).To(BeNil())
-				Expect(s.network.NextBlock()).To(BeNil())
-
 				_, err = testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
 				Expect(err).To(BeNil())
 
@@ -1679,7 +1675,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				accruedCommission := commRes.Commission.Commission
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
-					s.validatorsKeys[0].Priv,
+					s.keyring.GetPrivKey(0),
 					txArgs,
 					callArgs,
 					passCheck,
