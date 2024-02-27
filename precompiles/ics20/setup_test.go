@@ -3,23 +3,14 @@
 package ics20_test
 
 import (
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"testing"
 	"time"
 
-	cmttypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v16/app"
-	evmosibc "github.com/evmos/evmos/v16/ibc/testing"
 	"github.com/evmos/evmos/v16/precompiles/ics20"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -33,34 +24,20 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx           sdk.Context
-	app           *evmosapp.Evmos
-	address       common.Address
-	differentAddr common.Address
-	validators    []stakingtypes.Validator
-	valSet        *cmttypes.ValidatorSet
-	ethSigner     ethtypes.Signer
-	privKey       cryptotypes.PrivKey
-	signer        keyring.Signer
-	bondDenom     string
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
+	bondDenom  string
 	precompile *ics20.Precompile
-	stateDB    *statedb.StateDB
-
-	coordinator    *ibctesting.Coordinator
-	chainA         *ibctesting.TestChain
-	chainB         *ibctesting.TestChain
-	transferPath   *evmosibc.Path
-	queryClientEVM evmtypes.QueryClient
 
 	defaultExpirationDuration time.Time
-
-	suiteIBCTesting bool
+	suiteIBCTesting           bool
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
-	s = new(PrecompileTestSuite)
-	suite.Run(t, s)
+	suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
@@ -68,5 +45,27 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	precompile, err := ics20.NewPrecompile(
+		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
+		unitNetwork.App.AuthzKeeper,
+	)
+	s.Require().NoError(err, "expected no error during precompile creation")
+
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+
+	ctx := unitNetwork.GetContext()
+	bondDenom, err := unitNetwork.App.StakingKeeper.BondDenom(ctx)
+	s.Require().NoError(err, "expected no error during bond denom retrieval")
+
+	s.bondDenom = bondDenom
+	s.network = unitNetwork
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.precompile = precompile
 }

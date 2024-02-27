@@ -3,12 +3,13 @@
 package coordinator
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	evmosibc "github.com/evmos/evmos/v16/ibc/testing"
 	"github.com/evmos/evmos/v16/testutil/integration/common/network"
 	ibcchain "github.com/evmos/evmos/v16/testutil/integration/ibc/chain"
@@ -54,23 +55,21 @@ var _ Coordinator = (*IntegrationCoordinator)(nil)
 // through the network interface directly. This is because the coordinator does not keep the context in
 // sync with the network interface.
 type IntegrationCoordinator struct {
-	coord          *ibctesting.Coordinator
+	coord          *ibcgotesting.Coordinator
 	dummyChainsIds []string
 }
 
 // NewIntegrationCoordinator returns a new IntegrationCoordinator with N TestChain's.
 func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Network) *IntegrationCoordinator {
-	coord := &ibctesting.Coordinator{
-		T:           t,
-		CurrentTime: GlobalTime,
-	}
-	ibcChains := getIBCChains(t, coord, preConfiguredChains)
-	dummyChains, dummyChainsIds := generateDummyChains(t, coord, AmountOfDummyChains)
-	totalChains := mergeMaps(ibcChains, dummyChains)
-	coord.Chains = totalChains
+	coord := evmosibc.NewCoordinator(t, 1, 0)
+	fmt.Println(coord.Chains)
+	//ibcChains := getIBCChains(t, coord, preConfiguredChains)
+	//dummyChains, dummyChainsIds := generateDummyChains(t, coord, AmountOfDummyChains)
+	//totalChains := mergeMaps(ibcChains, dummyChains)
+	//coord.Chains = totalChains
 	return &IntegrationCoordinator{
-		coord:          coord,
-		dummyChainsIds: dummyChainsIds,
+		coord: coord,
+		//dummyChainsIds: dummyChainsIds,
 	}
 }
 
@@ -106,7 +105,7 @@ func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv c
 	chain := c.coord.GetChain(chainID)
 	chain.SenderPrivKey = priv
 	chain.SenderAccount = acc
-	chain.SenderAccounts = []ibctesting.SenderAccount{{SenderPrivKey: priv, SenderAccount: acc}}
+	chain.SenderAccounts = []ibcgotesting.SenderAccount{{SenderPrivKey: priv, SenderAccount: acc}}
 }
 
 // Setup constructs a TM client, connection, and channel on both chains provided. It will
