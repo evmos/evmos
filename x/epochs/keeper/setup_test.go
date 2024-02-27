@@ -27,7 +27,7 @@ type KeeperTestSuite struct {
 
 // SetupTest is the setup function for epoch module tests. If epochsInfo is provided empty
 // the default genesis for the epoch module is used.
-func SetupTest(epochsInfo []types.EpochInfo) (s *KeeperTestSuite) {
+func SetupTest(epochsInfo []types.EpochInfo) *KeeperTestSuite {
 	keys := keyring.New(1)
 
 	customGenesis := network.CustomGenesisState{}
