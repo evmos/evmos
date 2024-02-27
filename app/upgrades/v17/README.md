@@ -33,10 +33,13 @@ ssh altiplanic@65.109.156.253
 ```
 
 The _dev machine_ has an `evmosd` instance running with that is synced to mainnet.
-In order to run the tests, you have to stop the running node:
+This is attached to a systemd service called `evmos`.
+In order to run the tests, you have to stop the running node.
+The `sudo` password has been stored as an API credential
+in the `1password` engineering vault.
 
 ```bash
-sudo systemctl stop evmosd
+sudo systemctl stop evmos
 ```
 
 Then, you have to navigate to the `evmos` directory
@@ -51,7 +54,7 @@ make install
 Afterwards, you can restart the node and listen to the logs:
 
 ```bash
-sudo systemctl restart evmosd && journalctl -fu evmosd -o cat
+sudo systemctl restart evmos && journalctl -fu evmos -o cat
 ```
 
 ## Results

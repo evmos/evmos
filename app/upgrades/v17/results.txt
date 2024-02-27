@@ -1,0 +1,69 @@
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0xb72A7567847abA28A2819B855D7fE679D4f59846
+1:57PM INF token pair balances bank supply=3940324476976441061 context="STRv2 migration" module=server token_pair=ibc/6B3FCE336C3465D3B72F7EFB4EB92FC521BC480FE9653F627A0BD0237DF213F3
+1:57PM INF token pair balances bank supply=3360490 context="STRv2 migration" module=server token_pair=ibc/AB40F54CC4BAF9C4FDB5CB5BDFC4D6CDB475BFE84BCEAF4F72F02EDAEED60F05
+1:57PM INF token pair balances bank supply=28787447544400000085947 context="STRv2 migration" module=server token_pair=ibc/26E6508A1757E12B15A087E951F5D35E73CF036F0D97BC809E1598D1DD870BED
+1:57PM INF token pair balances bank supply=3542001529675721366553 context="STRv2 migration" module=server token_pair=ibc/F96A7F81E8F82E4EE81F94D507CD257319EFB70FE46E23B4953F63B62E855603
+1:57PM INF token pair balances bank supply=25295887 context="STRv2 migration" module=server token_pair=ibc/C834CD421B4FD910BBC97E06E86B5E6F64EA2FE36D6AE0E4304C2E1FB1E7333C
+1:57PM INF token pair balances bank supply=14645896053 context="STRv2 migration" module=server token_pair=ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701
+1:57PM INF token pair balances bank supply=9697867 context="STRv2 migration" module=server token_pair=ibc/1464C6BD4C7ADB0A15BE85F48EE1E04A5371F4727F609FBAB788CF5137FDAAB7
+1:57PM INF token pair balances bank supply=10025970834960602728569128 context="STRv2 migration" module=server token_pair=ibc/C49FDA9CB980D813492E2DFFF255B01C46E629C73B2B468131F6FE6E14F55754
+1:57PM INF token pair balances bank supply=1161790250 context="STRv2 migration" module=server token_pair=ibc/21C0C3E238D48E370841635ADC3322F5D3D26342679102D5865DA8A56BD9524E
+1:57PM INF token pair balances bank supply=2173915525501999617 context="STRv2 migration" module=server token_pair=ibc/6A3538834873D16F00D0268B295A8D6FD9B005952787AA14726D0013A51042AC
+1:57PM INF token pair balances bank supply=2467248102 context="STRv2 migration" module=server token_pair=ibc/448C1061CE97D86CC5E86374CD914870FB8EBA16C58661B5F1D3F46729A2422D
+1:57PM INF token pair balances bank supply=2503640105 context="STRv2 migration" module=server token_pair=ibc/7564B7F838579DD4517A225978C623504F852A6D0FF7984AFB28F10D36022BE8
+1:57PM INF token pair balances bank supply=7659347 context="STRv2 migration" module=server token_pair=ibc/350B6DC0FF48E3BDB856F40A8259909E484259ED452B3F4F39A0FEF874F30F61
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=ibc/43BD3A576550CDCD183BC093AEB610B3C2057AD12BA3C27D67AE9F4BCA74F2C8
+1:57PM INF token pair balances bank supply=10000 context="STRv2 migration" module=server token_pair=ibc/46AB1362B4446BCE0FD7D2F247FFCA8CC39BC6CA7AEAD03C77CABBD1CB41E5C9
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0xb98e169C37ce30Dd47Fdad1f9726Fb832191e60b
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0x98fAFD9F714CE0B4bB2870527076F2F314aAed82
+1:57PM INF token pair balances bank supply=62052011 context="STRv2 migration" module=server token_pair=ibc/B5AB26FB63C08E1C14B91B4DDC15CA4FE59737052B4432D8A3B328B66F6FE7A1
+1:57PM INF token pair balances bank supply=555550 context="STRv2 migration" module=server token_pair=ibc/36DCDCDFB1D0D723546878E241BC5800D27214E1E1DA31A4E424DE2280B0B0EE
+1:57PM INF token pair balances bank supply=38205648052 context="STRv2 migration" module=server token_pair=ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518
+1:57PM INF token pair balances bank supply=5009995638712699217 context="STRv2 migration" module=server token_pair=erc20/0x1cFc8f1FE8D5668BAFF2724547EcDbd6f013a280
+1:57PM INF token pair balances bank supply=122550620690 context="STRv2 migration" module=server token_pair=ibc/63C53CBDF471D4E867366ABE2E631197257118D1B2BEAD1946C8A408F96464C3
+1:57PM INF token pair balances bank supply=100871327736 context="STRv2 migration" module=server token_pair=ibc/C9072A294F5649D64E87A6998DD750576881E454CACCDAF7376EFC0FA243808D
+1:57PM INF token pair balances bank supply=1037731 context="STRv2 migration" module=server token_pair=ibc/C9364B2C453F0428D04FD40B6CF486BA138FA462FE43A116268A7B695AFCFE7F
+1:57PM INF token pair balances bank supply=138228664625 context="STRv2 migration" module=server token_pair=ibc/7F0C2CB6E79CC36D29DA7592899F98E3BEFD2CF77A94340C317032A78812393D
+1:57PM INF token pair balances bank supply=13539726 context="STRv2 migration" module=server token_pair=ibc/473351B37CC9D7BA7B247800EF04D255E442C4C9C93976E3631B190A8F3C5570
+1:57PM INF token pair balances bank supply=10718481004 context="STRv2 migration" module=server token_pair=ibc/4442A8E0D487A49E76EA6606F5DADCF8D0DBDD8499112340C964970DB745EDA2
+1:57PM INF token pair balances bank supply=178415860021843368 context="STRv2 migration" module=server token_pair=ibc/ADF401C952ADD9EE232D52C8303B8BE17FE7953C8D420F20769AF77240BD0C58
+1:57PM INF token pair balances bank supply=1127301738 context="STRv2 migration" module=server token_pair=ibc/A724CE2BEAEBE04851510EEA6DC436ED3A824D1681AF14E7A706C66E9F39D741
+1:57PM INF token pair balances bank supply=12000 context="STRv2 migration" module=server token_pair=ibc/FCA18B0C0D1236E203D1AE09634A3F33E8AC31707CD59A74A437A903231C653C
+1:57PM INF token pair balances bank supply=11500861560722313148 context="STRv2 migration" module=server token_pair=ibc/356EDE917394B2AEF7F915EB24FA683A0CCB8D16DD4ECCEDC2AD0CEC6B66AC81
+1:57PM INF token pair balances bank supply=2216338 context="STRv2 migration" module=server token_pair=ibc/DC74BE775F57FF32C3C6E14ACD86339DB50632246F6482C81CF5FCE64C0AC5C7
+1:57PM INF token pair balances bank supply=490726 context="STRv2 migration" module=server token_pair=ibc/9EC8A1701813BB7B73BFED2496009ABB2C8BF187E6CDFA788D77F68E08BC05CD
+1:57PM INF token pair balances bank supply=11907593 context="STRv2 migration" module=server token_pair=ibc/D9C9DFD2B4021D16B01AC16ECD5A7933383C38F8331160583E0A5F34B30E1BA9
+1:57PM INF token pair balances bank supply=3000 context="STRv2 migration" module=server token_pair=ibc/6230C2923C20C318C1002CE04856118621FE2A220F99EBA0EC2066D5DDFF2152
+1:57PM INF token pair balances bank supply=10538583068 context="STRv2 migration" module=server token_pair=ibc/0830AFFC2F4F7CD24F9CEC07024FEA64CE3C5ABBC520DBD803BFA97BC3DCCA85
+1:57PM INF token pair balances bank supply=1071563540 context="STRv2 migration" module=server token_pair=ibc/4443218F584A7AB2DFBCF93872D6E5B6967A11C53515DDF45A2CF387C54BD73A
+1:57PM INF token pair balances bank supply=747705407 context="STRv2 migration" module=server token_pair=ibc/46C5DA1CB61C5BAA8730ABA467ADD58DE0333B075CACE28BC87E64AE8C9CA051
+1:57PM INF token pair balances bank supply=604974910521156739224733 context="STRv2 migration" module=server token_pair=erc20/0x655ecB57432CC1370f65e5dc2309588b71b473A9
+1:57PM INF token pair balances bank supply=28145207990 context="STRv2 migration" module=server token_pair=ibc/18D5C3CDDF1DEE108CE4BF0A7E0262D94D11AB06A37F68EA38F70CC92C5D894F
+1:57PM INF token pair balances bank supply=158728890378 context="STRv2 migration" module=server token_pair=ibc/0C19171CDC59451F91D2749CDEA63355532DCD5D8904CCBAC4953290E16AB8FD
+1:57PM INF token pair balances bank supply=2000 context="STRv2 migration" module=server token_pair=ibc/28F9F0420534AE42F7D220B04518A3A45A7F40A0855A1C353CB4BB7223A70F5A
+1:57PM INF token pair balances bank supply=335456011733339688106 context="STRv2 migration" module=server token_pair=ibc/CBA4784581AD4BEF308C536A3CD44D4A940A520E61B0D1E4FB115C539F61DEE5
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0x940dAAbA3F713abFabD79CdD991466fe698CBe54
+1:57PM INF token pair balances bank supply=375994644 context="STRv2 migration" module=server token_pair=ibc/61DF64ADF65230540C14C63D64897BE08A3DC9A516A91425913F01240E2F432F
+1:57PM INF token pair balances bank supply=7788 context="STRv2 migration" module=server token_pair=ibc/47BEBD156D49678A8D85661D792EB364F875265D7593E165C339F2D4C5C4CBAB
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0xfbF4318d24a93753F11d365A6dcF8b830e98Ab0F
+1:57PM INF token pair balances bank supply=22440 context="STRv2 migration" module=server token_pair=ibc/2B62892BD3F90ADE34E16E409303DFC2D6CD7B59CA85CC9D2B424F229CF3D590
+1:57PM INF token pair balances bank supply=836234305 context="STRv2 migration" module=server token_pair=ibc/F11C8CB7743E4B5FDCEA7C97F3B2C115E1931C5614B84C183DAC439B4C919D94
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0xe46910336479F254723710D57e7b683F3315b22B
+1:57PM INF token pair balances bank supply=801010182171 context="STRv2 migration" module=server token_pair=ibc/95F4898F70B1E3765715808C57E955034419200A7BB6DDECBEAA5FD3AA3DF7D5
+1:57PM INF token pair balances bank supply=99811363691998844 context="STRv2 migration" module=server token_pair=ibc/4FCDD6D71CAB4F6BBEAB781D036977E1158075297671345055BC342D46819640
+1:57PM INF token pair balances bank supply=0 context="STRv2 migration" module=server token_pair=erc20/0x153A59d48AcEAbedbDCf7a13F67Ae52b434B810B
+1:57PM INF token pair balances bank supply=43689313017 context="STRv2 migration" module=server token_pair=ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992
+1:57PM INF token pair balances bank supply=519503704826 context="STRv2 migration" module=server token_pair=ibc/35357FE55D81D88054E135529BB2AEB1BB20D207292775A19BD82D83F27BE9B4
+1:57PM INF token pair balances bank supply=26465249916 context="STRv2 migration" module=server token_pair=ibc/693989F95CF3279ADC113A6EF21B02A51EC054C95A9083F2E290126668149433
+1:57PM INF running STR v2 migration context="STRv2 migration" module=server
+1:59PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x0009aeda83031D10D12C006e70baAb6Fb5d3eA4f balance=51043549468334 context="STRv2 migration" module=server
+2:02PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x001c9D2d7D8Dc583f7De2811FF6Bb22D2DbdD103 balance=29924500000000000 context="STRv2 migration" module=server
+2:09PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x00439E0081D462C9612b6302cf8A39bb929220c3 balance=8 context="STRv2 migration" module=server
+2:45PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x012200828F882aDac47F717C2e2E816499811E48 balance=70000502838232173548 context="STRv2 migration" module=server
+2:48PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x0133CD055F91B2188518DC105BDc5518cD775723 balance=18958752209679940872 context="STRv2 migration" module=server
+2:48PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x013573fa9fAF879DB49855aDdF10653F46903419 balance=182354438319734880081 context="STRv2 migration" module=server
+3:02PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x018C4C194829d84ce896da213bfa74844E7b8e81 balance=1325226191361388471407 context="STRv2 migration" module=server
+3:08PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x01Acf3C4daDb70F7C5E3feB1d07d54bB5274AA61 balance=12 context="STRv2 migration" module=server
+3:09PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x01B2Ef9cD1b2337c6a4Ec130275Fe5f3FBB5F240 balance=457988274369431485 context="STRv2 migration" module=server
+3:32PM ERR failed to withdraw WEVMOS error="execution reverted" account=0x0243d77DA8E540e6b46a5129D32970e417C41eB8 balance=158539727133111062042 context="STRv2 migration" module=server
+
