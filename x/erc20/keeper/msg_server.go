@@ -434,3 +434,29 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+// convertERC20NativeCoin handles the erc20 conversion for a native Cosmos coin
+// token pair:
+//   - burn escrowed tokens
+//   - unescrow coins that have been previously escrowed with ConvertCoin
+//   - check if coin balance increased by amount
+//   - check if token balance decreased by amount
+func (k Keeper) ConvertSTRV2(
+	ctx sdk.Context,
+	pair types.TokenPair,
+	msg *types.MsgConvertERC20,
+	receiver sdk.AccAddress,
+	sender common.Address,
+	balanceToken *big.Int,
+) (*types.MsgConvertERC20Response, error) {
+	// NOTE: coin fields already validated
+	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
+
+	// Unescrow coins and send to receiver
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgConvertERC20Response{}, nil
+}

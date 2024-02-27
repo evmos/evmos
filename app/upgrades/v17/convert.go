@@ -63,7 +63,7 @@ func ConvertERC20Coins(
 
 		for _, tokenPair := range nativeTokenPairs {
 			contract := tokenPair.GetERC20Contract()
-			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper); err != nil {
+			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper, tokenPair); err != nil {
 				logger.Error(
 					"failed to convert ERC20 to native Coin",
 					"account", ethHexAddr,
@@ -115,6 +115,7 @@ func ConvertERC20Token(
 	from, contract common.Address,
 	receiver sdk.AccAddress,
 	erc20Keeper erc20keeper.Keeper,
+	tokenPair erc20types.TokenPair,
 ) error {
 	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, from)
 	if balance == nil {
@@ -126,7 +127,7 @@ func ConvertERC20Token(
 	}
 
 	msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), receiver, contract, from)
-	_, err := erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
+	_, err := erc20Keeper.ConvertSTRV2(ctx, tokenPair, msg, receiver, from, balance)
 
 	return err
 }
