@@ -602,7 +602,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			})
 
 			It("should get validator slashing events (default pagination)", func() {
-
 				callArgs.MethodName = distribution.ValidatorSlashesMethod
 				callArgs.Args = []interface{}{
 					s.network.GetValidators()[0].OperatorAddress,
@@ -915,10 +914,8 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	})
 
 	Context("withdrawDelegatorRewards", func() {
-		var (
-			// initialBalance is the initial balance of the delegator
-			initialBalance *sdk.Coin
-		)
+		// initialBalance is the initial balance of the delegator
+		var initialBalance *sdk.Coin
 
 		BeforeEach(func() {
 			// fund the diffAddr
@@ -1563,7 +1560,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	//				QUERIES
 	// ===================================
 	Context("Distribution precompile queries", Ordered, func() {
-
 		It("should get validator distribution info", func() {
 			// fund validator account to make self-delegation
 			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
@@ -1780,7 +1776,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				Expect(uint64(2)).To(Equal(out.PageResponse.Total))
 				Expect(out.PageResponse.NextKey).NotTo(BeEmpty())
 			})
-
 		})
 
 		Context("get delegation rewards", func() {
