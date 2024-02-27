@@ -1799,7 +1799,8 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
-				// TODO FIXME, getting execution reverted here
+				// add gas limit to avoid out of gas error
+				txArgs.GasLimit = 200_000
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
 					txArgs,

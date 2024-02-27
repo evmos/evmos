@@ -21,6 +21,7 @@ import (
 var (
 	expValAmount      int64 = 1
 	testRewardsAmt, _       = math.NewIntFromString("1000000000000000000")
+	expRewardsAmt, _        = math.NewIntFromString("950000000000000000") // testRewardsAmt - 5% commission
 )
 
 type distrTestCases struct {
@@ -593,7 +594,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				s.Require().Equal(1, len(out))
 				s.Require().Equal(uint8(18), out[0].Precision)
 				s.Require().Equal(s.bondDenom, out[0].Denom)
-				s.Require().Equal(testRewardsAmt.Int64(), out[0].Amount.Int64())
+				s.Require().Equal(expRewardsAmt.Int64(), out[0].Amount.Int64())
 			},
 			100000,
 			false,
@@ -723,10 +724,10 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				s.Require().Equal(1, len(out.Rewards[i].Reward))
 				s.Require().Equal(s.bondDenom, out.Rewards[i].Reward[0].Denom)
 				s.Require().Equal(uint8(math.LegacyPrecision), out.Rewards[i].Reward[0].Precision)
-				s.Require().Equal(testRewardsAmt.Int64(), out.Rewards[i].Reward[0].Amount.Int64())
+				s.Require().Equal(expRewardsAmt.Int64(), out.Rewards[i].Reward[0].Amount.Int64())
 
 				s.Require().Equal(1, len(out.Total))
-				s.Require().Equal(testRewardsAmt.Int64(), out.Total[0].Amount.Int64())
+				s.Require().Equal(expRewardsAmt.Int64(), out.Total[0].Amount.Int64())
 			},
 			100000,
 			false,

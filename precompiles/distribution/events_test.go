@@ -87,7 +87,6 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 	var (
 		ctx  sdk.Context
 		stDB *statedb.StateDB
-		amt  = math.NewInt(1e18)
 	)
 	method := s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod]
 	testCases := []struct {
@@ -106,7 +105,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				ctx, err = s.prepareStakingRewards(ctx, stakingRewards{
 					Validator: val,
 					Delegator: s.keyring.GetAccAddr(0),
-					RewardAmt: amt,
+					RewardAmt: testRewardsAmt,
 				})
 				s.Require().NoError(err)
 				return []interface{}{
@@ -133,7 +132,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				s.Require().NoError(err)
 				s.Require().Equal(s.keyring.GetAddr(0), delegatorRewards.DelegatorAddress)
 				s.Require().Equal(optHexAddr, delegatorRewards.ValidatorAddress)
-				s.Require().Equal(amt.BigInt(), delegatorRewards.Amount)
+				s.Require().Equal(expRewardsAmt.BigInt(), delegatorRewards.Amount)
 			},
 			20000,
 			false,

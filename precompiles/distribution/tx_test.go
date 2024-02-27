@@ -198,7 +198,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawDelegatorRewardsMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
-				s.Require().Equal(coins[0].Amount.Int64(), testRewardsAmt.Int64())
+				s.Require().Equal(coins[0].Amount.Int64(), expRewardsAmt.Int64())
 				// Check bank balance after the withdrawal of rewards
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
 				s.Require().True(balance.Amount.GT(network.PrefundedAccountInitialBalance))
@@ -338,7 +338,6 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 	var (
 		ctx         sdk.Context
 		prevBalance sdk.Coin
-		rewardsAmt  = math.NewInt(1e18)
 	)
 	method := s.precompile.Methods[distribution.ClaimRewardsMethod]
 
@@ -396,8 +395,8 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(data []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				// twice the rewards amount (rewards from 2 validators)
-				expRewards := rewardsAmt.Mul(math.NewInt(2))
+				// twice the rewards amount (rewards from 2 validators) - 5% commission
+				expRewards := expRewardsAmt.Mul(math.NewInt(2))
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewards))
 			},
 			20000,
@@ -414,7 +413,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(data []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(rewardsAmt))
+				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewardsAmt))
 			},
 			20000,
 			false,
@@ -440,7 +439,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 				srs[i] = stakingRewards{
 					Delegator: addr.Bytes(),
 					Validator: val,
-					RewardAmt: rewardsAmt,
+					RewardAmt: testRewardsAmt,
 				}
 			}
 
