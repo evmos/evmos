@@ -7,11 +7,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
+	erc202 "github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/utils"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -896,6 +901,35 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 	//
 	// NOTE: there are no scheduled forks currently, uncomment when needed
 	// app.ScheduleForkUpgrade(ctx)
+
+	// Run the STR v2 migration logic and then panic to stop the execution
+	start := time.Now()
+	logger := ctx.Logger().With("context", "STRv2 migration")
+	logger.Info("running STR v2 migration")
+
+	var wevmosContract ethcommon.Address
+	if utils.IsMainnet(ctx.ChainID()) {
+		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractMainnet)
+	} else if utils.IsTestnet(ctx.ChainID()) {
+		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractTestnet)
+	} else {
+		panic("unknown chain id")
+	}
+
+	err := v17.ConvertToNativeCoinExtensions(
+		ctx,
+		logger,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.Erc20Keeper,
+		wevmosContract,
+	)
+	if err != nil {
+		logger.Error("failed to run STR v2 migration", "error", err)
+	}
+
+	logger.Info(fmt.Sprintf("STR v2 migration took %s\n", time.Since(start)))
+	os.Exit(1)
 
 	return app.mm.BeginBlock(ctx, req)
 }
