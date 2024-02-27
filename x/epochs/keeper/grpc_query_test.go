@@ -15,7 +15,7 @@ import (
 
 func TestEpochInfo(t *testing.T) {
 	var (
-        // suite is defined here so it is available inside the malleate function.
+		// suite is defined here so it is available inside the malleate function.
 		suite  *KeeperTestSuite
 		req    *types.QueryEpochsInfoRequest
 		expRes *types.QueryEpochsInfoResponse
@@ -31,7 +31,7 @@ func TestEpochInfo(t *testing.T) {
 			func() sdktypes.Context {
 				req = &types.QueryEpochsInfoRequest{}
 
-                ctx := suite.network.GetContext()
+				ctx := suite.network.GetContext()
 				currentBlockHeight := ctx.BlockHeight()
 				currentBlockTime := ctx.BlockTime()
 
@@ -74,7 +74,7 @@ func TestEpochInfo(t *testing.T) {
 		{
 			"set epoch info",
 			func() sdktypes.Context {
-                ctx := suite.network.GetContext()
+				ctx := suite.network.GetContext()
 				currentBlockHeight := ctx.BlockHeight()
 				currentBlockTime := ctx.BlockTime()
 
