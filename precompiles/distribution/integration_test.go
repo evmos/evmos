@@ -662,6 +662,27 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			})
 		})
 
+		It("should get empty delegation rewards - delegationRewards query", func() {
+			callArgs.MethodName = distribution.DelegationRewardsMethod
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				s.network.GetValidators()[0].OperatorAddress,
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				passCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+
+			var rewards []cmn.DecCoin
+			err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
+			Expect(err).To(BeNil())
+			Expect(len(rewards)).To(Equal(0))
+		})
+
 		It("should get delegation rewards - delegationRewards query", func() {
 			accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
@@ -1773,16 +1794,14 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 
 			It("should not get rewards - no rewards available", func() {
-				valAddr := s.network.GetValidators()[0].OperatorAddress
-				callArgs.Args = []interface{}{s.keyring.GetAddr(1), valAddr}
-
-				// create a delegation
-				err := s.factory.Delegate(s.keyring.GetPrivKey(1), valAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+				// withdraw rewards if available
+				err := s.factory.WithdrawDelegationRewards(s.keyring.GetPrivKey(0), s.network.GetValidators()[0].OperatorAddress)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
+				// TODO FIXME, getting execution reverted here
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
-					s.keyring.GetPrivKey(1),
+					s.keyring.GetPrivKey(0),
 					txArgs,
 					callArgs,
 					passCheck,
