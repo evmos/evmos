@@ -4,6 +4,7 @@
 package network
 
 import (
+	"fmt"
 	"math/big"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -67,7 +68,7 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 	for i, v := range validators {
 		valAddr, err := sdktypes.ValAddressFromBech32(v.OperatorAddress)
 		if err != nil {
-			panic(fmt.Sprintf("failed to derive validator address from %q: %w" v.OperatorAddress, err))
+			panic(fmt.Sprintf("failed to derive validator address from %q: %w", v.OperatorAddress, err))
 		}
 		valAccs[i] = sdktypes.AccAddress(valAddr.Bytes())
 	}
