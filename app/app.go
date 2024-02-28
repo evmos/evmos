@@ -124,7 +124,6 @@ import (
 	"github.com/evmos/evmos/v16/app/ante"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/app/post"
-	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
@@ -527,8 +526,7 @@ func NewEvmos(
 	)
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-		),
+		evmkeeper.NewMultiEvmHooks(),
 	)
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
@@ -1141,10 +1139,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	switch upgradeInfo.Name {
 	case v17.UpgradeName:
-        // recovery and incentives modules are deprecated in v16
-        storeUpgrades = &storetypes.StoreUpgrades{
-            Deleted: []string{"revenue"},
-        }
+		// recovery and incentives modules are deprecated in v16
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"revenue"},
+		}
 	default:
 		// no-op
 	}
