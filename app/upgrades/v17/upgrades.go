@@ -17,7 +17,11 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		// Leave modules are as-is to avoid running InitGenesis.
+		// revenue module is deprecated
+		logger.Debug("deleting revenue module from version map...")
+		delete(vm, "revenue")
+
+		// Leave modules as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
