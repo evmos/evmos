@@ -228,7 +228,7 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 		s.Require().Equal(s.network.GetValidators()[j].Jailed, validators[i].Jailed)
 		s.Require().Equal(s.network.GetValidators()[j].UnbondingHeight, validators[i].UnbondingHeight)
 		s.Require().Equal(int64(0), validators[i].UnbondingTime)
-		s.Require().Equal(int64(0), validators[i].Commission.Int64())
+		s.Require().Equal(math.LegacyNewDecWithPrec(5, 2).BigInt(), validators[i].Commission)
 		s.Require().Equal(int64(0), validators[i].MinSelfDelegation.Int64())
 		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(s.network.GetValidators()[j].ConsensusPubkey))
 	}

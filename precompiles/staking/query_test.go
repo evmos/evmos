@@ -201,7 +201,10 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			_, _, err := s.network.App.StakingKeeper.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()), math.LegacyNewDec(1))
+			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().NoError(err)
+
+			_, _, err = s.network.App.StakingKeeper.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), valAddr, math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
 			bz, err := s.precompile.UnbondingDelegation(s.network.GetContext(), contract, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
