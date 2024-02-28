@@ -23,7 +23,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-var s *PrecompileTestSuite
 
 type PrecompileTestSuite struct {
 	suite.Suite
@@ -40,7 +39,6 @@ type PrecompileTestSuite struct {
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
-	s = new(PrecompileTestSuite)
 	suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests

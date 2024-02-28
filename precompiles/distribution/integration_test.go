@@ -57,6 +57,8 @@ var (
 )
 
 var _ = Describe("Calling distribution precompile from EOA", func() {
+	s := new(PrecompileTestSuite)
+
 	BeforeEach(func() {
 		s.SetupTest()
 
@@ -793,6 +795,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 })
 
 var _ = Describe("Calling distribution precompile from another contract", Ordered, func() {
+	s := new(PrecompileTestSuite)
+
 	var (
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
