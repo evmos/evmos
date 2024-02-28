@@ -11,6 +11,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// Delegate on behalf of the account associated with the given private key.
+// The defined amount will delegated to the specified validator.
+// The validator address should be in the format `evmosvaloper1...`.
 func (tf *IntegrationTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error {
 	delegatorAccAddr := sdk.AccAddress(delegatorPriv.PubKey().Address())
 
