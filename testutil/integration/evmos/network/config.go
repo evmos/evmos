@@ -67,7 +67,7 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 	for i, v := range validators {
 		valAddr, err := sdktypes.ValAddressFromBech32(v.OperatorAddress)
 		if err != nil {
-			panic(err)
+			panic(fmt.Sprintf("failed to derive validator address from %q: %w" v.OperatorAddress, err))
 		}
 		valAccs[i] = sdktypes.AccAddress(valAddr.Bytes())
 	}
@@ -136,7 +136,7 @@ func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	}
 }
 
-// WithOtherDenoms sets other possible coin denominations for the network.
+// WithValidatorOperators overwrites the used operator address for the network instantiation.
 func WithValidatorOperators(keys []sdktypes.AccAddress) ConfigOption {
 	return func(cfg *Config) {
 		cfg.operatorsAddrs = keys
