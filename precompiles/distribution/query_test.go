@@ -801,6 +801,14 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegatorValidatorsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(3, len(out))
+				for _, val := range s.validators {
+					s.Require().Contains(
+						out,
+						val.OperatorAddress,
+						"expected operator address %q to be in output",
+						val.OperatorAddress,
+					)
+				}
 			},
 			100000,
 			false,
