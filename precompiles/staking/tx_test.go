@@ -379,10 +379,12 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			func(operatorAddress string) []interface{} {
 				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
+				amt, ok := math.NewIntFromString("1000000000000000000000000000")
+				s.Require().True(ok)
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					operatorAddress,
-					big.NewInt(9e18),
+					amt.BigInt(),
 				}
 			},
 			200000,
@@ -498,10 +500,10 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			bz, err := s.precompile.Delegate(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 			// query the delegation in the staking keeper
-			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
-			s.Require().NoError(err)
-			delegation, err := s.network.App.StakingKeeper.Delegation(ctx, s.keyring.GetAccAddr(0), valAddr)
-			s.Require().NoError(err)
+			valAddr, valErr := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
+			s.Require().NoError(valErr)
+			delegation, delErr := s.network.App.StakingKeeper.Delegation(ctx, s.keyring.GetAccAddr(0), valAddr)
+			s.Require().NoError(delErr)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
