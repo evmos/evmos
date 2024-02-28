@@ -552,6 +552,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 
 func (s *PrecompileTestSuite) TestRedelegations() {
 	var (
+		ctx             sdk.Context
 		delAmt                 = big.NewInt(3e17)
 		redelTotalCount uint64 = 2
 		method                 = s.precompile.Methods[staking.RedelegationsMethod]
@@ -631,7 +632,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, 0, delAmt, 2, false)
+				s.assertRedelegationsOutput(data, 0, delAmt, ctx.BlockHeight(), false)
 			},
 			100000,
 			false,
@@ -651,7 +652,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, ctx.BlockHeight(), true)
 			},
 			100000,
 			false,
@@ -671,7 +672,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, ctx.BlockHeight(), true)
 			},
 			100000,
 			false,
@@ -682,13 +683,14 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			err := s.setupRedelegations(delAmt)
+			err := s.setupRedelegations(ctx, delAmt)
 			s.Require().NoError(err)
 
 			// query redelegations
-			bz, err := s.precompile.Redelegations(s.network.GetContext(), &method, contract, tc.malleate())
+			bz, err := s.precompile.Redelegations(ctx, &method, contract, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)

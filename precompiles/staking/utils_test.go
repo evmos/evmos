@@ -263,7 +263,7 @@ func (s *PrecompileTestSuite) assertRedelegationsOutput(data []byte, redelTotalC
 		s.assertRedelegation(redOut.Response[0],
 			1,
 			s.network.GetValidators()[0].OperatorAddress,
-			sdk.ValAddress(s.keyring.GetAddr(0).Bytes()).String(),
+			s.network.GetValidators()[2].OperatorAddress,
 			expAmt,
 			expCreationHeight,
 		)
@@ -292,9 +292,9 @@ func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationRespons
 }
 
 // setupRedelegations setups 2 entries for redelegation from validator[0]
-// to validator[1], creates a validator using s.keyring.GetAddr(0)
-// and creates a redelegation from validator[0] to the new validator
-func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
+// to validator[1], and a redelegation from validator[0] to validator[2]
+func (s *PrecompileTestSuite) setupRedelegations(ctx sdk.Context, redelAmt *big.Int) error {
+	ctx = ctx.WithBlockTime(time.Now())
 	msg := stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String(),
 		ValidatorSrcAddress: s.network.GetValidators()[0].OperatorAddress,
@@ -305,16 +305,14 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 	msgSrv := stakingkeeper.NewMsgServerImpl(&s.network.App.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
-		if _, err := msgSrv.BeginRedelegate(s.network.GetContext(), &msg); err != nil {
+		if _, err := msgSrv.BeginRedelegate(ctx, &msg); err != nil {
 			return err
 		}
 	}
 
-	// create a validator with s.keyring.GetAddr(0) and s.keyring.GetPrivKey(0)
-	// then create a redelegation from validator[0] to this new validator
-	testutil.CreateValidator(s.network.GetContext(), s.T(), s.keyring.GetPrivKey(0).PubKey(), s.network.App.StakingKeeper, math.NewInt(100))
-	msg.ValidatorDstAddress = sdk.ValAddress(s.keyring.GetAddr(0).Bytes()).String()
-	_, err := msgSrv.BeginRedelegate(s.network.GetContext(), &msg)
+	// create a redelegation from validator[0] to validator[2]
+	msg.ValidatorDstAddress = s.network.GetValidators()[2].OperatorAddress
+	_, err := msgSrv.BeginRedelegate(ctx, &msg)
 	return err
 }
 
