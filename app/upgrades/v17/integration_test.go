@@ -1,20 +1,25 @@
 package v17_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
+	"github.com/ChainSafe/go-schnorrkel"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
+	"github.com/evmos/evmos/v16/contracts"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot-imports are okay for Ginkgo BDD
 	. "github.com/onsi/ginkgo/v2"
@@ -271,6 +276,141 @@ var _ = Describe("STR v2 tests -", Ordered, func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to query aevmos balance from bank module")
 
 			Expect(balance.Int64()).To(Equal(bankBalance.Balance.Amount.Int64()), "expected different WEVMOS ERC-20 query balance")
+		})
+	})
+})
+
+var _ = Describe("Inspecting Contract Storage", Ordered, func() {
+	var (
+		erc20Addr common.Address
+		ts        *ConvertERC20CoinsTestSuite
+	)
+
+	BeforeAll(func() {
+		kr := testkeyring.New(1)
+		network := network.NewUnitTestNetwork(
+			network.WithPreFundedAccounts(kr.GetAllAccAddrs()...),
+		)
+		handler := grpc.NewIntegrationHandler(network)
+		txFactory := testfactory.New(network, handler)
+
+		ts = &ConvertERC20CoinsTestSuite{
+			keyring: kr,
+			network: network,
+			handler: handler,
+			factory: txFactory,
+		}
+	})
+
+	Context("deploying ERC-20 minter burner decimals contract", Ordered, func() {
+		It("should run without errors", func() {
+			var err error
+			erc20Addr, err = ts.factory.DeployContract(
+				ts.keyring.GetPrivKey(erc20Deployer),
+				evmtypes.EvmTxArgs{},
+				testfactory.ContractDeploymentData{
+					Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+					ConstructorArgs: []interface{}{"TestToken", "TKN", uint8(18)},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
+		})
+
+		It("should not have minted a balance to the deployer", func() {
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), erc20Addr)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance.Int64()).To(BeZero(), "expected no balance after deploying ERC-20")
+		})
+
+		It("should have a storage with a given length", func() {
+			storage := ts.network.App.EvmKeeper.GetAccountStorage(ts.network.GetContext(), erc20Addr)
+			fmt.Printf("Storage: \n%s\n", storage.String())
+			Expect(storage).ToNot(BeNil(), "expected non-nil storage")
+			Expect(len(storage)).To(Equal(19), "expected different storage length")
+		})
+	})
+
+	Context("minting tokens", Ordered, func() {
+		It("should run without errors", func() {
+			_, err := ts.factory.ExecuteContractCall(
+				ts.keyring.GetPrivKey(erc20Deployer), evmtypes.EvmTxArgs{To: &erc20Addr}, testfactory.CallArgs{
+					ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+					MethodName:  "mint",
+					Args:        []interface{}{ts.keyring.GetAddr(erc20Deployer), mintAmount},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to mint ERC-20 tokens")
+		})
+
+		It("should have minted a balance to the deployer", func() {
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), erc20Addr)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance).To(Equal(mintAmount), "expected different balance after minting ERC-20")
+		})
+
+		// NOTE: This is adding TWO new storage items - one for the balances map, which was empty before,
+		// and one for the key holding the balance.
+		It("should have added two new storage item", func() {
+			storage := ts.network.App.EvmKeeper.GetAccountStorage(ts.network.GetContext(), erc20Addr)
+			fmt.Printf("Storage: \n%s\n", storage.String())
+			Expect(storage).ToNot(BeNil(), "expected non-nil storage")
+			Expect(len(storage)).To(Equal(21), "expected different storage length")
+		})
+
+		// NOTE: according to https://learnevm.com/chapters/evm/storage the key for the balance should
+		// be the keccak256 hash of the padded address.
+		It("- the storage should contain the hashed address", func() {
+			Skip("skipped for now")
+			balancesLocation := "0x0000000000000000000000000000000000000000000000000000000000000004"
+			balancesLocationBytes, err := schnorrkel.HexToBytes(balancesLocation)
+			Expect(err).ToNot(HaveOccurred(), "failed to convert balances location to bytes")
+
+			storage := ts.network.App.EvmKeeper.GetAccountStorage(ts.network.GetContext(), erc20Addr)
+			// the key is the keccak256 hash of the padded address
+			addrBytes := ts.keyring.GetAddr(erc20Deployer).Bytes()
+			Expect(addrBytes).To(HaveLen(20), "expected different address length")
+			hashedAddr := crypto.Keccak256Hash(common.LeftPadBytes(addrBytes, 32))
+			concatBytes := append(balancesLocationBytes, hashedAddr.Bytes()...)
+			key := crypto.Keccak256Hash(concatBytes)
+			println("Key: ", key.String())
+
+			found := false
+			for _, entry := range storage {
+				if entry.Key == key.String() {
+					println("Key: ", entry.Key)
+					println("Value: ", entry.Value)
+					break
+				}
+			}
+
+			Expect(found).To(BeTrue(), "expected to find the key in the storage")
+		})
+	})
+
+	Context("minting more tokens for the same account", Ordered, func() {
+		It("should run without errors", func() {
+			_, err := ts.factory.ExecuteContractCall(
+				ts.keyring.GetPrivKey(erc20Deployer), evmtypes.EvmTxArgs{To: &erc20Addr}, testfactory.CallArgs{
+					ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+					MethodName:  "mint",
+					Args:        []interface{}{ts.keyring.GetAddr(erc20Deployer), mintAmount},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to mint ERC-20 tokens")
+		})
+
+		It("should have minted a balance to the deployer", func() {
+			balance, err := testutils.GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), erc20Addr)
+			Expect(err).ToNot(HaveOccurred(), "failed to query ERC20 balance")
+			Expect(balance.Int64()).To(Equal(2*mintAmount.Int64()), "expected different balance after minting ERC-20")
+		})
+
+		// NOTE: This should NOT add a new storage item, because it's the same account.
+		It("should not have added a new storage item", func() {
+			storage := ts.network.App.EvmKeeper.GetAccountStorage(ts.network.GetContext(), erc20Addr)
+			fmt.Printf("Storage: \n%s\n", storage.String())
+			Expect(storage).ToNot(BeNil(), "expected non-nil storage")
+			Expect(len(storage)).To(Equal(21), "expected different storage length")
 		})
 	})
 })
