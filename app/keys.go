@@ -27,7 +27,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revenuetypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
@@ -54,7 +53,6 @@ func StoreKeys() (
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey,
 		epochstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey,
 	}
 
 	keys := sdk.NewKVStoreKeys(storeKeys...)
