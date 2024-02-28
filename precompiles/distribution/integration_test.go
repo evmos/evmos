@@ -800,8 +800,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	var (
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
-		// err is a basic error type
-		err error
+		err          error
 
 		// execRevertedCheck defines the default log checking arguments which includes the
 		// standard revert message.

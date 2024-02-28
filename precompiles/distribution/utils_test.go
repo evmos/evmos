@@ -17,6 +17,13 @@ type stakingRewards struct {
 	RewardAmt math.Int
 }
 
+var (
+	testRewardsAmt, _       = math.NewIntFromString("1000000000000000000")
+	validatorCommPercentage = math.LegacyNewDecWithPrec(5, 2) // 5% commission
+	validatorCommAmt        = math.LegacyNewDecFromInt(testRewardsAmt).Mul(validatorCommPercentage).TruncateInt()
+	expRewardsAmt           = testRewardsAmt.Sub(validatorCommAmt) // testRewardsAmt - commission
+)
+
 // prepareStakingRewards prepares the test suite for testing delegation rewards.
 //
 // Specified rewards amount are allocated to the specified validator using the distribution keeper,

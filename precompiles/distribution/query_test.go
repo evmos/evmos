@@ -18,11 +18,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 )
 
-var (
-	expValAmount      int64 = 1
-	testRewardsAmt, _       = math.NewIntFromString("1000000000000000000")
-	expRewardsAmt, _        = math.NewIntFromString("950000000000000000") // testRewardsAmt - 5% commission
-)
+var expValAmount int64 = 1
 
 type distrTestCases struct {
 	name        string
