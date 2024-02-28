@@ -23,7 +23,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-
 type PrecompileTestSuite struct {
 	suite.Suite
 
