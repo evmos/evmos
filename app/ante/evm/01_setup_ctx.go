@@ -1,16 +1,17 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package evm
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	evmante "github.com/evmos/evmos/v16/x/evm/ante"
 )
 
-var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
+var _ sdktypes.AnteDecorator = &EthSetupContextDecorator{}
 
 // EthSetupContextDecorator is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
 // by setting the gas meter to infinite
@@ -24,7 +25,7 @@ func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
 	}
 }
 
-func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (esc EthSetupContextDecorator) AnteHandle(ctx sdktypes.Context, tx sdktypes.Tx, simulate bool, next sdktypes.AnteHandler) (newCtx sdktypes.Context, err error) {
 	newCtx, err = SetupContext(ctx, tx, esc.evmKeeper)
 	if err != nil {
 		return ctx, err
@@ -32,7 +33,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(newCtx, tx, simulate)
 }
 
-func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
+func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper EVMKeeper) (sdktypes.Context, error) {
 	// all transactions must implement GasTx
 	_, ok := tx.(authante.GasTx)
 	if !ok {
@@ -40,10 +41,8 @@ func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context,
 	}
 
 	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
-	newCtx := ctx.WithGasMeter(sdk.NewInfiniteGasMeter()).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
-
+	newCtx := evmante.BuildEvmExecutionCtx(ctx).
+		WithGasMeter(sdktypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.
 	// Transient gas-used is necessary to sum the gas-used of cosmos tx, when it contains multiple eth msgs.
 	evmKeeper.ResetTransientGasUsed(ctx)
