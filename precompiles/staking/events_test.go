@@ -13,9 +13,14 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	method := s.precompile.Methods[authorization.ApproveMethod]
 	testCases := []struct {
 		name        string
@@ -41,12 +46,12 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[authorization.EventTypeApproval]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				var approvalEvent authorization.EventApproval
 				err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
@@ -66,11 +71,13 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
-			_, err = s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.Approve(ctx, s.keyring.GetAddr(0), stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -84,6 +91,10 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 }
 
 func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	approvalMethod := s.precompile.Methods[authorization.ApproveMethod]
 	method := s.precompile.Methods[authorization.IncreaseAllowanceMethod]
 	testCases := []struct {
@@ -109,7 +120,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[1]
+				log := stDB.Logs()[1]
 				methods := []string{
 					staking.DelegateMsg,
 					staking.UndelegateMsg,
@@ -128,16 +139,18 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			// Approve first with 1 evmos
-			_, err = s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &approvalMethod, tc.malleate())
+			_, err = s.precompile.Approve(ctx, s.keyring.GetAddr(0), stDB, &approvalMethod, tc.malleate())
 			s.Require().NoError(err)
 
 			// Increase allowance after approval
-			_, err = s.precompile.IncreaseAllowance(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.IncreaseAllowance(ctx, s.keyring.GetAddr(0), stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -151,6 +164,10 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 }
 
 func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	approvalMethod := s.precompile.Methods[authorization.ApproveMethod]
 	method := s.precompile.Methods[authorization.DecreaseAllowanceMethod]
 	testCases := []struct {
@@ -176,7 +193,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[1]
+				log := stDB.Logs()[1]
 				methods := []string{
 					staking.DelegateMsg,
 					staking.UndelegateMsg,
@@ -195,6 +212,8 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
@@ -209,11 +228,11 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 					staking.RedelegateMsg,
 				},
 			}
-			_, err = s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &approvalMethod, args)
+			_, err = s.precompile.Approve(ctx, s.keyring.GetAddr(0), stDB, &approvalMethod, args)
 			s.Require().NoError(err)
 
 			// Decrease allowance after approval
-			_, err = s.precompile.DecreaseAllowance(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.DecreaseAllowance(ctx, s.keyring.GetAddr(0), stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -228,6 +247,8 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 
 func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 	var (
+		stDB            *statedb.StateDB
+		ctx             sdk.Context
 		delegationValue = big.NewInt(1205000000000000000)
 		method          = s.precompile.Methods[staking.CreateValidatorMethod]
 		pubkey          = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
@@ -263,13 +284,13 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 				}
 			},
 			postCheck: func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCreateValidator]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var createValidatorEvent staking.EventCreateValidator
@@ -284,9 +305,11 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 200000)
-			_, err := s.precompile.CreateValidator(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			_, err := s.precompile.CreateValidator(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -301,6 +324,8 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 
 func (s *PrecompileTestSuite) TestDelegateEvent() {
 	var (
+		stDB          *statedb.StateDB
+		ctx           sdk.Context
 		delegationAmt = big.NewInt(1500000000000000000)
 		newSharesExp  = delegationAmt
 		method        = s.precompile.Methods[staking.DelegateMethod]
@@ -324,13 +349,13 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeDelegate]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -351,12 +376,14 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
-			_, err = s.precompile.Delegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.Delegate(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -370,6 +397,10 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 }
 
 func (s *PrecompileTestSuite) TestUnbondEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	method := s.precompile.Methods[staking.UndelegateMethod]
 
 	testCases := []struct {
@@ -391,11 +422,11 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeUnbond]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -415,12 +446,14 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
-			_, err = s.precompile.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.Undelegate(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -434,6 +467,10 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 }
 
 func (s *PrecompileTestSuite) TestRedelegateEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	method := s.precompile.Methods[staking.RedelegateMethod]
 
 	testCases := []struct {
@@ -456,11 +493,11 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeRedelegate]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				optSrcAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -484,12 +521,14 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
-			_, err = s.precompile.Redelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+			_, err = s.precompile.Redelegate(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate())
 			s.Require().NoError(err)
 
 			if tc.expErr {
@@ -503,6 +542,10 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 }
 
 func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
+	var (
+		stDB *statedb.StateDB
+		ctx  sdk.Context
+	)
 	methodCancelUnbonding := s.precompile.Methods[staking.CancelUnbondingDelegationMethod]
 	methodUndelegate := s.precompile.Methods[staking.UndelegateMethod]
 
@@ -523,7 +566,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 					s.network.GetValidators()[0].OperatorAddress,
 					big.NewInt(1000000000000000000),
 				}
-				_, err = s.precompile.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &methodUndelegate, undelegateArgs)
+				_, err = s.precompile.Undelegate(ctx, s.keyring.GetAddr(0), contract, stDB, &methodUndelegate, undelegateArgs)
 				s.Require().NoError(err)
 
 				return []interface{}{
@@ -536,12 +579,12 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 			false,
 			"",
 			func() {
-				log := s.network.GetStateDB().Logs()[1]
+				log := stDB.Logs()[1]
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCancelUnbondingDelegation]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -562,13 +605,15 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
 			callArgs := tc.malleate(contract)
-			_, err = s.precompile.CancelUnbondingDelegation(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &methodCancelUnbonding, callArgs)
+			_, err = s.precompile.CancelUnbondingDelegation(ctx, s.keyring.GetAddr(0), contract, stDB, &methodCancelUnbonding, callArgs)
 			s.Require().NoError(err)
 
 			if tc.expErr {
