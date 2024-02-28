@@ -19,6 +19,7 @@ import (
 
 func (s *PrecompileTestSuite) TestCreateValidator() {
 	var (
+		stDB        *statedb.StateDB
 		method      = s.precompile.Methods[staking.CreateValidatorMethod]
 		description = staking.Description{
 			Moniker:         "node0",
@@ -228,7 +229,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.network.GetStateDB().Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
@@ -252,6 +253,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx := s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			// reset sender
 			validatorAddress = s.keyring.GetAddr(0)
@@ -259,18 +261,17 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.CreateValidator(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
-			s.Require().NoError(err)
+			bz, err := s.precompile.CreateValidator(ctx, s.keyring.GetAddr(0), contract, stDB, &method, tc.malleate())
 
-			// query the validator in the staking keeper
-			validator, err := s.network.App.StakingKeeper.Validator(ctx, s.keyring.GetAccAddr(0))
-			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
-				s.Require().Nil(validator)
 			} else {
 				s.Require().NoError(err)
+				// query the validator in the staking keeper
+				validator, err := s.network.App.StakingKeeper.Validator(ctx, s.keyring.GetAccAddr(0).Bytes())
+				s.Require().NoError(err)
+
 				s.Require().NotNil(validator, "expected validator not to be nil")
 				tc.postCheck(bz)
 
@@ -916,7 +917,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(1),
-					big.NewInt(2),
+					big.NewInt(1),
 				}
 			},
 			func(data []byte) {

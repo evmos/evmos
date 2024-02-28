@@ -573,7 +573,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 					s.keyring.GetAddr(0),
 					s.network.GetValidators()[0].OperatorAddress,
 					big.NewInt(1000000000000000000),
-					big.NewInt(2),
+					big.NewInt(1),
 				}
 			},
 			false,
@@ -597,7 +597,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 				s.Require().Equal(s.keyring.GetAddr(0), cancelUnbondEvent.DelegatorAddress)
 				s.Require().Equal(optHexAddr, cancelUnbondEvent.ValidatorAddress)
 				s.Require().Equal(big.NewInt(1000000000000000000), cancelUnbondEvent.Amount)
-				s.Require().Equal(big.NewInt(2), cancelUnbondEvent.CreationHeight)
+				s.Require().Equal(big.NewInt(1), cancelUnbondEvent.CreationHeight)
 			},
 		},
 	}
