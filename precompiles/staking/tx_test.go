@@ -32,7 +32,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			MaxChangeRate: math.LegacyOneDec().BigInt(),
 		}
 		minSelfDelegation = big.NewInt(1)
-		validatorAddress  = s.address
+		validatorAddress  = s.keyring.GetAddr(0)
 		pubkey            = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 		value             = big.NewInt(1205000000000000000)
 	)
@@ -227,19 +227,19 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.stateDB.Logs()[0]
+				log := s.network.GetStateDB().Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCreateValidator]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), geth.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var createValidatorEvent staking.EventCreateValidator
 				err = cmn.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(s.address, createValidatorEvent.ValidatorAddress)
+				s.Require().Equal(s.keyring.GetAddr(0), createValidatorEvent.ValidatorAddress)
 				s.Require().Equal(value, createValidatorEvent.Value)
 			},
 			false,
@@ -252,15 +252,16 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			s.SetupTest()
 
 			// reset sender
-			validatorAddress = s.address
+			validatorAddress = s.keyring.GetAddr(0)
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			var ctx sdk.Context
+			contract, ctx = testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.CreateValidator(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
 
 			// query the validator in the staking keeper
-			validator, err := s.app.StakingKeeper.Validator(s.ctx, s.address.Bytes())
+			validator, err := s.network.App.StakingKeeper.Validator(ctx, s.keyring.GetAddr(0).Bytes())
 			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -355,7 +356,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			"fail - invalid amount",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					nil,
 				}
@@ -369,10 +370,10 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		{
 			"fail - delegation failed because of insufficient funds",
 			func(operatorAddress string) []interface{} {
-				err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(9e18),
 				}
@@ -387,15 +388,15 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"fail - delegation should not be possible to validators outside of the allow list",
 		//	func(string) []interface{} {
-		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 		//		s.Require().NoError(err)
 		//
 		//		// Create new validator --> this is not included in the authorized allow list
-		//		testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), s.app.StakingKeeper, math.NewInt(100))
-		//		newValAddr := sdk.ValAddress(s.address.Bytes())
+		//		testutil.CreateValidator(s.network.GetContext(), s.T(), s.privKey.PubKey(), s.network.App.StakingKeeper, math.NewInt(100))
+		//		newValAddr := sdk.ValAddress(s.keyring.GetAddr(0).Bytes())
 		//
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			newValAddr.String(),
 		//			big.NewInt(1e18),
 		//		}
@@ -409,10 +410,10 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		{
 			"success",
 			func(operatorAddress string) []interface{} {
-				err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(1e18),
 				}
@@ -424,12 +425,12 @@ func (s *PrecompileTestSuite) TestDelegate() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.stateDB.Logs()[0]
+				log := s.network.GetStateDB().Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeDelegate]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), geth.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
 			},
 			false,
 			"",
@@ -438,10 +439,10 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and update the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)})
+		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			operatorAddress,
 		//			big.NewInt(1e18),
 		//		}
@@ -449,7 +450,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		//	20000,
 		//	big.NewInt(2),
 		//	func(data []byte) {
-		//		authorization, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), staking.DelegateMsg)
+		//		authorization, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes(), staking.DelegateMsg)
 		//		s.Require().NotNil(authorization)
 		//		stakeAuthorization := authorization.(*stakingtypes.StakeAuthorization)
 		//		s.Require().Equal(math.NewInt(1e18), stakeAuthorization.MaxTokens.Amount)
@@ -460,10 +461,10 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and delete the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})
+		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			operatorAddress,
 		//			big.NewInt(1e18),
 		//		}
@@ -471,7 +472,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		//	20000,
 		//	big.NewInt(2),
 		//	func(data []byte) {
-		//		authorization, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), staking.DelegateMsg)
+		//		authorization, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes(), staking.DelegateMsg)
 		//		s.Require().Nil(authorization)
 		//	},
 		//	false,
@@ -483,18 +484,17 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.Delegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+			bz, err := s.precompile.Delegate(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 			// query the delegation in the staking keeper
-			delegation, err := s.app.StakingKeeper.Delegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].OperatorAddress))
+			delegation, err := s.network.App.StakingKeeper.Delegation(ctx, s.keyring.GetAddr(0).Bytes(), sdk.ValAddress(s.network.GetValidators()[0].OperatorAddress))
 			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
-				s.Require().Equal(s.validators[0].DelegatorShares, delegation.GetShares())
+				s.Require().Equal(s.network.GetValidators()[0].DelegatorShares, delegation.GetShares())
 			} else {
 				s.Require().NoError(err)
 				s.Require().NotNil(delegation, "expected delegation not to be nil")
@@ -566,7 +566,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 			"fail - invalid amount",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					nil,
 				}
@@ -580,10 +580,10 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		{
 			"success",
 			func(operatorAddress string) []interface{} {
-				err := s.CreateAuthorization(s.address, staking.UndelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(1000000000000000000),
 				}
@@ -594,12 +594,12 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.network.App.StakingKeeper.GetParams(s.network.GetContext())
 				s.Require().NoError(err)
-				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
+				expCompletionTime := s.network.GetContext().BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 				// Check the event emitted
-				log := s.stateDB.Logs()[0]
+				log := s.network.GetStateDB().Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 			},
 			20000,
@@ -613,13 +613,12 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+			bz, err := s.precompile.Undelegate(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 			// query the unbonding delegations in the staking keeper
-			undelegations, _ := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
+			undelegations, _ := s.network.App.StakingKeeper.GetAllUnbondingDelegations(ctx, s.keyring.GetAddr(0).Bytes())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -629,10 +628,10 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().NotEmpty(bz)
 				tc.postCheck(bz)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.keyring.GetAddr(0).Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(undelegations[0].DelegatorAddress, bech32Addr)
-				s.Require().Equal(undelegations[0].ValidatorAddress, s.validators[0].OperatorAddress)
+				s.Require().Equal(undelegations[0].ValidatorAddress, s.network.GetValidators()[0].OperatorAddress)
 				s.Require().Equal(undelegations[0].Entries[0].Balance, math.NewIntFromBigInt(tc.expUndelegationShares))
 			}
 		})
@@ -698,7 +697,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			"fail - invalid amount",
 			func(srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					dstOperatorAddr,
 					nil,
@@ -714,7 +713,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			"fail - invalid shares amount",
 			func(srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					dstOperatorAddr,
 					big.NewInt(-1),
@@ -729,10 +728,10 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		{
 			"success",
 			func(srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				err := s.CreateAuthorization(s.address, staking.RedelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					dstOperatorAddr,
 					big.NewInt(1000000000000000000),
@@ -744,9 +743,9 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.network.App.StakingKeeper.GetParams(s.network.GetContext())
 				s.Require().NoError(err)
-				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
+				expCompletionTime := s.network.GetContext().BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 			},
 			200000,
@@ -760,13 +759,12 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.Redelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress, s.validators[1].OperatorAddress))
+			bz, err := s.precompile.Redelegate(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress, s.network.GetValidators()[1].OperatorAddress))
 
 			// query the redelegations in the staking keeper
-			redelegations, err := s.app.StakingKeeper.GetRedelegations(s.ctx, s.address.Bytes(), 5)
+			redelegations, err := s.network.App.StakingKeeper.GetRedelegations(ctx, s.keyring.GetAddr(0).Bytes(), 5)
 			s.Require().NoError(err)
 
 			if tc.expError {
@@ -776,11 +774,11 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().NoError(err)
 				s.Require().NotEmpty(bz)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.keyring.GetAddr(0).Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(redelegations[0].DelegatorAddress, bech32Addr)
-				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.validators[0].OperatorAddress)
-				s.Require().Equal(redelegations[0].ValidatorDstAddress, s.validators[1].OperatorAddress)
+				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.network.GetValidators()[0].OperatorAddress)
+				s.Require().Equal(redelegations[0].ValidatorDstAddress, s.network.GetValidators()[1].OperatorAddress)
 				s.Require().Equal(redelegations[0].Entries[0].SharesDst, math.LegacyNewDecFromBigInt(tc.expRedelegationShares))
 			}
 		})
@@ -831,7 +829,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 			"fail - creation height",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(1),
 					nil,
@@ -847,7 +845,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 			"fail - invalid amount",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					nil,
 					big.NewInt(1),
@@ -863,7 +861,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 			"fail - invalid amount",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					nil,
 					big.NewInt(1),
@@ -879,7 +877,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 			"fail - invalid shares amount",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(-1),
 					big.NewInt(1),
@@ -894,10 +892,10 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 		{
 			"success",
 			func(operatorAddress string) []interface{} {
-				err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 					big.NewInt(1),
 					big.NewInt(2),
@@ -919,44 +917,43 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
 			if tc.expError {
-				bz, err := s.precompile.CancelUnbondingDelegation(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+				bz, err := s.precompile.CancelUnbondingDelegation(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
 			} else {
 				undelegateArgs := []interface{}{
-					s.address,
-					s.validators[0].OperatorAddress,
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].OperatorAddress,
 					big.NewInt(1000000000000000000),
 				}
 
-				err := s.CreateAuthorization(s.address, staking.UndelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
 
-				_, err = s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &undelegateMethod, undelegateArgs)
+				_, err = s.precompile.Undelegate(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &undelegateMethod, undelegateArgs)
 				s.Require().NoError(err)
 
-				_, err = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				_, err = s.network.App.StakingKeeper.GetDelegation(ctx, s.keyring.GetAddr(0).Bytes(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()))
 				s.Require().Error(err)
 				s.Require().Contains("not found", err.Error())
 
-				err = s.CreateAuthorization(s.address, staking.CancelUnbondingDelegationAuthz, nil)
+				err = s.CreateAuthorization(s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
 				s.Require().NoError(err)
 
-				bz, err := s.precompile.CancelUnbondingDelegation(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+				bz, err := s.precompile.CancelUnbondingDelegation(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 				s.Require().NoError(err)
 				tc.postCheck(bz)
 
-				delegation, err := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				delegation, err := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), sdk.ValAddress(s.network.GetValidators()[0].GetOperator()))
 				s.Require().NoError(err)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.keyring.GetAddr(0).Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(delegation.DelegatorAddress, bech32Addr)
-				s.Require().Equal(delegation.ValidatorAddress, s.validators[0].OperatorAddress)
+				s.Require().Equal(delegation.ValidatorAddress, s.network.GetValidators()[0].OperatorAddress)
 				s.Require().Equal(delegation.Shares, math.LegacyNewDecFromBigInt(tc.expDelegatedShares))
 
 			}

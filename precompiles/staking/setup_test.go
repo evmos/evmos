@@ -3,16 +3,11 @@ package staking_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -22,29 +17,20 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-var s *PrecompileTestSuite
-
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx        sdk.Context
-	app        *evmosapp.Evmos
-	address    common.Address
-	validators []stakingtypes.Validator
-	ethSigner  ethtypes.Signer
-	privKey    cryptotypes.PrivKey
-	signer     keyring.Signer
-	bondDenom  string
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
-	precompile *staking.Precompile
-	stateDB    *statedb.StateDB
-
-	queryClientEVM evmtypes.QueryClient
+	bondDenom      string
+	precompile     *staking.Precompile
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
-	s = new(PrecompileTestSuite)
-	suite.Run(t, s)
+	suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
@@ -52,5 +38,24 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
+
+	ctx := unitNetwork.GetContext()
+	sk := unitNetwork.App.StakingKeeper
+	bondDenom, err := sk.BondDenom(ctx)
+	s.Require().NoError(err, "failed to get bond denom")
+	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+
+	s.bondDenom = bondDenom
+	s.factory = txFactory
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.network = unitNetwork
+
+	s.precompile = s.setupStakingPrecompile()
 }

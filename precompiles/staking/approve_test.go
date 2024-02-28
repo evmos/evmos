@@ -45,7 +45,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"fail - invalid message type",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					abi.MaxUint256,
 					[]string{"invalid"},
 				}
@@ -60,7 +60,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		//	"fail - origin address is the same the spender address",
 		//	func(_ *vm.Contract) []interface{} {
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			abi.MaxUint256,
 		//			[]string{"invalid"},
 		//		}
@@ -74,14 +74,14 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgDelegate with unlimited coins",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					abi.MaxUint256,
 					[]string{staking.DelegateMsg},
 				}
 			},
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
@@ -97,7 +97,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgUndelegate with unlimited coins",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					abi.MaxUint256,
 					[]string{staking.UndelegateMsg},
 				}
@@ -105,7 +105,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
@@ -120,7 +120,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgRedelegate with unlimited coins",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					abi.MaxUint256,
 					[]string{staking.RedelegateMsg},
 				}
@@ -128,7 +128,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.RedelegateAuthz)
@@ -143,7 +143,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - All staking methods with certain amount of coins",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{
 						staking.DelegateMsg,
@@ -155,7 +155,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, s.address.Bytes(), s.address.Bytes())
+				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes())
 				s.Require().NoError(err)
 				s.Require().Len(allAuthz, 3)
 			},
@@ -166,16 +166,16 @@ func (s *PrecompileTestSuite) TestApprove() {
 		{
 			"success - remove MsgDelegate authorization",
 			func(contract *vm.Contract) []interface{} {
-				res, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, []interface{}{s.address, big.NewInt(1), []string{staking.DelegateMsg}})
+				res, err := s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, []interface{}{s.keyring.GetAddr(0), big.NewInt(1), []string{staking.DelegateMsg}})
 				s.Require().NoError(err)
 				s.Require().Equal(res, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(0),
 					[]string{staking.DelegateMsg},
 				}
@@ -183,7 +183,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().Nil(authz)
 				s.Require().Nil(expirationTime)
 			},
@@ -195,7 +195,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgDelegate with 1 Evmos as limit amount",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
@@ -203,7 +203,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -217,28 +217,27 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - Authorization should only be created for validators that are not jailed",
 			func(_ *vm.Contract) []interface{} {
 				// Commit block (otherwise test logic will not be executed correctly, i.e. somehow unbonding does not take effect)
-				var err error
-				s.ctx, err = evmosutil.Commit(s.ctx, s.app, time.Second, nil)
+				ctx, err := evmosutil.Commit(s.network.GetContext(), s.network.App, time.Second, nil)
 				s.Require().NoError(err, "failed to commit block")
 
 				// Jail a validator
-				s.app.StakingKeeper.Jail(s.ctx, sdk.ConsAddress(s.validators[0].GetOperator()))
+				s.network.App.StakingKeeper.Jail(ctx, sdk.ConsAddress(s.network.GetValidators()[0].GetOperator()))
 
 				// When a delegator redelegates/undelegates from a validator, the validator
 				// switches to Unbonding status.
 				// Thus, validators with this status should be considered for the authorization
 
 				// Unbond another validator
-				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[1].GetOperator()), math.LegacyOneDec())
+				amount, err := s.network.App.StakingKeeper.Unbond(ctx, s.keyring.GetAddr(0).Bytes(), sdk.ValAddress(s.network.GetValidators()[1].GetOperator()), math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
 				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 
 				// Commit block and update time to one year later
-				s.ctx, err = evmosutil.Commit(s.ctx, s.app, time.Hour*24*365, nil)
+				ctx, err = evmosutil.Commit(s.network.GetContext(), s.network.App, time.Hour*24*365, nil)
 				s.Require().NoError(err, "failed to commit block")
 
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
@@ -246,7 +245,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -262,7 +261,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgUndelegate with 1 Evmos as limit amount",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.UndelegateMsg},
 				}
@@ -270,7 +269,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
@@ -284,7 +283,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgRedelegate with 1 Evmos as limit amount",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.RedelegateMsg},
 				}
@@ -292,7 +291,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 			},
@@ -304,7 +303,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"success - MsgRedelegate, MsgUndelegate and MsgDelegate with 1 Evmos as limit amount",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{
 						staking.RedelegateMsg,
@@ -316,20 +315,20 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
-				authz, expirationTime = s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
+				authz, expirationTime = s.CheckAuthorization(staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
-				authz, expirationTime = s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
+				authz, expirationTime = s.CheckAuthorization(staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
@@ -337,7 +336,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				// TODO: Bug here it returns 3 REDELEGATE authorizations
-				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, s.address.Bytes(), s.address.Bytes())
+				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes())
 				s.Require().NoError(err)
 				s.Require().Len(allAuthz, 3)
 			},
@@ -351,11 +350,10 @@ func (s *PrecompileTestSuite) TestApprove() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
 			args := tc.malleate(contract)
-			bz, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, args)
+			bz, err := s.precompile.Approve(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -395,7 +393,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		//	"fail - origin address is the spender address",
 		//	func(_ *vm.Contract) []interface{} {
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			abi.MaxUint256,
 		//			[]string{staking.DelegateMsg},
 		//		}
@@ -409,7 +407,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			"fail - delegate authorization does not exists",
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(15000),
 					[]string{staking.DelegateMsg},
 				}
@@ -425,10 +423,10 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func(_ *vm.Contract) []interface{} {
 				authz := sdkauthz.NewGenericAuthorization(staking.DelegateMsg)
 				exp := time.Now().Add(time.Hour)
-				err := s.app.AuthzKeeper.SaveGrant(s.ctx, s.address.Bytes(), s.address.Bytes(), authz, &exp)
+				err := s.network.App.AuthzKeeper.SaveGrant(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes(), authz, &exp)
 				s.Require().NoError(err)
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(15000),
 					[]string{staking.DelegateMsg},
 				}
@@ -443,21 +441,21 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			"fail - decrease allowance amount is greater than the authorization limit",
 			func(contract *vm.Contract) []interface{} {
 				approveArgs := []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
-				resp, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, approveArgs)
+				resp, err := s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, approveArgs)
 				s.Require().NoError(err)
 				s.Require().Equal(resp, cmn.TrueValue)
 
-				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(2e18),
 					[]string{staking.DelegateMsg},
 				}
@@ -472,13 +470,13 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func(_ *vm.Contract) []interface{} {
 				s.ApproveAndCheckAuthz(method, staking.DelegateMsg, big.NewInt(2e18))
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
 			},
 			func(data []byte, inputArgs []interface{}) {
-				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
@@ -493,11 +491,10 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
 
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
 
 			args := tc.malleate(contract)
-			bz, err := s.precompile.DecreaseAllowance(s.ctx, s.address, s.stateDB, &method, args)
+			bz, err := s.precompile.DecreaseAllowance(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -537,7 +534,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 		//	"fail - origin address is the spender address",
 		//	func(_ *vm.Contract) []interface{} {
 		//		return []interface{}{
-		//			s.address,
+		//			s.keyring.GetAddr(0),
 		//			abi.MaxUint256,
 		//			[]string{staking.DelegateMsg},
 		//		}
@@ -551,7 +548,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			"fail - delegate authorization does not exists",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(15000),
 					[]string{staking.DelegateMsg},
 				}
@@ -566,22 +563,22 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			"success - no-op, allowance amount is already set to the maximum value",
 			func() []interface{} {
 				approveArgs := []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					abi.MaxUint256,
 					[]string{staking.DelegateMsg},
 				}
-				resp, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, approveArgs)
+				resp, err := s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, approveArgs)
 				s.Require().NoError(err)
 				s.Require().Equal(resp, cmn.TrueValue)
 
-				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				var coin *sdk.Coin
 				s.Require().Equal(authz.MaxTokens, coin)
 
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(2e18),
 					[]string{staking.DelegateMsg},
 				}
@@ -596,13 +593,13 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				s.ApproveAndCheckAuthz(method, staking.DelegateMsg, big.NewInt(1e18))
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
 			},
 			func(data []byte, inputArgs []interface{}) {
-				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(2e18)})
@@ -618,7 +615,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			s.SetupTest() // reset
 
 			args := tc.malleate()
-			bz, err := s.precompile.IncreaseAllowance(s.ctx, s.address, s.stateDB, &method, args)
+			bz, err := s.precompile.IncreaseAllowance(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -635,7 +632,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 func (s *PrecompileTestSuite) TestRevoke() {
 	method := s.precompile.Methods[authorization.RevokeMethod]
 	granteeAddr := evmosutiltx.GenerateAddress()
-	granterAddr := s.address
+	granterAddr := s.keyring.GetAddr(0)
 	createdAuthz := staking.DelegateAuthz
 	approvedCoin := &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)}
 
@@ -692,7 +689,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			s.SetupTest() // reset
 
 			// Create a delegate authorization
-			validators, err := s.app.StakingKeeper.GetLastValidators(s.ctx)
+			validators, err := s.network.App.StakingKeeper.GetLastValidators(s.network.GetContext())
 			s.Require().NoError(err)
 			valAddrs := make([]sdk.ValAddress, len(validators))
 			for i, val := range validators {
@@ -706,14 +703,14 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			)
 			s.Require().NoError(err)
 
-			expiration := s.ctx.BlockTime().Add(time.Hour * 24 * 365).UTC()
-			err = s.app.AuthzKeeper.SaveGrant(s.ctx, granteeAddr.Bytes(), granterAddr.Bytes(), delegationAuthz, &expiration)
+			expiration := s.network.GetContext().BlockTime().Add(time.Hour * 24 * 365).UTC()
+			err = s.network.App.AuthzKeeper.SaveGrant(s.network.GetContext(), granteeAddr.Bytes(), granterAddr.Bytes(), delegationAuthz, &expiration)
 			s.Require().NoError(err, "failed to save authorization")
 			authz, _ := s.CheckAuthorization(createdAuthz, granteeAddr, granterAddr)
 			s.Require().NotNil(authz, "expected authorization to be set")
 
 			args := tc.malleate()
-			bz, err := s.precompile.Revoke(s.ctx, granterAddr, s.stateDB, &method, args)
+			bz, err := s.precompile.Revoke(s.network.GetContext(), granterAddr, s.network.GetStateDB(), &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

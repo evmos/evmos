@@ -95,8 +95,8 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 			func() []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(10000000000),
 				)
 				s.Require().NoError(err)
@@ -109,8 +109,8 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 			func() []byte {
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err)
@@ -146,13 +146,13 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"fail - contract gas limit is < gas cost to run a query / tx",
 			func() []byte {
-				err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -166,13 +166,13 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - delegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.address, staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -186,13 +186,13 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - undelegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.address, staking.UndelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -206,14 +206,14 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - redelegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.address, staking.RedelegateAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
 					staking.RedelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
-					s.validators[1].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
+					s.network.GetValidators()[1].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -229,30 +229,30 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				// add unbonding delegation to staking keeper
 				ubd := stakingtypes.NewUnbondingDelegation(
-					sdk.AccAddress(s.address.Bytes()),
-					sdk.ValAddress(s.validators[0].GetOperator()),
+					sdk.AccAddress(s.keyring.GetAddr(0).Bytes()),
+					sdk.ValAddress(s.network.GetValidators()[0].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					0,
-					s.app.AccountKeeper.AddressCodec(),
-					s.app.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
 				)
-				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
+				s.network.App.StakingKeeper.SetUnbondingDelegation(s.network.GetContext(), ubd)
 
-				err := s.CreateAuthorization(s.address, staking.CancelUnbondingDelegationAuthz, nil)
+				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
 				s.Require().NoError(err)
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
 				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
-				err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
+				err = s.network.App.BankKeeper.SendCoinsFromModuleToModule(s.network.GetContext(), stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
 				input, err := s.precompile.Pack(
 					staking.CancelUnbondingDelegationMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1000),
 					big.NewInt(1000),
 				)
@@ -269,8 +269,8 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -283,7 +283,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - validator query",
 			func() []byte {
-				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
@@ -303,25 +303,25 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				// add redelegation to staking keeper
 				redelegation := stakingtypes.NewRedelegation(
-					s.address.Bytes(),
-					sdk.ValAddress(s.validators[0].GetOperator()),
-					sdk.ValAddress(s.validators[1].GetOperator()),
+					s.keyring.GetAddr(0).Bytes(),
+					sdk.ValAddress(s.network.GetValidators()[0].GetOperator()),
+					sdk.ValAddress(s.network.GetValidators()[1].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					math.LegacyNewDec(1),
 					0,
-					s.app.AccountKeeper.AddressCodec(),
-					s.app.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
 				)
 
-				s.app.StakingKeeper.SetRedelegation(s.ctx, redelegation)
+				s.network.App.StakingKeeper.SetRedelegation(s.network.GetContext(), redelegation)
 
 				input, err := s.precompile.Pack(
 					staking.RedelegationMethod,
-					s.address,
-					s.validators[0].GetOperator(),
-					s.validators[1].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
+					s.network.GetValidators()[1].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -336,8 +336,8 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -352,27 +352,27 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				// add unbonding delegation to staking keeper
 				ubd := stakingtypes.NewUnbondingDelegation(
-					s.address.Bytes(),
-					sdk.ValAddress(s.validators[0].GetOperator()),
+					s.keyring.GetAddr(0).Bytes(),
+					sdk.ValAddress(s.network.GetValidators()[0].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					0,
-					s.app.AccountKeeper.AddressCodec(),
-					s.app.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
+					s.network.App.AccountKeeper.AddressCodec(),
 				)
-				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
+				s.network.App.StakingKeeper.SetUnbondingDelegation(s.network.GetContext(), ubd)
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
 				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
-				err := s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
+				err := s.network.App.BankKeeper.SendCoinsFromModuleToModule(s.network.GetContext(), stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
 				input, err := s.precompile.Pack(
 					staking.UnbondingDelegationMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -387,8 +387,8 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
-					s.address,
-					s.validators[0].GetOperator(),
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -416,9 +416,9 @@ func (s *PrecompileTestSuite) TestRun() {
 			// setup basic test suite
 			s.SetupTest()
 
-			baseFee := s.app.FeeMarketKeeper.GetBaseFee(s.ctx)
+			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
 
-			contract := vm.NewPrecompile(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewPrecompile(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 			contractAddr := contract.Address()
 
 			// malleate testcase
@@ -426,7 +426,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.app.EvmKeeper.ChainID(),
+				ChainID:   s.network.App.EvmKeeper.ChainID(),
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
@@ -436,28 +436,23 @@ func (s *PrecompileTestSuite) TestRun() {
 				GasTipCap: big.NewInt(1),
 				Accesses:  &ethtypes.AccessList{},
 			}
-			msgEthereumTx := evmtypes.NewTx(&txArgs)
 
-			msgEthereumTx.From = s.address.String()
-			err := msgEthereumTx.Sign(s.ethSigner, s.signer)
-			s.Require().NoError(err, "failed to sign Ethereum message")
+			msg, err := s.factory.GenerateGethCoreMsg(s.keyring.GetPrivKey(0), txArgs)
 
+			// TODO check if can get this from setup
 			// Instantiate config
-			proposerAddress := s.ctx.BlockHeader().ProposerAddress
-			cfg, err := s.app.EvmKeeper.EVMConfig(s.ctx, proposerAddress, s.app.EvmKeeper.ChainID())
+			proposerAddress := s.network.GetContext().BlockHeader().ProposerAddress
+			cfg, err := s.network.App.EvmKeeper.EVMConfig(s.network.GetContext(), proposerAddress, s.network.App.EvmKeeper.ChainID())
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
-			msg, err := msgEthereumTx.AsMessage(s.ethSigner, baseFee)
-			s.Require().NoError(err, "failed to instantiate Ethereum message")
-
 			// Instantiate EVM
-			evm := s.app.EvmKeeper.NewEVM(
-				s.ctx, msg, cfg, nil, s.stateDB,
+			evm := s.network.App.EvmKeeper.NewEVM(
+				s.network.GetContext(), msg, cfg, nil, s.network.GetStateDB(),
 			)
 
-			params := s.app.EvmKeeper.GetParams(s.ctx)
+			params := s.network.App.EvmKeeper.GetParams(s.network.GetContext())
 			activePrecompiles := params.GetActivePrecompilesAddrs()
-			precompileMap := s.app.EvmKeeper.Precompiles(activePrecompiles...)
+			precompileMap := s.network.App.EvmKeeper.Precompiles(activePrecompiles...)
 			err = vm.ValidatePrecompiles(precompileMap, activePrecompiles)
 			s.Require().NoError(err, "invalid precompiles", activePrecompiles)
 			evm.WithPrecompiles(precompileMap, activePrecompiles)
@@ -473,7 +468,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Error(err, "expected error to be returned when running the precompile")
 				s.Require().Nil(bz, "expected returned bytes to be nil")
 				s.Require().ErrorContains(err, tc.errContains)
-				consumed := s.ctx.GasMeter().GasConsumed()
+				consumed := s.network.GetContext().GasMeter().GasConsumed()
 				// LessThanOrEqual because the gas is consumed before the error is returned
 				s.Require().LessOrEqual(tc.gas, consumed, "expected gas consumed to be equal to gas limit")
 
