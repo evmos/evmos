@@ -393,7 +393,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(2),
 				}
 			},
-			func(data []byte) {
+			func(_ []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
 				// twice the rewards amount (rewards from 2 validators) - 5% commission
 				expRewards := expRewardsAmt.Mul(math.NewInt(2))
