@@ -519,6 +519,8 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx := s.network.GetContext()
+
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
 			delegationArgs := []interface{}{
@@ -528,13 +530,13 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				big.NewInt(1e18),
 			}
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
-			_, err = s.precompile.Redelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &redelegateMethod, delegationArgs)
+			_, err = s.precompile.Redelegate(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &redelegateMethod, delegationArgs)
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.Redelegation(s.network.GetContext(), &method, contract, tc.malleate(s.network.GetValidators()[0].OperatorAddress, s.network.GetValidators()[1].OperatorAddress))
+			bz, err := s.precompile.Redelegation(ctx, &method, contract, tc.malleate(s.network.GetValidators()[0].OperatorAddress, s.network.GetValidators()[1].OperatorAddress))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -701,6 +703,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 }
 
 func (s *PrecompileTestSuite) TestAllowance() {
+	var ctx sdk.Context
 	approvedCoin := sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)}
 	granteeAddr := testutiltx.GenerateAddress()
 	method := s.precompile.Methods[authorization.AllowanceMethod]
@@ -726,7 +729,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		{
 			"success - query delegate method allowance",
 			func() []interface{} {
-				err := s.CreateAuthorization(granteeAddr, staking.DelegateAuthz, &approvedCoin)
+				err := s.CreateAuthorization(ctx, granteeAddr, staking.DelegateAuthz, &approvedCoin)
 				s.Require().NoError(err)
 
 				return []interface{}{
@@ -769,10 +772,12 @@ func (s *PrecompileTestSuite) TestAllowance() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
+
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
 			args := tc.malleate()
-			bz, err := s.precompile.Allowance(s.network.GetContext(), &method, contract, args)
+			bz, err := s.precompile.Allowance(ctx, &method, contract, args)
 
 			if tc.expErr {
 				s.Require().Error(err)

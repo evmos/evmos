@@ -10,6 +10,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -47,16 +48,16 @@ func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType st
 	s.Require().NoError(err)
 	s.Require().Equal(resp, cmn.TrueValue)
 
-	auth, _ := s.CheckAuthorization(staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+	auth, _ := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 	s.Require().NotNil(auth)
 	s.Require().Equal(auth.AuthorizationType, staking.DelegateAuthz)
 	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(amount)})
 }
 
 // CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
-func (s *PrecompileTestSuite) CheckAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
+func CheckAuthorization(ctx sdk.Context, ak authzkeeper.Keeper, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
 	stakingAuthz := stakingtypes.StakeAuthorization{AuthorizationType: authorizationType}
-	auth, expirationTime := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), grantee.Bytes(), granter.Bytes(), stakingAuthz.MsgTypeURL())
+	auth, expirationTime := ak.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), stakingAuthz.MsgTypeURL())
 
 	stakeAuthorization, ok := auth.(*stakingtypes.StakeAuthorization)
 	if !ok {
@@ -71,11 +72,11 @@ func (s *PrecompileTestSuite) CheckAuthorization(authorizationType stakingtypes.
 // The authorization will be created to spend the given Coin.
 // For testing purposes, this function will create a new authorization for all available validators,
 // that are not jailed.
-func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
+func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, grantee common.Address, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
 	// Get all available validators and filter out jailed validators
 	validators := make([]sdk.ValAddress, 0)
 	s.network.App.StakingKeeper.IterateValidators(
-		s.network.GetContext(), func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
+		ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			if validator.IsJailed() {
 				return
 			}
@@ -90,7 +91,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzT
 	}
 
 	expiration := time.Now().Add(cmn.DefaultExpirationDuration).UTC()
-	err = s.network.App.AuthzKeeper.SaveGrant(s.network.GetContext(), grantee.Bytes(), s.keyring.GetAddr(0).Bytes(), stakingAuthz, &expiration)
+	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), s.keyring.GetAddr(0).Bytes(), stakingAuthz, &expiration)
 	if err != nil {
 		return err
 	}
@@ -170,7 +171,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime := s.CheckAuthorization(expectedAuthz, approvalArgs.ContractAddr, s.keyring.GetAddr(0))
+		authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, expectedAuthz, approvalArgs.ContractAddr, s.keyring.GetAddr(0))
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
 		Expect(authz.MsgTypeURL()).To(Equal(msgType), "expected different message type")
@@ -202,7 +203,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 // ExpectAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
 // authorization is correctly set.
 func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address, maxTokens *sdk.Coin) {
-	authz, expirationTime := s.CheckAuthorization(authorizationType, grantee, granter)
+	authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, authorizationType, grantee, granter)
 	Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 	Expect(authz.AuthorizationType).To(Equal(authorizationType), "expected different authorization type")
 	Expect(authz.MaxTokens).To(Equal(maxTokens), "expected different max tokens")

@@ -74,7 +74,7 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			_, err = s.precompile.Approve(ctx, s.keyring.GetAddr(0), stDB, &method, tc.malleate())
@@ -142,7 +142,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			// Approve first with 1 evmos
@@ -215,7 +215,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			// Approve first with 2 evmos
@@ -379,7 +379,7 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
@@ -449,7 +449,7 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
@@ -524,7 +524,7 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)
@@ -559,7 +559,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 		{
 			"success - the correct event is emitted",
 			func(contract *vm.Contract) []interface{} {
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
 				undelegateArgs := []interface{}{
 					s.keyring.GetAddr(0),
@@ -608,7 +608,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
+			err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), 20000)

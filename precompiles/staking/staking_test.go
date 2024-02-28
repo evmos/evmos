@@ -135,6 +135,7 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 
 // TestRun tests the precompile's Run method.
 func (s *PrecompileTestSuite) TestRun() {
+	var ctx sdk.Context
 	testcases := []struct {
 		name        string
 		malleate    func() []byte
@@ -146,7 +147,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"fail - contract gas limit is < gas cost to run a query / tx",
 			func() []byte {
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
@@ -166,7 +167,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - delegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.DelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
@@ -186,7 +187,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - undelegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
@@ -206,7 +207,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - redelegate transaction",
 			func() []byte {
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.RedelegateAuthz, nil)
 				s.Require().NoError(err)
 
 				input, err := s.precompile.Pack(
@@ -240,7 +241,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				)
 				s.network.App.StakingKeeper.SetUnbondingDelegation(s.network.GetContext(), ubd)
 
-				err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
+				err := s.CreateAuthorization(ctx, s.keyring.GetAddr(0), staking.CancelUnbondingDelegationAuthz, nil)
 				s.Require().NoError(err)
 
 				// Needs to be called after setting unbonding delegation
@@ -415,8 +416,9 @@ func (s *PrecompileTestSuite) TestRun() {
 		s.Run(tc.name, func() {
 			// setup basic test suite
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
-			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
+			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
 
 			contract := vm.NewPrecompile(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 			contractAddr := contract.Address()
@@ -438,6 +440,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			}
 
 			msg, err := s.factory.GenerateGethCoreMsg(s.keyring.GetPrivKey(0), txArgs)
+			s.Require().NoError(err)
 
 			// TODO check if can get this from setup
 			// Instantiate config
