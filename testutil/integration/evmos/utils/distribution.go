@@ -51,7 +51,7 @@ func WithdrawDelegationRewards(tf cmnfactory.TxFactory, delegatorPriv cryptotype
 	return err
 }
 
-func  WithdrawValidatorCommission(tf cmnfactory.TxFactory, validatorPriv cryptotypes.PrivKey) error {
+func WithdrawValidatorCommission(tf cmnfactory.TxFactory, validatorPriv cryptotypes.PrivKey) error {
 	validatorAddr := sdk.ValAddress(validatorPriv.PubKey().Address())
 
 	msg := distrtypes.NewMsgWithdrawValidatorCommission(
