@@ -35,25 +35,25 @@ func getCustomGenesisState[K Unmarshaler](genState K, path string) (K, error) {
 
 func generateCustomGenesisState() (network.CustomGenesisState, error) {
 	evmGenState := &evmtypes.GenesisState{}
-	evmGenState, err := getCustomGenesisState[*evmtypes.GenesisState](evmGenState, "./genesis_files/evm_gen_state.json")
+	evmGenState, err := getCustomGenesisState(evmGenState, "./genesis_files/evm_gen_state.json")
 	if err != nil {
 		panic(err)
 	}
 
 	authGenState := &authtypes.GenesisState{}
-	authGenState, err = getCustomGenesisState[*authtypes.GenesisState](authGenState, "./genesis_files/auth_gen_state.json")
+	authGenState, err = getCustomGenesisState(authGenState, "./genesis_files/auth_gen_state.json")
 	if err != nil {
 		panic(err)
 	}
 
 	bankGenState := &banktypes.GenesisState{}
-	bankGenState, err = getCustomGenesisState[*banktypes.GenesisState](bankGenState, "./genesis_files/bank_gen_state.json")
+	bankGenState, err = getCustomGenesisState(bankGenState, "./genesis_files/bank_gen_state.json")
 	if err != nil {
 		panic(err)
 	}
 
 	erc20State := &erc20types.GenesisState{}
-	erc20State, err = getCustomGenesisState[*erc20types.GenesisState](erc20State, "./genesis_files/erc20_gen_state.json")
+	erc20State, err = getCustomGenesisState(erc20State, "./genesis_files/erc20_gen_state.json")
 	if err != nil {
 		panic(err)
 	}
