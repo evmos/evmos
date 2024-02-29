@@ -24,3 +24,19 @@ func (gqh *IntegrationHandler) GetValidatorDelegations(validatorAddress string) 
 		ValidatorAddr: validatorAddress,
 	})
 }
+
+// GetValidatorUnbondingDelegations returns the unbonding delegations to a given validator.
+func (gqh *IntegrationHandler) GetValidatorUnbondingDelegations(validatorAddress string) (*stakingtypes.QueryValidatorUnbondingDelegationsResponse, error) {
+	stakingClient := gqh.network.GetStakingClient()
+	return stakingClient.ValidatorUnbondingDelegations(context.Background(), &stakingtypes.QueryValidatorUnbondingDelegationsRequest{
+		ValidatorAddr: validatorAddress,
+	})
+}
+
+// GetDelegatorUnbondingDelegations returns all the unbonding delegations for given delegator.
+func (gqh *IntegrationHandler) GetDelegatorUnbondingDelegations(delegatorAddress string) (*stakingtypes.QueryDelegatorUnbondingDelegationsResponse, error) {
+	stakingClient := gqh.network.GetStakingClient()
+	return stakingClient.DelegatorUnbondingDelegations(context.Background(), &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+		DelegatorAddr: delegatorAddress,
+	})
+}

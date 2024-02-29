@@ -26,7 +26,6 @@ import (
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -133,11 +132,13 @@ func (s *PrecompileTestSuite) SetupApproval(
 	amount *big.Int,
 	msgTypes []string,
 ) {
-	approveArgs := contracts.CallArgs{
-		ContractAddr: s.precompile.Address(),
-		ContractABI:  s.precompile.ABI,
-		PrivKey:      granterPriv,
-		MethodName:   authorization.ApproveMethod,
+	precompileAddr := s.precompile.Address()
+	txArgs := evmtypes.EvmTxArgs{
+		To: &precompileAddr,
+	}
+	approveArgs := factory.CallArgs{
+		ContractABI: s.precompile.ABI,
+		MethodName:  authorization.ApproveMethod,
 		Args: []interface{}{
 			grantee, amount, msgTypes,
 		},
@@ -149,10 +150,13 @@ func (s *PrecompileTestSuite) SetupApproval(
 		ExpPass:   true,
 	}
 
-	res, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, approveArgs, logCheckArgs)
+	res, _, err := s.factory.CallContractAndCheckLogs(
+		granterPriv,
+		txArgs, approveArgs,
+		logCheckArgs,
+	)
 	Expect(err).To(BeNil(), "error while calling the contract to approve")
-
-	s.network.NextBlock()
+	Expect(s.network.NextBlock()).To(BeNil())
 
 	// Check if the approval event is emitted
 	granterAddr := common.BytesToAddress(granterPriv.PubKey().Address().Bytes())

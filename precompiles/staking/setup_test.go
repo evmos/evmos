@@ -29,10 +29,11 @@ type PrecompileTestSuite struct {
 	precompile *staking.Precompile
 }
 
-func TestPrecompileTestSuite(t *testing.T) {
-	// TODO uncomment
-	// suite.Run(t, new(PrecompileTestSuite))
+func TestPrecompileUnitTestSuite(t *testing.T) {
+	suite.Run(t, new(PrecompileTestSuite))
+}
 
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Precompile Test Suite")
