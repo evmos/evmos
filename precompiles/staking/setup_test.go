@@ -9,10 +9,10 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
-	// //nolint:revive // dot imports are fine for Ginkgo
-	// . "github.com/onsi/ginkgo/v2"
-	// //nolint:revive // dot imports are fine for Ginkgo
-	// . "github.com/onsi/gomega"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,38 +25,44 @@ type PrecompileTestSuite struct {
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	bondDenom      string
-	precompile     *staking.Precompile
+	bondDenom  string
+	precompile *staking.Precompile
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
-	suite.Run(t, new(PrecompileTestSuite))
+	// TODO uncomment
+	// suite.Run(t, new(PrecompileTestSuite))
 
 	// Run Ginkgo integration tests
-	// TODO uncomment
-	// RegisterFailHandler(Fail)
-	// RunSpecs(t, "Precompile Test Suite")
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Precompile Test Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
-	unitNetwork := network.NewUnitTestNetwork(
+	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	txFactory := factory.New(unitNetwork, grpcHandler)
+	grpcHandler := grpc.NewIntegrationHandler(nw)
+	txFactory := factory.New(nw, grpcHandler)
 
-	ctx := unitNetwork.GetContext()
-	sk := unitNetwork.App.StakingKeeper
+	ctx := nw.GetContext()
+	sk := nw.App.StakingKeeper
 	bondDenom, err := sk.BondDenom(ctx)
-	s.Require().NoError(err, "failed to get bond denom")
-	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+	if err != nil {
+		panic(err)
+	}
 
 	s.bondDenom = bondDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.network = unitNetwork
+	s.network = nw
 
-	s.precompile = s.setupStakingPrecompile()
+	if s.precompile, err = staking.NewPrecompile(
+		s.network.App.StakingKeeper,
+		s.network.App.AuthzKeeper,
+	); err != nil {
+		panic(err)
+	}
 }

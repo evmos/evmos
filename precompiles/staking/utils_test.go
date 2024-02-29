@@ -24,18 +24,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// setupStakingPrecompile is a helper function to set up an instance of the Bank precompile for
-// a given token denomination.
-func (s *PrecompileTestSuite) setupStakingPrecompile() *staking.Precompile {
-	precompile, err := staking.NewPrecompile(
-		s.network.App.StakingKeeper,
-		s.network.App.AuthzKeeper,
-	)
-
-	s.Require().NoError(err, "failed to create staking precompile")
-
-	return precompile
-}
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
 func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType string, amount *big.Int) {
