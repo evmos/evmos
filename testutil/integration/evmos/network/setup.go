@@ -266,6 +266,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	evmtypes.ModuleName:   genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
 	govtypes.ModuleName:   genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName:  genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+    banktypes.ModuleName:  genStateSetter[*banktypes.GenesisState](banktypes.ModuleName),
 }
 
 // setDefaultAuthGenesisState sets the default auth genesis state

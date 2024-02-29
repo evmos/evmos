@@ -29,12 +29,15 @@ type TelemetryResult struct {
 }
 
 // worker performs the task on jobs received and sends results to the results channel.
-func worker(workerCtx context.Context, id int, tasks <-chan []string, results chan<- []TelemetryResult,
+func worker(
+	workerCtx context.Context,
+	id int,
+	tasks <-chan []string,
+	results chan<- []TelemetryResult,
 	ctx sdk.Context,
 	erc20Keeper erc20keeper.Keeper,
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
-
 ) error {
 	for {
 		select {
@@ -65,6 +68,9 @@ func performTask(task []string, id int,
 	i := 0
 	for _, account := range task {
 		for tokenID, pair := range tokenPairs {
+			// if account == "evmos1qqqvgqnylf3qtts70jmjxtn668w9gu4yhvz2ms" {
+			// 	continue
+			// }
 			cosmosAddress := sdk.MustAccAddressFromBech32(account)
 			ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), ethAddress)
@@ -114,10 +120,6 @@ func processResults(results <-chan []TelemetryResult) []TelemetryResult {
 	finalizedResults := make([]TelemetryResult, 0)
 	for batchResults := range results {
 		for i := range batchResults {
-			length := len(finalizedResults)
-			if length%1000 == 0 {
-				fmt.Println("Finalized results: ", len(finalizedResults))
-			}
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
 	}
