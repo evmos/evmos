@@ -7,6 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -49,6 +51,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	// enable inflation for staking rewards
 	customGen := network.CustomGenesisState{}
+	customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()
 
 	// set some slashing events for integration test
 	distrGen := distrtypes.DefaultGenesisState()

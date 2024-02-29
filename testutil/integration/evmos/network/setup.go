@@ -316,6 +316,16 @@ func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.Genes
 	return genesisState
 }
 
+// setDefaultInflationGenesisState sets the default inflation genesis state
+func setDefaultInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
+	inflationParams := infltypes.DefaultParams()
+	inflationParams.EnableInflation = false
+	defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
+
+	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&defaultGen)
+	return genesisState
+}
+
 type BankCustomGenesisState struct {
 	totalSupply sdktypes.Coins
 	balances    []banktypes.Balance
@@ -449,6 +459,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
+	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
 

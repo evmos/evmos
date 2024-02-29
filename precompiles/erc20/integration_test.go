@@ -22,7 +22,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -806,7 +805,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
 
 				// Fund account with some tokens
-				err := integrationutils.FundAccount(s.factory, s.network, is.keyring.GetKey(0), sender.AccAddr, fundCoins)
+				err := is.factory.FundAccount(is.keyring.GetKey(0), sender.AccAddr, fundCoins)
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Query the balance

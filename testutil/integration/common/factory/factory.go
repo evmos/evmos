@@ -7,12 +7,16 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 )
 
 const (
@@ -29,6 +33,22 @@ type TxFactory interface {
 	SignCosmosTx(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder) error
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
+
+	// FundAccount funds the given account with the given amount.
+	FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, amount sdktypes.Coins) error
+	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
+	// base denomination.
+	FundAccountWithBaseDenom(sender keyring.Key, receiver sdktypes.AccAddress, amount sdkmath.Int) error
+
+	// Delegate is a method to create and broadcast a MsgDelegate
+	Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error
+
+	// SetWithdrawAddress is a method to create and broadcast a MsgSetWithdrawAddress
+	SetWithdrawAddress(delegatorPriv cryptotypes.PrivKey, withdrawerAddr sdk.AccAddress) error
+	// WithdrawDelegationRewards is a method to create and broadcast a MsgWithdrawDelegationRewards
+	WithdrawDelegationRewards(delegatorPriv cryptotypes.PrivKey, validatorAddr string) error
+	// WithdrawValidatorCommission is a method to create and broadcast a MsgWithdrawValidatorCommission
+	WithdrawValidatorCommission(validatorPriv cryptotypes.PrivKey) error
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
