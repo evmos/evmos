@@ -3,13 +3,40 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	cmnfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 )
+
+// Delegate on behalf of the account associated with the given private key.
+// The defined amount will delegated to the specified validator.
+// The validator address should be in the format `evmosvaloper1...`.
+func Delegate(tf cmnfactory.TxFactory, delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error {
+	delegatorAccAddr := sdk.AccAddress(delegatorPriv.PubKey().Address())
+
+	msgDelegate := stakingtypes.NewMsgDelegate(
+		delegatorAccAddr.String(),
+		validatorAddr,
+		amount,
+	)
+
+	resp, err := tf.ExecuteCosmosTx(delegatorPriv, cmnfactory.CosmosTxArgs{
+		Msgs: []sdk.Msg{msgDelegate},
+	})
+
+	if resp.Code != 0 {
+		err = fmt.Errorf("received error code %d on Delegate transaction. Logs: %s", resp.Code, resp.Log)
+	}
+
+	return err
+}
 
 // WaitToAccrueRewards is a helper function that waits for rewards to
 // accumulate up to a specified expected amount

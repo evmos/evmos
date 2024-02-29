@@ -19,7 +19,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -172,7 +172,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// set the default call arguments
 			callArgs.MethodName = distribution.WithdrawDelegatorRewardsMethod
 
-			accruedRewards, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			accruedRewards, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 		})
 
@@ -245,7 +245,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			withdrawerInitialBalance := balRes.Balance
 			// Set new withdrawer address
-			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), differentAddr.Bytes())
+			err = integrationutils.SetWithdrawAddress(s.factory, s.keyring.GetPrivKey(0), differentAddr.Bytes())
 			Expect(err).To(BeNil())
 			// persist state change
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -317,7 +317,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			valAddr := sdk.ValAddress(s.validatorsKeys[0].AccAddr)
 
 			var err error
-			accruedCommission, err = testutils.WaitToAccrueCommission(
+			accruedCommission, err = integrationutils.WaitToAccrueCommission(
 				s.network, s.grpcHandler,
 				valAddr.String(),
 				sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, expCommAmt)),
@@ -325,7 +325,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 
 			// Send some funds to the validator to pay for fees
-			err = s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err = integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 		})
@@ -416,7 +416,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			var err error
 			// set the default call arguments
 			callArgs.MethodName = distribution.ClaimRewardsMethod
-			accruedRewards, err = testutils.WaitToAccrueRewards(
+			accruedRewards, err = integrationutils.WaitToAccrueRewards(
 				s.network,
 				s.grpcHandler,
 				s.keyring.GetAccAddr(0).String(),
@@ -490,7 +490,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	Describe("Execute queries", func() {
 		It("should get validator distribution info - validatorDistributionInfo query", func() {
 			// fund validator account to make self-delegation
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -498,7 +498,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			opAddr := s.network.GetValidators()[0].OperatorAddress
 			// use the validator priv key
 			// make a self delegation
-			err = s.factory.Delegate(s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+			err = integrationutils.Delegate(s.factory, s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -526,7 +526,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() {
-			accruedRewards, err := testutils.WaitToAccrueRewards(
+			accruedRewards, err := integrationutils.WaitToAccrueRewards(
 				s.network,
 				s.grpcHandler,
 				s.keyring.GetAccAddr(0).String(),
@@ -565,7 +565,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should get validator commission - validatorCommission query", func() { //nolint:dupl
 			opAddr := s.network.GetValidators()[0].OperatorAddress
-			accruedCommission, err := testutils.WaitToAccrueCommission(
+			accruedCommission, err := integrationutils.WaitToAccrueCommission(
 				s.network,
 				s.grpcHandler,
 				opAddr,
@@ -685,7 +685,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should get delegation rewards - delegationRewards query", func() {
-			accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			accruedRewards, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			callArgs.MethodName = distribution.DelegationRewardsMethod
@@ -718,7 +718,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should get delegators's total rewards - delegationTotalRewards query", func() {
 			// wait for rewards to accrue
-			accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			accruedRewards, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			callArgs.MethodName = distribution.DelegationTotalRewardsMethod
@@ -800,8 +800,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	var (
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
-		// err is a basic error type
-		err error
+		err          error
 
 		// execRevertedCheck defines the default log checking arguments which includes the
 		// standard revert message.
@@ -923,21 +922,21 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund the diffAddr
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// make a delegation
-			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			err = integrationutils.Delegate(s.factory, diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
-			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			// check if s.keyring.GetAddr(0) accrued rewards too
-			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
@@ -1022,7 +1021,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			withdrawerInitialBalance := balRes.Balance
 
 			// Set new withdrawer address
-			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), differentAddr.Bytes())
+			err = integrationutils.SetWithdrawAddress(s.factory, s.keyring.GetPrivKey(0), differentAddr.Bytes())
 			Expect(err).To(BeNil())
 			// persist state change
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -1086,7 +1085,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// send funds to the contract
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1115,7 +1114,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// wait to accrue some rewards for contract address
-			rwRes, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(contractAddr.Bytes()).String(), minExpRewardOrCommission)
+			rwRes, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(contractAddr.Bytes()).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			// contract's accrued rewards amt
@@ -1162,10 +1161,10 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund validator's account to pay for fees
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
 			Expect(err).To(BeNil())
 
-			res, err := testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
+			res, err := integrationutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 			accruedCommissionAmt = res.AmountOf(s.bondDenom).TruncateInt()
 
@@ -1247,17 +1246,17 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund the diffAddr
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// make a delegation
-			err = s.factory.Delegate(diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+			err = integrationutils.Delegate(s.factory, diffKey, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// wait to accrue some rewards for s.keyring.GetAddr(0) & another address
-			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
+			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(differentAddr.Bytes()).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			// check if s.keyring.GetAddr(0) accrued rewards too
@@ -1337,7 +1336,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// send funds to the contract
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1366,7 +1365,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// wait to accrue some rewards for contract address
-			rwRes, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(contractAddr.Bytes()).String(), minExpRewardOrCommission)
+			rwRes, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(contractAddr.Bytes()).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			// contract's accrued rewards amt
@@ -1489,7 +1488,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil())
 			initBalanceAmt := balanceRes.Balance.Amount
 
-			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
 			callArgs.MethodName = "testRevertState"
@@ -1566,7 +1565,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	Context("Distribution precompile queries", Ordered, func() {
 		It("should get validator distribution info", func() {
 			// fund validator account to make self-delegation
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err := integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -1574,7 +1573,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			opAddr := s.network.GetValidators()[0].OperatorAddress
 			// use the validator priv key
 			// make a self delegation
-			err = s.factory.Delegate(s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+			err = integrationutils.Delegate(s.factory, s.validatorsKeys[0].Priv, opAddr, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -1607,7 +1606,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			callArgs.MethodName = "getValidatorOutstandingRewards"
 			callArgs.Args = []interface{}{opAddr}
 
-			_, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+			_, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			_, ethRes, err := s.factory.CallContractAndCheckLogs(
@@ -1641,12 +1640,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			It("should not get commission - validator without commission", func() {
 				// fund validator account to claim commission (if any)
-				err = s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
+				err = integrationutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// withdraw validator commission
-				err = s.factory.WithdrawValidatorCommission(s.validatorsKeys[0].Priv)
+				err = integrationutils.WithdrawValidatorCommission(s.factory, s.validatorsKeys[0].Priv)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1666,7 +1665,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 
 			It("should get commission - validator with commission", func() {
-				_, err = testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
+				_, err = integrationutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
 				Expect(err).To(BeNil())
 
 				commRes, err := s.grpcHandler.GetValidatorCommission(s.network.GetValidators()[0].OperatorAddress)
@@ -1790,7 +1789,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			It("should not get rewards - no rewards available", func() {
 				// withdraw rewards if available
-				err := s.factory.WithdrawDelegationRewards(s.keyring.GetPrivKey(0), s.network.GetValidators()[0].OperatorAddress)
+				err := integrationutils.WithdrawDelegationRewards(s.factory, s.keyring.GetPrivKey(0), s.network.GetValidators()[0].OperatorAddress)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1810,7 +1809,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				Expect(len(rewards)).To(Equal(0))
 			})
 			It("should get rewards", func() {
-				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+				accruedRewards, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 				Expect(err).To(BeNil())
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
@@ -1846,7 +1845,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			It("should not get rewards - no rewards available", func() {
 				// Create a delegation
-				err := s.factory.Delegate(s.keyring.GetPrivKey(1), s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
+				err := integrationutils.Delegate(s.factory, s.keyring.GetPrivKey(1), s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1869,7 +1868,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			It("should get total rewards", func() {
 				// wait to get rewards
-				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
+				accruedRewards, err := integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 				Expect(err).To(BeNil())
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(

@@ -253,7 +253,7 @@ func (p Precompile) createStakingAuthz(
 			var valAddr sdk.ValAddress
 			valAddr, iterErr = sdk.ValAddressFromBech32(validator.GetOperator())
 			if iterErr != nil {
-				return
+				return true
 			}
 			validators = append(validators, valAddr)
 			return

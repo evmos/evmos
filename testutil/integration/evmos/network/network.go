@@ -113,8 +113,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	// Create funded accounts based on the config and
-	// create genesis accounts
+	// Create genesis accounts and funded balances based on the config
 	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(

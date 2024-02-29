@@ -18,11 +18,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 )
 
-var (
-	expValAmount      int64 = 1
-	testRewardsAmt, _       = math.NewIntFromString("1000000000000000000")
-	expRewardsAmt, _        = math.NewIntFromString("950000000000000000") // testRewardsAmt - 5% commission
-)
+var expValAmount int64 = 1
 
 type distrTestCases struct {
 	name        string
@@ -805,6 +801,14 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegatorValidatorsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(3, len(out))
+				for _, val := range s.network.GetValidators() {
+					s.Require().Contains(
+						out,
+						val.OperatorAddress,
+						"expected operator address %q to be in output",
+						val.OperatorAddress,
+					)
+				}
 			},
 			100000,
 			false,

@@ -219,8 +219,7 @@ func createStakingValidators(tmValidators []*cmttypes.Validator, bondedAmt sdkma
 	return createStakingValidatorsWithSpecificOperator(tmValidators, bondedAmt, operatorsAddresses)
 }
 
-// createStakingValidators creates staking validators from the given tm validators and bonded
-// amounts
+// createStakingValidatorsWithRandomOperator creates staking validators with non-specified operator addresses.
 func createStakingValidatorsWithRandomOperator(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
@@ -234,14 +233,13 @@ func createStakingValidatorsWithRandomOperator(tmValidators []*cmttypes.Validato
 	return stakingValidators, nil
 }
 
-// createStakingValidators creates staking validators from the given tm validators and bonded
-// amounts
+// createStakingValidatorsWithSpecificOperator creates staking validators with the given operator addresses.
 func createStakingValidatorsWithSpecificOperator(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int, operatorsAddresses []sdktypes.AccAddress) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
 	operatorsCount := len(operatorsAddresses)
 	if operatorsCount != amountOfValidators {
-		panic(fmt.Sprintf("provided %d validator operators keys but need %d!", operatorsCount, amountOfValidators))
+		panic(fmt.Sprintf("provided %d validator operator keys but need %d!", operatorsCount, amountOfValidators))
 	}
 	for i, val := range tmValidators {
 		validator, err := createStakingValidator(val, bondedAmt, &operatorsAddresses[i])
@@ -315,16 +313,6 @@ func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.Genes
 		overwriteParams.delegations,
 	)
 	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
-	return genesisState
-}
-
-// setDefaultInflationGenesisState sets the default inflation genesis state
-func setDefaultInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
-	inflationParams := infltypes.DefaultParams()
-	inflationParams.EnableInflation = false
-	defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
-
-	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&defaultGen)
 	return genesisState
 }
 
@@ -461,7 +449,6 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
 
