@@ -16,6 +16,7 @@ import (
 	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -47,10 +48,14 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	BeforeAll(func() {
 		keyring := testkeyring.New(3)
 
+		// enable inflation for staking rewards
+		customGen := network.CustomGenesisState{}
+		customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()
+
 		integrationNetwork := network.New(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			network.WithCustomGenesis(customGen),
 		)
-
 		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 		txFactory := factory.New(integrationNetwork, grpcHandler)
 		s = &IntegrationTestSuite{
@@ -84,7 +89,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			}
 
 			valAddr := s.network.GetValidators()[0].OperatorAddress
-			err := integrationutils.Delegate(s.factory, priv, valAddr, delegationCoin)
+			err := s.factory.Delegate(priv, valAddr, delegationCoin)
 			Expect(err).To(BeNil())
 
 			rewards, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, addr.String(), minExpRewards)
@@ -134,9 +139,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			// this is a new address that does not exist on chain.
 			// Transfer 1 aevmos to this account so it is
 			// added on chain
-			err := integrationutils.FundAccount(
-				s.factory,
-				s.network,
+			err := s.factory.FundAccount(
 				s.keyring.GetKey(0),
 				addr,
 				sdk.Coins{
@@ -189,9 +192,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// this is a new address that does not exist on chain.
 			// Transfer some funds to stake
-			err := integrationutils.FundAccount(
-				s.factory,
-				s.network,
+			err := s.factory.FundAccount(
 				s.keyring.GetKey(0),
 				addr,
 				sdk.Coins{
@@ -207,7 +208,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// delegate some tokens and make sure the remaining balance is not sufficient to cover the tx fees
 			valAddr := s.network.GetValidators()[1].OperatorAddress
-			err = integrationutils.Delegate(s.factory, priv, valAddr, sdk.NewCoin(s.network.GetDenom(), sdkmath.NewInt(9999e14)))
+			err = s.factory.Delegate(priv, valAddr, sdk.NewCoin(s.network.GetDenom(), sdkmath.NewInt(9999e14)))
 			Expect(err).To(BeNil())
 
 			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, addr.String(), minExpRewards)

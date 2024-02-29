@@ -20,7 +20,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
@@ -217,7 +217,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := integrationutils.FundAccount(is.factory, is.network, sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
+				err := is.factory.FundAccount(sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -240,7 +240,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := integrationutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
+				err := testutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -360,7 +360,7 @@ var _ = Describe("Bank Extension -", func() {
 			It("should return the correct balance", func() {
 				receiver := utiltx.GenerateAddress()
 
-				err := integrationutils.FundAccount(is.factory, is.network, sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
+				err := is.factory.FundAccount(sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -383,7 +383,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := integrationutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
+				err := testutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 

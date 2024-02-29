@@ -19,7 +19,6 @@ import (
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	network "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -65,7 +64,7 @@ func (is *IntegrationTestSuite) setupSendAuthz(
 
 func setupSendAuthz(
 	network commonnetwork.Network,
-	factory commonfactory.TxFactory,
+	factory commonfactory.BaseTxFactory,
 	grantee sdk.AccAddress,
 	granterPriv cryptotypes.PrivKey,
 	amount sdk.Coins,
@@ -493,7 +492,7 @@ func (is *IntegrationTestSuite) fundWithTokens(
 
 	switch {
 	case slices.Contains(nativeCallTypes, callType):
-		err = integrationutils.FundAccount(is.factory, is.network, is.keyring.GetKey(0), receiver.Bytes(), fundCoins)
+		err = is.factory.FundAccount(is.keyring.GetKey(0), receiver.Bytes(), fundCoins)
 	case slices.Contains(erc20CallTypes, callType):
 		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
 	default:
