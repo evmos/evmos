@@ -85,7 +85,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			},
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
@@ -109,7 +109,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
@@ -132,7 +132,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.RedelegateAuthz)
@@ -174,7 +174,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.Require().NoError(err)
 				s.Require().Equal(res, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
@@ -187,7 +187,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().Nil(authz)
 				s.Require().Nil(expirationTime)
 			},
@@ -207,7 +207,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -271,7 +271,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
@@ -293,7 +293,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 			},
@@ -317,20 +317,20 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				authz, expirationTime := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
-				authz, expirationTime = CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime = CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
-				authz, expirationTime = CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, expirationTime = CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
@@ -458,7 +458,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				s.Require().NoError(err)
 				s.Require().Equal(resp, cmn.TrueValue)
 
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
@@ -485,7 +485,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				}
 			},
 			func(data []byte, inputArgs []interface{}) {
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
@@ -587,7 +587,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 				s.Require().NoError(err)
 				s.Require().Equal(resp, cmn.TrueValue)
 
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				var coin *sdk.Coin
@@ -615,7 +615,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 				}
 			},
 			func(data []byte, inputArgs []interface{}) {
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(2e18)})
@@ -681,7 +681,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			},
 			postCheck: func(data []byte, inputArgs []interface{}) {
 				// expect authorization to still be there
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
 				s.Require().NotNil(authz)
 			},
 			expError:    true,
@@ -697,7 +697,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			},
 			postCheck: func(data []byte, inputArgs []interface{}) {
 				// expect authorization to be removed
-				authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
+				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
 				s.Require().Nil(authz, "expected authorization to be removed")
 			},
 		},
@@ -727,7 +727,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			expiration := ctx.BlockTime().Add(time.Hour * 24 * 365).UTC()
 			err = s.network.App.AuthzKeeper.SaveGrant(ctx, granteeAddr.Bytes(), granterAddr.Bytes(), delegationAuthz, &expiration)
 			s.Require().NoError(err, "failed to save authorization")
-			authz, _ := CheckAuthorization(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
+			authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, createdAuthz, granteeAddr, granterAddr)
 			s.Require().NotNil(authz, "expected authorization to be set")
 
 			args := tc.malleate()

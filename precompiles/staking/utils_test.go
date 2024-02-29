@@ -1,6 +1,7 @@
 package staking_test
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -18,12 +20,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
@@ -39,14 +44,15 @@ func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType st
 	s.Require().NoError(err)
 	s.Require().Equal(resp, cmn.TrueValue)
 
-	auth, _ := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+	auth, _ := CheckAuthorizationWithContext(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
 	s.Require().NotNil(auth)
 	s.Require().Equal(auth.AuthorizationType, staking.DelegateAuthz)
 	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(amount)})
 }
 
-// CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
-func CheckAuthorization(ctx sdk.Context, ak authzkeeper.Keeper, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
+// CheckAuthorizationWithContext is a helper function to check if the authorization is set and if it is the correct type.
+// Useful only for unit tests
+func CheckAuthorizationWithContext(ctx sdk.Context, ak authzkeeper.Keeper, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
 	stakingAuthz := stakingtypes.StakeAuthorization{AuthorizationType: authorizationType}
 	auth, expirationTime := ak.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), stakingAuthz.MsgTypeURL())
 
@@ -56,6 +62,35 @@ func CheckAuthorization(ctx sdk.Context, ak authzkeeper.Keeper, authorizationTyp
 	}
 
 	return stakeAuthorization, expirationTime
+}
+
+// CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
+func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time, error) {
+	grants, err := gh.GetGrants(sdk.AccAddress(grantee.Bytes()).String(), sdk.AccAddress(granter.Bytes()).String())
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(grants) == 0 {
+		return nil, nil, fmt.Errorf("no authorizations found for grantee %s and granter %s", grantee, granter)
+	}
+
+	encodingCfg := encoding.MakeConfig(app.ModuleBasics)
+	var auth authz.Authorization
+	if err = encodingCfg.InterfaceRegistry.UnpackAny(grants[0].Authorization, &auth); err != nil {
+		return nil, nil, err
+	}
+	stakeAuthorization, ok := auth.(*stakingtypes.StakeAuthorization)
+	if !ok {
+		return nil, nil, fmt.Errorf("invalid authorization type. Expected: stakingtypes.StakeAuthorization, got: %T", auth)
+	}
+
+	if stakeAuthorization.AuthorizationType != authorizationType {
+		return nil, nil, fmt.Errorf("invalid authorization type. Expected: %d, got: %d", authorizationType, stakeAuthorization.AuthorizationType)
+	}
+
+	return stakeAuthorization, grants[0].Expiration, nil
 }
 
 // CreateAuthorization is a helper function to create a new authorization of the given type for a spender address
@@ -153,6 +188,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.Evm
 		logCheckArgs,
 	)
 	Expect(err).To(BeNil(), "error while approving: %v", err)
+	Expect(s.network.NextBlock()).To(BeNil())
 
 	// iterate over args
 	var expectedAuthz stakingtypes.AuthorizationType
@@ -167,7 +203,8 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.Evm
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, expectedAuthz, *txArgs.To, s.keyring.GetAddr(0))
+		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, expectedAuthz, *txArgs.To, s.keyring.GetAddr(0))
+		Expect(err).To(BeNil())
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
 		Expect(authz.MsgTypeURL()).To(Equal(msgType), "expected different message type")
@@ -199,7 +236,8 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 // ExpectAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
 // authorization is correctly set.
 func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address, maxTokens *sdk.Coin) {
-	authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, authorizationType, grantee, granter)
+	authz, expirationTime, err := CheckAuthorization(s.grpcHandler, authorizationType, grantee, granter)
+	Expect(err).To(BeNil())
 	Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 	Expect(authz.AuthorizationType).To(Equal(authorizationType), "expected different authorization type")
 	Expect(authz.MaxTokens).To(Equal(maxTokens), "expected different max tokens")
