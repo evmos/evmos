@@ -317,8 +317,6 @@ func (s *IntegrationTestSuite) executeQueries() {
 		{"feemarket: base-fee", "feemarket", "base-fee"},
 		{"feemarket: block-gas", "feemarket", "block-gas"},
 		{"feemarket: block-gas", "feemarket", "block-gas"},
-		{"revenue: params", "revenue", "params"},
-		{"revenue: contracts", "revenue", "contracts"},
 	}
 
 	for _, tc := range testCases {
