@@ -5,7 +5,6 @@ package staking
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -106,22 +105,12 @@ func (p Precompile) EditValidator(
 		return nil, err
 	}
 
-	commissionRate := strconv.Itoa(DoNotModifyCommissionRate)
-	if msg.CommissionRate != nil {
-		commissionRate = msg.CommissionRate.String()
-	}
-
-	minSelfDelegation := strconv.Itoa(DoNotModifyMinSelfDelegation)
-	if msg.MinSelfDelegation != nil {
-		minSelfDelegation = msg.MinSelfDelegation.String()
-	}
-
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
 		"validator_address", msg.ValidatorAddress,
-		"commission_rate", commissionRate,
-		"min_self_delegation", minSelfDelegation,
+		"commission_rate", msg.CommissionRate,
+		"min_self_delegation", msg.MinSelfDelegation,
 	)
 
 	// we only allow the tx signer "origin" to edit their own validator.
