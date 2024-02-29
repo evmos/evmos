@@ -11,7 +11,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-
 type StakingTxFactory interface {
 	// Delegate is a method to create and broadcast a MsgDelegate
 	Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error

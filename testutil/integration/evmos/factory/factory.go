@@ -85,9 +85,9 @@ func New(
 	ec := makeConfig(app.ModuleBasics)
 	return &IntegrationTxFactory{
 		CoreTxFactory: commonfactory.New(network, grpcHandler, &ec),
-		grpcHandler:          grpcHandler,
-		network:              network,
-		ec:                   &ec,
+		grpcHandler:   grpcHandler,
+		network:       network,
+		ec:            &ec,
 	}
 }
 

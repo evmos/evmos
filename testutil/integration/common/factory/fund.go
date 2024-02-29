@@ -32,7 +32,6 @@ func newFundTxFactory(bf BaseTxFactory) FundTxFactory {
 
 // FundAccount funds the given account with the given amount of coins.
 func (tf *fundTxFactory) FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, coins sdktypes.Coins) error {
-
 	bankmsg := banktypes.NewMsgSend(
 		sender.AccAddr,
 		receiver,
