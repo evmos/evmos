@@ -20,7 +20,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
@@ -217,7 +217,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := is.factory.FundAccount(sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
+				err := integrationutils.FundAccount(is.factory, is.network, sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -240,7 +240,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := is.factory.FundAccountWithBaseDenom(sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
+				err := integrationutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -260,7 +260,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should return no balance for new account", func() {
-				queryArgs, balancesArgs := getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, evmosutiltx.GenerateAddress())
+				queryArgs, balancesArgs := getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, utiltx.GenerateAddress())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
@@ -328,7 +328,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should return a supply of 0 for a non existing token", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, evmosutiltx.GenerateAddress())
+				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, utiltx.GenerateAddress())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
@@ -360,7 +360,7 @@ var _ = Describe("Bank Extension -", func() {
 			It("should return the correct balance", func() {
 				receiver := utiltx.GenerateAddress()
 
-				err := is.factory.FundAccount(sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
+				err := integrationutils.FundAccount(is.factory, is.network, sender, receiver.Bytes(), sdk.NewCoins(sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(amount))))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -383,7 +383,7 @@ var _ = Describe("Bank Extension -", func() {
 				// New account with 0 balances (does not exist on the chain yet)
 				receiver := utiltx.GenerateAddress()
 
-				err := is.factory.FundAccountWithBaseDenom(sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
+				err := integrationutils.FundAccountWithBaseDenom(is.factory, is.network, sender, receiver.Bytes(), math.NewIntFromBigInt(amount))
 				Expect(err).ToNot(HaveOccurred(), "error while funding account")
 				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
@@ -403,7 +403,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should return no balance for new account", func() {
-				queryArgs, balancesArgs := getTxAndCallArgs(contractCall, contractData, BalancesFunction, evmosutiltx.GenerateAddress())
+				queryArgs, balancesArgs := getTxAndCallArgs(contractCall, contractData, BalancesFunction, utiltx.GenerateAddress())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
@@ -471,7 +471,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should return a supply of 0 for a non existing token", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, evmosutiltx.GenerateAddress())
+				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, utiltx.GenerateAddress())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 

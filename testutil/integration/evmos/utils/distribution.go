@@ -1,4 +1,4 @@
-package factory
+package utils
 
 import (
 	"fmt"
@@ -6,9 +6,11 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	cmnfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 )
 
-func (tf *IntegrationTxFactory) SetWithdrawAddress(delegatorPriv cryptotypes.PrivKey, withdrawerAddr sdk.AccAddress) error {
+func SetWithdrawAddress(tf cmnfactory.TxFactory, delegatorPriv cryptotypes.PrivKey, withdrawerAddr sdk.AccAddress) error {
 	delegatorAccAddr := sdk.AccAddress(delegatorPriv.PubKey().Address())
 
 	msg := distrtypes.NewMsgSetWithdrawAddress(
@@ -16,7 +18,7 @@ func (tf *IntegrationTxFactory) SetWithdrawAddress(delegatorPriv cryptotypes.Pri
 		withdrawerAddr,
 	)
 
-	resp, err := tf.ExecuteCosmosTx(delegatorPriv, CosmosTxArgs{
+	resp, err := tf.ExecuteCosmosTx(delegatorPriv, cmnfactory.CosmosTxArgs{
 		Msgs: []sdk.Msg{msg},
 	})
 
@@ -30,7 +32,7 @@ func (tf *IntegrationTxFactory) SetWithdrawAddress(delegatorPriv cryptotypes.Pri
 // WithdrawDelegationRewards will withdraw any unclaimed staking rewards for the delegator associated with
 // the given private key from the validator.
 // The validator address should be in the format `evmosvaloper1...`.
-func (tf *IntegrationTxFactory) WithdrawDelegationRewards(delegatorPriv cryptotypes.PrivKey, validatorAddr string) error {
+func WithdrawDelegationRewards(tf cmnfactory.TxFactory, delegatorPriv cryptotypes.PrivKey, validatorAddr string) error {
 	delegatorAccAddr := sdk.AccAddress(delegatorPriv.PubKey().Address())
 
 	msg := distrtypes.NewMsgWithdrawDelegatorReward(
@@ -38,7 +40,7 @@ func (tf *IntegrationTxFactory) WithdrawDelegationRewards(delegatorPriv cryptoty
 		validatorAddr,
 	)
 
-	resp, err := tf.ExecuteCosmosTx(delegatorPriv, CosmosTxArgs{
+	resp, err := tf.ExecuteCosmosTx(delegatorPriv, cmnfactory.CosmosTxArgs{
 		Msgs: []sdk.Msg{msg},
 	})
 
@@ -49,14 +51,14 @@ func (tf *IntegrationTxFactory) WithdrawDelegationRewards(delegatorPriv cryptoty
 	return err
 }
 
-func (tf *IntegrationTxFactory) WithdrawValidatorCommission(validatorPriv cryptotypes.PrivKey) error {
+func  WithdrawValidatorCommission(tf cmnfactory.TxFactory, validatorPriv cryptotypes.PrivKey) error {
 	validatorAddr := sdk.ValAddress(validatorPriv.PubKey().Address())
 
 	msg := distrtypes.NewMsgWithdrawValidatorCommission(
 		validatorAddr.String(),
 	)
 
-	resp, err := tf.ExecuteCosmosTx(validatorPriv, CosmosTxArgs{
+	resp, err := tf.ExecuteCosmosTx(validatorPriv, cmnfactory.CosmosTxArgs{
 		Msgs: []sdk.Msg{msg},
 	})
 
