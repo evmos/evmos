@@ -33,9 +33,9 @@ func TestCreateDummyGenesis(t *testing.T) {
 
 const (
 	// nKeys is the number of keys to generate
-	nKeys = 10
+	nKeys = 100_000
 	// nTokenPairs is the number of token pairs to generate
-	nTokenPairs = 10
+	nTokenPairs = 15
 )
 
 var _ = Describe("creating a dummy genesis state", Ordered, func() {
@@ -70,6 +70,25 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 				supply = network.App.BankKeeper.GetSupply(network.GetContext(), denom)
 				Expect(supply.IsZero()).To(BeFalse(), "supply for %s is zero", denom)
 			}
+		})
+	})
+
+	Context("deploy the WEVMOS contract", Ordered, func() {
+		It("should run without errors", func() {
+			wevmosAddr, err := factory.DeployContract(
+				keyring.GetPrivKey(0),
+				evmtypes.EvmTxArgs{},
+				testfactory.ContractDeploymentData{
+					Contract: contracts.ERC20MinterBurnerDecimalsContract,
+					ConstructorArgs: []interface{}{
+						"WEVMOS",
+						"WEVMOS",
+						uint8(18),
+					},
+				},
+			)
+			Expect(err).To(BeNil(), "failed to deploy WEVMOS contract")
+			fmt.Println("deployed WEVMOS contract at ", wevmosAddr)
 		})
 	})
 
