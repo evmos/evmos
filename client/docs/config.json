@@ -30,14 +30,6 @@
       "url": "./tmp-swagger-gen/evmos/vesting/v2/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/evmos/revenue/v1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "RevenueParams"
-        }
-      }
-    },
-    {
       "url": "./tmp-swagger-gen/ethermint/evm/v1/query.swagger.json",
       "operationIds": {
         "rename": {

@@ -124,7 +124,6 @@ import (
 	"github.com/evmos/evmos/v16/app/ante"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/app/post"
-	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
@@ -148,9 +147,6 @@ import (
 	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revenue "github.com/evmos/evmos/v16/x/revenue/v1"
-	revenuekeeper "github.com/evmos/evmos/v16/x/revenue/v1/keeper"
-	revenuetypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 	"github.com/evmos/evmos/v16/x/vesting"
 	vestingclient "github.com/evmos/evmos/v16/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
@@ -226,7 +222,6 @@ var (
 		inflation.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		epochs.AppModuleBasic{},
-		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		incentives.AppModuleBasic{},
 	)
@@ -301,7 +296,6 @@ type Evmos struct {
 	Erc20Keeper     erc20keeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
 	VestingKeeper   vestingkeeper.Keeper
-	RevenueKeeper   revenuekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -494,12 +488,6 @@ func NewEvmos(
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
-	app.RevenueKeeper = revenuekeeper.NewKeeper(
-		keys[revenuetypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.DistrKeeper, app.AccountKeeper, app.EvmKeeper,
-		authtypes.FeeCollectorName,
-	)
-
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper: claims IBC middleware
@@ -538,11 +526,8 @@ func NewEvmos(
 	)
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-			app.RevenueKeeper.Hooks(),
-		),
+		evmkeeper.NewMultiEvmHooks(),
 	)
-
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
 	// Override the ICS20 app module
@@ -638,8 +623,6 @@ func NewEvmos(
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
-			app.GetSubspace(revenuetypes.ModuleName)),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -673,7 +656,6 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
-		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -704,7 +686,6 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
-		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -724,7 +705,6 @@ func NewEvmos(
 		govtypes.ModuleName,
 		ibcexported.ModuleName,
 		// Ethermint modules
-		// evm module denomination is used by the revenue module, in AnteHandle
 		evmtypes.ModuleName,
 		// NOTE: feemarket module needs to be initialized before genutil module:
 		// gentx transactions use MinGasPriceDecorator.AnteHandle
@@ -742,7 +722,6 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
-		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -1132,24 +1111,10 @@ func initParamsKeeper(
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
-	paramsKeeper.Subspace(revenuetypes.ModuleName)
 	return paramsKeeper
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v16 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeName,
-		v16.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.EvmKeeper,
-			app.GovKeeper,
-			app.InflationKeeper,
-		),
-	)
-
 	// v17 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v17.UpgradeName,
@@ -1173,13 +1138,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v16.UpgradeName:
-		// recovery and incentives modules are deprecated in v16
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"recoveryv1", "incentives", "claims"},
-		}
 	case v17.UpgradeName:
-		// no store upgrades
+		// revenue module is deprecated in v17
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"revenue"},
+		}
 	default:
 		// no-op
 	}

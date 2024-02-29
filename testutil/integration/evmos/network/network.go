@@ -26,7 +26,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -43,7 +42,6 @@ type Network interface {
 	GetERC20Client() erc20types.QueryClient
 	GetEvmClient() evmtypes.QueryClient
 	GetGovClient() govtypes.QueryClient
-	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
@@ -52,7 +50,6 @@ type Network interface {
 	UpdateEvmParams(params evmtypes.Params) error
 	UpdateGovParams(params govtypes.Params) error
 	UpdateInflationParams(params infltypes.Params) error
-	UpdateRevenueParams(params revtypes.Params) error
 	UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
