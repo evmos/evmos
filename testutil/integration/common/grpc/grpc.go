@@ -34,7 +34,9 @@ type Handler interface {
 
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
+	GetDelegatorDelegations(delegatorAddress string) (*stakingtypes.QueryDelegatorDelegationsResponse, error)
 	GetValidatorDelegations(validatorAddress string) (*stakingtypes.QueryValidatorDelegationsResponse, error)
+	GetRedelegations(delegatorAddress, srcValidator, dstValidator string) (*stakingtypes.QueryRedelegationsResponse, error)
 	GetValidatorUnbondingDelegations(validatorAddress string) (*stakingtypes.QueryValidatorUnbondingDelegationsResponse, error)
 	GetDelegatorUnbondingDelegations(delegatorAddress string) (*stakingtypes.QueryDelegatorUnbondingDelegationsResponse, error)
 
