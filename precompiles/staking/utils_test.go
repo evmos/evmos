@@ -13,17 +13,20 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/evmos/evmos/v16/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
-
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
 func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType string, amount *big.Int) {
@@ -131,7 +134,7 @@ func (s *PrecompileTestSuite) SetupApproval(
 }
 
 // SetupApprovalWithContractCalls is a helper function used to setup the allowance for the given spender.
-func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contracts.CallArgs) {
+func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.EvmTxArgs, approvalArgs factory.CallArgs) {
 	msgTypes, ok := approvalArgs.Args[1].([]string)
 	Expect(ok).To(BeTrue(), "failed to convert msgTypes to []string")
 	expAmount, ok := approvalArgs.Args[2].(*big.Int)
@@ -143,7 +146,12 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		ExpPass:   true,
 	}
 
-	_, _, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, approvalArgs, logCheckArgs)
+	_, _, err := s.factory.CallContractAndCheckLogs(
+		s.keyring.GetPrivKey(0),
+		txArgs,
+		approvalArgs,
+		logCheckArgs,
+	)
 	Expect(err).To(BeNil(), "error while approving: %v", err)
 
 	// iterate over args
@@ -159,7 +167,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, expectedAuthz, approvalArgs.ContractAddr, s.keyring.GetAddr(0))
+		authz, expirationTime := CheckAuthorization(s.network.GetContext(), s.network.App.AuthzKeeper, expectedAuthz, *txArgs.To, s.keyring.GetAddr(0))
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
 		Expect(authz.MsgTypeURL()).To(Equal(msgType), "expected different message type")
