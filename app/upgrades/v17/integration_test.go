@@ -31,7 +31,12 @@ func TestCreateDummyGenesis(t *testing.T) {
 	RunSpecs(t, "Creating Dummy Genesis")
 }
 
-const nKeys = 10
+const (
+	// nKeys is the number of keys to generate
+	nKeys = 10
+	// nTokenPairs is the number of token pairs to generate
+	nTokenPairs = 10
+)
 
 var _ = Describe("creating a dummy genesis state", Ordered, func() {
 	var (
@@ -254,12 +259,4 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(err).To(BeNil(), "exported genesis file does not exist after exporting")
 		})
 	})
-
-	//Context("reading the gen doc after exporting", func() {
-	//	It("should read the gen doc", func() {
-	//		genDoc, err := cmtypes.GenesisDocFromFile("exported_genesis.json")
-	//		Expect(err).To(BeNil(), "failed to read genesis doc from file")
-	//		Expect(genDoc).ToNot(BeNil(), "genesis doc is nil")
-	//	})
-	//})
 })

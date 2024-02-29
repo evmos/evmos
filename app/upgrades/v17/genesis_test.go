@@ -13,9 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/utils"
 )
 
-// nTokenPairs is the number of token pairs to generate
-const nTokenPairs = 10
-
 // CoinDenoms is a list of coin denoms used in the tests
 var CoinDenoms = generateCoinDenoms(nTokenPairs)
 
