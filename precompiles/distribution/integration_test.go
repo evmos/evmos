@@ -325,7 +325,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 
 			// Send some funds to the validator to pay for fees
-			err = s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 		})
@@ -490,7 +490,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	Describe("Execute queries", func() {
 		It("should get validator distribution info - validatorDistributionInfo query", func() {
 			// fund validator account to make self-delegation
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -922,7 +922,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund the diffAddr
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1085,7 +1085,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// send funds to the contract
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1161,7 +1161,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund validator's account to pay for fees
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
 			Expect(err).To(BeNil())
 
 			res, err := testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
@@ -1246,7 +1246,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// fund the diffAddr
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), differentAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1336,7 +1336,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		BeforeEach(func() {
 			// send funds to the contract
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1565,7 +1565,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	Context("Distribution precompile queries", Ordered, func() {
 		It("should get validator distribution info", func() {
 			// fund validator account to make self-delegation
-			err := s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
+			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e17))
 			Expect(err).To(BeNil())
 			// persist changes
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -1640,7 +1640,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			It("should not get commission - validator without commission", func() {
 				// fund validator account to claim commission (if any)
-				err = s.factory.FundAccountWithBaseDenom(s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
+				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 

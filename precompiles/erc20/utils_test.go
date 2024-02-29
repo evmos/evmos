@@ -64,7 +64,7 @@ func (is *IntegrationTestSuite) setupSendAuthz(
 
 func setupSendAuthz(
 	network commonnetwork.Network,
-	factory commonfactory.TxFactory,
+	factory commonfactory.BaseTxFactory,
 	grantee sdk.AccAddress,
 	granterPriv cryptotypes.PrivKey,
 	amount sdk.Coins,

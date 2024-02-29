@@ -18,10 +18,10 @@ type DistributionTxFactory interface {
 }
 
 type distributionTxFactory struct {
-	*baseTxFactory
+	BaseTxFactory
 }
 
-func newDistrTxFactory(bf *baseTxFactory) *distributionTxFactory {
+func newDistrTxFactory(bf BaseTxFactory) DistributionTxFactory {
 	return &distributionTxFactory{bf}
 }
 

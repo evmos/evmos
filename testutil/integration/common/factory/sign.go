@@ -15,26 +15,10 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
-// SignCosmosTx is a helper function that signs a Cosmos transaction
-// with the provided private key and transaction builder
-func (tf *IntegrationTxFactory) SignCosmosTx(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder) error {
-	txConfig := tf.ec.TxConfig
-	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
-	if err != nil {
-		return errorsmod.Wrap(err, "invalid sign mode")
-	}
-	signerData, err := tf.setSignatures(privKey, txBuilder, signMode)
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to set tx signatures")
-	}
-
-	return tf.signWithPrivKey(privKey, txBuilder, signerData, signMode)
-}
-
 // setSignatures is a helper function that sets the signature for
 // the transaction in the tx builder. It returns the signerData to be used
 // when signing the transaction (e.g. when calling signWithPrivKey)
-func (tf *IntegrationTxFactory) setSignatures(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder, signMode signing.SignMode) (signerData authsigning.SignerData, err error) {
+func (tf *baseTxFactory) setSignatures(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder, signMode signing.SignMode) (signerData authsigning.SignerData, err error) {
 	senderAddress := sdktypes.AccAddress(privKey.PubKey().Address().Bytes())
 	account, err := tf.grpcHandler.GetAccount(senderAddress.String())
 	if err != nil {
@@ -63,7 +47,7 @@ func (tf *IntegrationTxFactory) setSignatures(privKey cryptotypes.PrivKey, txBui
 
 // signWithPrivKey is a helper function that signs a transaction
 // with the provided private key
-func (tf *IntegrationTxFactory) signWithPrivKey(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder, signerData authsigning.SignerData, signMode signing.SignMode) error {
+func (tf *baseTxFactory) signWithPrivKey(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder, signerData authsigning.SignerData, signMode signing.SignMode) error {
 	txConfig := tf.ec.TxConfig
 	signature, err := cosmostx.SignWithPrivKey(context.TODO(), signMode, signerData, txBuilder, privKey, txConfig, signerData.Sequence)
 	if err != nil {

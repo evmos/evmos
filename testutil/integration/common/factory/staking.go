@@ -11,10 +11,24 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+
+type StakingTxFactory interface {
+	// Delegate is a method to create and broadcast a MsgDelegate
+	Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error
+}
+
+type stakingTxFactory struct {
+	BaseTxFactory
+}
+
+func newStakingTxFactory(bf BaseTxFactory) StakingTxFactory {
+	return &stakingTxFactory{bf}
+}
+
 // Delegate on behalf of the account associated with the given private key.
 // The defined amount will delegated to the specified validator.
 // The validator address should be in the format `evmosvaloper1...`.
-func (tf *IntegrationTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error {
+func (tf *stakingTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error {
 	delegatorAccAddr := sdk.AccAddress(delegatorPriv.PubKey().Address())
 
 	msgDelegate := stakingtypes.NewMsgDelegate(
