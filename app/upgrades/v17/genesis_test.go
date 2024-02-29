@@ -1,14 +1,16 @@
 package v17_test
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"fmt"
+	"math/rand"
+
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
-	"math/rand"
 )
 
 // nTokenPairs is the number of token pairs to generate

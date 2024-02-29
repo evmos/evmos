@@ -152,7 +152,7 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	}
 }
 
-func createFullMetadata(denom, symbol, name string) banktypes.Metadata {
+func CreateFullMetadata(denom, symbol, name string) banktypes.Metadata {
 	return banktypes.Metadata{
 		Description: "desc",
 		Base:        denom,
@@ -174,7 +174,7 @@ func createFullMetadata(denom, symbol, name string) banktypes.Metadata {
 }
 
 func createMetadata(denom, symbol string) banktypes.Metadata { //nolint:unparam
-	return createFullMetadata(denom, symbol, denom)
+	return CreateFullMetadata(denom, symbol, denom)
 }
 
 func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
@@ -223,10 +223,10 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 		{msg: "Register token pair - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", metadata: validMetadata, expectPass: false},
 		{msg: "Register token pair - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), metadata: validMetadata, expectPass: false},
 		// Invalid denom
-		{msg: "Register token pair - invalid EVM denom", title: "test", description: "test desc", metadata: createFullMetadata("evm", "EVM", "evm"), expectPass: false},
+		{msg: "Register token pair - invalid EVM denom", title: "test", description: "test desc", metadata: CreateFullMetadata("evm", "EVM", "evm"), expectPass: false},
 		// IBC
-		{msg: "Register token pair - ibc", title: "test", description: "test desc", metadata: createFullMetadata(validIBCDenom, validIBCSymbol, validIBCName), expectPass: true},
-		{msg: "Register token pair - ibc invalid denom", title: "test", description: "test desc", metadata: createFullMetadata("ibc/", validIBCSymbol, validIBCName), expectPass: false},
+		{msg: "Register token pair - ibc", title: "test", description: "test desc", metadata: CreateFullMetadata(validIBCDenom, validIBCSymbol, validIBCName), expectPass: true},
+		{msg: "Register token pair - ibc invalid denom", title: "test", description: "test desc", metadata: CreateFullMetadata("ibc/", validIBCSymbol, validIBCName), expectPass: false},
 	}
 
 	for i, tc := range testCases {

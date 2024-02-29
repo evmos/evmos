@@ -38,6 +38,8 @@ type Keyring interface {
 	GetAllAccAddrs() []sdktypes.AccAddress
 	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
+	// GetAllKeys returns all the keys in the keyring
+	GetAllKeys() []Key
 
 	// AddKey adds a new account to the keyring
 	AddKey() int
@@ -92,6 +94,11 @@ func (kr *IntegrationKeyring) GetAllAccAddrs() []sdktypes.AccAddress {
 // GetKey returns the key specified by index
 func (kr *IntegrationKeyring) GetKey(index int) Key {
 	return kr.keys[index]
+}
+
+// GetAllKeys returns all the keys in the keyring
+func (kr *IntegrationKeyring) GetAllKeys() []Key {
+	return kr.keys
 }
 
 // AddKey adds a new account to the keyring. It returns the index for the key

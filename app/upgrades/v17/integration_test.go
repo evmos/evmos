@@ -2,16 +2,28 @@ package v17_test
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v16/x/erc20"
+	"math/big"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/evmos/evmos/v16/x/evm"
+
 	cmtypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v16/contracts"
+	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"os"
-	"testing"
 )
 
 func TestCreateDummyGenesis(t *testing.T) {
@@ -25,16 +37,19 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 	var (
 		keyring testkeyring.Keyring
 		network *testnetwork.UnitTestNetwork
+		handler grpc.Handler
+		factory testfactory.TxFactory
 	)
 
 	Context("creating the network with a custom genesis state", Ordered, func() {
 		It("should run without errors", func() {
 			keyring = testkeyring.New(nKeys)
 			genesisBalances := createGenesisBalances(keyring)
-			fmt.Println("genesis balances", genesisBalances)
 			network = testnetwork.NewUnitTestNetwork(
 				testnetwork.WithBalances(genesisBalances...),
 			)
+			handler = grpc.NewIntegrationHandler(network)
+			factory = testfactory.New(network, handler)
 		})
 
 		It("should initialize the chain with a selection of tokens", func() {
@@ -51,19 +66,140 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 				Expect(supply.IsZero()).To(BeFalse(), "supply for %s is zero", denom)
 			}
 		})
+	})
 
-		//It("should have a balance for validators", func() {
-		//	for i, val := range network.App.StakingKeeper.GetAllValidators(network.GetContext()) {
-		//		fmt.Printf("validator %d: %s\n", i, val.OperatorAddress)
-		//		balance := network.App.BankKeeper.GetBalance(network.GetContext(), val.GetOperator().Bytes(), utils.BaseDenom)
-		//		Expect(balance.IsPositive()).To(BeTrue(), "validator %s has no balance", val.GetOperator())
-		//		fmt.Println("validator balance", balance)
-		//	}
-		//})
+	Context("registering the token pairs", Ordered, func() {
+		It("should run without errors", func() {
+			for _, denom := range CoinDenoms {
+				coinMetadata := CreateFullMetadata(denom, strings.ToUpper(denom), denom)
+
+				_, err := network.App.Erc20Keeper.RegisterCoin(network.GetContext(), coinMetadata)
+				Expect(err).To(BeNil(), "failed to register token pair")
+			}
+		})
+
+		It("should have the token pairs registered", func() {
+			tokenPairs := network.App.Erc20Keeper.GetTokenPairs(network.GetContext())
+			Expect(len(tokenPairs)).To(Equal(nTokenPairs), "unexpected number of token pairs")
+		})
+
+		It("should not have any ERC-20 supply", func() {
+			abi := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+			for _, denom := range CoinDenoms {
+				tokenPairID := network.App.Erc20Keeper.GetTokenPairID(network.GetContext(), denom)
+				tokenPair, found := network.App.Erc20Keeper.GetTokenPair(network.GetContext(), tokenPairID)
+				Expect(found).To(BeTrue(), "failed to get token pair")
+
+				addr := common.HexToAddress(tokenPair.Erc20Address)
+
+				res, err := factory.ExecuteContractCall(
+					keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{
+						To: &addr,
+					},
+					testfactory.CallArgs{
+						ContractABI: abi,
+						MethodName:  "totalSupply",
+					},
+				)
+				Expect(err).To(BeNil(), "failed to execute contract call")
+				Expect(res).ToNot(BeNil(), "contract call result is nil")
+
+				ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+				Expect(err).To(BeNil(), "failed to decode contract call result")
+
+				var supply *big.Int
+				err = abi.UnpackIntoInterface(&supply, "totalSupply", ethRes.Ret)
+				Expect(err).To(BeNil(), "failed to unpack total supply")
+				Expect(supply.Int64()).To(BeZero(), "supply for %s is not zero", denom)
+			}
+		})
+	})
+
+	Context("converting the token pair balances to the ERC-20 representation", Ordered, func() {
+		It("should run without errors", func() {
+			for _, key := range keyring.GetAllKeys() {
+				for _, denom := range CoinDenoms {
+					denomBalance := network.App.BankKeeper.GetBalance(network.GetContext(), key.AccAddr, denom)
+					if denomBalance.IsZero() {
+						continue
+					}
+
+					res, err := network.App.Erc20Keeper.ConvertCoin(network.GetContext(), &types.MsgConvertCoin{
+						Coin:     sdk.Coin{Denom: denom, Amount: denomBalance.Amount},
+						Receiver: key.Addr.String(),
+						Sender:   key.AccAddr.String(),
+					})
+					if err != nil {
+						fmt.Println("err not nil for ", key.AccAddr.String(), denom, denomBalance.Amount)
+					}
+					Expect(err).To(BeNil(), "failed to convert coin")
+					Expect(res).ToNot(BeNil(), "failed to convert coin")
+				}
+			}
+		})
 	})
 
 	Context("exporting the genesis state", Ordered, func() {
-		It("should run without errors", func() {
+		It("should export the individual keeper states", func() {
+			// - bank
+			// - auth
+			// - erc20
+			// - evm
+			// - (staking)
+			// - (distribution)
+
+			// TODO: refactor this with generics
+
+			// Export bank state
+			bankGenState := network.App.BankKeeper.ExportGenesis(network.GetContext())
+			Expect(bankGenState).ToNot(BeNil(), "failed to export bank genesis state")
+			out, err := bankGenState.Marshal()
+			Expect(err).To(BeNil(), "failed to marshal bank genesis state")
+			err = os.WriteFile("bank_gen_state.json", out, 0o600)
+			Expect(err).To(BeNil(), "failed to write bank gen state to file")
+
+			// Export auth state
+			authGenState := network.App.AccountKeeper.ExportGenesis(network.GetContext())
+			Expect(authGenState).ToNot(BeNil(), "failed to export auth genesis state")
+			out, err = authGenState.Marshal()
+			Expect(err).To(BeNil(), "failed to marshal auth genesis state")
+			err = os.WriteFile("auth_gen_state.json", out, 0o600)
+			Expect(err).To(BeNil(), "failed to write auth gen state to file")
+
+			// Export erc20 state
+			erc20GenState := erc20.ExportGenesis(network.GetContext(), network.App.Erc20Keeper)
+			Expect(erc20GenState).ToNot(BeNil(), "failed to export erc20 genesis state")
+			out, err = erc20GenState.Marshal()
+			Expect(err).To(BeNil(), "failed to marshal erc20 genesis state")
+			err = os.WriteFile("erc20_gen_state.json", out, 0o600)
+			Expect(err).To(BeNil(), "failed to write erc20 gen state to file")
+
+			// Export EVM state
+			evmGenState := evm.ExportGenesis(network.GetContext(), network.App.EvmKeeper, network.App.AccountKeeper)
+			Expect(evmGenState).ToNot(BeNil(), "failed to export evm genesis state")
+			out, err = evmGenState.Marshal()
+			Expect(err).To(BeNil(), "failed to marshal evm genesis state")
+			err = os.WriteFile("evm_gen_state.json", out, 0o600)
+			Expect(err).To(BeNil(), "failed to write evm gen state to file")
+		})
+
+		It("should import the exported EVM genesis state", func() {
+			// Read gen state from file
+			out, err := os.ReadFile("evm_gen_state.json")
+			Expect(err).To(BeNil(), "failed to read evm gen state from file")
+
+			// Unmarshal gen state
+			var evmGenState evmtypes.GenesisState
+			err = evmGenState.Unmarshal(out)
+			Expect(err).To(BeNil(), "failed to unmarshal evm gen state")
+			Expect(evmGenState).ToNot(BeNil(), "evm gen state is nil")
+		})
+
+		It("should export the whole state to a JSON file", func() {
+			Skip("export not necessary right now")
+
 			var (
 				jailedVals      []string
 				modulesToExport []string // passing empty slice will default to all modules
@@ -118,4 +254,12 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(err).To(BeNil(), "exported genesis file does not exist after exporting")
 		})
 	})
+
+	//Context("reading the gen doc after exporting", func() {
+	//	It("should read the gen doc", func() {
+	//		genDoc, err := cmtypes.GenesisDocFromFile("exported_genesis.json")
+	//		Expect(err).To(BeNil(), "failed to read genesis doc from file")
+	//		Expect(genDoc).ToNot(BeNil(), "genesis doc is nil")
+	//	})
+	//})
 })

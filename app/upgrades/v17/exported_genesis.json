@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2024-02-29T14:36:40.772087Z",
+  "genesis_time": "2024-02-29T15:47:02.487052Z",
   "chain_id": "evmos_9001-1",
   "initial_height": "2",
   "consensus_params": {
@@ -23,28 +23,28 @@
   },
   "validators": [
     {
-      "address": "2037ED646C25B3D8B43CC007ADA98C7390C6993B",
+      "address": "2BDFFEC9C375C62070A225538C487B108250A07D",
       "pub_key": {
         "type": "tendermint/PubKeyEd25519",
-        "value": "oBYFH76nRo06r4IU9E8zYQcv1S3aiH+vJzJ/Q0we7zw="
+        "value": "4oHm4ACRsP9fyYAp6InAWagzJsddKr5XyGriR2KVvdM="
       },
       "power": "1",
       "name": ""
     },
     {
-      "address": "A9DCFF8A347557BB80CB812007476D51B0CCD8D7",
+      "address": "508C0F53BE462C2D5C7790AA0FD277EE704467AF",
       "pub_key": {
         "type": "tendermint/PubKeyEd25519",
-        "value": "+oi9pD7kReN5Rzmgh0iJRbRPirSPpdguUx0114qJgpI="
+        "value": "m3+yHmH3f1ZTE3i+4Y13kKL86dj26Epp74ootVDuzTE="
       },
       "power": "1",
       "name": ""
     },
     {
-      "address": "E06B2BBA2FC96CB2C23C171C046E5691938F5412",
+      "address": "E714B1818C0C4160F2166291BB7E0D07995E9CA7",
       "pub_key": {
         "type": "tendermint/PubKeyEd25519",
-        "value": "yPSbLGwFxZwkHctKzITuMinBEnvtir3Jxe0aqURJFs0="
+        "value": "kGL6KEKRRpeUreu7+gYBw8f5ti2Ou62e3GSqO6ZM71s="
       },
       "power": "1",
       "name": ""
@@ -63,23 +63,23 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1qt4g2tgd80yhmfm4e343d9pdh5xu2wt6zyl63y",
+          "address": "evmos19dpcqt9fanl2j3zahfw5c58ylcnckx675a9a8d",
           "pub_key": null,
-          "account_number": "8",
+          "account_number": "6",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
+          "address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1zdgnh7pmgmp9hcsxtqtsl07pyg6q5wzwpj2x0h",
+          "address": "evmos1gvzv8sfrpnesy4899aqhz3qjm8d6k6e0ecqe2s",
           "pub_key": null,
-          "account_number": "2",
+          "account_number": "8",
           "sequence": "0"
         },
         {
@@ -126,9 +126,9 @@
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1d48tlnpdyv96e73ywxynl4yqhmpl49s0t86z62",
+          "address": "evmos1tfqa5j26ychvxm0ujn7w0tv7x63yg6cneq4m5d",
           "pub_key": null,
-          "account_number": "1",
+          "account_number": "5",
           "sequence": "0"
         },
         {
@@ -145,6 +145,13 @@
           ]
         },
         {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "evmos1wy45qufvuf68njhfeu3yucxxu0d85k43482muh",
+          "pub_key": null,
+          "account_number": "9",
+          "sequence": "0"
+        },
+        {
           "@type": "/cosmos.auth.v1beta1.ModuleAccount",
           "base_account": {
             "address": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
@@ -156,20 +163,6 @@
           "permissions": [
             "burner"
           ]
-        },
-        {
-          "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1sszacm0q2ps59lxa6p70tyellpwmahvgyfw54p",
-          "pub_key": null,
-          "account_number": "4",
-          "sequence": "0"
-        },
-        {
-          "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos13snsd6t5yltdav4g84ngmdtgayhw6ez4d54ny3",
-          "pub_key": null,
-          "account_number": "5",
-          "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.ModuleAccount",
@@ -184,16 +177,37 @@
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1ka530fvqxnmaj2aruuzza2vkyznlc5gtwd9fn3",
+          "address": "evmos1jetxs4amu7m5j0tllmep3ql3v03v09jxesfunf",
+          "pub_key": null,
+          "account_number": "7",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "evmos1402ludfpu5uslegk5648wjkf8sm7ndpc7tj04k",
+          "pub_key": null,
+          "account_number": "1",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "evmos1c8u440gfjt3p7effwskfk6h3mgc8453ud2u2p0",
+          "pub_key": null,
+          "account_number": "2",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "evmos1e3dqjhzde5verkm9ruezgkqr4ld4x7z05mumng",
           "pub_key": null,
           "account_number": "3",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1edlwz2y4rzd9a3559yfsp0myjacslw6lu75ek9",
+          "address": "evmos1e6v2szhjgp85w2up8eh7ze6xez6yr9u5xasdyd",
           "pub_key": null,
-          "account_number": "9",
+          "account_number": "4",
           "sequence": "0"
         },
         {
@@ -208,20 +222,6 @@
           "permissions": [
             "burner"
           ]
-        },
-        {
-          "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos17aau98tx6eultd2sh04tumfl39005t6zuac8m3",
-          "pub_key": null,
-          "account_number": "6",
-          "sequence": "0"
-        },
-        {
-          "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "evmos1lufd0eppp8n005935pfwy0d26mkf30qlpznpn4",
-          "pub_key": null,
-          "account_number": "7",
-          "sequence": "0"
         }
       ]
     },
@@ -235,89 +235,77 @@
       },
       "balances": [
         {
-          "address": "evmos1qt4g2tgd80yhmfm4e343d9pdh5xu2wt6zyl63y",
+          "address": "evmos19dpcqt9fanl2j3zahfw5c58ylcnckx675a9a8d",
           "coins": [
             {
               "denom": "aevmos",
               "amount": "4000000000000000000"
             },
             {
-              "denom": "denom00",
-              "amount": "277367486618972168"
-            },
-            {
-              "denom": "denom04",
-              "amount": "673310583469014812"
-            },
-            {
-              "denom": "denom05",
-              "amount": "825097048327584698"
+              "denom": "denom06",
+              "amount": "594126710934977896"
             },
             {
               "denom": "denom07",
-              "amount": "644929152602629880"
-            },
-            {
-              "denom": "denom08",
-              "amount": "781071605275690858"
+              "amount": "501359415259766495"
             },
             {
               "denom": "denom09",
-              "amount": "580122977322967543"
+              "amount": "776535482655791944"
             }
           ]
         },
         {
-          "address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
+          "address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
           "coins": [
             {
               "denom": "aevmos",
               "amount": "4000000000000000000"
             },
             {
-              "denom": "denom00",
-              "amount": "442828097891684128"
-            },
-            {
-              "denom": "denom02",
-              "amount": "264104131604241949"
+              "denom": "denom01",
+              "amount": "671696594568410651"
             },
             {
               "denom": "denom03",
-              "amount": "48108774775001990"
+              "amount": "858920232246475244"
             },
             {
               "denom": "denom05",
-              "amount": "500528924530417882"
+              "amount": "200873311879266664"
+            },
+            {
+              "denom": "denom06",
+              "amount": "702803766352961796"
             },
             {
               "denom": "denom07",
-              "amount": "783775848758575646"
+              "amount": "123801289112764933"
             },
             {
               "denom": "denom08",
-              "amount": "899748632051192431"
+              "amount": "134166093837998209"
             },
             {
               "denom": "denom09",
-              "amount": "869651597898476393"
+              "amount": "34604929731339502"
             }
           ]
         },
         {
-          "address": "evmos1zdgnh7pmgmp9hcsxtqtsl07pyg6q5wzwpj2x0h",
+          "address": "evmos1gvzv8sfrpnesy4899aqhz3qjm8d6k6e0ecqe2s",
           "coins": [
             {
               "denom": "aevmos",
               "amount": "4000000000000000000"
             },
             {
-              "denom": "denom03",
-              "amount": "478095639778177970"
+              "denom": "denom01",
+              "amount": "107963084310212865"
             },
             {
-              "denom": "denom04",
-              "amount": "662123002868812968"
+              "denom": "denom09",
+              "amount": "819161683221421306"
             }
           ]
         },
@@ -331,185 +319,53 @@
           ]
         },
         {
-          "address": "evmos1d48tlnpdyv96e73ywxynl4yqhmpl49s0t86z62",
+          "address": "evmos1tfqa5j26ychvxm0ujn7w0tv7x63yg6cneq4m5d",
           "coins": [
             {
               "denom": "aevmos",
               "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom02",
-              "amount": "724246153761236946"
-            },
-            {
-              "denom": "denom04",
-              "amount": "772161225478787688"
-            },
-            {
-              "denom": "denom05",
-              "amount": "741355105303667845"
-            },
-            {
-              "denom": "denom07",
-              "amount": "195921170605662753"
-            },
-            {
-              "denom": "denom08",
-              "amount": "815559785077912428"
-            }
-          ]
-        },
-        {
-          "address": "evmos1sszacm0q2ps59lxa6p70tyellpwmahvgyfw54p",
-          "coins": [
-            {
-              "denom": "aevmos",
-              "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom00",
-              "amount": "690796784361327310"
-            },
-            {
-              "denom": "denom02",
-              "amount": "479170022276497895"
-            },
-            {
-              "denom": "denom05",
-              "amount": "256556027520550797"
-            },
-            {
-              "denom": "denom07",
-              "amount": "561422284805109714"
-            },
-            {
-              "denom": "denom08",
-              "amount": "829403282977474887"
-            }
-          ]
-        },
-        {
-          "address": "evmos13snsd6t5yltdav4g84ngmdtgayhw6ez4d54ny3",
-          "coins": [
-            {
-              "denom": "aevmos",
-              "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom03",
-              "amount": "65548791058610482"
-            },
-            {
-              "denom": "denom05",
-              "amount": "308318304255222177"
-            },
-            {
-              "denom": "denom06",
-              "amount": "747924250453590667"
-            },
-            {
-              "denom": "denom08",
-              "amount": "172737928436506992"
-            }
-          ]
-        },
-        {
-          "address": "evmos1ka530fvqxnmaj2aruuzza2vkyznlc5gtwd9fn3",
-          "coins": [
-            {
-              "denom": "aevmos",
-              "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom00",
-              "amount": "464161972344547817"
-            },
-            {
-              "denom": "denom03",
-              "amount": "578456743774964380"
-            },
-            {
-              "denom": "denom04",
-              "amount": "724706091966324548"
-            },
-            {
-              "denom": "denom05",
-              "amount": "404040829853942501"
-            },
-            {
-              "denom": "denom08",
-              "amount": "968837743722830030"
-            },
-            {
-              "denom": "denom09",
-              "amount": "445391243078480700"
-            }
-          ]
-        },
-        {
-          "address": "evmos1edlwz2y4rzd9a3559yfsp0myjacslw6lu75ek9",
-          "coins": [
-            {
-              "denom": "aevmos",
-              "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom02",
-              "amount": "607852322114466527"
-            },
-            {
-              "denom": "denom04",
-              "amount": "715468316095361813"
-            },
-            {
-              "denom": "denom06",
-              "amount": "319177635039933632"
-            },
-            {
-              "denom": "denom07",
-              "amount": "477385287853429334"
-            }
-          ]
-        },
-        {
-          "address": "evmos17aau98tx6eultd2sh04tumfl39005t6zuac8m3",
-          "coins": [
-            {
-              "denom": "aevmos",
-              "amount": "4000000000000000000"
-            },
-            {
-              "denom": "denom00",
-              "amount": "115442592736100706"
             },
             {
               "denom": "denom01",
-              "amount": "341260961709891661"
+              "amount": "40217111705979310"
             },
             {
               "denom": "denom02",
-              "amount": "516110496824454900"
-            },
-            {
-              "denom": "denom03",
-              "amount": "884273943075414910"
-            },
-            {
-              "denom": "denom05",
-              "amount": "647495919546793242"
+              "amount": "727641349988323212"
             },
             {
               "denom": "denom06",
-              "amount": "561126620488619709"
+              "amount": "614677015660084715"
             },
             {
               "denom": "denom07",
-              "amount": "876762678617825608"
+              "amount": "855565719983492876"
+            },
+            {
+              "denom": "denom08",
+              "amount": "804406618870768740"
             }
           ]
         },
         {
-          "address": "evmos1lufd0eppp8n005935pfwy0d26mkf30qlpznpn4",
+          "address": "evmos1wy45qufvuf68njhfeu3yucxxu0d85k43482muh",
+          "coins": [
+            {
+              "denom": "aevmos",
+              "amount": "4000000000000000000"
+            },
+            {
+              "denom": "denom04",
+              "amount": "486971551093323585"
+            },
+            {
+              "denom": "denom08",
+              "amount": "419359024779868770"
+            }
+          ]
+        },
+        {
+          "address": "evmos1jetxs4amu7m5j0tllmep3ql3v03v09jxesfunf",
           "coins": [
             {
               "denom": "aevmos",
@@ -517,19 +373,171 @@
             },
             {
               "denom": "denom00",
-              "amount": "977601220088106999"
+              "amount": "533794483911539125"
             },
             {
-              "denom": "denom04",
-              "amount": "469968917031676151"
+              "denom": "denom01",
+              "amount": "889689344706704513"
+            },
+            {
+              "denom": "denom02",
+              "amount": "471207513490945410"
             },
             {
               "denom": "denom06",
-              "amount": "592762622957589417"
+              "amount": "342683826089646378"
+            },
+            {
+              "denom": "denom07",
+              "amount": "258252405126896140"
+            }
+          ]
+        },
+        {
+          "address": "evmos1402ludfpu5uslegk5648wjkf8sm7ndpc7tj04k",
+          "coins": [
+            {
+              "denom": "aevmos",
+              "amount": "4000000000000000000"
+            },
+            {
+              "denom": "denom01",
+              "amount": "750933722451983825"
+            },
+            {
+              "denom": "denom02",
+              "amount": "414594538719726581"
+            },
+            {
+              "denom": "denom03",
+              "amount": "919136581653036981"
+            },
+            {
+              "denom": "denom04",
+              "amount": "798414464598785308"
+            },
+            {
+              "denom": "denom05",
+              "amount": "167395803195363774"
+            },
+            {
+              "denom": "denom06",
+              "amount": "217570780183921181"
+            },
+            {
+              "denom": "denom07",
+              "amount": "38658875403393129"
             },
             {
               "denom": "denom09",
-              "amount": "504387712917613679"
+              "amount": "310841121024033915"
+            }
+          ]
+        },
+        {
+          "address": "evmos1c8u440gfjt3p7effwskfk6h3mgc8453ud2u2p0",
+          "coins": [
+            {
+              "denom": "aevmos",
+              "amount": "4000000000000000000"
+            },
+            {
+              "denom": "denom03",
+              "amount": "297526709668126720"
+            },
+            {
+              "denom": "denom04",
+              "amount": "416399963183550001"
+            },
+            {
+              "denom": "denom05",
+              "amount": "281292647073047265"
+            },
+            {
+              "denom": "denom06",
+              "amount": "492502838784404273"
+            },
+            {
+              "denom": "denom09",
+              "amount": "84788087866957079"
+            }
+          ]
+        },
+        {
+          "address": "evmos1e3dqjhzde5verkm9ruezgkqr4ld4x7z05mumng",
+          "coins": [
+            {
+              "denom": "aevmos",
+              "amount": "4000000000000000000"
+            },
+            {
+              "denom": "denom01",
+              "amount": "297001913009839717"
+            },
+            {
+              "denom": "denom02",
+              "amount": "473902888403562717"
+            },
+            {
+              "denom": "denom04",
+              "amount": "794437483419497561"
+            },
+            {
+              "denom": "denom05",
+              "amount": "426234589521228811"
+            },
+            {
+              "denom": "denom06",
+              "amount": "998264051467348650"
+            },
+            {
+              "denom": "denom07",
+              "amount": "87982590362226380"
+            },
+            {
+              "denom": "denom08",
+              "amount": "829106814076043387"
+            }
+          ]
+        },
+        {
+          "address": "evmos1e6v2szhjgp85w2up8eh7ze6xez6yr9u5xasdyd",
+          "coins": [
+            {
+              "denom": "aevmos",
+              "amount": "4000000000000000000"
+            },
+            {
+              "denom": "denom00",
+              "amount": "427014579108306292"
+            },
+            {
+              "denom": "denom01",
+              "amount": "672911230998599948"
+            },
+            {
+              "denom": "denom02",
+              "amount": "54186575874928355"
+            },
+            {
+              "denom": "denom04",
+              "amount": "59341837486931407"
+            },
+            {
+              "denom": "denom05",
+              "amount": "752844978922013292"
+            },
+            {
+              "denom": "denom06",
+              "amount": "415233678617289170"
+            },
+            {
+              "denom": "denom07",
+              "amount": "717850795247562168"
+            },
+            {
+              "denom": "denom08",
+              "amount": "82637940164155897"
             }
           ]
         }
@@ -541,43 +549,43 @@
         },
         {
           "denom": "denom00",
-          "amount": "2968198154040739128"
+          "amount": "960809063019845417"
         },
         {
           "denom": "denom01",
-          "amount": "341260961709891661"
+          "amount": "3430413001751730829"
         },
         {
           "denom": "denom02",
-          "amount": "2591483126580898217"
+          "amount": "2141532866477486275"
         },
         {
           "denom": "denom03",
-          "amount": "2054483892462169732"
+          "amount": "2075583523567638945"
         },
         {
           "denom": "denom04",
-          "amount": "4017738136909977980"
+          "amount": "2555565299782087862"
         },
         {
           "denom": "denom05",
-          "amount": "3683392159338179142"
+          "amount": "1828641330590919806"
         },
         {
           "denom": "denom06",
-          "amount": "2220991128939733425"
+          "amount": "4377862668090634059"
         },
         {
           "denom": "denom07",
-          "amount": "3540196423243232935"
+          "amount": "2583471090496102121"
         },
         {
           "denom": "denom08",
-          "amount": "4467358977541607626"
+          "amount": "2269676491728835003"
         },
         {
           "denom": "denom09",
-          "amount": "2399553531217538315"
+          "amount": "2025931304499543746"
         }
       ],
       "denom_metadata": [],
@@ -633,33 +641,33 @@
       "previous_proposer": "",
       "outstanding_rewards": [
         {
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "outstanding_rewards": []
         },
         {
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "outstanding_rewards": []
         },
         {
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "outstanding_rewards": []
         }
       ],
       "validator_accumulated_commissions": [
         {
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "accumulated": {
             "commission": []
           }
         },
         {
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "accumulated": {
             "commission": []
           }
         },
         {
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "accumulated": {
             "commission": []
           }
@@ -667,7 +675,7 @@
       ],
       "validator_historical_rewards": [
         {
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "period": "1",
           "rewards": {
             "cumulative_reward_ratio": [],
@@ -675,7 +683,7 @@
           }
         },
         {
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "period": "1",
           "rewards": {
             "cumulative_reward_ratio": [],
@@ -683,7 +691,7 @@
           }
         },
         {
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "period": "1",
           "rewards": {
             "cumulative_reward_ratio": [],
@@ -693,21 +701,21 @@
       ],
       "validator_current_rewards": [
         {
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "rewards": {
             "rewards": [],
             "period": "2"
           }
         },
         {
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "rewards": {
             "rewards": [],
             "period": "2"
           }
         },
         {
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "rewards": {
             "rewards": [],
             "period": "2"
@@ -716,8 +724,8 @@
       ],
       "delegator_starting_infos": [
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "starting_info": {
             "previous_period": "1",
             "stake": "1000000000000000000.000000000000000000",
@@ -725,8 +733,8 @@
           }
         },
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "starting_info": {
             "previous_period": "1",
             "stake": "1000000000000000000.000000000000000000",
@@ -734,8 +742,8 @@
           }
         },
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "starting_info": {
             "previous_period": "1",
             "stake": "1000000000000000000.000000000000000000",
@@ -1013,24 +1021,24 @@
       "last_total_power": "3",
       "last_validator_powers": [
         {
-          "address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "power": "1"
         },
         {
-          "address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "power": "1"
         },
         {
-          "address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "power": "1"
         }
       ],
       "validators": [
         {
-          "operator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "operator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "consensus_pubkey": {
             "@type": "/cosmos.crypto.ed25519.PubKey",
-            "key": "oBYFH76nRo06r4IU9E8zYQcv1S3aiH+vJzJ/Q0we7zw="
+            "key": "4oHm4ACRsP9fyYAp6InAWagzJsddKr5XyGriR2KVvdM="
           },
           "jailed": false,
           "status": "BOND_STATUS_BONDED",
@@ -1058,10 +1066,10 @@
           "unbonding_ids": []
         },
         {
-          "operator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "operator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "consensus_pubkey": {
             "@type": "/cosmos.crypto.ed25519.PubKey",
-            "key": "+oi9pD7kReN5Rzmgh0iJRbRPirSPpdguUx0114qJgpI="
+            "key": "m3+yHmH3f1ZTE3i+4Y13kKL86dj26Epp74ootVDuzTE="
           },
           "jailed": false,
           "status": "BOND_STATUS_BONDED",
@@ -1089,10 +1097,10 @@
           "unbonding_ids": []
         },
         {
-          "operator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "operator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "consensus_pubkey": {
             "@type": "/cosmos.crypto.ed25519.PubKey",
-            "key": "yPSbLGwFxZwkHctKzITuMinBEnvtir3Jxe0aqURJFs0="
+            "key": "kGL6KEKRRpeUreu7+gYBw8f5ti2Ou62e3GSqO6ZM71s="
           },
           "jailed": false,
           "status": "BOND_STATUS_BONDED",
@@ -1122,18 +1130,18 @@
       ],
       "delegations": [
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper1yqm76ervykea3dpucqr6m2vvwwgvdxfmnec6vz",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper1900lajwrwhrzqu9zy4fccjrmzzp9pgratx5fwu",
           "shares": "1.000000000000000000"
         },
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper148w0lz35w4tmhqxtsysqw3md2xcvekxhfj4wv9",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper12zxq75a7gckz6hrhjz4ql5nhaecygea0tezdnu",
           "shares": "1.000000000000000000"
         },
         {
-          "delegator_address": "evmos1q4qqqyakvslpytpe45h74m7pyyxjkg0tavz0jw",
-          "validator_address": "evmosvaloper1up4jhw30e9kt9s3uzuwqgmjkjxfc74qjf8quu6",
+          "delegator_address": "evmos1x4dfxvrmdzty2a2rcsk3mjuhq54h62lwr8xc6v",
+          "validator_address": "evmosvaloper1uu2trqvvp3qkpuskv2gmklsdq7v4a898xvna24",
           "shares": "1.000000000000000000"
         }
       ],
