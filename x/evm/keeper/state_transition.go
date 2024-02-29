@@ -154,19 +154,9 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		return nil, errorsmod.Wrap(err, "failed to return ethereum transaction as core message")
 	}
 
-	// snapshot to contain the tx processing and post processing in same scope
-	var commit func()
-	tmpCtx := ctx
-	if k.hooks != nil {
-		// Create a cache context to revert state when tx hooks fails,
-		// the cache context is only committed when both tx and hooks executed successfully.
-		// Didn't use `Snapshot` because the context stack has exponential complexity on certain operations,
-		// thus restricted to be used only inside `ApplyMessage`.
-		tmpCtx, commit = ctx.CacheContext()
-	}
 
 	// pass true to commit the StateDB
-	res, err := k.ApplyMessageWithConfig(tmpCtx, msg, nil, true, cfg, txConfig)
+	res, err := k.ApplyMessageWithConfig(ctx, msg, nil, true, cfg, txConfig)
 	if err != nil {
 		// when a transaction contains multiple msg, as long as one of the msg fails
 		// all gas will be deducted. so is not msg.Gas()
@@ -209,25 +199,6 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		BlockHash:         txConfig.BlockHash,
 		BlockNumber:       big.NewInt(ctx.BlockHeight()),
 		TransactionIndex:  txConfig.TxIndex,
-	}
-
-	if !res.Failed() {
-		receipt.Status = ethtypes.ReceiptStatusSuccessful
-		// Only call hooks if tx executed successfully.
-		if err = k.PostTxProcessing(tmpCtx, msg, receipt); err != nil {
-			// If hooks return error, revert the whole tx.
-			res.VmError = types.ErrPostTxProcessing.Error()
-			k.Logger(ctx).Error("tx post processing failed", "error", err)
-
-			// If the tx failed in post processing hooks, we should clear the logs
-			res.Logs = nil
-		} else if commit != nil {
-			// PostTxProcessing is successful, commit the tmpCtx
-			commit()
-			// Since the post-processing can alter the log, we need to update the result
-			res.Logs = types.NewLogsFromEth(receipt.Logs)
-			ctx.EventManager().EmitEvents(tmpCtx.EventManager().Events())
-		}
 	}
 
 	// refund gas in order to match the Ethereum gas consumption instead of the default SDK one.
