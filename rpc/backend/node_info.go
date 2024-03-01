@@ -35,7 +35,7 @@ func (b *Backend) Accounts() ([]common.Address, error) {
 
 	if !b.cfg.JSONRPC.AllowInsecureUnlock {
 		b.logger.Debug("account unlock with HTTP access is forbidden")
-		return addresses, fmt.Errorf("account unlock with HTTP access is forbidden!")
+		return addresses, fmt.Errorf("account unlock with HTTP access is forbidden")
 	}
 
 	infos, err := b.clientCtx.Keyring.List()
@@ -231,7 +231,7 @@ func (b *Backend) ListAccounts() ([]common.Address, error) {
 
 	if !b.cfg.JSONRPC.AllowInsecureUnlock {
 		b.logger.Debug("account unlock with HTTP access is forbidden")
-		return addrs, fmt.Errorf("account unlock with HTTP access is forbidden!")
+		return addrs, fmt.Errorf("account unlock with HTTP access is forbidden")
 	}
 
 	list, err := b.clientCtx.Keyring.List()
