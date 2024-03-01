@@ -37,9 +37,11 @@ type PrecompileTestSuite struct {
 	withValidatorSlashes bool
 }
 
-func TestPrecompileTestSuite(t *testing.T) {
+func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
+}
 
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Distribution Precompile Suite")
