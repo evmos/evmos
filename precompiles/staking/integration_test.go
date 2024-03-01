@@ -351,7 +351,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to revoke an approval", func() {
-
 		// granteeAddr is the address of the grantee used in the revocation tests.
 		granteeAddr := testutiltx.GenerateAddress()
 
@@ -466,7 +465,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to delegate", func() {
-
 		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
 		// added in the test suite setup).
 		var prevDelegation stakingtypes.Delegation
@@ -1821,7 +1819,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("delegating", func() {
-
 		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
 		// added in the test suite setup).
 		var prevDelegation stakingtypes.Delegation
