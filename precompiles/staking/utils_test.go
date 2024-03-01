@@ -76,20 +76,33 @@ func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.Authoriz
 	}
 
 	encodingCfg := encoding.MakeConfig(app.ModuleBasics)
-	var auth authz.Authorization
-	if err = encodingCfg.InterfaceRegistry.UnpackAny(grants[0].Authorization, &auth); err != nil {
-		return nil, nil, err
-	}
-	stakeAuthorization, ok := auth.(*stakingtypes.StakeAuthorization)
-	if !ok {
-		return nil, nil, fmt.Errorf("invalid authorization type. Expected: stakingtypes.StakeAuthorization, got: %T", auth)
+	var (
+		expGrant           *authz.Grant
+		stakeAuthorization *stakingtypes.StakeAuthorization
+	)
+	for _, g := range grants {
+		var (
+			ok   bool
+			auth authz.Authorization
+		)
+		if err = encodingCfg.InterfaceRegistry.UnpackAny(g.Authorization, &auth); err != nil {
+			return nil, nil, err
+		}
+		stakeAuthorization, ok = auth.(*stakingtypes.StakeAuthorization)
+		if !ok {
+			return nil, nil, fmt.Errorf("invalid authorization type. Expected: stakingtypes.StakeAuthorization, got: %T", auth)
+		}
+		if stakeAuthorization.AuthorizationType == authorizationType {
+			expGrant = g
+			break
+		}
 	}
 
-	if stakeAuthorization.AuthorizationType != authorizationType {
+	if expGrant == nil {
 		return nil, nil, fmt.Errorf("invalid authorization type. Expected: %d, got: %d", authorizationType, stakeAuthorization.AuthorizationType)
 	}
 
-	return stakeAuthorization, grants[0].Expiration, nil
+	return stakeAuthorization, expGrant.Expiration, nil
 }
 
 // CreateAuthorization is a helper function to create a new authorization of the given type for a spender address
