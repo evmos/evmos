@@ -351,10 +351,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to revoke an approval", func() {
-		var (
-			// granteeAddr is the address of the grantee used in the revocation tests.
-			granteeAddr = testutiltx.GenerateAddress()
-		)
+
+		// granteeAddr is the address of the grantee used in the revocation tests.
+		granteeAddr := testutiltx.GenerateAddress()
 
 		BeforeEach(func() {
 			callArgs.MethodName = authorization.RevokeMethod
@@ -467,11 +466,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to delegate", func() {
-		var (
-			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
-			// added in the test suite setup).
-			prevDelegation stakingtypes.Delegation
-		)
+
+		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
+		// added in the test suite setup).
+		var prevDelegation stakingtypes.Delegation
 
 		BeforeEach(func() {
 			// get the delegation that is available prior to the test
@@ -862,7 +860,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to query allowance", func() {
-		var differentAddr = testutiltx.GenerateAddress()
+		differentAddr := testutiltx.GenerateAddress()
 
 		BeforeEach(func() {
 			callArgs.MethodName = authorization.AllowanceMethod
@@ -912,7 +910,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("Validator queries", func() {
-
 		BeforeEach(func() {
 			callArgs.MethodName = staking.ValidatorMethod
 		})
@@ -1063,7 +1060,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("Delegation queries", func() {
-
 		BeforeEach(func() {
 			callArgs.MethodName = staking.DelegationMethod
 		})
@@ -1115,7 +1111,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	Describe("UnbondingDelegation queries", func() {
 		// undelAmount is the amount of tokens to be unbonded
-		var undelAmount = big.NewInt(1e17)
+		undelAmount := big.NewInt(1e17)
 
 		BeforeEach(func() {
 			callArgs.MethodName = staking.UnbondingDelegationMethod
@@ -1825,11 +1821,10 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("delegating", func() {
-		var (
-			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
-			// added in the test suite setup).
-			prevDelegation stakingtypes.Delegation
-		)
+
+		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
+		// added in the test suite setup).
+		var prevDelegation stakingtypes.Delegation
 
 		BeforeEach(func() {
 			// get the delegation that is available prior to the test
@@ -1839,7 +1834,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			prevDelegation = res.DelegationResponse.Delegation
 			callArgs.MethodName = "testDelegate"
-
 		})
 		Context("without approval set", func() {
 			BeforeEach(func() {
@@ -2133,7 +2127,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		BeforeEach(func() {
 			callArgs.MethodName = "testRedelegate"
-
 		})
 		Context("without approval set", func() {
 			BeforeEach(func() {
@@ -2654,7 +2647,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying delegation", func() {
-
 		BeforeEach(func() {
 			callArgs.MethodName = "getDelegation"
 		})
@@ -2700,7 +2692,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying redelegation", func() {
-
 		BeforeEach(func() {
 			callArgs.MethodName = "getRedelegation"
 		})

@@ -66,7 +66,6 @@ func CheckAuthorizationWithContext(ctx sdk.Context, ak authzkeeper.Keeper, autho
 // CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
 func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time, error) {
 	grants, err := gh.GetGrants(sdk.AccAddress(grantee.Bytes()).String(), sdk.AccAddress(granter.Bytes()).String())
-
 	if err != nil {
 		return nil, nil, err
 	}
