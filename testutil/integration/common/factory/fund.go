@@ -5,27 +5,39 @@ package factory
 
 import (
 	"fmt"
-	"slices"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 )
 
-// FundAccount funds the given account with the given amount of coins.
-func (tf *IntegrationTxFactory) FundAccount(sender keyring.Key, receiver sdk.AccAddress, coins sdk.Coins) error {
-	// validate that required coins are supported in the test network
-	if err := tf.validateDenoms(coins); err != nil {
-		return err
-	}
+// FundTxFactory is the interface that wraps the common methods to fund accounts
+// via a bank send transaction
+type FundTxFactory interface {
+	// FundAccount funds the given account with the given amount.
+	FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, amount sdktypes.Coins) error
+}
 
+// baseTxFactory is the struct of the basic tx factory
+// to build and broadcast transactions.
+// This is to simulate the behavior of a real user.
+type fundTxFactory struct {
+	BaseTxFactory
+}
+
+// newBaseTxFactory instantiates a new baseTxFactory
+func newFundTxFactory(bf BaseTxFactory) FundTxFactory {
+	return &fundTxFactory{bf}
+}
+
+// FundAccount funds the given account with the given amount of coins.
+func (tf *fundTxFactory) FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, coins sdktypes.Coins) error {
 	bankmsg := banktypes.NewMsgSend(
 		sender.AccAddr,
 		receiver,
 		coins,
 	)
-	txArgs := CosmosTxArgs{Msgs: []sdk.Msg{bankmsg}}
+	txArgs := CosmosTxArgs{Msgs: []sdktypes.Msg{bankmsg}}
 	txRes, err := tf.ExecuteCosmosTx(sender.Priv, txArgs)
 	if err != nil {
 		return err
@@ -35,25 +47,5 @@ func (tf *IntegrationTxFactory) FundAccount(sender keyring.Key, receiver sdk.Acc
 		return fmt.Errorf("transaction returned non-zero code %d", txRes.Code)
 	}
 
-	// commit the changes
-	return tf.network.NextBlock()
-}
-
-// FundAccountWithBaseDenom funds the given account with the given amount of the network's
-// base denomination.
-func (tf *IntegrationTxFactory) FundAccountWithBaseDenom(sender keyring.Key, receiver sdk.AccAddress, amount sdkmath.Int) error {
-	return tf.FundAccount(sender, receiver, sdk.NewCoins(sdk.NewCoin(tf.network.GetDenom(), amount)))
-}
-
-func (tf *IntegrationTxFactory) validateDenoms(coins sdk.Coins) error {
-	for _, c := range coins {
-		if c.Denom == tf.network.GetDenom() {
-			continue
-		}
-		if slices.Contains(tf.network.GetOtherDenoms(), c.Denom) {
-			continue
-		}
-		return fmt.Errorf("denomination %s does not exist in the testing network", c.Denom)
-	}
 	return nil
 }

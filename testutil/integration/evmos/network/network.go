@@ -102,27 +102,26 @@ var (
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
-	// Create funded accounts based on the config and
-	// create genesis accounts
-	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
-
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
 	totalBonded := bondedAmt.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, bondedAmt)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmt, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
+
+	// Create genesis accounts and funded balances based on the config
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
 		fundedAccountBalances,
 		sdktypes.NewCoin(n.cfg.denom, totalBonded),
 	)
 
-	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
+	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)

@@ -4,11 +4,13 @@
 package network
 
 import (
+	"fmt"
 	"math/big"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	testtx "github.com/evmos/evmos/v16/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
@@ -26,6 +28,7 @@ type Config struct {
 	denom              string
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
+	operatorsAddrs     []sdktypes.AccAddress
 }
 
 type CustomGenesisState map[string]interface{}
@@ -50,7 +53,7 @@ func DefaultConfig() Config {
 // genesis accounts and balances.
 //
 // NOTE: If the balances are set, the pre-funded accounts are ignored.
-func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
+func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
 	if len(cfg.balances) > 0 {
 		balances = cfg.balances
 		accounts := getAccAddrsFromBalances(balances)
@@ -59,6 +62,17 @@ func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccou
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
 		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, cfg.denom))
 	}
+
+	// append validators to genesis accounts and balances
+	valAccs := make([]sdktypes.AccAddress, len(validators))
+	for i, v := range validators {
+		valAddr, err := sdktypes.ValAddressFromBech32(v.OperatorAddress)
+		if err != nil {
+			panic(fmt.Sprintf("failed to derive validator address from %q: %w", v.OperatorAddress, err))
+		}
+		valAccs[i] = sdktypes.AccAddress(valAddr.Bytes())
+	}
+	genAccounts = append(genAccounts, createGenesisAccounts(valAccs)...)
 
 	return
 }
@@ -120,5 +134,12 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.otherCoinDenom = otherDenoms
+	}
+}
+
+// WithValidatorOperators overwrites the used operator address for the network instantiation.
+func WithValidatorOperators(keys []sdktypes.AccAddress) ConfigOption {
+	return func(cfg *Config) {
+		cfg.operatorsAddrs = keys
 	}
 }

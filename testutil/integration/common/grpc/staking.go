@@ -16,3 +16,11 @@ func (gqh *IntegrationHandler) GetDelegation(delegatorAddress string, validatorA
 		ValidatorAddr: validatorAddress,
 	})
 }
+
+// GetValidatorDelegations returns the delegations to a given validator.
+func (gqh *IntegrationHandler) GetValidatorDelegations(validatorAddress string) (*stakingtypes.QueryValidatorDelegationsResponse, error) {
+	stakingClient := gqh.network.GetStakingClient()
+	return stakingClient.ValidatorDelegations(context.Background(), &stakingtypes.QueryValidatorDelegationsRequest{
+		ValidatorAddr: validatorAddress,
+	})
+}

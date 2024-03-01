@@ -15,7 +15,7 @@ import (
 )
 
 // buildTx builds a tx with the provided private key and txArgs
-func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (client.TxBuilder, error) {
+func (tf *baseTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (client.TxBuilder, error) {
 	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
 
@@ -65,7 +65,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 }
 
 // calculateFees calculates the fees for the transaction.
-func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (sdktypes.Coins, error) {
+func (tf *baseTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (sdktypes.Coins, error) {
 	denom := tf.network.GetDenom()
 	var fees sdktypes.Coins
 	if gasPrice != nil {
@@ -82,7 +82,7 @@ func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit ui
 }
 
 // estimateGas estimates the gas needed for the transaction.
-func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder client.TxBuilder) (uint64, error) {
+func (tf *baseTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder client.TxBuilder) (uint64, error) {
 	txConfig := tf.ec.TxConfig
 	simulateBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
@@ -106,7 +106,7 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 }
 
 // encodeTx encodes the tx using the txConfig's encoder.
-func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
+func (tf *baseTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
 	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {

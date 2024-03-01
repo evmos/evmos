@@ -26,6 +26,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -60,6 +61,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
+	distrtypes.ModuleName:     genStateSetter[*distrtypes.GenesisState](distrtypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
 	authtypes.ModuleName:      setAuthGenesisState,
 	epochstypes.ModuleName:    genStateSetter[*epochstypes.GenesisState](epochstypes.ModuleName),
@@ -174,7 +176,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 }
 
 // createStakingValidator creates a staking validator from the given tm validator and bonded
-func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int) (stakingtypes.Validator, error) {
+func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int, operatorAddr *sdktypes.AccAddress) (stakingtypes.Validator, error) {
 	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 	if err != nil {
 		return stakingtypes.Validator{}, err
@@ -185,9 +187,15 @@ func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int) (sta
 		return stakingtypes.Validator{}, err
 	}
 
-	commission := stakingtypes.NewCommission(sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec())
+	opAddr := sdktypes.ValAddress(val.Address).String()
+	if operatorAddr != nil {
+		opAddr = sdktypes.ValAddress(operatorAddr.Bytes()).String()
+	}
+
+	// Default to 5% commission
+	commission := stakingtypes.NewCommission(sdkmath.LegacyNewDecWithPrec(5, 2), sdkmath.LegacyNewDecWithPrec(1, 1), sdkmath.LegacyNewDecWithPrec(5, 2))
 	validator := stakingtypes.Validator{
-		OperatorAddress:   sdktypes.ValAddress(val.Address).String(),
+		OperatorAddress:   opAddr,
 		ConsensusPubkey:   pkAny,
 		Jailed:            false,
 		Status:            stakingtypes.Bonded,
@@ -204,11 +212,37 @@ func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int) (sta
 
 // createStakingValidators creates staking validators from the given tm validators and bonded
 // amounts
-func createStakingValidators(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
+func createStakingValidators(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int, operatorsAddresses []sdktypes.AccAddress) ([]stakingtypes.Validator, error) {
+	if len(operatorsAddresses) == 0 {
+		return createStakingValidatorsWithRandomOperator(tmValidators, bondedAmt)
+	}
+	return createStakingValidatorsWithSpecificOperator(tmValidators, bondedAmt, operatorsAddresses)
+}
+
+// createStakingValidatorsWithRandomOperator creates staking validators with non-specified operator addresses.
+func createStakingValidatorsWithRandomOperator(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
 	for _, val := range tmValidators {
-		validator, err := createStakingValidator(val, bondedAmt)
+		validator, err := createStakingValidator(val, bondedAmt, nil)
+		if err != nil {
+			return nil, err
+		}
+		stakingValidators = append(stakingValidators, validator)
+	}
+	return stakingValidators, nil
+}
+
+// createStakingValidatorsWithSpecificOperator creates staking validators with the given operator addresses.
+func createStakingValidatorsWithSpecificOperator(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int, operatorsAddresses []sdktypes.AccAddress) ([]stakingtypes.Validator, error) {
+	amountOfValidators := len(tmValidators)
+	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
+	operatorsCount := len(operatorsAddresses)
+	if operatorsCount != amountOfValidators {
+		panic(fmt.Sprintf("provided %d validator operator keys but need %d!", operatorsCount, amountOfValidators))
+	}
+	for i, val := range tmValidators {
+		validator, err := createStakingValidator(val, bondedAmt, &operatorsAddresses[i])
 		if err != nil {
 			return nil, err
 		}
@@ -218,11 +252,11 @@ func createStakingValidators(tmValidators []*cmttypes.Validator, bondedAmt sdkma
 }
 
 // createDelegations creates delegations for the given validators and account
-func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
-	amountOfValidators := len(tmValidators)
+func createDelegations(validators []stakingtypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
+	amountOfValidators := len(validators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
-	for _, val := range tmValidators {
-		delegation := stakingtypes.NewDelegation(fromAccount.String(), sdktypes.ValAddress(val.Address).String(), sdkmath.LegacyOneDec())
+	for _, val := range validators {
+		delegation := stakingtypes.NewDelegation(fromAccount.String(), val.OperatorAddress, sdkmath.LegacyOneDec())
 		delegations = append(delegations, delegation)
 	}
 	return delegations
