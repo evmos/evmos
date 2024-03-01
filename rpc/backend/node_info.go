@@ -84,7 +84,7 @@ func (b *Backend) Syncing() (interface{}, error) {
 // SetEtherbase sets the etherbase of the miner
 func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 	if !b.cfg.JSONRPC.AllowInsecureUnlock {
-		b.logger.Error("account unlock with HTTP access is forbidden")
+		b.logger.Debug("account unlock with HTTP access is forbidden")
 		return false
 	}
 
@@ -230,7 +230,7 @@ func (b *Backend) ListAccounts() ([]common.Address, error) {
 	addrs := []common.Address{}
 
 	if !b.cfg.JSONRPC.AllowInsecureUnlock {
-		b.logger.Error("account unlock with HTTP access is forbidden")
+		b.logger.Debug("account unlock with HTTP access is forbidden")
 		return addrs, fmt.Errorf("account unlock with HTTP access is forbidden!")
 	}
 

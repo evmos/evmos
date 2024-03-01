@@ -24,7 +24,7 @@ import (
 func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, error) {
 	// Look up the wallet containing the requested signer
 	if !b.cfg.JSONRPC.AllowInsecureUnlock {
-		b.logger.Error("account unlock with HTTP access is forbidden")
+		b.logger.Debug("account unlock with HTTP access is forbidden")
 		return common.Hash{}, fmt.Errorf("account unlock with HTTP access is forbidden")
 	}
 
