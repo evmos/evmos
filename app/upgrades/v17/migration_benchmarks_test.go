@@ -87,13 +87,13 @@ func BenchmarkShittyMigration(b *testing.B) {
 
 	// Because we are not going thorugh the ante handler,
 	// we need to configure the context to execution mode
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomGenesis(customGenesisState),
-	)
 
 	b.Run(fmt.Sprintf("killer_benchmark"), func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
+			unitNetwork := network.NewUnitTestNetwork(
+				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+				network.WithCustomGenesis(customGenesisState),
+			)
 			b.StartTimer()
 			// FUNCTION CALL
 			err := v17.RunSTRv2Migration(

@@ -44,6 +44,7 @@ func RunSTRv2Migration(
 		accountKeeper,
 		bankKeeper,
 		erc20Keeper,
+		*evmKeeper,
 		wrappedContractAddr,
 		nativeTokenPairs,
 	); err != nil {

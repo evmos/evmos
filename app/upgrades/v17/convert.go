@@ -15,12 +15,16 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v16/contracts"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/sync/errgroup"
 )
+
+var storeKey []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
 
 type TelemetryResult struct {
 	address string
@@ -35,7 +39,7 @@ func worker(
 	tasks <-chan []string,
 	results chan<- []TelemetryResult,
 	ctx sdk.Context,
-	erc20Keeper erc20keeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
@@ -47,7 +51,7 @@ func worker(
 				return nil // Channel closed, stop the worker
 			}
 
-			processResults, err := performTask(task, id, ctx, erc20Keeper, nativeTokenPairs)
+			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
 				fmt.Println("Error received: ", err)
 				return err
@@ -62,7 +66,7 @@ func worker(
 }
 
 func performTask(task []string, id int,
-	ctx sdk.Context, erc20Keeper erc20keeper.Keeper, tokenPairs []erc20types.TokenPair,
+	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs []erc20types.TokenPair,
 ) ([]TelemetryResult, error) {
 	results := []TelemetryResult{}
 	i := 0
@@ -73,7 +77,8 @@ func performTask(task []string, id int,
 			// }
 			cosmosAddress := sdk.MustAccAddressFromBech32(account)
 			ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
-			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), ethAddress)
+			// balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), ethAddress)
+			balance := GetBalanceFromStore(ctx, evmKeeper, pair.GetERC20Contract(), ethAddress)
 			if balance == nil {
 				return nil, fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", pair.GetERC20Contract(), account)
 			}
@@ -86,6 +91,21 @@ func performTask(task []string, id int,
 
 	}
 	return results, nil
+}
+
+func GetBalanceFromStore(ctx sdk.Context, evmKeeper evmkeeper.Keeper, erc20contract common.Address, addr common.Address) *big.Int {
+	addrBytes := addr.Bytes()
+	// store := make([]byte, 32)
+	// store[31] = byte(2) // slot 2 contains the mapping for the balance
+	concatBytes := append(common.LeftPadBytes(addrBytes, 32), storeKey...)
+	key := crypto.Keccak256Hash(concatBytes)
+
+	state := evmKeeper.GetState(ctx, erc20contract, key)
+	stateHex := state.Hex()
+	n := new(big.Int)
+	n.SetString(stateHex, 0)
+	return n
+
 }
 
 func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
@@ -193,6 +213,7 @@ func ConvertERC20Coins(
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
@@ -212,7 +233,7 @@ func ConvertERC20Coins(
 	for w := 1; w <= numWorkers; w++ {
 		func(w int) {
 			g.Go(func() error {
-				return worker(workerCtx, w, tasks, results, ctx, erc20Keeper, wrappedAddr, nativeTokenPairs)
+				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, nativeTokenPairs)
 			})
 		}(w)
 	}
