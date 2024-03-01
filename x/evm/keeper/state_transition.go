@@ -135,7 +135,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 //
 // For relevant discussion see: https://github.com/cosmos/cosmos-sdk/discussions/9072
 func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*types.MsgEthereumTxResponse, error) {
-	var bloom        *big.Int
+	var bloom *big.Int
 
 	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress), k.eip155ChainID)
 	if err != nil {
@@ -250,7 +250,7 @@ func (k *Keeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLo
 //
 // If commit is true, the `StateDB` will be committed, otherwise discarded.
 func (k *Keeper) ApplyMessageWithConfig(
-    ctx sdk.Context,
+	ctx sdk.Context,
 	msg core.Message,
 	tracer vm.EVMLogger,
 	commit bool,
