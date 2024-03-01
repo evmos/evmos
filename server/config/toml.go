@@ -28,7 +28,7 @@ max-tx-gas-wanted = {{ .EVM.MaxTxGasWanted }}
 
 [json-rpc]
 
-# Enable defines if the gRPC server should be enabled.
+# Enable defines if the JSONRPC server should be enabled.
 enable = {{ .JSONRPC.Enable }}
 
 # Address defines the EVM RPC HTTP server address to bind to.
