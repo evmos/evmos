@@ -128,7 +128,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, grantee commo
 	}
 
 	expiration := time.Now().Add(cmn.DefaultExpirationDuration).UTC()
-	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), s.keyring.GetAddr(0).Bytes(), stakingAuthz, &expiration)
+	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), s.keyring.GetAccAddr(0), stakingAuthz, &expiration)
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func (s *PrecompileTestSuite) assertRedelegationsOutput(data []byte, redelTotalC
 // the same amount is considered for all entries
 func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationResponse, entriesCount int, expValSrcAddr, expValDstAddr string, expAmt *big.Int, expCreationHeight int64) {
 	// check response
-	s.Require().Equal(res.Redelegation.DelegatorAddress, sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String())
+	s.Require().Equal(res.Redelegation.DelegatorAddress, s.keyring.GetAccAddr(0).String())
 	s.Require().Equal(res.Redelegation.ValidatorSrcAddress, expValSrcAddr)
 	s.Require().Equal(res.Redelegation.ValidatorDstAddress, expValDstAddr)
 	// check redelegation entries - should be empty
@@ -346,7 +346,7 @@ func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationRespons
 func (s *PrecompileTestSuite) setupRedelegations(ctx sdk.Context, redelAmt *big.Int) error {
 	ctx = ctx.WithBlockTime(time.Now())
 	msg := stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress:    sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String(),
+		DelegatorAddress:    s.keyring.GetAccAddr(0).String(),
 		ValidatorSrcAddress: s.network.GetValidators()[0].OperatorAddress,
 		ValidatorDstAddress: s.network.GetValidators()[1].OperatorAddress,
 		Amount:              sdk.NewCoin(s.bondDenom, math.NewIntFromBigInt(redelAmt)),

@@ -159,7 +159,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(data []byte, inputArgs []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
-				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(ctx, s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes())
+				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(ctx, s.keyring.GetAccAddr(0), s.keyring.GetAccAddr(0))
 				s.Require().NoError(err)
 				s.Require().Len(allAuthz, 3)
 			},
@@ -234,7 +234,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				// Unbond another validator
 				valAddr1, err := sdk.ValAddressFromBech32(s.network.GetValidators()[1].GetOperator())
 				s.Require().NoError(err)
-				amount, err := s.network.App.StakingKeeper.Unbond(ctx, s.keyring.GetAddr(0).Bytes(), valAddr1, math.LegacyOneDec())
+				amount, err := s.network.App.StakingKeeper.Unbond(ctx, s.keyring.GetAccAddr(0), valAddr1, math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
 				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 
@@ -338,7 +338,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				// TODO: Bug here it returns 3 REDELEGATE authorizations
-				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes())
+				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), s.keyring.GetAccAddr(0), s.keyring.GetAccAddr(0))
 				s.Require().NoError(err)
 				s.Require().Len(allAuthz, 3)
 			},
@@ -432,7 +432,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func(_ *vm.Contract) []interface{} {
 				authz := sdkauthz.NewGenericAuthorization(staking.DelegateMsg)
 				exp := time.Now().Add(time.Hour)
-				err := s.network.App.AuthzKeeper.SaveGrant(ctx, s.keyring.GetAddr(0).Bytes(), s.keyring.GetAddr(0).Bytes(), authz, &exp)
+				err := s.network.App.AuthzKeeper.SaveGrant(ctx, s.keyring.GetAccAddr(0), s.keyring.GetAccAddr(0), authz, &exp)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.keyring.GetAddr(0),

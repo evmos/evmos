@@ -681,7 +681,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 				Expect(err).To(BeNil())
 				Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
-				bech32Addr := sdk.AccAddress(s.keyring.GetAddr(0).Bytes())
+				bech32Addr := s.keyring.GetAccAddr(0)
 				Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 				Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
 				Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
@@ -774,7 +774,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil())
 			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(s.keyring.GetAccAddr(0).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(creationHeight), "expected different creation height")
@@ -1672,7 +1672,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			//	Expect(err).To(BeNil(), "error while calling the smart contract")
 			//
 			//	// check approvals
-			//	allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAddr(0).Bytes())
+			//	allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAccAddr(0))
 			//	Expect(err).To(BeNil(), "error while reading authorizations")
 			//	Expect(allAuthz).To(HaveLen(0), "expected no authorizations")
 			// })
@@ -1967,7 +1967,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
-				newValAddr := sdk.ValAddress(s.keyring.GetAddr(0).Bytes())
+				newValAddr := sdk.ValAddress(s.keyring.GetAccAddr(0))
 
 				res, err := s.grpcHandler.GetDelegation(s.keyring.GetAccAddr(0).String(), newValAddr.String())
 				Expect(err).To(BeNil())
@@ -2181,7 +2181,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 				Expect(err).To(BeNil())
 				Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
-				bech32Addr := sdk.AccAddress(s.keyring.GetAddr(0).Bytes())
+				bech32Addr := s.keyring.GetAccAddr(0)
 				Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 				Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
 				Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
@@ -2304,7 +2304,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil())
 			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(s.keyring.GetAccAddr(0).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
@@ -2741,7 +2741,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 			Expect(err).To(BeNil())
 			Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
-			bech32Addr := sdk.AccAddress(s.keyring.GetAddr(0).Bytes())
+			bech32Addr := s.keyring.GetAccAddr(0)
 			Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
 			Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
@@ -2798,7 +2798,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 			Expect(err).To(BeNil())
 			Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
-			bech32Addr := sdk.AccAddress(s.keyring.GetAddr(0).Bytes())
+			bech32Addr := s.keyring.GetAccAddr(0)
 			Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
 			Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
@@ -2857,7 +2857,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil())
 			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(s.keyring.GetAccAddr(0).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(s.network.GetContext().BlockHeight()), "expected different creation height")
@@ -3013,7 +3013,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				if testcase.expTxPass {
 					Expect(res.UnbondingResponses).To(HaveLen(1), "expected an unbonding delegation")
 					Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected different validator address")
-					Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String()), "expected different delegator address")
+					Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(s.keyring.GetAccAddr(0).String()), "expected different delegator address")
 				} else {
 					Expect(res.UnbondingResponses).To(HaveLen(0), "expected no unbonding delegations for calltype %s", testcase.calltype)
 				}
@@ -3160,7 +3160,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			balance := resBal.Balance
 
 			Expect(balance.Amount.Int64()).To(BeZero(), "expected different contract balance after funding")
-			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAddr(0).Bytes(), staking.DelegateMsg)
+			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAccAddr(0), staking.DelegateMsg)
 			Expect(auth).To(BeNil(), "expected no authorization")
 			res, err := s.grpcHandler.GetDelegatorDelegations(sdk.AccAddress(contractAddr.Bytes()).String())
 			Expect(err).To(BeNil())
@@ -3189,7 +3189,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			balance := resBal.Balance
 			Expect(balance.Amount.Int64()).To(BeZero(), "expected different contract balance after funding")
-			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAddr(0).Bytes(), staking.DelegateMsg)
+			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), s.keyring.GetAccAddr(0), staking.DelegateMsg)
 			Expect(auth).To(BeNil(), "expected no authorization")
 			res, err := s.grpcHandler.GetDelegatorDelegations(sdk.AccAddress(contractAddr.Bytes()).String())
 			Expect(err).To(BeNil())
@@ -3430,7 +3430,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			Expect(err).To(BeNil())
 			Expect(res.DelegationResponse).NotTo(BeNil(),
 				"expected delegation from %s to validator %s to be found after calling the smart contract",
-				sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String(), validator.String(),
+				s.keyring.GetAccAddr(0).String(), validator.String(),
 			)
 			delegationPost := res.DelegationResponse.Delegation
 
