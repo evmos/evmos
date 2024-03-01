@@ -2,9 +2,11 @@ package v17_test
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -12,6 +14,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -185,4 +188,32 @@ func PrepareNetwork(ts *ConvertERC20CoinsTestSuite) (*ConvertERC20CoinsTestSuite
 	ts.wevmosContract = wevmosAddr
 
 	return ts, nil
+}
+
+// CheckForKeyInContractStorage is a helper method to check for a given key in
+// the storage of a given smart contract.
+func CheckForKeyInContractStorage(
+	ctx sdk.Context, k *evmkeeper.Keeper, contractAddr common.Address, key string,
+) (common.Hash, bool) {
+	var (
+		value common.Hash
+		found bool
+	)
+	k.ForEachStorage(
+		ctx,
+		contractAddr,
+		func(storeKey, storeValue common.Hash) bool {
+			fmt.Println("storeKey", storeKey.String())
+			fmt.Println("storeValue: ", storeValue.String())
+			if storeKey.String() == key {
+				fmt.Println(" -> found: ", storeValue.String())
+				value = storeValue
+				found = true
+				return false // returning false to stop iteration
+			}
+			return true
+		},
+	)
+
+	return value, found
 }

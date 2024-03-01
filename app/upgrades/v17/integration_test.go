@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ChainSafe/go-schnorrkel"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -357,32 +356,41 @@ var _ = Describe("Inspecting Contract Storage", Ordered, func() {
 			Expect(len(storage)).To(Equal(21), "expected different storage length")
 		})
 
-		// NOTE: according to https://learnevm.com/chapters/evm/storage the key for the balance should
-		// be the keccak256 hash of the padded address.
 		It("- the storage should contain the hashed address", func() {
-			Skip("skipped for now")
-			balancesLocation := "0x0000000000000000000000000000000000000000000000000000000000000004"
-			balancesLocationBytes, err := schnorrkel.HexToBytes(balancesLocation)
-			Expect(err).ToNot(HaveOccurred(), "failed to convert balances location to bytes")
+			//Skip("skipped for now")
 
-			storage := ts.network.App.EvmKeeper.GetAccountStorage(ts.network.GetContext(), erc20Addr)
-			// the key is the keccak256 hash of the padded address
+			balancesLocation := "0x0000000000000000000000000000000000000000000000000000000000000004"
+
+			fmt.Println("Looking for balances location: ", balancesLocation)
+			balancesLocationValueHash, found := CheckForKeyInContractStorage(
+				ts.network.GetContext(),
+				ts.network.App.EvmKeeper,
+				erc20Addr,
+				balancesLocation,
+			)
+			Expect(found).To(BeTrue(), "expected to find the balances location in the storage")
+			balancesLocationValueBytes := balancesLocationValueHash.Bytes()
+
+			// NOTE: according to https://learnevm.com/chapters/evm/storage the storage key can be derived as follows:
+			//  1. Left-pad the address to 32 bytes.
+			//  2. calculate keccak256 hash of the padded address.
+			//  3. Concatenate the storage location with the hashed address.
+			//  4. Calculate keccak256 hash of the concatenated bytes.
 			addrBytes := ts.keyring.GetAddr(erc20Deployer).Bytes()
 			Expect(addrBytes).To(HaveLen(20), "expected different address length")
+
 			hashedAddr := crypto.Keccak256Hash(common.LeftPadBytes(addrBytes, 32))
-			concatBytes := append(balancesLocationBytes, hashedAddr.Bytes()...)
+			//concatBytes := append(balancesLocationValueBytes, hashedAddr.Bytes()...)
+			concatBytes := append(hashedAddr.Bytes(), balancesLocationValueBytes...)
 			key := crypto.Keccak256Hash(concatBytes)
-			println("Key: ", key.String())
 
-			found := false
-			for _, entry := range storage {
-				if entry.Key == key.String() {
-					println("Key: ", entry.Key)
-					println("Value: ", entry.Value)
-					break
-				}
-			}
-
+			fmt.Println("Looking for key: ", key.String())
+			_, found = CheckForKeyInContractStorage(
+				ts.network.GetContext(),
+				ts.network.App.EvmKeeper,
+				erc20Addr,
+				key.String(),
+			)
 			Expect(found).To(BeTrue(), "expected to find the key in the storage")
 		})
 	})
