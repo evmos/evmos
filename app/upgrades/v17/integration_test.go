@@ -31,6 +31,7 @@ import (
 func TestSTRv2Migration(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "STR v2 Migration Suite")
+
 }
 
 type ConvertERC20CoinsTestSuite struct {
@@ -359,33 +360,35 @@ var _ = Describe("Inspecting Contract Storage", Ordered, func() {
 		It("- the storage should contain the hashed address", func() {
 			//Skip("skipped for now")
 
-			balancesLocation := "0x0000000000000000000000000000000000000000000000000000000000000004"
+			// balancesLocation := "0000000000000000000000000000000000000000000000000000000000000000"
 
-			fmt.Println("Looking for balances location: ", balancesLocation)
-			balancesLocationValueHash, found := CheckForKeyInContractStorage(
-				ts.network.GetContext(),
-				ts.network.App.EvmKeeper,
-				erc20Addr,
-				balancesLocation,
-			)
-			Expect(found).To(BeTrue(), "expected to find the balances location in the storage")
-			balancesLocationValueBytes := balancesLocationValueHash.Bytes()
+			// fmt.Println("Looking for balances location: ", balancesLocation)
+			// balancesLocationValueHash, found := CheckForKeyInContractStorage(
+			// 	ts.network.GetContext(),
+			// 	ts.network.App.EvmKeeper,
+			// 	erc20Addr,
+			// 	balancesLocation,
+			// )
+			// Expect(found).To(BeTrue(), "expected to find the balances location in the storage")
+			// balancesLocationValueBytes := balancesLocationValueHash.Bytes()
 
 			// NOTE: according to https://learnevm.com/chapters/evm/storage the storage key can be derived as follows:
 			//  1. Left-pad the address to 32 bytes.
-			//  2. calculate keccak256 hash of the padded address.
-			//  3. Concatenate the storage location with the hashed address.
-			//  4. Calculate keccak256 hash of the concatenated bytes.
+			//  2. Concatenate the storage location (0x2) with the paded address.
+			//  3. Calculate keccak256 hash of the concatenated bytes.
 			addrBytes := ts.keyring.GetAddr(erc20Deployer).Bytes()
 			Expect(addrBytes).To(HaveLen(20), "expected different address length")
-
-			hashedAddr := crypto.Keccak256Hash(common.LeftPadBytes(addrBytes, 32))
-			//concatBytes := append(balancesLocationValueBytes, hashedAddr.Bytes()...)
-			concatBytes := append(hashedAddr.Bytes(), balancesLocationValueBytes...)
+			store := make([]byte, 32)
+			store[31] = byte(2) // slot 2 contains the mapping for the balance
+			concatBytes := append(common.LeftPadBytes(addrBytes, 32), store...)
 			key := crypto.Keccak256Hash(concatBytes)
 
+			state := ts.network.App.EvmKeeper.GetState(ts.network.GetContext(), erc20Addr, key)
+			stateHex := state.Hex()
+			fmt.Println(stateHex)
+
 			fmt.Println("Looking for key: ", key.String())
-			_, found = CheckForKeyInContractStorage(
+			_, found := CheckForKeyInContractStorage(
 				ts.network.GetContext(),
 				ts.network.App.EvmKeeper,
 				erc20Addr,
