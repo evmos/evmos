@@ -276,7 +276,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, s.precompile.Address(), s.keyring.GetAddr(0))
-			Expect(err).To(BeNil())
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
 		})
 	})
@@ -341,7 +342,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, s.precompile.Address(), s.keyring.GetAddr(0))
-			Expect(err).To(BeNil())
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
 		})
 	})
@@ -379,7 +381,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			// check that the authorization is revoked
 			authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, granteeAddr, s.keyring.GetAddr(0))
-			Expect(err).To(BeNil())
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", granteeAddr.Hex(), s.keyring.GetAddr(0).Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be revoked")
 		})
 
@@ -675,6 +678,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 					logCheckArgs,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 				Expect(err).To(BeNil())
@@ -1119,7 +1123,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			undelegateArgs := factory.CallArgs{
 				ContractABI: s.precompile.ABI,
-				MethodName: staking.UndelegateMethod,
+				MethodName:  staking.UndelegateMethod,
 				Args: []interface{}{
 					s.keyring.GetAddr(0), valAddr.String(), undelAmount,
 				},
@@ -1711,7 +1715,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			s.network.NextBlock()
 
-			callArgs.Args = []interface{}{[]string{staking.DelegateMsg}}
+			callArgs.Args = []interface{}{s.keyring.GetAddr(0), []string{staking.DelegateMsg}}
 
 			revocationCheck := passCheck.WithExpEvents(authorization.EventTypeRevocation)
 
@@ -1784,7 +1788,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// check approvals
 			authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, s.keyring.GetAddr(0))
-			Expect(err).To(BeNil())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), s.keyring.GetAddr(0).Hex())))
 			Expect(authz).To(BeNil(), "expected no authorization to be found")
 		})
 
@@ -1837,7 +1842,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		Context("without approval set", func() {
 			BeforeEach(func() {
 				authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, s.keyring.GetAddr(0))
-				Expect(err).To(BeNil())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), s.keyring.GetAddr(0).Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil")
 			})
 
@@ -1952,8 +1958,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				res, err := s.grpcHandler.GetDelegation(s.keyring.GetAccAddr(0).String(), nonExistingVal.String())
-				Expect(err).To(BeNil())
-				Expect(res.DelegationResponse).To(BeNil())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("delegation with delegator %s not found for validator %s", s.keyring.GetAccAddr(0).String(), nonExistingVal.String())))
+				Expect(res).To(BeNil())
 			})
 
 			It("shouldn't delegate to a validator that is not in the allow list of the approval", func() {
@@ -2035,6 +2042,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					txArgs, callArgs,
 					logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
 				Expect(err).To(BeNil())
@@ -2111,7 +2119,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		Context("without approval set", func() {
 			BeforeEach(func() {
 				authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, s.keyring.GetAddr(0))
-				Expect(err).To(BeNil())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), s.keyring.GetAddr(0).Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
 			})
 
@@ -2157,6 +2166,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					logCheckArgs,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
 				Expect(err).To(BeNil())
@@ -2219,8 +2229,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), valAddr2.String())
-				Expect(err).To(BeNil())
-				Expect(res.RedelegationResponses).To(HaveLen(0), "expected no redelegations to be found")
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", s.keyring.GetAccAddr(0), valAddr)))
+				Expect(res).To(BeNil(), "expected no redelegations to be found")
 			})
 
 			It("should not redelegate when the validator does not exist", func() {
@@ -2236,8 +2247,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				res, err := s.grpcHandler.GetRedelegations(s.keyring.GetAccAddr(0).String(), valAddr.String(), nonExistingVal.String())
-				Expect(err).To(BeNil())
-				Expect(res.RedelegationResponses).To(HaveLen(0), "expected no redelegations to be found")
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", s.keyring.GetAccAddr(0), nonExistingVal)))
+				Expect(res).To(BeNil())
 			})
 		})
 	})
@@ -2270,8 +2282,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				logCheckArgs,
 			)
 			Expect(err).To(BeNil(), "error while setting up an unbonding delegation: %v", err)
-
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// Check that the unbonding delegation was created
 			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
@@ -2873,6 +2884,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// delegations to the validator
 		It("should revert everything if any operation fails", func() {
 			cArgs := factory.CallArgs{
+				ContractABI: testdata.StakingCallerContract.ABI,
 				MethodName: "testApproveAndThenUndelegate",
 				Args:       []interface{}{contractAddr, big.NewInt(250), big.NewInt(500), valAddr.String()},
 			}
@@ -2897,6 +2909,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("should write to state if all operations succeed", func() {
 			cArgs := factory.CallArgs{
+				ContractABI: testdata.StakingCallerContract.ABI,
 				MethodName: "testApproveAndThenUndelegate",
 				Args:       []interface{}{contractAddr, big.NewInt(1000), big.NewInt(500), valAddr.String()},
 			}
