@@ -503,15 +503,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 
 			It("should not delegate if the account has no sufficient balance", func() {
-				// send funds away from account to only have target balance remaining
-				res, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
-				Expect(err).To(BeNil(), "error while getting balance")
-
-				targetBalance := math.NewInt(1e17)
-				sentBalance := res.Balance.Amount.Sub(targetBalance)
 				newAddr, newAddrPriv := testutiltx.NewAccAddressAndKey()
-
-				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), newAddr, sentBalance)
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), newAddr, math.NewInt(1e17))
 				Expect(err).To(BeNil(), "error while sending coins")
 				Expect(s.network.NextBlock()).To(BeNil())
 
@@ -749,11 +742,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to cancel an unbonding delegation", func() {
-		var (
-			// expCreationHeight is the expected creation height of the unbonding delegation
-			expCreationHeight = int64(3)
-		)
-
 		BeforeEach(func() {
 			callArgs.MethodName = staking.CancelUnbondingDelegationMethod
 
@@ -778,6 +766,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(err).To(BeNil(), "error while setting up an unbonding delegation: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
+			creationHeight := s.network.GetContext().BlockHeight()
+
 			// Check that the unbonding delegation was created
 			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(s.keyring.GetAccAddr(0).String())
 			Expect(err).To(BeNil())
@@ -785,7 +775,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.keyring.GetAddr(0).Bytes()).String()), "expected delegator address to be %s", s.keyring.GetAddr(0))
 			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
+			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(creationHeight), "expected different creation height")
 			Expect(res.UnbondingResponses[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
@@ -795,8 +785,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(err).To(BeNil())
 				Expect(valDelRes.DelegationResponses).To(HaveLen(0))
 
+				creationHeight := s.network.GetContext().BlockHeight()
 				callArgs.Args = []interface{}{
-					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(1e18), big.NewInt(creationHeight),
 				}
 
 				logCheckArgs := passCheck.
@@ -821,8 +812,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 
 			It("should not cancel an unbonding delegation if the amount is not correct", func() {
+				creationHeight := s.network.GetContext().BlockHeight()
 				callArgs.Args = []interface{}{
-					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(2e18), big.NewInt(expCreationHeight),
+					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(2e18), big.NewInt(creationHeight),
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("amount is greater than the unbonding delegation entry balance")
@@ -841,8 +833,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 
 			It("should not cancel an unbonding delegation if the creation height is not correct", func() {
+				creationHeight := s.network.GetContext().BlockHeight()
 				callArgs.Args = []interface{}{
-					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight + 1),
+					s.keyring.GetAddr(0), valAddr.String(), big.NewInt(1e18), big.NewInt(creationHeight + 1),
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("unbonding delegation entry is not found at block height")
@@ -1124,14 +1117,18 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// unbond a delegation
 			s.SetupApproval(s.keyring.GetPrivKey(0), s.precompile.Address(), abi.MaxUint256, []string{staking.UndelegateMsg})
 
-			callArgs.MethodName = staking.UndelegateMethod
-			callArgs.Args = []interface{}{
-				s.keyring.GetAddr(0), valAddr.String(), undelAmount,
+			undelegateArgs := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName: staking.UndelegateMethod,
+				Args: []interface{}{
+					s.keyring.GetAddr(0), valAddr.String(), undelAmount,
+				},
 			}
+
 			unbondCheck := passCheck.WithExpEvents(staking.EventTypeUnbond)
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
-				txArgs, callArgs,
+				txArgs, undelegateArgs,
 				unbondCheck,
 			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1293,6 +1290,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
 
+			txArgs.GasLimit = 500_000
 			for _, args := range redelegationsArgs {
 				_, _, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -1300,6 +1298,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 					logCheckArgs,
 				)
 				Expect(err).To(BeNil(), "error while creating redelegation: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 			}
 		})
 
@@ -1364,6 +1363,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 					passCheck,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				var redelOut staking.RedelegationsOutput
 				err = s.precompile.UnpackIntoInterface(&redelOut, staking.RedelegationsMethod, ethRes.Ret)
@@ -1442,7 +1442,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 		res, _, err := s.factory.CallContractAndCheckLogs(
 			s.keyring.GetPrivKey(0),
-			txArgs, callArgs,
+			txArgs, approveCallArgs,
 			approvalCheck,
 		)
 		Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -3362,7 +3362,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			res, err := s.grpcHandler.GetDelegation(s.keyring.GetAccAddr(0).String(), validator.String())
 			Expect(err).To(BeNil())
 			Expect(res.DelegationResponse).NotTo(BeNil())
-			
+
 			delegationPre := res.DelegationResponse.Delegation
 			sharesPre := delegationPre.GetShares()
 

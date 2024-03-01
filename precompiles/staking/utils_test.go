@@ -166,7 +166,7 @@ func (s *PrecompileTestSuite) SetupApproval(
 		granterAddr,
 		grantee,
 		res,
-		s.network.GetContext().BlockHeight()-1,
+		s.network.GetContext().BlockHeight(),
 		msgTypes,
 		amount,
 	)
