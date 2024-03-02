@@ -6,7 +6,7 @@
     cmd: 'evmosd',
     'start-flags': '--trace',
     'app-config': {
-      'app-db-backend': 'goleveldb',      
+      'app-db-backend': 'goleveldb',
       'minimum-gas-prices': '0aevmos',
       'index-events': ['ethereum_tx.ethereumTxHash'],
       'json-rpc': {
@@ -18,6 +18,7 @@
         'logs-cap': 10000,
         'fix-revert-gas-refund-height': 1,
         enable: true,
+        'allow-insecure-unlock': false,
       },
       api: {
         enable: true
@@ -67,12 +68,12 @@
           params: {
             bond_denom: 'aevmos',
           },
-        },     
+        },
         inflation: {
           params: {
             mint_denom: 'aevmos',
           },
-        },           
+        },
         gov: {
           voting_params: {
             voting_period: '10s',
@@ -94,7 +95,7 @@
               },
             ],
             max_deposit_period: '10s',
-            voting_period: '10s',            
+            voting_period: '10s',
           },
         },
         transfer: {
