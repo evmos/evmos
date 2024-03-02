@@ -525,11 +525,6 @@ func NewEvmos(
 		),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(),
-	)
-	// NOTE: app.Erc20Keeper is already initialized elsewhere
-
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
