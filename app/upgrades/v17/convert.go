@@ -75,10 +75,6 @@ func performTask(task []string, id int,
 			state := evmKeeper.GetState(ctx, pair, key)
 			stateHex := state.Hex()
 			balance, _ := new(big.Int).SetString(stateHex, 0)
-			if balance == nil {
-				return nil, fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", pair, account)
-			}
-
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
