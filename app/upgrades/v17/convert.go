@@ -41,71 +41,51 @@ func worker(
 	ctx sdk.Context,
 	evmKeeper evmkeeper.Keeper,
 	wrappedAddr common.Address,
-	nativeTokenPairs []erc20types.TokenPair,
+	nativeTokenPairs parseTokenPairs,
 ) error {
 	for {
 		select {
 		case task, ok := <-tasks:
 			if !ok {
-				fmt.Printf("Worker %d stopping due to channel closed\n", id)
 				return nil // Channel closed, stop the worker
 			}
 
 			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
-				fmt.Println("Error received: ", err)
 				return err
 			}
 			results <- processResults
 		case <-workerCtx.Done():
-			// Context cancelled, stop the worker
-			fmt.Printf("Worker %d stopping due to cancellation\n", id)
 			return nil
 		}
 	}
 }
 
 func performTask(task []string, id int,
-	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs []erc20types.TokenPair,
+	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
 ) ([]TelemetryResult, error) {
 	results := []TelemetryResult{}
-	i := 0
 	for _, account := range task {
-		for tokenID, pair := range tokenPairs {
-			// if account == "evmos1qqqvgqnylf3qtts70jmjxtn668w9gu4yhvz2ms" {
-			// 	continue
-			// }
-			cosmosAddress := sdk.MustAccAddressFromBech32(account)
-			ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
-			// balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), ethAddress)
-			balance := GetBalanceFromStore(ctx, evmKeeper, pair.GetERC20Contract(), ethAddress)
+		cosmosAddress := sdk.MustAccAddressFromBech32(account)
+		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
+		addrBytes := ethAddress.Bytes()
+		concatBytes := append(common.LeftPadBytes(addrBytes, 32), storeKey...)
+		key := crypto.Keccak256Hash(concatBytes)
+		for id, pair := range tokenPairs {
+			state := evmKeeper.GetState(ctx, pair, key)
+			stateHex := state.Hex()
+			balance, _ := new(big.Int).SetString(stateHex, 0)
 			if balance == nil {
-				return nil, fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", pair.GetERC20Contract(), account)
+				return nil, fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", pair, account)
 			}
 
 			if balance.Sign() > 0 {
-				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: tokenID})
-				i++
+				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
 		}
 
 	}
 	return results, nil
-}
-
-func GetBalanceFromStore(ctx sdk.Context, evmKeeper evmkeeper.Keeper, erc20contract common.Address, addr common.Address) *big.Int {
-	addrBytes := addr.Bytes()
-	// store := make([]byte, 32)
-	// store[31] = byte(2) // slot 2 contains the mapping for the balance
-	concatBytes := append(common.LeftPadBytes(addrBytes, 32), storeKey...)
-	key := crypto.Keccak256Hash(concatBytes)
-
-	state := evmKeeper.GetState(ctx, erc20contract, key)
-	stateHex := state.Hex()
-	n := new(big.Int)
-	n.SetString(stateHex, 0)
-	return n
-
 }
 
 func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
@@ -204,6 +184,8 @@ func executeConversionBatch(
 	return nil
 }
 
+type parseTokenPairs = []common.Address
+
 // ConvertERC20Coins converts Native IBC coins from their ERC20 representation
 // to the native representation. This also includes the withdrawal of WEVMOS tokens
 // to EVMOS native tokens.
@@ -218,8 +200,8 @@ func ConvertERC20Coins(
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 
-	numWorkers := 100
-	batchSize := 1000
+	numWorkers := 1000
+	batchSize := 2000
 
 	g := new(errgroup.Group)
 	// Create a context to cancel the workers in case of an error
@@ -229,11 +211,18 @@ func ConvertERC20Coins(
 	tasks := make(chan []string, numWorkers)
 	results := make(chan []TelemetryResult, numWorkers)
 
+	tokenPairs := make(parseTokenPairs, len(nativeTokenPairs))
+	for i := range nativeTokenPairs {
+		tokenPairs[i] = nativeTokenPairs[i].GetERC20Contract()
+	}
+
 	// Fan-out: Create worker goroutines
 	for w := 1; w <= numWorkers; w++ {
+		pairsCopy := make(parseTokenPairs, len(tokenPairs))
+		copy(pairsCopy, tokenPairs)
 		func(w int) {
 			g.Go(func() error {
-				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, nativeTokenPairs)
+				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
 			})
 		}(w)
 	}
@@ -298,29 +287,6 @@ func getNativeTokenPairs(
 	})
 
 	return nativeTokenPairs
-}
-
-// ConvertERC20Token converts the given ERC20 token to the native representation.
-func ConvertERC20Token(
-	ctx sdk.Context,
-	from, contract common.Address,
-	receiver sdk.AccAddress,
-	erc20Keeper erc20keeper.Keeper,
-	tokenPair erc20types.TokenPair,
-) error {
-	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, from)
-	if balance == nil {
-		return fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", contract.String(), from.String())
-	}
-
-	if balance.Sign() <= 0 {
-		return nil
-	}
-
-	msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), receiver, contract, from)
-	_, err := erc20Keeper.ConvertSTRV2(ctx, tokenPair, msg, receiver, from, balance)
-
-	return err
 }
 
 // WithdrawWEVMOS withdraws all the WEVMOS tokens from the given account.
