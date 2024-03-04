@@ -4,7 +4,6 @@ package ics20_test
 
 import (
 	"cosmossdk.io/math"
-	"fmt"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -62,7 +61,6 @@ func (s *PrecompileTestSuite) setupIBCCoordinator() {
 	)
 
 	IBCCoordinator.SetDefaultSignerForChain(s.network.GetChainID(), ibcSenderPrivKey, ibcAcc)
-	fmt.Println(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIds()[0])
 	IBCCoordinator.Setup(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIds()[0])
 
 	err = IBCCoordinator.CommitAll()

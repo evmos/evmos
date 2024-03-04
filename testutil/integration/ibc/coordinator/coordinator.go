@@ -108,9 +108,8 @@ func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 	chainA := c.coord.GetChain(a)
 	chainB := c.coord.GetChain(b)
 
-	path := ibcgotesting.NewTransferPath(chainA, chainB)
-	c.coord.Setup(path)
-	//ibctesting.SetupPath(c.coord, path)
+	path := ibctesting.NewTransferPath(chainA, chainB)
+	ibctesting.SetupPath(c.coord, path)
 
 	return IBCConnection{
 		EndpointA: Endpoint{
