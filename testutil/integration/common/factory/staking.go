@@ -72,7 +72,7 @@ func (tf *stakingTxFactory) CreateValidator(operatorPriv cryptotypes.PrivKey, pu
 	})
 
 	if resp.Code != 0 {
-		err = fmt.Errorf("received error code %d on Delegate transaction. Logs: %s", resp.Code, resp.Log)
+		err = fmt.Errorf("received error code %d on CreateValidator transaction. Logs: %s", resp.Code, resp.Log)
 	}
 
 	return err
