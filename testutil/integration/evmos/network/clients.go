@@ -17,7 +17,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
@@ -45,12 +44,6 @@ func (n *IntegrationNetwork) GetGovClient() govtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	govtypes.RegisterQueryServer(queryHelper, n.app.GovKeeper)
 	return govtypes.NewQueryClient(queryHelper)
-}
-
-func (n *IntegrationNetwork) GetRevenueClient() revtypes.QueryClient {
-	queryHelper := getQueryHelper(n.GetContext())
-	revtypes.RegisterQueryServer(queryHelper, n.app.RevenueKeeper)
-	return revtypes.NewQueryClient(queryHelper)
 }
 
 func (n *IntegrationNetwork) GetBankClient() banktypes.QueryClient {

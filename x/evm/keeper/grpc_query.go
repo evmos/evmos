@@ -10,8 +10,6 @@ import (
 	"math/big"
 	"time"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-
 	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 
@@ -30,6 +28,7 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 
 	evmostypes "github.com/evmos/evmos/v16/types"
+	evmante "github.com/evmos/evmos/v16/x/evm/ante"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -373,9 +372,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 			}
 			// resetting the gasMeter after increasing the sequence to have an accurate gas estimation on EVM extensions transactions
 			gasMeter := evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())
-			tmpCtx = tmpCtx.WithGasMeter(gasMeter).
-				WithKVGasConfig(storetypes.GasConfig{}).
-				WithTransientKVGasConfig(storetypes.GasConfig{})
+			tmpCtx = evmante.BuildEvmExecutionCtx(tmpCtx).WithGasMeter(gasMeter)
 		}
 		// pass false to not commit StateDB
 		rsp, err = k.ApplyMessageWithConfig(tmpCtx, msg, nil, false, cfg, txConfig)
@@ -476,9 +473,8 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		txConfig.TxHash = ethTx.Hash()
 		txConfig.TxIndex = uint(i)
 		// reset gas meter for each transaction
-		ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).
-			WithKVGasConfig(storetypes.GasConfig{}).
-			WithTransientKVGasConfig(storetypes.GasConfig{})
+		ctx = evmante.BuildEvmExecutionCtx(ctx).
+			WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
 		rsp, err := k.ApplyMessageWithConfig(ctx, msg, types.NewNoOpTracer(), true, cfg, txConfig)
 		if err != nil {
 			continue
@@ -663,16 +659,9 @@ func (k *Keeper) traceTx(
 		}
 	}()
 
-	// In order to be on in sync with the tx execution gas meter,
-	// we need to:
-	// 1. Reset GasMeter with InfiniteGasMeterWithLimit
-	// 2. Setup an empty KV gas config for gas to be calculated by opcodes
-	// and not kvstore actions
-	// 3. Setup an empty transient KV gas config for transient gas to be
-	// calculated by opcodes
-	ctx = ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
+	// Build EVM execution context
+	ctx = evmante.BuildEvmExecutionCtx(ctx).
+		WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas()))
 	res, err := k.ApplyMessageWithConfig(ctx, msg, tracer, commitMessage, cfg, txConfig)
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())

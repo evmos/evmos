@@ -48,6 +48,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outposts) [#2323](https://github.com/evmos/evmos/pull/2323) Remove Go Outposts and relevant tests.
 - (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
+- (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
+- (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
 
 ### Bug Fixes
 
@@ -70,11 +72,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+- (evm) [#2307](https://github.com/evmos/evmos/pull/2307) Add global BuildEVMExecutionCtx function.
 - (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
 - (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (cli) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
 - (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
+- (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
