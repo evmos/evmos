@@ -1022,6 +1022,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			err = s.factory.CreateClawbackVestingAccount(s.keyring.GetPrivKey(vestingAccIdx), s.keyring.GetAccAddr(0), false)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
+
+			// Fund vesting account
+			err = s.factory.FundVestingAccount(s.keyring.GetPrivKey(0), s.keyring.GetAccAddr(vestingAccIdx), time.Now(), sdkLockupPeriods, sdkVestingPeriods)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
 		})
 
 		for _, callType := range callTypes {
@@ -1063,7 +1068,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					convertClawbackCheck = failCheck.WithErrContains("vesting coins still left in account")
 				}
 
-				txArgs.GasLimit = 300_000
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, convertClawbackCheck)
 				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
@@ -1094,7 +1098,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					convertClawbackCheck = failCheck.WithErrContains("sender is not the funder")
 				}
 
-				txArgs.GasLimit = 300_000
 				_, _, err = s.factory.CallContractAndCheckLogs(differentPriv, txArgs, callArgs, convertClawbackCheck)
 				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
