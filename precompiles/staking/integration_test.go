@@ -9,12 +9,12 @@ import (
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
-
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -1932,7 +1932,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			callArgs.Args = []interface{}{contractAddr, []string{staking.UndelegateMsg}}
 
@@ -2106,31 +2106,32 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				// create a new validator, which is not included in the active set of the last block
 				commValue := math.LegacyNewDecWithPrec(5, 2)
 				commission := stakingtypes.NewCommissionRates(commValue, commValue, commValue)
-				validatorKey := s.keyring.GetKey(0)
-				err := s.factory.CreateValidator(validatorKey.Priv, validatorKey.Priv.PubKey(), sdk.NewCoin(s.bondDenom, math.NewInt(1)), stakingtypes.Description{Moniker: "NewValidator"}, commission, math.NewInt(1))
+				validatorKey := ed25519.GenPrivKey()
+				delegator := s.keyring.GetKey(0)
+				err := s.factory.CreateValidator(delegator.Priv, validatorKey.PubKey(), sdk.NewCoin(s.bondDenom, math.NewInt(1)), stakingtypes.Description{Moniker: "NewValidator"}, commission, math.NewInt(1))
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
-				newValAddr := sdk.ValAddress(validatorKey.AccAddr)
+				newValAddr := sdk.ValAddress(delegator.AccAddr.Bytes())
 
-				res, err := s.grpcHandler.GetDelegation(validatorKey.AccAddr.String(), newValAddr.String())
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), newValAddr.String())
 				Expect(err).To(BeNil())
 				Expect(res.DelegationResponse).NotTo(BeNil())
 				prevDelegation = res.DelegationResponse.Delegation
 
 				callArgs.Args = []interface{}{
-					validatorKey.Addr, newValAddr.String(), big.NewInt(2e18),
+					delegator.Addr, newValAddr.String(), big.NewInt(2e18),
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(
-					validatorKey.Priv,
+					delegator.Priv,
 					txArgs, callArgs,
 					execRevertedCheck,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 				Expect(s.network.NextBlock()).To(BeNil())
 
-				res, err = s.grpcHandler.GetDelegation(validatorKey.AccAddr.String(), newValAddr.String())
+				res, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), newValAddr.String())
 				Expect(err).To(BeNil())
 				Expect(res.DelegationResponse).NotTo(BeNil())
 
@@ -2440,7 +2441,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			delegator := s.keyring.GetKey(0)
 			undelegateArgs := factory.CallArgs{
@@ -2503,7 +2504,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-				s.network.NextBlock()
+				Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 			})
 
 			It("should cancel unbonding delegations when not exceeding allowance", func() {
@@ -2912,7 +2913,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			}
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			// set up redelegation
 			redelegateArgs := factory.CallArgs{
@@ -2972,7 +2973,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
 			}
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			// set up redelegation
 			redelegateArgs := factory.CallArgs{
@@ -3033,7 +3034,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 			delegator := s.keyring.GetKey(0)
 
 			undelegateArgs := factory.CallArgs{
@@ -3185,7 +3186,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
 
-			s.network.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 		})
 
 		for _, tc := range testcases {
