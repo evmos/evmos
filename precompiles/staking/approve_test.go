@@ -2,9 +2,10 @@ package staking_test
 
 import (
 	"fmt"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"math/big"
 	"time"
+
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"

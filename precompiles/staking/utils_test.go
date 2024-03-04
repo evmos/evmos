@@ -2,9 +2,10 @@ package staking_test
 
 import (
 	"fmt"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"math/big"
 	"time"
+
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"

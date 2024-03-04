@@ -3,8 +3,9 @@ package staking_test
 import (
 	"encoding/base64"
 	"fmt"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"math/big"
+
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
