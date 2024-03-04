@@ -98,25 +98,7 @@ func gasSStore(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySi
 		y, x    = stack.Back(1), stack.Back(0)
 		current = evm.StateDB.GetState(contract.Address(), x.Bytes32())
 	)
-	// The legacy gas metering only takes into consideration the current state
-	// Legacy rules should be applied if we are in Petersburg (removal of EIP-1283)
-	// OR Constantinople is not active
-	if evm.chainRules.IsPetersburg || !evm.chainRules.IsConstantinople {
-		// This checks for 3 scenario's and calculates gas accordingly:
-		//
-		// 1. From a zero-value address to a non-zero value         (NEW VALUE)
-		// 2. From a non-zero value address to a zero-value address (DELETE)
-		// 3. From a non-zero to a non-zero                         (CHANGE)
-		switch {
-		case current == (common.Hash{}) && y.Sign() != 0: // 0 => non 0
-			return params.SstoreSetGas, nil
-		case current != (common.Hash{}) && y.Sign() == 0: // non 0 => 0
-			evm.StateDB.AddRefund(params.SstoreRefundGas)
-			return params.SstoreClearGas, nil
-		default: // non 0 => non 0 (or 0 => 0)
-			return params.SstoreResetGas, nil
-		}
-	}
+
 	// The new gas metering is based on net gas costs (EIP-1283):
 	//
 	// 1. If current value equals new value (this is a no-op), 200 gas is deducted.
@@ -331,13 +313,11 @@ func gasCall(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize
 		transfersValue = !stack.Back(2).IsZero()
 		address        = common.Address(stack.Back(1).Bytes20())
 	)
-	if evm.chainRules.IsEIP158 {
-		if transfersValue && evm.StateDB.Empty(address) {
-			gas += params.CallNewAccountGas
-		}
-	} else if !evm.StateDB.Exist(address) {
+
+	if transfersValue && evm.StateDB.Empty(address) {
 		gas += params.CallNewAccountGas
 	}
+
 	if transfersValue {
 		gas += params.CallValueTransferGas
 	}
@@ -350,7 +330,7 @@ func gasCall(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize
 		return 0, ErrGasUintOverflow
 	}
 
-	evm.callGasTemp, err = callGas(evm.chainRules.IsEIP150, contract.Gas, gas, stack.Back(0))
+	evm.callGasTemp, err = callGas(contract.Gas, gas, stack.Back(0))
 	if err != nil {
 		return 0, err
 	}
@@ -375,7 +355,7 @@ func gasCallCode(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memory
 	if gas, overflow = math.SafeAdd(gas, memoryGas); overflow {
 		return 0, ErrGasUintOverflow
 	}
-	evm.callGasTemp, err = callGas(evm.chainRules.IsEIP150, contract.Gas, gas, stack.Back(0))
+	evm.callGasTemp, err = callGas(contract.Gas, gas, stack.Back(0))
 	if err != nil {
 		return 0, err
 	}
@@ -390,7 +370,7 @@ func gasDelegateCall(evm *EVM, contract *Contract, stack *Stack, mem *Memory, me
 	if err != nil {
 		return 0, err
 	}
-	evm.callGasTemp, err = callGas(evm.chainRules.IsEIP150, contract.Gas, gas, stack.Back(0))
+	evm.callGasTemp, err = callGas(contract.Gas, gas, stack.Back(0))
 	if err != nil {
 		return 0, err
 	}
@@ -406,7 +386,7 @@ func gasStaticCall(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memo
 	if err != nil {
 		return 0, err
 	}
-	evm.callGasTemp, err = callGas(evm.chainRules.IsEIP150, contract.Gas, gas, stack.Back(0))
+	evm.callGasTemp, err = callGas(contract.Gas, gas, stack.Back(0))
 	if err != nil {
 		return 0, err
 	}
@@ -420,18 +400,12 @@ func gasStaticCall(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memo
 func gasSelfdestruct(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize uint64) (uint64, error) {
 	var gas uint64
 	// EIP150 homestead gas reprice fork:
-	if evm.chainRules.IsEIP150 {
-		gas = params.SelfdestructGasEIP150
-		address := common.Address(stack.Back(0).Bytes20())
+	gas = params.SelfdestructGasEIP150
+	address := common.Address(stack.Back(0).Bytes20())
 
-		if evm.chainRules.IsEIP158 {
-			// if empty and transfers value
-			if evm.StateDB.Empty(address) && evm.StateDB.GetBalance(contract.Address()).Sign() != 0 {
-				gas += params.CreateBySelfdestructGas
-			}
-		} else if !evm.StateDB.Exist(address) {
-			gas += params.CreateBySelfdestructGas
-		}
+	// if empty and transfers value
+	if evm.StateDB.Empty(address) && evm.StateDB.GetBalance(contract.Address()).Sign() != 0 {
+		gas += params.CreateBySelfdestructGas
 	}
 
 	if !evm.StateDB.HasSuicided(contract.Address()) {

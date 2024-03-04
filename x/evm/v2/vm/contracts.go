@@ -159,33 +159,13 @@ var (
 )
 
 // DefaultActivePrecompiles returns the set of precompiles enabled with the default configuration.
-func DefaultActivePrecompiles(rules params.Rules) []common.Address {
-	switch {
-	case rules.IsBerlin:
-		return PrecompiledAddressesBerlin
-	case rules.IsIstanbul:
-		return PrecompiledAddressesIstanbul
-	case rules.IsByzantium:
-		return PrecompiledAddressesByzantium
-	default:
-		return PrecompiledAddressesHomestead
-	}
+func DefaultActivePrecompiles() []common.Address {
+	return PrecompiledAddressesHomestead
 }
 
 // DefaultPrecompiles define the mapping of address and precompiles from the default configuration
-func DefaultPrecompiles(rules params.Rules) (precompiles map[common.Address]PrecompiledContract) {
-	switch {
-	case rules.IsBerlin:
-		precompiles = PrecompiledContractsBerlin
-	case rules.IsIstanbul:
-		precompiles = PrecompiledContractsIstanbul
-	case rules.IsByzantium:
-		precompiles = PrecompiledContractsByzantium
-	default:
-		precompiles = PrecompiledContractsHomestead
-	}
-
-	return precompiles
+func DefaultPrecompiles() (precompiles map[common.Address]PrecompiledContract) {
+	return PrecompiledContractsHomestead
 }
 
 // ActivePrecompiles returns the precompiles enabled with the current configuration.

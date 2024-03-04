@@ -61,31 +61,8 @@ var (
 type JumpTable [256]*operation
 
 // DefaultJumpTable defines the default jump table used by the EVM interpreter.
-func DefaultJumpTable(rules params.Rules) (jumpTable *JumpTable) {
-	switch {
-	case rules.IsMerge:
-		jumpTable = &MergeInstructionSet
-	case rules.IsLondon:
-		jumpTable = &LondonInstructionSet
-	case rules.IsBerlin:
-		jumpTable = &BerlinInstructionSet
-	case rules.IsIstanbul:
-		jumpTable = &IstanbulInstructionSet
-	case rules.IsConstantinople:
-		jumpTable = &ConstantinopleInstructionSet
-	case rules.IsByzantium:
-		jumpTable = &ByzantiumInstructionSet
-	case rules.IsEIP158:
-		jumpTable = &SpuriousDragonInstructionSet
-	case rules.IsEIP150:
-		jumpTable = &TangerineWhistleInstructionSet
-	case rules.IsHomestead:
-		jumpTable = &HomesteadInstructionSet
-	default:
-		jumpTable = &FrontierInstructionSet
-	}
-
-	return jumpTable
+func DefaultJumpTable() (jumpTable *JumpTable) {
+	return &FrontierInstructionSet
 }
 
 // Validate checks if all the operations are set and if they are valid according to the

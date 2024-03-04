@@ -70,7 +70,7 @@ type EVMInterpreter struct {
 func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 	// If jump table was not initialised we set the default one.
 	if cfg.JumpTable == nil {
-		cfg.JumpTable = DefaultJumpTable(evm.chainRules)
+		cfg.JumpTable = DefaultJumpTable()
 		for i, eip := range cfg.ExtraEips {
 			// Deep-copy jumptable to prevent modification of opcodes in other tables
 			copy := CopyJumpTable(cfg.JumpTable)
