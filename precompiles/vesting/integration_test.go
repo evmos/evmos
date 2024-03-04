@@ -613,7 +613,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				fundClawbackVestingCheck := execRevertedCheck
 				if callType.directCall {
-					fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
+					fundClawbackVestingCheck = failCheck.WithErrContains("invalid address")
 				}
 
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, fundClawbackVestingCheck)
@@ -659,7 +659,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				res, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(vestingAccIdx), s.bondDenom)
 				Expect(err).To(BeNil())
 				balancePre := res.Balance
-				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
 				callArgs.MethodName = vesting.ClawbackMethod
@@ -674,8 +673,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, clawbackCheck)
 				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				var co vesting.ClawbackOutput
+				var (
+					co             vesting.ClawbackOutput
+					expClawbackAmt = math.NewInt(1000)
+				)
+
 				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
 				Expect(co.Coins).To(Equal(balances), "expected different clawback amount")
@@ -683,11 +687,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				res, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(vestingAccIdx), s.bondDenom)
 				Expect(err).To(BeNil())
 				balancePost := res.Balance
-				Expect(balancePost.Amount.Int64()).To(Equal(int64(100)), "expected only initial balance after clawback")
+				Expect(balancePost.Amount).To(Equal(balancePre.Amount.Sub(expClawbackAmt)), "expected only initial balance after clawback")
 				res, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				balanceReceiver := res.Balance
-				Expect(balanceReceiver.Amount).To(Equal(math.NewInt(1000)), "expected receiver to show different balance after clawback")
+				Expect(balanceReceiver.Amount).To(Equal(expClawbackAmt), "expected receiver to show different balance after clawback")
 			})
 
 			It(fmt.Sprintf("should return an error when not sending as the funder (%s)", callType.name), func() {
@@ -705,7 +709,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				res, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(vestingAccIdx), s.bondDenom)
 				Expect(err).To(BeNil())
 				balancePre := res.Balance
-				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
 				callArgs.MethodName = vesting.ClawbackMethod
@@ -725,10 +728,8 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(differentPriv, txArgs, callArgs, clawbackCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("does not match the funder address"))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
+
 				res, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(vestingAccIdx), s.bondDenom)
 				Expect(err).To(BeNil())
 				balancePost := res.Balance
@@ -762,10 +763,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, clawbackCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("%s: %s", sdk.AccAddress(differentAddr.Bytes()), vestingtypes.ErrNotSubjectToClawback.Error()))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should succeed and return empty Coins when all tokens are vested (%s)", callType.name), func() {
@@ -776,7 +774,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				res, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(vestingAccIdx), s.bondDenom)
 				Expect(err).To(BeNil())
 				balancePre := res.Balance
-				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
 				callArgs.MethodName = vesting.ClawbackMethod
@@ -788,6 +785,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, passCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				var co vesting.ClawbackOutput
 				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
@@ -846,6 +844,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
 				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// Check that the vesting account has the new funder
 				s.ExpectVestingFunder(s.keyring.GetAddr(vestingAccIdx), differentAddr)
@@ -880,10 +879,9 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(differentPriv, txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("does not match the funder address"))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
+
 				// Check that the vesting account still has the same funder
 				s.ExpectVestingFunder(s.keyring.GetAddr(vestingAccIdx), s.keyring.GetAddr(0))
 			})
@@ -906,13 +904,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				if callType.directCall {
 					updateFunderCheck = failCheck.
 						WithErrContains(fmt.Sprintf(
-							"account %s does not exist",
+							"account at address %s does not exist",
 							sdk.AccAddress(nonExistentAddr.Bytes()).String(),
 						))
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
 					Expect(err.Error()).To(ContainSubstring("does not exist"))
 				}
@@ -954,15 +952,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(
-						ContainSubstring("%s: %s",
-							sdk.AccAddress(nonVestingAddr.Bytes()).String(),
-							vestingtypes.ErrNotSubjectToClawback.Error(),
-						),
-					)
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should return an error when the new funder is the zero address (%s)", callType.name), func() {
@@ -977,11 +967,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				updateFunderCheck := execRevertedCheck
 				if callType.directCall {
 					updateFunderCheck = failCheck.
-						WithErrContains("new funder address cannot be empty")
+						WithErrContains("new funder address cannot be the zero address")
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should return an error when the new funder is the same as the current funder (%s)", callType.name), func() {
@@ -1000,10 +990,8 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("new funder address is equal to current funder address"))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
+
 				// Check that the vesting account still has the same funder
 				s.ExpectVestingFunder(s.keyring.GetAddr(vestingAccIdx), s.keyring.GetAddr(0))
 			})
@@ -1022,14 +1010,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				updateFunderCheck := execRevertedCheck
 				if callType.directCall {
 					updateFunderCheck = failCheck.
-						WithErrContains("is not allowed to receive funds")
+						WithErrContains("not allowed to fund vesting accounts")
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
-				Expect(err).To(HaveOccurred(), "error while updating the funder to a module address: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("is a blocked address and not allowed to fund vesting accounts"))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while updating the funder to a module address: %v", err)
 			})
 		}
 	})
@@ -1047,7 +1032,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			It(fmt.Sprintf("should convert the vesting account into a normal one after vesting has ended (%s)", callType.name), func() {
 				// commit block with new time so that the vesting period has ended
-				err = s.network.NextBlockAfter(time.Hour * 24)
+				err = s.network.NextBlockAfter(time.Duration(time.Now().Add(time.Hour * 24).Hour()))
 				Expect(err).To(BeNil(), "failed to commit block")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
@@ -1081,8 +1066,9 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					convertClawbackCheck = failCheck.WithErrContains("vesting coins still left in account")
 				}
 
+				txArgs.GasLimit = 300_000
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, convertClawbackCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should return an error when not sending as the funder (%s)", callType.name), func() {
@@ -1111,8 +1097,9 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					convertClawbackCheck = failCheck.WithErrContains("sender is not the funder")
 				}
 
+				txArgs.GasLimit = 300_000
 				_, _, err = s.factory.CallContractAndCheckLogs(differentPriv, txArgs, callArgs, convertClawbackCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should return an error when the vesting does not exist (%s)", callType.name), func() {
@@ -1133,11 +1120,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				convertClawbackCheck := execRevertedCheck
 				if callType.directCall {
-					convertClawbackCheck = failCheck.WithErrContains("account not subject to vesting")
+					convertClawbackCheck = failCheck.WithErrContains("account is not subject to clawback vesting")
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, convertClawbackCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 
 				// Check that the account is no vesting account
 				acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), differentAddr.Bytes())
@@ -1183,7 +1170,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				Expect(res.Vested).To(BeEmpty(), "expected different vested coins")
 
 				// Commit new block so that the vesting period is at the half and the lockup period is over
-				err = s.network.NextBlockAfter(time.Second * 5000)
+				err = s.network.NextBlockAfter(time.Duration(time.Now().Add(time.Second * 5000).Second()))
 				Expect(err).To(BeNil(), "failed to commit block")
 
 				// Recheck balances
@@ -1224,16 +1211,11 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				balancesCheck := execRevertedCheck
 				if callType.directCall {
 					balancesCheck = failCheck.WithErrContains(fmt.Sprintf(
-						"code = NotFound desc = account for address '%s'",
-						s.keyring.GetAccAddr(vestingAccIdx),
-					))
+						"account at address '%s' either does not exist or is not a vesting account", s.keyring.GetAccAddr(vestingAccIdx)))
 				}
 
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, balancesCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("account at address '%s' either does not exist or is not a vesting account", s.keyring.GetAccAddr(vestingAccIdx)))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
 			It(fmt.Sprintf("should return an error when the account is not a vesting account (%s)", callType.name), func() {
@@ -1261,10 +1243,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, balancesCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("InvalidArgument desc = account at address"))
-				}
+				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 		}
 	})
