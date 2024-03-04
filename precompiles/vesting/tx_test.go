@@ -38,6 +38,7 @@ var (
 )
 
 func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.CreateClawbackVestingAccountMethod]
 
 	testCases := []struct {
@@ -77,7 +78,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 			func() []interface{} {
 				return []interface{}{
 					funderAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 					false,
 				}
 			},
@@ -88,7 +89,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				s.Require().Equal(success[0], true)
 
 				// Check if the vesting account was created
-				_, err = s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: sdk.AccAddress(s.address.Bytes()).String()})
+				_, err = s.network.App.VestingKeeper.Balances(ctx, &vestingtypes.QueryBalancesRequest{Address: s.keyring.GetAccAddr(0).String()})
 				s.Require().NoError(err)
 			},
 			false,
@@ -99,8 +100,9 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
-			bz, err := s.precompile.CreateClawbackVestingAccount(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.CreateClawbackVestingAccount(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -114,6 +116,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 }
 
 func (s *PrecompileTestSuite) TestFundVestingAccount() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 
 	testCases := []struct {
@@ -153,10 +156,10 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.address, toAddr)
-				err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
+				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					toAddr,
 					uint64(time.Now().Unix()),
 					lockupPeriods,
@@ -170,7 +173,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 				s.Require().Equal(success[0], true)
 
 				// Check if the vesting account was created
-				vestingAcc, err := s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: sdk.AccAddress(toAddr.Bytes()).String()})
+				vestingAcc, err := s.network.App.VestingKeeper.Balances(ctx, &vestingtypes.QueryBalancesRequest{Address: sdk.AccAddress(toAddr.Bytes()).String()})
 				s.Require().NoError(err)
 				s.Require().Equal(vestingAcc.Locked, balancesSdkCoins)
 				s.Require().Equal(vestingAcc.Unvested, balancesSdkCoins)
@@ -183,11 +186,12 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.FundVestingAccount(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.FundVestingAccount(ctx, contract, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -201,6 +205,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 }
 
 func (s *PrecompileTestSuite) TestClawback() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.ClawbackMethod]
 
 	testCases := []struct {
@@ -228,7 +233,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 				return []interface{}{
 					differentAddr,
 					toAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 				}
 			},
 			gas:         200000,
@@ -238,12 +243,12 @@ func (s *PrecompileTestSuite) TestClawback() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.address, toAddr)
+				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
 				s.FundTestClawbackVestingAccount()
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					toAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 				}
 			},
 			20000,
@@ -261,11 +266,12 @@ func (s *PrecompileTestSuite) TestClawback() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.Clawback(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.Clawback(ctx, contract, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -279,6 +285,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 }
 
 func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.UpdateVestingFunderMethod]
 
 	testCases := []struct {
@@ -306,7 +313,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 				return []interface{}{
 					differentAddr,
 					toAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 				}
 			},
 			gas:         200000,
@@ -316,13 +323,13 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.address, toAddr)
-				vestingAcc := s.app.AccountKeeper.GetAccount(s.ctx, toAddr.Bytes())
+				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				vestingAcc := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
 				va, ok := vestingAcc.(*vestingtypes.ClawbackVestingAccount)
 				s.Require().True(ok)
-				s.Require().Equal(va.FunderAddress, sdk.AccAddress(s.address.Bytes()).String())
+				s.Require().Equal(va.FunderAddress, s.keyring.GetAccAddr(0).String())
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					diffFunderAddr,
 					toAddr,
 				}
@@ -334,7 +341,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 				s.Require().Equal(success[0], true)
 
 				// Check if the vesting account has a new funder address
-				vestingAcc := s.app.AccountKeeper.GetAccount(s.ctx, toAddr.Bytes())
+				vestingAcc := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
 				va, ok := vestingAcc.(*vestingtypes.ClawbackVestingAccount)
 				s.Require().True(ok)
 				s.Require().Equal(va.FunderAddress, sdk.AccAddress(diffFunderAddr.Bytes()).String())
@@ -347,11 +354,12 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.UpdateVestingFunder(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.UpdateVestingFunder(ctx, contract, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -365,6 +373,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 }
 
 func (s *PrecompileTestSuite) TestConvertVestingAccount() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.ConvertVestingAccountMethod]
 
 	testCases := []struct {
@@ -400,7 +409,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.address, toAddr)
+				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
 				return []interface{}{
 					toAddr,
 				}
@@ -412,7 +421,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				s.Require().Equal(success[0], true)
 
 				// Check if the vesting account was converted back to an EthAccountI
-				account := s.app.AccountKeeper.GetAccount(s.ctx, toAddr.Bytes())
+				account := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
 				_, ok := account.(evmostypes.EthAccountI)
 				s.Require().True(ok)
 			},
@@ -424,8 +433,9 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
-			bz, err := s.precompile.ConvertVestingAccount(s.ctx, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.ConvertVestingAccount(ctx, s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
