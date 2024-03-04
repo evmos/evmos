@@ -9,10 +9,12 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
@@ -25,15 +27,23 @@ var (
 	balances         = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(1000)}}
 	quarter          = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(250)}}
 	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 1000))
+	quarterSdkCoins  = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
 	toAddr           = evmosutiltx.GenerateAddress()
 	funderAddr       = evmosutiltx.GenerateAddress()
 	diffFunderAddr   = evmosutiltx.GenerateAddress()
 	lockupPeriods    = []vesting.Period{{Length: 5000, Amount: balances}}
+	sdkLockupPeriods = []sdkvesting.Period{{Length: 5000, Amount: balancesSdkCoins}}
 	vestingPeriods   = []vesting.Period{
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
+	}
+	sdkVestingPeriods = []sdkvesting.Period{
+		{Length: 2000, Amount: quarterSdkCoins},
+		{Length: 2000, Amount: quarterSdkCoins},
+		{Length: 2000, Amount: quarterSdkCoins},
+		{Length: 2000, Amount: quarterSdkCoins},
 	}
 )
 
@@ -155,7 +165,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
 				err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -242,7 +252,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
 				s.FundTestClawbackVestingAccount()
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -322,7 +332,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
 				vestingAcc := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
 				va, ok := vestingAcc.(*vestingtypes.ClawbackVestingAccount)
 				s.Require().True(ok)
@@ -408,7 +418,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
 				return []interface{}{
 					toAddr,
 				}

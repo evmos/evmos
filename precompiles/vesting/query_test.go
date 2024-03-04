@@ -5,11 +5,13 @@ package vesting_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/vesting"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[vesting.BalancesMethod]
 
 	testCases := []struct {
@@ -57,7 +59,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		{
 			"success - should return vesting account balances",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount(s.keyring.GetAddr(0), toAddr)
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
 				s.FundTestClawbackVestingAccount()
 				return []interface{}{
 					toAddr,
@@ -79,8 +81,9 @@ func (s *PrecompileTestSuite) TestBalances() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			ctx = s.network.GetContext()
 
-			bz, err := s.precompile.Balances(s.network.GetContext(), &method, tc.malleate())
+			bz, err := s.precompile.Balances(ctx, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().Error(err)

@@ -29,6 +29,7 @@ import (
 // Methods are organized by build sign and broadcast type methods.
 type TxFactory interface {
 	commonfactory.CoreTxFactory
+	VestingTxFactory
 
 	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
 	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
@@ -72,6 +73,8 @@ var _ TxFactory = (*IntegrationTxFactory)(nil)
 // to the network on integration tests. This is to simulate the behavior of a real user.
 type IntegrationTxFactory struct {
 	commonfactory.CoreTxFactory
+	VestingTxFactory
+
 	grpcHandler grpc.Handler
 	network     network.Network
 	ec          *testutiltypes.TestEncodingConfig
@@ -83,11 +86,13 @@ func New(
 	grpcHandler grpc.Handler,
 ) TxFactory {
 	ec := makeConfig(app.ModuleBasics)
+	cf := commonfactory.New(network, grpcHandler, &ec)
 	return &IntegrationTxFactory{
-		CoreTxFactory: commonfactory.New(network, grpcHandler, &ec),
-		grpcHandler:   grpcHandler,
-		network:       network,
-		ec:            &ec,
+		CoreTxFactory:    cf,
+		VestingTxFactory: newVestingTxFactory(cf),
+		grpcHandler:      grpcHandler,
+		network:          network,
+		ec:               &ec,
 	}
 }
 
