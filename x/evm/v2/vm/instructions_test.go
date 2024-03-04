@@ -45,7 +45,7 @@ type twoOperandParams struct {
 var (
 	alphabetSoup = "ABCDEF090807060504030201ffffffffffffffffffffffffffffffffffffffff"
 	commonParams []*twoOperandParams
-	twoOpMethods map[string]executionFunc
+	twoOpMethods map[string]ExecutionFunc
 )
 
 func init() {
@@ -68,7 +68,7 @@ func init() {
 			commonParams[i*len(params)+j] = &twoOperandParams{x, y}
 		}
 	}
-	twoOpMethods = map[string]executionFunc{
+	twoOpMethods = map[string]ExecutionFunc{
 		"add":     opAdd,
 		"sub":     opSub,
 		"mul":     opMul,
@@ -93,7 +93,7 @@ func init() {
 	}
 }
 
-func testTwoOperandOp(t *testing.T, tests []TwoOperandTestcase, opFn executionFunc, name string) {
+func testTwoOperandOp(t *testing.T, tests []TwoOperandTestcase, opFn ExecutionFunc, name string) {
 	var (
 		env         = NewEVM(BlockContext{}, TxContext{}, nil, big1, Config{})
 		stack, err  = NewStack()
@@ -242,7 +242,7 @@ func TestWriteExpectedValues(t *testing.T) {
 	t.Skip("Enable this test to create json test cases.")
 
 	// getResult is a convenience function to generate the expected values
-	getResult := func(args []*twoOperandParams, opFn executionFunc) []TwoOperandTestcase {
+	getResult := func(args []*twoOperandParams, opFn ExecutionFunc) []TwoOperandTestcase {
 		var (
 			env         = NewEVM(BlockContext{}, TxContext{}, nil, big1, Config{})
 			stack, err  = NewStack()
@@ -290,7 +290,7 @@ func TestJsonTestcases(t *testing.T) {
 	}
 }
 
-func opBenchmark(bench *testing.B, op executionFunc, args ...string) {
+func opBenchmark(bench *testing.B, op ExecutionFunc, args ...string) {
 	var (
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, big1, Config{})
 		stack, _       = NewStack()

@@ -1,18 +1,5 @@
-// Copyright 2014 The go-ethereum Authors
-// This file is part of the go-ethereum library.
-//
-// The go-ethereum library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// The go-ethereum library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
 package vm
 
@@ -91,7 +78,7 @@ type EVM struct {
 	// chainId identifies the current chain and is used for replay protection
 
 	ChainID *big.Int
-	// virtual machine configuration options used to initialise the
+	// virtual machine configuration options used to initialize the
 	// evm.
 	Config Config
 	// global (to this context) ethereum virtual machine
@@ -108,8 +95,6 @@ type EVM struct {
 	precompiles map[common.Address]PrecompiledContract
 	// activePrecompiles defines the precompiles that are currently active
 	activePrecompiles []common.Address
-	// MaxCodeSize defines the maximum bytecode to permit for a contract
-	MaxCodeSize int
 }
 
 // NewEVM returns a new EVM. The returned EVM is not thread safe and should
@@ -452,7 +437,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	ret, err := evm.interpreter.Run(contract, nil, false)
 
 	// Check whether the max code size has been exceeded, assign err if the case.
-	if err == nil && len(ret) > params.MaxCodeSize {
+	if err == nil && len(ret) > evm.Config.MaxCodeSize {
 		err = ErrMaxCodeSizeExceeded
 	}
 

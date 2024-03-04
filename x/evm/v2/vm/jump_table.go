@@ -1,18 +1,5 @@
-// Copyright 2015 The go-ethereum Authors
-// This file is part of the go-ethereum library.
-//
-// The go-ethereum library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// The go-ethereum library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
 package vm
 
@@ -23,17 +10,18 @@ import (
 )
 
 type (
-	executionFunc func(pc *uint64, interpreter *EVMInterpreter, callContext *ScopeContext) ([]byte, error)
-	gasFunc       func(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize uint64) (uint64, error)
+	ExecutionFunc func(pc *uint64, interpreter *EVMInterpreter, callContext *ScopeContext) ([]byte, error)
+	GasFunc       func(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize uint64) (uint64, error)
 	// memorySizeFunc returns the required size, and whether the operation overflowed a uint64
-	memorySizeFunc func(*Stack) (size uint64, overflow bool)
+	MemorySizeFunc func(*Stack) (size uint64, overflow bool)
 )
 
-type operation struct {
+// Operation defines the execution instructions and configuration for each opcode.
+type Operation struct {
 	// execute is the operation function
-	execute     executionFunc
+	execute     ExecutionFunc
 	constantGas uint64
-	dynamicGas  gasFunc
+	dynamicGas  GasFunc
 	// minStack tells how many stack items are required
 	minStack int
 	// maxStack specifies the max length the stack can have for this operation
@@ -41,7 +29,25 @@ type operation struct {
 	maxStack int
 
 	// memorySize returns the memory size required for the operation
-	memorySize memorySizeFunc
+	memorySize MemorySizeFunc
+}
+
+// NewOperation returns a new Operation with the given parameters.
+func NewOperation(
+	execute ExecutionFunc,
+	constantGas uint64,
+	dynamicGas GasFunc,
+	minStack, maxStack int,
+	memorySize MemorySizeFunc,
+) *Operation {
+	return &Operation{
+		execute:     execute,
+		constantGas: constantGas,
+		dynamicGas:  dynamicGas,
+		minStack:    minStack,
+		maxStack:    maxStack,
+		memorySize:  memorySize,
+	}
 }
 
 var (
@@ -58,7 +64,7 @@ var (
 )
 
 // JumpTable contains the EVM opcodes supported at a given fork.
-type JumpTable [256]*operation
+type JumpTable [256]*Operation
 
 // DefaultJumpTable defines the default jump table used by the EVM interpreter.
 func DefaultJumpTable() (jumpTable *JumpTable) {
@@ -96,7 +102,7 @@ func (jt JumpTable) MustValidate() {
 
 func newMergeInstructionSet() JumpTable {
 	instructionSet := newLondonInstructionSet()
-	instructionSet[RANDOM] = &operation{
+	instructionSet[RANDOM] = &Operation{
 		execute:     opRandom,
 		constantGas: GasQuickStep,
 		minStack:    minStack(0, 1),
@@ -142,31 +148,31 @@ func newIstanbulInstructionSet() JumpTable {
 // byzantium and contantinople instructions.
 func newConstantinopleInstructionSet() JumpTable {
 	instructionSet := newByzantiumInstructionSet()
-	instructionSet[SHL] = &operation{
+	instructionSet[SHL] = &Operation{
 		execute:     opSHL,
 		constantGas: GasFastestStep,
 		minStack:    minStack(2, 1),
 		maxStack:    maxStack(2, 1),
 	}
-	instructionSet[SHR] = &operation{
+	instructionSet[SHR] = &Operation{
 		execute:     opSHR,
 		constantGas: GasFastestStep,
 		minStack:    minStack(2, 1),
 		maxStack:    maxStack(2, 1),
 	}
-	instructionSet[SAR] = &operation{
+	instructionSet[SAR] = &Operation{
 		execute:     opSAR,
 		constantGas: GasFastestStep,
 		minStack:    minStack(2, 1),
 		maxStack:    maxStack(2, 1),
 	}
-	instructionSet[EXTCODEHASH] = &operation{
+	instructionSet[EXTCODEHASH] = &Operation{
 		execute:     opExtCodeHash,
 		constantGas: params.ExtcodeHashGasConstantinople,
 		minStack:    minStack(1, 1),
 		maxStack:    maxStack(1, 1),
 	}
-	instructionSet[CREATE2] = &operation{
+	instructionSet[CREATE2] = &Operation{
 		execute:     opCreate2,
 		constantGas: params.Create2Gas,
 		dynamicGas:  gasCreate2,
@@ -182,7 +188,7 @@ func newConstantinopleInstructionSet() JumpTable {
 // byzantium instructions.
 func newByzantiumInstructionSet() JumpTable {
 	instructionSet := newSpuriousDragonInstructionSet()
-	instructionSet[STATICCALL] = &operation{
+	instructionSet[STATICCALL] = &Operation{
 		execute:     opStaticCall,
 		constantGas: params.CallGasEIP150,
 		dynamicGas:  gasStaticCall,
@@ -190,13 +196,13 @@ func newByzantiumInstructionSet() JumpTable {
 		maxStack:    maxStack(6, 1),
 		memorySize:  memoryStaticCall,
 	}
-	instructionSet[RETURNDATASIZE] = &operation{
+	instructionSet[RETURNDATASIZE] = &Operation{
 		execute:     opReturnDataSize,
 		constantGas: GasQuickStep,
 		minStack:    minStack(0, 1),
 		maxStack:    maxStack(0, 1),
 	}
-	instructionSet[RETURNDATACOPY] = &operation{
+	instructionSet[RETURNDATACOPY] = &Operation{
 		execute:     opReturnDataCopy,
 		constantGas: GasFastestStep,
 		dynamicGas:  gasReturnDataCopy,
@@ -204,7 +210,7 @@ func newByzantiumInstructionSet() JumpTable {
 		maxStack:    maxStack(3, 0),
 		memorySize:  memoryReturnDataCopy,
 	}
-	instructionSet[REVERT] = &operation{
+	instructionSet[REVERT] = &Operation{
 		execute:    opRevert,
 		dynamicGas: gasRevert,
 		minStack:   minStack(2, 0),
@@ -241,7 +247,7 @@ func newTangerineWhistleInstructionSet() JumpTable {
 // instructions that can be executed during the homestead phase.
 func newHomesteadInstructionSet() JumpTable {
 	instructionSet := newFrontierInstructionSet()
-	instructionSet[DELEGATECALL] = &operation{
+	instructionSet[DELEGATECALL] = &Operation{
 		execute:     opDelegateCall,
 		dynamicGas:  gasDelegateCall,
 		constantGas: params.CallGasFrontier,
@@ -1062,7 +1068,7 @@ func newFrontierInstructionSet() JumpTable {
 	// Fill all unassigned slots with opUndefined.
 	for i, entry := range tbl {
 		if entry == nil {
-			tbl[i] = &operation{execute: opUndefined, maxStack: maxStack(0, 0)}
+			tbl[i] = &Operation{execute: opUndefined, maxStack: maxStack(0, 0)}
 		}
 	}
 
