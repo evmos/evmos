@@ -898,6 +898,16 @@ func (app *Evmos) setPostHandler() {
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	logger := ctx.Logger().With("context", "STRv2 migration")
+	bondDenom := app.StakingKeeper.BondDenom(ctx)
+
+	var wevmosContract ethcommon.Address
+	if utils.IsMainnet(ctx.ChainID()) {
+		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractMainnet)
+	} else if utils.IsTestnet(ctx.ChainID()) {
+		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractTestnet)
+	} else {
+		panic("unknown chain id")
+	}
 
 	// Log the token supply for the individual registered token pairs
 	err := v17.LogTokenPairBalances(
@@ -914,22 +924,15 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 	logger.Info("running STR v2 migration")
 	start := time.Now()
 
-	var wevmosContract ethcommon.Address
-	if utils.IsMainnet(ctx.ChainID()) {
-		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractMainnet)
-	} else if utils.IsTestnet(ctx.ChainID()) {
-		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractTestnet)
-	} else {
-		panic("unknown chain id")
-	}
-
-	err = v17.ConvertToNativeCoinExtensions(
+	err = v17.RunSTRv2Migration(
 		ctx,
 		logger,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.Erc20Keeper,
+		app.EvmKeeper,
 		wevmosContract,
+		bondDenom,
 	)
 	if err != nil {
 		logger.Error("failed to run STR v2 migration", "error", err)

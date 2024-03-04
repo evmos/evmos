@@ -24,6 +24,13 @@ func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	return tokenPairs
 }
 
+// SetToken stores a token pair, denom map and erc20 map.
+func (k *Keeper) SetToken(ctx sdk.Context, pair types.TokenPair) {
+	k.SetTokenPair(ctx, pair)
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	k.SetERC20Map(ctx, pair.GetERC20Contract(), pair.GetID())
+}
+
 // IterateTokenPairs iterates over all the stored token pairs.
 func (k Keeper) IterateTokenPairs(ctx sdk.Context, cb func(tokenPair types.TokenPair) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
