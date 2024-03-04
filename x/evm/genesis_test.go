@@ -48,13 +48,13 @@ func TestInitGenesis(t *testing.T) {
 	}{
 		{
 			name:     "default",
-			malleate: func(network *testnetwork.UnitTestNetwork) {},
+			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: types.DefaultGenesisState(),
 			expPanic: false,
 		},
 		{
 			name: "valid account",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
+			malleate: func(_ *testnetwork.UnitTestNetwork) {
 				vmdb.AddBalance(address, big.NewInt(1))
 			},
 			genState: &types.GenesisState{
@@ -72,7 +72,7 @@ func TestInitGenesis(t *testing.T) {
 		},
 		{
 			name:     "account not found",
-			malleate: func(network *testnetwork.UnitTestNetwork) {},
+			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
