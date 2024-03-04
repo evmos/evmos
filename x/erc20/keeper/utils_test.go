@@ -139,7 +139,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 func (suite *KeeperTestSuite) SetupIBCTest() {
 	// initializes 3 test chains
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 2)
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 2, nil)
 	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
 	suite.IBCOsmosisChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
 	suite.IBCCosmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))

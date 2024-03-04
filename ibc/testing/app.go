@@ -5,11 +5,14 @@ package ibctesting
 
 import (
 	"encoding/json"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	"github.com/evmos/evmos/v16/utils"
 	"testing"
 	"time"
 
 	"cosmossdk.io/math"
-	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -24,7 +27,6 @@ import (
 
 	evmosapp "github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
 )
 
 // DefaultTestingAppInit is a test helper function used to initialize an App
@@ -37,7 +39,13 @@ var DefaultTestingAppInit func(chainID string) func() (ibcgotesting.TestingApp, 
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, balances ...banktypes.Balance) ibcgotesting.TestingApp {
-	app, genesisState := DefaultTestingAppInit(chainID)()
+	appI, genesisState := evmosapp.SetupTestingApp(chainID)()
+	app, ok := appI.(*evmosapp.Evmos)
+	require.True(t, ok)
+
+	// ensure baseapp has a chain-id set before running InitChain
+	baseapp.SetChainID(chainID)(app.GetBaseApp())
+
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -48,7 +56,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	bondAmt := sdk.TokensFromConsensusPower(1, types.PowerReduction)
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
 		require.NoError(t, err)
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
@@ -65,55 +73,42 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
 			MinSelfDelegation: math.ZeroInt(),
 		}
+
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 	}
 
 	// set validators and delegations
-	stakingParams := stakingtypes.DefaultParams()
-	// set bond demon to be aevmos
-	stakingParams.BondDenom = utils.BaseDenom
-	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
-
-	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(utils.BaseDenom, bondAmt))...)
-	}
-
+	var stakingGenesis stakingtypes.GenesisState
+	app.AppCodec().MustUnmarshalJSON(genesisState[stakingtypes.ModuleName], &stakingGenesis)
+	stakingGenesis.Params.BondDenom = utils.BaseDenom
+	bondDenom := utils.BaseDenom
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(bondDenom, bondAmt.Mul(math.NewInt(int64(len(valSet.Validators)))))},
 	})
 
+	// set validators and delegations
+	stakingGenesis = *stakingtypes.NewGenesisState(stakingGenesis.Params, validators, delegations)
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&stakingGenesis)
+
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, sdk.NewCoins(), []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
+	_, err = app.InitChain(
 		&abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: evmosapp.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
+			ConsensusParams: simtestutil.DefaultConsensusParams,
 		},
 	)
-
-	// commit genesis changes
-	_, err = app.Commit()
-	require.NoError(t, err)
-
-	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
-		Height:             app.LastBlockHeight(),
-		NextValidatorsHash: valSet.Hash(),
-	})
-	require.NoError(t, err)
 
 	return app
 }

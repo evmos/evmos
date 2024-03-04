@@ -28,6 +28,7 @@ func generateDummyChains(t *testing.T, coord *ibcgotesting.Coordinator, numberOf
 		chainID := "dummychain_9001-" + strconv.Itoa(i)
 		ids[i-1] = chainID
 		ibcChains[chainID] = ibctesting.NewTestChain(t, coord, chainID)
+
 	}
 	return ibcChains, ids
 }

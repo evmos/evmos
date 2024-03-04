@@ -3,16 +3,13 @@
 package coordinator
 
 import (
-	"fmt"
-	"testing"
-	"time"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
-	evmosibc "github.com/evmos/evmos/v16/ibc/testing"
+	ibctesting "github.com/evmos/evmos/v16/ibc/testing"
 	"github.com/evmos/evmos/v16/testutil/integration/common/network"
 	ibcchain "github.com/evmos/evmos/v16/testutil/integration/ibc/chain"
+	"testing"
 )
 
 // Coordinator is the interface that defines the methods that are used to
@@ -41,12 +38,6 @@ type Coordinator interface {
 	CommitAll() error
 }
 
-// TODO: Replace for a config
-var (
-	AmountOfDummyChains = 2
-	GlobalTime          = time.Date(time.Now().Year()+1, 1, 2, 0, 0, 0, 0, time.UTC)
-)
-
 var _ Coordinator = (*IntegrationCoordinator)(nil)
 
 // IntegrationCoordinator is a testing struct which contains N TestChain's. It handles keeping all chains
@@ -61,15 +52,17 @@ type IntegrationCoordinator struct {
 
 // NewIntegrationCoordinator returns a new IntegrationCoordinator with N TestChain's.
 func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Network) *IntegrationCoordinator {
-	coord := evmosibc.NewCoordinator(t, 1, 0)
-	fmt.Println(coord.Chains)
-	//ibcChains := getIBCChains(t, coord, preConfiguredChains)
-	//dummyChains, dummyChainsIds := generateDummyChains(t, coord, AmountOfDummyChains)
-	//totalChains := mergeMaps(ibcChains, dummyChains)
-	//coord.Chains = totalChains
+	coord := &ibcgotesting.Coordinator{
+		T:           t,
+		CurrentTime: ibctesting.GlobalTime,
+	}
+	ibcChains := getIBCChains(t, coord, preConfiguredChains)
+	dummyChains, dummyChainsIDs := generateDummyChains(t, coord, 2)
+	totalChains := mergeMaps(ibcChains, dummyChains)
+	coord.Chains = totalChains
 	return &IntegrationCoordinator{
-		coord: coord,
-		//dummyChainsIds: dummyChainsIds,
+		coord:          coord,
+		dummyChainsIds: dummyChainsIDs,
 	}
 }
 
@@ -115,8 +108,9 @@ func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 	chainA := c.coord.GetChain(a)
 	chainB := c.coord.GetChain(b)
 
-	path := evmosibc.NewTransferPath(chainA, chainB)
-	evmosibc.SetupPath(c.coord, path)
+	path := ibcgotesting.NewTransferPath(chainA, chainB)
+	c.coord.Setup(path)
+	//ibctesting.SetupPath(c.coord, path)
 
 	return IBCConnection{
 		EndpointA: Endpoint{

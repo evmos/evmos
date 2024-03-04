@@ -1,12 +1,15 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package ibctesting
 
 import (
 	"fmt"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
@@ -14,8 +17,7 @@ import (
 	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibclightclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 )
 
 // Endpoint is a which represents a channel endpoint and its associated
@@ -81,7 +83,10 @@ func (endpoint *Endpoint) QueryProofAtHeight(key []byte, height uint64) ([]byte,
 // NOTE: a solo machine client will be created with an empty diversifier.
 func (endpoint *Endpoint) CreateClient() (err error) {
 	// ensure counterparty has committed state
-	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
+	fmt.Println("CommitBlock", endpoint.Chain.ChainID)
+	fmt.Println("Height", endpoint.Chain.GetContext().BlockHeight())
+
+	endpoint.Counterparty.Chain.NextBlock()
 
 	var (
 		clientState    exported.ClientState
@@ -94,12 +99,15 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		require.True(endpoint.Chain.TB, ok)
 
 		height := endpoint.Counterparty.Chain.LastHeader.GetHeight().(clienttypes.Height)
-		clientState = ibclightclient.NewClientState(
+		clientState = ibctm.NewClientState(
 			endpoint.Counterparty.Chain.ChainID, tmConfig.TrustLevel, tmConfig.TrustingPeriod, tmConfig.UnbondingPeriod, tmConfig.MaxClockDrift,
-			height, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath,
-		)
+			height, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
 	case exported.Solomachine:
+		// TODO
+		//		solo := NewSolomachine(endpoint.Chain.TB, endpoint.Chain.Codec, clientID, "", 1)
+		//		clientState = solo.ClientState()
+		//		consensusState = solo.ConsensusState()
 
 	default:
 		err = fmt.Errorf("client type %s is not supported", endpoint.ClientConfig.GetClientType())
@@ -114,12 +122,12 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	)
 	require.NoError(endpoint.Chain.TB, err)
 
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	res, err := SendMsgs(endpoint.Chain, 0, msg)
 	if err != nil {
 		return err
 	}
 
-	endpoint.ClientID, err = ibctesting.ParseClientIDFromEvents(res.GetEvents().ToABCIEvents())
+	endpoint.ClientID, err = ibctesting.ParseClientIDFromEvents(res.Events)
 	require.NoError(endpoint.Chain.TB, err)
 
 	return nil
@@ -130,7 +138,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	// ensure counterparty has committed state
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
-	var header *ibclightclient.Header
+	var header exported.ClientMessage
 
 	switch endpoint.ClientConfig.GetClientType() {
 	case exported.Tendermint:
@@ -150,8 +158,58 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	)
 	require.NoError(endpoint.Chain.TB, err)
 
-	_, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	_, err = SendMsgs(endpoint.Chain, 0, msg)
 	return err
+}
+
+// UpgradeChain will upgrade a chain's chainID to the next revision number.
+// It will also update the counterparty client.
+// TODO: implement actual upgrade chain functionality via scheduling an upgrade
+// and upgrading the client via MsgUpgradeClient
+// see reference https://github.com/cosmos/ibc-go/pull/1169
+func (endpoint *Endpoint) UpgradeChain() error {
+	if strings.TrimSpace(endpoint.Counterparty.ClientID) == "" {
+		return fmt.Errorf("cannot upgrade chain if there is no counterparty client")
+	}
+
+	clientState := endpoint.Counterparty.GetClientState().(*ibctm.ClientState)
+
+	// increment revision number in chainID
+
+	oldChainID := clientState.ChainId
+	if !clienttypes.IsRevisionFormat(oldChainID) {
+		return fmt.Errorf("cannot upgrade chain which is not of revision format: %s", oldChainID)
+	}
+
+	revisionNumber := clienttypes.ParseChainID(oldChainID)
+	newChainID, err := clienttypes.SetRevisionNumber(oldChainID, revisionNumber+1)
+	if err != nil {
+		return err
+	}
+
+	// update chain
+	baseapp.SetChainID(newChainID)(endpoint.Chain.GetSimApp().GetBaseApp())
+	endpoint.Chain.ChainID = newChainID
+	endpoint.Chain.CurrentHeader.ChainID = newChainID
+	endpoint.Chain.NextBlock() // commit changes
+
+	// update counterparty client manually
+	clientState.ChainId = newChainID
+	clientState.LatestHeight = clienttypes.NewHeight(revisionNumber+1, clientState.LatestHeight.GetRevisionHeight()+1)
+	endpoint.Counterparty.SetClientState(clientState)
+
+	consensusState := &ibctm.ConsensusState{
+		Timestamp:          endpoint.Chain.LastHeader.GetTime(),
+		Root:               commitmenttypes.NewMerkleRoot(endpoint.Chain.LastHeader.Header.GetAppHash()),
+		NextValidatorsHash: endpoint.Chain.LastHeader.Header.NextValidatorsHash,
+	}
+	endpoint.Counterparty.SetConsensusState(consensusState, clientState.GetLatestHeight())
+
+	// ensure the next update isn't identical to the one set in state
+	endpoint.Chain.Coordinator.IncrementTime()
+	endpoint.Chain.NextBlock()
+
+	return endpoint.Counterparty.UpdateClient()
 }
 
 // ConnOpenInit will construct and execute a MsgConnectionOpenInit on the associated endpoint.
@@ -162,12 +220,12 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 		endpoint.Counterparty.Chain.GetPrefix(), ibctesting.DefaultOpenInitVersion, endpoint.ConnectionConfig.DelayPeriod,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	res, err := SendMsgs(endpoint.Chain, 0, msg)
 	if err != nil {
 		return err
 	}
 
-	endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents().ToABCIEvents())
+	endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.Events)
 	require.NoError(endpoint.Chain.TB, err)
 
 	return nil
@@ -187,13 +245,13 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 		proofHeight, consensusHeight,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	res, err := SendMsgs(endpoint.Chain, 0, msg)
 	if err != nil {
 		return err
 	}
 
 	if endpoint.ConnectionID == "" {
-		endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents().ToABCIEvents())
+		endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.Events)
 		require.NoError(endpoint.Chain.TB, err)
 	}
 
@@ -214,7 +272,7 @@ func (endpoint *Endpoint) ConnOpenAck() error {
 		ibctesting.ConnectionVersion,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	_, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	_, err = SendMsgs(endpoint.Chain, 0, msg)
 	return err
 }
 
@@ -231,7 +289,7 @@ func (endpoint *Endpoint) ConnOpenConfirm() error {
 		proof, height,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	_, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	_, err = SendMsgs(endpoint.Chain, 0, msg)
 	return err
 }
 
@@ -261,7 +319,7 @@ func (endpoint *Endpoint) QueryConnectionHandshakeProof() (
 	connectionKey := host.ConnectionKey(endpoint.Counterparty.ConnectionID)
 	proofConnection, _ = endpoint.Counterparty.QueryProofAtHeight(connectionKey, proofHeight.GetRevisionHeight())
 
-	return
+	return clientState, proofClient, proofConsensus, consensusHeight, proofConnection, proofHeight
 }
 
 // ChanOpenInit will construct and execute a MsgChannelOpenInit on the associated endpoint.
@@ -272,12 +330,12 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 		endpoint.Counterparty.ChannelConfig.PortID,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	res, err := SendMsgs(endpoint.Chain, 0, msg)
 	if err != nil {
 		return err
 	}
 
-	endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents().ToABCIEvents())
+	endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.Events)
 	require.NoError(endpoint.Chain.TB, err)
 
 	// update version to selected app version
@@ -302,13 +360,13 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 		proof, height,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	res, err := SendMsgs(endpoint.Chain, 0, msg)
 	if err != nil {
 		return err
 	}
 
 	if endpoint.ChannelID == "" {
-		endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents().ToABCIEvents())
+		endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.Events)
 		require.NoError(endpoint.Chain.TB, err)
 	}
 
@@ -334,9 +392,8 @@ func (endpoint *Endpoint) ChanOpenAck() error {
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 
-	if _, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg); err != nil {
-		return err
-	}
+	_, err = SendMsgs(endpoint.Chain, 0, msg)
+	require.NoError(endpoint.Chain.TB, err)
 
 	endpoint.ChannelConfig.Version = endpoint.GetChannel().Version
 
@@ -356,7 +413,7 @@ func (endpoint *Endpoint) ChanOpenConfirm() error {
 		proof, height,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	_, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	_, err = SendMsgs(endpoint.Chain, 0, msg)
 	return err
 }
 
@@ -368,7 +425,7 @@ func (endpoint *Endpoint) ChanCloseInit() error {
 		endpoint.ChannelConfig.PortID, endpoint.ChannelID,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	_, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
+	_, err := SendMsgs(endpoint.Chain, 0, msg)
 	return err
 }
 
@@ -413,7 +470,7 @@ func (endpoint *Endpoint) RecvPacket(packet channeltypes.Packet) error {
 
 // RecvPacketWithResult receives a packet on the associated endpoint and the result
 // of the transaction is returned. The counterparty client is updated.
-func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk.Result, error) {
+func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*abci.ExecTxResult, error) {
 	// get proof of packet commitment on source
 	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.Chain.QueryProof(packetKey)
@@ -421,7 +478,7 @@ func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk
 	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
 
 	// receive on counterparty and update source client
-	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, recvMsg)
+	res, err := SendMsgs(endpoint.Chain, 0, recvMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -458,7 +515,7 @@ func (endpoint *Endpoint) AcknowledgePacket(packet channeltypes.Packet, ack []by
 
 	ackMsg := channeltypes.NewMsgAcknowledgement(packet, ack, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
 
-	_, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, ackMsg)
+	_, err := SendMsgs(endpoint.Chain, 0, ackMsg)
 	return err
 }
 
@@ -476,16 +533,16 @@ func (endpoint *Endpoint) TimeoutPacket(packet channeltypes.Packet) error {
 		return fmt.Errorf("unsupported order type %s", endpoint.ChannelConfig.Order)
 	}
 
-	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
-	nextSeqRecv, found := endpoint.Counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(endpoint.Counterparty.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
+	counterparty := endpoint.Counterparty
+	proof, proofHeight := counterparty.QueryProof(packetKey)
+	nextSeqRecv, found := counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(counterparty.Chain.GetContext(), counterparty.ChannelConfig.PortID, counterparty.ChannelID)
 	require.True(endpoint.Chain.TB, found)
 
 	timeoutMsg := channeltypes.NewMsgTimeout(
 		packet, nextSeqRecv,
 		proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-
-	_, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, timeoutMsg)
+	_, err := SendMsgs(endpoint.Chain, 0, timeoutMsg)
 	return err
 }
 
@@ -515,16 +572,15 @@ func (endpoint *Endpoint) TimeoutOnClose(packet channeltypes.Packet) error {
 		packet, nextSeqRecv,
 		proof, proofClosed, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-
-	_, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, timeoutOnCloseMsg)
+	_, err := SendMsgs(endpoint.Chain, 0, timeoutOnCloseMsg)
 	return err
 }
 
-// SetChannelClosed sets a channel state to CLOSED.
-func (endpoint *Endpoint) SetChannelClosed() error {
+// SetChannelState sets a channel state
+func (endpoint *Endpoint) SetChannelState(state channeltypes.State) error {
 	channel := endpoint.GetChannel()
 
-	channel.State = channeltypes.CLOSED
+	channel.State = state
 	endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.SetChannel(endpoint.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID, channel)
 
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Chain)

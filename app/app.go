@@ -964,7 +964,7 @@ func (app *Evmos) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	return app.mm.EndBlock(ctx)
 }
 
-// The DeliverTx method is intentionally decomposed to calculate the transactions per second.
+// FinalizeBlock method is intentionally decomposed to calculate the transactions per second.
 func (app *Evmos) FinalizeBlock(req *abci.RequestFinalizeBlock) (res *abci.ResponseFinalizeBlock, err error) {
 	defer func() {
 		// TODO: Record the count along with the code and or reason so as to display
@@ -978,6 +978,7 @@ func (app *Evmos) FinalizeBlock(req *abci.RequestFinalizeBlock) (res *abci.Respo
 		}
 	}()
 	res, err = app.BaseApp.FinalizeBlock(req)
+
 	return
 }
 

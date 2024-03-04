@@ -17,7 +17,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/cosmos/ibc-go/v8/testing/mock"
 
@@ -100,26 +99,13 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 		TxConfig:      txConfig,
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
+		NextVals:      valSet,
 		Signers:       signers,
 		SenderPrivKey: senderPrivKey,
 		SenderAccount: acc,
-		NextVals:      valSet,
 	}
 
-	coord.CommitBlock(chain)
+	chain.NextBlock()
 
 	return chain
-}
-
-func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *Path {
-	path := NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
-	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
-
-	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointA.ChannelConfig.Version = "ics20-1"
-	path.EndpointB.ChannelConfig.Version = "ics20-1"
-
-	return path
 }
