@@ -1683,21 +1683,25 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	Context("approving methods", func() {
 		Context("with valid input", func() {
 			It("should approve one method", func() {
+				granter := s.keyring.GetKey(0)
+
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should approve all methods", func() {
+				granter := s.keyring.GetKey(0)
+
 				approveCallArgs.Args = []interface{}{
 					contractAddr,
 					[]string{staking.DelegateMsg, staking.RedelegateMsg, staking.UndelegateMsg, staking.CancelUnbondingDelegationMsg},
 					big.NewInt(1e18),
 				}
 				txArgs.GasLimit = 1e8
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should update a previous approval", func() {
@@ -1707,7 +1711,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 				// update approval
 				approveCallArgs.Args = []interface{}{
@@ -1736,7 +1740,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 				}
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check approvals pre-removal
@@ -1837,7 +1841,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			callArgs.Args = []interface{}{contractAddr, []string{staking.DelegateMsg}}
 
@@ -1930,7 +1934,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
@@ -2004,11 +2008,13 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
+				granter := s.keyring.GetKey(0)
+
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 				// add gas limit to avoid out of gas error
 				txArgs.GasLimit = 500_000
 			})
@@ -2178,11 +2184,13 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
+				granter := s.keyring.GetKey(0)
+
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 				// set gas limit to avoid out of gas error
 				txArgs.GasLimit = 500_000
 			})
@@ -2311,11 +2319,13 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
+				granter := s.keyring.GetKey(0)
+
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should redelegate when not exceeding the allowance", func() {
@@ -2433,13 +2443,15 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		var expCreationHeight int64
 
 		BeforeEach(func() {
+			granter := s.keyring.GetKey(0)
+
 			callArgs.MethodName = "testCancelUnbonding"
 			// Set up an unbonding delegation
 			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
@@ -2497,12 +2509,14 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
+				granter := s.keyring.GetKey(0)
+
 				// Set up an unbonding delegation
 				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
 				}
 
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 				Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 			})
@@ -2535,7 +2549,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				delegator := s.keyring.GetKey(0)
 
 				approveCallArgs.Args = []interface{}{contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1)}
-				s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+				s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
 
 				callArgs.Args = []interface{}{
 					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
@@ -2628,7 +2642,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			// query allowance
 			callArgs.Args = []interface{}{
@@ -2911,7 +2925,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
 			}
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
 
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
@@ -2972,7 +2986,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
 			}
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			// set up redelegation
@@ -3026,16 +3040,17 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 	Context("querying unbonding delegation", func() {
 		BeforeEach(func() {
+			delegator := s.keyring.GetKey(0)
+
 			callArgs.MethodName = "getUnbondingDelegation"
 			// Set up an unbonding delegation
 			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
 
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
-			delegator := s.keyring.GetKey(0)
 
 			undelegateArgs := factory.CallArgs{
 				ContractABI: testdata.StakingCallerContract.ABI,
@@ -3179,12 +3194,14 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		}
 
 		BeforeEach(func() {
+			granter := s.keyring.GetKey(0)
+
 			// approve undelegate message
 			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
 			}
 
-			s.SetupApprovalWithContractCalls(txArgs, approveCallArgs)
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 		})

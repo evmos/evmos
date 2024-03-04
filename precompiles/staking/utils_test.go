@@ -2,6 +2,7 @@ package staking_test
 
 import (
 	"fmt"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"math/big"
 	"time"
 
@@ -33,17 +34,17 @@ import (
 )
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
-func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType string, amount *big.Int) {
+func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, granter, grantee testkeyring.Key, msgType string, amount *big.Int) {
 	approveArgs := []interface{}{
-		s.keyring.GetAddr(0),
+		grantee.Addr,
 		amount,
 		[]string{msgType},
 	}
-	resp, err := s.precompile.Approve(s.network.GetContext(), s.keyring.GetAddr(0), s.network.GetStateDB(), &method, approveArgs)
+	resp, err := s.precompile.Approve(s.network.GetContext(), granter.Addr, s.network.GetStateDB(), &method, approveArgs)
 	s.Require().NoError(err)
 	s.Require().Equal(resp, cmn.TrueValue)
 
-	auth, _ := CheckAuthorizationWithContext(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, s.keyring.GetAddr(0), s.keyring.GetAddr(0))
+	auth, _ := CheckAuthorizationWithContext(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
 	s.Require().NotNil(auth)
 	s.Require().Equal(auth.AuthorizationType, staking.DelegateAuthz)
 	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(amount)})
@@ -109,7 +110,7 @@ func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.Authoriz
 // The authorization will be created to spend the given Coin.
 // For testing purposes, this function will create a new authorization for all available validators,
 // that are not jailed.
-func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, grantee common.Address, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
+func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, granter, grantee sdk.AccAddress, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
 	// Get all available validators and filter out jailed validators
 	validators := make([]sdk.ValAddress, 0)
 	s.network.App.StakingKeeper.IterateValidators(
@@ -128,7 +129,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, grantee commo
 	}
 
 	expiration := time.Now().Add(cmn.DefaultExpirationDuration).UTC()
-	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), s.keyring.GetAccAddr(0), stakingAuthz, &expiration)
+	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee, granter, stakingAuthz, &expiration)
 	if err != nil {
 		return err
 	}
@@ -185,7 +186,11 @@ func (s *PrecompileTestSuite) SetupApproval(
 }
 
 // SetupApprovalWithContractCalls is a helper function used to setup the allowance for the given spender.
-func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.EvmTxArgs, approvalArgs factory.CallArgs) {
+func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(
+	granter testkeyring.Key,
+	txArgs evmtypes.EvmTxArgs,
+	approvalArgs factory.CallArgs,
+) {
 	msgTypes, ok := approvalArgs.Args[1].([]string)
 	Expect(ok).To(BeTrue(), "failed to convert msgTypes to []string")
 	expAmount, ok := approvalArgs.Args[2].(*big.Int)
@@ -198,7 +203,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.Evm
 	}
 
 	_, _, err := s.factory.CallContractAndCheckLogs(
-		s.keyring.GetPrivKey(0),
+		granter.Priv,
 		txArgs,
 		approvalArgs,
 		logCheckArgs,
@@ -219,7 +224,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.Evm
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, expectedAuthz, *txArgs.To, s.keyring.GetAddr(0))
+		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, expectedAuthz, *txArgs.To, granter.Addr)
 		Expect(err).To(BeNil())
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
@@ -229,7 +234,9 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(txArgs evmtypes.Evm
 }
 
 // CheckAllowanceChangeEvent is a helper function used to check the allowance change event arguments.
-func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, methods []string, amounts []*big.Int) {
+func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(
+	log *ethtypes.Log, methods []string, amounts []*big.Int, granter, grantee common.Address,
+) {
 	s.Require().Equal(log.Address, s.precompile.Address())
 	// Check event signature matches the one emitted
 	event := s.precompile.ABI.Events[authorization.EventTypeAllowanceChange]
@@ -239,8 +246,8 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
 	s.Require().NoError(err)
-	s.Require().Equal(s.keyring.GetAddr(0), approvalEvent.Grantee)
-	s.Require().Equal(s.keyring.GetAddr(0), approvalEvent.Granter)
+	s.Require().Equal(grantee, approvalEvent.Grantee)
+	s.Require().Equal(granter, approvalEvent.Granter)
 	s.Require().Equal(len(methods), len(approvalEvent.Methods))
 
 	for i, method := range methods {
@@ -265,22 +272,25 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 	// returning order can change
 	valOrder := []int{0, 1}
 	varAddr := sdk.ValAddress(common.HexToAddress(validators[0].OperatorAddress).Bytes()).String()
-	if varAddr != s.network.GetValidators()[0].OperatorAddress {
+	vals := s.network.GetValidators()
+
+	if varAddr != vals[0].OperatorAddress {
 		valOrder = []int{1, 0}
 	}
 	for i := 0; i < expLen; i++ {
 		j := valOrder[i]
 
-		s.Require().Equal(s.network.GetValidators()[j].OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
-		s.Require().Equal(uint8(s.network.GetValidators()[j].Status), validators[i].Status)
-		s.Require().Equal(s.network.GetValidators()[j].Tokens.Uint64(), validators[i].Tokens.Uint64())
-		s.Require().Equal(s.network.GetValidators()[j].DelegatorShares.BigInt(), validators[i].DelegatorShares)
-		s.Require().Equal(s.network.GetValidators()[j].Jailed, validators[i].Jailed)
-		s.Require().Equal(s.network.GetValidators()[j].UnbondingHeight, validators[i].UnbondingHeight)
+		val := s.network.GetValidators()[j]
+		s.Require().Equal(val.OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
+		s.Require().Equal(uint8(val.Status), validators[i].Status)
+		s.Require().Equal(val.Tokens.Uint64(), validators[i].Tokens.Uint64())
+		s.Require().Equal(val.DelegatorShares.BigInt(), validators[i].DelegatorShares)
+		s.Require().Equal(val.Jailed, validators[i].Jailed)
+		s.Require().Equal(val.UnbondingHeight, validators[i].UnbondingHeight)
 		s.Require().Equal(int64(0), validators[i].UnbondingTime)
 		s.Require().Equal(math.LegacyNewDecWithPrec(5, 2).BigInt(), validators[i].Commission)
 		s.Require().Equal(int64(0), validators[i].MinSelfDelegation.Int64())
-		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(s.network.GetValidators()[j].ConsensusPubkey))
+		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(val.ConsensusPubkey))
 	}
 }
 
@@ -345,10 +355,12 @@ func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationRespons
 // to validator[1], and a redelegation from validator[0] to validator[2]
 func (s *PrecompileTestSuite) setupRedelegations(ctx sdk.Context, redelAmt *big.Int) error {
 	ctx = ctx.WithBlockTime(time.Now())
+	vals := s.network.GetValidators()
+
 	msg := stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    s.keyring.GetAccAddr(0).String(),
-		ValidatorSrcAddress: s.network.GetValidators()[0].OperatorAddress,
-		ValidatorDstAddress: s.network.GetValidators()[1].OperatorAddress,
+		ValidatorSrcAddress: vals[0].OperatorAddress,
+		ValidatorDstAddress: vals[1].OperatorAddress,
 		Amount:              sdk.NewCoin(s.bondDenom, math.NewIntFromBigInt(redelAmt)),
 	}
 
@@ -361,15 +373,16 @@ func (s *PrecompileTestSuite) setupRedelegations(ctx sdk.Context, redelAmt *big.
 	}
 
 	// create a redelegation from validator[0] to validator[2]
-	msg.ValidatorDstAddress = s.network.GetValidators()[2].OperatorAddress
+	msg.ValidatorDstAddress = vals[2].OperatorAddress
 	_, err := msgSrv.BeginRedelegate(ctx, &msg)
 	return err
 }
 
 // CheckValidatorOutput checks that the given validator output
 func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo) {
-	validatorAddrs := make([]string, len(s.network.GetValidators()))
-	for i, v := range s.network.GetValidators() {
+	vals := s.network.GetValidators()
+	validatorAddrs := make([]string, len(vals))
+	for i, v := range vals {
 		validatorAddrs[i] = v.OperatorAddress
 	}
 
