@@ -5,6 +5,7 @@ package staking_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -33,6 +34,12 @@ import (
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
+
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Staking Precompile Integration Tests")
+}
 
 // General variables used for integration tests
 var (
@@ -390,13 +397,13 @@ var _ = Describe("Calling staking precompile directly", func() {
 	Describe("to revoke an approval", func() {
 		// granteeAddr is the address of the grantee used in the revocation tests.
 		granteeAddr := testutiltx.GenerateAddress()
-		granter := s.keyring.GetKey(0)
 
 		BeforeEach(func() {
 			callArgs.MethodName = authorization.RevokeMethod
 		})
 
 		It("should revoke the approval when executing as the granter", func() {
+			granter := s.keyring.GetKey(0)
 			typeURLs := []string{staking.DelegateMsg}
 
 			s.SetupApproval(
@@ -491,7 +498,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, nil)
 
 			callArgs.Args = []interface{}{
-				differentAddr, typeURLs,
+				grantee.Addr, typeURLs,
 			}
 
 			notFoundCheck := defaultLogCheck.
@@ -1826,6 +1833,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		BeforeEach(func() {
 			callArgs.MethodName = "testRevoke"
 		})
+
 		It("should revoke when sending as the granter", func() {
 			granter := s.keyring.GetKey(0)
 
@@ -2144,15 +2152,17 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			callArgs.MethodName = "testUndelegate"
 		})
 		Context("without approval set", func() {
-			delegator := s.keyring.GetKey(0)
-
 			BeforeEach(func() {
+				delegator := s.keyring.GetKey(0)
+
 				authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, delegator.Addr)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), delegator.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
 			})
 			It("should not undelegate", func() {
+				delegator := s.keyring.GetKey(0)
+
 				callArgs.Args = []interface{}{
 					delegator.Addr, valAddr.String(), big.NewInt(1e18),
 				}

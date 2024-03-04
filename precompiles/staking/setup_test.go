@@ -8,12 +8,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
 	"github.com/stretchr/testify/suite"
 )
 
@@ -31,12 +25,6 @@ type PrecompileTestSuite struct {
 
 func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
-}
-
-func TestPrecompileIntegrationTestSuite(t *testing.T) {
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Precompile Test Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
