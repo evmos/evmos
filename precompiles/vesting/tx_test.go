@@ -101,7 +101,6 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
-
 			bz, err := s.precompile.CreateClawbackVestingAccount(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
