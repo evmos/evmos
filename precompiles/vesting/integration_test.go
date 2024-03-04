@@ -904,16 +904,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				if callType.directCall {
 					updateFunderCheck = failCheck.
 						WithErrContains(fmt.Sprintf(
-							"account at address %s does not exist",
+							"account at address '%s' does not exist",
 							sdk.AccAddress(nonExistentAddr.Bytes()).String(),
 						))
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, updateFunderCheck)
 				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
-				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("does not exist"))
-				}
 			})
 
 			It(fmt.Sprintf("should return an error when the account is no vesting account (%s)", callType.name), func() {
@@ -1237,7 +1234,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				balancesCheck := execRevertedCheck
 				if callType.directCall {
 					balancesCheck = failCheck.WithErrContains(fmt.Sprintf(
-						"account at address '%s' is not a vesting account",
+						"account at address '%s' either does not exist or is not a vesting account",
 						s.keyring.GetAccAddr(vestingAccIdx),
 					))
 				}
