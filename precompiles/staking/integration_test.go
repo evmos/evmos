@@ -484,28 +484,23 @@ var _ = Describe("Calling staking precompile directly", func() {
 			typeURLs := []string{staking.DelegateMsg}
 
 			// set up an approval with a different key than the one used to sign the transaction.
-			differentAddr, differentPriv := testutiltx.NewAddrKey()
 			granter := s.keyring.GetKey(0)
-			grantee := s.keyring.GetKey(1)
-
-			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, granter, differentAddr.Bytes(), math.NewInt(1e18))
-			Expect(err).To(BeNil(), "error while funding account")
-			Expect(s.network.NextBlock()).To(BeNil())
+			differentSender := s.keyring.GetKey(1)
 
 			s.SetupApproval(
-				granter.Priv, grantee.Addr, abi.MaxUint256, typeURLs,
+				granter.Priv, granteeAddr, abi.MaxUint256, typeURLs,
 			)
-			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, nil)
 
 			callArgs.Args = []interface{}{
-				grantee.Addr, typeURLs,
+				granteeAddr, typeURLs,
 			}
 
 			notFoundCheck := defaultLogCheck.
 				WithErrContains("failed to delete grant")
 
-			_, _, err = s.factory.CallContractAndCheckLogs(
-				differentPriv,
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				differentSender.Priv,
 				txArgs, callArgs,
 				notFoundCheck,
 			)
@@ -513,7 +508,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// the authorization should still be set
-			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, differentAddr, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, nil)
 		})
 	})
 
