@@ -78,6 +78,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
 - (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
+- (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
