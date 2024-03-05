@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -150,11 +150,6 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
 		},
 		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
-		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress:  validatorAddress,
-		Description:       description,
-		Commission:        commission,
-		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
 		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Pubkey:            pubkey,
@@ -192,7 +187,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 	// The default value of a variable declared using a pointer is nil, indicating that the user does not want to modify its value.
 	// If the value passed in by the user is not DoNotModifyCommissionRate, which is -1, it means that the user wants to modify its value.
-	var commissionRate *sdkmath.LegacyDec
+	var commissionRate *math.LegacyDec
 	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
 		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
 		commissionRate = &cr
@@ -203,9 +198,9 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", "int256", args[3])
 	}
 
-	var minSelfDelegation *sdkmath.Int
+	var minSelfDelegation *math.Int
 	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) != 0 {
-		msd := sdkmath.NewIntFromBigInt(minSelfDelegationBigInt)
+		msd := math.NewIntFromBigInt(minSelfDelegationBigInt)
 		minSelfDelegation = &msd
 	}
 

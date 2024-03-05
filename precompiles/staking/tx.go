@@ -83,7 +83,7 @@ func (p Precompile) CreateValidator(
 	}
 
 	// Emit the event for the create validator transaction
-	if err = p.EmitCreateValidatorEvent(ctx, stateDB, msg, delegatorHexAddr); err != nil {
+	if err = p.EmitCreateValidatorEvent(ctx, stateDB, msg, validatorHexAddr); err != nil {
 		return nil, err
 	}
 

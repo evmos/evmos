@@ -131,7 +131,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeCreateValidator]
 
-	topics, err := p.createValidatorTxTopics(2, event, validatorAddr)
+	topics, err := p.createEditValidatorTxTopics(2, event, validatorAddr)
 	if err != nil {
 		return err
 	}
