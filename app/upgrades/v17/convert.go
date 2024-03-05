@@ -133,15 +133,13 @@ func processResults(results <-chan []TelemetryResult, logger log.Logger) []Telem
 	finalizedResults := make([]TelemetryResult, 0)
 	for batchResults := range results {
 		for i := range batchResults {
-			if resultsCounter%1000 == 0 {
-				logger.Info(
-					fmt.Sprintf(
-						"Processed results: %d, results size: %d",
-						resultsCounter,
-						len(finalizedResults),
-					),
-				)
-			}
+			logger.Info(
+				fmt.Sprintf(
+					"Processed results: %d, results size: %d",
+					resultsCounter,
+					len(finalizedResults),
+				),
+			)
 			resultsCounter++
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
