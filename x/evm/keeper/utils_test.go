@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -26,8 +27,7 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 }
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
-func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner common.Address, supply *big.Int) common.Address {
-	ctx := suite.network.GetContext()
+func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
 	ctorArgs, err := evmtypes.ERC20Contract.ABI.Pack("", owner, supply)
