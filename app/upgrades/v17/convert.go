@@ -52,7 +52,7 @@ func worker(
 			}
 
 			if id%1000 == 0 {
-				logger.Info("Worker %d received task", id)
+				logger.Info(fmt.Sprintf("Worker %d received task", id))
 			}
 			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
@@ -124,8 +124,11 @@ func processResults(results <-chan []TelemetryResult, logger log.Logger) []Telem
 		for i := range batchResults {
 			if resultsCounter%1000 == 0 {
 				logger.Info(
-					"Processed results: ", resultsCounter,
-					"Results size: ", len(finalizedResults),
+					fmt.Sprintf(
+						"Processed results: %d, results size: %d",
+						resultsCounter,
+						len(finalizedResults),
+					),
 				)
 			}
 			finalizedResults = append(finalizedResults, batchResults[i])
@@ -230,7 +233,7 @@ func ConvertERC20Coins(
 		copy(pairsCopy, tokenPairs)
 		func(w int) {
 			if w%100 == 0 {
-				logger.Info("Starting worker: %d", w)
+				logger.Info(fmt.Sprintf("Starting worker: %d", w))
 			}
 			g.Go(func() error {
 				return worker(workerCtx, logger, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
@@ -259,8 +262,8 @@ func ConvertERC20Coins(
 	finalizedResults := processResults(results, logger)
 	if g.Wait() != nil {
 		err := g.Wait()
-		logger.Error("Context is cancelled we are destroying everything")
-		logger.Error("got error: %w", err)
+		logger.Error("Context is cancelled, we are destroying everything")
+		logger.Error(fmt.Sprintf("got error: %s", err.Error()))
 		return err
 	}
 
