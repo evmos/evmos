@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -178,8 +179,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		}
 	}
 
+	now := time.Now()
 	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
+			Time:            now,
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: consensusParams,
@@ -194,6 +197,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		Hash:               evmosApp.LastCommitID().Hash,
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
+		Time:               now,
 	}
 
 	if _, err := evmosApp.FinalizeBlock(req); err != nil {
@@ -204,6 +208,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		ChainID:            n.cfg.chainID,
 		Height:             req.Height,
 		AppHash:            req.Hash,
+		Time:               now,
 		ValidatorsHash:     req.NextValidatorsHash,
 		NextValidatorsHash: req.NextValidatorsHash,
 		ProposerAddress:    req.ProposerAddress,
@@ -282,6 +287,7 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 // TODO - this should be change to gRPC
 func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
 	req := abcitypes.RequestFinalizeBlock{
+		Time:               n.ctx.BlockTime(),
 		Height:             n.app.LastBlockHeight() + 1,
 		Hash:               n.app.LastCommitID().Hash,
 		NextValidatorsHash: n.valSet.Hash(),

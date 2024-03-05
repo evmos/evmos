@@ -26,7 +26,7 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	header.Height++
 	header.AppHash = n.app.LastCommitID().Hash
 	// Calculate new block time after duration
-	newBlockTime := time.Time{}.Add(duration)
+	newBlockTime := header.Time.Add(duration)
 	header.Time = newBlockTime
 
 	// add validator's commit info to allocate corresponding tokens to validators

@@ -300,6 +300,10 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), evmtypes.EvmTxArgs{To: &precompileAddr}, approvalCallArgs, logCheck)
 					Expect(err).To(BeNil())
 					Expect(s.network.NextBlock()).To(BeNil())
+
+					auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), s.keyring.GetAccAddr(0).String())
+					Expect(err).To(BeNil())
+					Expect(auths).To(HaveLen(1))
 				}
 			})
 
@@ -1073,10 +1077,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should return an error when not sending as the funder (%s)", callType.name), func() {
-				// commit block with new time so that the vesting period has ended
-				err := s.network.NextBlockAfter(time.Hour * 24)
-				Expect(err).To(BeNil(), "failed to commit block")
-
 				differentAddr, differentPriv := testutiltx.NewAddrKey()
 				err = testutils.FundAccountWithBaseDenom(
 					s.factory, s.network,
@@ -1085,7 +1085,10 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					math.NewInt(1e18),
 				)
 				Expect(err).ToNot(HaveOccurred(), "error while funding account: %v", err)
-				Expect(s.network.NextBlock()).To(BeNil())
+
+				// commit block with new time so that the vesting period has ended
+				err := s.network.NextBlockAfter(time.Hour * 24)
+				Expect(err).To(BeNil(), "failed to commit block")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
 				callArgs.MethodName = vesting.ConvertVestingAccountMethod
