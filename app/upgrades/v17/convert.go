@@ -225,6 +225,9 @@ func ConvertERC20Coins(
 		pairsCopy := make(parseTokenPairs, len(tokenPairs))
 		copy(pairsCopy, tokenPairs)
 		func(w int) {
+			if w%100 == 0 {
+				logger.Info("Starting worker: ", w)
+			}
 			g.Go(func() error {
 				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
 			})
