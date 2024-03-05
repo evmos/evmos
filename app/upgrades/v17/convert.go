@@ -58,6 +58,9 @@ func worker(
 			if err != nil {
 				return err
 			}
+			if len(processResults) == 0 {
+				continue
+			}
 			results <- processResults
 		case <-workerCtx.Done():
 			return nil
@@ -68,12 +71,9 @@ func worker(
 func performTask(logger log.Logger, task []string, id int,
 	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
 ) ([]TelemetryResult, error) {
-	results := []TelemetryResult{}
-	for taskIdx, account := range task {
-		if taskIdx%10 == 0 {
-			logger.Info(fmt.Sprintf("Worker %d processing account: %q", id, account))
-		}
+	results := make([]TelemetryResult, 0, len(task))
 
+	for _, account := range task {
 		cosmosAddress := sdk.MustAccAddressFromBech32(account)
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		addrBytes := ethAddress.Bytes()
@@ -88,8 +88,8 @@ func performTask(logger log.Logger, task []string, id int,
 			}
 		}
 
-		if taskIdx%10 == 0 {
-			logger.Info(fmt.Sprintf("--> got %d results: %s", len(results), results))
+		if len(results) > 0 {
+			logger.Info(fmt.Sprintf("Worker %d processing account: %q got %d balances", id, account, len(results)))
 		}
 	}
 	return results, nil
