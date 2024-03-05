@@ -93,7 +93,7 @@ var batchCounter int
 func orchestrator(workerCtx context.Context, logger log.Logger, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
 	ctx sdk.Context,
 ) {
-	var currentBatch []string
+	currentBatch := make([]string, 0, batchSize)
 	i := 0
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		if workerCtx.Err() != nil {
