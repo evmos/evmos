@@ -61,14 +61,17 @@ func worker(
 			if len(processResults) == 0 {
 				continue
 			}
+			logger.Info("adding to results channel")
 			results <- processResults
-			logger.Info("Worker %d sent %d results to main results channel", id, len(processResults))
+			logger.Info(fmt.Sprintf("Worker %d sent %d results to main results channel", id, len(processResults)))
 		case <-workerCtx.Done():
 			logger.Error(fmt.Sprintf("worker %d is done", id))
 			return nil
 		}
 	}
 }
+
+var balancesCounter int
 
 func performTask(logger log.Logger, task []string, id int,
 	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
@@ -90,8 +93,12 @@ func performTask(logger log.Logger, task []string, id int,
 			}
 		}
 
+		// TODO: remove logging here
 		if len(results) > 0 {
-			logger.Info(fmt.Sprintf("Worker %d processing account: %q got %d balances", id, account, len(results)))
+			balancesCounter++
+			if balancesCounter%100 == 0 {
+				logger.Info(fmt.Sprintf("found %d accounts with balances so far.", balancesCounter))
+			}
 		}
 	}
 	return results, nil
