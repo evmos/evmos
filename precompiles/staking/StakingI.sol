@@ -153,7 +153,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param commissionRate CommissionRate parameter to be updated, -1 means keeping it as is and not updating it.
     /// @param minSelfDelegation MinSelfDelegation parameter to be updated,
     /// -1 means keeping it as is and not updating it.
-    /// @return success Whether or not edit validator was successful
+    /// @return success Whether or not edit validator was successful.
     function editValidator(
         Description calldata description,
         address validatorAddress,
@@ -295,9 +295,9 @@ interface StakingI is authorization.AuthorizationI {
     );
 
     /// @dev EditValidator defines an Event emitted when edit a validator.
-    /// @param validatorAddress The address of the validator
-    /// @param commissionRate The commission rate
-    /// @param minSelfDelegation The min self delegation
+    /// @param validatorAddress The address of the validator.
+    /// @param commissionRate The commission rate.
+    /// @param minSelfDelegation The min self delegation.
     event EditValidator(
         address indexed validatorAddress,
         int256 commissionRate,

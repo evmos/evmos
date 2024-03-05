@@ -23,8 +23,10 @@ import (
 )
 
 const (
-	DoNotModifyCommissionRate    = -1 // constant used in flags to indicate that commission rate field should not be updated
-	DoNotModifyMinSelfDelegation = -1 // constant used in flags to indicate that min self delegation field should not be updated
+	// DoNotModifyCommissionRate constant used in flags to indicate that commission rate field should not be updated
+	DoNotModifyCommissionRate = -1
+	// DoNotModifyMinSelfDelegation constant used in flags to indicate that min self delegation field should not be updated
+	DoNotModifyMinSelfDelegation = -1
 )
 
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.

@@ -22,7 +22,7 @@ import (
 const (
 	// EventTypeCreateValidator defines the event type for the staking CreateValidator transaction.
 	EventTypeCreateValidator = "CreateValidator"
-	// EventTypeEditValidator defines the event type for the staking DeitValidator transaction.
+	// EventTypeEditValidator defines the event type for the staking EditValidator transaction.
 	EventTypeEditValidator = "EditValidator"
 	// EventTypeDelegate defines the event type for the staking Delegate transaction.
 	EventTypeDelegate = "Delegate"
@@ -150,7 +150,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	return nil
 }
 
-// EmitEditValidatorEvent creates a new edit valdator event emitted on a EditValidator transaction.
+// EmitEditValidatorEvent creates a new edit validator event emitted on a EditValidator transaction.
 func (p Precompile) EmitEditValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgEditValidator, validatorAddr common.Address) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeEditValidator]
