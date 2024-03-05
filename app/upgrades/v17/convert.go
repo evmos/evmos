@@ -79,6 +79,7 @@ func PerformTask(logger log.Logger, task []string, id int,
 	results := make([]TelemetryResult, 0, len(task))
 
 	for _, account := range task {
+		found := false
 		cosmosAddress := sdk.MustAccAddressFromBech32(account)
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		addrBytes := ethAddress.Bytes()
@@ -92,6 +93,7 @@ func PerformTask(logger log.Logger, task []string, id int,
 				// we continue here early to save creating a new big int for the zero cases
 				continue
 			}
+			found = true
 			balance, _ := new(big.Int).SetString(stateHex, 0)
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
@@ -99,13 +101,14 @@ func PerformTask(logger log.Logger, task []string, id int,
 		}
 
 		// TODO: remove logging here
-		if len(results) > 0 {
+		if found {
 			balancesCounter++
 			if balancesCounter%100 == 0 {
 				logger.Info(fmt.Sprintf("found %d accounts with balances so far.", balancesCounter))
 			}
 		}
 	}
+	logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(task)))
 	return results, nil
 }
 
