@@ -35,6 +35,7 @@ type TelemetryResult struct {
 // worker performs the task on jobs received and sends results to the results channel.
 func worker(
 	workerCtx context.Context,
+	logger log.Logger,
 	id int,
 	tasks <-chan []string,
 	results chan<- []TelemetryResult,
@@ -50,6 +51,9 @@ func worker(
 				return nil // Channel closed, stop the worker
 			}
 
+			if id%1000 == 0 {
+				logger.Info("Worker %d received task", id)
+			}
 			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
 				return err
@@ -226,10 +230,10 @@ func ConvertERC20Coins(
 		copy(pairsCopy, tokenPairs)
 		func(w int) {
 			if w%100 == 0 {
-				logger.Info("Starting worker: ", w)
+				logger.Info("Starting worker: %d", w)
 			}
 			g.Go(func() error {
-				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
+				return worker(workerCtx, logger, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
 			})
 		}(w)
 	}
