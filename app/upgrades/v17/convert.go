@@ -88,10 +88,15 @@ func PerformTask(logger log.Logger, task []string, id int,
 			state := evmKeeper.GetState(ctx, pair, key)
 			stateHex := state.Hex()
 			// TODO: move this to rama's branch
+			if stateHex == "0x0000000000000000000000000000000000000000000000000000000000000000" {
+				// we continue here early to save creating a new big int for the zero cases
+				continue
+			}
 			balance, _ := new(big.Int).SetString(stateHex, 0)
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
+			// TODO: remove
 			logger.Info(fmt.Sprintf("balance 0 -> %s", stateHex))
 		}
 
