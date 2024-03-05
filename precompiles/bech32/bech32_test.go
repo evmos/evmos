@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/cmd/config"
-	"github.com/evmos/evmos/v15/precompiles/bech32"
+	"github.com/evmos/evmos/v16/cmd/config"
+	"github.com/evmos/evmos/v16/precompiles/bech32"
 )
 
 func (s *PrecompileTestSuite) TestNewPrecompile() {
@@ -71,7 +71,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				contract.Input = []byte("invalid")
 				return contract
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			false,
 			"no method with id",
 		},
@@ -82,7 +82,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				contract.Input = s.precompile.Methods[bech32.HexToBech32Method].ID
 				return contract
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			false,
 			"abi: attempting to unmarshall an empty string while arguments are expected",
 		},
@@ -100,7 +100,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				contract.Input = input
 				return contract
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			false,
 			"invalid bech32 human readable prefix (HRP)",
 		},

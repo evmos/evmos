@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -7,22 +8,24 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
+	gethparams "github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -33,18 +36,21 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
+	GetEVMChainConfig() *gethparams.ChainConfig
 
 	// Clients
+	GetERC20Client() erc20types.QueryClient
 	GetEvmClient() evmtypes.QueryClient
-	GetRevenueClient() revtypes.QueryClient
+	GetGovClient() govtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
-	// would be require, we should provide an easier way to update the params
-	UpdateRevenueParams(params revtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
+	// would be required, we should provide an easier way to update the params
 	UpdateEvmParams(params evmtypes.Params) error
+	UpdateGovParams(params govtypes.Params) error
+	UpdateInflationParams(params infltypes.Params) error
+	UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -99,9 +105,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -114,33 +118,44 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	fundedAccountBalances = addBondedModuleAccountToFundedBalances(fundedAccountBalances, sdktypes.NewCoin(n.cfg.denom, totalBonded))
+	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
+		fundedAccountBalances,
+		sdktypes.NewCoin(n.cfg.denom, totalBonded),
+	)
 
 	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)
 
-	// Configure Genesis state
-	genesisState := app.NewDefaultGenesisState()
-
-	genesisState = setAuthGenesisState(evmosApp, genesisState, genAccounts)
-
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
 		validators:  validators,
 		delegations: delegations,
 	}
-	genesisState = setStakingGenesisState(evmosApp, genesisState, stakingParams)
-
-	genesisState = setInflationGenesisState(evmosApp, genesisState)
 
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
-	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
+
+	// Configure Genesis state
+	genesisState := newDefaultGenesisState(
+		evmosApp,
+		defaultGenesisParams{
+			genAccounts: genAccounts,
+			staking:     stakingParams,
+			bank:        bankParams,
+		},
+	)
+
+	// modify genesis state if there're any custom genesis state
+	// for specific modules
+	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	if err != nil {
+		return err
+	}
 
 	// Init chain
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -148,6 +163,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
+	consensusParams := app.DefaultConsensusParams
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -171,11 +187,37 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initilize the context
+	// TODO - this might not be the best way to initialize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
+	n.ctx = n.ctx.WithConsensusParams(consensusParams)
+	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
+
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners
+
+	// Register EVMOS in denom metadata
+	evmosMetadata := banktypes.Metadata{
+		Description: "The native token of Evmos",
+		Base:        n.cfg.denom,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 0,
+				Aliases:  []string{n.cfg.denom},
+			},
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 18,
+			},
+		},
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+		Display: n.cfg.denom,
+	}
+	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
+
 	return nil
 }
 
@@ -192,6 +234,12 @@ func (n *IntegrationNetwork) GetChainID() string {
 // GetEIP155ChainID returns the network EIp-155 chainID number
 func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 	return n.cfg.eip155ChainID
+}
+
+// GetChainConfig returns the network's chain config
+func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
+	params := n.app.EvmKeeper.GetParams(n.ctx)
+	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 
 // GetDenom returns the network's denom

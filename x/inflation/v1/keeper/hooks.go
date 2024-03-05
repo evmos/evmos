@@ -7,10 +7,11 @@ import (
 	"fmt"
 
 	"github.com/armon/go-metrics"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here
@@ -60,7 +61,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 	if !epochMintProvision.IsPositive() {
 		k.Logger(ctx).Error(
-			"SKIPPING INFLATION: negative epoch mint provision",
+			"SKIPPING INFLATION: zero or negative epoch mint provision",
 			"value", epochMintProvision.String(),
 		)
 		return
@@ -71,7 +72,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		Amount: epochMintProvision.TruncateInt(),
 	}
 
-	staking, incentives, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin, params)
+	staking, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin, params)
 	if err != nil {
 		panic(err)
 	}
@@ -93,31 +94,23 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 	defer func() {
 		stakingAmt := staking.AmountOfNoDenomValidation(mintedCoin.Denom)
-		incentivesAmt := incentives.AmountOfNoDenomValidation(mintedCoin.Denom)
 		cpAmt := communityPool.AmountOfNoDenomValidation(mintedCoin.Denom)
 
-		if mintedCoin.Amount.IsInt64() {
+		if mintedCoin.Amount.IsInt64() && mintedCoin.Amount.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "total"},
 				float32(mintedCoin.Amount.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if stakingAmt.IsInt64() {
+		if stakingAmt.IsInt64() && stakingAmt.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "staking", "total"},
 				float32(stakingAmt.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if incentivesAmt.IsInt64() {
-			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "allocate", "incentives", "total"},
-				float32(incentivesAmt.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
-			)
-		}
-		if cpAmt.IsInt64() {
+		if cpAmt.IsInt64() && cpAmt.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "community_pool", "total"},
 				float32(cpAmt.Int64()),

@@ -211,7 +211,7 @@ def test_event_log_filter_by_topic(cluster):
 
     test_cases = [
         {
-            "name": "one contract emiting one topic",
+            "name": "one contract emitting one topic",
             "filters": [
                 {"topics": [CHANGE_GREETING_TOPIC.hex()]},
                 {
@@ -288,7 +288,7 @@ def test_event_log_filter_by_topic(cluster):
             tx = None
             if c == GREETER_CONTRACT:
                 contract, _ = deploy_contract(w3, CONTRACTS[c])
-                # validate deploy was successfull
+                # validate deploy was successful
                 assert contract.caller.greet() == "Hello"
                 # create tx that emits event
                 tx = contract.functions.setGreeting(new_greeting).build_transaction(
@@ -296,7 +296,7 @@ def test_event_log_filter_by_topic(cluster):
                 )
             elif c == ERC20_CONTRACT:
                 contract, _ = deploy_contract(w3, CONTRACTS[c])
-                # validate deploy was successfull
+                # validate deploy was successful
                 assert contract.caller.name() == "TestERC20"
                 # create tx that emits event
                 tx = contract.functions.transfer(

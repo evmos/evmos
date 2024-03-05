@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/utils"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
@@ -131,10 +132,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -147,20 +148,20 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 					operatorAddress,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, ""),
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					s.address,
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid validator address",
@@ -171,7 +172,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -230,22 +231,22 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(string) []interface{} {
 				return []interface{}{
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid validator address",
@@ -255,7 +256,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -322,7 +323,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -335,7 +336,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					10,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid delegator address",
@@ -348,7 +349,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					big.NewInt(100000000000000000),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid type for maxRetrieve: expected uint32",
@@ -361,7 +362,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(2),
 				}
 			},
-			func(data []byte) {
+			func([]byte) {
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
 			},
@@ -377,7 +378,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(1),
 				}
 			},
-			func(data []byte) {
+			func([]byte) {
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6e18))
 			},
@@ -400,7 +401,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 
 			// Distribute rewards to the 2 validators, 1 EVMOS each
 			for _, val := range s.validators {
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 			}
 

@@ -19,16 +19,17 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	compiledcontracts "github.com/evmos/evmos/v15/contracts"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/staking/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	compiledcontracts "github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/staking/testdata"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // General variables used for integration tests
@@ -53,9 +54,9 @@ var (
 var _ = Describe("Calling staking precompile directly", func() {
 	var (
 		// oneE18Coin is a sdk.Coin with an amount of 1e18 in the test suite's bonding denomination
-		oneE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(1e18))
+		oneE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(1e18))
 		// twoE18Coin is a sdk.Coin with an amount of 2e18 in the test suite's bonding denomination
-		twoE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(2e18))
+		twoE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(2e18))
 	)
 
 	BeforeEach(func() {
@@ -434,14 +435,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 				Expect(found).To(BeTrue(), "expected delegation to be found")
-				expShares := prevDelegation.GetShares().Add(sdk.NewDec(2))
+				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(2))
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected different delegation shares")
 			})
 
 			It("should not delegate if the account has no sufficient balance", func() {
 				// send funds away from account to only have target balance remaining
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-				targetBalance := sdk.NewInt(1e17)
+				targetBalance := math.NewInt(1e17)
 				sentBalance := balance.Amount.Sub(targetBalance)
 				newAddr, _ := testutiltx.NewAccAddressAndKey()
 				err := s.app.BankKeeper.SendCoins(s.ctx, s.address.Bytes(), newAddr,
@@ -679,7 +680,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("as the token owner", func() {
@@ -793,8 +794,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -803,14 +805,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
 		It("should return an empty validator if the validator is not found", func() {
-			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
+			newValHexAddr := testutiltx.GenerateAddress()
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				newValAddr.String(),
+				newValHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -1365,7 +1367,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(authorization).ToNot(BeNil(), "expected authorization to not be nil")
 				Expect(expirationTime).ToNot(BeNil(), "expected expiration time to not be nil")
 				Expect(authorization.MsgTypeURL()).To(Equal(staking.DelegateMsg), "expected authorization msg type url to be %s", staking.DelegateMsg)
-				Expect(authorization.MaxTokens.Amount).To(Equal(sdk.NewInt(2e18)), "expected different max tokens after updated approval")
+				Expect(authorization.MaxTokens.Amount).To(Equal(math.NewInt(2e18)), "expected different max tokens after updated approval")
 			})
 
 			It("should remove approval when setting amount to zero", func() {
@@ -1486,7 +1488,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				valAddrs,
 				nil,
 				createdAuthz,
-				&sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(1e18)},
+				&sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(1e18)},
 			)
 			Expect(err).To(BeNil(), "failed to create authorization")
 
@@ -1536,7 +1538,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				staking.DelegateAuthz,
 				contractAddr,
 				s.address,
-				&sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)},
+				&sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)},
 			)
 		})
 	})
@@ -1601,7 +1603,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 				Expect(found).To(BeTrue(), "expected delegation to be found")
-				expShares := prevDelegation.GetShares().Add(sdk.NewDec(1))
+				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 			})
 
@@ -1660,7 +1662,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 				delegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), newValAddr)
-				Expect(delegation.GetShares()).To(Equal(sdk.NewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
+				Expect(delegation.GetShares()).To(Equal(math.LegacyNewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
 			})
 		})
 	})
@@ -1923,7 +1925,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("without approval set", func() {
@@ -2073,7 +2075,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("with non-existing address should return an empty validator", func() {
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				nonExistingVal.String(),
+				nonExistingAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2087,8 +2089,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("with existing address should return the validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2097,7 +2100,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
@@ -2233,7 +2236,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance.Amount.Int64()).To(Equal(int64(0)), "expected a different delegation balance")
-			Expect(delOut.Balance.Denom).To(Equal("aevmos"), "expected a different delegation balance")
+			Expect(delOut.Balance.Denom).To(Equal(utils.BaseDenom), "expected a different delegation balance")
 		})
 
 		It("which exists should return the delegation", func() {
@@ -2248,7 +2251,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance).To(Equal(
-				cmn.Coin{Denom: "aevmos", Amount: big.NewInt(1e18)}),
+				cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
 				"expected a different delegation balance",
 			)
 		})
@@ -2408,7 +2411,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(int64(4)), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		It("which does not exist should return an empty unbonding delegation", func() {
@@ -2550,7 +2553,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				var delOut staking.DelegationOutput
 				err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 				Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
-				Expect(delOut.Shares).To(Equal(sdk.NewDec(1).BigInt()), "expected different delegation shares")
+				Expect(delOut.Shares).To(Equal(math.LegacyNewDec(1).BigInt()), "expected different delegation shares")
 				Expect(delOut.Balance.Amount).To(Equal(big.NewInt(1e18)), "expected different delegation balance")
 				if testcase.calltype != "callcode" { // having some trouble with returning the denom from inline assembly but that's a very special edge case which might never be used
 					Expect(delOut.Balance.Denom).To(Equal(s.bondDenom), "expected different denomination")

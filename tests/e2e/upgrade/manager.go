@@ -8,15 +8,26 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
+
+// safetyDelta is the number of blocks that are added to the upgrade height to make sure
+// the proposal has concluded when reaching the upgrade height.
+const safetyDelta = 2
 
 // Manager defines a docker pool instance, used to build, run, interact with and stop docker containers
 // running Evmos nodes.
@@ -34,6 +45,9 @@ type Manager struct {
 	// proposalCounter keeps track of the number of proposals that have been submitted
 	proposalCounter uint
 
+	// ProtoCodec is the codec used to marshal/unmarshal protobuf messages
+	ProtoCodec *codec.ProtoCodec
+
 	// UpgradeHeight stores the upgrade height for the latest upgrade proposal that was submitted
 	UpgradeHeight uint
 }
@@ -49,9 +63,17 @@ func NewManager(networkName string) (*Manager, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docker network creation error: %w", err)
 	}
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
+	if !ok {
+		return nil, fmt.Errorf("failed to get proto codec")
+	}
+
 	return &Manager{
-		pool:    pool,
-		network: network,
+		pool:       pool,
+		network:    network,
+		ProtoCodec: protoCodec,
 	}, nil
 }
 
@@ -135,7 +157,6 @@ func (m *Manager) RunNode(node *Node) error {
 			return nil
 		},
 	)
-
 	if err != nil {
 		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 		return fmt.Errorf(
@@ -255,6 +276,97 @@ func (m *Manager) GetNodeVersion(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("evmos version error: %s", errBuff.String())
 	}
 	return outBuff.String(), nil
+}
+
+// GetUpgradeHeight calculates the height for the scheduled software upgrade.
+//
+// It checks the timeout commit that is configured on the node and checks the voting duration.
+// From this information, the height at which the upgrade will be scheduled is calculated.
+func (m *Manager) GetUpgradeHeight(ctx context.Context, chainID string) (uint, error) {
+	currentHeight, err := m.GetNodeHeight(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	timeoutCommit, err := m.getTimeoutCommit(ctx)
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to get timeout commit")
+	}
+
+	votingPeriod, err := m.getVotingPeriod(ctx, chainID)
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to get voting period")
+	}
+
+	heightDelta := new(big.Int).Quo(votingPeriod, timeoutCommit)
+	upgradeHeight := uint(currentHeight) + uint(heightDelta.Int64()) + safetyDelta
+
+	// return the height at which the upgrade will be scheduled
+	return upgradeHeight, nil
+}
+
+// getTimeoutCommit returns the timeout commit duration for the current node
+func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
+	exec, err := m.CreateExec([]string{"grep", `\s*timeout_commit =`, "/root/.evmosd/config/config.toml"}, m.ContainerID())
+	if err != nil {
+		return common.Big0, fmt.Errorf("create exec error: %w", err)
+	}
+
+	outBuff, errBuff, err := m.RunExec(ctx, exec)
+	if err != nil {
+		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
+	}
+
+	if errBuff.String() != "" {
+		return common.Big0, fmt.Errorf("evmos version error: %s", errBuff.String())
+	}
+
+	re := regexp.MustCompile(`timeout_commit = "(?P<t>\d+)s"`)
+	match := re.FindStringSubmatch(outBuff.String())
+	if len(match) != 2 {
+		return common.Big0, fmt.Errorf("failed to parse timeout_commit: %s", outBuff.String())
+	}
+
+	tc, err := strconv.Atoi(match[1])
+	if err != nil {
+		return common.Big0, err
+	}
+
+	return big.NewInt(int64(tc)), nil
+}
+
+// getVotingPeriod returns the voting period for the current node
+func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int, error) {
+	exec, err := m.CreateModuleQueryExec(QueryArgs{
+		Module:     "gov",
+		SubCommand: "params",
+		ChainID:    chainID,
+	})
+	if err != nil {
+		return common.Big0, fmt.Errorf("create exec error: %w", err)
+	}
+
+	outBuff, errBuff, err := m.RunExec(ctx, exec)
+	if err != nil {
+		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
+	}
+
+	if errBuff.String() != "" {
+		return common.Big0, fmt.Errorf("evmos version error: %s", errBuff.String())
+	}
+
+	re := regexp.MustCompile(`"voting_period":"(?P<votingPeriod>\d+)s"`)
+	match := re.FindStringSubmatch(outBuff.String())
+	if len(match) != 2 {
+		return common.Big0, fmt.Errorf("failed to parse voting_period: %s", outBuff.String())
+	}
+
+	vp, err := strconv.Atoi(match[1])
+	if err != nil {
+		return common.Big0, err
+	}
+
+	return big.NewInt(int64(vp)), nil
 }
 
 // ContainerID returns the docker container ID of the currently running Node

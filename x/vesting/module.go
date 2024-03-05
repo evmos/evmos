@@ -22,9 +22,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/evmos/evmos/v15/x/vesting/client/cli"
-	"github.com/evmos/evmos/v15/x/vesting/keeper"
-	"github.com/evmos/evmos/v15/x/vesting/types"
+	"github.com/evmos/evmos/v16/x/vesting/client/cli"
+	"github.com/evmos/evmos/v16/x/vesting/keeper"
+	"github.com/evmos/evmos/v16/x/vesting/types"
 )
 
 // consensusVersion defines the current x/vesting module consensus version.
@@ -118,10 +118,6 @@ func (AppModule) Name() string {
 
 // RegisterInvariants performs a no-op; there are no invariants to enforce.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
-
-func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
-}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {

@@ -6,10 +6,10 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/evm/keeper"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/evm/keeper"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -26,12 +26,6 @@ func (suite *KeeperTestSuite) TestWithChainID() {
 		{
 			"fail - chainID is empty",
 			"",
-			0,
-			true,
-		},
-		{
-			"fail - other chainID",
-			"chain_7701-1",
 			0,
 			true,
 		},

@@ -5,7 +5,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -16,6 +15,7 @@ from dotenv import load_dotenv
 from eth_account import Account
 from hexbytes import HexBytes
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
+from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
 
@@ -31,6 +31,7 @@ KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
+WEVMOS_ADDRESS = Web3.toChecksumAddress("0xcc491f589b45d4a3c679016195b3fb87d7848210")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -43,19 +44,25 @@ TEST_CONTRACTS = {
     "StakingI": "evmos/staking/StakingI.sol",
     "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
+    "IOsmosisOutpost": "evmos/outposts/osmosis/IOsmosisOutpost.sol",
     "IERC20": "evmos/erc20/IERC20.sol",
 }
-WEVMOS_META = {
-    "description": "The native staking and governance token of the Evmos chain",
-    "denom_units": [
-        {"denom": "aevmos", "exponent": 0, "aliases": ["aevmos"]},
-        {"denom": "WEVMOS", "exponent": 18},
-    ],
-    "base": "aevmos",
-    "display": "WEVMOS",
-    "name": "Wrapped EVMOS",
-    "symbol": "WEVMOS",
+
+OSMOSIS_POOLS = {
+    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
 }
+
+# If need to update these binaries
+# you can use the compile-cosmwasm-contracts.sh
+# script located in the 'scripts' directory
+WASM_BINARIES = {
+    "CrosschainSwap": "crosschain_swaps.wasm",
+    "Swaprouter": "swaprouter.wasm",
+}
+
+
+def wasm_binaries_path(filename):
+    return Path(__file__).parent / "cosmwasm/artifacts/" / filename
 
 
 def contract_path(name, filename):
@@ -65,6 +72,11 @@ def contract_path(name, filename):
         / filename
         / (name + ".json")
     )
+
+
+WASM_CONTRACTS = {
+    **{name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()},
+}
 
 
 CONTRACTS = {
@@ -195,6 +207,8 @@ def get_precompile_contract(w3, name):
         addr = "0x0000000000000000000000000000000000000802"
     elif name == "IStrideOutpost":
         addr = "0x0000000000000000000000000000000000000900"
+    elif name == "IOsmosisOutpost":
+        addr = "0x0000000000000000000000000000000000000901"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
@@ -221,26 +235,26 @@ def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     return w3.eth.contract(address=address, abi=info["abi"]), txreceipt
 
 
-def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
+def wait_for_cosmos_tx_receipt(cli, tx_hash):
+    print(f"waiting receipt for tx_hash: {tx_hash}...")
+    wait_for_new_blocks(cli, 1)
+    res = cli.tx_search_rpc(f"tx.hash='{tx_hash}'")
+    if len(res) == 0:
+        return wait_for_cosmos_tx_receipt(cli, tx_hash)
+    return res[0]
+
+
+def wait_for_ack(cli, chain):
     """
-    submits a register_coin proposal for the provided coin metadata
+    Helper function to wait for acknoledgment
+    of an IBC transfer
     """
-    proposer = eth_to_bech32(proposer_addr)
-    # save the coin metadata in a json file
-    with tempfile.NamedTemporaryFile("w") as meta_file:
-        json.dump({"metadata": proposal.get("metadata")}, meta_file)
-        meta_file.flush()
-        proposal["metadata"] = meta_file.name
-        rsp = cli.gov_legacy_proposal(proposer, "register-coin", proposal, gas=10000000)
-        assert rsp["code"] == 0, rsp["raw_log"]
-        txhash = rsp["txhash"]
-        wait_for_new_blocks(cli, 2)
-        receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
-        return get_event_attribute_value(
-            receipt["tx_result"]["events"],
-            "submit_proposal",
-            "proposal_id",
-        )
+    print(f"{chain} waiting ack...")
+    block_results = cli.block_results_rpc()
+    txs_res = block_results["txs_results"]
+    if txs_res is None:
+        wait_for_new_blocks(cli, 1)
+        return wait_for_ack(cli, chain)
 
 
 def register_host_zone(
@@ -496,61 +510,6 @@ def setup_stride():
         subprocess.run(["../../scripts/setup-stride.sh"], check=True)
 
     return inner
-
-
-def register_wevmos(evmos):
-    """
-    this helper function registers the WEVMOS
-    token in the ERC20 module and returns the contract address.
-    Make sure to patch the evmosd binary with the allow-wevmos-register patch
-    for this to be successful
-    """
-    cli = evmos.cosmos_cli()
-    proposal = {
-        "title": "Register WEVMOS",
-        "description": "EVMOS erc20 representation",
-        "metadata": [WEVMOS_META],
-        "deposit": "1aevmos",
-    }
-    proposal_id = register_ibc_coin(cli, proposal)
-    assert (
-        int(proposal_id) > 0
-    ), "expected a non-zero proposal ID for the registration of the WEVMOS token."
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(evmos, proposal_id)
-
-    # query token pairs and get WEVMOS address
-    pairs = cli.get_token_pairs()
-    assert len(pairs) == 1
-    assert pairs[0]["denom"] == "aevmos"
-
-    return pairs[0]["erc20_address"]
-
-
-def wrap_evmos(evmos, addr, amt):
-    """
-    Helper function that registers WEVMOS token
-    and wraps the specified amount
-    for the provided Ethereum address
-    Returns the WEVMOS contract address
-    """
-    cli = evmos.cosmos_cli()
-    # submit proposal to register WEVMOS
-    wevmos_addr = register_wevmos(evmos)
-
-    # convert 'aevmos' to WEVMOS (wrap)
-    rsp = cli.convert_coin(f"{amt}aevmos", eth_to_bech32(addr), gas=2000000)
-    assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(cli, 2)
-    txhash = rsp["txhash"]
-    receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
-    assert receipt["tx_result"]["code"] == 0
-
-    # check the desired amt was wrapped
-    wevmos_balance = erc20_balance(evmos.w3, wevmos_addr, addr)
-    assert wevmos_balance == amt
-
-    return wevmos_addr
 
 
 def erc20_balance(w3, erc20_contract_addr, addr):

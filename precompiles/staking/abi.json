@@ -98,12 +98,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "delegatorAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "validatorAddress",
         "type": "address"
       },
@@ -421,13 +415,8 @@
       },
       {
         "internalType": "address",
-        "name": "delegatorAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "internalType": "string",
@@ -1044,9 +1033,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "validator",

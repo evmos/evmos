@@ -1,14 +1,15 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package grpc
 
 import (
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
-	commongrpc "github.com/evmos/evmos/v15/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	commongrpc "github.com/evmos/evmos/v16/testutil/integration/common/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 // Handler is an interface that defines the methods that are used to query
@@ -23,10 +24,11 @@ type Handler interface {
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
+	GetFeeMarketParams() (*feemarkettypes.QueryParamsResponse, error)
 
-	// Revenue methods
-	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
-	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
+	// Gov methods
+	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
+	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

@@ -10,8 +10,8 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v15/x/erc20/keeper"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
@@ -25,8 +25,6 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 		}
 
 		switch c := content.(type) {
-		case *types.RegisterCoinProposal:
-			return handleRegisterCoinProposal(ctx, k, c)
 		case *types.RegisterERC20Proposal:
 			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.ToggleTokenConversionProposal:
@@ -36,31 +34,6 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
 	}
-}
-
-// handleRegisterCoinProposal handles the registration proposal for multiple
-// native Cosmos coins
-func handleRegisterCoinProposal(
-	ctx sdk.Context,
-	k *keeper.Keeper,
-	p *types.RegisterCoinProposal,
-) error {
-	for _, metadata := range p.Metadata {
-		pair, err := k.RegisterCoin(ctx, metadata)
-		if err != nil {
-			return err
-		}
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRegisterCoin,
-				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-			),
-		)
-	}
-
-	return nil
 }
 
 // handleRegisterERC20Proposal handles the registration proposal for multiple

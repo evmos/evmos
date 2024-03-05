@@ -3,39 +3,35 @@ package keeper_test
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 	testCases := []struct {
-		name                  string
-		mintCoin              sdk.Coin
-		malleate              func()
-		expStakingRewardAmt   sdk.Coin
-		expUsageIncentivesAmt sdk.Coin
-		expCommunityPoolAmt   sdk.DecCoins
-		expPass               bool
+		name                string
+		mintCoin            sdk.Coin
+		malleate            func()
+		expStakingRewardAmt sdk.Coin
+		expCommunityPoolAmt sdk.DecCoins
+		expPass             bool
 	}{
 		{
 			"pass",
-			sdk.NewCoin(denomMint, sdk.NewInt(1_000_000)),
+			sdk.NewCoin(denomMint, math.NewInt(1_000_000)),
 			func() {},
-			sdk.NewCoin(denomMint, sdk.NewInt(533_333)),
-			sdk.NewCoin(denomMint, sdk.NewInt(333_333)),
-			sdk.NewDecCoins(sdk.NewDecCoin(denomMint, sdk.NewInt(133_334))),
+			sdk.NewCoin(denomMint, math.NewInt(533_333)),
+			sdk.NewDecCoins(sdk.NewDecCoin(denomMint, math.NewInt(466_667))),
 			true,
 		},
 		{
 			"pass - no coins minted ",
-			sdk.NewCoin(denomMint, sdk.ZeroInt()),
+			sdk.NewCoin(denomMint, math.ZeroInt()),
 			func() {},
-			sdk.NewCoin(denomMint, sdk.ZeroInt()),
-			sdk.NewCoin(denomMint, sdk.ZeroInt()),
+			sdk.NewCoin(denomMint, math.ZeroInt()),
 			sdk.DecCoins(nil),
 			true,
 		},
@@ -46,7 +42,7 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 
 			tc.malleate()
 
-			_, _, _, err := suite.app.InflationKeeper.MintAndAllocateInflation(suite.ctx, tc.mintCoin, types.DefaultParams())
+			_, _, err := suite.app.InflationKeeper.MintAndAllocateInflation(suite.ctx, tc.mintCoin, types.DefaultParams())
 
 			// Get balances
 			balanceModule := suite.app.BankKeeper.GetBalance(
@@ -62,20 +58,12 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 				denomMint,
 			)
 
-			incentives := suite.app.AccountKeeper.GetModuleAddress(incentivestypes.ModuleName)
-			balanceUsageIncentives := suite.app.BankKeeper.GetBalance(
-				suite.ctx,
-				incentives,
-				denomMint,
-			)
-
 			balanceCommunityPool := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().True(balanceModule.IsZero())
 				suite.Require().Equal(tc.expStakingRewardAmt, balanceStakingRewards)
-				suite.Require().Equal(tc.expUsageIncentivesAmt, balanceUsageIncentives)
 				suite.Require().Equal(tc.expCommunityPoolAmt, balanceCommunityPool)
 			} else {
 				suite.Require().Error(err)
@@ -86,14 +74,14 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 
 func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := sdkmath.NewInt(1000100000000000000)
+	bondedAmt := math.NewInt(1000100000000000000)
 	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
 
 	testCases := []struct {
 		name             string
-		bankSupply       sdkmath.Int
+		bankSupply       math.Int
 		malleate         func()
-		expInflationRate sdk.Dec
+		expInflationRate math.LegacyDec
 	}{
 		{
 			"no epochs per period",
@@ -101,25 +89,25 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			func() {
 				suite.app.InflationKeeper.SetEpochsPerPeriod(suite.ctx, 0)
 			},
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 		},
 		{
 			"high supply",
 			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
-			sdk.MustNewDecFromStr("51.562500000000000000"),
+			math.LegacyMustNewDecFromStr("17.187500000000000000"),
 		},
 		{
 			"low supply",
 			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
-			sdk.MustNewDecFromStr("154.687500000000000000"),
+			math.LegacyMustNewDecFromStr("51.562500000000000000"),
 		},
 		{
 			"zero circulating supply",
 			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 		},
 	}
 	for _, tc := range testCases {
@@ -158,19 +146,19 @@ func (suite *KeeperTestSuite) TestBondedRatio() {
 		name         string
 		isMainnet    bool
 		malleate     func()
-		expBondRatio sdk.Dec
+		expBondRatio math.LegacyDec
 	}{
 		{
 			"is mainnet",
 			true,
 			func() {},
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 		},
 		{
 			"not mainnet",
 			false,
 			func() {},
-			sdk.MustNewDecFromStr("0.999900009999000099"),
+			math.LegacyMustNewDecFromStr("0.999900009999000099"),
 		},
 	}
 	for _, tc := range testCases {

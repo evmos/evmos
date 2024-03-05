@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v15/testutil/integration/common/network"
+	"github.com/evmos/evmos/v16/testutil/integration/common/network"
 )
 
 // Handler is an interface that defines the common methods that are used to query
@@ -28,6 +28,7 @@ type Handler interface {
 
 	// Bank methods
 	GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetAllBalances(address sdktypes.AccAddress) (*banktypes.QueryAllBalancesResponse, error)
 
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)

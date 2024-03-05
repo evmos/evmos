@@ -6,16 +6,20 @@ package osmosis_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
 const (
-	portID    = "transfer"
-	channelID = "channel-0"
+	PortID      = "transfer"
+	ChannelID   = "channel-0"
+	XCSContract = "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 )
 
 type PrecompileTestSuite struct {
@@ -39,14 +43,13 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-		portID,
-		channelID,
-		osmosis.XCSContract,
+		common.HexToAddress(erc20.WEVMOSContractTestnet),
+		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
-		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 

@@ -4,7 +4,7 @@
   "author": "Evmos team",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "get-contracts": "rm -rf ./contracts/evmos && mkdir -p ./contracts/evmos && rsync -avm --include='*/' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/evmos/",
+    "get-contracts": "rm -rf ./contracts/evmos && mkdir -p ./contracts/evmos && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/evmos/",
     "typechain": "npm run get-contracts && npx hardhat typechain"
   },
   "devDependencies": {
@@ -14,13 +14,13 @@
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-verify": "^1.1.1",
     "@openzeppelin/contracts": "^4.9.3",
-    "@openzeppelin/contracts-upgradeable": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.6",
     "@typechain/ethers-v6": "^0.4.3",
     "@typechain/hardhat": "^8.0.3",
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.7",
-    "hardhat": "^2.17.1",
+    "hardhat": "^2.20.0",
     "hardhat-gas-reporter": "^1.0.9",
     "solidity-coverage": "^0.8.5",
     "ts-node": "^10.9.1",

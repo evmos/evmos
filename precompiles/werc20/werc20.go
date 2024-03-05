@@ -12,10 +12,10 @@ import (
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	erc20 "github.com/evmos/evmos/v15/precompiles/erc20"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	erc20 "github.com/evmos/evmos/v16/precompiles/erc20"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the WERC-20 precompile ABI JSON file.
@@ -35,9 +35,9 @@ type Precompile struct {
 
 const (
 	// DepositRequiredGas defines the gas required for the Deposit transaction.
-	DepositRequiredGas uint64 = 28_799
+	DepositRequiredGas uint64 = 23_878
 	// WithdrawRequiredGas defines the gas required for the Withdraw transaction.
-	WithdrawRequiredGas uint64 = 35_960
+	WithdrawRequiredGas uint64 = 9207
 )
 
 // NewPrecompile creates a new WERC20 Precompile instance as a
@@ -114,10 +114,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
-		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+		bz, err = p.Deposit()
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
-		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+		bz, err = p.Withdraw()
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
@@ -136,7 +136,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given methodID corresponds to a transaction or query.
+// IsTransaction checks if the given method name corresponds to a transaction or query.
 func (p Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
 	case DepositMethod, WithdrawMethod:

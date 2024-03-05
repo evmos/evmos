@@ -5,18 +5,19 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -35,7 +36,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -49,7 +50,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{"invalid"},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidMsgType, "staking", "invalid"),
@@ -64,7 +65,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		//			[]string{"invalid"},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -78,7 +79,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 
@@ -101,7 +102,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
@@ -124,7 +125,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.RedelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
@@ -151,7 +152,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, s.address.Bytes(), s.address.Bytes())
@@ -164,7 +165,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 		{
 			"success - remove MsgDelegate authorization",
-			func(contract *vm.Contract) []interface{} {
+			func(*vm.Contract) []interface{} {
 				res, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, []interface{}{s.address, big.NewInt(1), []string{staking.DelegateMsg}})
 				s.Require().NoError(err)
 				s.Require().Equal(res, cmn.TrueValue)
@@ -179,7 +180,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
@@ -199,14 +200,14 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 			},
 			20000,
 			false,
@@ -228,9 +229,9 @@ func (s *PrecompileTestSuite) TestApprove() {
 				// Thus, validators with this status should be considered for the authorization
 
 				// Unbond another validator
-				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), sdk.OneDec())
+				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
-				s.Require().Equal(sdk.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
+				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 
 				// Commit block and update time to one year later
 				s.ctx, err = evmosutil.Commit(s.ctx, s.app, time.Hour*24*365, nil)
@@ -242,14 +243,14 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 				// Check that the bonded and unbonding validators are included on the authorization
 				s.Require().Len(authz.GetAllowList().Address, 2, "should only be two validators in the allow list")
 			},
@@ -266,14 +267,14 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 			},
 			20000,
 			false,
@@ -288,7 +289,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.RedelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
@@ -312,28 +313,28 @@ func (s *PrecompileTestSuite) TestApprove() {
 					},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func(data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				authz, expirationTime = s.CheckAuthorization(staking.UndelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
 				s.Require().Equal(authz.AuthorizationType, staking.UndelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				authz, expirationTime = s.CheckAuthorization(staking.RedelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().NotNil(expirationTime)
 
 				s.Require().Equal(authz.AuthorizationType, staking.RedelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				// TODO: Bug here it returns 3 REDELEGATE authorizations
 				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, s.address.Bytes(), s.address.Bytes())
@@ -384,7 +385,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func(_ *vm.Contract) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -399,7 +400,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -413,7 +414,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func([]byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -432,7 +433,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func([]byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -440,7 +441,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		},
 		{
 			"fail - decrease allowance amount is greater than the authorization limit",
-			func(contract *vm.Contract) []interface{} {
+			func(*vm.Contract) []interface{} {
 				approveArgs := []interface{}{
 					s.address,
 					big.NewInt(1e18),
@@ -453,7 +454,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 
 				return []interface{}{
 					s.address,
@@ -461,7 +462,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			"amount by which the allowance should be decreased is greater than the authorization limit",
@@ -476,11 +477,11 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func([]byte, []interface{}) {
 				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 			},
 			200000,
 			false,
@@ -526,7 +527,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -541,7 +542,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -555,7 +556,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func([]byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -585,7 +586,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {},
+			func([]byte, []interface{}) {},
 			200000,
 			false,
 			"",
@@ -600,11 +601,11 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(data []byte, inputArgs []interface{}) {
+			func([]byte, []interface{}) {
 				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
-				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(2e18)})
+				s.Require().Equal(authz.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(2e18)})
 			},
 			200000,
 			false,
@@ -636,7 +637,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 	granteeAddr := evmosutiltx.GenerateAddress()
 	granterAddr := s.address
 	createdAuthz := staking.DelegateAuthz
-	approvedCoin := &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)}
+	approvedCoin := &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)}
 
 	testCases := []struct {
 		name        string
@@ -661,7 +662,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			postCheck: func(data []byte, inputArgs []interface{}) {
+			postCheck: func([]byte, []interface{}) {
 				// expect authorization to still be there
 				authz, _ := s.CheckAuthorization(createdAuthz, granteeAddr, granterAddr)
 				s.Require().NotNil(authz)
@@ -677,7 +678,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			postCheck: func(data []byte, inputArgs []interface{}) {
+			postCheck: func([]byte, []interface{}) {
 				// expect authorization to be removed
 				authz, _ := s.CheckAuthorization(createdAuthz, granteeAddr, granterAddr)
 				s.Require().Nil(authz, "expected authorization to be removed")

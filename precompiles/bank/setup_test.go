@@ -3,16 +3,17 @@ package bank_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/bank"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/bank"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -23,8 +24,8 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom           string
-	evmosAddr, xmplAddr common.Address
+	bondDenom, tokenDenom string
+	evmosAddr, xmplAddr   common.Address
 
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
@@ -55,59 +56,45 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
 
 	s.bondDenom = bondDenom
+	s.tokenDenom = "xmpl"
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.network = integrationNetwork
 
 	// Register EVMOS
-	evmosMetadata := banktypes.Metadata{
-		Description: "The native token of Evmos",
-		Base:        bondDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    bondDenom,
-				Exponent: 0,
-				Aliases:  []string{"aevmos"},
-			},
-			{
-				Denom:    "aevmos",
-				Exponent: 18,
-			},
-		},
-		Name:    "Evmos",
-		Symbol:  "EVMOS",
-		Display: "evmos",
-	}
+	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(s.network.GetContext(), s.bondDenom)
+	s.Require().True(found, "expected evmos denom metadata")
+
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
-	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: sdk.NewInt(1e18)}})
+	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
 	xmplMetadata := banktypes.Metadata{
 		Description: "An exemplary token",
-		Base:        "xmpl",
+		Base:        s.tokenDenom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 0,
-				Aliases:  []string{"xmpl"},
+				Aliases:  []string{s.tokenDenom},
 			},
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 18,
 			},
 		},
 		Name:    "Exemplary",
 		Symbol:  "XMPL",
-		Display: "xmpl",
+		Display: s.tokenDenom,
 	}
+
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 

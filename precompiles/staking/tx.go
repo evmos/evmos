@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
 )
 
 const (
@@ -56,7 +56,7 @@ func (p Precompile) CreateValidator(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
+	msg, validatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -66,15 +66,14 @@ func (p Precompile) CreateValidator(
 		"method", method.Name,
 		"commission", msg.Commission.String(),
 		"min_self_delegation", msg.MinSelfDelegation.String(),
-		"delegator_address", delegatorHexAddr.String(),
-		"validator_address", msg.ValidatorAddress,
+		"validator_address", validatorHexAddr.String(),
 		"pubkey", msg.Pubkey.String(),
 		"value", msg.Value.Amount.String(),
 	)
 
 	// we only allow the tx signer "origin" to create their own validator.
-	if origin != delegatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), delegatorHexAddr.String())
+	if origin != validatorHexAddr {
+		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), validatorHexAddr.String())
 	}
 
 	// Execute the transaction using the message server

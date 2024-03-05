@@ -14,18 +14,19 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	evmoscontracts "github.com/evmos/evmos/v15/contracts"
-	evmostesting "github.com/evmos/evmos/v15/ibc/testing"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	teststypes "github.com/evmos/evmos/v15/types/tests"
-	"github.com/evmos/evmos/v15/utils"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	evmoscontracts "github.com/evmos/evmos/v16/contracts"
+	evmostesting "github.com/evmos/evmos/v16/ibc/testing"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	teststypes "github.com/evmos/evmos/v16/types/tests"
+	"github.com/evmos/evmos/v16/utils"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -43,8 +44,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
@@ -55,8 +54,6 @@ var (
 
 	// array of allocations with only one allocation for 'aevmos' coin
 	defaultSingleAlloc []cmn.ICS20Allocation
-	// array of allocations with only two allocation for 'aevmos' and 'uatom' coins
-	defaultManyAllocs []cmn.ICS20Allocation
 )
 
 var _ = Describe("IBCTransfer Precompile", func() {
@@ -77,8 +74,6 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.ABI.Events,
 		}
-		// TODO update this check with corresponding error message when enforcing grantee != origin
-		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address, s.differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
@@ -278,7 +273,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(1), "expected one authorization")
 			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)})))
+			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})))
 		})
 	})
 
@@ -418,7 +413,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				// check the sender balance was deducted
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees).Sub(defaultCoins[0].Amount)))
 			})
@@ -452,7 +447,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(sequence).To(Equal(uint64(1)))
 
 				// check the sender balance was deducted
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees).Sub(defaultCoins[0].Amount)))
 
@@ -524,7 +519,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// check the sender only paid for the fees
 				// and funds were not transferred
 				// TODO: fees are not calculated correctly with this logic
-				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -591,7 +586,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// check the sender only paid for the fees
 				// and funds from the other account were not transferred
 				// TODO: fees are not calculated correctly with this logic
-				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -647,7 +642,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -677,7 +672,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 					mintCheck := testutil.LogCheckArgs{
 						ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
-						ExpEvents: []string{"Transfer"}, // upon minting the tokens are sent to the receiving address
+						ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
 						ExpPass:   true,
 					}
 
@@ -743,7 +738,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -821,7 +816,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -1253,7 +1248,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(authz).To(BeNil())
 
 					// check sent tokens were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(defaultCoins.AmountOf(s.bondDenom)).Sub(fees)))
 				})
@@ -1263,8 +1258,8 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		Context("IBC coin", func() {
 			var (
 				ibcDenom                   = teststypes.UosmoIbcdenom
-				amt, _                     = sdk.NewIntFromString("1000000000000000000000")
-				sentAmt, _                 = sdk.NewIntFromString("100000000000000000000")
+				amt, _                     = math.NewIntFromString("1000000000000000000000")
+				sentAmt, _                 = math.NewIntFromString("100000000000000000000")
 				coinOsmo                   = sdk.NewCoin(ibcDenom, amt)
 				coins                      = sdk.NewCoins(coinOsmo)
 				initialOsmoBalance         sdk.Coin
@@ -1310,11 +1305,11 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 					// check only fees were deducted from sending account
 					// TODO: fees are not calculated correctly with this logic
-					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					// Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
 
-					// check IBC coins balance remains unchaged
+					// check IBC coins balance remains unchanged
 					finalOsmoBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), ibcDenom)
 					Expect(finalOsmoBalance.Amount).To(Equal(initialOsmoBalance.Amount))
 				})
@@ -1357,7 +1352,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(ibcDenom)).To(Equal(amt.Sub(sentAmt)))
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
 
@@ -1409,11 +1404,11 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 					// check only fees were deducted from sending account
 					// TODO: fees are not calculated correctly with this logic
-					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
-					// check Erc20 balance remained unchaged by sent amount
+					// check Erc20 balance remained unchanged by sent amount
 					balance := s.app.Erc20Keeper.BalanceOf(
 						s.chainA.GetContext(),
 						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -1481,7 +1476,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(authz).To(BeNil())
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -1498,7 +1493,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		})
 	})
 
-	Context("tranfer a contract's funds", func() {
+	Context("transfer a contract's funds", func() {
 		var defaultTransferArgs contracts.CallArgs
 
 		BeforeEach(func() {
@@ -1571,7 +1566,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(finalBalance.Amount).To(Equal(math.ZeroInt()))
 
 					// tx fees are paid by the tx signer
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalSignerBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalSignerBalance.Amount).To(Equal(initialSignerBalance.Amount.Sub(fees)))
 				})

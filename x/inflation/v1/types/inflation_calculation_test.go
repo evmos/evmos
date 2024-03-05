@@ -4,9 +4,8 @@ import (
 	fmt "fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type InflationTestSuite struct {
@@ -19,111 +18,123 @@ func TestInflationSuite(t *testing.T) {
 
 func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 	bondingParams := DefaultParams()
-	bondingParams.ExponentialCalculation.MaxVariance = sdk.NewDecWithPrec(40, 2)
+	bondingParams.ExponentialCalculation.MaxVariance = math.LegacyNewDecWithPrec(40, 2)
 	epochsPerPeriod := int64(365)
 
 	testCases := []struct {
 		name              string
 		params            Params
 		period            uint64
-		bondedRatio       sdk.Dec
-		expEpochProvision sdk.Dec
+		bondedRatio       math.LegacyDec
+		expEpochProvision math.LegacyDec
 		expPass           bool
 	}{
 		{
 			"pass - initial perid",
 			DefaultParams(),
 			uint64(0),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("847602739726027397260274.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 0 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("282534246575342465753425.000000000000000000"),
 			true,
 		},
 		{
 			"pass - period 1",
 			DefaultParams(),
 			uint64(1),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("436643835616438356164384.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 1 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("145547945205479452054795.000000000000000000"),
 			true,
 		},
 		{
 			"pass - period 2",
 			DefaultParams(),
 			uint64(2),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("231164383561643835616438.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 2 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("77054794520547945205479.000000000000000000"),
 			true,
 		},
 		{
 			"pass - period 3",
 			DefaultParams(),
 			uint64(3),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("128424657534246575342466.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 3 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("42808219178082191780822.000000000000000000"),
 			true,
 		},
 		{
 			"pass - period 20",
 			DefaultParams(),
 			uint64(20),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("25685715348753210410959.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 20 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("8561905116251070205479.000000000000000000"),
 			true,
 		},
 		{
 			"pass - period 21",
 			DefaultParams(),
 			uint64(21),
-			sdk.OneDec(),
-			sdk.MustNewDecFromStr("25685323427801262739726.000000000000000000"),
+			math.LegacyOneDec(),
+			// (300_000_000 * (1 - 0.5) ** 21 + 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("8561774475933754280822.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - initial period",
 			bondingParams,
 			uint64(0),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("1186643835616438356164384.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 0 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("392123287671232882795743.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - period 1",
 			bondingParams,
 			uint64(1),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("611301369863013698630137.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 1 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("200342465753424660575954.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - period 2",
 			bondingParams,
 			uint64(2),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("323630136986301369863014.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 2 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("104452054794520549466059.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - period 3",
 			bondingParams,
 			uint64(3),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("179794520547945205479452.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 3 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("56506849315068493911112.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - period 20",
 			bondingParams,
 			uint64(20),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("35960001488254494575342.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 20 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("8562009628504922945212.000000000000000000"),
 			true,
 		},
 		{
 			"pass - 0 percent bonding - period 21",
 			bondingParams,
 			uint64(21),
-			sdk.ZeroDec(),
-			sdk.MustNewDecFromStr("35959452798921767835616.000000000000000000"),
+			math.LegacyZeroDec(),
+			// (300_000_000 * (1 - 0.5) ** 21 * (1 + 0.4)+ 9_375_000) / 3 / 365 * 10 ** 18
+			math.LegacyMustNewDecFromStr("8561826732060680650688.000000000000000000"),
 			true,
 		},
 	}
@@ -136,7 +147,13 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 				tc.bondedRatio,
 			)
 
-			suite.Require().Equal(tc.expEpochProvision, epochMintProvisions)
+			// Here we use a relative error because the expected values are computed with another
+			// software and can be slightly differences. Accepted error is less than 0.001%.
+			tol := math.LegacyNewDecWithPrec(1, 5)
+			relativeError := tc.expEpochProvision.Sub(epochMintProvisions).Abs().Quo(tc.expEpochProvision)
+			valid := relativeError.LTE(tol)
+
+			suite.Require().True(valid)
 		})
 	}
 }

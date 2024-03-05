@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/utils"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 var (
@@ -34,10 +35,10 @@ func (s *PrecompileTestSuite) TestTransfer() {
 	}{
 		{
 			"fail - empty args",
-			func(sender, receiver sdk.AccAddress) []interface{} {
+			func(sdk.AccAddress, sdk.AccAddress) []interface{} {
 				return []interface{}{}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sdk.AccAddress, sdk.AccAddress, []byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -45,7 +46,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		},
 		{
 			"fail - no transfer authorization",
-			func(sender, receiver sdk.AccAddress) []interface{} {
+			func(sdk.AccAddress, sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
 				return []interface{}{
@@ -60,7 +61,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sdk.AccAddress, sdk.AccAddress, []byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -68,7 +69,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		},
 		{
 			"fail - channel does not exist",
-			func(sender, receiver sdk.AccAddress) []interface{} {
+			func(sdk.AccAddress, sdk.AccAddress) []interface{} {
 				return []interface{}{
 					"port",
 					"channel-01",
@@ -81,7 +82,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sdk.AccAddress, sdk.AccAddress, []byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -89,7 +90,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		},
 		{
 			"fail - non authorized denom",
-			func(sender, receiver sdk.AccAddress) []interface{} {
+			func(sender, _ sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
 				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
@@ -106,7 +107,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sdk.AccAddress, sdk.AccAddress, []byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -114,7 +115,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		},
 		{
 			"fail - allowance is less than transfer amount",
-			func(sender, receiver sdk.AccAddress) []interface{} {
+			func(sender, _ sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
 				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
@@ -131,7 +132,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sdk.AccAddress, sdk.AccAddress, []byte, []interface{}) {
 			},
 			200000,
 			true,
@@ -160,7 +161,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, sender, sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
@@ -168,7 +169,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 
 				// the balance on other user's account should remain unchanged
 				balance := s.app.BankKeeper.GetBalance(s.ctx, differentAddress.Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(amt))
+				s.Require().Equal(balance.Amount, math.NewInt(amt))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -194,13 +195,13 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
 				// Check allowance was deleted
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				s.Require().Nil(authz)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -227,14 +228,14 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -261,14 +262,14 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -308,14 +309,14 @@ func (s *PrecompileTestSuite) TestTransfer() {
 					"memo",
 				}
 			},
-			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,

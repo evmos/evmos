@@ -7,18 +7,19 @@ import (
 	"embed"
 	"fmt"
 
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 const (
@@ -70,8 +71,8 @@ func NewPrecompile(
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
-			KvGasConfig:          sdk.GasConfig{},
-			TransientKVGasConfig: sdk.GasConfig{},
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
@@ -155,9 +156,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given methodID corresponds to a transaction or query.
-func (Precompile) IsTransaction(methodID string) bool {
-	switch methodID {
+// IsTransaction checks if the given method name corresponds to a transaction or query.
+func (Precompile) IsTransaction(methodName string) bool {
+	switch methodName {
 	case TransferMethod,
 		TransferFromMethod,
 		auth.ApproveMethod,

@@ -12,11 +12,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
 )
 
 var (
@@ -40,7 +40,7 @@ var baseTestCases = []distrTestCases{
 		func() []interface{} {
 			return []interface{}{}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid number of arguments",
@@ -52,7 +52,7 @@ var baseTestCases = []distrTestCases{
 				"invalid",
 			}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid bech32 string",
@@ -73,7 +73,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -85,7 +85,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					s.validators[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"delegation does not exist",
@@ -183,7 +183,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 		{
 			"success - with outstanding rewards",
 			func() []interface{} {
-				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), types.ValidatorOutstandingRewards{Rewards: valRewards})
 				return []interface{}{
@@ -269,7 +269,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 		{
 			"success - with accumulated commission",
 			func() []interface{} {
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), types.ValidatorAccumulatedCommission{Commission: valCommission})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
@@ -321,7 +321,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					"invalid", uint64(1), uint64(5), query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -336,7 +336,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -351,7 +351,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 					query.PageRequest{},
 				}
 			},
-			func(bz []byte) {
+			func([]byte) {
 			},
 			100000,
 			true,
@@ -405,7 +405,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes",
 			func() []interface{} {
-				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: sdk.NewDec(5)})
+				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 					uint64(1), uint64(5),
@@ -417,7 +417,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(1, len(out.Slashes))
-				s.Require().Equal(sdk.NewDec(5).BigInt(), out.Slashes[0].Fraction.Value)
+				s.Require().Equal(math.LegacyNewDec(5).BigInt(), out.Slashes[0].Fraction.Value)
 				s.Require().Equal(uint64(1), out.Slashes[0].ValidatorPeriod)
 				s.Require().Equal(uint64(1), out.PageResponse.Total)
 			},
@@ -428,7 +428,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes w/pagination",
 			func() []interface{} {
-				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: sdk.NewDec(5)})
+				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 					uint64(1),
@@ -441,7 +441,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorSlashesMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(1, len(out.Slashes))
-				s.Require().Equal(sdk.NewDec(5).BigInt(), out.Slashes[0].Fraction.Value)
+				s.Require().Equal(math.LegacyNewDec(5).BigInt(), out.Slashes[0].Fraction.Value)
 				s.Require().Equal(uint64(1), out.Slashes[0].ValidatorPeriod)
 				s.Require().Equal(uint64(1), out.PageResponse.Total)
 			},
@@ -483,7 +483,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"invalid bech32 string",
@@ -499,7 +499,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -513,7 +513,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					s.validators[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"delegation does not exist",
@@ -591,7 +591,7 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -676,7 +676,7 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				// only validator[i] has rewards
 				s.Require().Equal(1, len(out.Rewards[i].Reward))
 				s.Require().Equal(s.bondDenom, out.Rewards[i].Reward[0].Denom)
-				s.Require().Equal(uint8(sdk.Precision), out.Rewards[i].Reward[0].Precision)
+				s.Require().Equal(uint8(math.LegacyPrecision), out.Rewards[i].Reward[0].Precision)
 				s.Require().Equal(expDelegationRewards, out.Rewards[i].Reward[0].Amount.Int64())
 
 				s.Require().Equal(1, len(out.Total))
@@ -719,7 +719,7 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -800,7 +800,7 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),

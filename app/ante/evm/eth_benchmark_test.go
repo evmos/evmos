@@ -8,20 +8,17 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethante "github.com/evmos/evmos/v15/app/ante/evm"
-	"github.com/evmos/evmos/v15/server/config"
-	"github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	ethante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	s := new(AnteTestSuite)
 	s.SetT(&testing.T{})
 	s.SetupTest()
-
-	dec := ethante.NewEthGasConsumeDecorator(s.app.BankKeeper, s.app.DistrKeeper, s.app.EvmKeeper, s.app.StakingKeeper, config.DefaultMaxTxGasWanted)
 
 	args := &evmtypes.EvmTxArgs{
 		ChainID:  s.app.EvmKeeper.ChainID(),
@@ -40,13 +37,13 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	}{
 		{
 			"legacy tx - enough funds to pay for fees",
-			sdk.NewInt(1e16),
-			sdk.ZeroInt(),
+			sdkmath.NewInt(1e16),
+			sdkmath.ZeroInt(),
 		},
 		{
 			"legacy tx - insufficient funds but enough staking rewards to pay for fees",
-			sdk.ZeroInt(),
-			sdk.NewInt(1e16),
+			sdkmath.ZeroInt(),
+			sdkmath.NewInt(1e16),
 		},
 	}
 	b.ResetTimer()
@@ -66,10 +63,28 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 				vmdb = testutil.NewStateDB(cacheCtx, s.app.EvmKeeper)
 				cacheCtx = s.prepareAccount(cacheCtx, addr.Bytes(), tc.balance, tc.rewards)
 				s.Require().NoError(vmdb.Commit())
+				keepers := ethante.ConsumeGasKeepers{
+					Bank:         s.app.BankKeeper,
+					Distribution: s.app.DistrKeeper,
+					Evm:          s.app.EvmKeeper,
+					Staking:      s.app.StakingKeeper,
+				}
+
+				baseFee := s.app.FeeMarketKeeper.GetParams(s.ctx).BaseFee
+				fee := tx.GetEffectiveFee(baseFee.BigInt())
+				denom := s.app.EvmKeeper.GetParams(s.ctx).EvmDenom
+				fees := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(fee)))
+				bechAddr := sdk.AccAddress(addr.Bytes())
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
-				_, err := dec.AnteHandle(cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()), tx, false, testutil.NextFn)
+
+				err := ethante.ConsumeFeesAndEmitEvent(
+					cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()),
+					&keepers,
+					fees,
+					bechAddr,
+				)
 				s.Require().NoError(err)
 			}
 		})

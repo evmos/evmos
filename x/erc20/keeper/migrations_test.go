@@ -7,11 +7,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/encoding"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	v3types "github.com/evmos/evmos/v15/x/erc20/migrations/v3/types"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	v3types "github.com/evmos/evmos/v16/x/erc20/migrations/v3/types"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 type mockSubspace struct {
@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) TestMigrations() {
 	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
 
 	// Added dummy keeper in order to use the test store and store key
-	mockKeeper := erc20keeper.NewKeeper(storeKey, nil, authtypes.NewModuleAddress(govtypes.ModuleName), nil, nil, nil, nil, nil, s.app.AuthzKeeper, nil)
+	mockKeeper := erc20keeper.NewKeeper(storeKey, nil, authtypes.NewModuleAddress(govtypes.ModuleName), nil, nil, nil, nil, s.app.AuthzKeeper, nil)
 	mockSubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey)
 	migrator := erc20keeper.NewMigrator(mockKeeper, mockSubspace)
 

@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/evmos/evmos/v15/rpc/backend/mocks"
-	rpctypes "github.com/evmos/evmos/v15/rpc/types"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/rpc/backend/mocks"
+	rpctypes "github.com/evmos/evmos/v16/rpc/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestGetCode() {
@@ -33,7 +33,7 @@ func (suite *BackendTestSuite) TestGetCode() {
 			"fail - BlockHash and BlockNumber are both nil ",
 			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{},
-			func(addr common.Address) {},
+			func(_ common.Address) {},
 			false,
 			nil,
 		},
@@ -110,7 +110,7 @@ func (suite *BackendTestSuite) TestGetProof() {
 			address1,
 			[]string{},
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNrInvalid},
-			func(bn rpctypes.BlockNumber, addr common.Address) {
+			func(bn rpctypes.BlockNumber, _ common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				RegisterBlockError(client, bn.Int64())
 			},
@@ -200,7 +200,7 @@ func (suite *BackendTestSuite) TestGetStorageAt() {
 			utiltx.GenerateAddress(),
 			"0x0",
 			rpctypes.BlockNumberOrHash{},
-			func(addr common.Address, key string, storage string) {},
+			func(common.Address, string, string) {},
 			false,
 			nil,
 		},
@@ -209,7 +209,7 @@ func (suite *BackendTestSuite) TestGetStorageAt() {
 			utiltx.GenerateAddress(),
 			"0x0",
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
-			func(addr common.Address, key string, storage string) {
+			func(addr common.Address, key string, _ string) {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterStorageAtError(queryClient, addr, key)
 			},
@@ -260,7 +260,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			"fail - BlockHash and BlockNumber are both nil",
 			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{},
-			func(bn rpctypes.BlockNumber, addr common.Address) {
+			func(rpctypes.BlockNumber, common.Address) {
 			},
 			false,
 			nil,
@@ -269,7 +269,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			"fail - tendermint client failed to get block",
 			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
-			func(bn rpctypes.BlockNumber, addr common.Address) {
+			func(bn rpctypes.BlockNumber, _ common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				RegisterBlockError(client, bn.Int64())
 			},
@@ -366,7 +366,7 @@ func (suite *BackendTestSuite) TestGetTransactionCount() {
 			"pass - account doesn't exist",
 			false,
 			rpctypes.NewBlockNumber(big.NewInt(1)),
-			func(addr common.Address, bn rpctypes.BlockNumber) {
+			func(common.Address, rpctypes.BlockNumber) {
 				var header metadata.MD
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParams(queryClient, &header, 1)
@@ -378,7 +378,7 @@ func (suite *BackendTestSuite) TestGetTransactionCount() {
 			"fail - block height is in the future",
 			false,
 			rpctypes.NewBlockNumber(big.NewInt(10000)),
-			func(addr common.Address, bn rpctypes.BlockNumber) {
+			func(common.Address, rpctypes.BlockNumber) {
 				var header metadata.MD
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParams(queryClient, &header, 1)

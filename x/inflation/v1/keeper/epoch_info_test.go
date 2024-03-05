@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 func (suite *KeeperTestSuite) TestSetGetEpochIdentifier() {

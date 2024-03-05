@@ -7,9 +7,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/precompiles/werc20"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/werc20"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // RegisterERC20Extensions registers the ERC20 precompiles with the EVM.

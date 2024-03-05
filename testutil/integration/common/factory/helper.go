@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package factory
 
 import (
@@ -135,9 +136,9 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 }
 
 // encodeTx encodes the tx using the txConfig's encoder.
-func (tf *IntegrationTxFactory) encodeTx(txBuilder client.TxBuilder) ([]byte, error) {
+func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
-	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
+	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}

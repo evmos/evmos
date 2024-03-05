@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v16/types"
 )
 
 func BenchmarkEthSecp256k1Algo_Derive(b *testing.B) {
