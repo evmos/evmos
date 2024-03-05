@@ -103,9 +103,7 @@ func PerformTask(logger log.Logger, task []string, id int,
 		// TODO: remove logging here
 		if found {
 			balancesCounter++
-			if balancesCounter%100 == 0 {
-				logger.Info(fmt.Sprintf("found %d accounts with balances so far.", balancesCounter))
-			}
+			logger.Info(fmt.Sprintf("found %d accounts with balances so far.", balancesCounter))
 		}
 	}
 	logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(task)))
