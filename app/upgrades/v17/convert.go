@@ -112,10 +112,18 @@ func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeepe
 	tasks <- currentBatch
 }
 
-func processResults(results <-chan []TelemetryResult) []TelemetryResult {
+var resultsCounter int
+
+func processResults(results <-chan []TelemetryResult, logger log.Logger) []TelemetryResult {
 	finalizedResults := make([]TelemetryResult, 0)
 	for batchResults := range results {
 		for i := range batchResults {
+			if resultsCounter%1000 == 0 {
+				logger.Info(
+					"Processed results: ", resultsCounter,
+					"Results size: ", len(finalizedResults),
+				)
+			}
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
 	}
@@ -233,23 +241,23 @@ func ConvertERC20Coins(
 	// check if there is an error and close the results channel
 	go func() {
 		if err := g.Wait(); err == nil {
-			fmt.Println("All workers have finalized")
+			logger.Info("All workers have finalized")
 		} else {
-			fmt.Println("Error received: ", err)
+			logger.Error("Error received: ", err)
 		}
 		close(results)
 	}()
 
 	// Process results as they come in
-	finalizedResults := processResults(results)
+	finalizedResults := processResults(results, logger)
 	if g.Wait() != nil {
 		err := g.Wait()
-		fmt.Println("Context is cancelled we are destroying everything")
-		fmt.Println(err)
+		logger.Error("Context is cancelled we are destroying everything")
+		logger.Error("got error: %w", err)
 		return err
-	} else {
-		fmt.Println("Completed Finalized results: ", len(finalizedResults))
 	}
+
+	logger.Info("Completed Finalized results: ", len(finalizedResults))
 
 	executeConversionBatch(ctx, logger, finalizedResults, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
 

@@ -901,11 +901,12 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 	bondDenom := app.StakingKeeper.BondDenom(ctx)
 
 	var wevmosContract ethcommon.Address
-	if utils.IsMainnet(ctx.ChainID()) {
+	switch {
+	case utils.IsMainnet(ctx.ChainID()):
 		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractMainnet)
-	} else if utils.IsTestnet(ctx.ChainID()) {
+	case utils.IsTestnet(ctx.ChainID()):
 		wevmosContract = ethcommon.HexToAddress(erc202.WEVMOSContractTestnet)
-	} else {
+	default:
 		panic("unknown chain id")
 	}
 
