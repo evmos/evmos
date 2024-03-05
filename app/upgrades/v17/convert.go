@@ -96,8 +96,6 @@ func PerformTask(logger log.Logger, task []string, id int,
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
-			// TODO: remove
-			logger.Info(fmt.Sprintf("balance 0 -> %s", stateHex))
 		}
 
 		// TODO: remove logging here
