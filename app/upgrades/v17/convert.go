@@ -54,7 +54,7 @@ func worker(
 			if id%10 == 0 {
 				logger.Info(fmt.Sprintf("Worker %d received task", id))
 			}
-			processResults, err := performTask(logger, task, id, ctx, evmKeeper, nativeTokenPairs)
+			processResults, err := PerformTask(logger, task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
 				return err
 			}
@@ -73,7 +73,7 @@ func worker(
 
 var balancesCounter int
 
-func performTask(logger log.Logger, task []string, id int,
+func PerformTask(logger log.Logger, task []string, id int,
 	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
 ) ([]TelemetryResult, error) {
 	results := make([]TelemetryResult, 0, len(task))
@@ -87,10 +87,12 @@ func performTask(logger log.Logger, task []string, id int,
 		for id, pair := range tokenPairs {
 			state := evmKeeper.GetState(ctx, pair, key)
 			stateHex := state.Hex()
+			// TODO: move this to rama's branch
 			balance, _ := new(big.Int).SetString(stateHex, 0)
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
+			logger.Info(fmt.Sprintf("balance 0 -> %s", stateHex))
 		}
 
 		// TODO: remove logging here
