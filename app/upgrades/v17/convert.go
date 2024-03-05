@@ -51,10 +51,10 @@ func worker(
 				return nil // Channel closed, stop the worker
 			}
 
-			if id%1000 == 0 {
+			if id%10 == 0 {
 				logger.Info(fmt.Sprintf("Worker %d received task", id))
 			}
-			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
+			processResults, err := performTask(logger, task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
 				return err
 			}
@@ -65,11 +65,15 @@ func worker(
 	}
 }
 
-func performTask(task []string, id int,
+func performTask(logger log.Logger, task []string, id int,
 	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
 ) ([]TelemetryResult, error) {
 	results := []TelemetryResult{}
-	for _, account := range task {
+	for taskIdx, account := range task {
+		if taskIdx%10 == 0 {
+			logger.Info(fmt.Sprintf("Worker %d processing account: %q", id, account))
+		}
+
 		cosmosAddress := sdk.MustAccAddressFromBech32(account)
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		addrBytes := ethAddress.Bytes()
@@ -84,6 +88,9 @@ func performTask(task []string, id int,
 			}
 		}
 
+		if taskIdx%10 == 0 {
+			logger.Info(fmt.Sprintf("--> got %d results: %s", len(results), results))
+		}
 	}
 	return results, nil
 }
