@@ -37,26 +37,24 @@ func TestEpochInfo(t *testing.T) {
 
 				dayEpoch := types.EpochInfo{
 					Identifier:              types.DayEpochID,
-					StartTime:               time.Time{},
 					Duration:                day,
 					CurrentEpoch:            1,
 					CurrentEpochStartHeight: 1,
-					CurrentEpochStartTime:   time.Time{},
 					EpochCountingStarted:    true,
 				}
 				dayEpoch.StartTime = currentBlockTime
+				dayEpoch.CurrentEpochStartTime = currentBlockTime
 				dayEpoch.CurrentEpochStartHeight = currentBlockHeight
 
 				weekEpoch := types.EpochInfo{
 					Identifier:              types.WeekEpochID,
-					StartTime:               time.Time{},
 					Duration:                week,
 					CurrentEpoch:            1,
 					CurrentEpochStartHeight: 1,
-					CurrentEpochStartTime:   time.Time{},
 					EpochCountingStarted:    true,
 				}
 				weekEpoch.StartTime = currentBlockTime
+				weekEpoch.CurrentEpochStartTime = currentBlockTime
 				weekEpoch.CurrentEpochStartHeight = currentBlockHeight
 
 				expRes = &types.QueryEpochsInfoResponse{
@@ -80,39 +78,36 @@ func TestEpochInfo(t *testing.T) {
 
 				dayEpoch := types.EpochInfo{
 					Identifier:              types.DayEpochID,
-					StartTime:               time.Time{},
 					Duration:                time.Hour * 24,
 					CurrentEpoch:            1,
 					CurrentEpochStartHeight: 1,
-					CurrentEpochStartTime:   time.Time{},
 					EpochCountingStarted:    true,
 				}
 				dayEpoch.StartTime = currentBlockTime
+				dayEpoch.CurrentEpochStartTime = currentBlockTime
 				dayEpoch.CurrentEpochStartHeight = currentBlockHeight
 
 				weekEpoch := types.EpochInfo{
 					Identifier:              types.WeekEpochID,
-					StartTime:               time.Time{},
 					Duration:                time.Hour * 24 * 7,
 					CurrentEpoch:            1,
 					CurrentEpochStartHeight: 1,
-					CurrentEpochStartTime:   time.Time{},
 					EpochCountingStarted:    true,
 				}
 				weekEpoch.StartTime = currentBlockTime
+				weekEpoch.CurrentEpochStartTime = currentBlockTime
 				weekEpoch.CurrentEpochStartHeight = currentBlockHeight
 
 				quarterEpoch := types.EpochInfo{
 					Identifier:              "quarter",
-					StartTime:               time.Time{},
 					Duration:                time.Hour * 24 * 7 * 13,
 					CurrentEpoch:            0,
 					CurrentEpochStartHeight: 1,
-					CurrentEpochStartTime:   time.Time{},
 					EpochCountingStarted:    false,
 				}
 
 				quarterEpoch.StartTime = currentBlockTime
+				quarterEpoch.CurrentEpochStartTime = currentBlockTime
 				quarterEpoch.CurrentEpochStartHeight = currentBlockHeight
 				suite.network.App.EpochsKeeper.SetEpochInfo(ctx, quarterEpoch)
 
@@ -134,9 +129,7 @@ func TestEpochInfo(t *testing.T) {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			// Default epoch infos at genesis with day and week.
 			suite = SetupTest([]types.EpochInfo{})
-			ctx := suite.network.GetContext()
-
-			ctx = tc.malleate()
+			ctx := tc.malleate()
 
 			res, err := suite.network.GetEpochsClient().EpochInfos(ctx, req)
 			if tc.expPass {
