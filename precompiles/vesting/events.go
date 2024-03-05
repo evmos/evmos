@@ -90,10 +90,6 @@ func (p Precompile) EmitCreateClawbackVestingAccountEvent(
 		return err
 	}
 
-	if err != nil {
-		return err
-	}
-
 	// Create the event
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),

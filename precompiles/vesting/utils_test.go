@@ -73,6 +73,7 @@ func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(ctx sdk.Context, 
 	msgArgs := []interface{}{funder, vestingAddr, false}
 	//nolint
 	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
+	s.Require().NoError(err)
 	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 	s.Require().NoError(err)
 	_, err = s.network.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)

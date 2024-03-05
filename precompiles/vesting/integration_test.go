@@ -257,6 +257,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				err = s.factory.CreateClawbackVestingAccount(priv, s.keyring.GetAccAddr(0), false)
+				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
