@@ -62,7 +62,9 @@ func worker(
 				continue
 			}
 			results <- processResults
+			logger.Info("Worker %d sent %d results to main results channel", id, len(processResults))
 		case <-workerCtx.Done():
+			logger.Error(fmt.Sprintf("worker %d is done", id))
 			return nil
 		}
 	}
