@@ -18,8 +18,10 @@ string constant MSG_UNDELEGATE = "/cosmos.staking.v1beta1.MsgUndelegate";
 string constant MSG_REDELEGATE = "/cosmos.staking.v1beta1.MsgBeginRedelegate";
 string constant MSG_CANCEL_UNDELEGATION = "/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation";
 
-/// @dev Define the editValidator method when the user does not want to change its value
+/// @dev Constant used in flags to indicate that commission rate field should not be updated
 int256 constant DO_NOT_MODIFY_COMMISSION_RATE = -1;
+
+/// @dev Constant used in flags to indicate that min self delegation field should not be updated
 int256 constant DO_NOT_MODIFY_MIN_SELF_DELEGATION = -1;
 
 /// @dev Defines the initial description to be used for creating
