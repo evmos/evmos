@@ -4,6 +4,7 @@ package distribution_test
 
 import (
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,6 +56,12 @@ var (
 	// required for the tests
 	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, testRewardsAmt))
 )
+
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Distribution Precompile Suite")
+}
 
 var _ = Describe("Calling distribution precompile from EOA", func() {
 	s := new(PrecompileTestSuite)
@@ -255,6 +262,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := queryRes.Balance
 
+			// get rewards
+			rwRes, err := s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			expRewardsAmt := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
 			txArgs.GasPrice = gasPrice.BigInt()
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0),
@@ -264,6 +276,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawalCheck := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
+			txArgs.GasLimit = 300_000
 			res, ethRes, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
 				txArgs,
@@ -278,15 +291,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
 
-			// The accrued rewards are based on 3 equal delegations to the existing 3 validators
-			// The query is from only 1 validator, thus, the expected reward
-			// for this delegation is totalAccruedRewards / validatorsCount (3)
-			valCount := len(s.network.GetValidators())
-			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom)
-			expRewardPerValidator := accruedRewardsAmt.Quo(math.LegacyNewDec(int64(valCount)))
-
 			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
-			Expect(rewards[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
+			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
 			// check that the delegator final balance is initialBalance - fee
 			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
@@ -298,26 +304,22 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// check that the rewards were added to the withdrawer balance
 			queryRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
-			expWithdrawerFinal := withdrawerInitialBalance.Amount.Add(expRewardPerValidator.TruncateInt())
+			expWithdrawerFinal := withdrawerInitialBalance.Amount.Add(expRewardsAmt)
 
 			Expect(queryRes.Balance.Amount).To(Equal(expWithdrawerFinal), "expected withdrawer final balance to be equal to initial balance + rewards")
 		})
 	})
 
 	Describe("Validator Commission: Execute WithdrawValidatorCommission tx", func() {
-		var (
-			// expCommAmt is the expected commission amount
-			expCommAmt        = math.NewInt(1)
-			accruedCommission sdk.DecCoins
-		)
+		// expCommAmt is the expected commission amount
+		var expCommAmt = math.NewInt(1)
 
 		BeforeEach(func() {
 			// set the default call arguments
 			callArgs.MethodName = distribution.WithdrawValidatorCommissionMethod
 			valAddr := sdk.ValAddress(s.validatorsKeys[0].AccAddr)
 
-			var err error
-			accruedCommission, err = testutils.WaitToAccrueCommission(
+			_, err := testutils.WaitToAccrueCommission(
 				s.network, s.grpcHandler,
 				valAddr.String(),
 				sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, expCommAmt)),
@@ -370,12 +372,18 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			initialBalance := queryRes.Balance
 
+			// get the accrued commission amount
+			commRes, err := s.grpcHandler.GetValidatorCommission(s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			expCommAmt := commRes.Commission.Commission.AmountOf(s.bondDenom).TruncateInt()
+
 			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 			txArgs.GasPrice = gasPrice.BigInt()
 
 			withdrawalCheck := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
 
+			txArgs.GasLimit = 300_000
 			res, ethRes, err := s.factory.CallContractAndCheckLogs(
 				s.validatorsKeys[0].Priv,
 				txArgs,
@@ -389,9 +397,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(len(comm)).To(Equal(1))
 			Expect(comm[0].Denom).To(Equal(s.bondDenom))
-
-			accruedCommissionAmt := accruedCommission.AmountOf(s.bondDenom).TruncateInt()
-			Expect(comm[0].Amount).To(Equal(accruedCommissionAmt.BigInt()))
+			Expect(comm[0].Amount).To(Equal(expCommAmt.BigInt()))
 
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -400,7 +406,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			finalBalance := queryRes.Balance
 
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			expFinal := initialBalance.Amount.Add(accruedCommissionAmt).Sub(fees)
+			expFinal := initialBalance.Amount.Add(expCommAmt).Sub(fees)
 
 			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to the final balance after withdrawing commission")
 		})
@@ -1450,6 +1456,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil())
 			accruedRewardsAmt = rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
 
+			txArgs.GasLimit = 200_000
 			res2, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
 				txArgs,
