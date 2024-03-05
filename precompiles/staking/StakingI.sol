@@ -148,9 +148,11 @@ interface StakingI is authorization.AuthorizationI {
     ) external returns (bool success);
 
     /// @dev Defines a method for edit a validator.
-    /// @param description Description parameter to be updated, an empty string "" means keeping it as is and not updating it.
+    /// @param description Description parameter to be updated, an empty string ""
+    /// means keeping it as is and not updating it.
     /// @param commissionRate CommissionRate parameter to be updated, -1 means keeping it as is and not updating it.
-    /// @param minSelfDelegation MinSelfDelegation parameter to be updated, -1 means keeping it as is and not updating it.
+    /// @param minSelfDelegation MinSelfDelegation parameter to be updated,
+    /// -1 means keeping it as is and not updating it.
     /// @return success Whether or not edit validator was successful
     function editValidator(
         Description calldata description,
