@@ -36,7 +36,6 @@ func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
 }
 
-
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
 	s.validatorsKeys = generateKeys(3)

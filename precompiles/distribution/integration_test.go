@@ -312,7 +312,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 	Describe("Validator Commission: Execute WithdrawValidatorCommission tx", func() {
 		// expCommAmt is the expected commission amount
-		var expCommAmt = math.NewInt(1)
+		expCommAmt := math.NewInt(1)
 
 		BeforeEach(func() {
 			// set the default call arguments

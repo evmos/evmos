@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			func() {
 				i := 0
 				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-					defer func() {i++}()
+					defer func() { i++ }()
 					if i == 0 {
 						return false
 					}
@@ -123,7 +123,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 				i := 0
 				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-					defer func() {i++}()
+					defer func() { i++ }()
 					var storage evmtypes.Storage
 					ethAccount, ok := account.(evmostypes.EthAccountI)
 					if ok {
