@@ -248,7 +248,7 @@ func ConvertERC20Coins(
 
 	// Create a goroutine to send tasks to workers
 	go func() {
-		orchestrator(workerCtx, tasks, accountKeeper, batchSize, ctx)
+		orchestrator(workerCtx, logger, tasks, accountKeeper, batchSize, ctx)
 		close(tasks)
 	}()
 
