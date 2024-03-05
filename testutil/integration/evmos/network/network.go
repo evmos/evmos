@@ -179,7 +179,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		}
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			Time:            now,
