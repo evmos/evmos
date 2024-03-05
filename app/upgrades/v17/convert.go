@@ -88,7 +88,9 @@ func performTask(task []string, id int,
 	return results, nil
 }
 
-func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
+var batchCounter int
+
+func orchestrator(workerCtx context.Context, logger log.Logger, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
 	ctx sdk.Context,
 ) {
 	var currentBatch []string
@@ -107,6 +109,8 @@ func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeepe
 		currentBatch = append(currentBatch, account.GetAddress().String())
 		// Check if the current batch is filled or it's the last element.
 		if (i+1)%batchSize == 0 {
+			batchCounter++
+			logger.Info(fmt.Sprintf("Sending batch: %d (len: %d)", batchCounter, len(currentBatch)))
 			tasks <- currentBatch
 			currentBatch = nil // Reset current batch
 		}
@@ -131,6 +135,7 @@ func processResults(results <-chan []TelemetryResult, logger log.Logger) []Telem
 					),
 				)
 			}
+			resultsCounter++
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
 	}
