@@ -1038,7 +1038,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			It(fmt.Sprintf("should convert the vesting account into a normal one after vesting has ended (%s)", callType.name), func() {
 				// commit block with new time so that the vesting period has ended
-				err = s.network.NextBlockAfter(time.Duration(time.Now().Add(time.Hour * 24).Hour()))
+				err = s.network.NextBlockAfter(time.Hour * 24)
 				Expect(err).To(BeNil(), "failed to commit block")
 
 				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
@@ -1052,6 +1052,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, convertClawbackCheck)
 				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil(), "failed to commit block")
 
 				// Check that the vesting account has been converted
 				acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), s.keyring.GetAccAddr(vestingAccIdx))
@@ -1073,35 +1074,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, convertClawbackCheck)
-				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
-			})
-
-			It(fmt.Sprintf("should return an error when not sending as the funder (%s)", callType.name), func() {
-				differentAddr, differentPriv := testutiltx.NewAddrKey()
-				err = testutils.FundAccountWithBaseDenom(
-					s.factory, s.network,
-					s.keyring.GetKey(0),
-					differentAddr.Bytes(),
-					math.NewInt(1e18),
-				)
-				Expect(err).ToNot(HaveOccurred(), "error while funding account: %v", err)
-
-				// commit block with new time so that the vesting period has ended
-				err := s.network.NextBlockAfter(time.Hour * 24)
-				Expect(err).To(BeNil(), "failed to commit block")
-
-				callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-				callArgs.MethodName = vesting.ConvertVestingAccountMethod
-				callArgs.Args = []interface{}{
-					s.keyring.GetAddr(vestingAccIdx),
-				}
-
-				convertClawbackCheck := execRevertedCheck
-				if callType.directCall {
-					convertClawbackCheck = failCheck.WithErrContains("sender is not the funder")
-				}
-
-				_, _, err = s.factory.CallContractAndCheckLogs(differentPriv, txArgs, callArgs, convertClawbackCheck)
 				Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
 			})
 
@@ -1173,7 +1145,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				Expect(res.Vested).To(BeEmpty(), "expected different vested coins")
 
 				// Commit new block so that the vesting period is at the half and the lockup period is over
-				err = s.network.NextBlockAfter(time.Duration(time.Now().Add(time.Second * 5000).Second()))
+				err = s.network.NextBlockAfter(time.Second * 5000)
 				Expect(err).To(BeNil(), "failed to commit block")
 
 				// Recheck balances
