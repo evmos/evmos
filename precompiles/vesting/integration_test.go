@@ -818,9 +818,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to update the vesting funder", func() {
-		var (
-			funder, newFunder, vestingKey testkeyring.Key
-		)
+		var funder, newFunder, vestingKey testkeyring.Key
 
 		BeforeEach(func() {
 			funder = s.keyring.GetKey(0)
@@ -1025,9 +1023,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to convert a vesting account", func() {
-		var (
-			funder, vestingKey, KeyWithNoVesting testkeyring.Key
-		)
+		var funder, vestingKey, KeyWithNoVesting testkeyring.Key
 
 		BeforeEach(func() {
 			funder = s.keyring.GetKey(0)
