@@ -559,10 +559,10 @@ var _ = Describe("Feemarket", func() {
 						Expect(res.Log).To(ContainSubstring("insufficient fee"))
 					},
 					Entry("legacy tx", func() txParams {
-						return txParams{big.NewInt(baseFee - 1_000_000_000), nil, nil, nil}
+						return txParams{big.NewInt(baseFee - 2_000_000_000), nil, nil, nil}
 					}),
 					Entry("dynamic tx", func() txParams {
-						return txParams{nil, big.NewInt(baseFee - 1_000_000_000), big.NewInt(0), &ethtypes.AccessList{}}
+						return txParams{nil, big.NewInt(baseFee - 2_000_000_000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
 				)
 
