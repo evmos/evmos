@@ -29,8 +29,8 @@ func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
 }
 
-func (s *PrecompileTestSuite) SetupTest() {
-	keyring := testkeyring.New(2)
+func (s *PrecompileTestSuite) SetupTest(nKeys int) {
+	keyring := testkeyring.New(nKeys)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)

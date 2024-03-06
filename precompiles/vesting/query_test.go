@@ -80,7 +80,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest() // reset
+			s.SetupTest(2) // reset
 			ctx = s.network.GetContext()
 
 			bz, err := s.precompile.Balances(ctx, &method, tc.malleate())

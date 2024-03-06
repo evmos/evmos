@@ -109,7 +109,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
 			bz, err := s.precompile.CreateClawbackVestingAccount(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
 
@@ -194,7 +194,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
@@ -274,7 +274,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
@@ -362,7 +362,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
@@ -441,7 +441,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
 
 			bz, err := s.precompile.ConvertVestingAccount(ctx, s.network.GetStateDB(), &method, tc.malleate())
