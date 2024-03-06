@@ -52,8 +52,7 @@ func (tf *vestingTxFactory) CreateClawbackVestingAccount(vestingPriv cryptotypes
 	return err
 }
 
-// CreateClawbackVestingAccount in the provided address, with the provided
-// funder address
+// FundVestingAccount at the provided address with the given vesting schedules.
 func (tf *vestingTxFactory) FundVestingAccount(funderPriv cryptotypes.PrivKey, vestingAddr sdk.AccAddress, startTime time.Time, lockupPeriods, vestingPeriods sdkvesting.Periods) error {
 	funderAccAddr := sdk.AccAddress(funderPriv.PubKey().Address())
 

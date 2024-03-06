@@ -105,6 +105,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			"Only one account that's not a contract (no storage)",
 			func() {
 				i := 0
+				// NOTE: here we're removing all accounts except for one
 				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 					defer func() { i++ }()
 					if i == 0 {
