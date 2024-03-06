@@ -12,7 +12,6 @@ import (
 
 func (s *PrecompileTestSuite) TestBalances() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.BalancesMethod]
 
 	testCases := []struct {
 		name        string
@@ -82,6 +81,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		s.Run(tc.name, func() {
 			s.SetupTest(2) // reset
 			ctx = s.network.GetContext()
+			method := s.precompile.Methods[vesting.BalancesMethod]
 
 			bz, err := s.precompile.Balances(ctx, &method, tc.malleate())
 
