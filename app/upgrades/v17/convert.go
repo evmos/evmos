@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
@@ -35,12 +36,12 @@ type TelemetryResult struct {
 // worker performs the task on jobs received and sends results to the results channel.
 func worker(
 	workerCtx context.Context,
+	logger log.Logger,
 	id int,
 	tasks <-chan []string,
 	results chan<- []TelemetryResult,
 	ctx sdk.Context,
 	evmKeeper evmkeeper.Keeper,
-	wrappedAddr common.Address,
 	nativeTokenPairs parseTokenPairs,
 ) error {
 	for {
@@ -50,22 +51,35 @@ func worker(
 				return nil // Channel closed, stop the worker
 			}
 
-			processResults, err := performTask(task, id, ctx, evmKeeper, nativeTokenPairs)
+			if id%10 == 0 {
+				logger.Info(fmt.Sprintf("Worker %d received task", id))
+			}
+			processResults, err := PerformTask(logger, task, id, ctx, evmKeeper, nativeTokenPairs)
 			if err != nil {
 				return err
 			}
+			if len(processResults) == 0 {
+				continue
+			}
+			logger.Info("adding to results channel")
 			results <- processResults
+			logger.Info(fmt.Sprintf("Worker %d sent %d results to main results channel", id, len(processResults)))
 		case <-workerCtx.Done():
+			logger.Error(fmt.Sprintf("worker %d is done", id))
 			return nil
 		}
 	}
 }
 
-func performTask(task []string, id int,
+var balancesCounter int
+
+func PerformTask(logger log.Logger, task []string, id int,
 	ctx sdk.Context, evmKeeper evmkeeper.Keeper, tokenPairs parseTokenPairs,
 ) ([]TelemetryResult, error) {
-	results := []TelemetryResult{}
+	results := make([]TelemetryResult, 0, len(task))
+
 	for _, account := range task {
+		found := false
 		cosmosAddress := sdk.MustAccAddressFromBech32(account)
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		addrBytes := ethAddress.Bytes()
@@ -74,20 +88,34 @@ func performTask(task []string, id int,
 		for id, pair := range tokenPairs {
 			state := evmKeeper.GetState(ctx, pair, key)
 			stateHex := state.Hex()
+			// TODO: move this to rama's branch
+			if stateHex == "0x0000000000000000000000000000000000000000000000000000000000000000" {
+				// we continue here early to save creating a new big int for the zero cases
+				continue
+			}
+			found = true
 			balance, _ := new(big.Int).SetString(stateHex, 0)
 			if balance.Sign() > 0 {
 				results = append(results, TelemetryResult{address: account, balance: balance.String(), id: id})
 			}
 		}
 
+		// TODO: remove logging here
+		if found {
+			balancesCounter++
+			logger.Info(fmt.Sprintf("found %d accounts with balances so far.", balancesCounter))
+		}
 	}
+	logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(task)))
 	return results, nil
 }
 
-func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
+var batchCounter int
+
+func orchestrator(workerCtx context.Context, logger log.Logger, tasks chan<- []string, accountKeeper authkeeper.AccountKeeper, batchSize int,
 	ctx sdk.Context,
 ) {
-	var currentBatch []string
+	currentBatch := make([]string, 0, batchSize)
 	i := 0
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		if workerCtx.Err() != nil {
@@ -103,6 +131,8 @@ func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeepe
 		currentBatch = append(currentBatch, account.GetAddress().String())
 		// Check if the current batch is filled or it's the last element.
 		if (i+1)%batchSize == 0 {
+			batchCounter++
+			logger.Info(fmt.Sprintf("Sending batch: %d (len: %d)", batchCounter, len(currentBatch)))
 			tasks <- currentBatch
 			currentBatch = nil // Reset current batch
 		}
@@ -112,10 +142,13 @@ func orchestrator(workerCtx context.Context, tasks chan<- []string, accountKeepe
 	tasks <- currentBatch
 }
 
-func processResults(results <-chan []TelemetryResult) []TelemetryResult {
+var resultsCounter int
+
+func processResults(results <-chan []TelemetryResult, logger log.Logger) []TelemetryResult {
 	finalizedResults := make([]TelemetryResult, 0)
 	for batchResults := range results {
 		for i := range batchResults {
+			resultsCounter++
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
 	}
@@ -182,9 +215,98 @@ func executeConversionBatch(
 
 type parseTokenPairs = []common.Address
 
-// ConvertERC20Coins converts Native IBC coins from their ERC20 representation
-// to the native representation. This also includes the withdrawal of WEVMOS tokens
-// to EVMOS native tokens.
+// // ConvertERC20Coins converts Native IBC coins from their ERC20 representation
+// // to the native representation. This also includes the withdrawal of WEVMOS tokens
+// // to EVMOS native tokens.
+// func ConvertERC20Coins(
+// 	ctx sdk.Context,
+// 	logger log.Logger,
+// 	accountKeeper authkeeper.AccountKeeper,
+// 	bankKeeper bankkeeper.Keeper,
+// 	erc20Keeper erc20keeper.Keeper,
+// 	evmKeeper evmkeeper.Keeper,
+// 	wrappedAddr common.Address,
+// 	nativeTokenPairs []erc20types.TokenPair,
+// ) error {
+
+// 	numWorkers := 1000
+// 	batchSize := 2000
+
+// 	g := new(errgroup.Group)
+// 	// Create a context to cancel the workers in case of an error
+// 	g, workerCtx := errgroup.WithContext(context.Background())
+
+// 	// Create buffered channels for tasks and results
+// 	tasks := make(chan []string, numWorkers)
+// 	results := make(chan []TelemetryResult, numWorkers)
+
+// 	tokenPairs := make(parseTokenPairs, len(nativeTokenPairs))
+// 	for i := range nativeTokenPairs {
+// 		tokenPairs[i] = nativeTokenPairs[i].GetERC20Contract()
+// 	}
+
+// 	// Fan-out: Create worker goroutines
+// 	for w := 1; w <= numWorkers; w++ {
+// 		pairsCopy := make(parseTokenPairs, len(tokenPairs))
+// 		copy(pairsCopy, tokenPairs)
+// 		func(w int) {
+// 			if w%100 == 0 {
+// 				logger.Info(fmt.Sprintf("Starting worker: %d", w))
+// 			}
+// 			g.Go(func() error {
+// 				return worker(workerCtx, logger, w, tasks, results, ctx, evmKeeper, pairsCopy)
+// 			})
+// 		}(w)
+// 	}
+
+// 	// Create a goroutine to send tasks to workers
+// 	go func() {
+// 		orchestrator(workerCtx, logger, tasks, accountKeeper, batchSize, ctx)
+// 		close(tasks)
+// 	}()
+
+// 	// Create a goroutine to wait for all workers to finish
+// 	// check if there is an error and close the results channel
+// 	go func() {
+// 		if err := g.Wait(); err == nil {
+// 			logger.Info("All workers have finalized")
+// 		} else {
+// 			logger.Error("Error received: ", err)
+// 		}
+// 		close(results)
+// 	}()
+
+// 	// Process results as they come in
+// 	finalizedResults := processResults(results, logger)
+// 	if g.Wait() != nil {
+// 		err := g.Wait()
+// 		logger.Error("Context is cancelled, we are destroying everything")
+// 		logger.Error(fmt.Sprintf("got error: %s", err.Error()))
+// 		return err
+// 	}
+
+// 	logger.Info("Completed Finalized results: ", len(finalizedResults))
+
+// 	executeConversionBatch(ctx, logger, finalizedResults, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
+
+// 	// NOTE: if there are tokens left in the ERC-20 module account
+// 	// we return an error because this implies that the migration of native
+// 	// coins to ERC-20 tokens was not fully completed.
+// 	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
+// 	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
+// 	if !balances.IsZero() {
+// 		return fmt.Errorf("there are still tokens in the erc-20 module account: %s", balances.String())
+// 	}
+
+// 	return nil
+// }
+
+type TelemetryResult2 struct {
+	address sdk.AccAddress
+	balance string
+	id      int
+}
+
 func ConvertERC20Coins(
 	ctx sdk.Context,
 	logger log.Logger,
@@ -195,37 +317,35 @@ func ConvertERC20Coins(
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
-
-	numWorkers := 1000
-	batchSize := 2000
-
+	numWorkers := 5000
+	batchSize := 500
 	g := new(errgroup.Group)
 	// Create a context to cancel the workers in case of an error
 	g, workerCtx := errgroup.WithContext(context.Background())
 
 	// Create buffered channels for tasks and results
-	tasks := make(chan []string, numWorkers)
-	results := make(chan []TelemetryResult, numWorkers)
+	tasks := make(chan []sdk.AccAddress, numWorkers)
+	results := make(chan []TelemetryResult2, numWorkers)
 
 	tokenPairs := make(parseTokenPairs, len(nativeTokenPairs))
 	for i := range nativeTokenPairs {
 		tokenPairs[i] = nativeTokenPairs[i].GetERC20Contract()
 	}
 
+	fmt.Println("This is the number of token pairs: ", len(tokenPairs))
+
 	// Fan-out: Create worker goroutines
 	for w := 1; w <= numWorkers; w++ {
-		pairsCopy := make(parseTokenPairs, len(tokenPairs))
-		copy(pairsCopy, tokenPairs)
 		func(w int) {
 			g.Go(func() error {
-				return worker(workerCtx, w, tasks, results, ctx, evmKeeper, wrappedAddr, pairsCopy)
+				return Worker2(ctx, workerCtx, w, tasks, results, evmKeeper, tokenPairs)
 			})
 		}(w)
 	}
 
 	// Create a goroutine to send tasks to workers
 	go func() {
-		orchestrator(workerCtx, tasks, accountKeeper, batchSize, ctx)
+		orchestrator2(ctx, workerCtx, tasks, accountKeeper, batchSize)
 		close(tasks)
 	}()
 
@@ -241,28 +361,120 @@ func ConvertERC20Coins(
 	}()
 
 	// Process results as they come in
-	finalizedResults := processResults(results)
+	finalizedResults := processResults2(results)
 	if g.Wait() != nil {
 		err := g.Wait()
 		fmt.Println("Context is cancelled we are destroying everything")
 		fmt.Println(err)
-		return err
 	} else {
 		fmt.Println("Completed Finalized results: ", len(finalizedResults))
 	}
-
-	executeConversionBatch(ctx, logger, finalizedResults, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
-
-	// NOTE: if there are tokens left in the ERC-20 module account
-	// we return an error because this implies that the migration of native
-	// coins to ERC-20 tokens was not fully completed.
-	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
-	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
-	if !balances.IsZero() {
-		return fmt.Errorf("there are still tokens in the erc-20 module account: %s", balances.String())
-	}
-
 	return nil
+}
+
+func orchestrator2(ctx sdk.Context, workerCtx context.Context, tasks chan<- []sdk.AccAddress, accountKeeper authkeeper.AccountKeeper, batchSize int) {
+	logger := ctx.Logger()
+	var currentBatch []sdk.AccAddress
+	i := 0
+	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+		if workerCtx.Err() != nil {
+			if workerCtx.Err() == context.Canceled {
+				fmt.Println("Context is cancelled")
+			} else if workerCtx.Err() == context.DeadlineExceeded {
+				fmt.Println("Deadline has been exceeded")
+			}
+			// If the context is already cancelled, stop sending tasks
+			return true
+		}
+
+		currentBatch = append(currentBatch, account.GetAddress())
+		// Check if the current batch is filled or it's the last element.
+		if len(currentBatch) == batchSize {
+			logger.Info(fmt.Sprintf("Sending account # %v", i))
+			tasks <- currentBatch
+			currentBatch = nil
+		}
+		i++
+		return false
+	})
+	logger.Info("This first phase is over!!")
+	time.Sleep(5 * time.Second)
+}
+
+func processResults2(results <-chan []TelemetryResult2) []TelemetryResult2 {
+	finalizedResults := make([]TelemetryResult2, 0)
+	for batchResults := range results {
+		finalizedResults = append(finalizedResults, batchResults...)
+	}
+	return finalizedResults
+}
+
+// worker performs the task on jobs received and sends results to the results channel.
+func Worker2(
+	sdkCtx sdk.Context,
+	ctx context.Context,
+	id int,
+	tasks <-chan []sdk.AccAddress,
+	results chan<- []TelemetryResult2,
+	evmKeeper evmkeeper.Keeper,
+	nativeTokenPairs parseTokenPairs,
+) error {
+	logger := sdkCtx.Logger()
+	var resultsCol []TelemetryResult2
+
+	tokenPairStores := make([]sdk.KVStore, len(nativeTokenPairs))
+	for i, pair := range nativeTokenPairs {
+		tokenPairStores[i] = evmKeeper.GetStoreDummy(sdkCtx, pair)
+	}
+	for {
+		select {
+		case task, ok := <-tasks:
+			if !ok {
+				// fmt.Printf("Worker %d stopping due to channel closed\n", id)
+				return nil // Channel closed, stop the worker
+			}
+			// resultsCol := make([]TelemetryResult2, len(task))
+
+			logger.Info(fmt.Sprintf("Worker %d got accounts", id))
+			for _, account := range task {
+				concatBytes := append(common.LeftPadBytes(account.Bytes(), 32), storeKey...)
+				key := crypto.Keccak256Hash(concatBytes)
+				for id, store := range tokenPairStores {
+					value := store.Get(key.Bytes())
+					var state common.Hash
+					if len(value) != 0 {
+						state = common.BytesToHash(value)
+					} else {
+						continue
+					}
+					stateHex := state.Hex()
+
+					balance, _ := new(big.Int).SetString(stateHex, 0)
+					if balance.Sign() > 0 {
+						resultsCol = append(resultsCol, TelemetryResult2{address: account, balance: balance.String(), id: id})
+					}
+				}
+			}
+			logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(resultsCol)))
+			if len(resultsCol) > 0 {
+				results <- resultsCol
+				resultsCol = nil
+			}
+			// resp := fmt.Sprintf("Worker %d processing address: %s\n", id, task[i])
+			// create a slice of slice of strings
+			// for i, account := range task {
+			// 	resultsCol[i] = TelemetryResult2{address: account, balance: "Balance", id: 3}
+			// }
+			// results <- resultsCol
+			// resultsCol = nil
+
+		case <-ctx.Done():
+			fmt.Sprintf("This is my important exit")
+			// Context cancelled, stop the worker
+			// fmt.Printf("Worker %d stopping due to cancellation\n", id)
+			return nil
+		}
+	}
 }
 
 // getNativeTokenPairs returns the token pairs that are registered for native Cosmos coins.

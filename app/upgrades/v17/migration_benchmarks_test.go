@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -94,6 +95,7 @@ func BenchmarkShittyMigration(b *testing.B) {
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 				network.WithCustomGenesis(customGenesisState),
 			)
+			fmt.Println(time.Now())
 			b.StartTimer()
 			// FUNCTION CALL
 			err := v17.RunSTRv2Migration(
@@ -107,6 +109,7 @@ func BenchmarkShittyMigration(b *testing.B) {
 				unitNetwork.GetDenom(),
 			)
 			b.StopTimer()
+			fmt.Println(time.Now())
 
 			if err != nil {
 				panic(err)
