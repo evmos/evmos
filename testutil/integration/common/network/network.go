@@ -41,7 +41,8 @@ type Network interface {
 
 	BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error)
 	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
-
+	CheckTx(txBytes []byte) (*abcitypes.ResponseCheckTx, error)
+	
 	// GetIBCChain returns the IBC test chain.
 	// NOTE: this is only used for testing IBC related functionality.
 	// The idea is to deprecate this eventually.

@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
@@ -53,7 +52,7 @@ func TestQueryBaseFee(t *testing.T) {
 		expRes         *types.QueryBaseFeeResponse
 		nw             *network.UnitTestNetwork
 		ctx            sdk.Context
-		initialBaseFee math.Int
+		initialBaseFee sdkmath.Int
 	)
 
 	testCases := []struct {
@@ -86,7 +85,7 @@ func TestQueryBaseFee(t *testing.T) {
 			nw = network.NewUnitTestNetwork()
 			ctx = nw.GetContext()
 			qc := nw.GetFeeMarketClient()
-			initialBaseFee = math.NewIntFromBigInt(nw.App.FeeMarketKeeper.GetBaseFee(ctx))
+			initialBaseFee = sdkmath.NewIntFromBigInt(nw.App.FeeMarketKeeper.GetBaseFee(ctx))
 
 			tc.malleate()
 
