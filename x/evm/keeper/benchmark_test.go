@@ -27,7 +27,7 @@ func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)
 	require.NoError(b, err)
 
-	contractAddr := suite.DeployTestContract(b, suite.keyring.GetAddr(0), sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+	contractAddr := suite.DeployTestContract(b, suite.network.GetContext(), suite.keyring.GetAddr(0), sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 	err = suite.network.NextBlock()
 	require.NoError(b, err)
 

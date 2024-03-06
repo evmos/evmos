@@ -953,8 +953,11 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteAccount() {
+	var (
+		ctx          sdk.Context
+		contractAddr common.Address
+	)
 	supply := big.NewInt(100)
-	contractAddr := suite.DeployTestContract(suite.T(), suite.keyring.GetAddr(0), supply)
 
 	testCases := []struct {
 		name   string
@@ -981,12 +984,15 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-			err := suite.network.App.EvmKeeper.DeleteAccount(suite.network.GetContext(), tc.addr)
+			ctx = suite.network.GetContext()
+			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
+
+			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, tc.addr)
 			if tc.expErr {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				balance := suite.network.App.EvmKeeper.GetBalance(suite.network.GetContext(), tc.addr)
+				balance := suite.network.App.EvmKeeper.GetBalance(ctx, tc.addr)
 				suite.Require().Equal(new(big.Int), balance)
 			}
 		})

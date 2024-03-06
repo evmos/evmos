@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
 
@@ -33,6 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v16/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
 	evmosutil "github.com/evmos/evmos/v16/utils"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
@@ -110,9 +112,14 @@ func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSe
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
+	codeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		genAccounts = append(genAccounts, baseAcc)
+		ethAcc := &evmostypes.EthAccount{
+			BaseAccount: baseAcc,
+			CodeHash:    codeHash,
+		}
+		genAccounts = append(genAccounts, ethAcc)
 	}
 	return genAccounts
 }
