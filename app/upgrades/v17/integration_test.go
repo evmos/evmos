@@ -33,9 +33,16 @@ func TestCreateDummyGenesis(t *testing.T) {
 
 const (
 	// nKeys is the number of keys to generate
-	nKeys = 100_000
+	nKeys = 2_000_000
 	// nTokenPairs is the number of token pairs to generate
-	nTokenPairs = 15
+	nTokenPairs = 20
+)
+
+var (
+	AuthGenFilename  = fmt.Sprintf("auth_gen_state_%d_%d.json", nKeys, nTokenPairs)
+	BankGenFilename  = fmt.Sprintf("bank_gen_state_%d_%d.json", nKeys, nTokenPairs)
+	Erc20GenFilename = fmt.Sprintf("erc20_gen_state_%d_%d.json", nKeys, nTokenPairs)
+	EvmGenFilename   = fmt.Sprintf("evm_gen_state_%d_%d.json", nKeys, nTokenPairs)
 )
 
 var _ = Describe("creating a dummy genesis state", Ordered, func() {
@@ -181,7 +188,7 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(bankGenState).ToNot(BeNil(), "failed to export bank genesis state")
 			out, err := bankGenState.Marshal()
 			Expect(err).To(BeNil(), "failed to marshal bank genesis state")
-			err = os.WriteFile("bank_gen_state.json", out, 0o600)
+			err = os.WriteFile(BankGenFilename, out, 0o600)
 			Expect(err).To(BeNil(), "failed to write bank gen state to file")
 
 			// Export auth state
@@ -189,7 +196,7 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(authGenState).ToNot(BeNil(), "failed to export auth genesis state")
 			out, err = authGenState.Marshal()
 			Expect(err).To(BeNil(), "failed to marshal auth genesis state")
-			err = os.WriteFile("auth_gen_state.json", out, 0o600)
+			err = os.WriteFile(AuthGenFilename, out, 0o600)
 			Expect(err).To(BeNil(), "failed to write auth gen state to file")
 
 			// Export erc20 state
@@ -197,7 +204,7 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(erc20GenState).ToNot(BeNil(), "failed to export erc20 genesis state")
 			out, err = erc20GenState.Marshal()
 			Expect(err).To(BeNil(), "failed to marshal erc20 genesis state")
-			err = os.WriteFile("erc20_gen_state.json", out, 0o600)
+			err = os.WriteFile(Erc20GenFilename, out, 0o600)
 			Expect(err).To(BeNil(), "failed to write erc20 gen state to file")
 
 			// Export EVM state
@@ -205,7 +212,7 @@ var _ = Describe("creating a dummy genesis state", Ordered, func() {
 			Expect(evmGenState).ToNot(BeNil(), "failed to export evm genesis state")
 			out, err = evmGenState.Marshal()
 			Expect(err).To(BeNil(), "failed to marshal evm genesis state")
-			err = os.WriteFile("evm_gen_state.json", out, 0o600)
+			err = os.WriteFile(EvmGenFilename, out, 0o600)
 			Expect(err).To(BeNil(), "failed to write evm gen state to file")
 		})
 
