@@ -17,6 +17,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 
+	_ "net/http/pprof"
+
 	"github.com/spf13/cobra"
 
 	"google.golang.org/grpc"

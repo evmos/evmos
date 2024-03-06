@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"runtime"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -148,6 +149,13 @@ func processResults(results <-chan []TelemetryResult, logger log.Logger) []Telem
 	finalizedResults := make([]TelemetryResult, 0)
 	for batchResults := range results {
 		for i := range batchResults {
+			logger.Info(
+				fmt.Sprintf(
+					"Processed results: %d, results size: %d",
+					resultsCounter,
+					len(finalizedResults),
+				),
+			)
 			resultsCounter++
 			finalizedResults = append(finalizedResults, batchResults[i])
 		}
@@ -215,95 +223,9 @@ func executeConversionBatch(
 
 type parseTokenPairs = []common.Address
 
-// // ConvertERC20Coins converts Native IBC coins from their ERC20 representation
-// // to the native representation. This also includes the withdrawal of WEVMOS tokens
-// // to EVMOS native tokens.
-// func ConvertERC20Coins(
-// 	ctx sdk.Context,
-// 	logger log.Logger,
-// 	accountKeeper authkeeper.AccountKeeper,
-// 	bankKeeper bankkeeper.Keeper,
-// 	erc20Keeper erc20keeper.Keeper,
-// 	evmKeeper evmkeeper.Keeper,
-// 	wrappedAddr common.Address,
-// 	nativeTokenPairs []erc20types.TokenPair,
-// ) error {
-
-// 	numWorkers := 1000
-// 	batchSize := 2000
-
-// 	g := new(errgroup.Group)
-// 	// Create a context to cancel the workers in case of an error
-// 	g, workerCtx := errgroup.WithContext(context.Background())
-
-// 	// Create buffered channels for tasks and results
-// 	tasks := make(chan []string, numWorkers)
-// 	results := make(chan []TelemetryResult, numWorkers)
-
-// 	tokenPairs := make(parseTokenPairs, len(nativeTokenPairs))
-// 	for i := range nativeTokenPairs {
-// 		tokenPairs[i] = nativeTokenPairs[i].GetERC20Contract()
-// 	}
-
-// 	// Fan-out: Create worker goroutines
-// 	for w := 1; w <= numWorkers; w++ {
-// 		pairsCopy := make(parseTokenPairs, len(tokenPairs))
-// 		copy(pairsCopy, tokenPairs)
-// 		func(w int) {
-// 			if w%100 == 0 {
-// 				logger.Info(fmt.Sprintf("Starting worker: %d", w))
-// 			}
-// 			g.Go(func() error {
-// 				return worker(workerCtx, logger, w, tasks, results, ctx, evmKeeper, pairsCopy)
-// 			})
-// 		}(w)
-// 	}
-
-// 	// Create a goroutine to send tasks to workers
-// 	go func() {
-// 		orchestrator(workerCtx, logger, tasks, accountKeeper, batchSize, ctx)
-// 		close(tasks)
-// 	}()
-
-// 	// Create a goroutine to wait for all workers to finish
-// 	// check if there is an error and close the results channel
-// 	go func() {
-// 		if err := g.Wait(); err == nil {
-// 			logger.Info("All workers have finalized")
-// 		} else {
-// 			logger.Error("Error received: ", err)
-// 		}
-// 		close(results)
-// 	}()
-
-// 	// Process results as they come in
-// 	finalizedResults := processResults(results, logger)
-// 	if g.Wait() != nil {
-// 		err := g.Wait()
-// 		logger.Error("Context is cancelled, we are destroying everything")
-// 		logger.Error(fmt.Sprintf("got error: %s", err.Error()))
-// 		return err
-// 	}
-
-// 	logger.Info("Completed Finalized results: ", len(finalizedResults))
-
-// 	executeConversionBatch(ctx, logger, finalizedResults, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
-
-// 	// NOTE: if there are tokens left in the ERC-20 module account
-// 	// we return an error because this implies that the migration of native
-// 	// coins to ERC-20 tokens was not fully completed.
-// 	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
-// 	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
-// 	if !balances.IsZero() {
-// 		return fmt.Errorf("there are still tokens in the erc-20 module account: %s", balances.String())
-// 	}
-
-// 	return nil
-// }
-
 type TelemetryResult2 struct {
 	address sdk.AccAddress
-	balance string
+	balance []byte
 	id      int
 }
 
@@ -317,8 +239,10 @@ func ConvertERC20Coins(
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
-	numWorkers := 5000
-	batchSize := 500
+	fmt.Println("CORESSS WE ARE USING", runtime.NumCPU())
+
+	numWorkers := runtime.NumCPU() * 100
+	batchSize := 1000
 	g := new(errgroup.Group)
 	// Create a context to cancel the workers in case of an error
 	g, workerCtx := errgroup.WithContext(context.Background())
@@ -374,7 +298,8 @@ func ConvertERC20Coins(
 
 func orchestrator2(ctx sdk.Context, workerCtx context.Context, tasks chan<- []sdk.AccAddress, accountKeeper authkeeper.AccountKeeper, batchSize int) {
 	logger := ctx.Logger()
-	var currentBatch []sdk.AccAddress
+	currentBatch := make([]sdk.AccAddress, batchSize)
+	counter := 0
 	i := 0
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		if workerCtx.Err() != nil {
@@ -387,23 +312,24 @@ func orchestrator2(ctx sdk.Context, workerCtx context.Context, tasks chan<- []sd
 			return true
 		}
 
-		currentBatch = append(currentBatch, account.GetAddress())
-		// Check if the current batch is filled or it's the last element.
-		if len(currentBatch) == batchSize {
-			logger.Info(fmt.Sprintf("Sending account # %v", i))
-			tasks <- currentBatch
-			currentBatch = nil
-		}
+		currentBatch[i] = account.GetAddress()
 		i++
+		// Check if the current batch is filled or it's the last element.
+		if i == batchSize {
+			logger.Info(fmt.Sprintf("----------- Sending account # %v", counter))
+			tasks <- currentBatch
+			i = 0
+		}
+		counter++
 		return false
 	})
-	logger.Info("This first phase is over!!")
-	time.Sleep(5 * time.Second)
+	tasks <- currentBatch[:i]
 }
 
 func processResults2(results <-chan []TelemetryResult2) []TelemetryResult2 {
 	finalizedResults := make([]TelemetryResult2, 0)
 	for batchResults := range results {
+		fmt.Println("Finalized results: ", len(finalizedResults))
 		finalizedResults = append(finalizedResults, batchResults...)
 	}
 	return finalizedResults
@@ -421,11 +347,17 @@ func Worker2(
 ) error {
 	logger := sdkCtx.Logger()
 	var resultsCol []TelemetryResult2
+	evmKeeper.SetStorageDummy(sdkCtx)
 
-	tokenPairStores := make([]sdk.KVStore, len(nativeTokenPairs))
-	for i, pair := range nativeTokenPairs {
-		tokenPairStores[i] = evmKeeper.GetStoreDummy(sdkCtx, pair)
+	// leftPad := make([]byte, 64)
+	// for k := range storeKey {
+	// 	leftPad[32+k] = storeKey[k]
+	// }
+	tp := make([][]byte, len(nativeTokenPairs))
+	for i := range nativeTokenPairs {
+		tp[i] = nativeTokenPairs[i].Bytes()
 	}
+
 	for {
 		select {
 		case task, ok := <-tasks:
@@ -433,37 +365,42 @@ func Worker2(
 				// fmt.Printf("Worker %d stopping due to channel closed\n", id)
 				return nil // Channel closed, stop the worker
 			}
-			// resultsCol := make([]TelemetryResult2, len(task))
 
 			logger.Info(fmt.Sprintf("Worker %d got accounts", id))
+			now := time.Now()
+			if id == 1 {
+				logger.Error(now.String())
+			}
 			for _, account := range task {
 				concatBytes := append(common.LeftPadBytes(account.Bytes(), 32), storeKey...)
-				key := crypto.Keccak256Hash(concatBytes)
-				for id, store := range tokenPairStores {
-					value := store.Get(key.Bytes())
-					var state common.Hash
-					if len(value) != 0 {
-						state = common.BytesToHash(value)
-					} else {
+				_ = crypto.Keccak256Hash(concatBytes)
+				for id, _ := range tp {
+					// value := evmKeeper.PerformantGet(key.Bytes(), pair)
+					var value []byte
+					if len(value) == 0 {
 						continue
 					}
-					stateHex := state.Hex()
-
-					balance, _ := new(big.Int).SetString(stateHex, 0)
-					if balance.Sign() > 0 {
-						resultsCol = append(resultsCol, TelemetryResult2{address: account, balance: balance.String(), id: id})
-					}
+					resultsCol = append(resultsCol, TelemetryResult2{address: account, balance: value, id: id})
 				}
+			}
+			if id == 1 {
+				logger.Error(time.Since(now).String())
 			}
 			logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(resultsCol)))
 			if len(resultsCol) > 0 {
 				results <- resultsCol
 				resultsCol = nil
 			}
-			// resp := fmt.Sprintf("Worker %d processing address: %s\n", id, task[i])
-			// create a slice of slice of strings
+
+			// resultsCol := make([]TelemetryResult2, len(task))
+			// // resp := fmt.Sprintf("Worker %d processing address: %s\n", id, task[i])
+			// // create a slice of slice of strings
 			// for i, account := range task {
-			// 	resultsCol[i] = TelemetryResult2{address: account, balance: "Balance", id: 3}
+
+			// 	for x := range nativeTokenPairs {
+
+			// 	}
+			// 	resultsCol[i] = TelemetryResult2{address: account, balance: nil, id: 3}
 			// }
 			// results <- resultsCol
 			// resultsCol = nil
