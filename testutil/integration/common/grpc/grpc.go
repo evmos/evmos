@@ -46,6 +46,7 @@ type Handler interface {
 	GetDelegatorWithdrawAddr(delegatorAddress string) (*distrtypes.QueryDelegatorWithdrawAddressResponse, error)
 	GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error)
 	GetValidatorOutstandingRewards(validatorAddress string) (*distrtypes.QueryValidatorOutstandingRewardsResponse, error)
+	GetCommunityPool() (*distrtypes.QueryCommunityPoolResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

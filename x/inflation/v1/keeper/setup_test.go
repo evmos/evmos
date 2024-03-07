@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
@@ -21,12 +19,6 @@ type KeeperTestSuite struct {
 	handler grpc.Handler
 	keyring keyring.Keyring
 	factory factory.TxFactory
-}
-
-
-func TestKeeperUnitTestSuite(t *testing.T) {
-	s := new(KeeperTestSuite)
-	suite.Run(t, s)
 }
 
 func (s *KeeperTestSuite) SetupTest() {
