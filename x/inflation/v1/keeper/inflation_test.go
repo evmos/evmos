@@ -55,6 +55,7 @@ func TestMintAndAllocateInflation(t *testing.T) {
 			tc.malleate()
 
 			_, _, err := nw.App.InflationKeeper.MintAndAllocateInflation(ctx, tc.mintCoin, types.DefaultParams())
+			require.NoError(t, err, tc.name)
 
 			// Get balances
 			balanceModule := nw.App.BankKeeper.GetBalance(
