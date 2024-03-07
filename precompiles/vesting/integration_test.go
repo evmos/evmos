@@ -29,8 +29,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const vestingAccIdx = 1
-
 var (
 	// contractAddr is the address of the smart contract that calls the vesting extension
 	contractAddr common.Address
