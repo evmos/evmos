@@ -43,18 +43,18 @@ func TestEndBlock(t *testing.T) {
 			// reset network and context
 			nw = network.NewUnitTestNetwork()
 			ctx = nw.GetContext()
-	
+
 			params := nw.App.FeeMarketKeeper.GetParams(ctx)
 			params.NoBaseFee = tc.NoBaseFee
-	
+
 			err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 			require.NoError(t, err)
-	
+
 			tc.malleate()
-	
+
 			err = nw.App.FeeMarketKeeper.EndBlock(ctx)
 			require.NoError(t, err)
-	
+
 			gasWanted := nw.App.FeeMarketKeeper.GetBlockGasWanted(ctx)
 			require.Equal(t, tc.expGasWanted, gasWanted, tc.name)
 		})
