@@ -49,7 +49,6 @@ var (
 
 func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.CreateClawbackVestingAccountMethod]
 
 	testCases := []struct {
 		name        string
@@ -109,9 +108,19 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
-			bz, err := s.precompile.CreateClawbackVestingAccount(ctx, s.keyring.GetAddr(0), s.network.GetStateDB(), &method, tc.malleate())
+			method := s.precompile.Methods[vesting.CreateClawbackVestingAccountMethod]
+
+			createArgs := tc.malleate()
+
+			bz, err := s.precompile.CreateClawbackVestingAccount(
+				ctx,
+				s.keyring.GetAddr(0),
+				s.network.GetStateDB(),
+				&method,
+				createArgs,
+			)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -126,7 +135,6 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 
 func (s *PrecompileTestSuite) TestFundVestingAccount() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 
 	testCases := []struct {
 		name        string
@@ -194,8 +202,9 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
+			method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
@@ -215,7 +224,6 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 
 func (s *PrecompileTestSuite) TestClawback() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.ClawbackMethod]
 
 	testCases := []struct {
 		name        string
@@ -274,8 +282,9 @@ func (s *PrecompileTestSuite) TestClawback() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
+			method := s.precompile.Methods[vesting.ClawbackMethod]
 
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
@@ -295,7 +304,6 @@ func (s *PrecompileTestSuite) TestClawback() {
 
 func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.UpdateVestingFunderMethod]
 
 	testCases := []struct {
 		name        string
@@ -362,8 +370,9 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
+			method := s.precompile.Methods[vesting.UpdateVestingFunderMethod]
 
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
@@ -383,7 +392,6 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 
 func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[vesting.ConvertVestingAccountMethod]
 
 	testCases := []struct {
 		name        string
@@ -441,8 +449,9 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			s.SetupTest(2)
 			ctx = s.network.GetContext()
+			method := s.precompile.Methods[vesting.ConvertVestingAccountMethod]
 
 			bz, err := s.precompile.ConvertVestingAccount(ctx, s.network.GetStateDB(), &method, tc.malleate())
 

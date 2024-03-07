@@ -56,7 +56,6 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 	createArgs := []interface{}{s.keyring.GetAddr(0), toAddr, uint64(time.Now().Unix()), lockupPeriods, vestingPeriods}
-	//nolint
 	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method)
 	s.Require().NoError(err)
 	_, err = s.network.App.VestingKeeper.FundVestingAccount(s.network.GetContext(), msg)
@@ -71,7 +70,6 @@ func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 // Useful for unit tests only
 func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(ctx sdk.Context, funder, vestingAddr common.Address) {
 	msgArgs := []interface{}{funder, vestingAddr, false}
-	//nolint
 	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
 	s.Require().NoError(err)
 	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
