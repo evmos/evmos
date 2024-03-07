@@ -166,7 +166,7 @@ func processResults(results <-chan []TelemetryResult, logger log.Logger) []Telem
 func executeConversionBatch(
 	ctx sdk.Context,
 	logger log.Logger,
-	results []TelemetryResult,
+	results []TelemetryResult2,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	wrappedAddr common.Address,
@@ -174,8 +174,7 @@ func executeConversionBatch(
 ) error {
 	for _, result := range results {
 
-		cosmosAddress := sdk.MustAccAddressFromBech32(result.address)
-		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
+		ethAddress := common.BytesToAddress(result.address)
 		ethHexAddr := ethAddress.String()
 		tokenPair := nativeTokenPairs[result.id]
 
@@ -206,12 +205,11 @@ func executeConversionBatch(
 			}
 		} else {
 
-			n := new(big.Int)
-			n, _ = n.SetString(result.balance, 10)
-			coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(n)}}
+			balance := new(big.Int).SetBytes(result.balance)
+			coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(balance)}}
 
 			// Unescrow coins and send to receiver
-			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, cosmosAddress, coins)
+			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, result.address, coins)
 			if err != nil {
 				return err
 			}
@@ -464,4 +462,3 @@ func WithdrawWEVMOS(
 	res, err := erc20Keeper.CallEVMWithData(ctx, from, &wevmosContract, data, true)
 	return balance, res, err
 }
-
