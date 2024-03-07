@@ -240,8 +240,7 @@ func ConvertERC20Coins(
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 	fmt.Println("CORESSS WE ARE USING", runtime.NumCPU())
-
-	numWorkers := runtime.NumCPU() * 100
+	numWorkers := runtime.NumCPU()
 	batchSize := 1000
 	g := new(errgroup.Group)
 	// Create a context to cancel the workers in case of an error
@@ -329,7 +328,7 @@ func orchestrator2(ctx sdk.Context, workerCtx context.Context, tasks chan<- []sd
 func processResults2(results <-chan []TelemetryResult2) []TelemetryResult2 {
 	finalizedResults := make([]TelemetryResult2, 0)
 	for batchResults := range results {
-		fmt.Println("Finalized results: ", len(finalizedResults))
+		fmt.Println("Results with balances: ", len(finalizedResults))
 		finalizedResults = append(finalizedResults, batchResults...)
 	}
 	return finalizedResults
@@ -354,9 +353,14 @@ func Worker2(
 	// 	leftPad[32+k] = storeKey[k]
 	// }
 	tp := make([][]byte, len(nativeTokenPairs))
-	for i := range nativeTokenPairs {
-		tp[i] = nativeTokenPairs[i].Bytes()
+	for i, pair := range nativeTokenPairs {
+		tp[i] = evmtypes.AddressStoragePrefix(pair)
 	}
+
+	// tokenPairStores := make([]sdk.KVStore, len(nativeTokenPairs))
+	// for i, pair := range nativeTokenPairs {
+	// 	tokenPairStores[i] = evmKeeper.GetStoreDummy(sdkCtx, pair)
+	// }
 
 	for {
 		select {
@@ -373,10 +377,9 @@ func Worker2(
 			}
 			for _, account := range task {
 				concatBytes := append(common.LeftPadBytes(account.Bytes(), 32), storeKey...)
-				_ = crypto.Keccak256Hash(concatBytes)
-				for id, _ := range tp {
-					// value := evmKeeper.PerformantGet(key.Bytes(), pair)
-					var value []byte
+				key := crypto.Keccak256Hash(concatBytes)
+				for _, pair := range tp {
+					value := evmKeeper.PerformantGet(key.Bytes(), pair)
 					if len(value) == 0 {
 						continue
 					}
@@ -386,7 +389,8 @@ func Worker2(
 			if id == 1 {
 				logger.Error(time.Since(now).String())
 			}
-			logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(resultsCol)))
+
+			// logger.Info(fmt.Sprintf("Worker %d is done processed task and got %d results", id, len(resultsCol)))
 			if len(resultsCol) > 0 {
 				results <- resultsCol
 				resultsCol = nil
@@ -412,6 +416,7 @@ func Worker2(
 			return nil
 		}
 	}
+
 }
 
 // getNativeTokenPairs returns the token pairs that are registered for native Cosmos coins.
@@ -459,3 +464,4 @@ func WithdrawWEVMOS(
 	res, err := erc20Keeper.CallEVMWithData(ctx, from, &wevmosContract, data, true)
 	return balance, res, err
 }
+
