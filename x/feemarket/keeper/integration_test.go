@@ -213,7 +213,7 @@ var _ = Describe("Feemarket", func() {
 		Context("with MinGasPrices (feemarket param) < min-gas-prices (local)", func() {
 			// minGasPrices is the feemarket MinGasPrices
 			const minGasPrices int64 = 7
-			var baseFee = math.NewInt(15)
+			baseFee := math.NewInt(15)
 
 			BeforeEach(func() {
 				// local min-gas-prices is 10aevmos
@@ -307,7 +307,6 @@ var _ = Describe("Feemarket", func() {
 	})
 
 	Describe("Performing EVM transactions", func() {
-
 		var (
 			txArgs    evmtypes.EvmTxArgs
 			gasWanted uint64 = 200_000
