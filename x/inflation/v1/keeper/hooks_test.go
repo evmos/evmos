@@ -2,16 +2,24 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
 	"time"
 
 	"cosmossdk.io/math"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
+func TestEpochIdentifierAfterEpochEnd(t *testing.T) {
+	var (
+		ctx sdk.Context
+		nw  *network.UnitTestNetwork
+	)
 	testCases := []struct {
 		name            string
 		epochIdentifier string
@@ -29,45 +37,48 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest()
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
 
-			params := suite.app.InflationKeeper.GetParams(suite.ctx)
+			params := nw.App.InflationKeeper.GetParams(ctx)
 			params.EnableInflation = true
-			err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
-			suite.Require().NoError(err)
+			err := nw.App.InflationKeeper.SetParams(ctx, params)
+			require.NoError(t, err)
 
-			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
-			newHeight := suite.app.LastBlockHeight() + 1
+			futureCtx := ctx.WithBlockTime(time.Now().Add(time.Hour))
+			newHeight := nw.App.LastBlockHeight() + 1
 
-			feePoolOrigin, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
-			suite.Require().NoError(err)
-			suite.app.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, newHeight)
-			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
+			feePoolOrigin, err := nw.App.DistrKeeper.FeePool.Get(ctx)
+			require.NoError(t, err)
+			nw.App.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, newHeight)
+			nw.App.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
 
-			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
+			nw.App.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
 
 			// check the distribution happened as well
-			feePoolNew, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
-			suite.Require().NoError(err)
+			feePoolNew, err := nw.App.DistrKeeper.FeePool.Get(ctx)
+			require.NoError(t, err)
 			if tc.expDistribution {
 				// Actual distribution portions are tested elsewhere; we just want to verify the value of the pool is greater here
-				suite.Require().Greater(feePoolNew.CommunityPool.AmountOf(denomMint).BigInt().Uint64(),
+				require.Greater(t, feePoolNew.CommunityPool.AmountOf(denomMint).BigInt().Uint64(),
 					feePoolOrigin.CommunityPool.AmountOf(denomMint).BigInt().Uint64())
 			} else {
-				suite.Require().Equal(feePoolNew.CommunityPool.AmountOf(denomMint), feePoolOrigin.CommunityPool.AmountOf(denomMint))
+				require.Equal(t, feePoolNew.CommunityPool.AmountOf(denomMint), feePoolOrigin.CommunityPool.AmountOf(denomMint))
 			}
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
-	suite.SetupTest()
+func TestPeriodChangesSkippedEpochsAfterEpochEnd(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
 
-	currentEpochPeriod := suite.app.InflationKeeper.GetEpochsPerPeriod(suite.ctx)
+	currentEpochPeriod := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
 	// bondingRatio is zero in tests
-	bondedRatio, err := suite.app.InflationKeeper.BondedRatio(suite.ctx)
-	suite.Require().NoError(err)
+	bondedRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)
+	require.NoError(t, err)
 	testCases := []struct {
 		name            string
 		currentPeriod   int64
@@ -187,53 +198,55 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
 
-			params := suite.app.InflationKeeper.GetParams(suite.ctx)
+			params := nw.App.InflationKeeper.GetParams(ctx)
 			params.EnableInflation = true
-			err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
-			suite.Require().NoError(err)
+			err := nw.App.InflationKeeper.SetParams(ctx, params)
+			require.NoError(t, err)
 
 			// Before hook
 			if !tc.enableInflation {
 				params.EnableInflation = false
-				err = suite.app.InflationKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
+				err = nw.App.InflationKeeper.SetParams(ctx, params)
+				require.NoError(t, err)
 			}
 
-			suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, tc.skippedEpochs)
-			suite.app.InflationKeeper.SetPeriod(suite.ctx, uint64(tc.currentPeriod))
-			currentSkippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
-			currentPeriod := suite.app.InflationKeeper.GetPeriod(suite.ctx)
-			originalProvision := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
+			nw.App.InflationKeeper.SetSkippedEpochs(ctx, tc.skippedEpochs)
+			nw.App.InflationKeeper.SetPeriod(ctx, uint64(tc.currentPeriod))
+			currentSkippedEpochs := nw.App.InflationKeeper.GetSkippedEpochs(ctx)
+			currentPeriod := nw.App.InflationKeeper.GetPeriod(ctx)
+			originalProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
 
 			// Perform Epoch Hooks
-			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Minute))
-			suite.app.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, tc.height)
-			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, tc.height)
-			skippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
-			period := suite.app.InflationKeeper.GetPeriod(suite.ctx)
+			futureCtx := ctx.WithBlockTime(time.Now().Add(time.Minute))
+			nw.App.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, tc.height)
+			nw.App.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, tc.height)
+			skippedEpochs := nw.App.InflationKeeper.GetSkippedEpochs(ctx)
+			period := nw.App.InflationKeeper.GetPeriod(ctx)
 
 			if tc.periodChanges {
-				newProvision := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
+				newProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
 				expectedProvision := types.CalculateEpochMintProvision(
-					suite.app.InflationKeeper.GetParams(suite.ctx),
+					nw.App.InflationKeeper.GetParams(ctx),
 					period,
 					currentEpochPeriod,
 					bondedRatio,
 				).Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
-				suite.Require().Equal(expectedProvision, newProvision)
+				require.Equal(t, expectedProvision, newProvision)
 				// mint provisions will change
-				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
-				suite.Require().Equal(currentSkippedEpochs, skippedEpochs)
-				suite.Require().Equal(currentPeriod+1, period)
+				require.NotEqual(t, newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
+				require.Equal(t, currentSkippedEpochs, skippedEpochs)
+				require.Equal(t, currentPeriod+1, period)
 			} else {
-				suite.Require().Equal(currentPeriod, period)
+				require.Equal(t, currentPeriod, period)
 				if !tc.enableInflation {
 					// Check for epochIdentifier for skippedEpoch increment
 					if tc.epochIdentifier == epochstypes.DayEpochID {
-						suite.Require().Equal(currentSkippedEpochs+1, skippedEpochs)
+						require.Equal(t, currentSkippedEpochs+1, skippedEpochs)
 					}
 				}
 			}
