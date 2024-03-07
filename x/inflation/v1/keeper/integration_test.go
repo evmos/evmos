@@ -44,7 +44,6 @@ var _ = Describe("Inflation", Ordered, func() {
 		)
 
 		Context("with inflation param enabled and exponential calculation params changed", func() {
-
 			BeforeEach(func() {
 				params := types.DefaultParams()
 				params.EnableInflation = true
