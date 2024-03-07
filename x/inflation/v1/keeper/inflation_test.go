@@ -10,6 +10,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
@@ -90,8 +91,9 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
 	)
-	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := math.NewInt(1000100000000000000)
+	// the total bonded tokens for the 3 accounts initialized on the setup
+	bondedAmt, ok := math.NewIntFromString("100003000000000000000000")
+	require.True(t, ok)
 	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
 
 	testCases := []struct {
@@ -181,21 +183,20 @@ func TestBondedRatio(t *testing.T) {
 			"not mainnet",
 			false,
 			func() {},
-			math.LegacyMustNewDecFromStr("0.999900009999000099"),
+			math.LegacyMustNewDecFromStr("0.000029999100026999"),
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			chainID := utils.MainnetChainID + "-1"
+			if !tc.isMainnet {
+				chainID = utils.TestnetChainID + "-1"
+			}
 			// reset
-			nw = network.NewUnitTestNetwork()
+			nw = network.NewUnitTestNetwork(network.WithChainID(chainID))
 			ctx = nw.GetContext()
 
 			// Team allocation is only set on mainnet
-			if tc.isMainnet {
-				ctx = ctx.WithChainID("evmos_9001-1")
-			} else {
-				ctx = ctx.WithChainID("evmos_9999-666")
-			}
 			tc.malleate()
 
 			bondRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)

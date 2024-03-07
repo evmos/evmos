@@ -186,8 +186,10 @@ func TestQueryCirculatingSupply(t *testing.T) {
 	// team allocation is zero if not on mainnet
 	expCirculatingSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction))
 
-	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := sdk.NewInt64DecCoin(evmostypes.AttoEvmos, 1000100000000000000)
+	// the total bonded tokens for the 3 accounts initialized on the setup
+	amt, ok := math.NewIntFromString("100003000000000000000000")
+	require.True(t, ok)
+	bondedAmt := sdk.NewDecCoin(evmostypes.AttoEvmos, amt)
 
 	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	require.NoError(t, err)
@@ -199,8 +201,9 @@ func TestQueryInflationRate(t *testing.T) {
 	ctx := nw.GetContext()
 	qc := nw.GetInflationClient()
 
-	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := math.NewInt(1000100000000000000)
+	// the total bonded tokens for the 3 accounts initialized on the setup
+	bondedAmt, ok := math.NewIntFromString("100003000000000000000000")
+	require.True(t, ok)
 
 	// Mint coins to increase supply
 	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom

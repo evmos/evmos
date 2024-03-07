@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
 
 	"cosmossdk.io/math"
@@ -21,17 +22,25 @@ var (
 	provision   math.LegacyDec
 )
 
+func TestKeeperIntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
+}
+
 var _ = Describe("Inflation", Ordered, func() {
+	var s *KeeperTestSuite
 	BeforeEach(func() {
+		s = new(KeeperTestSuite)
 		s.SetupTest()
 	})
 
 	Describe("Committing a block", func() {
-		addr := s.app.AccountKeeper.GetModuleAddress("incentives")
+		addr := s.network.App.AccountKeeper.GetModuleAddress("incentives")
 
 		Context("with inflation param enabled and exponential calculation params changed", func() {
 			BeforeEach(func() {
-				params := s.app.InflationKeeper.GetParams(s.ctx)
+				params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 				params.EnableInflation = true
 				params.ExponentialCalculation = types.ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
@@ -41,22 +50,22 @@ var _ = Describe("Inflation", Ordered, func() {
 					MaxVariance:   math.LegacyZeroDec(),             // 0%
 				}
 				params.InflationDistribution = types.DefaultInflationDistribution
-				err := s.app.InflationKeeper.SetParams(s.ctx, params)
+				err := s.network.App.InflationKeeper.SetParams(s.network.GetContext(), params)
 				Expect(err).ToNot(HaveOccurred(), "error while setting params")
 			})
 
 			Context("before an epoch ends", func() {
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 23) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 23) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (Deprecated)", func() {
-					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					balance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 					Expect(balance.IsZero()).To(BeTrue(), "balance should be zero")
 				})
 				It("should not allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
@@ -65,15 +74,15 @@ var _ = Describe("Inflation", Ordered, func() {
 
 			Context("after an epoch ends", func() { //nolint:dupl // these tests are not duplicates
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 25) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 23) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					actual := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
@@ -82,12 +91,12 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 
 				It("should allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balanceCommunityPool := pool.CommunityPool
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
 
@@ -99,29 +108,29 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param enabled and distribution params changed", func() {
 			BeforeEach(func() {
-				params := s.app.InflationKeeper.GetParams(s.ctx)
+				params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 				params.EnableInflation = true
 				params.InflationDistribution = types.InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(333333333, 9),
 					CommunityPool:   math.LegacyNewDecWithPrec(666666667, 9),
 					UsageIncentives: math.LegacyZeroDec(), // Deprecated
 				}
-				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
+				_ = s.network.App.InflationKeeper.SetParams(s.network.GetContext(), params)
 			})
 
 			Context("before an epoch ends", func() {
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 23) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 23) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives", func() {
-					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					balance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 
 				It("should not allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
@@ -130,15 +139,15 @@ var _ = Describe("Inflation", Ordered, func() {
 
 			Context("after an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 25) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 25) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					actual := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
@@ -147,12 +156,12 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 
 				It("should allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balanceCommunityPool := pool.CommunityPool
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
 
@@ -164,23 +173,23 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param enabled", func() {
 			BeforeEach(func() {
-				params := s.app.InflationKeeper.GetParams(s.ctx)
+				params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 				params.EnableInflation = true
-				s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
+				s.network.App.InflationKeeper.SetParams(s.network.GetContext(), params) //nolint:errcheck
 			})
 
 			Context("before an epoch ends", func() {
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 23) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 23) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives", func() {
-					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					balance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 				It("should not allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
@@ -189,15 +198,15 @@ var _ = Describe("Inflation", Ordered, func() {
 
 			Context("after an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)    // Start Epoch
-					s.CommitAfter(time.Hour * 25) // End Epoch
+					s.network.NextBlockAfter(time.Minute)    // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 25) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					actual := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), addr, denomMint)
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
@@ -205,12 +214,12 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(actual.Amount).To(Equal(expected))
 				})
 				It("should allocate funds to the community pool", func() {
-					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					pool, err := s.network.App.DistrKeeper.FeePool.Get(s.network.GetContext())
 					Expect(err).To(BeNil())
 					balanceCommunityPool := pool.CommunityPool
 
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
+					provision := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
+					params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
 
@@ -222,38 +231,39 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param disabled", func() {
 			BeforeEach(func() {
-				params := s.app.InflationKeeper.GetParams(s.ctx)
+				params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 				params.EnableInflation = false
-				s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
+				s.network.App.InflationKeeper.SetParams(s.network.GetContext(), params) //nolint:errcheck
 			})
 
 			Context("after the network was offline for several days/epochs", func() {
 				BeforeEach(func() {
-					s.CommitAfter(time.Minute)        // start initial epoch
-					s.CommitAfter(time.Hour * 24 * 5) // end epoch after several days
+					s.network.NextBlockAfter(time.Minute)        // Start Epoch
+					s.network.NextBlockAfter(time.Hour * 24 * 5) // end epoch after several days
 				})
 				When("the epoch start time has not caught up with the block time", func() {
 					BeforeEach(func() {
 						// commit next 3 blocks to trigger afterEpochEnd let EpochStartTime
 						// catch up with BlockTime
-						s.CommitAfter(time.Second * 6)
-						s.CommitAfter(time.Second * 6)
-						s.CommitAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
 
-						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
+						epochInfo, found := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 						s.Require().True(found)
 						epochNumber = epochInfo.CurrentEpoch
 
-						skipped = s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
+						skipped = s.network.App.InflationKeeper.GetSkippedEpochs(s.network.GetContext())
 
-						s.CommitAfter(time.Second * 6) // commit next block
+						// commit next block
+						s.network.NextBlockAfter(time.Second * 6)
 					})
 					It("should increase the epoch number ", func() {
-						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
+						epochInfo, _ := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber + 1))
 					})
 					It("should not increase the skipped epochs number", func() {
-						skippedAfter := s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
+						skippedAfter := s.network.App.InflationKeeper.GetSkippedEpochs(s.network.GetContext())
 						Expect(skippedAfter).To(Equal(skipped + 1))
 					})
 				})
@@ -262,53 +272,56 @@ var _ = Describe("Inflation", Ordered, func() {
 					BeforeEach(func() {
 						// commit next 4 blocks to trigger afterEpochEnd hook several times
 						// and let EpochStartTime catch up with BlockTime
-						s.CommitAfter(time.Second * 6)
-						s.CommitAfter(time.Second * 6)
-						s.CommitAfter(time.Second * 6)
-						s.CommitAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
+						s.network.NextBlockAfter(time.Second * 6)
 
-						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
+						epochInfo, found := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 						s.Require().True(found)
 						epochNumber = epochInfo.CurrentEpoch
 
-						skipped = s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
+						skipped = s.network.App.InflationKeeper.GetSkippedEpochs(s.network.GetContext())
 
-						s.CommitAfter(time.Second * 6) // commit next block
+						// commit next block
+						s.network.NextBlockAfter(time.Second * 6)
 					})
 					It("should not increase the epoch number ", func() {
-						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
+						epochInfo, _ := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber))
 					})
 					It("should not increase the skipped epochs number", func() {
-						skippedAfter := s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
+						skippedAfter := s.network.App.InflationKeeper.GetSkippedEpochs(s.network.GetContext())
 						Expect(skippedAfter).To(Equal(skipped))
 					})
 
 					When("epoch number passes epochsPerPeriod + skippedEpochs and inflation re-enabled", func() {
 						BeforeEach(func() {
-							params := s.app.InflationKeeper.GetParams(s.ctx)
+							params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
 							params.EnableInflation = true
-							s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
+							s.network.App.InflationKeeper.SetParams(s.network.GetContext(), params) //nolint:errcheck
 
-							epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
+							epochInfo, _ := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 							epochNumber := epochInfo.CurrentEpoch // 6
 
 							epochsPerPeriod := int64(1)
-							s.app.InflationKeeper.SetEpochsPerPeriod(s.ctx, epochsPerPeriod)
-							skipped := s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
+							s.network.App.InflationKeeper.SetEpochsPerPeriod(s.network.GetContext(), epochsPerPeriod)
+							skipped := s.network.App.InflationKeeper.GetSkippedEpochs(s.network.GetContext())
 							s.Require().Equal(epochNumber, epochsPerPeriod+int64(skipped))
 
-							provision = s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+							provision = s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
 
-							s.CommitAfter(time.Hour * 23) // commit before next full epoch
-							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+							// commit before next full epoch
+							s.network.NextBlockAfter(time.Hour * 23)
+							provisionAfter := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
 							s.Require().Equal(provisionAfter, provision)
 
-							s.CommitAfter(time.Hour * 2) // commit after next full epoch
+							// commit after next full epoch
+							s.network.NextBlockAfter(time.Hour * 2)
 						})
 
 						It("should recalculate the EpochMintProvision", func() {
-							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+							provisionAfter := s.network.App.InflationKeeper.GetEpochMintProvision(s.network.GetContext())
 							Expect(provisionAfter).ToNot(Equal(provision))
 							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("159375000000000000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))))
 						})
