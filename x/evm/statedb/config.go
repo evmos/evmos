@@ -43,7 +43,7 @@ func NewEmptyTxConfig(bhash common.Hash) TxConfig {
 // It's mainly to reduce the number of method parameters
 type EVMConfig struct {
 	Params      types.Params
-	ChainConfig *params.ChainConfig
+	ChainConfig *params.ChainConfig // TODO: Remove this and only keep the chain ID
 	CoinBase    common.Address
 	BaseFee     *big.Int
 }

@@ -3,9 +3,11 @@
 package keeper
 
 import (
+	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
 	errorsmod "cosmossdk.io/errors"
@@ -17,13 +19,43 @@ import (
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
-// GetEthIntrinsicGas returns the intrinsic gas cost for the transaction
-func (k *Keeper) GetEthIntrinsicGas(ctx sdk.Context, msg core.Message, cfg *params.ChainConfig, isContractCreation bool) (uint64, error) {
-	height := big.NewInt(ctx.BlockHeight())
-	homestead := cfg.IsHomestead(height)
-	istanbul := cfg.IsIstanbul(height)
+// IntrinsicGas computes the 'intrinsic gas' for a message with the given data.
+func IntrinsicGas(data []byte, accessList ethtypes.AccessList, isContractCreation bool) (uint64, error) {
+	// Set the starting gas for the raw transaction
+	var gas uint64
+	if isContractCreation {
+		gas = params.TxGasContractCreation
+	} else {
+		gas = params.TxGas
+	}
+	// Bump the required gas by the amount of transactional data
+	if len(data) > 0 {
+		// Zero and non-zero bytes are priced differently
+		var nz uint64
+		for _, byt := range data {
+			if byt != 0 {
+				nz++
+			}
+		}
+		// Make sure we don't exceed uint64 for all data combinations
+		nonZeroGas := params.TxDataNonZeroGasEIP2028
 
-	return core.IntrinsicGas(msg.Data(), msg.AccessList(), isContractCreation, homestead, istanbul)
+		if (math.MaxUint64-gas)/nonZeroGas < nz {
+			return 0, core.ErrGasUintOverflow
+		}
+		gas += nz * nonZeroGas
+
+		z := uint64(len(data)) - nz
+		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
+			return 0, core.ErrGasUintOverflow
+		}
+		gas += z * params.TxDataZeroGas
+	}
+	if accessList != nil {
+		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
+		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
+	}
+	return gas, nil
 }
 
 // RefundGas transfers the leftover gas to the sender of the message, caped to half of the total gas

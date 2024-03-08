@@ -61,6 +61,7 @@ func (k Keeper) VMConfig(ctx sdk.Context, _ core.Message, cfg *statedb.EVMConfig
 		Debug:     debug,
 		Tracer:    tracer,
 		NoBaseFee: noBaseFee,
-		ExtraEips: cfg.Params.EIPs(),
+		JumpTable: k.jumpTable,
+		// MaxCodeSize: maxCodeSize,
 	}
 }
