@@ -156,7 +156,7 @@ func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes
 }
 
 // createEvmosApp creates an evmos app
-func createEvmosApp(chainID string) *app.Evmos {
+func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
@@ -166,7 +166,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 	invCheckPeriod := uint(5)
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
-	baseAppOptions := []func(*baseapp.BaseApp){baseapp.SetChainID(chainID)}
+	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
 
 	return app.NewEvmos(
 		logger,

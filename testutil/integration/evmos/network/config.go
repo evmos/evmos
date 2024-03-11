@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -29,6 +30,7 @@ type Config struct {
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
 	operatorsAddrs     []sdktypes.AccAddress
+	customBaseAppOpts  []func(*baseapp.BaseApp)
 }
 
 type CustomGenesisState map[string]interface{}
@@ -141,5 +143,12 @@ func WithOtherDenoms(otherDenoms []string) ConfigOption {
 func WithValidatorOperators(keys []sdktypes.AccAddress) ConfigOption {
 	return func(cfg *Config) {
 		cfg.operatorsAddrs = keys
+	}
+}
+
+// WithCustomBaseAppOpts sets custom base app options for the network.
+func WithCustomBaseAppOpts(opts ...func(*baseapp.BaseApp)) ConfigOption {
+	return func(cfg *Config) {
+		cfg.customBaseAppOpts = opts
 	}
 }
