@@ -53,13 +53,13 @@ func (k *Keeper) EndBlock(ctx sdk.Context) error {
 	gasUsed := math.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
 
 	if !gasWanted.IsInt64() {
-		err := fmt.Errorf("integer overflow by integer type conversion. Gas wanted > MaxInt64", "gas wanted", gasWanted.String())
+		err := fmt.Errorf("integer overflow by integer type conversion. Gas wanted > MaxInt64. Gas wanted: %s", gasWanted)
 		k.Logger(ctx).Error(err.Error())
 		return err
 	}
 
 	if !gasUsed.IsInt64() {
-		err := fmt.Errorf("integer overflow by integer type conversion. Gas used > MaxInt64", "gas used", gasUsed.String())
+		err := fmt.Errorf("integer overflow by integer type conversion. Gas used > MaxInt64. Gas used: %s", gasUsed)
 		k.Logger(ctx).Error(err.Error())
 		return err
 	}

@@ -125,7 +125,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID)
+	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
@@ -315,4 +315,14 @@ func (n *IntegrationNetwork) Simulate(txBytes []byte) (*txtypes.SimulateResponse
 		GasInfo: &gas,
 		Result:  result,
 	}, nil
+}
+
+// CheckTx calls the BaseApp's CheckTx method with the given txBytes to the network and returns the response.
+func (n *IntegrationNetwork) CheckTx(txBytes []byte) (*abcitypes.ResponseCheckTx, error) {
+	req := &abcitypes.RequestCheckTx{Tx: txBytes}
+	res, err := n.app.BaseApp.CheckTx(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

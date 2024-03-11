@@ -5,6 +5,7 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -21,6 +22,8 @@ type BaseTxFactory interface {
 	SignCosmosTx(privKey cryptotypes.PrivKey, txBuilder client.TxBuilder) error
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
+	// EncodeTx encodes the provided transaction
+	EncodeTx(tx sdktypes.Tx) ([]byte, error)
 }
 
 // baseTxFactory is the struct of the basic tx factory
@@ -60,7 +63,7 @@ func (tf *baseTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs Cos
 		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build tx")
 	}
 
-	txBytes, err := tf.encodeTx(signedTx)
+	txBytes, err := tf.EncodeTx(signedTx)
 	if err != nil {
 		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
