@@ -16,7 +16,6 @@ import (
 	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -48,13 +47,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	BeforeAll(func() {
 		keyring := testkeyring.New(3)
 
-		// enable inflation for staking rewards
-		customGen := network.CustomGenesisState{}
-		customGen[infltypes.ModuleName] = infltypes.DefaultGenesisState()
-
 		integrationNetwork := network.New(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-			network.WithCustomGenesis(customGen),
 		)
 		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 		txFactory := factory.New(integrationNetwork, grpcHandler)

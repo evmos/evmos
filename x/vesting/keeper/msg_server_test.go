@@ -342,8 +342,8 @@ func TestMsgClawback(t *testing.T) {
 		errContains string
 	}{
 		{
-			name:        "fail - account does not exist",
-			malleate:    func() {
+			name: "fail - account does not exist",
+			malleate: func() {
 				vestingAddr = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 			},
 			funder:      funder,

@@ -42,7 +42,7 @@ func DefaultConfig() Config {
 		chainID:            utils.MainnetChainID + "-1",
 		eip155ChainID:      big.NewInt(9001),
 		amountOfValidators: 3,
-		// No funded accounts besides the validators by default
+		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
