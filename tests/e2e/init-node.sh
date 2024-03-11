@@ -164,5 +164,4 @@ evmosd start "$TRACE" \
   --log_level $LOGLEVEL \
   --minimum-gas-prices=0.0001aevmos \
   --json-rpc.api eth,txpool,personal,net,debug,web3 \
-  --json-rpc.allow-insecure-unlock true \
   --chain-id "$CHAINID"
