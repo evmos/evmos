@@ -105,11 +105,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution).TruncateInt()
@@ -123,11 +121,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -199,11 +195,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provisionRes.EpochMintProvision.Amount.Mul(distribution)).TruncateInt()
@@ -217,11 +211,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -235,8 +227,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param enabled", func() {
 			BeforeEach(func() {
-				inflationClient := s.network.GetInflationClient()
-				paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+				paramsRes, err := s.handler.GetParams()
 				updatedParams := paramsRes.Params
 				updatedParams.EnableInflation = true
 				err = integrationutils.UpdateInflationParams(
@@ -289,11 +280,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provisionRes.EpochMintProvision.Amount.Mul(distribution)).TruncateInt()
@@ -306,11 +295,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(err).To(BeNil())
 					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
-					inflationClient := s.network.GetInflationClient()
-
-					provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+					paramsRes, err := s.handler.GetParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -324,8 +311,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param disabled", func() {
 			BeforeEach(func() {
-				inflationClient := s.network.GetInflationClient()
-				paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+				paramsRes, err := s.handler.GetParams()
 				Expect(err).ToNot(HaveOccurred(), "error while getting params")
 				updatedParams := paramsRes.Params
 				updatedParams.EnableInflation = false
@@ -353,14 +339,12 @@ var _ = Describe("Inflation", Ordered, func() {
 						Expect(s.network.NextBlockAfter(time.Second * 6)).To(BeNil())
 						Expect(s.network.NextBlockAfter(time.Second * 6)).To(BeNil())
 
-						inflationClient := s.network.GetInflationClient()
-
 						// NOTE: this can't be done with gRPC queries
 						epochInfo, found := s.network.App.EpochsKeeper.GetEpochInfo(s.network.GetContext(), epochstypes.DayEpochID)
 						Expect(found).To(BeTrue())
 						epochNumber = epochInfo.CurrentEpoch
 
-						skippedRes, err := inflationClient.SkippedEpochs(s.network.GetContext(), &types.QuerySkippedEpochsRequest{})
+						skippedRes, err := s.handler.GetSkippedEpochs()
 						Expect(err).To(BeNil(), "failed to get skipped epochs")
 						skipped = skippedRes.SkippedEpochs
 
@@ -372,8 +356,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber + 1))
 					})
 					It("should not increase the skipped epochs number", func() {
-						inflationClient := s.network.GetInflationClient()
-						skippedAfterRes, err := inflationClient.SkippedEpochs(s.network.GetContext(), &types.QuerySkippedEpochsRequest{})
+						skippedAfterRes, err := s.handler.GetSkippedEpochs()
 						Expect(err).To(BeNil(), "failed to get skipped epochs")
 						Expect(skippedAfterRes.SkippedEpochs).To(Equal(skipped + 1))
 					})
@@ -392,8 +375,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						Expect(found).To(BeTrue())
 						epochNumber = epochInfo.CurrentEpoch
 
-						inflationClient := s.network.GetInflationClient()
-						skippedAfterRes, err := inflationClient.SkippedEpochs(s.network.GetContext(), &types.QuerySkippedEpochsRequest{})
+						skippedAfterRes, err := s.handler.GetSkippedEpochs()
 						Expect(err).To(BeNil(), "failed to get skipped epochs")
 						skipped = skippedAfterRes.SkippedEpochs
 
@@ -405,16 +387,14 @@ var _ = Describe("Inflation", Ordered, func() {
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber))
 					})
 					It("should not increase the skipped epochs number", func() {
-						inflationClient := s.network.GetInflationClient()
-						skippedAfterRes, err := inflationClient.SkippedEpochs(s.network.GetContext(), &types.QuerySkippedEpochsRequest{})
+						skippedAfterRes, err := s.handler.GetSkippedEpochs()
 						Expect(err).To(BeNil(), "failed to get skipped epochs")
 						Expect(skippedAfterRes.SkippedEpochs).To(Equal(skipped))
 					})
 
 					When("epoch number passes epochsPerPeriod + skippedEpochs and inflation re-enabled", func() {
 						BeforeEach(func() {
-							inflationClient := s.network.GetInflationClient()
-							paramsRes, err := inflationClient.Params(s.network.GetContext(), &types.QueryParamsRequest{})
+							paramsRes, err := s.handler.GetParams()
 							Expect(err).ToNot(HaveOccurred(), "error while getting params")
 							updatedParams := paramsRes.Params
 							updatedParams.EnableInflation = true
@@ -428,24 +408,19 @@ var _ = Describe("Inflation", Ordered, func() {
 							)
 							Expect(err).ToNot(HaveOccurred(), "error while setting params")
 
-							// NOTE: it's necessary to get a new client after the params update
-							inflationClient = s.network.GetInflationClient()
-
-							skippedRes, err := inflationClient.SkippedEpochs(s.network.GetContext(), &types.QuerySkippedEpochsRequest{})
+							skippedRes, err := s.handler.GetSkippedEpochs()
 							Expect(err).To(BeNil(), "failed to get skipped epochs")
 							Expect(skippedRes.SkippedEpochs > uint64(0)).To(BeTrue())
 
 							epochsPerPeriod := s.network.App.InflationKeeper.GetEpochsPerPeriod(s.network.GetContext())
 
-							provisionRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+							provisionRes, err := s.handler.GetEpochMintProvision()
 							Expect(err).ToNot(HaveOccurred(), "error while getting epoch mint provision")
 
 							// commit before next full epoch
 							Expect(s.network.NextBlockAfter(time.Hour * 23)).To(BeNil())
 
-							// NOTE: it's necessary to get a new client after the committing the block after some hours
-							inflationClient = s.network.GetInflationClient()
-							provisionAfterRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+							provisionAfterRes, err := s.handler.GetEpochMintProvision()
 							Expect(err).To(BeNil(), "failed to get epoch mint provision")
 							Expect(provisionAfterRes.EpochMintProvision).To(Equal(provisionRes.EpochMintProvision))
 
@@ -461,8 +436,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						})
 
 						It("should recalculate the EpochMintProvision", func() {
-							inflationClient := s.network.GetInflationClient()
-							provisionAfterRes, err := inflationClient.EpochMintProvision(s.network.GetContext(), &types.QueryEpochMintProvisionRequest{})
+							provisionAfterRes, err := s.handler.GetEpochMintProvision()
 							Expect(err).To(BeNil(), "failed to get epoch mint provision")
 							Expect(provisionAfterRes.EpochMintProvision.Amount).ToNot(Equal(provision))
 							Expect(provisionAfterRes.EpochMintProvision.Amount).To(Equal(math.LegacyMustNewDecFromStr("436643835616438356164384").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))))

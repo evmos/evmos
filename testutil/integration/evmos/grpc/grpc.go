@@ -10,6 +10,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
@@ -34,6 +35,14 @@ type Handler interface {
 	// Revenue methods
 	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
 	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
+
+	// Inflation methods
+	GetPeriod() (*infltypes.QueryPeriodResponse, error)
+	GetEpochMintProvision() (*infltypes.QueryEpochMintProvisionResponse, error)
+	GetSkippedEpochs() (*infltypes.QuerySkippedEpochsResponse, error)
+	GetCirculatingSupply() (*infltypes.QueryCirculatingSupplyResponse, error)
+	GetInflationRate() (*infltypes.QueryInflationRateResponse, error)
+	GetParams() (*infltypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)
