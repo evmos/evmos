@@ -57,6 +57,8 @@ type Keeper struct {
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
 
+    storage sdk.KVStore
+
 	// EVM Hooks for tx post-processing
 	hooks types.EvmHooks
 	// Legacy subspace
@@ -105,6 +107,22 @@ func NewKeeper(
 		ss:              ss,
 		erc20Keeper:     erc20Keeper,
 	}
+}
+
+func (k *Keeper) SetStorageDummy(ctx sdk.Context) {
+	k.storage = ctx.KVStore(k.storeKey)
+	// return prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(contractAddr))
+}
+
+func cloneAppend(bz []byte, tail []byte) (res []byte) {
+	res = make([]byte, len(bz)+len(tail))
+	copy(res, bz)
+	copy(res[len(bz):], tail)
+	return
+}
+
+func (k *Keeper) PerformantGet(addr []byte, pair []byte) []byte {
+	return k.storage.Get(cloneAppend(pair, addr))
 }
 
 // Logger returns a module-specific logger.

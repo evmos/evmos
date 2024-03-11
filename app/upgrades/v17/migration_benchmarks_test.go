@@ -86,6 +86,8 @@ func BenchmarkShittyMigration(b *testing.B) {
 		panic(err)
 	}
 
+	fmt.Println("Starting benchmark - Finished generating genesis")
+
 	// Because we are not going thorugh the ante handler,
 	// we need to configure the context to execution mode
 
