@@ -17,7 +17,7 @@ func TestParams(t *testing.T) {
 		expParams types.Params
 	}{
 		{
-			"Pass default params",
+			"pass - default params",
 			func() types.Params {
 				params := nw.App.InflationKeeper.GetParams(ctx)
 				return params
