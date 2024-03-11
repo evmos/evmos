@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
@@ -172,8 +173,14 @@ func TestSkippedEpochs(t *testing.T) { //nolint:dupl
 }
 
 func TestQueryCirculatingSupply(t *testing.T) {
-	// Team allocation is only set on mainnet
-	nw := network.NewUnitTestNetwork()
+	nAccs := int64(1)
+	nVals := int64(3)
+
+	keyring := testkeyring.New(int(nAccs))
+	nw := network.NewUnitTestNetwork(
+		network.WithAmountOfValidators(int(nVals)),
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
 	ctx := nw.GetContext()
 	qc := nw.GetInflationClient()
 
@@ -186,14 +193,14 @@ func TestQueryCirculatingSupply(t *testing.T) {
 	// team allocation is zero if not on mainnet
 	expCirculatingSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction))
 
-	// the total bonded tokens for the 3 accounts initialized on the setup
-	amt, ok := math.NewIntFromString("100003000000000000000000")
-	require.True(t, ok)
-	bondedAmt := sdk.NewDecCoin(evmostypes.AttoEvmos, amt)
+	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
+	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs))
+	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
 
 	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	require.NoError(t, err)
-	require.Equal(t, expCirculatingSupply.Add(bondedAmt), res.CirculatingSupply)
+	require.Equal(t, expCirculatingSupply.Add(bondedCoins), res.CirculatingSupply)
 }
 
 func TestQueryInflationRate(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
@@ -92,10 +93,14 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
 	)
-	// the total bonded tokens for the 3 accounts initialized on the setup
-	bondedAmt, ok := math.NewIntFromString("100003000000000000000000")
-	require.True(t, ok)
-	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
+
+	nAccs := int64(1)
+	nVals := int64(3)
+
+	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)                             // Add the allocation for the validators
+	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
+	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
 
 	testCases := []struct {
 		name             string
@@ -105,7 +110,7 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 	}{
 		{
 			"no epochs per period",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {
 				nw.App.InflationKeeper.SetEpochsPerPeriod(ctx, 0)
 			},
@@ -113,19 +118,19 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		},
 		{
 			"high supply",
-			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
+			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
 			math.LegacyMustNewDecFromStr("51.562500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
 		},
 		{
 			"low supply",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
 			math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
 		},
 		{
 			"zero circulating supply",
-			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
+			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
 			math.LegacyZeroDec(),
 		},
@@ -133,7 +138,11 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			// reset
-			nw = network.NewUnitTestNetwork()
+			keyring := testkeyring.New(int(nAccs))
+			nw = network.NewUnitTestNetwork(
+				network.WithAmountOfValidators(int(nVals)),
+				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			)
 			ctx = nw.GetContext()
 
 			// Team allocation is only set on mainnet
