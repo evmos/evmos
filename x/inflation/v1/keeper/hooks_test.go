@@ -75,7 +75,7 @@ func TestPeriodChangesSkippedEpochsAfterEpochEnd(t *testing.T) {
 	nw := network.NewUnitTestNetwork()
 	ctx := nw.GetContext()
 
-	currentEpochPeriod := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
+	currentEpochPerPeriod := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
 	// bondingRatio is zero in tests
 	bondedRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)
 	require.NoError(t, err)
