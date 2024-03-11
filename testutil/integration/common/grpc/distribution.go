@@ -48,3 +48,9 @@ func (gqh *IntegrationHandler) GetValidatorOutstandingRewards(validatorAddress s
 		ValidatorAddress: validatorAddress,
 	})
 }
+
+// GetCommunityPool queries the community pool coins.
+func (gqh *IntegrationHandler) GetCommunityPool() (*distrtypes.QueryCommunityPoolResponse, error) {
+	distrClient := gqh.network.GetDistrClient()
+	return distrClient.CommunityPool(context.Background(), &distrtypes.QueryCommunityPoolRequest{})
+}
