@@ -54,8 +54,8 @@ func (gqh *IntegrationHandler) GetInflationRate() (*infltypes.QueryInflationRate
 	)
 }
 
-// GetParams returns the inflation module parameters.
-func (gqh *IntegrationHandler) GetParams() (*infltypes.QueryParamsResponse, error) {
+// GetInflationParams returns the inflation module parameters.
+func (gqh *IntegrationHandler) GetInflationParams() (*infltypes.QueryParamsResponse, error) {
 	inflationClient := gqh.network.GetInflationClient()
 	return inflationClient.Params(
 		context.Background(),

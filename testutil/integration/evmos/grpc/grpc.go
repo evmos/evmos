@@ -42,7 +42,7 @@ type Handler interface {
 	GetSkippedEpochs() (*infltypes.QuerySkippedEpochsResponse, error)
 	GetCirculatingSupply() (*infltypes.QueryCirculatingSupplyResponse, error)
 	GetInflationRate() (*infltypes.QueryInflationRateResponse, error)
-	GetParams() (*infltypes.QueryParamsResponse, error)
+	GetInflationParams() (*infltypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

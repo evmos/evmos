@@ -107,7 +107,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution).TruncateInt()
@@ -123,7 +123,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -137,14 +137,16 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param enabled and distribution params changed", func() {
 			BeforeEach(func() {
-				params := s.network.App.InflationKeeper.GetParams(s.network.GetContext())
+				res, err := s.handler.GetInflationParams()
+				Expect(err).To(BeNil())
+				params := res.Params
 				params.EnableInflation = true
 				params.InflationDistribution = types.InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(333333333, 9),
 					CommunityPool:   math.LegacyNewDecWithPrec(666666667, 9),
 					UsageIncentives: math.LegacyZeroDec(), // Deprecated
 				}
-				err := integrationutils.UpdateInflationParams(
+				err = integrationutils.UpdateInflationParams(
 					integrationutils.UpdateParamsInput{
 						Tf:      s.factory,
 						Network: s.network,
@@ -197,7 +199,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provisionRes.EpochMintProvision.Amount.Mul(distribution)).TruncateInt()
@@ -213,7 +215,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -227,7 +229,8 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param enabled", func() {
 			BeforeEach(func() {
-				paramsRes, err := s.handler.GetParams()
+				paramsRes, err := s.handler.GetInflationParams()
+				Expect(err).To(BeNil())
 				updatedParams := paramsRes.Params
 				updatedParams.EnableInflation = true
 				err = integrationutils.UpdateInflationParams(
@@ -282,7 +285,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provisionRes.EpochMintProvision.Amount.Mul(distribution)).TruncateInt()
@@ -297,7 +300,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
-					paramsRes, err := s.handler.GetParams()
+					paramsRes, err := s.handler.GetInflationParams()
 					Expect(err).To(BeNil(), "failed to get inflation params")
 					distribution := paramsRes.Params.InflationDistribution.CommunityPool
 					expected := provisionRes.EpochMintProvision.Amount.Mul(distribution)
@@ -311,7 +314,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 		Context("with inflation param disabled", func() {
 			BeforeEach(func() {
-				paramsRes, err := s.handler.GetParams()
+				paramsRes, err := s.handler.GetInflationParams()
 				Expect(err).ToNot(HaveOccurred(), "error while getting params")
 				updatedParams := paramsRes.Params
 				updatedParams.EnableInflation = false
@@ -394,7 +397,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					When("epoch number passes epochsPerPeriod + skippedEpochs and inflation re-enabled", func() {
 						BeforeEach(func() {
-							paramsRes, err := s.handler.GetParams()
+							paramsRes, err := s.handler.GetInflationParams()
 							Expect(err).ToNot(HaveOccurred(), "error while getting params")
 							updatedParams := paramsRes.Params
 							updatedParams.EnableInflation = true
