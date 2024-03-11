@@ -206,7 +206,6 @@ func TestBondedRatio(t *testing.T) {
 			nw = network.NewUnitTestNetwork(network.WithChainID(chainID))
 			ctx = nw.GetContext()
 
-			// Team allocation is only set on mainnet
 			tc.malleate()
 
 			bondRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)
