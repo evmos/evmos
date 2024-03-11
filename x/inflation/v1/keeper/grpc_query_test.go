@@ -204,13 +204,20 @@ func TestQueryCirculatingSupply(t *testing.T) {
 }
 
 func TestQueryInflationRate(t *testing.T) {
-	nw := network.NewUnitTestNetwork()
+	nAccs := int64(1)
+	nVals := int64(3)
+
+	keyring := testkeyring.New(int(nAccs))
+	nw := network.NewUnitTestNetwork(
+		network.WithAmountOfValidators(int(nVals)),
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
 	ctx := nw.GetContext()
 	qc := nw.GetInflationClient()
 
-	// the total bonded tokens for the 3 accounts initialized on the setup
-	bondedAmt, ok := math.NewIntFromString("100003000000000000000000")
-	require.True(t, ok)
+	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	bondedAmt := network.DefaultBondedAmount.MulRaw(nVals)                          // Add the allocation for the validators
+	bondedAmt = bondedAmt.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
 
 	// Mint coins to increase supply
 	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
