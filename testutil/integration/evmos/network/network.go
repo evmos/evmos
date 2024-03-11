@@ -32,6 +32,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -51,6 +52,7 @@ type Network interface {
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
+	GetVestingClient() vestingtypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)

@@ -1,19 +1,26 @@
 package keeper_test
 
 import (
+	"testing"
+
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestNewKeeper() {
+func TestNewKeeper(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
-
 	storeKey := storetypes.NewKVStoreKey(vestingtypes.StoreKey)
+
+	addr, _ := testutiltx.NewAccAddressAndKey()
 
 	testcases := []struct {
 		name      string
@@ -22,7 +29,7 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 	}{
 		{
 			name:      "valid authority format",
-			authority: sdk.AccAddress(suite.address.Bytes()),
+			authority: addr,
 			expPass:   true,
 		},
 		{
@@ -33,30 +40,30 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 	}
 
 	for _, tc := range testcases {
-		suite.Run(tc.name, func() {
+		t.Run(tc.name, func(t *testing.T) {
 			if tc.expPass {
 				newKeeper := keeper.NewKeeper(
 					storeKey,
 					tc.authority,
 					cdc,
-					suite.app.AccountKeeper,
-					suite.app.BankKeeper,
-					suite.app.DistrKeeper,
-					suite.app.StakingKeeper,
-					suite.app.GovKeeper,
+					nw.App.AccountKeeper,
+					nw.App.BankKeeper,
+					nw.App.DistrKeeper,
+					nw.App.StakingKeeper,
+					nw.App.GovKeeper,
 				)
-				suite.Require().NotNil(newKeeper)
+				require.NotNil(t, newKeeper)
 			} else {
-				suite.Require().PanicsWithError("addresses cannot be empty: unknown address", func() {
+				require.PanicsWithError(t, "addresses cannot be empty: unknown address", func() {
 					_ = keeper.NewKeeper(
 						storeKey,
 						tc.authority,
 						cdc,
-						suite.app.AccountKeeper,
-						suite.app.BankKeeper,
-						suite.app.DistrKeeper,
-						suite.app.StakingKeeper,
-						suite.app.GovKeeper,
+						nw.App.AccountKeeper,
+						nw.App.BankKeeper,
+						nw.App.DistrKeeper,
+						nw.App.StakingKeeper,
+						nw.App.GovKeeper,
 					)
 				})
 			}
