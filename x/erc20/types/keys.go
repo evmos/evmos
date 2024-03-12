@@ -20,14 +20,14 @@ const (
 	RouterKey = ModuleName
 )
 
-// ModuleAddress is the native module address for EVM
+// ModuleAddress is the native module address for ERC-20
 var ModuleAddress common.Address
 
 func init() {
 	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 }
 
-// prefix bytes for the EVM persistent store
+// prefix bytes for the ERC-20 persistent store
 const (
 	prefixTokenPair = iota + 1
 	prefixTokenPairByERC20
