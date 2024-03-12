@@ -105,9 +105,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
