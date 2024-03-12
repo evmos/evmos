@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"runtime"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -23,7 +22,6 @@ import (
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/sync/errgroup"
 )
 
 var storeKey []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
@@ -103,61 +101,51 @@ func ConvertERC20Coins(
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 	timeBegin := time.Now()
-	fmt.Println("CORESSS WE ARE USING", runtime.NumCPU())
-	numWorkers := runtime.NumCPU()
-	batchSize := 1000
-	g := new(errgroup.Group)
-	// Create a context to cancel the workers in case of an error
-	g, workerCtx := errgroup.WithContext(context.Background())
-
-	// Create buffered channels for tasks and results
-	tasks := make(chan []sdk.AccAddress, numWorkers)
-	results := make(chan []TelemetryResult2, numWorkers)
 
 	tokenPairs := make(parseTokenPairs, len(nativeTokenPairs))
 	for i := range nativeTokenPairs {
 		tokenPairs[i] = nativeTokenPairs[i].GetERC20Contract()
 	}
-
 	fmt.Println("This is the number of token pairs: ", len(tokenPairs))
 
-	// Fan-out: Create worker goroutines
-	for w := 1; w <= numWorkers; w++ {
-		func(w int) {
-			g.Go(func() error {
-				return Worker2(ctx, workerCtx, w, tasks, results, evmKeeper, tokenPairs)
-			})
-		}(w)
+	var resultsCol []TelemetryResult2
+
+	tokenPairStores := make([]sdk.KVStore, len(nativeTokenPairs))
+	for i, pair := range tokenPairs {
+		tokenPairStores[i] = evmKeeper.GetStoreDummy(ctx, pair)
 	}
 
-	// Create a goroutine to send tasks to workers
-	go func() {
-		orchestrator2(ctx, workerCtx, tasks, accountKeeper, batchSize)
-		close(tasks)
-	}()
-
-	// Create a goroutine to wait for all workers to finish
-	// check if there is an error and close the results channel
-	go func() {
-		if err := g.Wait(); err == nil {
-			fmt.Println("All workers have finalized")
-		} else {
-			fmt.Println("Error received: ", err)
+	logCounter := 0
+	from := time.Now()
+	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+		accountAddr := account.GetAddress()
+		concatBytes := append(common.LeftPadBytes(accountAddr.Bytes(), 32), storeKey...)
+		key := crypto.Keccak256Hash(concatBytes)
+		for tokenId, store := range tokenPairStores {
+			value := store.Get(key.Bytes())
+			if len(value) == 0 {
+				continue
+			}
+			resultsCol = append(
+				resultsCol,
+				TelemetryResult2{
+					address: accountAddr,
+					balance: value,
+					id:      tokenId,
+				})
 		}
-		close(results)
-	}()
+		logCounter++
+		if logCounter == 12000 {
+			logCounter = 0
+			fmt.Println("Accounts with balances: ", len(resultsCol))
+			fmt.Printf("Time per batch: %v \n", time.Since(from).String())
+			from = time.Now()
+		}
+		return false
+	})
 
-	// Process results as they come in
-	finalizedResults := processResults2(results)
-	if g.Wait() != nil {
-		err := g.Wait()
-		fmt.Println("Context is cancelled we are destroying everything")
-		fmt.Println(err)
-	} else {
-		fmt.Println("Completed Finalized results: ", len(finalizedResults))
-	}
-	fmt.Println("Finalized results: ", len(finalizedResults))
-	err := executeConversionBatch(ctx, logger, finalizedResults, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
+	fmt.Println("Finalized results: ", len(resultsCol))
+	err := executeConversionBatch(ctx, logger, resultsCol, bankKeeper, erc20Keeper, wrappedAddr, nativeTokenPairs)
 	if err != nil {
 		panic(err)
 	}
