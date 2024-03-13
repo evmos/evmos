@@ -23,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -79,7 +78,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		// Monthly vesting period
 		stakeDenom    = utils.BaseDenom
 		amt           = math.NewInt(1e17)
-		vestingLength = int64(60 * 60 * 24 * 30) // in seconds
+		vestingLength = int64(60 * 60 * 24 * 30) // 30 days in seconds
 		vestingAmt    = sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
 		vestingPeriod = sdkvesting.Period{Length: vestingLength, Amount: vestingAmt}
 
@@ -97,7 +96,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		lockup       = int64(12) // 12 months
 		lockupLength = vestingLength * lockup
 
-		// Unlock at 12 and 24 months
+		// Unlock every 12 months
 		numLockupPeriods = int64(4)
 
 		// Unlock 1/4th of the total vest in each unlock event. By default, all tokens are
@@ -223,11 +222,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot transfer unvested tokens", func() {
 			account := vestingAccs[0]
-
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balancePrev := balRes.Balance
-			fmt.Println(balancePrev)
 			coins := unvested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
 			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), coins)
 			_, err = s.factory.ExecuteCosmosTx(account.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
@@ -334,72 +328,30 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot delegate and then send tokens", func() {
 			account := vestingAccs[0]
-			
-			acc, err := s.handler.GetAccount(account.AccAddr.String())
-			Expect(err).To(BeNil())
-			vestAcc, ok := acc.(*types.ClawbackVestingAccount)
-			Expect(ok).To(BeTrue())
-
-			unlocked := vestAcc.GetUnlockedOnly(s.network.GetContext().BlockTime())
-			fmt.Println(unlocked)
-
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balancePrev := balRes.Balance
-			fmt.Println(balancePrev)
-
-			ok, vestedCoin := twoThirdsOfVested.Find(utils.BaseDenom)
-			Expect(ok).To(BeTrue())
-			delegationCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
-
-			fmt.Println(delegationCoin)
 
 			err = s.factory.Delegate(
 				account.Priv,
 				s.network.GetValidators()[0].OperatorAddress,
-				sdk.NewCoin(stakeDenom, math.NewInt(1)),
-			)
-			Expect(err).To(BeNil())
-			Expect(s.network.NextBlock()).To(BeNil())
-			err = s.factory.Delegate(
-				account.Priv,
-				s.network.GetValidators()[0].OperatorAddress,
-				sdk.NewCoin(stakeDenom, math.NewInt(1)),
+				twoThirdsOfVested[0],
 			)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balancePrev = balRes.Balance
-			currentSpendableBal := balancePrev.Sub(vestingAmtTotal.Sub(vested...)[0])
-			fmt.Println(balancePrev)
-			fmt.Println(currentSpendableBal)
+			sendCoins := twoThirdsOfVested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
 
-
-
-			locked := vestAcc.LockedCoins(s.network.GetContext().BlockTime())
-			fmt.Println(locked)
-
-
-			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), sdk.NewCoins(sdk.NewCoin(stakeDenom, balancePrev.Amount.Sub(remainingAmtToPayFees))))
+			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), sendCoins)
 			_, err = s.factory.ExecuteCosmosTx(account.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
-			Expect(s.network.NextBlock()).To(BeNil())
-
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balancePrev = balRes.Balance
-			fmt.Println(balancePrev)
-
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("cannot delegate unvested coins"))
-			// TODO assert error msg
+			Expect(err.Error()).To(ContainSubstring("spendable balance"))
+			Expect(err.Error()).To(ContainSubstring("is smaller than"))
 		})
 
 		It("cannot transfer vested tokens", func() {
-			msg := banktypes.NewMsgSend(vestingAccs[0].AccAddr, dest.Bytes(), vested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance)))
+			msg := banktypes.NewMsgSend(vestingAccs[0].AccAddr, dest.Bytes(), vested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees))))
 			_, err = s.factory.ExecuteCosmosTx(vestingAccs[0].Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
 			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("spendable balance"))
+			Expect(err.Error()).To(ContainSubstring("is smaller than"))
 		})
 
 		It("can perform Ethereum tx with spendable balance", func() {
@@ -409,7 +361,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees)
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(BeTrue())
@@ -430,11 +382,11 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot perform Ethereum tx with locked balance", func() {
 			account := vestingAccs[0]
-			txAmount := vestingAccInitialBalance.Add(vested.AmountOf(stakeDenom))
+			txAmount := vestingAccInitialBalance.Add(vested.AmountOf(stakeDenom)).Sub(remainingAmtToPayFees)
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), Amount: txAmount.BigInt()})
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 			Expect(res.IsOK()).To(BeFalse())
-			// TODO assert error msg
 		})
 	})
 
@@ -468,7 +420,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(BeTrue())
@@ -496,11 +448,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// Split the total unlocked amount into numTestMsgs equally sized tx's
 			msgs := make([]sdk.Msg, numTestMsgs)
-			totalSendAmt := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			// send all the account's spendable balance
+			// initial_balance + unlocked in several messages
+			totalSendAmt := vestingAccInitialBalance.Add(unlockedPerLockupAmt).Sub(remainingAmtToPayFees)
 			txAmount := totalSendAmt.QuoRaw(int64(numTestMsgs))
 
 			for i := 0; i < numTestMsgs; i++ {
-				msg, err := s.factory.GenerateMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+				msg, err := s.factory.GenerateSignedMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{Nonce: uint64(i + 1), To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 				Expect(err).To(BeNil())
 				msgs[i] = &msg
 			}
@@ -518,7 +472,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
-			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
+			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
@@ -530,13 +484,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(destBalance.Amount).To(Equal(totalSendAmt))
 		})
 
-		It("should enable access to unlocked EVM tokens (multi-account, single-msg)", func() {
+		It("should enable access to unlocked EVM tokens (multi-account, single-tx)", func() {
 
-			txAmount := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 
 			msgs := make([]sdk.Msg, len(vestingAccs))
 			for i, grantee := range vestingAccs {
-				msg, err := s.factory.GenerateMsgEthereumTx(grantee.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+				msg, err := s.factory.GenerateSignedMsgEthereumTx(grantee.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 				Expect(err).To(BeNil())
 				msgs[i] = &msg
 			}
@@ -560,13 +514,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
-			amtSentByAcc := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			amtSentByAcc := vestingAccInitialBalance.Add(unlockedPerLockupAmt).Sub(remainingAmtToPayFees)
 			txAmount := amtSentByAcc.QuoRaw(int64(numTestMsgs))
 
 			msgs := []sdk.Msg{}
 			for _, grantee := range vestingAccs {
 				for i := 0; i < numTestMsgs; i++ {
-					msg, err := s.factory.GenerateMsgEthereumTx(grantee.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+					msg, err := s.factory.GenerateSignedMsgEthereumTx(grantee.Priv, evmtypes.EvmTxArgs{Nonce: uint64(i + 1), To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 					Expect(err).To(BeNil())
 					msgs = append(msgs, &msg)
 				}
@@ -593,9 +547,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens (single-account, single-msg)", func() {
 			testAccount := vestingAccs[0]
 			// Attempt to spend entire vesting balance
-			txAmount := vestingAccInitialBalance.Add(vestingAmtTotal.AmountOf(stakeDenom))
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestingAmtTotal.AmountOf(stakeDenom))
 
-			msg, err := s.factory.GenerateMsgEthereumTx(testAccount.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+			msg, err := s.factory.GenerateSignedMsgEthereumTx(testAccount.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 
 			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
@@ -606,20 +560,20 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			res, err := s.network.BroadcastTxSync(txBytes)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(BeNil())
 			Expect(res.IsErr()).To(BeTrue())
-			// TODO assert error msg
+			Expect(res.Log).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 		})
 
 		It("should not enable access to locked EVM tokens (single-account, multiple-msgs)", func() {
+			account := vestingAccs[0]
 			msgs := make([]sdk.Msg, numTestMsgs+1)
-			amt := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			amt := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 			txAmount := amt.QuoRaw(int64(numTestMsgs))
-			testAccount := vestingAccs[0]
 
 			// Add additional message that exceeds unlocked balance
 			for i := 0; i < numTestMsgs+1; i++ {
-				msg, err := s.factory.GenerateMsgEthereumTx(testAccount.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+				msg, err := s.factory.GenerateSignedMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{Nonce: uint64(i + 1), To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 				Expect(err).To(BeNil())
 				msgs[i] = &msg
 			}
@@ -632,24 +586,24 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			res, err := s.network.BroadcastTxSync(txBytes)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(BeNil())
 			Expect(res.IsErr()).To(BeTrue())
-			// TODO assert error msg
+			Expect(res.Log).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 		})
 
 		It("should not enable access to locked EVM tokens (multi-account, single-msg)", func() {
 			numVestAccounts := len(vestingAccs)
 			msgs := make([]sdk.Msg, numVestAccounts+1)
-			txAmount := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 
 			for i, account := range vestingAccs {
-				msg, err := s.factory.GenerateMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+				msg, err := s.factory.GenerateSignedMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 				Expect(err).To(BeNil())
 				msgs[i] = &msg
 			}
 
 			// Add additional message that exceeds unlocked balance
-			msg, err := s.factory.GenerateMsgEthereumTx(vestingAccs[0].Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+			msg, err := s.factory.GenerateSignedMsgEthereumTx(vestingAccs[0].Priv, evmtypes.EvmTxArgs{Nonce: uint64(2), To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 			msgs[numVestAccounts] = &msg
 
@@ -661,26 +615,26 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			res, err := s.network.BroadcastTxSync(txBytes)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(BeNil())
 			Expect(res.IsErr()).To(BeTrue())
-			// TODO assert error msg
+			Expect(res.Log).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 		})
 
 		It("should not enable access to locked EVM tokens (multi-account, multiple-msgs)", func() {
 			msgs := []sdk.Msg{}
-			amt := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			amt := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 			txAmount := amt.QuoRaw(int64(numTestMsgs))
 
 			for _, account := range vestingAccs {
 				for i := 0; i < numTestMsgs; i++ {
-					msg, err := s.factory.GenerateMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+					msg, err := s.factory.GenerateSignedMsgEthereumTx(account.Priv, evmtypes.EvmTxArgs{Nonce: uint64(i + 1), To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 					Expect(err).To(BeNil())
 					msgs = append(msgs, &msg)
 				}
 			}
 
 			// Add additional message that exceeds unlocked balance
-			msg, err := s.factory.GenerateMsgEthereumTx(vestingAccs[0].Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+			msg, err := s.factory.GenerateSignedMsgEthereumTx(vestingAccs[0].Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 			msgs = append(msgs, &msg)
 
@@ -692,22 +646,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			res, err := s.network.BroadcastTxSync(txBytes)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(BeNil())
 			Expect(res.IsErr()).To(BeTrue())
+			Expect(res.Log).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 		})
 
 		It("should not short-circuit with a normal account", func() {
 			vestAcc := vestingAccs[0]
 			normalAcc := funder
 
-			txAmount := vestingAccInitialBalance.Add(vestingAmtTotal.AmountOf(stakeDenom))
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestingAmtTotal.AmountOf(stakeDenom))
 
 			// Get message from a normal account to try to short-circuit the AnteHandler
-			normAccMsg, err := s.factory.GenerateMsgEthereumTx(normalAcc.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: big.NewInt(100_000)})
+			normAccMsg, err := s.factory.GenerateSignedMsgEthereumTx(normalAcc.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: big.NewInt(100_000)})
 			Expect(err).To(BeNil())
 
 			// Attempt to spend entire balance
-			vestAccMsg, err := s.factory.GenerateMsgEthereumTx(vestAcc.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
+			vestAccMsg, err := s.factory.GenerateSignedMsgEthereumTx(vestAcc.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 
 			msgs := []sdk.Msg{&normAccMsg, &vestAccMsg}
@@ -720,8 +675,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			res, err := s.network.BroadcastTxSync(txBytes)
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(BeNil())
 			Expect(res.IsErr()).To(BeTrue())
+			Expect(res.Log).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 		})
 	})
 
@@ -746,7 +702,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAccInitialBalance.Add(unlockedPerLockupAmt)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
@@ -754,7 +710,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
-			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
+			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
@@ -769,56 +725,69 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens", func() {
 			account := vestingAccs[0]
 
-			txAmount := vestingAccInitialBalance.Add(vested.AmountOf(stakeDenom))
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vested.AmountOf(stakeDenom))
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
 			Expect(res.IsErr()).To(BeTrue())
-			// TODO assert err msg
 		})
 	})
 
-	Context("after half of vesting period and both lockups", func() {
-		feesAmt := math.NewInt(10_000_000_000)
-
+	Context("after half of vesting period and half lockups", func() {
 		BeforeEach(func() {
-			// Surpass lockup duration
-			lockupDuration := time.Duration(lockupLength * numLockupPeriods)
-			s.network.NextBlockAfter(lockupDuration * time.Second)
+			// Surpass half lockup duration
+			passedLockups := numLockupPeriods / 2
+			twoLockupsDuration := time.Duration(lockupLength * passedLockups)
+			s.network.NextBlockAfter(twoLockupsDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
 			unvested = clawbackAccount.GetUnvestedOnly(s.network.GetContext().BlockTime())
 			vested = clawbackAccount.GetVestedOnly(s.network.GetContext().BlockTime())
-			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(math.NewInt(lockup*numLockupPeriods))))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(math.NewInt(lockup*passedLockups))))
 			Expect(vestingAmtTotal).NotTo(Equal(vested))
 			Expect(expVested).To(Equal(vested))
 		})
 
 		It("can delegate vested tokens", func() {
+			account := vestingAccs[0]
+			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			balancePrev := balRes.Balance
+
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
 			// save some balance to pay fees
-			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(feesAmt)))
-			err := s.factory.Delegate(
-				vestingAccs[0].Priv,
+			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+			err = s.factory.Delegate(
+				account.Priv,
 				s.network.GetValidators()[0].OperatorAddress,
 				delCoin,
 			)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
-			// TODO check balance change
+
+			// check final balance is as expected - transferred spendable tokens
+			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			balancePost := balRes.Balance
+			// remaining balance should be less than prevBalance - delegated amount
+			// cause should pay for fees too
+			Expect(balancePost.Amount.LT(balancePrev.Amount.Sub(delCoin.Amount))).To(BeTrue())
+
 		})
 
 		It("cannot delegate unvested tokens", func() {
 			ok, vestedCoin := vestingAmtTotal.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
-			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(feesAmt)))
+			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
 			err := s.factory.Delegate(
 				vestingAccs[0].Priv,
 				s.network.GetValidators()[0].OperatorAddress,
 				delCoin,
 			)
 			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("cannot delegate unvested coins"))
 		})
 
 		It("can transfer vested tokens", func() {
@@ -829,8 +798,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			balancePrev := balRes.Balance
 
 			// save some balance to pay fees
-			sendAmt := vestingAccInitialBalance.Sub(feesAmt)
-			coins := vested.Add(sdk.NewCoin(stakeDenom, sendAmt))
+			coins := vested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+			sendAmt := coins[0].Amount
 
 			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), coins)
 			res, err := s.factory.ExecuteCosmosTx(account.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
@@ -839,7 +808,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
-			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
+			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
@@ -854,14 +823,14 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("cannot transfer unvested tokens", func() {
 			account := vestingAccs[0]
 			// save some balance to pay fees
-			sendAmt := vestingAccInitialBalance.Sub(feesAmt)
+			sendAmt := vestingAccInitialBalance.Sub(remainingAmtToPayFees)
 			coins := vestingAmtTotal.Add(sdk.NewCoin(stakeDenom, sendAmt))
 
 			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), coins)
-			res, err := s.factory.ExecuteCosmosTx(account.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(BeFalse())
-			// TODO check err msg
+			_, err := s.factory.ExecuteCosmosTx(account.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("spendable balance"))
+			Expect(err.Error()).To(ContainSubstring("is smaller than"))
 		})
 
 		It("can perform Ethereum tx with spendable balance", func() {
@@ -869,7 +838,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// save some balance to pay fees
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
-			txAmount := vestingAccInitialBalance.Sub(feesAmt).Add(vestedCoin.Amount)
+			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestedCoin.Amount)
 
 			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
@@ -877,7 +846,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
-			Expect(res.IsErr()).To(BeTrue())
+			Expect(res.IsOK()).To(BeTrue())
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
@@ -893,8 +863,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("after entire vesting period and both lockups", func() {
-		feesAmt := math.NewInt(10_000_000_000)
+	Context("after entire vesting period and all lockups", func() {
 		BeforeEach(func() {
 			// Surpass vest duration
 			vestDuration := time.Duration(vestingLength * periodsTotal)
@@ -918,11 +887,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Add(vestingAccInitialBalance.Sub(feesAmt))
+			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Add(vestingAccInitialBalance.Sub(remainingAmtToPayFees))
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(BeTrue())
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
@@ -942,26 +912,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Add(vestingAccInitialBalance).Mul(math.NewInt(2))
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
-			Expect(err).To(BeNil())
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("sender balance < tx cost"))
 			Expect(res.IsErr()).To(BeTrue())
-			// TODO assert err msg
-		})
-
-		It("should short-circuit with zero balance", func() {
-			account := vestingAccs[0]
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balance := balRes.Balance
-
-			// Drain account balance
-			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, account, dest.Bytes(), balance.Amount)
-			Expect(err).To(BeNil())
-
-			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: big.NewInt(1)})
-			Expect(err).To(BeNil())
-			Expect(res.IsErr()).To(BeTrue())
-
-			// TODO assert err msg
 		})
 	})
 })
