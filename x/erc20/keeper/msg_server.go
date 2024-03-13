@@ -153,6 +153,12 @@ func (k Keeper) convertCoinNativeCoin(
 		)
 	}
 
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver) {
+		k.SetSTRv2Address(ctx, receiver)
+	}
+
 	defer func() {
 		telemetry.IncrCounterWithLabels(
 			[]string{"tx", "msg", "convert", "coin", "total"},
