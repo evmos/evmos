@@ -116,6 +116,7 @@ func (k Keeper) OnRecvPacket(
 			sdk.Events{
 				sdk.NewEvent(
 					types.EventTypeRegisterERC20Extension,
+					sdk.NewAttribute(types.AttributeCoinSourceChannel, packet.SourceChannel),
 					sdk.NewAttribute(types.AttributeKeyERC20Token, tokenPair.Erc20Address),
 					sdk.NewAttribute(types.AttributeKeyCosmosCoin, tokenPair.Denom),
 				),
