@@ -155,8 +155,8 @@ func (k Keeper) convertCoinNativeCoin(
 
 	// Keep track of interactions for STR v2 migration
 	// TODO: to be removed in 2nd upgrade
-	if !k.HasSTRv2Address(ctx, receiver) {
-		k.SetSTRv2Address(ctx, receiver)
+	if !k.HasSTRv2Address(ctx, receiver.Bytes()) {
+		k.SetSTRv2Address(ctx, receiver.Bytes())
 	}
 
 	defer func() {
@@ -255,6 +255,12 @@ func (k Keeper) convertERC20NativeCoin(
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
+	}
+
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver) {
+		k.SetSTRv2Address(ctx, receiver)
 	}
 
 	defer func() {

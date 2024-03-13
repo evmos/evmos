@@ -6,13 +6,12 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // SetSTRv2Address stores an address that will be affected by the
 // Single Token Representation v2 migration.
-func (k Keeper) SetSTRv2Address(ctx sdk.Context, address common.Address) {
+func (k Keeper) SetSTRv2Address(ctx sdk.Context, address sdk.AccAddress) {
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
 		types.KeyPrefixSTRv2Addresses,
@@ -22,7 +21,7 @@ func (k Keeper) SetSTRv2Address(ctx sdk.Context, address common.Address) {
 
 // HasSTRv2Address checks if a given address has already been stored as
 // affected by the STR v2 migration.
-func (k Keeper) HasSTRv2Address(ctx sdk.Context, address common.Address) bool {
+func (k Keeper) HasSTRv2Address(ctx sdk.Context, address sdk.AccAddress) bool {
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
 		types.KeyPrefixSTRv2Addresses,
