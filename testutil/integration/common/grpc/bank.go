@@ -32,3 +32,9 @@ func (gqh *IntegrationHandler) GetTotalSupply() (*banktypes.QueryTotalSupplyResp
 	bankClient := gqh.network.GetBankClient()
 	return bankClient.TotalSupply(context.Background(), &banktypes.QueryTotalSupplyRequest{})
 }
+
+// GetSpendableBalance returns the spendable balance for the given denomination.
+func (gqh *IntegrationHandler) GetSpendableBalance(address sdktypes.AccAddress, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+	bankClient := gqh.network.GetBankClient()
+	return bankClient.SpendableBalanceByDenom(context.Background(), &banktypes.QuerySpendableBalanceByDenomRequest{Address: address.String(), Denom: denom})
+}

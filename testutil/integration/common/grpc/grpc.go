@@ -29,6 +29,7 @@ type Handler interface {
 
 	// Bank methods
 	GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetSpendableBalance(address sdktypes.AccAddress, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
 	GetAllBalances(address sdktypes.AccAddress) (*banktypes.QueryAllBalancesResponse, error)
 	GetTotalSupply() (*banktypes.QueryTotalSupplyResponse, error)
 

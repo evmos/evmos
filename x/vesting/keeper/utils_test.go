@@ -31,40 +31,40 @@ package keeper_test
 // 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 // }
 
-// assertEthSucceeds is a helper function, that checks if 1 or more messages
-// can be validated and delivered.
-func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount sdkmath.Int, denom string, msgs ...sdk.Msg) {
-	numTestAccounts := len(testAccounts)
+// // assertEthSucceeds is a helper function, that checks if 1 or more messages
+// // can be validated and delivered.
+// func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount sdkmath.Int, denom string, msgs ...sdk.Msg) {
+// 	numTestAccounts := len(testAccounts)
 
-	// Track starting balances for all accounts
-	granteeBalances := make(sdk.Coins, numTestAccounts)
-	funderBalance := suite.app.BankKeeper.GetBalance(suite.ctx, funder, denom)
-	destBalance := suite.app.BankKeeper.GetBalance(suite.ctx, dest, denom)
+// 	// Track starting balances for all accounts
+// 	granteeBalances := make(sdk.Coins, numTestAccounts)
+// 	funderBalance := suite.app.BankKeeper.GetBalance(suite.ctx, funder, denom)
+// 	destBalance := suite.app.BankKeeper.GetBalance(suite.ctx, dest, denom)
 
-	for i, grantee := range testAccounts {
-		granteeBalances[i] = suite.app.BankKeeper.GetBalance(suite.ctx, grantee.address, denom)
-	}
+// 	for i, grantee := range testAccounts {
+// 		granteeBalances[i] = suite.app.BankKeeper.GetBalance(suite.ctx, grantee.address, denom)
+// 	}
 
-	// Validate the AnteHandler passes without issue
-	err := validateEthVestingTransactionDecorator(msgs...)
-	Expect(err).To(BeNil())
+// 	// Validate the AnteHandler passes without issue
+// 	err := validateEthVestingTransactionDecorator(msgs...)
+// 	Expect(err).To(BeNil())
 
-	// Expect delivery to succeed, then compare balances
-	_, err = testutil.DeliverEthTx(suite.app, nil, msgs...)
-	Expect(err).To(BeNil())
+// 	// Expect delivery to succeed, then compare balances
+// 	_, err = testutil.DeliverEthTx(suite.app, nil, msgs...)
+// 	Expect(err).To(BeNil())
 
-	fb := suite.app.BankKeeper.GetBalance(suite.ctx, funder, denom)
-	db := suite.app.BankKeeper.GetBalance(suite.ctx, dest, denom)
+// 	fb := suite.app.BankKeeper.GetBalance(suite.ctx, funder, denom)
+// 	db := suite.app.BankKeeper.GetBalance(suite.ctx, dest, denom)
 
-	s.Require().Equal(funderBalance, fb)
-	s.Require().Equal(destBalance.AddAmount(amount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
+// 	s.Require().Equal(funderBalance, fb)
+// 	s.Require().Equal(destBalance.AddAmount(amount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
 
-	for i, account := range testAccounts {
-		gb := suite.app.BankKeeper.GetBalance(suite.ctx, account.address, denom)
-		// Use GreaterOrEqual because the gas fee is non-recoverable
-		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(amount).Amount.Uint64(), gb.Amount.Uint64())
-	}
-}
+// 	for i, account := range testAccounts {
+// 		gb := suite.app.BankKeeper.GetBalance(suite.ctx, account.address, denom)
+// 		// Use GreaterOrEqual because the gas fee is non-recoverable
+// 		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(amount).Amount.Uint64(), gb.Amount.Uint64())
+// 	}
+// }
 
 // // delegate is a helper function which creates a message to delegate a given amount of tokens
 // // to a validator and checks if the Cosmos vesting delegation decorator returns no error.
