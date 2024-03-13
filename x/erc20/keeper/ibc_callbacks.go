@@ -107,9 +107,20 @@ func (k Keeper) OnRecvPacket(
 	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
 	// IsNativeFromSourceChain will check if the coin is native from the source chain.
 	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsNativeFromSourceChain(data.Denom):
-		if err := k.RegisterERC20Extension(ctx, coin.Denom); err != nil {
+		tokenPair, err := k.RegisterERC20Extension(ctx, coin.Denom)
+		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
+
+		ctx.EventManager().EmitEvents(
+			sdk.Events{
+				sdk.NewEvent(
+					types.EventTypeRegisterERC20Extension,
+					sdk.NewAttribute(types.AttributeKeyERC20Token, tokenPair.Erc20Address),
+					sdk.NewAttribute(types.AttributeKeyCosmosCoin, tokenPair.Denom),
+				),
+			},
+		)
 		return ack
 
 	// Case 2. native ERC20 token
