@@ -85,7 +85,7 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 	return err
 }
 
-// ApproveLegacyProposal is a helper function to vote 'yes'
+// ApproveProposal is a helper function to vote 'yes'
 // for it and wait till it passes.
 func ApproveProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, proposalID uint64) error {
 	// Vote on proposal

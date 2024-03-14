@@ -33,17 +33,3 @@ type KeeperTestSuite struct {
 	keyring keyring.Keyring
 	factory factory.TxFactory
 }
-
-func (s *KeeperTestSuite) SetupTest() {
-	keys := keyring.New(2)
-	nw := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
-	)
-	gh := grpc.NewIntegrationHandler(nw)
-	tf := factory.New(nw, gh)
-
-	s.network = nw
-	s.factory = tf
-	s.handler = gh
-	s.keyring = keys
-}
