@@ -4,6 +4,7 @@ package types
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -252,6 +253,12 @@ func CheckTxFee(gasPrice *big.Int, gas uint64, cap float64) error {
 	// Short circuit if there is no cap for transaction fee at all.
 	if cap == 0 {
 		return nil
+	}
+	if gasPrice == nil {
+		return errors.New("gasPrice is nil")
+	}
+	if gasPrice.Sign() != 1 {
+		return errors.New("gasPrice must be positive!")
 	}
 	totalfee := new(big.Float).SetInt(new(big.Int).Mul(gasPrice, new(big.Int).SetUint64(gas)))
 	// 1 evmos in 10^18 aevmos
