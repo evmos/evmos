@@ -4,6 +4,9 @@
 package keeper_test
 
 import (
+	"math/big"
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
@@ -16,8 +19,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"math/big"
-	"testing"
 )
 
 func TestSTRv2Tracking(t *testing.T) {
@@ -86,7 +87,7 @@ var _ = Describe("STRv2 Tracking", func() {
 	When("sending an EVM transaction", func() {
 		Context("which interacts with a registered native token pair ERC-20 contract", func() {
 			Context("in a direct call to the token pair contract", func() {
-				It("should add the address to the store if it is not already stored", func() {
+				It("should add the from and to addresses to the store if it is not already stored", func() {
 					sender := s.keyring.GetKey(0)
 					receiver := s.keyring.GetKey(2)
 
@@ -119,7 +120,7 @@ var _ = Describe("STRv2 Tracking", func() {
 					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be stored")
 				})
 
-				It("should not fail if the address is already stored", func() {
+				It("should not fail if the addresses are already stored", func() {
 					sender := s.keyring.GetKey(0)
 					receiver := s.keyring.GetKey(2)
 
@@ -177,6 +178,12 @@ var _ = Describe("STRv2 Tracking", func() {
 				})
 
 				It("should not fail if the address is already stored", func() {
+					Expect(true).To(BeFalse(), "not implemented")
+				})
+			})
+
+			Context("sending tokens to the module address", func() {
+				It("should add the sender address", func() {
 					Expect(true).To(BeFalse(), "not implemented")
 				})
 			})

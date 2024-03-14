@@ -36,11 +36,18 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	return h.k.PostTxProcessing(ctx, msg, receipt)
 }
 
-// PostTxProcessing implements EvmHooks.PostTxProcessing. The EVM hooks allows
-// users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to
-// the module account address. This hook applies to both token pairs that have
-// been registered through a native Cosmos coin or an ERC20 token. If token pair
-// has been registered with:
+// PostTxProcessing implements EvmHooks.PostTxProcessing. There are two distinct
+// use cases for the PostTxProcessing hook:
+//
+// 1. Converting ERC-20s to Cosmos coins
+// 2. Tracking interactions with native coins
+//
+// --------------------------------------------------------------
+// 1. Converting ERC-20s to Cosmos coins:
+// The EVM hooks allows users to convert ERC20s to Cosmos Coins by sending an
+// Ethereum tx transfer to the module account address. This hook applies to both
+// token pairs that have been registered through a native Cosmos coin or an ERC20 token.
+// If token pair has been registered with:
 //   - coin -> burn tokens and transfer escrowed coins on module to sender
 //   - token -> escrow tokens on module account and mint & transfer coins to sender
 //
@@ -108,9 +115,27 @@ func (k Keeper) PostTxProcessing(
 			continue
 		}
 
-		// Check if tokens are sent to module address
+		from := common.BytesToAddress(log.Topics[1].Bytes())
 		to := common.BytesToAddress(log.Topics[2].Bytes())
+
+		// Check if tokens are sent to module address
 		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
+			// if tokens are not sent to module address, we want to
+			// track the interaction of both addresses
+			// TODO: remove after the STRv2 migration
+
+			// this only applies to native SDK coins
+			if !pair.IsNativeCoin() {
+				continue
+			}
+
+			if !k.HasSTRv2Address(ctx, from.Bytes()) {
+				k.SetSTRv2Address(ctx, from.Bytes())
+			}
+			if !k.HasSTRv2Address(ctx, to.Bytes()) {
+				k.SetSTRv2Address(ctx, to.Bytes())
+			}
+
 			continue
 		}
 
@@ -148,7 +173,6 @@ func (k Keeper) PostTxProcessing(
 		}
 
 		// Only need last 20 bytes from log.topics
-		from := common.BytesToAddress(log.Topics[1].Bytes())
 		recipient := sdk.AccAddress(from.Bytes())
 
 		// transfer the tokens from ModuleAccount to sender address
@@ -159,6 +183,13 @@ func (k Keeper) PostTxProcessing(
 				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
 			)
 			continue
+		}
+
+		// If a sender is converting tokens to coins, we want to track their address too
+		//
+		// NOTE: this only applies to native SDK coins
+		if pair.IsNativeCoin() && !k.HasSTRv2Address(ctx, from.Bytes()) {
+			k.SetSTRv2Address(ctx, from.Bytes())
 		}
 	}
 
