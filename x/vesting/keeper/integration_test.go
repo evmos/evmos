@@ -7,6 +7,7 @@ import (
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
+	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -14,6 +15,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -21,6 +23,7 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	evmosfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
@@ -51,8 +54,10 @@ var (
 	dest                            = utiltx.GenerateAddress()
 
 	// Monthly vesting period
-	stakeDenom    = utils.BaseDenom
-	amt           = math.NewInt(1e17)
+	stakeDenom = utils.BaseDenom
+	amt        = math.NewInt(1e17)
+	// vestingLength is a period of time in seconds to be
+	// used for the creation of the vesting account.
 	vestingLength = int64(60 * 60 * 24 * 30) // 30 days in seconds
 	vestingAmt    = sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
 	vestingPeriod = sdkvesting.Period{Length: vestingLength, Amount: vestingAmt}
@@ -1788,249 +1793,281 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 })
 
-// // Testing that smart contracts cannot be converted to clawback vesting accounts
-// //
-// // NOTE: For smart contracts, it is not possible to directly call keeper methods
-// // or send SDK transactions. They go exclusively through the EVM, which is tested
-// // in the precompiles package.
-// // The test here is just confirming the expected behavior on the module level.
-// var _ = Describe("Clawback Vesting Account - Smart contract", func() {
-// 	var (
-// 		s            *KeeperTestSuite
-// 		contractAddr common.Address
-// 		contract     evmtypes.CompiledContract
-// 		err          error
-// 	)
+// Testing that smart contracts cannot be converted to clawback vesting accounts
+//
+// NOTE: For smart contracts, it is not possible to directly call keeper methods
+// or send SDK transactions. They go exclusively through the EVM, which is tested
+// in the precompiles package.
+// The test here is just confirming the expected behavior on the module level.
+var _ = Describe("Clawback Vesting Account - Smart contract", func() {
+	var (
+		s            *KeeperTestSuite
+		contractAddr common.Address
+		contract     evmtypes.CompiledContract
+	)
 
-// 	BeforeEach(func() {
-// 		s = new(KeeperTestSuite)
-// 		s.SetupTest()
-// 		contract = contracts.ERC20MinterBurnerDecimalsContract
-// 		contractAddr, err = testutil.DeployContract(
-// 			s.network.GetContext(),
-// 			s.network.App,
-// 			s.keyring.GetPrivKey(0),
-// 			s.network.GetEvmClient(),
-// 			contract,
-// 			"Test", "TTT", uint8(18),
-// 		)
-// 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
-// 	})
+	BeforeEach(func() {
+		s = new(KeeperTestSuite)
+		// create 1 prefunded account:
+		keys := keyring.New(1)
+		nw := network.NewUnitTestNetwork(
+			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		)
+		gh := grpc.NewIntegrationHandler(nw)
+		tf := evmosfactory.New(nw, gh)
 
-// 	It("should not convert a smart contract to a clawback vesting account", func() {
-// 		msgCreate := types.NewMsgCreateClawbackVestingAccount(
-// 			s.keyring.GetAccAddr(0),
-// 			contractAddr.Bytes(),
-// 			false,
-// 		)
-// 		_, err := s.network.App.VestingKeeper.CreateClawbackVestingAccount(s.network.GetContext(), msgCreate)
-// 		Expect(err).To(HaveOccurred(), "expected error")
-// 		Expect(err.Error()).To(ContainSubstring(
-// 			fmt.Sprintf(
-// 				"account %s is a contract account and cannot be converted in a clawback vesting account",
-// 				sdk.AccAddress(contractAddr.Bytes()).String()),
-// 		))
+		s.network = nw
+		s.factory = tf
+		s.handler = gh
+		s.keyring = keys
 
-// 		// Check that the account was not converted
-// 		acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), contractAddr.Bytes())
-// 		Expect(acc).ToNot(BeNil(), "smart contract should be found")
-// 		_, ok := acc.(*types.ClawbackVestingAccount)
-// 		Expect(ok).To(BeFalse(), "account should not be a clawback vesting account")
+		var err error
+		contract = contracts.ERC20MinterBurnerDecimalsContract
+		contractAddr, err = s.factory.DeployContract(
+			s.keyring.GetPrivKey(0),
+			evmtypes.EvmTxArgs{},
+			evmosfactory.ContractDeploymentData{
+				Contract:        contract,
+				ConstructorArgs: []interface{}{"Test", "TTT", uint8(18)},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+		Expect(s.network.NextBlock()).To(BeNil())
+	})
 
-// 		// Check that the contract code was not deleted
-// 		//
-// 		// NOTE: When it was possible to create clawback vesting accounts for smart contracts,
-// 		// the contract code was deleted from the EVM state. This checks that this is not the case.
-// 		res, err := s.network.App.EvmKeeper.Code(s.network.GetContext(), &evmtypes.QueryCodeRequest{Address: contractAddr.String()})
-// 		Expect(err).ToNot(HaveOccurred(), "failed to query contract code")
-// 		Expect(res.Code).ToNot(BeEmpty(), "contract code should not be empty")
-// 	})
-// })
+	It("should not convert a smart contract to a clawback vesting account", func() {
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(
+			s.keyring.GetAccAddr(0),
+			contractAddr.Bytes(),
+			false,
+		)
+		// cannot replace this with ExecuteCosmosTx cause cannot sign the tx for the smart contract
+		// However, this can be done with the precompile,
+		// so we keep this test here to make sure the logic is implemented correctly
+		_, err := s.network.App.VestingKeeper.CreateClawbackVestingAccount(s.network.GetContext(), msgCreate)
+		Expect(err).To(HaveOccurred(), "expected error")
+		Expect(err.Error()).To(ContainSubstring(
+			fmt.Sprintf(
+				"account %s is a contract account and cannot be converted in a clawback vesting account",
+				sdk.AccAddress(contractAddr.Bytes()).String()),
+		))
 
-// // Trying to replicate the faulty behavior in MsgCreateClawbackVestingAccount,
-// // that was disclosed as a potential attack vector in relation to the Barberry
-// // security patch.
-// //
-// // It was possible to fund a clawback vesting account with negative amounts.
-// // Avoiding this requires an additional validation of the amount in the
-// // MsgFundVestingAccount's ValidateBasic method.
-// var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
-// 	var (
-// 		s *KeeperTestSuite
-// 		// coinsNoNegAmount is a Coins struct with a positive and a negative amount of the same
-// 		// denomination.
-// 		coinsNoNegAmount = sdk.Coins{
-// 			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
-// 		}
-// 		// coinsWithNegAmount is a Coins struct with a positive and a negative amount of the same
-// 		// denomination.
-// 		coinsWithNegAmount = sdk.Coins{
-// 			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
-// 			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(-1e18)},
-// 		}
-// 		// coinsWithZeroAmount is a Coins struct with a positive and a zero amount of the same
-// 		// denomination.
-// 		coinsWithZeroAmount = sdk.Coins{
-// 			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
-// 			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(0)},
-// 		}
-// 		// emptyCoins is an Coins struct
-// 		emptyCoins = sdk.Coins{}
-// 		// funder and funderPriv are the address and private key of the account funding the vesting account
-// 		funder, funderPriv = utiltx.NewAccAddressAndKey()
-// 		// gasPrice is the gas price to be used in the transactions executed by the vesting account so that
-// 		// the transaction fees can be deducted from the expected account balance
-// 		gasPrice = math.NewInt(1e9)
-// 		// vestingAcc.AccAddr and vestingPriv are the address and private key of the vesting account to be created
-// 		vestingAcc.AccAddr, vestingPriv = utiltx.NewAccAddressAndKey()
-// 		// vestingLength is a period of time in seconds to be used for the creation of the vesting
-// 		// account.
-// 		vestingLength = int64(60 * 60 * 24 * 30) // 30 days in seconds
+		// Check that the account was not converted
+		acc, err := s.handler.GetAccount(sdk.AccAddress(contractAddr.Bytes()).String())
+		Expect(err).To(BeNil())
+		Expect(acc).ToNot(BeNil(), "smart contract should be found")
+		_, ok := acc.(*types.ClawbackVestingAccount)
+		Expect(ok).To(BeFalse(), "account should not be a clawback vesting account")
 
-// 		// txCost is the cost of a transaction to be deducted from the expected account balance
-// 		txCost int64
-// 	)
+		// Check that the contract code was not deleted
+		//
+		// NOTE: When it was possible to create clawback vesting accounts for smart contracts,
+		// the contract code was deleted from the EVM state. This checks that this is not the case.
+		res, err := s.network.GetEvmClient().Code(s.network.GetContext(), &evmtypes.QueryCodeRequest{Address: contractAddr.String()})
+		Expect(err).ToNot(HaveOccurred(), "failed to query contract code")
+		Expect(res.Code).ToNot(BeEmpty(), "contract code should not be empty")
+	})
+})
 
-// 	BeforeEach(func() {
-// 		s = new(KeeperTestSuite)
-// 		s.SetupTest()
+// Trying to replicate the faulty behavior in MsgCreateClawbackVestingAccount,
+// that was disclosed as a potential attack vector in relation to the Barberry
+// security patch.
+//
+// It was possible to fund a clawback vesting account with negative amounts.
+// Avoiding this requires an additional validation of the amount in the
+// MsgFundVestingAccount's ValidateBasic method.
+var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
+	var (
+		s *KeeperTestSuite
+		// coinsNoNegAmount is a Coins struct with a positive and a negative amount of the same
+		// denomination.
+		coinsNoNegAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
+		}
+		// coinsWithNegAmount is a Coins struct with a positive and a negative amount of the same
+		// denomination.
+		coinsWithNegAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
+			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(-1e18)},
+		}
+		// coinsWithZeroAmount is a Coins struct with a positive and a zero amount of the same
+		// denomination.
+		coinsWithZeroAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
+			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(0)},
+		}
+		// gasPrice is the gas price to be used in the transactions executed by the vesting account so that
+		// the transaction fees can be deducted from the expected account balance
+		gasPrice = math.NewInt(1e9)
+		// emptyCoins is an Coins struct
+		emptyCoins = sdk.Coins{}
+		// funder is the account funding the vesting account
+		funder keyring.Key
+		// vestingAcc is the vesting account to be created
+		vestingAcc keyring.Key
+		// fees are the fees paid during setup
+	)
 
-// 		// Initialize the account at the vesting address and the funder accounts by funding them
-// 		fundedCoins := sdk.Coins{{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}} // fund more than what is sent to the vesting account for transaction fees
-// 		err = testutil.FundAccount(s.network.GetContext(), s.network.App.BankKeeper, vestingAcc.AccAddr, fundedCoins)
-// 		Expect(err).ToNot(HaveOccurred(), "failed to fund account")
-// 		err = testutil.FundAccount(s.network.GetContext(), s.network.App.BankKeeper, funder, fundedCoins)
-// 		Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+	BeforeEach(func() {
+		s = new(KeeperTestSuite)
+		// create 2 prefunded accounts:
+		// index 0 will be the funder and
+		// index 1 will be vesting account
+		keys := keyring.New(2)
+		nw := network.NewUnitTestNetwork(
+			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		)
+		gh := grpc.NewIntegrationHandler(nw)
+		tf := evmosfactory.New(nw, gh)
 
-// 		// Create a clawback vesting account
-// 		msgCreate := types.NewMsgCreateClawbackVestingAccount(
-// 			funder,
-// 			vestingAcc.AccAddr,
-// 			false,
-// 		)
+		s.network = nw
+		s.factory = tf
+		s.handler = gh
+		s.keyring = keys
 
-// 		res, err := testutil.DeliverTx(s.network.GetContext(), s.network.App, vestingPriv, &gasPrice, msgCreate)
-// 		Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
-// 		txCost = gasPrice.Int64() * res.GasWanted
+		// index 0 will be the funder
+		// index 1-4 will be vesting accounts
+		funder = keys.GetKey(0)
+		vestingAcc = keys.GetKey(1)
 
-// 		// Check clawback acccount was created
-// 		acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), vestingAcc.AccAddr)
-// 		Expect(acc).ToNot(BeNil(), "clawback vesting account not created")
-// 		_, ok := acc.(*types.ClawbackVestingAccount)
-// 		Expect(ok).To(BeTrue(), "account is not a clawback vesting account")
-// 	})
+		// Create a clawback vesting account
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(
+			funder.AccAddr,
+			vestingAcc.AccAddr,
+			false,
+		)
 
-// 	Context("when funding a clawback vesting account", func() {
-// 		testcases := []struct {
-// 			name         string
-// 			lockupCoins  sdk.Coins
-// 			vestingCoins sdk.Coins
-// 			expError     bool
-// 			errContains  string
-// 		}{
-// 			{
-// 				name:        "pass - positive amounts for the lockup period",
-// 				lockupCoins: coinsNoNegAmount,
-// 				expError:    false,
-// 			},
-// 			{
-// 				name:         "pass - positive amounts for the vesting period",
-// 				vestingCoins: coinsNoNegAmount,
-// 				expError:     false,
-// 			},
-// 			{
-// 				name:         "pass - positive amounts for both the lockup and vesting periods",
-// 				lockupCoins:  coinsNoNegAmount,
-// 				vestingCoins: coinsNoNegAmount,
-// 				expError:     false,
-// 			},
-// 			{
-// 				name:        "fail - negative amounts for the lockup period",
-// 				lockupCoins: coinsWithNegAmount,
-// 				expError:    true,
-// 				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithNegAmount.String()).Error(),
-// 			},
-// 			{
-// 				name:         "fail - negative amounts for the vesting period",
-// 				vestingCoins: coinsWithNegAmount,
-// 				expError:     true,
-// 				errContains:  "invalid coins: invalid request",
-// 			},
-// 			{
-// 				name:        "fail - zero amount for the lockup period",
-// 				lockupCoins: coinsWithZeroAmount,
-// 				expError:    true,
-// 				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithZeroAmount.String()).Error(),
-// 			},
-// 			{
-// 				name:         "fail - zero amount for the vesting period",
-// 				vestingCoins: coinsWithZeroAmount,
-// 				expError:     true,
-// 				errContains:  "invalid coins: invalid request",
-// 			},
-// 			{
-// 				name:         "fail - empty amount for both the lockup and vesting periods",
-// 				lockupCoins:  emptyCoins,
-// 				vestingCoins: emptyCoins,
-// 				expError:     true,
-// 				errContains:  "vesting and/or lockup schedules must be present",
-// 			},
-// 		}
+		res, err := s.factory.ExecuteCosmosTx(vestingAcc.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msgCreate}})
+		Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
+		Expect(res.IsOK()).To(BeTrue())
+		Expect(s.network.NextBlock()).To(BeNil())
 
-// 		for _, tc := range testcases {
-// 			tc := tc
-// 			It(tc.name, func() {
-// 				var (
-// 					lockupPeriods  sdkvesting.Periods
-// 					vestingPeriods sdkvesting.Periods
-// 				)
+		// Check clawback acccount was created
+		acc, err := s.handler.GetAccount(vestingAcc.AccAddr.String())
+		Expect(err).To(BeNil())
+		Expect(acc).ToNot(BeNil(), "clawback vesting account not created")
+		_, ok := acc.(*types.ClawbackVestingAccount)
+		Expect(ok).To(BeTrue(), "account is not a clawback vesting account")
+	})
 
-// 				if !tc.lockupCoins.Empty() {
-// 					lockupPeriods = sdkvesting.Periods{
-// 						sdkvesting.Period{Length: vestingLength, Amount: tc.lockupCoins},
-// 					}
-// 				}
+	Context("when funding a clawback vesting account", func() {
+		testcases := []struct {
+			name         string
+			lockupCoins  sdk.Coins
+			vestingCoins sdk.Coins
+			expError     bool
+			errContains  string
+		}{
+			{
+				name:        "pass - positive amounts for the lockup period",
+				lockupCoins: coinsNoNegAmount,
+				expError:    false,
+			},
+			{
+				name:         "pass - positive amounts for the vesting period",
+				vestingCoins: coinsNoNegAmount,
+				expError:     false,
+			},
+			{
+				name:         "pass - positive amounts for both the lockup and vesting periods",
+				lockupCoins:  coinsNoNegAmount,
+				vestingCoins: coinsNoNegAmount,
+				expError:     false,
+			},
+			{
+				name:        "fail - negative amounts for the lockup period",
+				lockupCoins: coinsWithNegAmount,
+				expError:    true,
+				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithNegAmount.String()).Error(),
+			},
+			{
+				name:         "fail - negative amounts for the vesting period",
+				vestingCoins: coinsWithNegAmount,
+				expError:     true,
+				errContains:  "invalid coins",
+			},
+			{
+				name:        "fail - zero amount for the lockup period",
+				lockupCoins: coinsWithZeroAmount,
+				expError:    true,
+				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithZeroAmount.String()).Error(),
+			},
+			{
+				name:         "fail - zero amount for the vesting period",
+				vestingCoins: coinsWithZeroAmount,
+				expError:     true,
+				errContains:  "invalid coins",
+			},
+			{
+				name:         "fail - empty amount for both the lockup and vesting periods",
+				lockupCoins:  emptyCoins,
+				vestingCoins: emptyCoins,
+				expError:     true,
+				errContains:  "vesting and/or lockup schedules must be present",
+			},
+		}
 
-// 				if !tc.vestingCoins.Empty() {
-// 					vestingPeriods = sdkvesting.Periods{
-// 						sdkvesting.Period{Length: vestingLength, Amount: tc.vestingCoins},
-// 					}
-// 				}
+		for _, tc := range testcases {
+			tc := tc
+			It(tc.name, func() {
+				var (
+					lockupPeriods  sdkvesting.Periods
+					vestingPeriods sdkvesting.Periods
+				)
 
-// 				// Fund the clawback vesting account at the given address
-// 				msg := types.NewMsgFundVestingAccount(
-// 					funder,
-// 					vestingAcc.AccAddr,
-// 					s.network.GetContext().BlockTime(),
-// 					lockupPeriods,
-// 					vestingPeriods,
-// 				)
+				if !tc.lockupCoins.Empty() {
+					lockupPeriods = sdkvesting.Periods{
+						sdkvesting.Period{Length: vestingLength, Amount: tc.lockupCoins},
+					}
+				}
 
-// 				// Deliver transaction with message
-// 				res, err := testutil.DeliverTx(s.network.GetContext(), s.network.App, funderPriv, nil, msg)
+				if !tc.vestingCoins.Empty() {
+					vestingPeriods = sdkvesting.Periods{
+						sdkvesting.Period{Length: vestingLength, Amount: tc.vestingCoins},
+					}
+				}
 
-// 				// Get account at the new address
-// 				acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), vestingAcc.AccAddr)
-// 				vacc, _ := acc.(*types.ClawbackVestingAccount)
+				balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, utils.BaseDenom)
+				Expect(err).To(BeNil())
+				prevBalance := balRes.Balance
 
-// 				if tc.expError {
-// 					Expect(err).To(HaveOccurred(), "expected funding the vesting account to have failed")
-// 					Expect(err.Error()).To(ContainSubstring(tc.errContains), "expected funding the vesting account to have failed")
+				// Fund the clawback vesting account at the given address
+				msg := types.NewMsgFundVestingAccount(
+					funder.AccAddr,
+					vestingAcc.AccAddr,
+					s.network.GetContext().BlockTime(),
+					lockupPeriods,
+					vestingPeriods,
+				)
 
-// 					Expect(vacc.LockupPeriods).To(BeEmpty(), "expected clawback vesting account to not have been funded")
-// 				} else {
-// 					Expect(err).ToNot(HaveOccurred(), "failed to fund clawback vesting account")
-// 					Expect(res.Code).To(Equal(uint32(0)), "failed to fund clawback vesting account")
-// 					Expect(vacc.LockupPeriods).ToNot(BeEmpty(), "vesting account should have been funded")
+				// Deliver transaction with message
+				res, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
+				Expect(s.network.NextBlock()).To(BeNil())
 
-// 					// Check that the vesting account has the correct balance
-// 					balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, utils.BaseDenom)
-// 					Expect(err).To(BeNil())
-// 					balance := balRes.Balance
-// 					expBalance := int64(2e18) + int64(1e18) - txCost // fundedCoins + vestingCoins - txCost
-// 					Expect(balance.Amount.Int64()).To(Equal(expBalance), "vesting account has incorrect balance")
-// 				}
-// 			})
-// 		}
-// 	})
-// })
+				// Get account at the new address
+				acc, getAccErr := s.handler.GetAccount(vestingAcc.AccAddr.String())
+				Expect(getAccErr).To(BeNil())
+				vacc, _ := acc.(*types.ClawbackVestingAccount)
+
+				if tc.expError {
+					Expect(err).To(HaveOccurred(), "expected funding the vesting account to have failed")
+					Expect(err.Error()).To(ContainSubstring(tc.errContains), "expected funding the vesting account to have failed")
+
+					Expect(vacc.LockupPeriods).To(BeEmpty(), "expected clawback vesting account to not have been funded")
+				} else {
+					Expect(err).ToNot(HaveOccurred(), "failed to fund clawback vesting account")
+					Expect(res.IsOK()).To(BeTrue())
+					Expect(vacc.LockupPeriods).ToNot(BeEmpty(), "vesting account should have been funded")
+
+					// Check that the vesting account has the correct balance
+					balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, utils.BaseDenom)
+					Expect(err).To(BeNil())
+					balance := balRes.Balance
+
+					vestingCoins := coinsNoNegAmount[0]
+					Expect(balance.Amount).To(Equal(prevBalance.Add(vestingCoins).Amount), "vesting account has incorrect balance")
+				}
+			})
+		}
+	})
+})
