@@ -194,30 +194,24 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	req := &abcitypes.RequestFinalizeBlock{
-		Height:             evmosApp.LastBlockHeight() + 1,
-		Hash:               evmosApp.LastCommitID().Hash,
-		NextValidatorsHash: valSet.Hash(),
-		ProposerAddress:    valSet.Proposer.Address,
-		Time:               now,
-	}
-
-	if _, err := evmosApp.FinalizeBlock(req); err != nil {
-		return err
-	}
-
 	header := cmtproto.Header{
 		ChainID:            n.cfg.chainID,
-		Height:             req.Height,
-		AppHash:            req.Hash,
+		Height:             evmosApp.LastBlockHeight() + 1,
+		AppHash:            evmosApp.LastCommitID().Hash,
 		Time:               now,
-		ValidatorsHash:     req.NextValidatorsHash,
-		NextValidatorsHash: req.NextValidatorsHash,
-		ProposerAddress:    req.ProposerAddress,
+		ValidatorsHash:     valSet.Hash(),
+		NextValidatorsHash: valSet.Hash(),
+		ProposerAddress:    valSet.Proposer.Address,
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
 		},
 	}
+
+	req := buildFinalizeBlockReq(header, valSet.Validators)
+	if _, err := evmosApp.FinalizeBlock(req); err != nil {
+		return err
+	}
+
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
 
@@ -288,15 +282,16 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
 // TODO - this should be change to gRPC
 func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
-	req := abcitypes.RequestFinalizeBlock{
-		Time:               n.ctx.BlockTime(),
-		Height:             n.app.LastBlockHeight() + 1,
-		Hash:               n.app.LastCommitID().Hash,
-		NextValidatorsHash: n.valSet.Hash(),
-		ProposerAddress:    n.valSet.Proposer.Address,
-		Txs:                [][]byte{txBytes},
-	}
-	blockRes, err := n.app.BaseApp.FinalizeBlock(&req)
+	header := n.ctx.BlockHeader()
+	// Update block header and BeginBlock
+	header.Height++
+	header.AppHash = n.app.LastCommitID().Hash
+	// Calculate new block time after duration
+	newBlockTime := header.Time.Add(time.Second)
+	header.Time = newBlockTime
+
+	req := buildFinalizeBlockReq(header, n.valSet.Validators, txBytes)
+	blockRes, err := n.app.BaseApp.FinalizeBlock(req)
 	if err != nil {
 		return abcitypes.ExecTxResult{}, err
 	}

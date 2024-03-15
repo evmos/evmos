@@ -80,9 +80,9 @@ func (suite *EvmKeeperTestSuite) TestEthereumTx() {
 
 				// check expected events were emitted
 				suite.Require().NotEmpty(events)
-				suite.Require().True(utils.ContainsEventType(events, types.EventTypeEthereumTx))
-				suite.Require().True(utils.ContainsEventType(events, types.EventTypeTxLog))
-				suite.Require().True(utils.ContainsEventType(events, sdktypes.EventTypeMessage))
+				suite.Require().True(utils.ContainsEventType(events.ToABCIEvents(), types.EventTypeEthereumTx))
+				suite.Require().True(utils.ContainsEventType(events.ToABCIEvents(), types.EventTypeTxLog))
+				suite.Require().True(utils.ContainsEventType(events.ToABCIEvents(), sdktypes.EventTypeMessage))
 			}
 
 			err = unitNetwork.NextBlock()

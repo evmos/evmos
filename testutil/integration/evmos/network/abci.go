@@ -29,18 +29,8 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	newBlockTime := header.Time.Add(duration)
 	header.Time = newBlockTime
 
-	// add validator's commit info to allocate corresponding tokens to validators
-	ci := getCommitInfo(n.valSet.Validators)
-
 	// FinalizeBlock to run endBlock, deliverTx & beginBlock logic
-	req := &abcitypes.RequestFinalizeBlock{
-		Height:             n.app.LastBlockHeight() + 1,
-		DecidedLastCommit:  ci,
-		Hash:               header.AppHash,
-		NextValidatorsHash: n.valSet.Hash(),
-		ProposerAddress:    n.valSet.Proposer.Address,
-		Time:               newBlockTime,
-	}
+	req := buildFinalizeBlockReq(header, n.valSet.Validators)
 
 	if _, err := n.app.FinalizeBlock(req); err != nil {
 		return err
@@ -55,13 +45,29 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	newCtx = newCtx.WithConsensusParams(n.ctx.ConsensusParams())
 	// This might have to be changed with time if we want to test gas limits
 	newCtx = newCtx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
-	newCtx = newCtx.WithVoteInfos(ci.GetVotes())
+	newCtx = newCtx.WithVoteInfos(req.DecidedLastCommit.GetVotes())
 	n.ctx = newCtx
 
 	// commit changes
 	_, err := n.app.Commit()
 
 	return err
+}
+
+// buildFinalizeBlockReq is a helper function to build
+// properly the FinalizeBlock request
+func buildFinalizeBlockReq(header cmtproto.Header, validators []*cmttypes.Validator, txs ...[]byte) *abcitypes.RequestFinalizeBlock {
+	// add validator's commit info to allocate corresponding tokens to validators
+	ci := getCommitInfo(validators)
+	return &abcitypes.RequestFinalizeBlock{
+		Height:             header.Height,
+		DecidedLastCommit:  ci,
+		Hash:               header.AppHash,
+		NextValidatorsHash: header.ValidatorsHash,
+		ProposerAddress:    header.ProposerAddress,
+		Time:               header.Time,
+		Txs:                txs,
+	}
 }
 
 func getCommitInfo(validators []*cmttypes.Validator) abcitypes.CommitInfo {

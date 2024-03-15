@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -15,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
@@ -29,6 +31,7 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/evmos/evmos/v16/x/vesting/types"
 )
 
@@ -42,7 +45,7 @@ func TestKeeperTestSuite(t *testing.T) {
 var (
 	numTestMsgs                     = 3
 	vestingAccInitialBalance        = network.PrefundedAccountInitialBalance
-	gasPrice                        = math.NewInt(200_000_000)
+	gasPrice                        = math.NewInt(500_000_000)
 	remainingAmtToPayFees           = math.NewInt(1e16)
 	gasLimit                 uint64 = 200_000
 	dest                            = utiltx.GenerateAddress()
@@ -913,8 +916,24 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// index 1 will be vesting account
 		// index 2 will be extra account for other test cases
 		keys := keyring.New(3)
+
+		// don't send inflation and fees tokens to community pool
+		// so we can check better when the claw backed tokens go to
+		// the community pool
+		customGen := network.CustomGenesisState{}
+		// inflation custom genesis
+		inflGen := infltypes.DefaultGenesisState()
+		inflGen.Params.InflationDistribution.CommunityPool = math.LegacyZeroDec()
+		inflGen.Params.InflationDistribution.StakingRewards = math.LegacyOneDec()
+		customGen[infltypes.ModuleName] = inflGen
+		// distribution custom genesis
+		distrGen := distrtypes.DefaultGenesisState()
+		distrGen.Params.CommunityTax = math.LegacyZeroDec()
+		customGen[distrtypes.ModuleName] = distrGen
+
 		nw := network.NewUnitTestNetwork(
 			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+			network.WithCustomGenesis(customGen),
 		)
 		gh := grpc.NewIntegrationHandler(nw)
 		tf := evmosfactory.New(nw, gh)
@@ -952,10 +971,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(s.network.NextBlock()).To(BeNil())
 
 		clawbackMsg := types.NewMsgClawback(funder.AccAddr, emptyvestingAcc.AccAddr, dest.Bytes())
-		res, err = s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{clawbackMsg}})
+		_, err = s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{clawbackMsg}})
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("has no vesting or lockup periods"))
-		Expect(res.IsOK()).To(BeFalse())
 	})
 
 	It("should claw back unvested amount before cliff", func() {
@@ -991,8 +1009,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 
 		Expect(bF.Amount).To(Equal(balanceFunder.Amount.Sub(fees)), "expected funder balance decrease due to fees")
-		Expect(bG).To(Equal(balanceGrantee.Sub(vestingAmtTotal[0])), "expected all tokens to be clawed back")
-		Expect(bD).To(Equal(balanceDest.Add(vestingAmtTotal[0])), "expected all tokens to be clawed back to the destination account")
+		Expect(bG.Amount).To(Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount), "expected all tokens to be clawed back")
+		Expect(bD.Amount).To(Equal(balanceDest.Add(vestingAmtTotal[0]).Amount), "expected all tokens to be clawed back to the destination account")
 	})
 
 	It("should claw back any unvested amount after cliff before unlocking", func() {
@@ -1164,8 +1182,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// No amount is clawed back
 		Expect(bF.Amount).To(Equal(balanceFunder.Amount.Sub(fees)))
-		Expect(bG).To(Equal(balanceGrantee))
-		Expect(bD).To(Equal(balanceDest))
+		Expect(bG.Amount).To(Equal(balanceGrantee.Amount))
+		Expect(bD.Amount).To(Equal(balanceDest.Amount))
 	})
 
 	Context("while there is an active governance proposal for the vesting account", func() {
@@ -1180,7 +1198,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				DestinationAddress: funder.AccAddr.String(),
 			}
 
-			deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1)}}
+			// minimum possible deposit (without getting into voting period)
+			deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1e16)}}
 
 			// Create the message to submit the proposal
 			msgSubmit, err := govv1beta1.NewMsgSubmitProposal(
@@ -1210,7 +1229,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				res, err := s.network.GetGovClient().Params(s.network.GetContext(), &govv1.QueryParamsRequest{})
 				Expect(err).To(BeNil())
 				Expect(res).ToNot(BeNil())
-				depositAmount := res.Params.MinDeposit[0].Amount.Sub(math.NewInt(1))
+				depositAmount := res.Params.MinDeposit[0].Amount.Sub(math.NewInt(1e16))
 				deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: depositAmount}}
 
 				// Deliver the deposit
@@ -1234,10 +1253,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			It("should not allow clawback", func() {
 				// Try to clawback tokens
 				msgClawback := types.NewMsgClawback(funder.AccAddr, vestingAcc.AccAddr, dest.Bytes())
-				res, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msgClawback}, GasPrice: &gasPrice})
+				_, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msgClawback}, GasPrice: &gasPrice})
 				Expect(err).To(HaveOccurred(), "expected error during clawback while there is an active governance proposal")
 				Expect(err.Error()).To(ContainSubstring("clawback is disabled while there is an active clawback proposal"))
-				Expect(res.IsOK()).To(BeFalse())
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// Check that the clawback was not performed
@@ -1270,10 +1288,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			It("should not allow changing the vesting funder", func() {
 				msgUpdateFunder := types.NewMsgUpdateVestingFunder(funder.AccAddr, dest.Bytes(), vestingAcc.AccAddr)
-				res, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msgUpdateFunder}, GasPrice: &gasPrice})
+				_, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msgUpdateFunder}, GasPrice: &gasPrice})
 				Expect(err).To(HaveOccurred(), "expected error during update funder while there is an active governance proposal")
 				Expect(err.Error()).To(ContainSubstring("cannot update funder while there is an active clawback proposal"))
-				Expect(res.IsOK()).To(BeFalse())
 
 				// Check that the funder was not updated
 				acc, err := s.handler.GetAccount(vestingAcc.AccAddr.String())
@@ -1324,7 +1341,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				// Check that the proposal has ended -- since deposit failed it's removed from the store
 				_, err := s.network.GetGovClient().Proposal(s.network.GetContext(), &govv1.QueryProposalRequest{ProposalId: clawbackProposalID})
 				Expect(err).ToNot(BeNil(), "expected proposal not to be found")
-				Expect(err.Error()).To(ContainSubstring("not found"))
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("proposal %d doesn't exist", clawbackProposalID)))
 
 				// Check that the store entry was removed
 				hasActiveProposal := s.network.App.VestingKeeper.HasActiveClawbackProposal(s.network.GetContext(), vestingAcc.AccAddr)
@@ -1407,9 +1424,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Original funder tries to perform clawback before cliff - is not the current funder
 		msg := types.NewMsgClawback(funder.AccAddr, vestingAcc.AccAddr, sdk.AccAddress([]byte{}))
-		txRes, err = s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
+		_, err = s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
 		Expect(err).NotTo(BeNil())
-		Expect(txRes.IsOK()).To(BeFalse())
+		Expect(err.Error()).To(ContainSubstring("clawback can only be requested by original funder"))
 		Expect(s.network.NextBlock()).To(BeNil())
 
 		fees := gasPrice.Mul(math.NewInt(txRes.GasWanted))
@@ -1431,6 +1448,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	Context("governance clawback to community pool", func() {
+		govClawbackProposal := &types.ClawbackProposal{
+			Title:       "test gov clawback",
+			Description: "this is an example of a governance proposal to clawback vesting coins to the community pool",
+		}
 		It("should claw back unvested amount before cliff", func() {
 			// initial balances
 			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
@@ -1442,12 +1463,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			poolRes, err := s.handler.GetCommunityPool()
 			Expect(err).To(BeNil())
-			balanceCommPool := poolRes.Pool[0]
+			balanceCommPool := poolRes.Pool
+			Expect(balanceCommPool).To(BeEmpty())
 
 			// Perform governance clawback before cliff
 			// via a gov proposal
-			msg := types.NewMsgClawback(funder.AccAddr, vestingAddr, dest.Bytes())
-			propId, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "clawback funds", msg)
+			govClawbackProposal.Address = vestingAcc.AccAddr.String()
+			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
 			Expect(err).To(BeNil())
@@ -1468,7 +1490,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// destination address should remain unchanged
 			Expect(balanceDest.Amount).To(Equal(bD.Amount))
 			// vesting amount should go to community pool
-			Expect(balanceCommPool.Amount.Add(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64()))).To(Equal(bCP.Amount))
+			Expect(bCP.Amount.GTE(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64()))).To(BeTrue())
 			Expect(stakeDenom).To(Equal(bCP.Denom))
 		})
 
@@ -1490,17 +1512,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(free.IsZero()).To(BeTrue())
 			Expect(vesting).To(Equal(vestingAmtTotal))
 
-			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balanceGrantee := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
-			Expect(err).To(BeNil())
-			balanceDest := balRes.Balance
-
+			// even though no fees and inlfation tokens should be allocated
+			// to the community pool, there's some dust that accumulates on each tx
+			// due to rounding when allocating fees to validators
 			poolRes, err := s.handler.GetCommunityPool()
 			Expect(err).To(BeNil())
-
-			balanceCommPool := poolRes.Pool[0]
+			dustPerTx := poolRes.Pool[0]
+			totalDust := dustPerTx.Amount.MulInt64(9).TruncateInt()
 
 			// stake vested tokens
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
@@ -1514,17 +1532,33 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
+			balRes, err := s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			Expect(err).To(BeNil())
+			balanceDest := balRes.Balance
+
+			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			balanceGrantee := balRes.Balance
+
 			// Perform governance clawback
 			// via a gov proposal
-			msg := types.NewMsgClawback(funder.AccAddr, vestingAddr, dest.Bytes())
-			propId, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "clawback funds", msg)
+			govClawbackProposal.Address = vestingAcc.AccAddr.String()
+			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
+			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propId, govv1.OptionYes)
+			Expect(err).To(BeNil())
+
+			feeCoins, err := testutils.GetFeesFromEvents(voteRes.Events)
+			Expect(err).To(BeNil())
+			feesAmt := feeCoins[0].Amount.TruncateInt()
+
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
 			Expect(err).To(BeNil())
 
 			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
+
 			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
@@ -1537,10 +1571,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			expClawback := clawbackAccount.GetUnvestedOnly(s.network.GetContext().BlockTime())
 
 			// Any unvested amount is clawed back to community pool
-			Expect(balanceGrantee.Sub(expClawback[0]).Amount).To(Equal(bG.Amount))
+			Expect(bG.Amount).To(Equal(balanceGrantee.Sub(expClawback[0]).Amount.Sub(feesAmt)))
 			Expect(balanceDest.Amount).To(Equal(bD.Amount))
 			// vesting amount should go to community pool
-			Expect(balanceCommPool.Amount.Add(math.LegacyNewDec(expClawback[0].Amount.Int64()))).To(Equal(bCP.Amount))
+			Expect(bCP.Amount.TruncateInt()).To(Equal(expClawback[0].Amount.Add(totalDust)))
 			Expect(stakeDenom).To(Equal(bCP.Denom))
 		})
 
@@ -1565,6 +1599,18 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(expVestedAmount.GT(math.NewInt(0))).To(BeTrue())
 			Expect(vesting).To(Equal(unvested))
 
+			// stake vested tokens
+			ok, vestedCoin := vested.Find(utils.BaseDenom)
+			Expect(ok).To(BeTrue())
+			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+			err := s.factory.Delegate(
+				vestingAcc.Priv,
+				s.network.GetValidators()[0].OperatorAddress,
+				delCoin,
+			)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
 			balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceFunder := balRes.Balance
@@ -1575,23 +1621,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(BeNil())
 			balanceDest := balRes.Balance
 
-			// stake vested tokens
-			ok, vestedCoin := vested.Find(utils.BaseDenom)
-			Expect(ok).To(BeTrue())
-			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
-			err = s.factory.Delegate(
-				vestingAcc.Priv,
-				s.network.GetValidators()[0].OperatorAddress,
-				delCoin,
-			)
-			Expect(err).To(BeNil())
-			Expect(s.network.NextBlock()).To(BeNil())
-
 			// Perform clawback
 			msg := types.NewMsgClawback(funder.AccAddr, vestingAcc.AccAddr, dest.Bytes())
 			res, err := s.factory.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{msg}, GasPrice: &gasPrice})
 			Expect(err).To(BeNil())
-			Expect(res.IsOK).To(BeTrue())
+			Expect(res.IsOK()).To(BeTrue())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
@@ -1633,32 +1667,48 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(vesting).To(Equal(unvested))
 			Expect(vesting.IsZero()).To(BeTrue())
 
-			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
-			Expect(err).To(BeNil())
-			balanceGrantee := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
-			Expect(err).To(BeNil())
-			balanceDest := balRes.Balance
-
+			// even though no fees and inlfation tokens should be allocated
+			// to the community pool, there's some dust that accumulates on each tx
+			// due to rounding when allocating fees to validators
 			poolRes, err := s.handler.GetCommunityPool()
 			Expect(err).To(BeNil())
-
-			balanceCommPool := poolRes.Pool[0]
+			dustPerTx := poolRes.Pool[0]
+			totalDust := dustPerTx.Amount.MulInt64(9).TruncateInt()
 
 			// stake vested tokens
 			ok, vestedCoin := vested.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
+			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
 			err = s.factory.Delegate(
 				vestingAcc.Priv,
 				s.network.GetValidators()[0].OperatorAddress,
-				vestedCoin,
+				delCoin,
 			)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
+			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			balanceGrantee := balRes.Balance
+
+			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			Expect(err).To(BeNil())
+			balanceDest := balRes.Balance
+
 			// Perform gov clawback
-			msg := types.NewMsgClawback(funder.AccAddr, vestingAcc.AccAddr, dest.Bytes())
-			propId, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "clawback funds", msg)
+			govClawbackProposal.Address = vestingAcc.AccAddr.String()
+			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			Expect(err).To(BeNil())
+
+			// vote with vesting account that made a delegation previously
+			// and we need the vote to make the prop pass
+			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propId, govv1.OptionYes)
+			Expect(err).To(BeNil())
+
+			feeCoins, err := testutils.GetFeesFromEvents(voteRes.Events)
+			Expect(err).To(BeNil())
+			feesAmt := feeCoins[0].Amount.TruncateInt()
+
 			Expect(err).To(BeNil())
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
 			Expect(err).To(BeNil())
@@ -1666,6 +1716,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
+
 			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
@@ -1676,9 +1727,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			bCP := poolRes.Pool[0]
 
 			// No amount is clawed back
-			Expect(balanceGrantee).To(Equal(bG))
+			Expect(bG.Amount).To(Equal(balanceGrantee.Amount.Sub(feesAmt)))
 			Expect(balanceDest).To(Equal(bD))
-			Expect(balanceCommPool.Amount).To(Equal(bCP.Amount))
+			Expect(bCP.Amount.TruncateInt()).To(Equal(totalDust))
 		})
 
 		It("should update vesting funder and claw back unvested amount before cliff", func() {
@@ -1691,7 +1742,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			poolRes, err := s.handler.GetCommunityPool()
 			Expect(err).To(BeNil())
 
-			balanceCommPool := poolRes.Pool[0]
+			balanceCommPool := poolRes.Pool
+			Expect(balanceCommPool).To(BeEmpty())
 
 			// Update clawback vesting account funder
 			updateFunderMsg := types.NewMsgUpdateVestingFunder(funder.AccAddr, newFunder.AccAddr, vestingAcc.AccAddr)
@@ -1701,8 +1753,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// Perform gov clawback before cliff - funds should go to new funder (no dest address defined)
-			msg := types.NewMsgClawback(newFunder.AccAddr, vestingAcc.AccAddr, nil)
-			propId, err := testutils.SubmitProposal(s.factory, s.network, newFunder.Priv, "clawback funds", msg)
+			govClawbackProposal.Address = vestingAcc.AccAddr.String()
+			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, newFunder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
 			Expect(err).To(BeNil())
@@ -1719,7 +1771,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			Expect(balanceGrantee.Sub(vestingAmtTotal[0]).Amount).To(Equal(bG.Amount))
 			// vesting amount should go to community pool
-			Expect(balanceCommPool.Amount.Add(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64()))).To(Equal(bCP.Amount))
+			Expect(bCP.Amount.GTE(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64()))).To(BeTrue())
 		})
 
 		It("should not claw back when governance clawback is disabled", func() {
@@ -1728,10 +1780,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.setupClawbackVestingAccount(newVestAcc, funder, vestPeriods, lockPeriods, false)
 
 			// Perform clawback before cliff
-			msg := types.NewMsgClawback(funder.AccAddr, newVestAcc.AccAddr, dest.Bytes())
-			_, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "clawback funds", msg)
+			govClawbackProposal.Address = newVestAcc.AccAddr.String()
+			_, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("%s: account does not have governance clawback enabled", vestingAcc.AccAddr.String()))
+			Expect(err.Error()).To(ContainSubstring("failed to run legacy handler vesting"))
 		})
 	})
 })
