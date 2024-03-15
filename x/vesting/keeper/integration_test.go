@@ -468,7 +468,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (multi-account, single-tx)", func() {
-
 			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
 
 			msgs := make([]sdk.Msg, len(vestingAccs))
@@ -757,7 +756,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// remaining balance should be less than prevBalance - delegated amount
 			// cause should pay for fees too
 			Expect(balancePost.Amount.LT(balancePrev.Amount.Sub(delCoin.Amount))).To(BeTrue())
-
 		})
 
 		It("cannot delegate unvested tokens", func() {
