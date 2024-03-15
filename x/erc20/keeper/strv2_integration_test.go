@@ -173,7 +173,7 @@ var _ = Describe("STRv2 Tracking", func() {
 			})
 
 			Context("in a call to the token pair contract from another contract", func() {
-				It("should add the address to the store if it is not already stored", func() {
+				It("should add the from AND to address to the store if it is not already stored", func() {
 					Expect(true).To(BeFalse(), "not implemented")
 				})
 
@@ -182,8 +182,39 @@ var _ = Describe("STRv2 Tracking", func() {
 				})
 			})
 
+			// NOTE: this is running the coin conversion too
 			Context("sending tokens to the module address", func() {
-				It("should add the sender address", func() {
+				It("should add the sender address in a direct call", func() {
+					sender := s.keyring.GetKey(0)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &nativeCoinERC20Addr,
+						},
+						testfactory.CallArgs{
+							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+							MethodName:  "transfer",
+							Args: []interface{}{
+								erc20types.ModuleAddress,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to transfer tokens of Cosmos native ERC-20 token pair")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
+					erc20AddrTrack := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), erc20types.ModuleAddress.Bytes())
+					Expect(erc20AddrTrack).To(BeFalse(), "expected module address not to be stored")
+				})
+
+				It("should add the sender address in a call from another contract", func() {
 					Expect(true).To(BeFalse(), "not implemented")
 				})
 			})
@@ -243,6 +274,7 @@ var _ = Describe("STRv2 Tracking", func() {
 		})
 	})
 
+	// TODO: check if the available IBC testing utils can be used for this
 	When("when receiving an incoming IBC transfer", func() {
 		Context("for a registered IBC asset", func() {
 			It("should add the address to the store if it is not already stored", func() {
