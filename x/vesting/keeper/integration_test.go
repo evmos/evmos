@@ -9,6 +9,7 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
+	"github.com/stretchr/testify/suite"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -37,6 +38,15 @@ import (
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/evmos/evmos/v16/x/vesting/types"
 )
+
+type KeeperTestSuite struct {
+	suite.Suite
+
+	network *network.UnitTestNetwork
+	handler grpc.Handler
+	keyring keyring.Keyring
+	factory evmosfactory.TxFactory
+}
 
 func TestKeeperTestSuite(t *testing.T) {
 	// Run Ginkgo integration tests
