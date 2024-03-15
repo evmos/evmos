@@ -14,12 +14,12 @@ var (
 	//go:embed tokenTransfer.json
 	tokenTransferJSON []byte
 
-	// tokenTransferContract is the compiled tokenTransfer contract
-	tokenTransferContract evmtypes.CompiledContract
+	// TokenTransferContract is the compiled tokenTransfer contract
+	TokenTransferContract evmtypes.CompiledContract
 )
 
 func init() {
-	err := json.Unmarshal(tokenTransferJSON, &tokenTransferContract)
+	err := json.Unmarshal(tokenTransferJSON, &TokenTransferContract)
 	if err != nil {
 		panic(err)
 	}

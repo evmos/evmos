@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/x/erc20/keeper/testdata"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -45,7 +46,7 @@ var (
 	transferAmount = convertAmount.QuoRaw(10).BigInt()
 )
 
-var _ = Describe("STRv2 Tracking", func() {
+var _ = Describe("STRv2 Tracking -", func() {
 	var (
 		s *STRv2TrackingSuite
 
@@ -170,15 +171,143 @@ var _ = Describe("STRv2 Tracking", func() {
 					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
 					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be still stored")
 				})
+
+				It("should not store anything if calling a different method than transfer or transferFrom", func() {
+					sender := s.keyring.GetKey(0)
+					grantee := s.keyring.GetKey(2)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+					receiverAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), grantee.AccAddr)
+					Expect(receiverAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &nativeCoinERC20Addr,
+						},
+						testfactory.CallArgs{
+							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+							MethodName:  "approve",
+							Args: []interface{}{
+								grantee.Addr,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to approve ERC-20 transfer")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored")
+					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), grantee.AccAddr)
+					Expect(receiverAddrTracked).To(BeFalse(), "expected address not to be stored")
+				})
 			})
 
 			Context("in a call to the token pair contract from another contract", func() {
-				It("should add the from AND to address to the store if it is not already stored", func() {
-					Expect(true).To(BeFalse(), "not implemented")
+				var (
+					senderIdx         = deployerIdx
+					tokenTransferAddr common.Address
+				)
+
+				BeforeEach(func() {
+					deployer := s.keyring.GetKey(deployerIdx)
+					sender := s.keyring.GetKey(senderIdx)
+
+					var err error
+					tokenTransferAddr, err = s.factory.DeployContract(
+						deployer.Priv,
+						evmtypes.EvmTxArgs{},
+						testfactory.ContractDeploymentData{
+							Contract:        testdata.TokenTransferContract,
+							ConstructorArgs: []interface{}{nativeCoinERC20Addr},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 transfer contract")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					// approve the contract to spend on behalf of the sender
+					_, err = s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &nativeCoinERC20Addr,
+						},
+						testfactory.CallArgs{
+							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+							MethodName:  "approve",
+							Args: []interface{}{
+								tokenTransferAddr,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to approve ERC-20 transfer contract to spend on behalf of the sender")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 				})
 
-				It("should not fail if the address is already stored", func() {
-					Expect(true).To(BeFalse(), "not implemented")
+				It("should add the from AND to address to the store if it is not already stored", func() {
+					sender := s.keyring.GetKey(senderIdx)
+					receiver := s.keyring.GetKey(senderIdx + 1)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+					receiverAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
+					Expect(receiverAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &tokenTransferAddr,
+						},
+						testfactory.CallArgs{
+							ContractABI: testdata.TokenTransferContract.ABI,
+							MethodName:  "transferToken",
+							Args: []interface{}{
+								receiver.Addr,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to transfer tokens of Cosmos native ERC-20 token pair")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
+					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
+					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be stored")
+				})
+
+				It("should add the from address if sending to the ERC-20 module address", func() {
+					sender := s.keyring.GetKey(senderIdx)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &tokenTransferAddr,
+						},
+						testfactory.CallArgs{
+							ContractABI: testdata.TokenTransferContract.ABI,
+							MethodName:  "transferToken",
+							Args: []interface{}{
+								erc20types.ModuleAddress,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to transfer tokens of Cosmos native ERC-20 token pair")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
 				})
 			})
 
@@ -212,10 +341,6 @@ var _ = Describe("STRv2 Tracking", func() {
 					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
 					erc20AddrTrack := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), erc20types.ModuleAddress.Bytes())
 					Expect(erc20AddrTrack).To(BeFalse(), "expected module address not to be stored")
-				})
-
-				It("should add the sender address in a call from another contract", func() {
-					Expect(true).To(BeFalse(), "not implemented")
 				})
 			})
 		})
