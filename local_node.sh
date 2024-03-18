@@ -207,10 +207,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	evmosd add-genesis-account "$(evmosd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 	evmosd add-genesis-account "$(evmosd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 
-	# bc is required to add these big numbers
-	# NOTE: we have the validator account (1e26) plus 4 (1e21) accounts
-	#       plus the claimed amount (1e4)
-	total_supply=100004000000000000000010000
+	# NOTE: we have to manually add the claimed amount to the genesis supply, the rest is taken care of by the add-genesis-account command
+	total_supply_pre=$(jq -r '.app_state["bank"]["supply"][0]["amount"]' "$GENESIS")
+	# we're adding the numbers by passing the corresponding expression into the bc calculator
+	total_supply=$(echo "$total_supply_pre + $amount_to_claim" | bc)
 	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Sign genesis transaction
