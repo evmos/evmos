@@ -79,6 +79,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 - (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
+- (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
