@@ -94,7 +94,6 @@ License 1.0 (ENCL-1.0)](./LICENSE). This license applies to all software release
 version 13 or later, except for specific files, as follows, which will continue
 to be licensed under LGPLv3:
 
-- `x/revenue/v1/` (all files in this folder)
 - `x/claims/genesis.go`
 - `x/erc20/keeper/proposals.go`
 - `x/erc20/types/utils.go`

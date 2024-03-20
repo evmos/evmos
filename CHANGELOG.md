@@ -50,6 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 - (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
+- (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
+- (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
 
 
 ### Bug Fixes
@@ -72,23 +74,27 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
-- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
 - (evm) [#2307](https://github.com/evmos/evmos/pull/2307) Add global BuildEVMExecutionCtx function.
 - (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
 - (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
-- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
-- (wevmos) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
-- (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
+- (cli) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
+- (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
+- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
+- (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 - (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC20 extension registration.
 - (erc20) [#2352](https://github.com/evmos/evmos/pull/2352) Remove WERC-20 precompile and register WEVMOS as standard ERC-20 precompile.
+- (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
+- (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
+- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
+- (debug) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
 
 ## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
 ### Bug Fixes
 
+- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
 - (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
-- (debug) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
-- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 

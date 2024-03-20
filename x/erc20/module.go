@@ -120,10 +120,6 @@ func (AppModule) Name() string {
 
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(&am.keeper)
-}
-
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), &am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
