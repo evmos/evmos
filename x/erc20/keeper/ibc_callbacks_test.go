@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	errorsmod "cosmossdk.io/errors"
@@ -49,12 +48,10 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 		BaseDenom: "uosmo",
 	}
 	contractAddr, _ := utils.GetIBCDenomAddress(fakeOsmoDenomTrace.IBCDenom())
-	fmt.Println(contractAddr)
 
 	// Set a dummy erc20 pair to test dummy conversion
 	erc20Address := utiltx.GenerateAddress()
 	erc20TestPair := types.NewTokenPair(erc20Address, types.CreateDenom(erc20Address.String()), types.OWNER_EXTERNAL)
-	fmt.Println(erc20TestPair)
 	prefixedErc20Denom := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel) + erc20TestPair.GetDenom()
 	HelperRegisterPair(unitNetwork, erc20TestPair)
 
