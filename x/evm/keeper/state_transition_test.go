@@ -278,7 +278,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 			)
 			suite.Require().NoError(err)
 
-			gas, err := suite.app.EvmKeeper.GetEthIntrinsicGas(suite.ctx, m, ethCfg, tc.isContractCreation)
+			gas, err := keeper.IntrinsicGas(m.Data(), m.AccessList(), tc.isContractCreation)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {

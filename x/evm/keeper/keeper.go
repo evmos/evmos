@@ -64,6 +64,8 @@ type Keeper struct {
 	// Some these precompiled contracts might not be active depending on the EVM
 	// parameters.
 	precompiles map[common.Address]vm.PrecompiledContract
+	// jumpTable defines the map of all available opcodes
+	jumpTable *vm.JumpTable
 }
 
 // NewKeeper generates new evm module keeper
@@ -78,6 +80,7 @@ func NewKeeper(
 	tracer string,
 	ss paramstypes.Subspace,
 	erc20Keeper types.Erc20Keeper,
+	// jumpTable *vm.JumpTable,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -102,6 +105,7 @@ func NewKeeper(
 		tracer:          tracer,
 		ss:              ss,
 		erc20Keeper:     erc20Keeper,
+		// jumpTable:       jumpTable,
 	}
 }
 
