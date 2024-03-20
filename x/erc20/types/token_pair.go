@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // NewTokenPair returns an instance of TokenPair
@@ -20,13 +21,27 @@ func NewTokenPair(erc20Address common.Address, denom string, contractOwner Owner
 	}
 }
 
+// NewTokenPairV2 returns an instance of TokenPair
+func NewTokenPairV2(denom string, contractOwner Owner) (TokenPair, error) {
+	address, err := utils.GetIBCDenomAddress(denom)
+	if err != nil {
+		return TokenPair{}, err
+	}
+	return TokenPair{
+		Erc20Address:  address.String(),
+		Denom:         denom,
+		Enabled:       true,
+		ContractOwner: contractOwner,
+	}, nil
+}
+
 // GetID returns the SHA256 hash of the ERC20 address and denomination
 func (tp TokenPair) GetID() []byte {
 	id := tp.Erc20Address + "|" + tp.Denom
 	return tmhash.Sum([]byte(id))
 }
 
-// GetErc20Contract casts the hex string address of the ERC20 to common.Address
+// GetERC20Contract casts the hex string address of the ERC20 to common.Address
 func (tp TokenPair) GetERC20Contract() common.Address {
 	return common.HexToAddress(tp.Erc20Address)
 }

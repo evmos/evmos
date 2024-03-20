@@ -15,6 +15,7 @@ import (
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the
 // existing cosmos coin
+// TODO: FIX this will change into registering ERC20 metadata
 func (k Keeper) RegisterCoin(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
@@ -169,6 +170,12 @@ func (k Keeper) ToggleConversion(
 	if !found {
 		return types.TokenPair{}, errorsmod.Wrapf(
 			types.ErrTokenPairNotFound, "token '%s' not registered", token,
+		)
+	}
+
+	if pair.ContractOwner == types.OWNER_MODULE {
+		return types.TokenPair{}, errorsmod.Wrapf(
+			types.ErrTokenPairOwnedByModule, "not allowed to disable '%s' token", token,
 		)
 	}
 

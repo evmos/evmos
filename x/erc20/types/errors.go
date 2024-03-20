@@ -21,4 +21,6 @@ var (
 	ErrEVMDenom               = errorsmod.Register(ModuleName, 11, "EVM denomination registration")
 	ErrEVMCall                = errorsmod.Register(ModuleName, 12, "EVM call unexpected error")
 	ErrERC20TokenPairDisabled = errorsmod.Register(ModuleName, 13, "erc20 token pair is disabled")
+	ErrInvalidIBC             = errorsmod.Register(ModuleName, 14, "invalid IBC transaction")
+	ErrTokenPairOwnedByModule = errorsmod.Register(ModuleName, 15, "token pair owned by module")
 )

@@ -209,8 +209,10 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
 func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+	address := utiltx.GenerateAddress()
+	tokenPair := erc20types.NewTokenPair(address, denom, erc20types.OWNER_MODULE)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
+	s.network.App.Erc20Keeper.SetERC20Map(s.network.GetContext(), address, tokenPair.GetID())
 
 	precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
 	s.Require().NoError(err, "failed to set up %q erc20 precompile", tokenPair.Denom)
@@ -224,8 +226,11 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 //
 // TODO: refactor
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+	address := utiltx.GenerateAddress()
+	tokenPair := erc20types.NewTokenPair(address, denom, erc20types.OWNER_MODULE)
 	is.network.App.Erc20Keeper.SetTokenPair(is.network.GetContext(), tokenPair)
+	is.network.App.Erc20Keeper.SetDenomMap(is.network.GetContext(), tokenPair.Denom, tokenPair.GetID())
+	is.network.App.Erc20Keeper.SetERC20Map(is.network.GetContext(), address, tokenPair.GetID())
 
 	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up %q erc20 precompile", tokenPair.Denom)
@@ -248,7 +253,7 @@ func setupERC20PrecompileForTokenPair(
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 	}
 
-	err = unitNetwork.App.EvmKeeper.AddEVMExtensions(unitNetwork.GetContext(), precompile)
+	err = unitNetwork.App.EvmKeeper.AddDynamicPrecompiles(unitNetwork.GetContext(), precompile)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
 	}

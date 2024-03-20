@@ -199,8 +199,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			)
 
 			params := s.app.EvmKeeper.GetParams(s.ctx)
-			activePrecompiles := params.GetActivePrecompilesAddrs()
-			precompileMap := s.app.EvmKeeper.Precompiles(activePrecompiles...)
+			activePrecompiles, precompileMap := s.app.EvmKeeper.GetStaticPrecompilesInstances(&params)
 			err = vm.ValidatePrecompiles(precompileMap, activePrecompiles)
 			s.Require().NoError(err, "invalid precompiles", activePrecompiles)
 			evm.WithPrecompiles(precompileMap, activePrecompiles)

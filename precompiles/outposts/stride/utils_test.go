@@ -9,8 +9,6 @@ import (
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
 	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
 
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -72,15 +70,6 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 
 	// Register some Token Pairs
 	_, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, stEvmosMetadata)
-	s.Require().NoError(err)
-
-	convertCoin := erc20types.NewMsgConvertCoin(
-		stEvmos,
-		s.keyring.GetAddr(0),
-		s.keyring.GetAccAddr(0),
-	)
-
-	_, err = s.network.App.Erc20Keeper.ConvertCoin(ctx, convertCoin)
 	s.Require().NoError(err)
 }
 

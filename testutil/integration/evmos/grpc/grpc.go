@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	commongrpc "github.com/evmos/evmos/v16/testutil/integration/common/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
@@ -16,6 +17,10 @@ import (
 // the network's modules via gRPC.
 type Handler interface {
 	commongrpc.Handler
+
+	// ERC-20 methods
+	GetTokenPair(denom string) (*erc20types.QueryTokenPairResponse, error)
+	GetTokenPairs() (*erc20types.QueryTokenPairsResponse, error)
 
 	// EVM methods
 	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)

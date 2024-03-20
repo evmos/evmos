@@ -21,6 +21,8 @@ func TestProposalTestSuite(t *testing.T) {
 }
 
 func (suite *ProposalTestSuite) TestKeysTypes() {
+	suite.Require().Equal("erc20", (&types.RegisterCoinProposal{}).ProposalRoute())
+	suite.Require().Equal("RegisterCoin", (&types.RegisterCoinProposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&types.RegisterERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("RegisterERC20", (&types.RegisterERC20Proposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&types.ToggleTokenConversionProposal{}).ProposalRoute())

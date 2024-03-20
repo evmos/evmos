@@ -124,7 +124,7 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				s.Require().NoError(err, "expected no error packing ABI")
 				return bz
 			},
-			expGas: erc20.GasTransfer,
+			expGas: erc20.GasTransferFrom,
 		},
 		{
 			name: auth.AllowanceMethod,

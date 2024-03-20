@@ -3,16 +3,15 @@ package keeper_test
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
+	teststypes "github.com/evmos/evmos/v16/types/tests"
 	"github.com/evmos/evmos/v16/x/erc20/keeper"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	erc20mocks "github.com/evmos/evmos/v16/x/erc20/types/mocks"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -90,17 +89,6 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Ad
 	_, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contract)
 	suite.Require().NoError(err)
 	return contract
-}
-
-func (suite *KeeperTestSuite) setupRegisterCoin(metadata banktypes.Metadata) *types.TokenPair {
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
-	suite.Require().NoError(err)
-
-	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
-	pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, metadata)
-	suite.Require().NoError(err)
-	suite.Commit()
-	return pair
 }
 
 func (suite KeeperTestSuite) TestRegisterERC20() { //nolint:govet // we can copy locks here because it is a test
@@ -249,6 +237,17 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 				pair, _ = suite.app.Erc20Keeper.ToggleConversion(suite.ctx, contractAddr.String())
 			},
 			true,
+			true,
+		},
+		{
+			"not allowed to disable native coin pair",
+			func() {
+				_, err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, teststypes.UosmoIbcdenom)
+				suite.Require().NoError(err)
+				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
+			},
+			false,
 			true,
 		},
 	}

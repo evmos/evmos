@@ -31,7 +31,9 @@ KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
-WEVMOS_ADDRESS = Web3.toChecksumAddress("0xcc491f589b45d4a3c679016195b3fb87d7848210")
+WEVMOS_ADDRESS = Web3.toChecksumAddress(
+    "0x5db67696C3c088DfBf588d3dd849f44266ff0ffa"
+)  # ERC20 precompile for WEVMOS
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -516,3 +518,12 @@ def erc20_balance(w3, erc20_contract_addr, addr):
     info = json.loads(CONTRACTS["IERC20"].read_text())
     contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
     return contract.functions.balanceOf(addr).call()
+
+
+def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
+    info = json.loads(CONTRACTS["IERC20"].read_text())
+    contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
+    tx = contract.functions.transfer(to_addr, amount).build_transaction(
+        {"from": from_addr}
+    )
+    return send_transaction(w3, tx, key)

@@ -492,7 +492,8 @@ keywords = [
 ]
 [rules.allowlist]
 paths = [
-  '''Database.refactorlog'''
+    '''Database.refactorlog''',
+    '''app/upgrades/v17/genesis_test.go''',
 ]
 stopwords= [
     "client",

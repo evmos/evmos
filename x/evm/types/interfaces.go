@@ -5,6 +5,9 @@ package types
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,6 +43,11 @@ type BankKeeper interface {
 type StakingKeeper interface {
 	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
 	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
+}
+
+// Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
+type Erc20Keeper interface {
+	InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error)
 }
 
 // FeeMarketKeeper

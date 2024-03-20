@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package testdata
+package contracts
 
 import (
 	_ "embed" // embed compiled smart contract
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed WEVMOS.json
+	//go:embed compiled_contracts/WEVMOS.json
 	WevmosJSON []byte
 
 	// WEVMOSContract is the compiled contract of WEVMOS
