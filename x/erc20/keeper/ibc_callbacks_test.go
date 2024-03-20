@@ -239,6 +239,14 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			if tc.precompileAddr != emptyAddress {
 				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
 				suite.Require().Contains(activeDynamicPrecompiles, tc.precompileAddr.String())
+				if tc.precompileAddr == contractAddr {
+					em := unitNetwork.GetContext().EventManager().Events()
+					suite.Require().Equal(em[1].Type, types.EventTypeRegisterERC20Extension)
+					suite.Require().Equal(em[1].Attributes[0].Value, sourceChannel)
+					suite.Require().Equal(em[1].Attributes[1].Value, tc.precompileAddr.String())
+					suite.Require().Equal(em[1].Attributes[2].Value, fakeOsmoDenomTrace.IBCDenom())
+				}
+
 			} else {
 				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
 				suite.Require().NotContains(activeDynamicPrecompiles, tc.precompileAddr.String())
