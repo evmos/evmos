@@ -78,15 +78,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
 - (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
 - (cli) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
-- (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
+- (werc20) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 - (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
-- (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC20 extension registration.
+- (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC-20 extension registration.
 - (erc20) [#2352](https://github.com/evmos/evmos/pull/2352) Remove WERC-20 precompile and register WEVMOS as standard ERC-20 precompile.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
 - (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
-- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
-- (debug) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
 
 ## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
@@ -159,8 +157,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20-precompile) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC-20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
-- (werc20-precompile) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 precompile events.
-- (werc20-precompile) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 precompile transactions.
+- (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 precompile events.
+- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 precompile transactions.
 - (distribution-precompile) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
 - (erc20-precompile) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 precompile transactions.
 - (erc20-precompile) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC-20 precompile type utilities.
@@ -183,16 +181,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test.
 - (staking-precompile) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC-20 contracts.
-- (werc20-precompile) [#2057](https://github.com/evmos/evmos/pull/2057) WERC-20 refactors and handling of fallback and receive functions.
-- (werc20-precompile) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC-20 base integration tests.
-- (werc20-precompile) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
+- (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC-20 refactors and handling of fallback and receive functions.
+- (werc20) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC-20 base integration tests.
+- (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
 - (osmosis-outpost) [#2063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
 - (precompiles) [#2064](https://github.com/evmos/evmos/pull/2064) Handle all `fallback` and `receive` function cases.
 - (erc20-precompile) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC-20 EVM extension allowance behavior to align with standard ERC-20 smart contracts.
 - (erc20-precompile) [#2067](https://github.com/evmos/evmos/pull/2067) Further alignments between ERC-20 smart contracts and EVM extension.
 - (stride-outpost) [#2069](https://github.com/evmos/evmos/pull/2069) Refactor `osmosis` and `stride` testing.
 - (erc20-precompile) [#2073](https://github.com/evmos/evmos/pull/2073) Align metadata query errors with ERC-20 contracts.
-- (werc20-precompile) [#2074](https://github.com/evmos/evmos/pull/2074) Add `werc20` EVM Extension acceptance tests with `WEVMOS` contract.
+- (werc20) [#2074](https://github.com/evmos/evmos/pull/2074) Add `werc20` EVM Extension acceptance tests with `WEVMOS` contract.
 - (erc20-precompile) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC-20 contracts.
 - (erc20-precompile) [#2080](https://github.com/evmos/evmos/pull/2080) Add ERC-20 integration test setup.
 - (erc20-precompile) [#2081](https://github.com/evmos/evmos/pull/2081) Add ERC-20 query integration tests.
@@ -967,3 +965,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
+
+
+
+
+
