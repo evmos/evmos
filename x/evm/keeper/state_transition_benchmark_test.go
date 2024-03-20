@@ -423,13 +423,6 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 			}
 
 			// Disable revenue to avoid gas refund issues
-			params := unitNetwork.App.RevenueKeeper.GetParams(unitNetwork.GetContext())
-			params.EnableRevenue = false
-			err := unitNetwork.App.RevenueKeeper.SetParams(unitNetwork.GetContext(), params)
-			if err != nil {
-				break
-			}
-
 			b.Run(fmt.Sprintf("tx_type_%v_%v", v.txType, dynamicAccs), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					// Start with a clean block
