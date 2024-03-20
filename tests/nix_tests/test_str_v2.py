@@ -156,9 +156,10 @@ def test_wevmos_precompile_transfer(ibc):
     signer1 = ADDRS["signer1"]
     signer2 = ADDRS["signer2"]
     bech_dst = eth_to_bech32(signer2)
+    src_denom = "aevmos"
 
     w3 = evmos.w3
-    evmos_balance = get_balance(evmos, bech_dst, WEVMOS_ADDRESS)
+    evmos_balance = get_balance(evmos, bech_dst, src_denom)
     signer2_balance = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
 
     assert evmos_balance == signer2_balance
@@ -171,5 +172,5 @@ def test_wevmos_precompile_transfer(ibc):
     signer_2_balance_after = erc20_balance(w3, WEVMOS_ADDRESS, signer2)
     assert signer_2_balance_after == signer2_balance + 1000000
 
-    evmos_balance_after = get_balance(evmos, bech_dst, WEVMOS_ADDRESS)
+    evmos_balance_after = get_balance(evmos, bech_dst, src_denom)
     assert evmos_balance_after == evmos_balance + 1000000
