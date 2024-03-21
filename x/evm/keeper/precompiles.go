@@ -31,3 +31,25 @@ func (k *Keeper) GetActivePrecompilesInstances(
 
 	return addresses, staticPrecompilesMap
 }
+
+func (k *Keeper) GetPrecompileInstance(
+	ctx sdktypes.Context,
+	address common.Address,
+) ([]common.Address, map[common.Address]vm.PrecompiledContract, bool) {
+	params := k.GetParams(ctx)
+	// Get the precompile from the static precompiles
+	if precompile, ok := k.GetStaticPrecompileInstance(&params, address); ok {
+		addressMap := make(map[common.Address]vm.PrecompiledContract)
+		addressMap[address] = precompile
+		return []common.Address{precompile.Address()}, addressMap, ok
+	}
+
+	// Get the precompile from the static precompiles
+	if precompile, ok := k.GetDynamicPrecompileInstance(ctx, &params, address); ok {
+		addressMap := make(map[common.Address]vm.PrecompiledContract)
+		addressMap[address] = precompile
+		return []common.Address{precompile.Address()}, addressMap, ok
+	}
+
+	return nil, nil, false
+}

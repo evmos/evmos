@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestIsAvailableDynamicPrecompile() {
 			err := suite.app.EvmKeeper.SetParams(s.ctx, params)
 			suite.Require().NoError(err)
 
-			available := suite.app.EvmKeeper.IsAvailableDynamicPrecompile(s.ctx, tc.address)
+			available := suite.app.EvmKeeper.IsAvailableDynamicPrecompile(&params, tc.address)
 			suite.Require().Equal(tc.expAvailable, available)
 		})
 	}
