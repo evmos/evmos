@@ -58,7 +58,7 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	extCall := func(addr common.Address, evm *vm.EVM) error {
+	extCall := func(evm *vm.EVM, addr common.Address) error {
 		precompileList, precompileMap, found := k.GetPrecompileInstance(ctx, addr)
 		if found {
 			evm.WithPrecompiles(precompileMap, precompileList)
@@ -330,14 +330,6 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
-
-	// Set the custom precompiles to the EVM if:
-	// 1. there are custom precompiles
-	// 2. the message is a contract call
-	// if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
-	// 	activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
-	// 	evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
-	// }
 
 	leftoverGas := msg.Gas()
 
