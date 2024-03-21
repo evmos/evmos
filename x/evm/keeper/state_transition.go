@@ -66,7 +66,7 @@ func (k *Keeper) NewEVM(
 		}
 		return nil
 	}
-	return vm.NewEVM2(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+	return vm.NewEVMWithCallback(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:
