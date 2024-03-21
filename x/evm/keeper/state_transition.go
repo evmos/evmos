@@ -58,7 +58,15 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+	extCall := func(addr common.Address, evm *vm.EVM) error {
+		precompileList, precompileMap, found := k.GetPrecompileInstance(ctx, addr)
+		if found {
+			evm.WithPrecompiles(precompileMap, precompileList)
+			return nil
+		}
+		return nil
+	}
+	return vm.NewEVM2(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:
@@ -326,10 +334,10 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	// Set the custom precompiles to the EVM if:
 	// 1. there are custom precompiles
 	// 2. the message is a contract call
-	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
-		activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
-		evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
-	}
+	// if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
+	// 	activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
+	// 	evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
+	// }
 
 	leftoverGas := msg.Gas()
 

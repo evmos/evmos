@@ -459,12 +459,10 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 					b.StopTimer()
 
 					if err != nil {
-						fmt.Println(err)
-						break
+						panic(err)
 					}
 					if resp.Failed() {
-						fmt.Println("Transaction failed: ", resp.VmError)
-						break
+						panic(err)
 					}
 				}
 			})

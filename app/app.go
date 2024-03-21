@@ -891,6 +891,8 @@ func (app *Evmos) setPostHandler() {
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	// fmt.Println("Lets go to sleep")
+	// time.Sleep(30 * time.Minute)
 	return app.mm.BeginBlock(ctx, req)
 }
 

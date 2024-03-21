@@ -103,6 +103,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, defaultLogCheck)
 			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			fmt.Println("Print", err.Error())
 
 			delegation, _ = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 			Expect(delegation.Shares.BigInt().Int64()).To(Equal(expectedDelegation))
