@@ -39,6 +39,17 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 			},
 		},
 		{
+			name:          "fail: invalid from address, should be empty",
+			expectedError: errortypes.ErrInvalidRequest,
+			getFunctionParams: func() validateMsgParams {
+				return validateMsgParams{
+					evmParams: evmtypes.DefaultParams(),
+					txData:    nil,
+					from:      sdktypes.AccAddress{},
+				}
+			},
+		},
+		{
 			name:          "success: transfer with default params",
 			expectedError: nil,
 			getFunctionParams: func() validateMsgParams {

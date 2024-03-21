@@ -13,15 +13,16 @@ import (
 )
 
 // ValidateMsg validates an Ethereum specific message type and returns an error if invalid
-// It checks for the following conditions:
-// - If the from address is not empty
-// - If the transaction is a contract creation or call and it is disabled through governance
+//
+// It checks for the following requirements:
+// - The from address must be empty
+// - If the transaction is a contract creation or call, the corresponding operation must be enabled in the EVM parameters
 func ValidateMsg(
 	evmParams evmtypes.Params,
 	txData evmtypes.TxData,
 	from sdktypes.AccAddress,
 ) error {
-	err := checkValidFrom(from)
+	err := checkFromIsEmpty(from)
 	if err != nil {
 		return err
 	}
@@ -56,13 +57,12 @@ func checkDisabledCreateCall(
 	return nil
 }
 
-// checkValidFrom checks if the from address is empty
-func checkValidFrom(
+// checkFromIsEmpty checks if the from address is empty
+func checkFromIsEmpty(
 	from sdktypes.AccAddress,
 ) error {
-	// Validate `From` field
-	if from != nil {
-		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address %s, expect empty string", from)
+	if from != nil || !from.Empty() {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address; expected empty address; got: %q", from.String())
 	}
 	return nil
 }
