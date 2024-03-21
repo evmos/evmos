@@ -181,6 +181,7 @@ func (k Keeper) GetStaticPrecompilesInstances(
 	return addresses, activePrecompileMap
 }
 
+// GetStaticPrecompileInstance returns the instance of the given precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool) {
 	if k.IsAvailableStaticPrecompile(params, address) {
 		precompile, ok := k.precompiles[address]
