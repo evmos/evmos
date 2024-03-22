@@ -80,6 +80,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
 - (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
+- (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
 
 ### Features
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
