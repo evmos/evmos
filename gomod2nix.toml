@@ -223,8 +223,8 @@ schema = 3
     version = "v20.10.24+incompatible"
     hash = "sha256-5bvtx8SXoCnSN/M/Eb8TE0ctW8o0jH7mB2zF1JRx3Eg="
   [mod."github.com/docker/docker"]
-    version = "v24.0.7+incompatible"
-    hash = "sha256-fgLsKDI2q2KNu40T/iFMHa6A0JWt2clExwDW3WHPNYI="
+    version = "v24.0.9+incompatible"
+    hash = "sha256-JZToreP7NNxIoPLTsA6NTIFlYCGHi1Kty4uzuA253Xw="
   [mod."github.com/docker/go-connections"]
     version = "v0.4.0"
     hash = "sha256-GHNIjOuuNp5lFQ308+nDNwQPGESCVV7bCUxSW5ZxZlc="
@@ -483,8 +483,8 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.16.0"
-    hash = "sha256-1bn6XAoQLXO4g/nM3QKlugOxXHG2sMe/RlO8EiN9ZQ0="
+    version = "v2.17.0"
+    hash = "sha256-zKSbCHAAJ19tZJ8gb008Tg9VBpCVNfT6uGTEZHWVoGM="
   [mod."github.com/onsi/gomega"]
     version = "v1.31.1"
     hash = "sha256-f2DB/0bOyy+MCQdFdiRI1y4wSXjumfPtLvYN3PN7vaQ="
