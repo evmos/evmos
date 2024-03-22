@@ -75,6 +75,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		checkBalances    bool
 		disableERC20     bool
 		disableTokenPair bool
+		deleteERC20Token string
 	}{
 		{
 			name: "error - non ics-20 packet",
@@ -247,6 +248,22 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expCoins:      coins,
 		},
 		{
+			name: "error - erc20 token not registered",
+			malleate: func() {
+				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
+				prefixedDenom := sourcePrefix + registeredDenom
+				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "100", secpAddrCosmos, secpAddrEvmos, "")
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			ackSuccess:       false,
+			receiver:         secpAddr,
+			expErc20s:        big.NewInt(0),
+			expCoins:         coins,
+			checkBalances:    true,
+			deleteERC20Token: "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
+		},
+		{
 			name: "ibc conversion - sender == receiver and from evm chain",
 			malleate: func() {
 				claimsParams := suite.app.ClaimsKeeper.GetParams(suite.ctx)
@@ -370,6 +387,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			if tc.disableTokenPair {
 				_, err := suite.app.Erc20Keeper.ToggleConversion(suite.ctx, pair.Denom)
 				suite.Require().NoError(err)
+			}
+
+			if tc.deleteERC20Token != "" {
+				suite.app.Erc20Keeper.DeleteERC20Map(suite.ctx, common.HexToAddress(tc.deleteERC20Token))
 			}
 
 			// Perform IBC callback

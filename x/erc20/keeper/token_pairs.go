@@ -91,7 +91,7 @@ func (k Keeper) SetTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 func (k Keeper) DeleteTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	id := tokenPair.GetID()
 	k.deleteTokenPair(ctx, id)
-	k.deleteERC20Map(ctx, tokenPair.GetERC20Contract())
+	k.DeleteERC20Map(ctx, tokenPair.GetERC20Contract())
 	k.deleteDenomMap(ctx, tokenPair.Denom)
 }
 
@@ -119,8 +119,8 @@ func (k Keeper) SetERC20Map(ctx sdk.Context, erc20 common.Address, id []byte) {
 	store.Set(erc20.Bytes(), id)
 }
 
-// deleteERC20Map deletes the token pair id for the given address
-func (k Keeper) deleteERC20Map(ctx sdk.Context, erc20 common.Address) {
+// DeleteERC20Map deletes the token pair id for the given address
+func (k Keeper) DeleteERC20Map(ctx sdk.Context, erc20 common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	store.Delete(erc20.Bytes())
 }

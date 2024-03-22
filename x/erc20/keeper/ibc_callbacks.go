@@ -23,7 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
@@ -101,15 +100,25 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	pair, _ := k.GetTokenPair(ctx, pairID)
-	if !pair.Enabled {
+	pair, found := k.GetTokenPair(ctx, pairID)
+	if !(found && pair.Enabled) {
 		// no-op: continue with the rest of the stack without conversion
 		return ack
+	}
+
+	address := common.HexToAddress(pair.Erc20Address)
+	if !k.IsERC20Registered(ctx, address) {
+		err := errorsmod.Wrapf(types.ErrERC20TokenPairNotRegistered, "ERC20 token pair %s does not exist", coin.Denom)
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// Instead of converting just the received coins, convert the whole user balance
 	// which includes the received coins.
 	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
+	if !balance.IsPositive() {
+		// no-op: continue with the rest of the stack without conversion
+		return ack
+	}
 
 	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
 	msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)

@@ -151,12 +151,6 @@ func (suite KeeperTestSuite) TestRegisterCoin() { //nolint:govet // we can copy 
 			false,
 		},
 		{
-			"token doesn't have supply",
-			func() {
-			},
-			false,
-		},
-		{
 			"metadata different that stored",
 			func() {
 				metadata.Base = cosmosTokenBase

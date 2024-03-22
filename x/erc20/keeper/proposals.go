@@ -19,10 +19,8 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/evmos/v12/x/erc20/types"
 )
 
@@ -32,17 +30,16 @@ func (k Keeper) RegisterCoin(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (*types.TokenPair, error) {
+	// Check if ERC20 is enabled
+	if !k.IsERC20Enabled(ctx) {
+		return nil, errorsmod.Wrap(
+			types.ErrERC20Disabled, "ERC20 is disabled",
+		)
+	}
 	// Check if denomination is already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
 		return nil, errorsmod.Wrapf(
 			types.ErrTokenPairAlreadyExists, "coin denomination already registered: %s", coinMetadata.Name,
-		)
-	}
-
-	// Check if the coin exists by ensuring the supply is set
-	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
-		return nil, errorsmod.Wrapf(
-			errortypes.ErrInvalidCoins, "base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
 		)
 	}
 
