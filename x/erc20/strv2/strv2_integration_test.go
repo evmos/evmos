@@ -1,9 +1,10 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package keeper_test
+package strv2_test
 
 import (
+	"github.com/pkg/errors"
 	"math/big"
 	"testing"
 
@@ -33,6 +34,42 @@ type STRv2TrackingSuite struct {
 	network *testnetwork.UnitTestNetwork
 	handler grpc.Handler
 	factory testfactory.TxFactory
+
+	nativeCoinERC20Addr   common.Address
+	registeredERC20Addr   common.Address
+	unregisteredERC20Addr common.Address
+}
+
+func CreateTestSuite() (*STRv2TrackingSuite, error) {
+	keyring := testkeyring.New(3)
+
+	genesisSetup, err := CreateGenesisSetup(keyring)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create genesis setup")
+	}
+
+	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithCustomGenesis(*genesisSetup.genesisState),
+	)
+	handler := grpc.NewIntegrationHandler(network)
+	factory := testfactory.New(network, handler)
+
+	// NOTE: this is necessary to enable e.g. erc20Keeper.BalanceOf(...) to work
+	// correctly internally.
+	// Removing it will break a bunch of tests giving errors like: "failed to retrieve balance"
+	if err = network.NextBlock(); err != nil {
+		return nil, errors.Wrap(err, "failed to advance block")
+	}
+
+	return &STRv2TrackingSuite{
+		keyring:               keyring,
+		network:               network,
+		handler:               handler,
+		factory:               factory,
+		nativeCoinERC20Addr:   genesisSetup.nativeCoinERC20Addr,
+		registeredERC20Addr:   genesisSetup.registeredERC20Addr,
+		unregisteredERC20Addr: genesisSetup.unregisteredERC20Addr,
+	}, nil
 }
 
 const (
@@ -56,28 +93,9 @@ var _ = Describe("STRv2 Tracking -", func() {
 	)
 
 	BeforeEach(func() {
-		keyring := testkeyring.New(3)
-
-		genesisSetup, err := CreateGenesisSetup(keyring)
-		Expect(err).ToNot(HaveOccurred(), "failed to create custom genesis state")
-
-		network := testnetwork.NewUnitTestNetwork(
-			testnetwork.WithCustomGenesis(*genesisSetup.genesisState),
-		)
-		handler := grpc.NewIntegrationHandler(network)
-		factory := testfactory.New(network, handler)
-
-		s = &STRv2TrackingSuite{
-			keyring: keyring,
-			network: network,
-			handler: handler,
-			factory: factory,
-		}
-
-		// Assign the deployed / registered ERC-20 contracts
-		nativeCoinERC20Addr = genesisSetup.nativeCoinERC20Addr
-		registeredERC20Addr = genesisSetup.registeredERC20Addr
-		unregisteredERC20Addr = genesisSetup.unregisteredERC20Addr
+		var err error
+		s, err = CreateTestSuite()
+		Expect(err).ToNot(HaveOccurred(), "failed to create test suite")
 
 		// NOTE: this is necessary to enable e.g. erc20Keeper.BalanceOf(...) to work
 		// correctly internally.
@@ -391,47 +409,10 @@ var _ = Describe("STRv2 Tracking -", func() {
 						},
 					},
 				)
-				Expect(err).ToNot(HaveOccurred(), "failed to mint tokens for non-registered ERC-20 contract")
+				Expect(err).ToNot(HaveOccurred(), "failed to interact with unregistered ERC-20 contract")
 
 				deployerAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), deployer.AccAddr)
 				Expect(deployerAddrTracked).To(BeFalse(), "expected address to not be stored")
-			})
-		})
-	})
-
-	// TODO: check if the available IBC testing utils can be used for this
-	When("when receiving an incoming IBC transfer", func() {
-		Context("for a registered IBC asset", func() {
-			It("should add the address to the store if it is not already stored", func() {
-				Expect(true).To(BeFalse(), "not implemented")
-			})
-
-			It("should not fail if the address is already stored", func() {
-				Expect(true).To(BeFalse(), "not implemented")
-			})
-		})
-
-		Context("for an unregistered IBC asset", func() {
-			It("should not add the address to the store", func() {
-				Expect(true).To(BeFalse(), "not implemented")
-			})
-		})
-	})
-
-	When("sending an IBC transfer", func() {
-		Context("for a registered IBC asset", func() {
-			It("should add the address to the store if it is not already stored", func() {
-				Expect(true).To(BeFalse(), "not implemented")
-			})
-
-			It("should not fail if the address is already stored", func() {
-				Expect(true).To(BeFalse(), "not implemented")
-			})
-		})
-
-		Context("for an unregistered IBC asset", func() {
-			It("should not add the address to the store", func() {
-				Expect(true).To(BeFalse(), "not implemented")
 			})
 		})
 	})
