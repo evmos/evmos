@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
+- (outposts) [#2323](https://github.com/evmos/evmos/pull/2323) Remove Go Outposts and relevant tests.
 - (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
