@@ -20,6 +20,8 @@ import (
 const (
 	// CreateValidatorMethod defines the ABI method name for the staking create validator transaction
 	CreateValidatorMethod = "createValidator"
+	// EditValidatorMethod defines the ABI method name for the staking edit validator transaction
+	EditValidatorMethod = "editValidator"
 	// DelegateMethod defines the ABI method name for the staking Delegate
 	// transaction.
 	DelegateMethod = "delegate"
@@ -80,8 +82,49 @@ func (p Precompile) CreateValidator(
 		return nil, err
 	}
 
-	// Emit the event for the delegate transaction
+	// Emit the event for the create validator transaction
 	if err = p.EmitCreateValidatorEvent(ctx, stateDB, msg, validatorHexAddr); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+// EditValidator performs edit validator.
+func (p Precompile) EditValidator(
+	ctx sdk.Context,
+	origin common.Address,
+	_ *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, validatorHexAddr, err := NewMsgEditValidator(args)
+	if err != nil {
+		return nil, err
+	}
+
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"validator_address", msg.ValidatorAddress,
+		"commission_rate", msg.CommissionRate,
+		"min_self_delegation", msg.MinSelfDelegation,
+	)
+
+	// we only allow the tx signer "origin" to edit their own validator.
+	if origin != validatorHexAddr {
+		return nil, fmt.Errorf(ErrDifferentOriginFromValidator, origin.String(), validatorHexAddr.String())
+	}
+
+	// Execute the transaction using the message server
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	if _, err = msgSrv.EditValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+		return nil, err
+	}
+
+	// Emit the event for the edit validator transaction
+	if err = p.EmitEditValidatorEvent(ctx, stateDB, msg, validatorHexAddr); err != nil {
 		return nil, err
 	}
 
