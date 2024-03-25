@@ -246,7 +246,7 @@ def wait_for_cosmos_tx_receipt(cli, tx_hash):
 
 def wait_for_ack(cli, chain):
     """
-    Helper function to wait for acknoledgment
+    Helper function to wait for acknowledgment
     of an IBC transfer
     """
     print(f"{chain} waiting ack...")
