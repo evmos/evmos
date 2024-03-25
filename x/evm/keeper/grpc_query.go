@@ -120,7 +120,7 @@ func (k Keeper) ValidatorAccount(c context.Context, req *types.QueryValidatorAcc
 	}
 
 	res := types.QueryValidatorAccountResponse{
-		AccountAddress: valAddr,
+		AccountAddress: sdk.AccAddress(addrBz).String(),
 	}
 
 	account := k.accountKeeper.GetAccount(ctx, addrBz)
