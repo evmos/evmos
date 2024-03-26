@@ -7,16 +7,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	ethcommon "github.com/ethereum/go-ethereum/common"
-	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
-	erc202 "github.com/evmos/evmos/v16/precompiles/erc20"
-	"github.com/evmos/evmos/v16/utils"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"time"
+
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
+	erc202 "github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/utils"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -925,6 +926,7 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 	logger.Info("running STR v2 migration")
 	start := time.Now()
 
+	// ctx = sdk.UnwrapSDKContext(ctx)
 	err = v17.RunSTRv2Migration(
 		ctx,
 		logger,

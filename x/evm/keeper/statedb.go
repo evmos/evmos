@@ -34,6 +34,26 @@ func (k *Keeper) GetAccount(ctx sdk.Context, addr common.Address) *statedb.Accou
 	return acct
 }
 
+func (k *Keeper) SetStorageDummy(ctx sdk.Context) {
+	k.storage = ctx.KVStore(k.storeKey)
+	// return prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(contractAddr))
+}
+
+func (k *Keeper) GetStoreDummy(ctx sdk.Context, contractAddr common.Address) sdk.KVStore {
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(contractAddr))
+}
+
+func cloneAppend(bz []byte, tail []byte) (res []byte) {
+	res = make([]byte, len(bz)+len(tail))
+	copy(res, bz)
+	copy(res[len(bz):], tail)
+	return
+}
+
+func (k *Keeper) PerformantGet(addr []byte, pair []byte) []byte {
+	return k.storage.Get(cloneAppend(pair, addr))
+}
+
 // GetState loads contract state from database, implements `statedb.Keeper` interface.
 func (k *Keeper) GetState(ctx sdk.Context, addr common.Address, key common.Hash) common.Hash {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(addr))

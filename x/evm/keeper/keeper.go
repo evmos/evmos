@@ -49,6 +49,8 @@ type Keeper struct {
 	// fetch EIP1559 base fee and parameters
 	feeMarketKeeper types.FeeMarketKeeper
 
+	storage sdk.KVStore
+
 	// chain ID number obtained from the context's chain id
 	eip155ChainID *big.Int
 
