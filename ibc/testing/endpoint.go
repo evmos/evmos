@@ -4,10 +4,9 @@ package ibctesting
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -16,6 +15,7 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibclightclient "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/stretchr/testify/require"
 )
 
 // Endpoint is a which represents a channel endpoint and its associated
@@ -115,10 +115,10 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		fmt.Sprintf("expected sender account on chain with ID %q not to be nil", endpoint.Chain.ChainID),
 	)
 
-	fmt.Println("Got timestamp", consensusState.GetTimestamp())
-	require.NotZero(
-		endpoint.Chain.T, consensusState.GetTimestamp(),
-		"consensus state timestamp cannot be zero",
+	zeroTimestamp := uint64(time.Time{}.UnixNano())
+	require.NotEqual(
+		endpoint.Chain.T, consensusState.GetTimestamp(), zeroTimestamp,
+		"current timestamp on the last header is the zero time; it might be necessary to commit blocks with the IBC coordinator",
 	)
 
 	msg, err := clienttypes.NewMsgCreateClient(

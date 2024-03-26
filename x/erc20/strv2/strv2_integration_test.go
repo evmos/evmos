@@ -651,6 +651,14 @@ func TestBookkeepingIncomingIBCTransfer(t *testing.T) {
 			)
 			fmt.Println("Sender account on sending chain:", senderAccOnSendingChain)
 
+			// NOTE: we're committing some blocks here, so that the "LastHeader" will have a non-zero timestamp
+			// when executing the MsgCreateClient during the IBC connection setup.
+			err = ibcCoordinator.CommitAll()
+			require.NoError(t, err, "failed to commit on all connected IBC chains")
+
+			err = ibcCoordinator.CommitAll()
+			require.NoError(t, err, "failed to commit on all connected IBC chains")
+
 			// We set up the IBC connection between the two networks
 			ibcCoordinator.Setup(s.network.GetChainID(), otherChainID)
 
