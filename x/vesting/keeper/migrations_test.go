@@ -1,18 +1,22 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/vesting/keeper"
 	v1vestingtypes "github.com/evmos/evmos/v16/x/vesting/migrations/types"
 	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestMigration() {
-	suite.SetupTest()
+func TestMigration(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
 
 	// Create account addresses for testing
 	vestingAddr, _ := testutiltx.NewAccAddressAndKey()
@@ -20,8 +24,9 @@ func (suite *KeeperTestSuite) TestMigration() {
 
 	// create a base vesting account instead of a clawback vesting account at the vesting address
 	baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
+	baseAccount.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
 	acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
-	suite.Require().NoError(err)
+	require.NoError(t, err)
 
 	oldAccount := &v1vestingtypes.ClawbackVestingAccount{
 		BaseVestingAccount: acc,
@@ -30,19 +35,19 @@ func (suite *KeeperTestSuite) TestMigration() {
 		LockupPeriods:      lockupPeriods,
 		VestingPeriods:     vestingPeriods,
 	}
-	suite.app.AccountKeeper.SetAccount(suite.ctx, oldAccount)
+	nw.App.AccountKeeper.SetAccount(ctx, oldAccount)
 
-	foundAcc := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-	suite.Require().NotNil(foundAcc, "vesting account not found")
-	suite.Require().IsType(&v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
+	foundAcc := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+	require.NotNil(t, foundAcc, "vesting account not found")
+	require.IsType(t, &v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
 
 	// migrate
-	migrator := keeper.NewMigrator(suite.app.VestingKeeper)
-	err = migrator.Migrate1to2(suite.ctx)
-	suite.Require().NoError(err, "migration failed")
+	migrator := keeper.NewMigrator(nw.App.VestingKeeper)
+	err = migrator.Migrate1to2(ctx)
+	require.NoError(t, err, "migration failed")
 
 	// check that the account is now a v2 base vesting account
-	foundAcc = suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-	suite.Require().NotNil(foundAcc, "vesting account not found")
-	suite.Require().IsType(&vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
+	foundAcc = nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+	require.NotNil(t, foundAcc, "vesting account not found")
+	require.IsType(t, &vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
 }

@@ -215,6 +215,7 @@ func initGenFiles(cfg Config, genAccounts []authtypes.GenesisAccount, genBalance
 	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[govtypes.ModuleName], &govGenState)
 
 	govGenState.Params.MinDeposit[0].Denom = cfg.BondDenom
+	govGenState.Params.ExpeditedMinDeposit[0].Denom = cfg.BondDenom
 	cfg.GenesisState[govtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&govGenState)
 
 	var inflationGenState inflationtypes.GenesisState
