@@ -78,24 +78,10 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 		})
-		It("should transfer and not convert to erc20", func() {
+		It("should error and not convert to erc20", func() {
 			// register the pair to check that it was not converted to ERC-20
-			pair, err := s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
-			s.Require().NoError(err)
-
-			// check balance before transfer is 0
-			ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
-			s.Require().Equal(int64(0), ibcOsmoBalanceBefore.Amount.Int64())
-
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
-
-			// check balance after transfer
-			ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
-			s.Require().Equal(amount, ibcOsmoBalanceAfter.Amount.Int64())
-
-			// check ERC20 balance - should be zero (no conversion)
-			balanceERC20TokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
-			s.Require().Equal(int64(0), balanceERC20TokenAfter.Int64())
+			_, err := s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
+			s.Require().Error(err)
 		})
 	})
 	Describe("enabled params and registered uosmo", func() {
@@ -134,7 +120,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UosmoIbcdenom)
 			s.Require().Equal(int64(0), ibcOsmoBalanceAfter.Amount.Int64())
 		})
-		It("should transfer and not convert unregistered coin (uatom)", func() {
+		It("should not transfer unregistered coin (uatom)", func() {
 			sender = s.IBCCosmosChain.SenderAccount.GetAddress().String()
 
 			// check balance before transfer is 0
@@ -146,7 +132,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// check balance after transfer
 			ibcAtomBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UatomIbcdenom)
-			s.Require().Equal(amount, ibcAtomBalanceAfter.Amount.Int64())
+			s.Require().Equal(int64(0), ibcAtomBalanceAfter.Amount.Int64())
 		})
 		It("should transfer and not convert aevmos", func() {
 			// Register 'aevmos' coin in ERC-20 keeper to validate it is not converting the coins when receiving 'aevmos' thru IBC

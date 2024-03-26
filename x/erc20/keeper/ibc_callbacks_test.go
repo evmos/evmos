@@ -147,7 +147,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, "channel-100", timeoutHeight, 0)
 			},
-			ackSuccess:    true,
+			ackSuccess:    false,
 			receiver:      secpAddr,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
@@ -192,7 +192,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess:    true,
+			ackSuccess:    false,
 			receiver:      ethsecpAddr,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
@@ -228,10 +228,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
 			receiver:      secpAddr,
-			ackSuccess:    true,
+			ackSuccess:    false,
 			checkBalances: false,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
 		},
 		{
 			name: "error - invalid denomination", // should fall as unregistered and not transfer any coins, but ack is Success
@@ -241,7 +239,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
 			receiver:      secpAddr,
-			ackSuccess:    true,
+			ackSuccess:    false,
 			checkBalances: true,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,

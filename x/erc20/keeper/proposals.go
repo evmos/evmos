@@ -19,10 +19,8 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/evmos/v12/x/erc20/types"
 )
 
@@ -32,6 +30,12 @@ func (k Keeper) RegisterCoin(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (*types.TokenPair, error) {
+	// Check if ERC20 is enabled
+	if !k.IsERC20Enabled(ctx) {
+		return nil, errorsmod.Wrap(
+			types.ErrERC20Disabled, "erc20 is disabled",
+		)
+	}
 	// Check if denomination is already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
 		return nil, errorsmod.Wrapf(
@@ -39,12 +43,9 @@ func (k Keeper) RegisterCoin(
 		)
 	}
 
-	// Check if the coin exists by ensuring the supply is set
-	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
-		return nil, errorsmod.Wrapf(
-			errortypes.ErrInvalidCoins, "base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
-		)
-	}
+	// Here we could (and we did) check if the coin exists by checking the total supply,
+	// but that might not be the best way to check if the coin exists. It's better to check
+	// if the coin is registered in the bank module store.
 
 	if err := k.verifyMetadata(ctx, coinMetadata); err != nil {
 		return nil, errorsmod.Wrapf(

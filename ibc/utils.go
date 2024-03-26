@@ -44,21 +44,29 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (
 		return nil, nil, "", "", errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 	}
 
+	sender, recipient, err = GetTransferSenderRecipientFromData(data)
+	if err != nil {
+		return nil, nil, "", "", errorsmod.Wrapf(err, "get sender and recipient from data")
+	}
+	return sender, recipient, data.Sender, data.Receiver, nil
+}
+
+func GetTransferSenderRecipientFromData(data transfertypes.FungibleTokenPacketData) (sender, recipient sdk.AccAddress, err error) {
 	// validate the sender bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
 	sender, err = utils.GetEvmosAddressFromBech32(data.Sender)
 	if err != nil {
-		return nil, nil, "", "", errorsmod.Wrap(err, "invalid sender")
+		return nil, nil, errorsmod.Wrap(err, "invalid sender")
 	}
 
 	// validate the recipient bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
 	recipient, err = utils.GetEvmosAddressFromBech32(data.Receiver)
 	if err != nil {
-		return nil, nil, "", "", errorsmod.Wrap(err, "invalid recipient")
+		return nil, nil, errorsmod.Wrap(err, "invalid recipient")
 	}
 
-	return sender, recipient, data.Sender, data.Receiver, nil
+	return sender, recipient, nil
 }
 
 // GetTransferAmount returns the amount from an ICS20 FungibleTokenPacketData as a string.
