@@ -99,7 +99,7 @@ func (k Keeper) OnRecvPacket(
 
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	if len(pairID) == 0 {
-		err = errorsmod.Wrapf(types.ErrTokenPairNotFound, "token pair not found for %s", coin.Denom)
+		err = errorsmod.Wrapf(types.ErrTokenPairNotFound, "coin denom: %s", coin.Denom)
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 

@@ -24,7 +24,7 @@ func TestERC20BankContractRegistrationHook_AfterDenomMetadataCreation(t *testing
 		fields           fields
 		args             args
 		expectRegistered bool
-		expectErr        string
+		expectErr        error
 	}{
 		{
 			name: "success",
@@ -37,7 +37,6 @@ func TestERC20BankContractRegistrationHook_AfterDenomMetadataCreation(t *testing
 				},
 			},
 			expectRegistered: true,
-			expectErr:        "",
 		}, {
 			name: "not ibc denom",
 			fields: fields{
@@ -49,7 +48,6 @@ func TestERC20BankContractRegistrationHook_AfterDenomMetadataCreation(t *testing
 				},
 			},
 			expectRegistered: false,
-			expectErr:        "",
 		}, {
 			name: "error",
 			fields: fields{
@@ -63,18 +61,14 @@ func TestERC20BankContractRegistrationHook_AfterDenomMetadataCreation(t *testing
 				},
 			},
 			expectRegistered: false,
-			expectErr:        "deploy the erc20 contract for the ibc coin: ibc/eth; error: error",
+			expectErr:        types.ErrERC20RegisterToken,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := keeper.NewERC20ContractRegistrationHook(tt.fields.erc20Keeper)
 			err := e.AfterDenomMetadataCreation(sdk.Context{}, tt.args.newDenomMetadata)
-			if tt.expectErr != "" {
-				require.EqualError(t, err, tt.expectErr)
-			} else {
-				require.NoError(t, err)
-			}
+			require.ErrorIs(t, err, tt.expectErr)
 			require.Equal(t, tt.fields.erc20Keeper.registered, tt.expectRegistered)
 		})
 	}
