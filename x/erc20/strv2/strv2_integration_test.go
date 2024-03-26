@@ -4,23 +4,30 @@
 package strv2_test
 
 import (
-	"github.com/pkg/errors"
-	"math/big"
-	"testing"
-
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
+	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	testcoordinator "github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
+	"github.com/evmos/evmos/v16/utils"
 	"github.com/evmos/evmos/v16/x/erc20/keeper/testdata"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
+	"math/big"
+	"testing"
+	"time"
 )
 
 func TestSTRv2Tracking(t *testing.T) {
@@ -550,3 +557,196 @@ var _ = Describe("STRv2 Tracking -", func() {
 		})
 	})
 })
+
+func TestBookkeepingIncomingIBCTransfer(t *testing.T) {
+	testcases := []struct {
+		name             string
+		malleate         func(_ *STRv2TrackingSuite) error
+		expAddressStored bool
+	}{
+		{
+			name: "for a registered IBC asset",
+			malleate: func(_ *STRv2TrackingSuite) error {
+				return nil
+			},
+			expAddressStored: true,
+		},
+		{
+			name: "for a registered IBC asset with already stored address",
+			malleate: func(_ *STRv2TrackingSuite) error {
+				return nil
+			},
+			expAddressStored: true,
+		},
+		{
+			name: "for an unregistered IBC asset",
+			malleate: func(_ *STRv2TrackingSuite) error {
+				return nil
+			},
+			expAddressStored: false,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			s, err := CreateTestSuite()
+			require.NoError(t, err, "failed to create test suite")
+
+			otherKeyring := testkeyring.New(1)
+			otherDenom := "other"
+			otherChainID := utils.TestnetChainID + "-1"
+			require.NotEqual(t, otherChainID, s.network.GetChainID(), "please choose a different chain ID")
+			otherNetwork := testnetwork.NewUnitTestNetwork(
+				testnetwork.WithDenom(otherDenom),
+				testnetwork.WithChainID(otherChainID),
+				testnetwork.WithBalances(
+					[]banktypes.Balance{
+						{
+							Address: otherKeyring.GetAccAddr(0).String(),
+							Coins: sdk.NewCoins(
+								sdk.Coin{Denom: otherDenom, Amount: testnetwork.PrefundedAccountInitialBalance},
+								sdk.Coin{Denom: nativeIBCCoinDenom, Amount: testnetwork.PrefundedAccountInitialBalance},
+							),
+						},
+					}...,
+				),
+			)
+			otherHandler := grpc.NewIntegrationHandler(otherNetwork)
+			otherFactory := testfactory.New(otherNetwork, otherHandler)
+
+			// Create the IBC coordinator which contains dummy chains as well as the passed network
+			ibcCoordinator := testcoordinator.NewIntegrationCoordinator(t,
+				[]commonnetwork.Network{s.network, otherNetwork},
+			)
+			require.NotNil(t, ibcCoordinator, "failed to create IBC coordinator")
+
+			// We define the default sender for transactions on both networks
+			// (which is NOT the network we are testing, since we want to test the incoming case)
+			receiver := s.keyring.GetKey(0)
+			receiverAccOnReceivingChain := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), receiver.AccAddr)
+			require.NotNil(t, receiverAccOnReceivingChain, "receiver account does not exist on receiving chain")
+
+			ibcCoordinator.SetDefaultSignerForChain(
+				s.network.GetChainID(),
+				receiver.Priv,
+				receiverAccOnReceivingChain,
+			)
+			require.NotNil(t,
+				ibcCoordinator.GetTestChain(s.network.GetChainID()).SenderAccount,
+				"failed to set default signer for receiving chain",
+			)
+
+			sender := otherKeyring.GetKey(0)
+			senderAccOnSendingChain := otherNetwork.App.AccountKeeper.GetAccount(otherNetwork.GetContext(), sender.AccAddr)
+			require.NotNil(t, senderAccOnSendingChain, "sender account does not exist on sending chain")
+
+			ibcCoordinator.SetDefaultSignerForChain(
+				otherChainID,
+				sender.Priv,
+				senderAccOnSendingChain,
+			)
+			require.NotNil(t,
+				ibcCoordinator.GetTestChain(otherChainID).SenderAccount,
+				"failed to set default sender for chain",
+			)
+			fmt.Println("Sender account on sending chain:", senderAccOnSendingChain)
+
+			// We set up the IBC connection between the two networks
+			ibcCoordinator.Setup(s.network.GetChainID(), otherChainID)
+
+			err = ibcCoordinator.CommitAll()
+			require.NoError(t, err, "failed to commit on all connected IBC chains")
+
+			timeout := uint64(s.network.GetContext().BlockTime().Add(24 * time.Hour).Unix())
+			fmt.Println("Timeout:", timeout)
+
+			msgTransfer := types.MsgTransfer{
+				SourcePort:       "transfer",
+				SourceChannel:    "channel-0",
+				TimeoutTimestamp: timeout,
+				Token:            sdk.Coin{Denom: nativeIBCCoinDenom, Amount: sdk.NewIntFromBigInt(transferAmount)},
+				Sender:           otherKeyring.GetAccAddr(0).String(),
+				Receiver:         s.keyring.GetAccAddr(0).String(),
+			}
+
+			res, err := otherFactory.ExecuteCosmosTx(sender.Priv, commonfactory.CosmosTxArgs{
+				Msgs: []sdk.Msg{&msgTransfer},
+			})
+			require.NoError(t, err, "failed to execute IBC transfer")
+			require.True(t, res.IsOK(), "expected IBC transfer to be successful")
+
+			require.NoError(t, ibcCoordinator.CommitAll(), "failed to commit on all connected IBC chains")
+
+			err = tc.malleate(s)
+			require.NoError(t, err, "failed to malleate test case")
+
+			// Check that address was stored in the store
+			addrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(
+				s.network.GetContext(),
+				s.keyring.GetKey(0).AccAddr,
+			)
+			require.Equal(t, tc.expAddressStored, addrTracked, "unexpected address stored")
+		})
+	}
+}
+
+func TestBookkeepingOutgoingIBCTransfer(t *testing.T) {
+	testcases := []struct {
+		name             string
+		malleate         func() error
+		expAddressStored bool
+	}{
+		{
+			name: "for a registered IBC asset taking from the ERC-20 balance",
+			malleate: func() error {
+				return nil
+			},
+			expAddressStored: true,
+		},
+		{
+			name: "for a registered IBC asset taking from the bank balance",
+			malleate: func() error {
+				return nil
+			},
+			expAddressStored: false,
+		},
+		{
+			name: "for a registered IBC asset taking from the ERC-20 balance with already stored address",
+			malleate: func() error {
+				return nil
+			},
+			expAddressStored: true,
+		},
+		{
+			name: "for an unregistered IBC asset",
+			malleate: func() error {
+				return nil
+			},
+			expAddressStored: true,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			s, err := CreateTestSuite()
+			require.NoError(t, err, "failed to create test suite")
+
+			ibcCoordinator := testcoordinator.NewIntegrationCoordinator(t, []commonnetwork.Network{s.network})
+			require.NotNil(t, ibcCoordinator, "failed to create IBC coordinator")
+
+			chainIDs := ibcCoordinator.GetDummyChainsIds()
+			require.Equal(t, []string{"a", "b"}, chainIDs, "expected different chain ids")
+
+			err = tc.malleate()
+			require.NoError(t, err, "failed to malleate test case")
+
+			// Check that address was stored in the store
+			addrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(
+				s.network.GetContext(),
+				// TODO: check which address to use
+				s.keyring.GetKey(0).AccAddr,
+			)
+			require.Equal(t, tc.expAddressStored, addrTracked, "unexpected address stored")
+		})
+	}
+}

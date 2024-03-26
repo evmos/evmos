@@ -109,10 +109,23 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		return err
 	}
 
+	// TODO: check somewhere else?
+	require.NotNil(
+		endpoint.Chain.T, endpoint.Chain.SenderAccount,
+		fmt.Sprintf("expected sender account on chain with ID %q not to be nil", endpoint.Chain.ChainID),
+	)
+
+	fmt.Println("Got timestamp", consensusState.GetTimestamp())
+	require.NotZero(
+		endpoint.Chain.T, consensusState.GetTimestamp(),
+		"consensus state timestamp cannot be zero",
+	)
+
 	msg, err := clienttypes.NewMsgCreateClient(
 		clientState, consensusState, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.T, msg.ValidateBasic(), "failed to validate create client msg")
 
 	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
 	if err != nil {
