@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	"fmt"
 	"strings"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v12/x/erc20/types"
@@ -36,12 +36,12 @@ func (e ERC20BankContractRegistrationHook) AfterDenomMetadataCreation(ctx sdk.Co
 	}
 
 	if _, err := e.erc20Keeper.RegisterCoin(ctx, newDenomMetadata); err != nil {
-		return fmt.Errorf("deploy the erc20 contract for the ibc coin: %s; error: %w", newDenomMetadata.Base, err)
+		return errorsmod.Wrapf(types.ErrERC20RegisterToken, "denom base: %s", newDenomMetadata.Base)
 	}
 
 	return nil
 }
 
 func (e ERC20BankContractRegistrationHook) AfterDenomMetadataUpdate(sdk.Context, banktypes.Metadata) error {
-	return fmt.Errorf("update the denom metadata while having an already existing contract")
+	return types.ErrERC20UpdateToken
 }
