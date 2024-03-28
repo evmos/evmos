@@ -356,6 +356,64 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
+				DescribeTable("it should not deduct allowance if setting a maxUint256 value as the limit", func(callType CallType) {
+					owner := is.keyring.GetKey(0)
+					spender := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+					// Set allowance
+					is.setupSendAuthzForContract(
+						callType,
+						contractsData,
+						spender.Addr,
+						owner.Priv,
+						sdk.NewCoins(sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))),
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+					)
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+						auth.EventTypeApproval,
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was not reduced since we authorized the maxUint256 value,
+					// which resembles an unlimited authorization.
+					is.ExpectSendAuthzForContract(
+						callType, contractsData,
+						spender.Addr, owner.Addr, sdk.NewCoins(sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))),
+					)
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test is for direct calls only
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
 				When("the spender is the same as the sender", func() {
 					It("should transfer funds without the need for an approval when calling the EVM extension", func() {
 						owner := is.keyring.GetKey(0)

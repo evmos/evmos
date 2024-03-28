@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"time"
 
@@ -46,6 +47,15 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			"fail - invalid to address",
 			func() []interface{} {
 				return []interface{}{"", big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"invalid to address",
+		},
+		{
+			"fail - invalid to address (zero address)",
+			func() []interface{} {
+				return []interface{}{common.Address{}, big.NewInt(100)}
 			},
 			func() {},
 			true,
@@ -143,9 +153,27 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			"invalid from address",
 		},
 		{
+			"fail - invalid from address (zero address)",
+			func() []interface{} {
+				return []interface{}{common.Address{}, toAddr, big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"invalid to address",
+		},
+		{
 			"fail - invalid to address",
 			func() []interface{} {
 				return []interface{}{owner.Addr, "", big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"invalid to address",
+		},
+		{
+			"fail - invalid to address (zero address)",
+			func() []interface{} {
+				return []interface{}{owner.Addr, common.Address{}, big.NewInt(100)}
 			},
 			func() {},
 			true,

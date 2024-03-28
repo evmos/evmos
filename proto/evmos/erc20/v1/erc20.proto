@@ -32,8 +32,6 @@ message TokenPair {
   Owner contract_owner = 4;
 }
 
-// protolint:disable MESSAGES_HAVE_COMMENT
-
 // Deprecated: RegisterCoinProposal is a gov Content type to register a token pair for a
 // native Cosmos coin. We're keeping it to not break existing proposals on chain.
 message RegisterCoinProposal {
