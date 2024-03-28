@@ -3,6 +3,7 @@ package statedb_test
 import (
 	"bytes"
 	"errors"
+	"maps"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -102,13 +103,7 @@ func (k MockKeeper) DeleteAccount(_ sdk.Context, addr common.Address) error {
 }
 
 func (k MockKeeper) Clone() *MockKeeper {
-	accounts := make(map[common.Address]MockAcount, len(k.accounts))
-	for k, v := range k.accounts {
-		accounts[k] = v
-	}
-	codes := make(map[common.Hash][]byte, len(k.codes))
-	for k, v := range k.codes {
-		codes[k] = v
-	}
+	accounts := maps.Clone(k.accounts)
+	codes := maps.Clone(k.codes)
 	return &MockKeeper{accounts, codes}
 }
