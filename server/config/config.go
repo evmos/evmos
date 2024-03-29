@@ -153,7 +153,7 @@ type JSONRPCConfig struct {
 	WsAddress string `mapstructure:"ws-address"`
 	// GasCap is the global gas cap for eth-call variants.
 	GasCap uint64 `mapstructure:"gas-cap"`
-	// AllowInsecureUnlock defines account enable when account-related RPCs are exposed by http.
+	// AllowInsecureUnlock toggles if account unlocking is enabled when account-related RPCs are exposed by http.
 	AllowInsecureUnlock bool `mapstructure:"allow-insecure-unlock"`
 	// EVMTimeout is the global timeout for eth-call.
 	EVMTimeout time.Duration `mapstructure:"evm-timeout"`
