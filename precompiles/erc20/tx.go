@@ -98,7 +98,17 @@ func (p Precompile) transfer(
 			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
 		}
 
-		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
+		// NOTE: we need to dispatch the action to the authorization module
+		// but rather just execute the transfer directly
+		//
+		// Also there will not be an approval event emitted, which is also in line
+		// with the ERC-20 implementation.
+		if prevAllowance.Cmp(abi.MaxUint256) == 0 {
+			msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
+			_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
+		} else {
+			_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
+		}
 	}
 
 	if err != nil {
@@ -113,7 +123,10 @@ func (p Precompile) transfer(
 
 	// NOTE: if it's a direct transfer, we return here but if used through transferFrom,
 	// we need to emit the approval event with the new allowance.
-	if !isTransferFrom {
+	//
+	// NOTE 2: if the approved amount is the maxUint256, we don't need to emit an approval event
+	// as the allowance was left unchanged.
+	if !isTransferFrom || (prevAllowance != nil && prevAllowance.Cmp(abi.MaxUint256) == 0) {
 		return method.Outputs.Pack(true)
 	}
 
