@@ -74,10 +74,10 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(types.ErrInvalidIBC)
 	}
 
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+	receiverAcc := k.accountKeeper.GetAccount(ctx, recipient)
 
-	// return acknowledgement without conversion if sender is a module account
-	if types.IsModuleAccount(senderAcc) {
+	// return acknowledgement without conversion if receiver is a module account
+	if types.IsModuleAccount(receiverAcc) {
 		return ack
 	}
 
