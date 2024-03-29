@@ -1,13 +1,15 @@
 package erc20_test
 
 import (
-	"github.com/ethereum/go-ethereum/common"
+	"fmt"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"math/big"
 	"time"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
@@ -150,7 +152,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"invalid from address",
+			fmt.Sprintf(erc20.ErrInvalidOwner, ""),
 		},
 		{
 			"fail - invalid from address (zero address)",
@@ -159,7 +161,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"invalid to address",
+			fmt.Sprintf(erc20.ErrInvalidOwner, common.Address{}),
 		},
 		{
 			"fail - invalid to address",
@@ -168,7 +170,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"invalid to address",
+			fmt.Sprintf(erc20.ErrInvalidReceiver, ""),
 		},
 		{
 			"fail - invalid to address (zero address)",
@@ -177,7 +179,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"invalid to address",
+			fmt.Sprintf(erc20.ErrInvalidReceiver, common.Address{}),
 		},
 		{
 			"fail - invalid amount",
@@ -186,7 +188,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"invalid amount",
+			fmt.Sprintf(cmn.ErrInvalidAmount, ""),
 		},
 		{
 			"fail - not enough allowance",

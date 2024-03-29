@@ -8,8 +8,8 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 const (
@@ -39,17 +39,17 @@ func ParseTransferArgs(args []interface{}) (
 	to common.Address, amount *big.Int, err error,
 ) {
 	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
 	to, ok := args[0].(common.Address)
-	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid to address: %v", args[0])
+	if !ok || to == (common.Address{}) {
+		return common.Address{}, nil, fmt.Errorf(ErrInvalidReceiver, args[0])
 	}
 
 	amount, ok = args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[1])
 	}
 
 	return to, amount, nil
@@ -61,22 +61,22 @@ func ParseTransferFromArgs(args []interface{}) (
 	from, to common.Address, amount *big.Int, err error,
 ) {
 	if len(args) != 3 {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 3; got: %d", len(args))
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
 	from, ok := args[0].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid from address: %v", args[0])
+	if !ok || from == (common.Address{}) {
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(ErrInvalidOwner, args[0])
 	}
 
 	to, ok = args[1].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid to address: %v", args[1])
+	if !ok || to == (common.Address{}) {
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(ErrInvalidReceiver, args[1])
 	}
 
 	amount, ok = args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[2])
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
 	return from, to, amount, nil
@@ -88,17 +88,17 @@ func ParseApproveArgs(args []interface{}) (
 	spender common.Address, amount *big.Int, err error,
 ) {
 	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
 	spender, ok := args[0].(common.Address)
-	if !ok {
+	if !ok || spender == (common.Address{}) {
 		return common.Address{}, nil, fmt.Errorf("invalid spender address: %v", args[0])
 	}
 
 	amount, ok = args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[1])
 	}
 
 	return spender, amount, nil
@@ -110,7 +110,7 @@ func ParseAllowanceArgs(args []interface{}) (
 	owner, spender common.Address, err error,
 ) {
 	if len(args) != 2 {
-		return common.Address{}, common.Address{}, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+		return common.Address{}, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
 	owner, ok := args[0].(common.Address)
@@ -129,7 +129,7 @@ func ParseAllowanceArgs(args []interface{}) (
 // ParseBalanceOfArgs parses the balanceOf arguments and returns the account address.
 func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
 	if len(args) != 1 {
-		return common.Address{}, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
+		return common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
 	account, ok := args[0].(common.Address)

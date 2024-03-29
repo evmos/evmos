@@ -26,12 +26,14 @@ import (
 // the caller’s tokens. It returns a boolean value indicating whether the
 // operation succeeded and emits the Approval event on success.
 //
-// The Approve method handles 4 cases:
+// The Approve method handles the following:
 //  1. no authorization, amount negative -> return error
 //  2. no authorization, amount positive -> create a new authorization
 //  3. authorization exists, amount 0 or negative -> delete authorization
 //  4. authorization exists, amount positive -> update authorization
-//  5. no authorizaiton, amount 0 -> no-op but still emit Approval event
+//  5. no authorization, amount 0 -> no-op but still emit Approval event
+//
+// NOTE: Passing the maximum uint256 value represents an unlimited allowance.
 func (p Precompile) Approve(
 	ctx sdk.Context,
 	contract *vm.Contract,

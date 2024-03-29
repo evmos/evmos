@@ -301,6 +301,31 @@ var _ = Describe("ERC20 Extension -", func() {
 				// // TODO: The ERC20 V5 contract is raising the ERC-6093 standardized error which we are not as of yet
 				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
+
+			DescribeTable("it should return an error if sending to an empty address", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				emptyAddr := common.Address{}
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, emptyAddr, big.NewInt(100))
+
+				invalidToAddressCheck := execRevertedCheck
+				if callType == directCall {
+					invalidToAddressCheck = failCheck.WithErrContains(
+						fmt.Sprintf(erc20.ErrInvalidReceiver, emptyAddr.String()),
+					)
+				}
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, invalidToAddressCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes).To(BeNil(), "expected empty result")
+			},
+				Entry(" - direct call", directCall),
+				// NOTE: we are not passing the contract call here because this test is for direct calls only
+
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
 		})
 
 		When("transferring tokens from another account", func() {
@@ -385,7 +410,6 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
-						auth.EventTypeApproval,
 					)
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
@@ -623,6 +647,102 @@ var _ = Describe("ERC20 Extension -", func() {
 					// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
 					// Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
+
+				DescribeTable("it should return an error if sending to an empty address", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					emptyAddr := common.Address{}
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType,
+						contractsData,
+						erc20.TransferFromMethod,
+						sender.Addr,
+						emptyAddr,
+						big.NewInt(100),
+					)
+
+					invalidToAddressCheck := execRevertedCheck
+					if callType == directCall {
+						invalidToAddressCheck = failCheck.WithErrContains(
+							fmt.Sprintf(erc20.ErrInvalidReceiver, emptyAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, invalidToAddressCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error if the owner is an empty address", func(callType CallType) {
+					receiver := is.keyring.GetKey(0)
+					emptyAddr := common.Address{}
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType,
+						contractsData,
+						erc20.TransferFromMethod,
+						emptyAddr,
+						receiver.Addr,
+						big.NewInt(100),
+					)
+
+					invalidToAddressCheck := execRevertedCheck
+					if callType == directCall {
+						invalidToAddressCheck = failCheck.WithErrContains(
+							fmt.Sprintf(erc20.ErrInvalidOwner, emptyAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(receiver.Priv, txArgs, transferArgs, invalidToAddressCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error if the receiver is an empty address", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					emptyAddr := common.Address{}
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType,
+						contractsData,
+						erc20.TransferFromMethod,
+						sender.Addr,
+						emptyAddr,
+						big.NewInt(100),
+					)
+
+					invalidToAddressCheck := execRevertedCheck
+					if callType == directCall {
+						invalidToAddressCheck = failCheck.WithErrContains(
+							fmt.Sprintf(erc20.ErrInvalidReceiver, emptyAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, invalidToAddressCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
 			})
 
 			Context("in a call from another smart contract to the token contract", func() {
@@ -768,6 +888,66 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through contract", contractCall),
 					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 				)
+
+				DescribeTable("it should return an error if the owner is an empty address", func(callType CallType) {
+					receiver := is.keyring.GetKey(0)
+					emptyAddr := common.Address{}
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType,
+						contractsData,
+						erc20.TransferFromMethod,
+						emptyAddr,
+						receiver.Addr,
+						big.NewInt(100),
+					)
+
+					invalidToAddressCheck := execRevertedCheck
+					if callType == directCall {
+						invalidToAddressCheck = failCheck.WithErrContains(
+							fmt.Sprintf(erc20.ErrInvalidOwner, emptyAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(receiver.Priv, txArgs, transferArgs, invalidToAddressCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					// NOTE: we are not passing the direct call here because this test is for contract calls only
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should return an error if the receiver is an empty address", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					emptyAddr := common.Address{}
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType,
+						contractsData,
+						erc20.TransferFromMethod,
+						sender.Addr,
+						emptyAddr,
+						big.NewInt(100),
+					)
+
+					invalidToAddressCheck := execRevertedCheck
+					if callType == directCall {
+						invalidToAddressCheck = failCheck.WithErrContains(
+							fmt.Sprintf(erc20.ErrInvalidReceiver, emptyAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, invalidToAddressCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					// NOTE: we are not passing the direct call here because this test is for contract calls only
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
 			})
 		})
 
@@ -824,12 +1004,33 @@ var _ = Describe("ERC20 Extension -", func() {
 				// only support the actual token denomination and don't know of other balances.
 			)
 
-			DescribeTable("it should return zero if the account does not exist", func(callType CallType) {
+			DescribeTable("it should not error but return zero if the account does not exist", func(callType CallType) {
 				sender := is.keyring.GetKey(0)
 				address := utiltx.GenerateAddress()
 
 				// Query the balance
 				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, address)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance.Int64()).To(BeZero(), "expected zero balance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should not error but return zero for an empty address", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+
+				// Query the balance
+				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, common.Address{})
 
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -965,6 +1166,48 @@ var _ = Describe("ERC20 Extension -", func() {
 				granter := is.keyring.GetKey(0)
 
 				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, grantee)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should not error but return zero for an empty address as the owner", func(callType CallType) {
+				zeroAddress := common.Address{}
+				grantee := is.keyring.GetKey(0)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, zeroAddress, grantee.Addr)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(grantee.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should not error but return zero for an empty address as the spender", func(callType CallType) {
+				zeroAddress := common.Address{}
+				granter := is.keyring.GetKey(0)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, zeroAddress)
 
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -1182,6 +1425,32 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
+				DescribeTable("it should error when approving for an empty address", func(callType CallType) {
+					granteeAddr := common.Address{}
+					granter := is.keyring.GetKey(0)
+
+					// Approve allowance
+					txArgs, approveArgs := is.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, granteeAddr, common.Big1)
+
+					invalidSpenderCheck := execRevertedCheck
+					if callType == directCall {
+						invalidSpenderCheck = failCheck.WithErrContains(
+							fmt.Sprintf("invalid spender address: %s", granteeAddr.String()),
+						)
+					}
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, invalidSpenderCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// Check no authorization was stored
+					is.ExpectNoSendAuthzForContract(callType, contractsData, granteeAddr, granter.Addr)
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
 				When("the grantee is the same as the granter", func() {
 					// NOTE: We differ in behavior from the ERC20 calls here, because the full logic for approving,
 					// querying allowance and reducing allowance on a transferFrom transaction is not possible without
@@ -1373,6 +1642,25 @@ var _ = Describe("ERC20 Extension -", func() {
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check still no authorization exists
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should error when approving for an empty address", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					granteeAddr := common.Address{}
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+
+					// Approve allowance
+					txArgs, approveArgs := is.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, granteeAddr, common.Big1)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, execRevertedCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// Check no authorization was stored
+					is.ExpectNoSendAuthzForContract(callType, contractsData, granteeAddr, granter)
 				},
 					Entry(" - through contract", contractCall),
 					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
