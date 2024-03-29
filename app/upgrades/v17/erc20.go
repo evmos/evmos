@@ -6,6 +6,7 @@ package v17
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
@@ -17,14 +18,14 @@ func RegisterERC20Extensions(
 	erc20Keeper erc20keeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
-	precompiles := make([]string, 0)
+	precompiles := make([]common.Address, 0)
 
 	var err error
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
 		if !tokenPair.IsNativeCoin() ||
-			evmKeeper.IsAvailableDynamicPrecompile(ctx, tokenPair.GetErc20Address()) {
+			evmKeeper.IsAvailableDynamicPrecompile(ctx, tokenPair.GetERC20Contract()) {
 			return false
 		}
 
@@ -42,7 +43,7 @@ func RegisterERC20Extensions(
 			return true
 		}
 
-		precompiles = append(precompiles, address.String())
+		precompiles = append(precompiles, address)
 		return false
 	})
 

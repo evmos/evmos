@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v16
 
 import (
@@ -35,7 +36,7 @@ func CreateUpgradeHandler(
 		if utils.IsTestnet(ctx.ChainID()) {
 			p256Address := p256.Precompile{}.Address()
 			bech32Address := bech32.Precompile{}.Address()
-			if err := ek.EnableStaticPrecompiles(ctx, p256Address.String(), bech32Address.String()); err != nil {
+			if err := ek.EnableStaticPrecompiles(ctx, p256Address, bech32Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
 		}
@@ -43,7 +44,7 @@ func CreateUpgradeHandler(
 		// enable stride and osmosis outposts
 		strideAddress := strideoutpost.Precompile{}.Address()
 		osmosisAddress := osmosisoutpost.Precompile{}.Address()
-		if err := ek.EnableStaticPrecompiles(ctx, strideAddress.String(), osmosisAddress.String()); err != nil {
+		if err := ek.EnableStaticPrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 

@@ -15,10 +15,9 @@ import (
 
 // AddDynamicPrecompiles adds the given precompiles to the list of active precompiles
 func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	addresses := make([]string, len(precompiles))
+	addresses := make([]common.Address, len(precompiles))
 	for i, precompile := range precompiles {
-		address := precompile.Address()
-		addresses[i] = address.String()
+		addresses[i] = precompile.Address()
 	}
 
 	return k.EnableDynamicPrecompiles(ctx, addresses...)
@@ -48,6 +47,6 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
-func (k Keeper) IsAvailableDynamicPrecompile(ctx sdk.Context, address string) bool {
-	return slices.Contains(k.GetParams(ctx).ActiveDynamicPrecompiles, address)
+func (k Keeper) IsAvailableDynamicPrecompile(ctx sdk.Context, address common.Address) bool {
+	return slices.Contains(k.GetParams(ctx).ActiveDynamicPrecompiles, address.Hex())
 }

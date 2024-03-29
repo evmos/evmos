@@ -13,6 +13,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/precompiles/p256"
@@ -174,9 +175,10 @@ func (p Params) IsEVMChannel(channel string) bool {
 
 // IsActiveStaticPrecompile returns true if the given precompile address is
 // registered as an active precompile.
-func (p Params) IsActiveStaticPrecompile(address string) bool {
+func (p Params) IsActiveStaticPrecompile(address common.Address) bool {
+	addrHex := address.Hex()
 	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActiveStaticPrecompiles[i])
+		return strings.Compare(addrHex, p.ActiveStaticPrecompiles[i])
 	})
 
 	return found
@@ -184,9 +186,10 @@ func (p Params) IsActiveStaticPrecompile(address string) bool {
 
 // IsActiveDynamicPrecompile returns true if the given precompile address is
 // registered as an active dynamic precompile.
-func (p Params) IsActiveDynamicPrecompile(address string) bool {
+func (p Params) IsActiveDynamicPrecompile(address common.Address) bool {
+	addrHex := address.Hex()
 	_, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActiveDynamicPrecompiles[i])
+		return strings.Compare(addrHex, p.ActiveDynamicPrecompiles[i])
 	})
 	return found
 }

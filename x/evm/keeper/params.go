@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
@@ -51,7 +52,7 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active dynamic precompiles.
-func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) error {
+func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
 	activePrecompiles := params.ActiveDynamicPrecompiles
@@ -69,7 +70,7 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...string) e
 
 // EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
 // of active static precompiles.
-func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...string) error {
+func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	params := k.GetParams(ctx)
 	activePrecompiles := params.ActiveStaticPrecompiles
 
@@ -83,18 +84,21 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...string) er
 	return k.SetParams(ctx, params)
 }
 
-func appendPrecompiles(existingPrecompiles []string, addresses ...string) ([]string, error) {
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
 	// check for duplicates
+	hexAddresses := make([]string, len(addresses))
 	for i := range addresses {
-		if slices.Contains(existingPrecompiles, addresses[i]) {
-			return nil, fmt.Errorf("precompile already registered: %s", addresses[i])
+		addrHex := addresses[i].Hex()
+		if slices.Contains(existingPrecompiles, addrHex) {
+			return nil, fmt.Errorf("precompile already registered: %s", addrHex)
 		}
+		hexAddresses[i] = addrHex
 	}
 
 	exstingLength := len(existingPrecompiles)
-	updatedPrecompiles := make([]string, exstingLength+len(addresses))
+	updatedPrecompiles := make([]string, exstingLength+len(hexAddresses))
 	copy(updatedPrecompiles, existingPrecompiles)
-	copy(updatedPrecompiles[exstingLength:], addresses)
+	copy(updatedPrecompiles[exstingLength:], hexAddresses)
 
 	sortPrecompiles(updatedPrecompiles)
 	return updatedPrecompiles, nil
