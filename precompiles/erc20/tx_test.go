@@ -2,9 +2,10 @@ package erc20_test
 
 import (
 	"fmt"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"math/big"
 	"time"
+
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
