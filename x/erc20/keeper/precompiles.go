@@ -28,8 +28,12 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
-// RegisterERC20Extension Creates and adds an ERC20 precompile interface for an IBC Coin.
-// It truncates the denom address to 20 bytes and registers the precompile if it is not already registered
+// RegisterERC20Extension creates and adds an ERC20 precompile interface for an IBC Coin.
+//
+// It derives the ERC-20 address from the token denomination and registers the
+// EVM extension as an active dynamic precompile.
+//
+// CONTRACT: This must ONLY be called if there is no existing token pair for the given denom.
 func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.TokenPair, error) {
 	pair, err := k.CreateNewTokenPair(ctx, denom, types.OWNER_MODULE)
 	if err != nil {
