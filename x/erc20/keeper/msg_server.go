@@ -303,7 +303,7 @@ func (k Keeper) ConvertCoinNativeERC20(
 	receiver common.Address,
 	sender sdk.AccAddress,
 ) error {
-	if amount.IsZero() || amount.IsNegative() {
+	if !amount.IsPositive() {
 		return nil
 	}
 
@@ -377,7 +377,7 @@ func (k Keeper) LegacyConvertCoinNativeCoin(
 	receiver common.Address,
 	sender sdk.AccAddress,
 ) error {
-	if amount.IsZero() || amount.IsNegative() {
+	if !amount.IsPositive() {
 		return nil
 	}
 	// NOTE: ignore validation from NewCoin constructor
