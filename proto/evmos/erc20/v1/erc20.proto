@@ -32,6 +32,8 @@ message TokenPair {
   Owner contract_owner = 4;
 }
 
+//protolint:disable:next MESSAGES_HAVE_COMMENT
+
 // Deprecated: RegisterCoinProposal is a gov Content type to register a token pair for a
 // native Cosmos coin. We're keeping it to not break existing proposals on chain.
 message RegisterCoinProposal {
@@ -68,6 +70,8 @@ message ToggleTokenConversionProposal {
   // Cosmos base denomination
   string token = 3;
 }
+
+//protolint:disable:next MESSAGES_HAVE_COMMENT
 
 // Deprecated: ProposalMetadata is used to parse a slice of denom metadata and generate
 // ProposalMetadata is used to parse a slice of denom metadata and generate
