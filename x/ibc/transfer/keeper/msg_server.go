@@ -29,6 +29,11 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if !k.erc20Keeper.IsERC20Enabled(ctx) {
+		// no-op: continue with regular transfer
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
+
 	// use a zero gas config to avoid extra costs for the relayers
 	kvGasCfg := ctx.KVGasConfig()
 	transientKVGasCfg := ctx.TransientKVGasConfig()
@@ -61,11 +66,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	}
 
 	sender := sdk.MustAccAddressFromBech32(msg.Sender)
-
-	if !k.erc20Keeper.IsERC20Enabled(ctx) {
-		// no-op: continue with regular transfer
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
 
 	// update the msg denom to the token pair denom
 	msg.Token.Denom = pair.Denom
