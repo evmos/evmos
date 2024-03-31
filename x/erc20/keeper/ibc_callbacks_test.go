@@ -59,6 +59,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 		name           string
 		transferBytes  []byte
 		expectedError  bool
+		errContains    string
 		precompileAddr common.Address
 	}{
 		// Test Bad transfer package
@@ -66,6 +67,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			name:          "error - non ics-20 packet",
 			transferBytes: ibcgotesting.MockPacketData,
 			expectedError: true,
+			errContains:   "abc",
 		},
 		// Package has an invalid sender
 		{
@@ -80,6 +82,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				),
 			),
 			expectedError: true,
+			errContains:   "abc",
 		},
 		// Package has an invalid receiver
 		{
@@ -94,6 +97,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				),
 			),
 			expectedError: true,
+			errContains:   "abc",
 		},
 		// If we received an IBC from non EVM channel the account should be different
 		// If its the same, users can have their funds stuck since they dont have access
@@ -110,6 +114,33 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				),
 			),
 			expectedError: true,
+			errContains:   "abc",
+		},
+		{
+			name: "no-op - negative amount",
+			transferBytes: newTransferBytes(
+				transfertypes.NewFungibleTokenPacketData(
+					unitNetwork.GetDenom(),
+					"-100",
+					keyring.GetAccAddr(0).String(),
+					keyring.GetAccAddr(1).String(),
+					"",
+				),
+			),
+			expectedError: false,
+		},
+		{
+			name: "no-op - zero amount",
+			transferBytes: newTransferBytes(
+				transfertypes.NewFungibleTokenPacketData(
+					unitNetwork.GetDenom(),
+					"0",
+					keyring.GetAccAddr(0).String(),
+					keyring.GetAccAddr(1).String(),
+					"",
+				),
+			),
+			expectedError: false,
 		},
 		// Dont allow conversions from module accounts.
 		{
@@ -208,6 +239,8 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			activeDynamicPrecompilesPre := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+
 			packet := channeltypes.NewPacket(
 				tc.transferBytes,
 				1,
@@ -249,7 +282,11 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 
 			} else {
 				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
-				suite.Require().NotContains(activeDynamicPrecompiles, tc.precompileAddr.String())
+				suite.Require().Equal(
+					activeDynamicPrecompiles,
+					activeDynamicPrecompilesPre,
+					"expected no change in active dynamic precompiles",
+				)
 			}
 		})
 	}
