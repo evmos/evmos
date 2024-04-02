@@ -442,6 +442,8 @@ func (s *StateDB) RevertToSnapshot(revid int) {
 
 // Commit writes the dirty states to keeper
 // the StateDB object should be discarded after committed.
+// Note: Commit can be called multiple times within the same transaction
+// when precompiles are called.
 func (s *StateDB) Commit() error {
 	for _, addr := range s.journal.sortedDirties() {
 		obj := s.stateObjects[addr]
@@ -457,12 +459,17 @@ func (s *StateDB) Commit() error {
 				return errorsmod.Wrap(err, "failed to set account")
 			}
 			for _, key := range obj.dirtyStorage.SortedKeys() {
-				value := obj.dirtyStorage[key]
+				dirtyValue := obj.dirtyStorage[key]
 				// Skip noop changes, persist actual changes
-				if value == obj.originStorage[key] {
+				if dirtyValue == obj.originStorage[key] {
 					continue
 				}
-				s.keeper.SetState(s.ctx, obj.Address(), key, value.Bytes())
+				s.keeper.SetState(s.ctx, obj.Address(), key, dirtyValue.Bytes())
+				// Update the origin storage to the new value.
+				// This is needed for precompiles calls where
+				// multiple Commits calls are done within the same transaction
+				// for the appropiate changes to be committed.
+				obj.originStorage[key] = dirtyValue
 			}
 		}
 	}
