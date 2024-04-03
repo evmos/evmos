@@ -13,6 +13,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -34,23 +35,24 @@ func TestPrecompileTestSuite(t *testing.T) {
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
-	network := network.NewUnitTestNetwork(
+	genesis := utils.CreateGenesisWithTokenPairs(keyring)
+	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(genesis),
 	)
-
 	precompile, err := stride.NewPrecompile(
 		common.HexToAddress(erc20.WEVMOSContractTestnet),
-		network.App.TransferKeeper,
-		network.App.Erc20Keeper,
-		network.App.AuthzKeeper,
-		network.App.StakingKeeper,
+		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.Erc20Keeper,
+		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.StakingKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 	s.precompile = precompile
 
-	grpcHandler := grpc.NewIntegrationHandler(network)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 
-	s.network = network
+	s.network = unitNetwork
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.precompile = precompile

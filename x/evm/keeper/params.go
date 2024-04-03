@@ -27,6 +27,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
 	// in params.IsActivePrecompile.
 	slices.Sort(params.ActiveStaticPrecompiles)
+	slices.Sort(params.ActiveDynamicPrecompiles)
 
 	if err := params.Validate(); err != nil {
 		return err

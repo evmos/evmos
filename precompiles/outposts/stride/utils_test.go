@@ -33,8 +33,8 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
-	_, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
-	s.Require().NoError(err)
+	// _, err = s.network.App.Erc20Keeper.RegisterERC20Extension(ctx, bondDenom)
+	// s.Require().NoError(err)
 
 	// Register stEvmos Token Pair
 	denomTrace := transfertypes.DenomTrace{
@@ -69,7 +69,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
-	_, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, stEvmosMetadata)
+	_, err = s.network.App.Erc20Keeper.RegisterERC20Extension(ctx, denomTrace.IBCDenom())
 	s.Require().NoError(err)
 }
 
