@@ -57,8 +57,9 @@ type stateObject struct {
 	code    []byte
 
 	// state storage
-	originStorage Storage
-	dirtyStorage  Storage
+	originStorage    Storage
+	committedStorage Storage
+	dirtyStorage     Storage
 
 	address common.Address
 
@@ -76,11 +77,12 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 		account.CodeHash = emptyCodeHash
 	}
 	return &stateObject{
-		db:            db,
-		address:       address,
-		account:       account,
-		originStorage: make(Storage),
-		dirtyStorage:  make(Storage),
+		db:               db,
+		address:          address,
+		account:          account,
+		originStorage:    make(Storage), // storage cache of original entries
+		committedStorage: make(Storage), // storage cache of the latest committed entries in the current transaction execution
+		dirtyStorage:     make(Storage), // storage cache of modified entries in the current transaction execution
 	}
 }
 
