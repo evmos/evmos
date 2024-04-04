@@ -462,19 +462,18 @@ func (s *StateDB) Commit() error {
 				dirtyValue := obj.dirtyStorage[key]
 				originValue := obj.originStorage[key]
 				// Skip noop changes, persist actual changes
-				commitedStorageValue, ok := obj.committedStorage[key]
-				if ok && commitedStorageValue == dirtyValue {
-					continue
-				} else if !ok && dirtyValue == originValue {
+				pendingStorageValue, ok := obj.pendingStorage[key]
+				if (ok && pendingStorageValue == dirtyValue) ||
+					(!ok && dirtyValue == originValue) {
 					continue
 				}
 				s.keeper.SetState(s.ctx, obj.Address(), key, dirtyValue.Bytes())
 
-				// Update the committedStorage cache to the new value.
+				// Update the pendingStorage cache to the new value.
 				// This is specially needed for precompiles calls where
 				// multiple Commits calls are done within the same transaction
 				// for the appropiate changes to be committed.
-				obj.committedStorage[key] = dirtyValue
+				obj.pendingStorage[key] = dirtyValue
 			}
 		}
 	}
