@@ -37,8 +37,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-- ()
-
 ### State Machine Breaking
 
 - (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
