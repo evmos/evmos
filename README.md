@@ -104,7 +104,7 @@ of the Evmos repository. For more information see [LICENSE](./LICENSE).
 > [!WARNING]
 >
 > **NOTE: If you are interested in using this software**
-> email us at [os@evmos.org](mailto:os@evmos.org)
+> email us at [os@evmos.org](mailto:os@evmos.org).
 
 ### SPDX Identifier
 
