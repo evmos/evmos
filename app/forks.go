@@ -4,7 +4,12 @@
 package app
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // ScheduleForkUpgrade executes any necessary fork logic for based upon the current
@@ -15,31 +20,34 @@ import (
 //
 //  1. Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
 //  2. Release the software defined in the upgrade-info
-func (app *Evmos) ScheduleForkUpgrade(_ sdk.Context) {
-	// NOTE: there are no scheduled forks at the moment
+func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 
-	// upgradePlan := upgradetypes.Plan{
-	//	Height: ctx.BlockHeight(),
-	// }
-	//
-	// // handle mainnet forks with their corresponding upgrade name and info
-	// switch ctx.BlockHeight() {
-	// case v16.TestnetUpgradeHeight:
-	//	upgradePlan.Name = v16.UpgradeNameTestnetRC4
-	//	upgradePlan.Info = v16.UpgradeInfo
-	// default:
-	//	// No-op
-	//	return
-	// }
-	//
-	// // schedule the upgrade plan to the current block hight, effectively performing
-	// // a hard fork that uses the upgrade handler to manage the migration.
-	// if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
-	//	panic(
-	//		fmt.Errorf(
-	//			"failed to schedule upgrade %s during BeginBlock at height %d: %w",
-	//			upgradePlan.Name, ctx.BlockHeight(), err,
-	//		),
-	//	)
-	// }
+	// Only fork on Mainnet
+	if !utils.IsMainnet(ctx.ChainID()) {
+		return
+	}
+	upgradePlan := upgradetypes.Plan{
+		Height: ctx.BlockHeight(),
+	}
+
+	// handle mainnet forks with their corresponding upgrade name and info
+	switch ctx.BlockHeight() {
+	case v17.MainnetUpgradeHeight:
+		upgradePlan.Name = v17.UpgradeName
+		upgradePlan.Info = v17.UpgradeInfo
+	default:
+		// No-op
+		return
+	}
+
+	// schedule the upgrade plan to the current block hight, effectively performing
+	// a hard fork that uses the upgrade handler to manage the migration.
+	if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
+		panic(
+			fmt.Errorf(
+				"failed to schedule upgrade %s during BeginBlock at height %d: %w",
+				upgradePlan.Name, ctx.BlockHeight(), err,
+			),
+		)
+	}
 }
