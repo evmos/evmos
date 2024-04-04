@@ -459,17 +459,22 @@ func (s *StateDB) Commit() error {
 				return errorsmod.Wrap(err, "failed to set account")
 			}
 			for _, key := range obj.dirtyStorage.SortedKeys() {
-				value := obj.dirtyStorage[key]
+				dirtyValue := obj.dirtyStorage[key]
+				originValue := obj.originStorage[key]
 				// Skip noop changes, persist actual changes
-				if value == obj.originStorage[key] {
+				commitedStorageValue, ok := obj.committedStorage[key]
+				if ok && commitedStorageValue == dirtyValue {
+					continue
+				} else if !ok && dirtyValue == originValue {
 					continue
 				}
-				s.keeper.SetState(s.ctx, obj.Address(), key, value.Bytes())
-				// Update the origin storage to the new value.
-				// This is needed for precompiles calls where
+				s.keeper.SetState(s.ctx, obj.Address(), key, dirtyValue.Bytes())
+
+				// Update the committedStorage cache to the new value.
+				// This is specially needed for precompiles calls where
 				// multiple Commits calls are done within the same transaction
 				// for the appropiate changes to be committed.
-				obj.originStorage[key] = value
+				obj.committedStorage[key] = dirtyValue
 			}
 		}
 	}
