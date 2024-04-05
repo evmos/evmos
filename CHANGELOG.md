@@ -56,6 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (all) [#2451](https://github.com/evmos/evmos/pull/2451) Updating the safu.pdf document.
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
 - (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
