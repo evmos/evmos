@@ -20,11 +20,11 @@ import (
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/version"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/crypto/hd"
-	"github.com/evmos/evmos/v16/tests/integration/ledger/mocks"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/crypto/hd"
+	"github.com/evmos/evmos/v17/tests/integration/ledger/mocks"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
 	"github.com/stretchr/testify/suite"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -32,9 +32,9 @@ import (
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clientkeys "github.com/evmos/evmos/v16/client/keys"
-	evmoskeyring "github.com/evmos/evmos/v16/crypto/keyring"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	clientkeys "github.com/evmos/evmos/v17/client/keys"
+	evmoskeyring "github.com/evmos/evmos/v17/crypto/keyring"
+	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

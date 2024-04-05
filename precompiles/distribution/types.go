@@ -13,7 +13,7 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	cmn "github.com/evmos/evmos/v17/precompiles/common"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.

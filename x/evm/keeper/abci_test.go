@@ -2,7 +2,7 @@ package keeper_test
 
 import (
 	"github.com/cometbft/cometbft/abci/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {

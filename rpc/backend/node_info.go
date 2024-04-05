@@ -21,11 +21,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
-	rpctypes "github.com/evmos/evmos/v16/rpc/types"
-	"github.com/evmos/evmos/v16/server/config"
-	"github.com/evmos/evmos/v16/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
+	rpctypes "github.com/evmos/evmos/v17/rpc/types"
+	"github.com/evmos/evmos/v17/server/config"
+	"github.com/evmos/evmos/v17/types"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 )
 
 // Accounts returns the list of accounts available to this node.

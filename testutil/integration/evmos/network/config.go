@@ -5,11 +5,11 @@ package network
 import (
 	"math/big"
 
-	testtx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	testtx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	evmostypes "github.com/evmos/evmos/v16/types"
+	evmostypes "github.com/evmos/evmos/v17/types"
 )
 
 // Config defines the configuration for a chain.

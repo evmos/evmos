@@ -10,9 +10,9 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v17/x/erc20/types"
 )
 
 // ERC20RegistrationData is the necessary data to provide in order to register an ERC20 token.
