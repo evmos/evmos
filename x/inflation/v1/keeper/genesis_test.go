@@ -2,7 +2,7 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
+	inflationkeeper "github.com/evmos/evmos/v17/x/inflation/v1/keeper"
 )
 
 func (suite *KeeperTestSuite) TestInitGenesis() {

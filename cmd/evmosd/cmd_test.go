@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v16/app"
-	evmosd "github.com/evmos/evmos/v16/cmd/evmosd"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/app"
+	evmosd "github.com/evmos/evmos/v17/cmd/evmosd"
+	"github.com/evmos/evmos/v17/utils"
 )
 
 func TestInitCmd(t *testing.T) {

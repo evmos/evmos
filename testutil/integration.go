@@ -13,8 +13,8 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.

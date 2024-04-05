@@ -7,7 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/x/evm/types"
 )
 
 // TxConfig encapulates the readonly information of current tx for `StateDB`.

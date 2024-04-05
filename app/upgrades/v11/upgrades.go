@@ -32,7 +32,7 @@ import (
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/utils"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v11

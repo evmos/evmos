@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	anteutils "github.com/evmos/evmos/v17/app/ante/utils"
+	evmostypes "github.com/evmos/evmos/v17/types"
+	"github.com/evmos/evmos/v17/x/evm/types"
 )
 
 // NewDynamicFeeChecker returns a `TxFeeChecker` that applies a dynamic fee to

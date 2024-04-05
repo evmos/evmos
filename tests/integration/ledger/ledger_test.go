@@ -10,12 +10,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/crypto/hd"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/crypto/hd"
+	"github.com/evmos/evmos/v17/encoding"
+	"github.com/evmos/evmos/v17/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v17/testutil"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
 
 	"github.com/spf13/cobra"
 
