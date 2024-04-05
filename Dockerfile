@@ -43,11 +43,7 @@ COPY --from=build-env /target/usr/lib /usr/lib
 COPY --from=build-env /target/usr/local/lib /usr/local/lib
 COPY --from=build-env /target/usr/include /usr/include
 
-<<<<<<< HEAD
-RUN apk add --no-cache ca-certificates=20230506-r0 jq=1.6-r4 curl=8.5.0-r0 bash=5.2.15-r5 vim=9.0.2073-r0 lz4=1.9.4-r4 rclone=1.62.2-r6 \
-=======
 RUN apk add --no-cache ca-certificates=20240226-r0 jq=1.7.1-r0 curl=8.5.0-r0 bash=5.2.21-r0 vim=9.0.2127-r0 lz4=1.9.4-r5 rclone=1.65.0-r1 \
->>>>>>> 2ba45879 (chore(deps): update ca-certificates docker dep (#2424))
     && addgroup -g 1000 evmos \
     && adduser -S -h /home/evmos -D evmos -u 1000 -G evmos
 
