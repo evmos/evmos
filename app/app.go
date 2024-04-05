@@ -893,9 +893,8 @@ func (app *Evmos) setPostHandler() {
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	// Perform any scheduled forks before executing the modules logic
-	//
-	// NOTE: there are no scheduled forks currently, uncomment when needed
-	// app.ScheduleForkUpgrade(ctx)
+
+	app.ScheduleForkUpgrade(ctx)
 
 	return app.mm.BeginBlock(ctx, req)
 }
