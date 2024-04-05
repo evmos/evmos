@@ -3,7 +3,7 @@
 package web3
 
 import (
-	"github.com/evmos/evmos/v16/version"
+	"github.com/evmos/evmos/v17/version"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"

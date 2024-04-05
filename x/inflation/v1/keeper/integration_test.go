@@ -10,9 +10,9 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v17/x/epochs/types"
+	inflationkeeper "github.com/evmos/evmos/v17/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v17/x/inflation/v1/types"
 )
 
 var (

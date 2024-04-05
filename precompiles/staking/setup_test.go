@@ -9,10 +9,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/precompiles/staking"
+	"github.com/evmos/evmos/v17/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

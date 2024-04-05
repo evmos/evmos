@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	evmostypes "github.com/evmos/evmos/v16/types"
+	evmostypes "github.com/evmos/evmos/v17/types"
 )
 
 func TestDefaultConfig(t *testing.T) {

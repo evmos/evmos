@@ -20,9 +20,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v16/x/erc20/client/cli"
-	"github.com/evmos/evmos/v16/x/erc20/keeper"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v17/x/erc20/client/cli"
+	"github.com/evmos/evmos/v17/x/erc20/keeper"
+	"github.com/evmos/evmos/v17/x/erc20/types"
 )
 
 // consensusVersion defines the current x/erc20 module consensus version.
