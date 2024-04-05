@@ -122,7 +122,7 @@ message DynamicFeeTx {
   uint64 gas = 5 [(gogoproto.customname) = "GasLimit"];
   // to is the hex formatted address of the recipient
   string to = 6;
-  // value defines the the transaction amount.
+  // value defines the transaction amount.
   string value = 7 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.customname) = "Amount"];
   // data is the data payload bytes of the transaction.
   bytes data = 8;
