@@ -53,15 +53,16 @@ func (s Storage) SortedKeys() []common.Hash {
 type stateObject struct {
 	db *StateDB
 
+	address common.Address
 	account Account
 	code    []byte
 
-	// state cache storage
-	originStorage    Storage // storage cache of original entries
-	pendingStorage Storage // storage cache of the latest committed entries in the current transaction execution
-	dirtyStorage     Storage // storage cache of modified entries in the current transaction execution
-
-	address common.Address
+	// State cache storage
+	originStorage Storage // storage cache of original entries
+	dirtyStorage  Storage // storage cache of modified entries in the current transaction execution
+	// transientStorage is a storage cache of the latest committed entries in the current transaction execution.
+	// Named this way not to be confused with pendingStorage and committedStorage from GETH implementation
+	transientStorage Storage
 
 	// flags
 	dirtyCode bool
@@ -81,7 +82,7 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 		address:          address,
 		account:          account,
 		originStorage:    make(Storage),
-		pendingStorage: make(Storage),
+		transientStorage: make(Storage),
 		dirtyStorage:     make(Storage),
 	}
 }
@@ -200,6 +201,7 @@ func (s *stateObject) Nonce() uint64 {
 }
 
 // GetCommittedState query the committed state
+// This should only return from the originStorage map
 func (s *stateObject) GetCommittedState(key common.Hash) common.Hash {
 	if value, cached := s.originStorage[key]; cached {
 		return value

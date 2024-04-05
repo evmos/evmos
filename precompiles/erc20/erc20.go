@@ -142,6 +142,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
+	if err := stateDB.Commit(); err != nil {
+		return nil, err
+	}
+
 	bz, err = p.HandleMethod(ctx, contract, stateDB, method, args)
 	if err != nil {
 		return nil, err
