@@ -39,7 +39,7 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 		return
 	}
 
-	// schedule the upgrade plan to the current block hight, effectively performing
+	// schedule the upgrade plan to the current block height, effectively performing
 	// a hard fork that uses the upgrade handler to manage the migration.
 	if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
 		panic(
