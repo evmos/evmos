@@ -61,7 +61,8 @@ type stateObject struct {
 	originStorage Storage // storage cache of original entries
 	dirtyStorage  Storage // storage cache of modified entries in the current transaction execution
 	// transientStorage is a storage cache of the latest committed entries in the current transaction execution.
-	// Named this way not to be confused with pendingStorage and committedStorage from GETH implementation
+	// Named this way not to be confused with pendingStorage and committedStorage from GETH implementation.
+    // It is only relevant for precompiles executions
 	transientStorage Storage
 
 	// flags
