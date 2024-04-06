@@ -3,6 +3,7 @@ package erc20_test
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -22,7 +23,6 @@ import (
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
 
 	//nolint:revive // dot imports are fine for Gomega
 	. "github.com/onsi/gomega"

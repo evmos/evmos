@@ -5,8 +5,7 @@ package cosmos
 import (
 	"fmt"
 	"math/big"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
