@@ -220,4 +220,36 @@ contract DistributionCaller {
         require(success, "failed staticCall to precompile");
         return data;
     }
+
+    /// @dev This function is used to check that both the cosmos and evm state are correctly
+    /// updated for a successful transaction or reverted for a failed transaction.
+    /// To test this, deploy an ERC20 token contract to chain and mint some tokens to this
+    /// contract's address.
+    ///
+    /// This contract will then transfer some tokens to the msg.sender address as well as
+    /// execute subsequent calls to the distribution EVM extension.
+    ///
+    /// @param _contract Address of the ERC20 to call
+    /// @param _address Address of the account to set withdraw address for
+    /// @param _newWithdrawAddr Bech32 representation of the new withdrawer
+    /// @param _newWithdraw2Addr Bech32 representation of the another withdrawer
+    /// @param _amount Amount of tokens to transfer
+    function callERC20AndWithdrawRewards(
+        address _contract,
+        address _address,
+        string memory newWithdrawAddr,
+        string memory newWithdraw2Addr,
+        uint256 _amount
+    ) public {
+        bool success = DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, newWithdrawAddr);
+        require(success, "setWithdrawAddress failed");
+
+        (bool success, ) = _contract.call(
+            abi.encodeWithSignature("transfer(address,uint256)", msg.sender, _amount)
+        );
+        require(success, "transfer failed");
+
+        success = DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, newWithdraw2Addr);
+        require(success, "setWithdrawAddress failed the second time");
+    }
 }

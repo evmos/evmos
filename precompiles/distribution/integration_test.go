@@ -4,6 +4,15 @@ package distribution_test
 
 import (
 	"fmt"
+	compiledcontracts "github.com/evmos/evmos/v16/contracts"
+	authprecompile "github.com/evmos/evmos/v16/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"math/big"
 
 	"github.com/evmos/evmos/v16/utils"
@@ -1390,5 +1399,368 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(withdrawAddr[0]).To(ContainSubstring(expAddr.String()))
 			})
 		})
+	})
+})
+
+// The following tests are used to check that when batching multiple state changing transactions
+// in one block, both states (Cosmos and EVM) are updated or reverted correctly.
+//
+// For this purpose, we are deploying an ERC20 contract and then calling a method
+// on the BankCaller contract which transfers an ERC20 balance is sent between accounts as well as
+// an interaction with the bank precompile is made.
+var _ = Describe("Batching cosmos and eth interactions", func() {
+	const (
+		erc20Name     = "Test"
+		erc20Token    = "TTT"
+		erc20Decimals = uint8(18)
+	)
+
+	var (
+		keyring testkeyring.Keyring
+		network *testnetwork.UnitTestNetwork
+		handler grpc.Handler
+		factory testfactory.TxFactory
+
+		// distCallerAddr is the address of the deployed BankCaller contract
+		distCallerAddr common.Address
+		// erc20ContractAddr is the address of the deployed ERC20 contract
+		erc20ContractAddr common.Address
+
+		// mintAmount is the amount of ERC20 tokens minted to the BankCaller contract
+		mintAmount = big.NewInt(1e18)
+		// transferredAmount is the amount of ERC20 tokens to transfer during the tests
+		transferredAmount = big.NewInt(1234e9)
+	)
+
+	BeforeEach(func() {
+		keyring = testkeyring.New(3)
+		network = testnetwork.NewUnitTestNetwork(
+			testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		)
+		handler = grpc.NewIntegrationHandler(network)
+		factory = testfactory.New(network, handler)
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		deployer := keyring.GetKey(0)
+
+		// Deploy BankCaller contract
+		var err error
+		distCallerAddr, err = factory.DeployContract(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			testfactory.ContractDeploymentData{
+				Contract: testdata.BankCallerContract,
+			},
+		)
+		Expect(err).To(BeNil(), "error while deploying the DistributionCaller contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Deploy ERC20 contract
+		erc20ContractAddr, err = factory.DeployContract(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			testfactory.ContractDeploymentData{
+				Contract: compiledcontracts.ERC20MinterBurnerDecimalsContract,
+				ConstructorArgs: []interface{}{
+					erc20Name, erc20Token, erc20Decimals,
+				},
+			},
+		)
+		Expect(err).To(BeNil(), "error while deploying the ERC20 contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Mint tokens to the DistributionCaller contract
+		_, _, err = factory.CallContractAndCheckLogs(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{distCallerAddr, mintAmount},
+			},
+			testutil.LogCheckArgs{
+				ABIEvents: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
+				ExpEvents: []string{erc20.EventTypeTransfer}, // minting produces a Transfer event
+				ExpPass:   true,
+			},
+		)
+		Expect(err).To(BeNil(), "error while minting tokens to the DistributionCaller contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Check that the balance is zero before minting some tokens
+		//
+		// TODO: should be done with EthCall instead but haven't implemented it yet
+		res, err := factory.ExecuteContractCall(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "balanceOf",
+				Args:        []interface{}{distCallerAddr},
+			},
+		)
+		Expect(err).To(BeNil(), "error while getting ERC20 balance for the DistributionCaller contract")
+		Expect(res.IsOK()).To(BeTrue(), "expected successful call to ERC20 contract")
+
+		evmRes, err := evmtypes.DecodeTxResponse(res.Data)
+		Expect(err).To(BeNil(), "error while decoding EVM response")
+		Expect(evmRes.Ret).ToNot(HaveLen(0), "expected non-empty return data")
+
+		var balance *big.Int
+		err = compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(
+			&balance, "balanceOf", evmRes.Ret,
+		)
+		Expect(err).To(BeNil(), "error while unpacking ERC20 balance before minting")
+		Expect(balance.String()).To(Equal(mintAmount.String()), "expected different ERC20 balance for the DistributionCaller contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Approve the distribution caller contract to spend the transfer amount on behalf of the sender
+		_, _, err = factory.CallContractAndCheckLogs(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "approve",
+				Args:        []interface{}{distCallerAddr, transferredAmount},
+			},
+			testutil.LogCheckArgs{
+				ABIEvents: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
+				ExpEvents: []string{authprecompile.EventTypeApproval}, // approval produces an Approval event
+				ExpPass:   true,
+			},
+		)
+		Expect(err).To(BeNil(), "unexpected result while approving the DistributionCaller contract to spend ERC20 tokens")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Check that the allowance is set correctly
+		//
+		// TODO: should be done with EthCall instead but haven't implemented it yet
+		_, ethRes, err := factory.CallContractAndCheckLogs(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "allowance",
+				Args:        []interface{}{deployer.Addr, distCallerAddr},
+			},
+			testutil.LogCheckArgs{ExpPass: true},
+		)
+		Expect(err).To(BeNil(), "error while getting ERC20 allowance for the DistributionCaller contract")
+
+		var allowance *big.Int
+		err = compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(
+			&allowance, "allowance", ethRes.Ret,
+		)
+		Expect(err).To(BeNil(), "error while unpacking ERC20 allowance before minting")
+		Expect(allowance.String()).To(
+			Equal(transferredAmount.String()),
+			"expected different ERC20 allowance for the DistributionCaller contract",
+		)
+	})
+
+	It("should be possible to adjust the withdrawer address via direct precompile call", func() {
+		sender := keyring.GetKey(0)
+		newWithdrawer := keyring.GetKey(1)
+
+		precompile, err := distribution.NewPrecompile(
+			network.App.DistrKeeper,
+			network.App.StakingKeeper,
+			network.App.AuthzKeeper,
+		)
+		Expect(err).To(BeNil(), "error while creating the distribution precompile")
+		precompileAddr := precompile.Address()
+
+		// Set the withdraw address to the new withdrawer
+		_, _, err = factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &precompileAddr},
+			testfactory.CallArgs{
+				ContractABI: precompile.ABI,
+				MethodName:  "setWithdrawAddress",
+				Args:        []interface{}{sender.Addr, newWithdrawer.AccAddr.String()},
+			},
+			testutil.LogCheckArgs{
+				ABIEvents: precompile.ABI.Events,
+				ExpEvents: []string{distribution.EventTypeSetWithdrawAddress},
+				ExpPass:   true,
+			},
+		)
+		Expect(err).To(BeNil(), "error while setting the withdraw address")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Check that the withdraw address has been updated
+		distClient := network.GetDistributionClient()
+		withdrawer, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawer.WithdrawAddress).To(Equal(newWithdrawer.AccAddr.String()), "expected different withdraw address after setting it")
+	})
+
+	It("should revert the state correctly", func() {
+		sender := keyring.GetKey(0)
+		newWithdrawer := keyring.GetKey(1)
+		newWithdrawer2 := keyring.GetKey(2)
+
+		distClient := network.GetDistributionClient()
+		withdrawerPre, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPre.WithdrawAddress).To(
+			Equal(sender.AccAddr.String()),
+			"expected different withdraw address before transaction",
+		)
+
+		// NOTE: trying to transfer more than the balance of the contract should fail
+		moreThanBalance := new(big.Int).Add(mintAmount, big.NewInt(1))
+
+		_, _, err = factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &distCallerAddr},
+			testfactory.CallArgs{
+				ContractABI: contracts.DistributionCallerContract.ABI,
+				MethodName:  "callERC20AndWithdrawRewards",
+				Args: []interface{}{
+					erc20ContractAddr,
+					sender.Addr,
+					newWithdrawer.AccAddr.String(),
+					newWithdrawer2.AccAddr.String(),
+					moreThanBalance,
+				},
+			},
+			testutil.LogCheckArgs{
+				ExpPass:     false,
+				ErrContains: vm.ErrExecutionReverted.Error(),
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "expected contract call to be reverted")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Check that the balance remains unchanged, as we are expecting the transaction to be reverted
+		//
+		// TODO: should be done with EthCall instead but haven't implemented it yet
+		_, evmRes, err := factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "balanceOf",
+				Args:        []interface{}{distCallerAddr},
+			},
+			testutil.LogCheckArgs{
+				ExpPass: true,
+			},
+		)
+		Expect(err).To(BeNil(), "error while getting ERC20 balance for the DistributionCaller contract")
+
+		var balance *big.Int
+		err = compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(
+			&balance, "balanceOf", evmRes.Ret,
+		)
+		Expect(err).To(BeNil(), "error while unpacking ERC20 balance before minting")
+		Expect(balance.String()).To(Equal(mintAmount.String()), "expected different ERC20 balance for the DistributionCaller contract")
+
+		distClient = network.GetDistributionClient()
+		withdrawerPost, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPost.WithdrawAddress).To(Equal(sender.AccAddr.String()), "expected withdraw address to be unchanged after reverted transaction")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+	})
+
+	It("should persist the state changes correctly", func() {
+		sender := keyring.GetKey(0)
+		newWithdrawer := keyring.GetKey(1)
+		newWithdrawer2 := keyring.GetKey(2)
+
+		distClient := network.GetDistributionClient()
+		withdrawerPre, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPre.WithdrawAddress).To(
+			Equal(sender.AccAddr.String()),
+			"expected different withdraw address before transaction",
+		)
+
+		_, _, err = factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &distCallerAddr},
+			testfactory.CallArgs{
+				ContractABI: contracts.DistributionCallerContract.ABI,
+				MethodName:  "callERC20AndWithdrawRewards",
+				Args: []interface{}{
+					erc20ContractAddr,
+					sender.Addr,
+					newWithdrawer.AccAddr.String(),
+					newWithdrawer2.AccAddr.String(),
+					transferredAmount,
+				},
+			},
+			testutil.LogCheckArgs{
+				ABIEvents: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
+				ExpEvents: []string{
+					distribution.EventTypeSetWithdrawAddress,
+					erc20.EventTypeTransfer,
+					distribution.EventTypeSetWithdrawAddress,
+				},
+				ExpPass: true,
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "unexpected results calling the smart contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		distClient = network.GetDistributionClient()
+		withdrawerPost, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPost.WithdrawAddress).To(Equal(newWithdrawer2.AccAddr.String()), "expected different withdraw address")
+
+		// Check that the ERC20 balance of the DistributionCaller contract is updated
+		//
+		// TODO: should be done with EthCall instead but haven't implemented it yet
+		_, evmRes, err := factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "balanceOf",
+				Args:        []interface{}{distCallerAddr},
+			},
+			testutil.LogCheckArgs{
+				ExpPass: true,
+			},
+		)
+		Expect(err).To(BeNil(), "error while getting ERC20 balance for the DistributionCaller contract")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		var erc20Balance *big.Int
+		err = compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(
+			&erc20Balance, "balanceOf", evmRes.Ret,
+		)
+		Expect(err).To(BeNil(), "error while unpacking ERC20 balance")
+		expectedBalance := new(big.Int).Sub(mintAmount, transferredAmount)
+		Expect(erc20Balance.String()).To(Equal(expectedBalance.String()),
+			"expected different ERC20 balance for the DistributionCaller contract",
+		)
 	})
 })
