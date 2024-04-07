@@ -2691,7 +2691,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 // which will transfer these to the message sender when successfully executed.
 // Using the staking EVM extension, there is an approval made before the ERC20 transfer
 // as well as a delegation after the ERC20 transfer.
-var _ = Describe("Batching cosmos and eth interactions", func() {
+var _ = Describe("Staking - batching cosmos and eth interactions", func() {
 	const (
 		erc20Name     = "Test"
 		erc20Token    = "TTT"

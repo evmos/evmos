@@ -4,32 +4,31 @@ package distribution_test
 
 import (
 	"fmt"
-	compiledcontracts "github.com/evmos/evmos/v16/contracts"
-	authprecompile "github.com/evmos/evmos/v16/precompiles/authorization"
-	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
-	"github.com/evmos/evmos/v16/precompiles/erc20"
-	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"math/big"
-
-	"github.com/evmos/evmos/v16/utils"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	compiledcontracts "github.com/evmos/evmos/v16/contracts"
+	authprecompile "github.com/evmos/evmos/v16/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -1406,9 +1405,9 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 // in one block, both states (Cosmos and EVM) are updated or reverted correctly.
 //
 // For this purpose, we are deploying an ERC20 contract and then calling a method
-// on the BankCaller contract which transfers an ERC20 balance is sent between accounts as well as
+// on the DistributionCaller contract which transfers an ERC20 balance is sent between accounts as well as
 // an interaction with the bank precompile is made.
-var _ = Describe("Batching cosmos and eth interactions", func() {
+var _ = Describe("Distribution - batching cosmos and eth interactions", func() {
 	const (
 		erc20Name     = "Test"
 		erc20Token    = "TTT"
@@ -1421,12 +1420,18 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		handler grpc.Handler
 		factory testfactory.TxFactory
 
-		// distCallerAddr is the address of the deployed BankCaller contract
+		// precompile is the implementation of the distribution precompile
+		precompile *distribution.Precompile
+
+		// distCallerAddr is the address of the deployed DistributionCaller contract
 		distCallerAddr common.Address
+		// distCallerEvents is the map of available events for the DistributionCaller contract
+		distCallerEvents map[string]abi.Event
+
 		// erc20ContractAddr is the address of the deployed ERC20 contract
 		erc20ContractAddr common.Address
 
-		// mintAmount is the amount of ERC20 tokens minted to the BankCaller contract
+		// mintAmount is the amount of ERC20 tokens minted to the DistributionCaller contract
 		mintAmount = big.NewInt(1e18)
 		// transferredAmount is the amount of ERC20 tokens to transfer during the tests
 		transferredAmount = big.NewInt(1234e9)
@@ -1440,17 +1445,33 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		handler = grpc.NewIntegrationHandler(network)
 		factory = testfactory.New(network, handler)
 
+		var err error
+		precompile, err = distribution.NewPrecompile(
+			network.App.DistrKeeper,
+			network.App.StakingKeeper,
+			network.App.AuthzKeeper,
+		)
+		Expect(err).To(BeNil(), "error while creating the distribution precompile")
+
+		// Build the map of available events for the DistributionCaller contract
+		distCallerEvents = precompile.ABI.Events
+		for name, event := range compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.Events {
+			if _, ok := distCallerEvents[name]; ok {
+				panic("duplicate event name: " + name)
+			}
+			distCallerEvents[name] = event
+		}
+
 		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
 
 		deployer := keyring.GetKey(0)
 
-		// Deploy BankCaller contract
-		var err error
+		// Deploy DistributionCaller contract
 		distCallerAddr, err = factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			testfactory.ContractDeploymentData{
-				Contract: testdata.BankCallerContract,
+				Contract: contracts.DistributionCallerContract,
 			},
 		)
 		Expect(err).To(BeNil(), "error while deploying the DistributionCaller contract")
@@ -1564,48 +1585,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		)
 	})
 
-	It("should be possible to adjust the withdrawer address via direct precompile call", func() {
-		sender := keyring.GetKey(0)
-		newWithdrawer := keyring.GetKey(1)
-
-		precompile, err := distribution.NewPrecompile(
-			network.App.DistrKeeper,
-			network.App.StakingKeeper,
-			network.App.AuthzKeeper,
-		)
-		Expect(err).To(BeNil(), "error while creating the distribution precompile")
-		precompileAddr := precompile.Address()
-
-		// Set the withdraw address to the new withdrawer
-		_, _, err = factory.CallContractAndCheckLogs(
-			sender.Priv,
-			evmtypes.EvmTxArgs{To: &precompileAddr},
-			testfactory.CallArgs{
-				ContractABI: precompile.ABI,
-				MethodName:  "setWithdrawAddress",
-				Args:        []interface{}{sender.Addr, newWithdrawer.AccAddr.String()},
-			},
-			testutil.LogCheckArgs{
-				ABIEvents: precompile.ABI.Events,
-				ExpEvents: []string{distribution.EventTypeSetWithdrawAddress},
-				ExpPass:   true,
-			},
-		)
-		Expect(err).To(BeNil(), "error while setting the withdraw address")
-
-		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
-
-		// Check that the withdraw address has been updated
-		distClient := network.GetDistributionClient()
-		withdrawer, err := distClient.DelegatorWithdrawAddress(
-			network.GetContext(),
-			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
-		)
-		Expect(err).To(BeNil(), "error while getting the withdraw address")
-		Expect(withdrawer.WithdrawAddress).To(Equal(newWithdrawer.AccAddr.String()), "expected different withdraw address after setting it")
-	})
-
-	It("should revert the state correctly", func() {
+	It("should revert the state correctly if an ERC-20 method fails", func() {
 		sender := keyring.GetKey(0)
 		newWithdrawer := keyring.GetKey(1)
 		newWithdrawer2 := keyring.GetKey(2)
@@ -1636,6 +1616,79 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 					newWithdrawer.AccAddr.String(),
 					newWithdrawer2.AccAddr.String(),
 					moreThanBalance,
+				},
+			},
+			testutil.LogCheckArgs{
+				ExpPass:     false,
+				ErrContains: vm.ErrExecutionReverted.Error(),
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "expected contract call to be reverted")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+
+		// Check that the balance remains unchanged, as we are expecting the transaction to be reverted
+		//
+		// TODO: should be done with EthCall instead but haven't implemented it yet
+		_, evmRes, err := factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &erc20ContractAddr},
+			testfactory.CallArgs{
+				ContractABI: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "balanceOf",
+				Args:        []interface{}{distCallerAddr},
+			},
+			testutil.LogCheckArgs{
+				ExpPass: true,
+			},
+		)
+		Expect(err).To(BeNil(), "error while getting ERC20 balance for the DistributionCaller contract")
+
+		var balance *big.Int
+		err = compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(
+			&balance, "balanceOf", evmRes.Ret,
+		)
+		Expect(err).To(BeNil(), "error while unpacking ERC20 balance before minting")
+		Expect(balance.String()).To(Equal(mintAmount.String()), "expected different ERC20 balance for the DistributionCaller contract")
+
+		distClient = network.GetDistributionClient()
+		withdrawerPost, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPost.WithdrawAddress).To(Equal(sender.AccAddr.String()), "expected withdraw address to be unchanged after reverted transaction")
+
+		Expect(network.NextBlock()).To(BeNil(), "error while advancing block")
+	})
+
+	It("should revert the state correctly if a distribution method fails", func() {
+		sender := keyring.GetKey(0)
+		newWithdrawer2 := keyring.GetKey(2)
+
+		distClient := network.GetDistributionClient()
+		withdrawerPre, err := distClient.DelegatorWithdrawAddress(
+			network.GetContext(),
+			&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: sender.AccAddr.String()},
+		)
+		Expect(err).To(BeNil(), "error while getting the withdraw address")
+		Expect(withdrawerPre.WithdrawAddress).To(
+			Equal(sender.AccAddr.String()),
+			"expected different withdraw address before transaction",
+		)
+
+		_, _, err = factory.CallContractAndCheckLogs(
+			sender.Priv,
+			evmtypes.EvmTxArgs{To: &distCallerAddr},
+			testfactory.CallArgs{
+				ContractABI: contracts.DistributionCallerContract.ABI,
+				MethodName:  "callERC20AndWithdrawRewards",
+				Args: []interface{}{
+					erc20ContractAddr,
+					sender.Addr,
+					"", // empty address to trigger a revert
+					newWithdrawer2.AccAddr.String(),
+					transferredAmount,
 				},
 			},
 			testutil.LogCheckArgs{
@@ -1713,7 +1766,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 				},
 			},
 			testutil.LogCheckArgs{
-				ABIEvents: compiledcontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
+				ABIEvents: distCallerEvents,
 				ExpEvents: []string{
 					distribution.EventTypeSetWithdrawAddress,
 					erc20.EventTypeTransfer,

@@ -449,7 +449,9 @@ var _ = Describe("Bank Extension -", func() {
 // For this purpose, we are deploying an ERC20 contract and then calling a method
 // on the BankCaller contract which transfers an ERC20 balance is sent between accounts as well as
 // an interaction with the bank precompile is made.
-var _ = Describe("Batching cosmos and eth interactions", func() {
+//
+// TODO: There are currently no state changes associated with the bank precompile, only queries
+var _ = Describe("Bank - batching cosmos and eth interactions", func() {
 	const (
 		erc20Name     = "Test"
 		erc20Token    = "TTT"
