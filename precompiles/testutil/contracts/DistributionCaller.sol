@@ -237,19 +237,19 @@ contract DistributionCaller {
     function callERC20AndWithdrawRewards(
         address _contract,
         address _address,
-        string memory newWithdrawAddr,
-        string memory newWithdraw2Addr,
+        string memory _newWithdrawAddr,
+        string memory _newWithdraw2Addr,
         uint256 _amount
     ) public {
-        bool success = DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, newWithdrawAddr);
+        bool success = distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, _newWithdrawAddr);
         require(success, "setWithdrawAddress failed");
 
-        (bool success, ) = _contract.call(
+        (success, ) = _contract.call(
             abi.encodeWithSignature("transfer(address,uint256)", msg.sender, _amount)
         );
         require(success, "transfer failed");
 
-        success = DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, newWithdraw2Addr);
+        success = distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(_address, _newWithdraw2Addr);
         require(success, "setWithdrawAddress failed the second time");
     }
 }
