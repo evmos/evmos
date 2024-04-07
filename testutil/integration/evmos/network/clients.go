@@ -8,6 +8,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -26,6 +28,12 @@ func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
 	// simulations.
 	cacheCtx, _ := ctx.CacheContext()
 	return baseapp.NewQueryServerTestHelper(cacheCtx, interfaceRegistry)
+}
+
+func (n *IntegrationNetwork) GetDistributionClient() distributiontypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	distributiontypes.RegisterQueryServer(queryHelper, distributionkeeper.NewQuerier(n.app.DistrKeeper))
+	return distributiontypes.NewQueryClient(queryHelper)
 }
 
 func (n *IntegrationNetwork) GetERC20Client() erc20types.QueryClient {
