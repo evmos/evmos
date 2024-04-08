@@ -35,6 +35,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v17.0.0] - 2024-04-08
+
+### State Machine Breaking
+
+- (evm) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
+
+## [v16.0.4] - 2024-04-05
+
+### Improvements
+
+- (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
+
 ## [v16.0.3] - 2024-02-02
 
 ## Bug Fixes
