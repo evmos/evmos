@@ -4,6 +4,9 @@
 package statedb_test
 
 import (
+	"math/big"
+	"testing"
+
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
@@ -13,8 +16,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"math/big"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

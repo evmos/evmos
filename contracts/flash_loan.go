@@ -6,6 +6,7 @@ package contracts
 import (
 	_ "embed" // embed compiled smart contract
 	"encoding/json"
+
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
