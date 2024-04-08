@@ -462,8 +462,8 @@ func (s *StateDB) Commit() error {
 				dirtyValue := obj.dirtyStorage[key]
 				originValue := obj.originStorage[key]
 				// Skip noop changes, persist actual changes
-				pendingStorageValue, ok := obj.transientStorage[key]
-				if (ok && pendingStorageValue == dirtyValue) ||
+				transientStorageValue, ok := obj.transientStorage[key]
+				if (ok && transientStorageValue == dirtyValue) ||
 					(!ok && dirtyValue == originValue) {
 					continue
 				}
