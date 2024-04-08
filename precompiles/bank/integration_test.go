@@ -1,11 +1,12 @@
 package bank_test
 
 import (
+	"math/big"
+	"testing"
+
 	"github.com/ethereum/go-ethereum/core/vm"
 	compiledcontracts "github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
-	"math/big"
-	"testing"
 
 	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
 
