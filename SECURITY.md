@@ -20,7 +20,7 @@ If you follow these guidelines when reporting an issue to us, we commit to:
 
 Evmos uses the following disclosure process:
 
-1. Once a security report is via the security email, the team works to verify the issue and confirm its severity level using CVSS in its latest version (v4 at the time of writing).
+1. Once a security report is received via the security email, the team works to verify the issue and confirm its severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss) in its latest version (v4 at the time of writing).
     1. Two people from the affected project will review, replicate and acknowledge the report
        within 48-96 hours of the alert according to the table below:
 
@@ -79,8 +79,8 @@ as secure as possible.
 
 The payment process will be executed according to Evmos SAFU for `Critical` and `High` severity vulnerabilities. Payouts can only be executed in accordance and under supervision of the Evmos Operations team and only once the following requirements have been completed:
 
-- The whitehat hacker or organization successfully completes the KYC/KYB process (i.e KYC/KYB accepted)
-- The vulnerability is patched in production (eg. mainnet)
+- The whitehat hacker or organization successfully completes the KYC/KYB process (i.e KYC/KYB accepted).
+- The vulnerability is patched in production (eg. mainnet).
 
 #### KYC/KYB Process
 
@@ -108,8 +108,8 @@ We’re interested in a full range of bugs with demonstrable security risk: from
 
 Please note that, in the interest of the safety of our users and staff, a few things are explicitly excluded from scope:
 
-- Any third-party services
-- Findings derived from social engineering (e.g., phishing)
+- Any third-party services.
+- Findings derived from social engineering (e.g., phishing).
 
 Examples of vulnerabilities that are of interest to us include memory allocation bugs, race conditions, timing attacks, information leaks, authentication bypasses, denial of service (specifically at the application- or protocol-layer), lost-write bugs, unauthorized account or capability access, stolen or loss of funds, token inflation bugs, payloads/transactions that cause panics, non deterministic logic, etc.
 
