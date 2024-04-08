@@ -178,7 +178,6 @@ func (s *PrecompileTestSuite) TestSwap() {
 			sender: senderAddress,
 			origin: senderAddress,
 			malleate: func() []interface{} {
-
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,

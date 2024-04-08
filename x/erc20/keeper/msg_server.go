@@ -63,7 +63,6 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	receiver sdk.AccAddress,
 	sender common.Address,
 ) (*types.MsgConvertERC20Response, error) {
-
 	// Remove token pair if contract is suicided
 	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, pair.GetERC20Contract())
 	if acc == nil || !acc.IsContract() {

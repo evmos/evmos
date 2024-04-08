@@ -38,7 +38,6 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-
 	keyring := testkeyring.New(2)
 	genesis := utils.CreateGenesisWithTokenPairs(keyring)
 	unitNetwork := network.NewUnitTestNetwork(

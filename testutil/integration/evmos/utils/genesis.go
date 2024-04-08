@@ -17,7 +17,6 @@ const (
 )
 
 func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
-
 	// Add all keys from the keyring to the genesis accounts as well.
 	//
 	// NOTE: This is necessary to enable the account to send EVM transactions,
