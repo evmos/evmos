@@ -2,13 +2,8 @@ schema = 3
 
 [mod]
   [mod."cloud.google.com/go"]
-<<<<<<< HEAD
     version = "v0.112.0"
     hash = "sha256-lmNLoqmLURfxu+a6V/SeoP8xVn0Wi2SD7uxxAtSjm+o="
-=======
-    version = "v0.111.0"
-    hash = "sha256-i8tQyny5W/PcPY5W5h2Zo6wKDKgYHpQlK77QU9TUdI4="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."cloud.google.com/go/compute"]
     version = "v1.23.3"
     hash = "sha256-WwlTw/x9GSM6B4nHm9FDvHZ1Pd4KN0wxk650CosJnpQ="
@@ -174,13 +169,8 @@ schema = 3
     version = "v0.21.0-alpha.1.0.20230904092046-df3db2d96583"
     hash = "sha256-3Va8Ljq63IXty0oHlRpqfsC6WsMut6TWZ2R+/nYtfTU="
   [mod."github.com/cosmos/ibc-go/v7"]
-<<<<<<< HEAD
     version = "v7.3.2"
     hash = "sha256-nzfVl2BNqrQCcKBBf5bq47EUuVCcEeg6cBEyfG/5XKM="
-=======
-    version = "v7.4.0"
-    hash = "sha256-pvG3HQL7lVtcGOlxSQLGqDN00Ol7g3HSorOexEVD8xE="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
@@ -283,13 +273,8 @@ schema = 3
     version = "v0.6.0"
     hash = "sha256-RtIG2qARd5sT10WQ7F3LR8YJhS8exs+KiuUiVf75bWg="
   [mod."github.com/go-logr/logr"]
-<<<<<<< HEAD
     version = "v1.4.1"
     hash = "sha256-WM4badoqxXlBmqCRrnmtNce63dLlr/FJav3BJSYHvaY="
-=======
-    version = "v1.3.0"
-    hash = "sha256-N8JYtQlwpLWTaCczfhfA/YmHExko0ObPMYVGw8JwbSw="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."github.com/go-logr/stdr"]
     version = "v1.2.2"
     hash = "sha256-rRweAP7XIb4egtT1f2gkz4sYOu7LDHmcJ5iNsJUd0sE="
@@ -348,13 +333,8 @@ schema = 3
     version = "v0.0.0-20191202100458-e7afc7fbc510"
     hash = "sha256-1f392pCmS7AXVKXIC1SvKlYtK/rvW47F5CCkGT2G6JM="
   [mod."github.com/google/uuid"]
-<<<<<<< HEAD
     version = "v1.6.0"
     hash = "sha256-VWl9sqUzdOuhW0KzQlv0gwwUQClYkmZwSydHG2sALYw="
-=======
-    version = "v1.4.0"
-    hash = "sha256-FU0gzLmS48Ik9T+quGg5z/7ESGMPSXM3SY+rdJtG+5w="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."github.com/googleapis/enterprise-certificate-proxy"]
     version = "v0.3.2"
     hash = "sha256-wVuR3QC0mYFl5LNeKdRXdKdod7BGP5sv2h6VVib85v8="
@@ -668,7 +648,6 @@ schema = 3
   [mod."go.opencensus.io"]
     version = "v0.24.0"
     hash = "sha256-4H+mGZgG2c9I1y0m8avF4qmt8LUKxxVsTqR8mKgP4yo="
-<<<<<<< HEAD
   [mod."go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"]
     version = "v0.46.1"
     hash = "sha256-4af3ezbi/at7jZJfEiJ3+a4a1NnxYJPpzZp0tHQq8EA="
@@ -684,17 +663,6 @@ schema = 3
   [mod."go.opentelemetry.io/otel/trace"]
     version = "v1.21.0"
     hash = "sha256-vjZsOaQCgTjz6WYim0YZHLnB/PC3CvTSpS97qkL2vz8="
-=======
-  [mod."go.opentelemetry.io/otel"]
-    version = "v1.19.0"
-    hash = "sha256-y51fwO/y73QBdwwRnCp+wrvVuWLeqfSnU/I8i4mBK84="
-  [mod."go.opentelemetry.io/otel/metric"]
-    version = "v1.19.0"
-    hash = "sha256-eYeeR8XUPjoF6lY3Yg1VUL0dPum/18KAcpo5k6zY67E="
-  [mod."go.opentelemetry.io/otel/trace"]
-    version = "v1.19.0"
-    hash = "sha256-EVsShx1IO0zpMztSfqYQ32Gm+hV4wrVM8wWkEfHOaoM="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."golang.org/x/crypto"]
     version = "v0.22.0"
     hash = "sha256-2+u9nd32+Bi7EEv7QFc12CRTbfV7DApNv+yKIr7+lTw="
@@ -708,24 +676,14 @@ schema = 3
     version = "v0.23.0"
     hash = "sha256-ZB4504rtgsHbcRfijjlqt4/2ddb8tyQB5IBn126uVTQ="
   [mod."golang.org/x/oauth2"]
-<<<<<<< HEAD
     version = "v0.16.0"
     hash = "sha256-fJfS9dKaq82WaYSVWHMnxNLWH8+L4aip/C1AfJi4FFI="
-=======
-    version = "v0.13.0"
-    hash = "sha256-mEmRQrh6FMsenT7x406HbZCynBJCHJ4e9u0M3hpG3m4="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."golang.org/x/sync"]
     version = "v0.6.0"
     hash = "sha256-LLims/wjDZtIqlYCVHREewcUOX4hwRwplEuZKPOJ/HI="
   [mod."golang.org/x/sys"]
-<<<<<<< HEAD
     version = "v0.19.0"
     hash = "sha256-cmuL31TYLJmDm/fDnI2Sn0wB88cpdOHV1+urorsJWx4="
-=======
-    version = "v0.16.0"
-    hash = "sha256-ZkGclbp2S7NQYhbuGji6XokCn2Qi1BJy8dwyAOTV8sY="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."golang.org/x/term"]
     version = "v0.19.0"
     hash = "sha256-wFwEMwhtsr0C4mqjxukjMM7lxJLYPvb7gAPO95xyhyg="
@@ -736,24 +694,15 @@ schema = 3
     version = "v0.5.0"
     hash = "sha256-W6RgwgdYTO3byIPOFxrP2IpAZdgaGowAaVfYby7AULU="
   [mod."golang.org/x/tools"]
-<<<<<<< HEAD
     version = "v0.17.0"
     hash = "sha256-CxuHfKKtUkn3VjA7D9WQjzvV1EUbyI/xMNhb5CxO6IQ="
   [mod."google.golang.org/api"]
     version = "v0.155.0"
     hash = "sha256-lfQZ5XNJYLOSlu+lrwYYIA3qXrraLC/PIVRHha5mlqI="
-=======
-    version = "v0.14.0"
-    hash = "sha256-BC/AesMg7LpIg0/e4a7Ab37rfyP2KaWBFrsonIp+JbE="
-  [mod."google.golang.org/api"]
-    version = "v0.149.0"
-    hash = "sha256-nR3mk7wAsjvMEGsOiPKvqQwt789m6a+BDThpfTx0doA="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."google.golang.org/appengine"]
     version = "v1.6.8"
     hash = "sha256-decMa0MiWfW/Bzr8QPPzzpeya0YWGHhZAt4Cr/bD1wQ="
   [mod."google.golang.org/genproto"]
-<<<<<<< HEAD
     version = "v0.0.0-20240123012728-ef4313101c80"
     hash = "sha256-tRjQ7Nr0ytEhAcRMKW66isgaDNoNL6UKmjfS27s+8d8="
   [mod."google.golang.org/genproto/googleapis/api"]
@@ -768,22 +717,6 @@ schema = 3
   [mod."google.golang.org/protobuf"]
     version = "v1.33.0"
     hash = "sha256-cWwQjtUwSIEkAlAadrlxK1PYZXTRrV4NKzt7xDpJgIU="
-=======
-    version = "v0.0.0-20240102182953-50ed04b92917"
-    hash = "sha256-iTzbVZIeGfcI/ZnDJqJZDxBCJ2J6vlYVdpE7wJX0sXI="
-  [mod."google.golang.org/genproto/googleapis/api"]
-    version = "v0.0.0-20231212172506-995d672761c0"
-    hash = "sha256-K85oYmTXZlQ+dOtyL4k1Oy6Qql2uqRUBOk+9TvRlPpE="
-  [mod."google.golang.org/genproto/googleapis/rpc"]
-    version = "v0.0.0-20240108191215-35c7eff3a6b1"
-    hash = "sha256-bwWoFG+H827aJ3VunK7emdQz3BQlTTjWlM513kTZqSo="
-  [mod."google.golang.org/grpc"]
-    version = "v1.60.1"
-    hash = "sha256-JJ3X6DTUZWYtM8i8izWTH9nDvCydzea31iZt6ULDvsw="
-  [mod."google.golang.org/protobuf"]
-    version = "v1.32.0"
-    hash = "sha256-GJuTkMGHCzHbyK4yD5kY4oMn8wQWqgkeBK//yVDqHJk="
->>>>>>> 08982b5ee (Merge pull request from GHSA-3fp5-2xwh-fxm6)
   [mod."gopkg.in/ini.v1"]
     version = "v1.67.0"
     hash = "sha256-V10ahGNGT+NLRdKUyRg1dos5RxLBXBk1xutcnquc/+4="
