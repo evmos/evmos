@@ -1,16 +1,18 @@
 # Security
 
-As part of our vulnerability disclosure policy. This document serves as a complementary guideline 
+As part of our vulnerability disclosure policy. This document serves as a complementary guideline
 for reporting vulnerabilities and how the disclosure process is managed.
 
 ## Guidelines
 
 We require that all whitehat hackers and researchers:
 
-- Use the Evmos security email ([security@evmos.org](mailto:security@evmos.org)) to disclose all vulnerabilities, 
-and avoid posting vulnerability information in public places, including GitHub, Discord, Telegram, X (Twitter) or other non-private channels.
-- Make every effort to avoid privacy violations, degradation of user experience, disruption to production systems, and destruction of data.
-- Keep any information about vulnerabilities that you’ve discovered confidential between yourself and the engineering 
+- Use the Evmos security email ([security@evmos.org](mailto:security@evmos.org)) to disclose all vulnerabilities,
+and avoid posting vulnerability information in public places, including GitHub, Discord, Telegram, X (Twitter) or
+other non-private channels.
+- Make every effort to avoid privacy violations, degradation of user experience, disruption to production systems,
+and destruction of data.
+- Keep any information about vulnerabilities that you’ve discovered confidential between yourself and the engineering
 team until the issue has been resolved and disclosed
 - Avoid posting personally identifiable information, privately or publicly
 
@@ -81,24 +83,29 @@ as secure as possible.
 
 ### Payment Process
 
-The payment process will be executed according to Evmos SAFU for `Critical` and `High` severity vulnerabilities. 
-Payouts can only be executed in accordance and under supervision of the Evmos Operations team and only once the following requirements have been completed:
+The payment process will be executed according to Evmos SAFU for `Critical` and `High` severity vulnerabilities.
+Payouts can only be executed in accordance and under supervision of the Evmos Operations team and only once the
+following requirements have been completed:
 
 - The whitehat hacker or organization successfully completes the KYC/KYB process (i.e KYC/KYB accepted).
 - The vulnerability is patched in production (eg. mainnet).
 
 #### KYC/KYB Process
 
-The Operations team will get in contact with the whitehat hacker to coordinate the submission of KYC/KYC with the Service Provider [Provenance](http://provenancecompliance.com).
+The Operations team will get in contact with the whitehat hacker to coordinate the submission of KYC/KYC with
+the Service Provider [Provenance](http://provenancecompliance.com).
 
-The KYC/KYB process is performed independently by the Service Provider, which submits a report with the KYC/KYB result 
-(Accepted or Rejected) to the Evmos Core Team. The Evmos Core team does not have access to any of the information provided to the Service Provider.
+The KYC/KYB process is performed independently by the Service Provider, which submits a report with the
+KYC/KYB result 
+(Accepted or Rejected) to the Evmos Core Team. The Evmos Core team does not have access to any of the information
+provided to the Service Provider.
 
 The following information is to be submitted to the independent Service Provider:
 
 - **Email**
 - **Physical Address**
-- **Proof of Address**: Utility bill (with exception of mobile phone invoice) or bank statement with no more than 3 months old from the current date.
+- **Proof of Address**: Utility bill (with exception of mobile phone invoice) or bank statement with no more than 3
+months old from the current date.
 - **Passport** (National Identification) + Selfie photo.
 - **Receiving Address**: The on-chain address account that will receive the Payouts.
 
@@ -106,13 +113,14 @@ The following information is to be submitted to the independent Service Provider
 
 The team commits to releasing security patch releases for the latest release that Evmos is running. 
 
-If evmOS licensees are running older versions, we encourage them to upgrade at the earliest opportunity so that you can receive 
-security patches directly from the repo, according to the terms set in the License Agreement. While projects are welcomed to 
-backport security patches to older versions for their own use, the Evmos team reserves the right to prioritize patches for latest versions being used by projects.
+If evmOS licensees are running older versions, we encourage them to upgrade at the earliest opportunity so that you can receive
+security patches directly from the repo, according to the terms set in the License Agreement. While projects are welcomed to
+backport security patches to older versions for their own use, the Evmos team reserves the right to prioritize patches for
+latest versions being used by projects.
 
 #### Scope of Vulnerabilities
 
-We’re interested in a full range of bugs with demonstrable security risk: from those that can be proven with a simple unit test, 
+We’re interested in a full range of bugs with demonstrable security risk: from those that can be proven with a simple unit test,
 to those that require a full cluster and a complex sequence of transactions.
 
 Please note that, in the interest of the safety of our users and staff, a few things are explicitly excluded from scope:
@@ -120,8 +128,8 @@ Please note that, in the interest of the safety of our users and staff, a few th
 - Any third-party services.
 - Findings derived from social engineering (e.g., phishing).
 
-Examples of vulnerabilities that are of interest to us include memory allocation bugs, race conditions, timing attacks, information leaks, 
-authentication bypasses, denial of service (specifically at the application- or protocol-layer), lost-write bugs, unauthorized account or 
+Examples of vulnerabilities that are of interest to us include memory allocation bugs, race conditions, timing attacks, information leaks,
+authentication bypasses, denial of service (specifically at the application- or protocol-layer), lost-write bugs, unauthorized account or
 capability access, stolen or loss of funds, token inflation bugs, payloads/transactions that cause panics, non deterministic logic, etc.
 
 ##### JSON-RPC
