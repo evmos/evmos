@@ -83,6 +83,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
 - (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
 - (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
+- (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
 
 ## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
