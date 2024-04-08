@@ -89,7 +89,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (evm)  Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
+- (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
 
 ## [v16.0.4] - 2024-04-05
 
