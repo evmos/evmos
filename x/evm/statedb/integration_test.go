@@ -17,7 +17,9 @@ import (
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
+	//nolint:revive // okay to use dot imports for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // okay to use dot imports for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
