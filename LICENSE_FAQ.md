@@ -49,12 +49,10 @@ blockchain consensus.The initial Designated Blockchains shall be the Evmos
 blockchains, identified by chain identifiers 9000 (testing network or testnet)
 and 9001 (main network or mainnet).
 
-Apart from Evmos repository, Evmos is currently building the Evmos Software
-Development Kit (Evmos SDK), to help developers to create their own
-EVM-compatible blockchain network with custom parameters. Once it is publicly
-available, you may use the Evmos SDK instead for your commercial project,
-subject to the applicable Evmos SDK license. For more information about Evmos
-SDK, check out the Evmos Manifesto.
+Apart from Evmos repository, Evmos is currently building evmOS, to help developers
+to create their own EVM-compatible blockchain network with custom parameters.
+Once it is publicly available, you may use evmOS instead for your commercial project,
+subject to the applicable evmOS license. For more information about evmOS, check out the Evmos Manifesto.
 
 **Q: What is the purpose of ENCL-1.0?**
 
@@ -109,8 +107,8 @@ well as many other for-profit and non-profit open source projects.
 
 **A:** Evmos stays the maintainer of the Ethermint repository, which will remain
 under the LGPL v3 license. New features developments that have been previously
-planned to be included on Ethermint are instead going to be part of Evmos SDK.
-For more information on the Evmos SDK, check out the Evmos Manifesto.
+planned to be included on Ethermint are instead going to be part of evmOS.
+For more information on the evmOS, check out the Evmos Manifesto.
 
 **Q: Do I need a commercial permit when testing ENCL software?**
 
@@ -125,7 +123,7 @@ running in commercial use, unless they are running on the Designated
 Blockchains. If you negotiate a commercial permit with us, it will contain
 details about the relationship between the two licenses.
 
-**Q: What if Tharsis Labs  decides to change the use limitation in the future?**
+**Q: What if Tharsis Labs decides to change the use limitation in the future?**
 
 **A:** We hope the current limitations will work for the foreseeable future.
 However, a licensor may change the use limitation in future releases, and you
