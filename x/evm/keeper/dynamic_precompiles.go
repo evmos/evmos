@@ -46,7 +46,7 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 	return addresses, activePrecompileMap
 }
 
-// GetDynamicPrecompileInstance returns the precompile instance for the given address
+// GetDynamicPrecompileInstance returns the dynamic precompile instance for the given address.
 func (k Keeper) GetDynamicPrecompileInstance(
 	ctx sdk.Context,
 	params *types.Params,
