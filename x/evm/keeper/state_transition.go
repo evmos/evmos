@@ -61,8 +61,7 @@ func (k *Keeper) NewEVM(
 		precompileList, precompileMap, found := k.GetPrecompileInstance(ctx, addr)
 		if found {
 			evm.WithPrecompiles(precompileMap, precompileList)
-			return nil
-		}
+	}
 		return nil
 	}
 	return vm.NewEVMWithCallback(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
