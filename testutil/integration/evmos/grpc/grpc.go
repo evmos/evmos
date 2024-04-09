@@ -11,7 +11,6 @@ import (
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // Handler is an interface that defines the methods that are used to query
@@ -35,10 +34,6 @@ type Handler interface {
 	// Gov methods
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
 	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
-
-	// Revenue methods
-	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
-	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

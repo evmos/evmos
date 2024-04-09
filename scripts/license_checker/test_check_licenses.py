@@ -43,12 +43,6 @@ def test_check_if_in_exempt_files_not_included():
 
 
 def test_check_if_in_exempt_files_included():
-    file = "/Users/malte/dev/go/evmos/evmos/x/revenue/v1/genesis.go"
-    assert cl.check_if_in_exempt_files(file) is True
-
-    file = "/Users/malte/dev/go/evmos/evmos/x/claims/genesis.go"
-    assert cl.check_if_in_exempt_files(file) is True
-
     file = "/Users/malte/dev/go/evmos/evmos/x/erc20/keeper/proposals.go"
     assert cl.check_if_in_exempt_files(file) is True
 

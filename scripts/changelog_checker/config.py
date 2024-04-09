@@ -71,6 +71,7 @@ def get_allowed_categories() -> List[str]:
         "consensus",
         "recovery",
         "incentives",
+        "revenue",
     ]
 
     base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))

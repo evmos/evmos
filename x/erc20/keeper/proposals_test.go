@@ -242,7 +242,7 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 		{
 			"not allowed to disable native coin pair",
 			func() {
-				err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, teststypes.UosmoIbcdenom)
+				_, err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, teststypes.UosmoIbcdenom)
 				suite.Require().NoError(err)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)

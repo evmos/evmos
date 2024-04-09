@@ -28,6 +28,11 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		// revenue module is deprecated
+		logger.Debug("deleting revenue module from version map...")
+		delete(vm, "revenue")
+
+		// Leave modules as-is to avoid running InitGenesis.
 		// Get EVM denomination
 		evmDenom := ek.GetParams(ctx).EvmDenom
 
