@@ -197,7 +197,7 @@ func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	return ok
 }
 
-// IsAvailablePrecompile returns true if the given precompile address is contained in the
+// IsAvailablePrecompile returns true if the given static precompile address is contained in the
 // EVM keeper's available precompiles map.
 func (k Keeper) IsAvailableStaticPrecompile(params *types.Params, address common.Address) bool {
 	return slices.Contains(params.ActiveStaticPrecompiles, address.String()) ||
