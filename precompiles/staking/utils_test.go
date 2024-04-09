@@ -389,6 +389,13 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 	}
 }
 
+// ExpectNoAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
+// authorization is not available.
+func (s *PrecompileTestSuite) ExpectNoAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) {
+	authz, _ := s.CheckAuthorization(authorizationType, grantee, granter)
+	Expect(authz).To(BeNil(), "expected authorization not to be set")
+}
+
 // ExpectAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
 // authorization is correctly set.
 func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address, maxTokens *sdk.Coin) {

@@ -49,7 +49,10 @@ func CheckAuthorizationEvents(event abi.Event, precompileAddr, granter, grantee 
 	Expect(unpackedData[0]).To(Equal(msgTypes), "expected different message types in event")
 	if amount != nil {
 		Expect(len(unpackedData)).To(Equal(2), "expected different number of arguments in event")
-		Expect(unpackedData[1]).To(Equal(amount), "expected different amount in event")
+
+		gotAmount, ok := unpackedData[1].(*big.Int)
+		Expect(ok).To(BeTrue(), "expected amount to be a big.Int")
+		Expect(gotAmount.String()).To(Equal(amount.String()), "expected different amount in event")
 	}
 }
 

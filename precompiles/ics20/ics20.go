@@ -4,14 +4,13 @@
 package ics20
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v16/precompiles/authorization"
@@ -32,6 +31,12 @@ type Precompile struct {
 	channelKeeper  channelkeeper.Keeper
 }
 
+// LoadABI loads the ICS-20 ABI from the embedded abi.json file
+// for the ICS-20 precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
+}
+
 // NewPrecompile creates a new ICS-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
@@ -39,12 +44,7 @@ func NewPrecompile(
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	newAbi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
