@@ -49,10 +49,10 @@ blockchain consensus.The initial Designated Blockchains shall be the Evmos
 blockchains, identified by chain identifiers 9000 (testing network or testnet)
 and 9001 (main network or mainnet).
 
-Apart from Evmos repository, Evmos is currently building evmOS, to help developers
-to create their own EVM-compatible blockchain network with custom parameters.
-Once it is publicly available, you may use evmOS instead for your commercial project,
-subject to the applicable evmOS license. For more information about evmOS, check out the Evmos Manifesto.
+Evmos is currently building evmOS, the commercial name of the software associated with the Evmos repository,
+to help developers to create their own EVM-compatible blockchain network with custom parameters.
+You may use evmOS for your commercial project, subject to the applicable evmOS license.
+For more information about evmOS, check out the Evmos Manifesto.
 
 **Q: What is the purpose of ENCL-1.0?**
 
@@ -105,7 +105,7 @@ well as many other for-profit and non-profit open source projects.
 
 **Q: What will happen to Ethermint? Will it continue to be maintained?**
 
-**A:** Evmos stays the maintainer of the Ethermint repository, which will remain
+**A:** Ethermint repository has been archived on Apr 4 2024 and will remain
 under the LGPL v3 license. New features developments that have been previously
 planned to be included on Ethermint are instead going to be part of evmOS.
 For more information on the evmOS, check out the Evmos Manifesto.
@@ -125,7 +125,7 @@ details about the relationship between the two licenses.
 
 **Q: What if Tharsis Labs decides to change the use limitation in the future?**
 
-**A:** We hope the current limitations will work for the foreseeable future.
+**A:** We expect the current limitations will work for the foreseeable future.
 However, a licensor may change the use limitation in future releases, and you
 will always be able to use any previous version of the ENCL software under its
 conditions applied at the time of release. In other words, the licensor’s
