@@ -44,7 +44,7 @@ func AvailablePrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	vestingKeeper vestingkeeper.Keeper,
+	vestingKeeper any,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
@@ -75,9 +75,12 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
+	var vestingPrecompile vm.PrecompiledContract
+	if r, ok := vestingKeeper.(vestingkeeper.Keeper); ok {
+		vestingPrecompile, err = vestingprecompile.NewPrecompile(r, authzKeeper)
+		if err != nil {
+			panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
+		}
 	}
 
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
