@@ -31,7 +31,7 @@ func (k *Keeper) GetActivePrecompilesInstances(
 
 	return addresses, staticPrecompilesMap
 }
-
+// GetPrecompileInstance returns the address and instance of the static or dynamic precompile associated with the given address, or return nil if not found.
 func (k *Keeper) GetPrecompileInstance(
 	ctx sdktypes.Context,
 	address common.Address,
