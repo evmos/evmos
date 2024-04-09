@@ -5,6 +5,10 @@ package strv2_test
 
 import (
 	"fmt"
+	"math/big"
+	"testing"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -25,9 +29,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
-	"math/big"
-	"testing"
-	"time"
 )
 
 func TestSTRv2Tracking(t *testing.T) {
@@ -93,10 +94,6 @@ var (
 var _ = Describe("STRv2 Tracking -", func() {
 	var (
 		s *STRv2TrackingSuite
-
-		nativeCoinERC20Addr   common.Address
-		registeredERC20Addr   common.Address
-		unregisteredERC20Addr common.Address
 	)
 
 	BeforeEach(func() {
@@ -125,7 +122,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err := s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -158,7 +155,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err := s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -176,7 +173,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err = s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -209,7 +206,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err := s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -247,7 +244,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 						evmtypes.EvmTxArgs{},
 						testfactory.ContractDeploymentData{
 							Contract:        testdata.TokenTransferContract,
-							ConstructorArgs: []interface{}{nativeCoinERC20Addr},
+							ConstructorArgs: []interface{}{s.nativeCoinERC20Addr},
 						},
 					)
 					Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 transfer contract")
@@ -258,7 +255,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err = s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -347,7 +344,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					_, err := s.factory.ExecuteContractCall(
 						sender.Priv,
 						evmtypes.EvmTxArgs{
-							To: &nativeCoinERC20Addr,
+							To: &s.nativeCoinERC20Addr,
 						},
 						testfactory.CallArgs{
 							ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -380,7 +377,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 				_, err := s.factory.ExecuteContractCall(
 					deployer.Priv,
 					evmtypes.EvmTxArgs{
-						To: &registeredERC20Addr,
+						To: &s.registeredERC20Addr,
 					},
 					testfactory.CallArgs{
 						ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -405,7 +402,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 				_, err := s.factory.ExecuteContractCall(
 					deployer.Priv,
 					evmtypes.EvmTxArgs{
-						To: &unregisteredERC20Addr,
+						To: &s.unregisteredERC20Addr,
 					},
 					testfactory.CallArgs{
 						ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
@@ -539,7 +536,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					commonfactory.CosmosTxArgs{
 						Msgs: []sdk.Msg{
 							&erc20types.MsgConvertERC20{
-								ContractAddress: nativeCoinERC20Addr.String(),
+								ContractAddress: s.nativeCoinERC20Addr.String(),
 								Sender:          sender.Addr.String(),
 								Receiver:        sender.AccAddr.String(),
 								Amount:          convertAmount,
