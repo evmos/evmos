@@ -44,7 +44,7 @@ func (k *Keeper) GetPrecompileInstance(
 		return []common.Address{precompile.Address()}, addressMap, ok
 	}
 
-	// Get the precompile from the static precompiles
+	// Get the precompile from the dynamic precompiles
 	if precompile, ok := k.GetDynamicPrecompileInstance(ctx, &params, address); ok {
 		addressMap := make(map[common.Address]vm.PrecompiledContract)
 		addressMap[address] = precompile
