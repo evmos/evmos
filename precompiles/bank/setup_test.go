@@ -12,9 +12,8 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	integrationUtils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -33,7 +32,7 @@ type PrecompileTestSuite struct {
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
-	keyring     testkeyring.Keyring
+	keyring     keyring.Keyring
 
 	precompile *bank.Precompile
 }
@@ -45,7 +44,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := keyring.New(2)
-	genesis := integrationUtils.CreateGenesisWithTokenPairs(keyring)
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithCustomGenesis(genesis),
@@ -65,8 +64,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.network = integrationNetwork
 
-	tokenPairId := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
-	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairId)
+	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
+	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
 	s.Require().True(found)
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
@@ -76,8 +75,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
-	tokenPairId = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
-	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairId)
+	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
+	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
 	s.Require().True(found)
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 

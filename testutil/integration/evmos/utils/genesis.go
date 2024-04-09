@@ -1,3 +1,6 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package utils
 
 import (
@@ -23,14 +26,15 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 	// because the Mono ante handler checks the account balance by querying the
 	// account from the account keeper first. If these accounts are not in the genesis
 	// state, the ante handler finds a zero balance because of the missing account.
-	var genesisAccounts []*authtypes.BaseAccount
-	for i, addr := range keyring.GetAllAccAddrs() {
-		genesisAccounts = append(genesisAccounts, &authtypes.BaseAccount{
+	accs := keyring.GetAllAccAddrs()
+	genesisAccounts := make([]*authtypes.BaseAccount, len(accs))
+	for i, addr := range accs {
+		genesisAccounts[i] = &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
 			AccountNumber: uint64(i + 1),
 			Sequence:      1,
-		})
+		}
 	}
 
 	accGenesisState := authtypes.DefaultGenesisState()

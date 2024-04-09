@@ -10,7 +10,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	integrationUtils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -49,7 +49,7 @@ type IntegrationTestSuite struct {
 
 func (is *IntegrationTestSuite) SetupTest() {
 	keyring := keyring.New(2)
-	genesis := integrationUtils.CreateGenesisWithTokenPairs(keyring)
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithCustomGenesis(genesis),
@@ -69,8 +69,8 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.keyring = keyring
 	is.network = integrationNetwork
 
-	tokenPairId := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
-	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairId)
+	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
+	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
@@ -78,8 +78,8 @@ func (is *IntegrationTestSuite) SetupTest() {
 	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
 	Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
 
-	tokenPairId = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
-	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairId)
+	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
+	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
 	is.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 	is.precompile = is.setupBankPrecompile()

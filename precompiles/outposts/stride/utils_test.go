@@ -32,10 +32,6 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
-	// Register some Token Pairs
-	// _, err = s.network.App.Erc20Keeper.RegisterERC20Extension(ctx, bondDenom)
-	// s.Require().NoError(err)
-
 	// Register stEvmos Token Pair
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
