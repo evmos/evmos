@@ -82,6 +82,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
 - (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
+- (evm) [#2436](https://github.com/evmos/evmos/pull/2436) Using maps.Clone API to simplify code.
 - (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
 - (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
 

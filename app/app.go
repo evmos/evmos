@@ -762,6 +762,8 @@ func NewEvmos(
 	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
 	if slices.Contains(streamers, versionDB) {
 		queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		// ignore linter here because the error returned will depend on the
+		// binary build: if it is built with rocksdb or not
 		if err != nil {
 			panic(errorsmod.Wrap(err, "error on versionDB setup"))
 		}
