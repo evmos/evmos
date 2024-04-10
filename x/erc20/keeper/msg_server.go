@@ -48,7 +48,7 @@ func (k Keeper) ConvertERC20(
 	return nil, types.ErrUndefinedOwner
 }
 
-// convertERC20NativeToken handles the erc20 conversion for a native erc20 token
+// convertERC20IntoCoinsForNativeToken handles the erc20 conversion for a native erc20 token
 // pair:
 //   - escrow tokens on module account
 //   - mint coins on bank module
