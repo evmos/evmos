@@ -530,7 +530,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				big.NewInt(1e18),
 			}
 
-			err := s.CreateAuthorization(s.network.GetContext(),s.keyring.GetAccAddr(0),s.keyring.GetAccAddr(0), staking.RedelegateAuthz, nil)
+			err := s.CreateAuthorization(s.network.GetContext(), s.keyring.GetAccAddr(0), s.keyring.GetAccAddr(0), staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			_, err = s.precompile.Redelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &redelegateMethod, delegationArgs)
@@ -684,7 +684,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			err := s.setupRedelegations(s.network.GetContext(),delAmt)
+			err := s.setupRedelegations(s.network.GetContext(), delAmt)
 			s.Require().NoError(err)
 
 			// query redelegations
@@ -728,7 +728,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		{
 			"success - query delegate method allowance",
 			func() []interface{} {
-				err := s.CreateAuthorization(s.network.GetContext(),s.keyring.GetAccAddr(0), granteeAddr.Bytes(), staking.DelegateAuthz, &approvedCoin)
+				err := s.CreateAuthorization(s.network.GetContext(), s.keyring.GetAccAddr(0), granteeAddr.Bytes(), staking.DelegateAuthz, &approvedCoin)
 				s.Require().NoError(err)
 
 				return []interface{}{
