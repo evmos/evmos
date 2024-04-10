@@ -82,14 +82,34 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
 - (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
-- (evm) [#2441](https://github.com/evmos/evmos/pull/2441) Remove unused error var
+- (evm) [#2436](https://github.com/evmos/evmos/pull/2436) Using maps.Clone API to simplify code.
+- (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
+- (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
+- (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
 
-## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
+## [v17.0.0] - 2024-04-08
+
+### State Machine Breaking
+
+- (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
+
+## [v16.0.4] - 2024-04-05
+
+### Improvements
+
+- (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
+
+## [v16.0.3] - 2024-02-02
+
+## Bug Fixes
+
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+
+## [v16.0.2] - 2024-01-16
 
 ### Bug Fixes
 
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup.
 
 ## [v16.0.1](https://github.com/evmos/evmos/releases/tag/v16.0.1) - 2024-01-11
 
