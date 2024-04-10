@@ -531,7 +531,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, false,
 		},
 		{
-			"fails - DeliverTx EIP712 signed Cosmos Tx with empty signature",
+			"fails - DeliverTx EIP712 signed Cosmos Tx with invalid chain id",
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)

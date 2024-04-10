@@ -11,7 +11,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -90,7 +89,7 @@ func TestEpochMintProvision(t *testing.T) {
 					uint64(0),
 					365,
 					math.LegacyOneDec(),
-				).Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
 					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
@@ -225,7 +224,7 @@ func TestQueryInflationRate(t *testing.T) {
 	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
 	require.NoError(t, err)
 
-	expInflationRate := math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+	expInflationRate := math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(types.ReductionFactor))
 	res, err := qc.InflationRate(ctx, &types.QueryInflationRateRequest{})
 	require.NoError(t, err)
 	require.Equal(t, expInflationRate, res.InflationRate)

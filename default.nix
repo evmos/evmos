@@ -25,7 +25,7 @@ let
   # but we can import the needed packages from the newer version
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/23.11.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
-  go_1_21 = nixpkgs.pkgs.go_1_21;  
+  go_1_21 = nixpkgs.pkgs.go_1_21;    
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;

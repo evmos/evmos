@@ -2,21 +2,40 @@ package evm_test
 
 import (
 	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
+	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/x/evm"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *EvmTestSuite) TestInitGenesis() {
+type GenesisTestSuite struct {
+	keyring testkeyring.Keyring
+	network *testnetwork.UnitTestNetwork
+}
+
+func SetupTest() *GenesisTestSuite {
+	keyring := testkeyring.New(1)
+	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	return &GenesisTestSuite{
+		keyring: keyring,
+		network: network,
+	}
+}
+
+func TestInitGenesis(t *testing.T) {
 	privkey, err := ethsecp256k1.GenerateKey()
-	suite.Require().NoError(err)
+	require.NoError(t, err, "failed to generate private key")
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
@@ -27,22 +46,22 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 
 	testCases := []struct {
 		name     string
-		malleate func()
+		malleate func(*testnetwork.UnitTestNetwork)
 		genState *types.GenesisState
 		expPanic bool
 	}{
 		{
-			"default",
-			func() {},
-			types.DefaultGenesisState(),
-			false,
+			name:     "default",
+			malleate: func(_ *testnetwork.UnitTestNetwork) {},
+			genState: types.DefaultGenesisState(),
+			expPanic: false,
 		},
 		{
-			"valid account",
-			func() {
+			name: "valid account",
+			malleate: func(_ *testnetwork.UnitTestNetwork) {
 				vmdb.AddBalance(address, big.NewInt(1))
 			},
-			&types.GenesisState{
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -53,12 +72,12 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			false,
+			expPanic: false,
 		},
 		{
-			"account not found",
-			func() {},
-			&types.GenesisState{
+			name:     "account not found",
+			malleate: func(_ *testnetwork.UnitTestNetwork) {},
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -66,17 +85,17 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			true,
+			expPanic: true,
 		},
 		{
-			"invalid account type",
-			func() {
+			name: "invalid account type",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
 				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
 				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
 				acc.AccountNumber = accNum
 				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
-			&types.GenesisState{
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -84,15 +103,16 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			true,
+			expPanic: true,
 		},
 		{
-			"invalid code hash",
-			func() {
-				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
-				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
+			name: "invalid code hash",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
+				ctx := network.GetContext()
+				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
-			&types.GenesisState{
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -101,16 +121,16 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			true,
+			expPanic: true,
 		},
 		{
-			"ignore empty account code checking",
-			func() {
-				acc := suite.network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
-
-				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
+			name: "ignore empty account code checking",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
+				ctx := network.GetContext()
+				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
-			&types.GenesisState{
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -119,20 +139,20 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			false,
+			expPanic: false,
 		},
 		{
-			"ignore empty account code checking with non-empty codehash",
-			func() {
+			name: "ignore empty account code checking with non-empty codehash",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
 				ethAcc := &evmostypes.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
 					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
 				}
 				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
 				ethAcc.AccountNumber = accNum
-				suite.network.App.AccountKeeper.SetAccount(ctx, ethAcc)
+				network.App.AccountKeeper.SetAccount(ctx, ethAcc)
 			},
-			&types.GenesisState{
+			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
@@ -141,32 +161,43 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 					},
 				},
 			},
-			false,
+			expPanic: false,
 		},
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset values
-			vmdb = suite.StateDB()
-			ctx = suite.network.GetContext()
+		t.Run(tc.name, func(t *testing.T) {
+			ts := SetupTest()
+			ctx := ts.network.GetContext()
 
-			tc.malleate()
+			vmdb = statedb.New(
+				ctx,
+				ts.network.App.EvmKeeper,
+				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())),
+			)
+
+			tc.malleate(ts.network)
 			err := vmdb.Commit()
-			suite.Require().NoError(err)
+			require.NoError(t, err, "failed to commit to state db")
 
 			if tc.expPanic {
-				suite.Require().Panics(
-					func() {
-						_ = evm.InitGenesis(ctx, suite.network.App.EvmKeeper, suite.network.App.AccountKeeper, *tc.genState)
-					},
-				)
+				require.Panics(t, func() {
+					_ = evm.InitGenesis(
+						ts.network.GetContext(),
+						ts.network.App.EvmKeeper,
+						ts.network.App.AccountKeeper,
+						*tc.genState,
+					)
+				})
 			} else {
-				suite.Require().NotPanics(
-					func() {
-						_ = evm.InitGenesis(ctx, suite.network.App.EvmKeeper, suite.network.App.AccountKeeper, *tc.genState)
-					},
-				)
+				require.NotPanics(t, func() {
+					_ = evm.InitGenesis(
+						ctx,
+						ts.network.App.EvmKeeper,
+						ts.network.App.AccountKeeper,
+						*tc.genState,
+					)
+				})
 			}
 		})
 	}

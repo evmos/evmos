@@ -120,13 +120,13 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 			"high supply",
 			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
-			math.LegacyMustNewDecFromStr("51.562500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
+			math.LegacyMustNewDecFromStr("17.187500000000000000"),
 		},
 		{
 			"low supply",
 			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
-			math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
+			math.LegacyMustNewDecFromStr("51.562500000000000000"),
 		},
 		{
 			"zero circulating supply",

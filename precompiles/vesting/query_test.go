@@ -27,7 +27,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
@@ -39,7 +39,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid type for vestingAddress",
 		},
@@ -51,7 +51,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"is not a vesting account",
 		},

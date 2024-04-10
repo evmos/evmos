@@ -58,3 +58,11 @@ func (gqh *IntegrationHandler) GetDelegatorUnbondingDelegations(delegatorAddress
 		DelegatorAddr: delegatorAddress,
 	})
 }
+
+// GetValidators returns the list of all bonded validators.
+func (gqh *IntegrationHandler) GetBondedValidators() (*stakingtypes.QueryValidatorsResponse, error) {
+	stakingClient := gqh.network.GetStakingClient()
+	return stakingClient.Validators(context.Background(), &stakingtypes.QueryValidatorsRequest{
+		Status: stakingtypes.BondStatusBonded,
+	})
+}

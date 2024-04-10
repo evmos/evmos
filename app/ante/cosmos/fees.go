@@ -116,7 +116,7 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 		if !feeGranter.Equals(feePayer) {
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fees, sdkTx.GetMsgs())
 			if err != nil {
-				return errorsmod.Wrapf(err, "%s does not not allow to pay fees for %s", feeGranter, feePayer)
+				return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
 			}
 		}
 

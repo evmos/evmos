@@ -47,6 +47,7 @@ type Handler interface {
 	GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error)
 	GetValidatorOutstandingRewards(validatorAddress string) (*distrtypes.QueryValidatorOutstandingRewardsResponse, error)
 	GetCommunityPool() (*distrtypes.QueryCommunityPoolResponse, error)
+	GetBondedValidators() (*stakingtypes.QueryValidatorsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

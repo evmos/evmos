@@ -70,7 +70,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		//			[]string{"invalid"},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -413,7 +413,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -564,7 +564,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",

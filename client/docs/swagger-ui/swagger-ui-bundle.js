@@ -25428,7 +25428,7 @@
             try {
                 return e && r(e.toString) ? e.toString() : String(e)
             } catch (e) {
-                throw new TypeError("Passed argument cannot be stringifed")
+                throw new TypeError("Passed argument cannot be stringified")
             }
         }
     }, function(e, t, n) {

@@ -117,9 +117,9 @@ func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
 	return &evmRes, nil
 }
 
-// populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
+// populateEvmTxArgsWithDefault populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
-func (tf *IntegrationTxFactory) populateEvmTxArgs(
+func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 	fromAddr common.Address,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {

@@ -16,7 +16,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 type UpdateParamsInput struct {
@@ -32,12 +31,6 @@ var authority = authtypes.NewModuleAddress(govtypes.ModuleName).String()
 // It submits an update params proposal, votes for it, and waits till it passes
 func UpdateEvmParams(input UpdateParamsInput) error {
 	return updateModuleParams[evmtypes.Params](input, evmtypes.ModuleName)
-}
-
-// UpdateRevenueParams helper function to update the revenue module parameters
-// It submits an update params proposal, votes for it, and waits till it passes
-func UpdateRevenueParams(input UpdateParamsInput) error {
-	return updateModuleParams[revtypes.Params](input, revtypes.ModuleName)
 }
 
 // UpdateInflationParams helper function to update the inflation module parameters

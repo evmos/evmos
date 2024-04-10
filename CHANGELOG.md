@@ -45,9 +45,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 - (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
+- (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
+- (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
+- (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
+- (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
+
+### Bug Fixes
+
+- (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
 
 ### Improvements
 
+- (all) [#2451](https://github.com/evmos/evmos/pull/2451) Updating the safu.pdf document.
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
 - (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
@@ -62,8 +71,41 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
 - (tests) [#2296](https://github.com/evmos/evmos/pull/2296) Add custom genesis config functionality to integration setup.
 - (db) [#2297](https://github.com/evmos/evmos/pull/2297) Patch versionDB dependency to avoid lagging behind on OS reboot and update version check logic.
+- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
+- (evm) [#2307](https://github.com/evmos/evmos/pull/2307) Add global BuildEVMExecutionCtx function.
+- (tests) [#2311](https://github.com/evmos/evmos/pull/2311) Fix post-upgrade transactions in automated upgrade tests.
+- (build) [#2319](https://github.com/evmos/evmos/pull/2319) Bump go.mod golang version to v1.21.
+- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (cli) [#2245](https://github.com/evmos/evmos/pull/2245) Update convert an address between hex and bech32.
+- (werc20-precompile) [#2329](https://github.com/evmos/evmos/pull/2329) Make WEVMOS precompile `deposit` and `withdraw` functions no-ops.
+- (tests) [#2348](https://github.com/evmos/evmos/pull/2348) Extend integration transaction factory utils.
+- (all) [#2388](https://github.com/evmos/evmos/pull/2388) Remove legacy handler files from repository.
+- (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
+- (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
+- (evm) [#2436](https://github.com/evmos/evmos/pull/2436) Using maps.Clone API to simplify code.
+- (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
+- (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
+- (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
 
-## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
+## [v17.0.0] - 2024-04-08
+
+### State Machine Breaking
+
+- (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
+
+## [v16.0.4] - 2024-04-05
+
+### Improvements
+
+- (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
+
+## [v16.0.3] - 2024-02-02
+
+## Bug Fixes
+
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+
+## [v16.0.2] - 2024-01-16
 
 ### Bug Fixes
 
@@ -934,4 +976,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-

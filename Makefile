@@ -176,10 +176,6 @@ build-docker:
 	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
 	chmod +x ./build/evmosd
 
-build-pebbledb:
-	@go mod edit -replace github.com/cometbft/cometbft-db=github.com/notional-labs/cometbft-db@pebble
-	@go mod tidy
-	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
 
 build-rocksdb:
 	# Make sure to run this command with root permission
@@ -425,6 +421,10 @@ protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --user 0 $(protoImageName)
 
+protoLintVer=0.44.0
+protoLinterImage=yoheimuta/protolint
+protoLinter=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --user 0 $(protoLinterImage):$(protoLintVer)
+
 # ------
 # NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
@@ -448,6 +448,7 @@ proto-format:
 proto-lint:
 	@echo "Linting Protobuf files"
 	@$(protoImage) buf lint --error-format=json	
+	@$(protoLinter) lint ./proto
 
 proto-check-breaking:
 	@echo "Checking Protobuf files for breaking changes"
@@ -551,7 +552,7 @@ localnet-show-logstream:
 ###############################################################################
 
 PACKAGE_NAME:=github.com/evmos/evmos
-GOLANG_CROSS_VERSION  = v1.20
+GOLANG_CROSS_VERSION  = v1.21
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
 	docker run \

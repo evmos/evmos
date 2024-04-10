@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package evm
 
 import (
@@ -8,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	evmante "github.com/evmos/evmos/v16/x/evm/ante"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
@@ -40,10 +42,8 @@ func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context,
 	}
 
 	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
-	newCtx := ctx.WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
-
+	newCtx := evmante.BuildEvmExecutionCtx(ctx).
+		WithGasMeter(storetypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.
 	// Transient gas-used is necessary to sum the gas-used of cosmos tx, when it contains multiple eth msgs.
 	evmKeeper.ResetTransientGasUsed(ctx)

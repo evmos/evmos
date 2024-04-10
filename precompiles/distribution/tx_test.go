@@ -145,7 +145,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 			func(stakingtypes.Validator) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -158,7 +158,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 					val.OperatorAddress,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, ""),
@@ -171,7 +171,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid validator address",
@@ -250,7 +250,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			func(string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
@@ -262,7 +262,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"empty address string is not allowed",
@@ -354,7 +354,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
@@ -367,7 +367,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					10,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid delegator address",
@@ -380,7 +380,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					big.NewInt(100000000000000000),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			true,
 			"invalid type for maxRetrieve: expected uint32",

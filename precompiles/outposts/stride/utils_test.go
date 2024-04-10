@@ -96,7 +96,7 @@ func (s *PrecompileTestSuite) setupIBCCoordinator() {
 	)
 
 	IBCCoordinator.SetDefaultSignerForChain(s.network.GetChainID(), ibcSenderPrivKey, ibcAcc)
-	IBCCoordinator.Setup(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIds()[0])
+	IBCCoordinator.Setup(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIDs()[0])
 
 	err = IBCCoordinator.CommitAll()
 	s.Require().NoError(err)

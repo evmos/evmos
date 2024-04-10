@@ -55,7 +55,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 6, 0),
 		},
@@ -73,7 +73,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"is not the same as delegator address",
 		},
@@ -90,7 +90,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid description",
 		},
@@ -107,7 +107,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid commission",
 		},
@@ -124,7 +124,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid amount",
 		},
@@ -141,7 +141,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid validator address",
 		},
@@ -158,7 +158,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid type for",
 		},
@@ -175,7 +175,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"illegal base64 data",
 		},
@@ -192,7 +192,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"consensus pubkey len is invalid",
 		},
@@ -209,7 +209,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid amount",
 		},
@@ -329,7 +329,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			},
 			200000,
 			big.NewInt(0),
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -359,7 +359,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			},
 			200000,
 			big.NewInt(1),
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, ""),
 		},
@@ -374,7 +374,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			},
 			200000,
 			big.NewInt(1),
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidAmount, nil),
 		},
@@ -394,7 +394,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			},
 			200000,
 			big.NewInt(15),
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"insufficient funds",
 		},
@@ -417,7 +417,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		//	},
 		//	200000,
 		//	big.NewInt(15),
-		//	func(data []byte) {},
+		//	func( []byte) {},
 		//	true,
 		//	"cannot delegate/undelegate",
 		// },
@@ -557,7 +557,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 			func(delegator, grantee testkeyring.Key, operatorAddress string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(0),
 			true,
@@ -587,7 +587,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -602,7 +602,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -692,7 +692,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(0),
 			true,
@@ -724,7 +724,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -740,7 +740,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -756,7 +756,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 					big.NewInt(-1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -850,7 +850,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 			func(delegator, _ testkeyring.Key, operatorAddress string) []interface{} {
 				return []interface{}{}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(0),
 			true,
@@ -866,7 +866,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -882,7 +882,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					nil,
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -898,7 +898,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -914,7 +914,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
@@ -930,7 +930,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 					big.NewInt(1),
 				}
 			},
-			func(data []byte) {},
+			func([]byte) {},
 			200000,
 			big.NewInt(1),
 			true,
