@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )

@@ -91,9 +91,9 @@ func TestInitGenesis(t *testing.T) {
 			name: "invalid account type",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
 				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
-				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				accNum := network.App.AccountKeeper.NextAccountNumber(ctx)
 				acc.AccountNumber = accNum
-				suite.network.App.AccountKeeper.SetAccount(ctx, acc)
+				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
@@ -148,7 +148,7 @@ func TestInitGenesis(t *testing.T) {
 					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
 					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
 				}
-				accNum := suite.network.App.AccountKeeper.NextAccountNumber(ctx)
+				accNum := network.App.AccountKeeper.NextAccountNumber(ctx)
 				ethAcc.AccountNumber = accNum
 				network.App.AccountKeeper.SetAccount(ctx, ethAcc)
 			},
@@ -173,7 +173,7 @@ func TestInitGenesis(t *testing.T) {
 			vmdb = statedb.New(
 				ctx,
 				ts.network.App.EvmKeeper,
-				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())),
+				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())),
 			)
 
 			tc.malleate(ts.network)

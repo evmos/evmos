@@ -75,8 +75,6 @@ func createProposalMsg(params interface{}, name string) sdk.Msg {
 	switch name {
 	case evmtypes.ModuleName:
 		return &evmtypes.MsgUpdateParams{Authority: authority, Params: params.(evmtypes.Params)}
-	case revtypes.ModuleName:
-		return &revtypes.MsgUpdateParams{Authority: authority, Params: params.(revtypes.Params)}
 	case infltypes.ModuleName:
 		return &infltypes.MsgUpdateParams{Authority: authority, Params: params.(infltypes.Params)}
 	case govtypes.ModuleName:
