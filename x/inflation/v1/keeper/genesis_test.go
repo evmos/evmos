@@ -14,6 +14,6 @@ func TestInitGenesis(t *testing.T) {
 	ctx := nw.GetContext()
 	// check calculated epochMintProvision at genesis
 	epochMintProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
-	expMintProvision := math.LegacyMustNewDecFromStr("847602739726027397260274.000000000000000000").Quo(math.LegacyNewDec(types.ReductionFactor))
+	expMintProvision := math.LegacyMustNewDecFromStr("282534246575342465753425").Quo(math.LegacyNewDec(types.ReductionFactor))
 	require.Equal(t, expMintProvision, epochMintProvision)
 }

@@ -441,7 +441,7 @@ var _ = Describe("Inflation", Ordered, func() {
 							provisionAfterRes, err := s.handler.GetEpochMintProvision()
 							Expect(err).To(BeNil(), "failed to get epoch mint provision")
 							Expect(provisionAfterRes.EpochMintProvision.Amount).ToNot(Equal(provision))
-							Expect(provisionAfterRes.EpochMintProvision.Amount).To(Equal(math.LegacyMustNewDecFromStr("436643835616438356164384").Quo(math.LegacyNewDec(types.ReductionFactor))))
+							Expect(provisionAfterRes.EpochMintProvision.Amount).To(Equal(math.LegacyMustNewDecFromStr("145547945205479452054795").Quo(math.LegacyNewDec(types.ReductionFactor))))
 						})
 					})
 				})
