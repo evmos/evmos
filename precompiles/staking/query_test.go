@@ -631,7 +631,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, 0, delAmt, 2, false)
+				s.assertRedelegationsOutput(data, 0, delAmt, s.network.GetContext().BlockHeight(), false)
 			},
 			100000,
 			false,
@@ -651,7 +651,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, s.network.GetContext().BlockHeight(), true)
 			},
 			100000,
 			false,
@@ -671,7 +671,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, s.network.GetContext().BlockHeight(), true)
 			},
 			100000,
 			false,
