@@ -247,7 +247,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			suite.Require().NoError(err)
 			suite.app.TransferKeeper = keeper.NewKeeper(
 				suite.app.AppCodec(), suite.app.GetKey(types.StoreKey), suite.app.GetSubspace(types.ModuleName),
-				&MockICS4Wrapper{}, // ICS4 Wrapper: claims IBC middleware
+				&MockICS4Wrapper{}, // ICS4 Wrapper
 				mockChannelKeeper, suite.app.IBCKeeper.PortKeeper,
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.ScopedTransferKeeper,
 				suite.app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers

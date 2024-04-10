@@ -528,7 +528,7 @@ func NewEvmos(
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper
 		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
@@ -589,7 +589,6 @@ func NewEvmos(
 		transfer stack contains (from bottom to top):
 			- ERC-20 Middleware
 		 	- Recovery Middleware
-		 	- Airdrop Claims Middleware
 			- IBC Transfer
 
 		SendPacket, since it is originating from the application to core IBC:
