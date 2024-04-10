@@ -6,6 +6,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"maps"
 	"sort"
 
 	"github.com/evmos/evmos/v16/utils"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"golang.org/x/exp/maps"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
