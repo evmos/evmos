@@ -65,10 +65,6 @@ type StakingKeeper interface {
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	GetDelegatorUnbonding(ctx sdk.Context, delegator sdk.AccAddress) math.Int
 	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
-	// Hooks
-	// Commented this out because go throws compiling error that a Hook is not implemented
-	// even though it is implemented
-	// stakingtypes.StakingHooks
 }
 
 // DistributionKeeper defines the expected interface contract the vesting module
