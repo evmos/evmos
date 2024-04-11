@@ -185,8 +185,8 @@ func (k Keeper) GetStaticPrecompilesInstances(
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
 	if k.IsAvailableStaticPrecompile(params, address) {
 		precompile, found := k.precompiles[address]
-        // If the precompile is within params but not found in the precompiles map,
-        // we should return an error
+		// If the precompile is within params but not found in the precompiles map,
+		// we should return an error
 		if !found {
 			return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
 		}
