@@ -421,6 +421,10 @@ protoVer=0.11.6
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --user 0 $(protoImageName)
 
+protoLintVer=0.44.0
+protoLinterImage=yoheimuta/protolint
+protoLinter=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --user 0 $(protoLinterImage):$(protoLintVer)
+
 # ------
 # NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
@@ -444,6 +448,7 @@ proto-format:
 proto-lint:
 	@echo "Linting Protobuf files"
 	@$(protoImage) buf lint --error-format=json	
+	@$(protoLinter) lint ./proto
 
 proto-check-breaking:
 	@echo "Checking Protobuf files for breaking changes"

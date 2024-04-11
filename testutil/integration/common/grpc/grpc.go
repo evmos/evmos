@@ -32,6 +32,7 @@ type Handler interface {
 
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
+	GetBondedValidators() (*stakingtypes.QueryValidatorsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)
