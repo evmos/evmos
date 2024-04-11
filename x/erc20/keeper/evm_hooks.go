@@ -12,9 +12,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	"github.com/evmos/evmos/v16/contracts"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
@@ -105,14 +107,28 @@ func (k Keeper) PostTxProcessing(
 
 		// Check that the contract is a registered token pair
 		contractAddr := log.Address
-		id := k.GetERC20Map(ctx, contractAddr)
-		if len(id) == 0 {
-			continue
+
+		var isWevmos bool
+		if utils.IsMainnet(ctx.ChainID()) {
+			isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractMainnet
+		} else if utils.IsTestnet(ctx.ChainID()) {
+			isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractTestnet
+		} else {
+			isWevmos = contractAddr.String() == ""
 		}
 
-		pair, found := k.GetTokenPair(ctx, id)
-		if !found {
-			continue
+		var pair types.TokenPair
+		var found bool
+		if !isWevmos {
+			id := k.GetERC20Map(ctx, contractAddr)
+			if len(id) == 0 {
+				continue
+			}
+
+			pair, found = k.GetTokenPair(ctx, id)
+			if !found {
+				continue
+			}
 		}
 
 		from := common.BytesToAddress(log.Topics[1].Bytes())
@@ -124,8 +140,8 @@ func (k Keeper) PostTxProcessing(
 			// track the interaction of both addresses
 			// TODO: remove after the STRv2 migration
 
-			// this only applies to native SDK coins
-			if !pair.IsNativeCoin() {
+			// this only applies to native SDK coins and wevmos
+			if !pair.IsNativeCoin() && !isWevmos {
 				continue
 			}
 
@@ -187,8 +203,8 @@ func (k Keeper) PostTxProcessing(
 
 		// If a sender is converting tokens to coins, we want to track their address too
 		//
-		// NOTE: this only applies to native SDK coins
-		if pair.IsNativeCoin() && !k.HasSTRv2Address(ctx, from.Bytes()) {
+		// NOTE: this only applies to native SDK coins and Wevmos
+		if (pair.IsNativeCoin() || isWevmos) && !k.HasSTRv2Address(ctx, from.Bytes()) {
 			k.SetSTRv2Address(ctx, from.Bytes())
 		}
 	}

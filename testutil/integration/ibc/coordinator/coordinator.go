@@ -125,6 +125,7 @@ func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 	evmosibc.SetupPath(c.coord, path)
 
 	return IBCConnection{
+		Path: path,
 		EndpointA: Endpoint{
 			ChainID:      a,
 			ClientID:     path.EndpointA.ClientID,
