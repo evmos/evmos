@@ -57,9 +57,13 @@ func (k *Keeper) NewEVM(
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
 	extCall := func(evm *vm.EVM, addr common.Address) error {
-		precompileList, precompileMap, found := k.GetPrecompileInstance(ctx, addr)
+		precompiles, found, err := k.GetPrecompileInstance(ctx, addr)
+		if err != nil {
+			return err
+		}
+
 		if found {
-			evm.WithPrecompiles(precompileMap, precompileList)
+			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
 		}
 		return nil
 	}
