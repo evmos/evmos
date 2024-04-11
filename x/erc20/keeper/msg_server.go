@@ -42,7 +42,21 @@ func (k Keeper) ConvertERC20(
 
 	// Check ownership and execute conversion
 	if pair.IsNativeERC20() {
+		// Remove token pair if contract is suicided
+		acc := k.evmKeeper.GetAccountWithoutBalance(ctx, pair.GetERC20Contract())
+		if acc == nil || !acc.IsContract() {
+			k.DeleteTokenPair(ctx, pair)
+			k.Logger(ctx).Debug(
+				"deleting selfdestructed token pair from state",
+				"contract", pair.Erc20Address,
+			)
+			// NOTE: return nil error to persist the changes from the deletion
+			return nil, nil
+		}
+
 		return k.convertERC20IntoCoinsForNativeToken(ctx, pair, msg, receiver, sender) // case 2.1
+	} else if pair.IsNativeCoin() {
+		return nil, types.ErrNativeConversionDisabled
 	}
 
 	return nil, types.ErrUndefinedOwner
@@ -63,18 +77,6 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	receiver sdk.AccAddress,
 	sender common.Address,
 ) (*types.MsgConvertERC20Response, error) {
-	// Remove token pair if contract is suicided
-	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, pair.GetERC20Contract())
-	if acc == nil || !acc.IsContract() {
-		k.DeleteTokenPair(ctx, pair)
-		k.Logger(ctx).Debug(
-			"deleting selfdestructed token pair from state",
-			"contract", pair.Erc20Address,
-		)
-		// NOTE: return nil error to persist the changes from the deletion
-		return nil, nil
-	}
-
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
@@ -105,7 +107,7 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	}
 
 	// Check expected escrow balance after transfer execution
-	// NOTE: coin fields already validated
+	// NOTE: coin fields already validated in the ValidateBasic() of the message
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, types.ModuleAddress)

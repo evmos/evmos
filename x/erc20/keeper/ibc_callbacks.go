@@ -137,18 +137,18 @@ func (k Keeper) OnRecvPacket(
 		if err := k.ConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
-	}
 
-	// For now the only case we are interested in adding telemetry is a successful conversion.
-	telemetry.IncrCounterWithLabels(
-		[]string{types.ModuleName, "ibc", "on_recv", "total"},
-		1,
-		[]metrics.Label{
-			telemetry.NewLabel("denom", coin.Denom),
-			telemetry.NewLabel("source_channel", packet.SourceChannel),
-			telemetry.NewLabel("source_port", packet.SourcePort),
-		},
-	)
+		// For now the only case we are interested in adding telemetry is a successful conversion.
+		telemetry.IncrCounterWithLabels(
+			[]string{types.ModuleName, "ibc", "on_recv", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("denom", coin.Denom),
+				telemetry.NewLabel("source_channel", packet.SourceChannel),
+				telemetry.NewLabel("source_port", packet.SourcePort),
+			},
+		)
+	}
 
 	return ack
 }

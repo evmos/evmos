@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/bank"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
@@ -32,7 +32,7 @@ type PrecompileTestSuite struct {
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
-	keyring     keyring.Keyring
+	keyring     testkeyring.Keyring
 
 	precompile *bank.Precompile
 }
@@ -43,7 +43,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	keyring := keyring.New(2)
+	keyring := testkeyring.New(2)
 	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),

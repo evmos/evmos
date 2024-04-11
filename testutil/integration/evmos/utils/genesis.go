@@ -8,13 +8,14 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 const (
 	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
-	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //gitleaks:allow
+	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials #gitleaks:allow
 	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
 	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
@@ -53,7 +54,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}, {
 		Erc20Address:  WEVMOSContractTestnet,
-		Denom:         "aevmos",
+		Denom:         utils.BaseDenom,
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}}

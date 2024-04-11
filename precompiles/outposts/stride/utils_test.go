@@ -64,7 +64,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, s.keyring.GetAccAddr(0), sdk.NewCoins(stEvmos))
 	s.Require().NoError(err)
 
-	// Register some Token Pairs
+	// Register the EVM extension for the IBC token
 	_, err = s.network.App.Erc20Keeper.RegisterERC20Extension(ctx, denomTrace.IBCDenom())
 	s.Require().NoError(err)
 }

@@ -25,7 +25,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 // SetParams sets the EVM params each in their individual key for better get performance
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
-	// in params.IsActivePrecompile.
+	// and keep params equal between different executions
 	slices.Sort(params.ActiveStaticPrecompiles)
 	slices.Sort(params.ActiveDynamicPrecompiles)
 

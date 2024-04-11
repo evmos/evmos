@@ -112,7 +112,7 @@ func (k Keeper) CreateCoinMetadata(
 }
 
 // ToggleConversion toggles conversion for a given token pair
-// NOTE:Is not possible to disable conversion for native coins
+// NOTE: It is not possible to disable the conversion for native Cosmos coins
 func (k Keeper) ToggleConversion(
 	ctx sdk.Context,
 	token string,
