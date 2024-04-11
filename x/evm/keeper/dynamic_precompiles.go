@@ -53,11 +53,11 @@ func (k Keeper) GetDynamicPrecompileInstance(
 	address common.Address,
 ) (vm.PrecompiledContract, bool) {
 	if k.IsAvailableDynamicPrecompile(params, address.String()) {
-		if precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address); err != nil {
+		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
+		if err != nil {
 			return nil, false
-		} else {
-			return precompile, true
 		}
+		return precompile, true
 	}
 	return nil, false
 }
