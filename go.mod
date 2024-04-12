@@ -29,7 +29,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/improbable-eng/grpc-web v0.15.0
-	github.com/linxGnu/grocksdb v1.8.12
+	github.com/linxGnu/grocksdb v1.8.14
 	github.com/onsi/ginkgo/v2 v2.17.1
 	github.com/onsi/gomega v1.32.0
 	github.com/ory/dockertest/v3 v3.10.0
@@ -49,7 +49,7 @@ require (
 	golang.org/x/net v0.24.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
 	sigs.k8s.io/yaml v1.4.0
 )
