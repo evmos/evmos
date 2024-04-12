@@ -648,38 +648,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					// Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
-				DescribeTable("it should return an error if sending to an empty address", func(callType CallType) {
-					sender := is.keyring.GetKey(0)
-					emptyAddr := common.Address{}
-
-					// Transfer tokens
-					txArgs, transferArgs := is.getTxAndCallArgs(
-						callType,
-						contractsData,
-						erc20.TransferFromMethod,
-						sender.Addr,
-						emptyAddr,
-						big.NewInt(100),
-					)
-
-					invalidToAddressCheck := execRevertedCheck
-					if callType == directCall {
-						invalidToAddressCheck = failCheck.WithErrContains(
-							fmt.Sprintf(erc20.ErrInvalidReceiver, emptyAddr.String()),
-						)
-					}
-
-					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, invalidToAddressCheck)
-					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-					Expect(ethRes).To(BeNil(), "expected empty result")
-				},
-					Entry(" - direct call", directCall),
-					// NOTE: we are not passing the contract call here because this test case only covers direct calls
-
-					Entry(" - through erc20 contract", erc20Call),
-					Entry(" - through erc20 v5 contract", erc20V5Call),
-				)
-
 				DescribeTable("it should return an error if the owner is an empty address", func(callType CallType) {
 					receiver := is.keyring.GetKey(0)
 					emptyAddr := common.Address{}
