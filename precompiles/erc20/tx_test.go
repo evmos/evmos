@@ -53,7 +53,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func() {},
 			true,
-			"invalid to address",
+			fmt.Sprintf(erc20.ErrInvalidReceiver, ""),
 		},
 		{
 			"fail - invalid to address (zero address)",
@@ -62,7 +62,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func() {},
 			true,
-			"invalid to address",
+			fmt.Sprintf(erc20.ErrInvalidReceiver, common.Address{}),
 		},
 		{
 			"fail - invalid amount",
