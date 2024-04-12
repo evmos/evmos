@@ -32,10 +32,6 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
-	// Register some Token Pairs
-	_, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
-	s.Require().NoError(err)
-
 	// Register stEvmos Token Pair
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
@@ -68,8 +64,8 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, s.keyring.GetAccAddr(0), sdk.NewCoins(stEvmos))
 	s.Require().NoError(err)
 
-	// Register some Token Pairs
-	_, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, stEvmosMetadata)
+	// Register the EVM extension for the IBC token
+	_, err = s.network.App.Erc20Keeper.RegisterERC20Extension(ctx, denomTrace.IBCDenom())
 	s.Require().NoError(err)
 }
 

@@ -220,7 +220,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			},
 			200000,
 			true,
-			"The only supported token contract for Stride Outpost v1 is 0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75",
+			"The only supported token contract for Stride Outpost v1 is 0xf43EF0eDD2604990d8ab5BA18AdCB173F66ff874",
 		},
 		{
 			"fail - invalid receiver address (not a stride address)",
