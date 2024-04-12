@@ -31,3 +31,39 @@ func (k *Keeper) GetActivePrecompilesInstances(
 
 	return addresses, staticPrecompilesMap
 }
+
+type Precompiles struct {
+	Map       map[common.Address]vm.PrecompiledContract
+	Addresses []common.Address
+}
+
+// GetPrecompileInstance returns the address and instance of the static or dynamic precompile associated with the given address, or return nil if not found.
+func (k *Keeper) GetPrecompileInstance(
+	ctx sdktypes.Context,
+	address common.Address,
+) (*Precompiles, bool, error) {
+	params := k.GetParams(ctx)
+	// Get the precompile from the static precompiles
+	if precompile, found, err := k.GetStaticPrecompileInstance(&params, address); err != nil {
+		return nil, false, err
+	} else if found {
+		addressMap := make(map[common.Address]vm.PrecompiledContract)
+		addressMap[address] = precompile
+		return &Precompiles{
+			Map:       addressMap,
+			Addresses: []common.Address{precompile.Address()},
+		}, found, nil
+	}
+
+	// Get the precompile from the dynamic precompiles
+	precompile, found, err := k.GetDynamicPrecompileInstance(ctx, &params, address)
+	if err != nil || !found {
+		return nil, false, err
+	}
+	addressMap := make(map[common.Address]vm.PrecompiledContract)
+	addressMap[address] = precompile
+	return &Precompiles{
+		Map:       addressMap,
+		Addresses: []common.Address{precompile.Address()},
+	}, found, nil
+}

@@ -366,34 +366,30 @@ type benchmarkSuite struct {
 }
 
 var table = []struct {
-	txType      string
-	dynamicAccs []int
+	txType string
 }{
 	{
-		txType:      "transfer",
-		dynamicAccs: []int{1, 50},
+		txType: "transfer",
 	},
 	{
-		txType:      "deployment",
-		dynamicAccs: []int{1, 50},
+		txType: "deployment",
 	},
 	{
-		txType:      "contract_call",
-		dynamicAccs: []int{1, 50},
+		txType: "contract_call",
 	},
 	{
-		txType:      "static_precompile",
-		dynamicAccs: []int{1, 50},
+		txType: "static_precompile",
 	},
 	{
-		txType:      "dynamic_precompile",
-		dynamicAccs: []int{1, 50},
+		txType: "dynamic_precompile",
 	},
 }
 
+var dynamicAccs = []int{1, 50, 100}
+
 func BenchmarkApplyTransactionV2(b *testing.B) {
 	for _, v := range table {
-		for _, dynamicAccs := range v.dynamicAccs {
+		for _, dynamicAccs := range dynamicAccs {
 			// Reset chain on every tx type to have a clean state
 			// and a fair benchmark
 			b.StopTimer()
@@ -452,12 +448,10 @@ func BenchmarkApplyTransactionV2(b *testing.B) {
 					b.StopTimer()
 
 					if err != nil {
-						fmt.Println(err)
-						break
+						panic(err)
 					}
 					if resp.Failed() {
-						fmt.Println("Transaction failed: ", resp.VmError)
-						break
+						panic(err)
 					}
 				}
 			})
