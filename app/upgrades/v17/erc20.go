@@ -18,7 +18,7 @@ func RegisterERC20Extensions(
 	erc20Keeper erc20keeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
-	precompiles := make([]string, 0)
+	precompiles := make([]common.Address, 0)
 	evmParams := evmKeeper.GetParams(ctx)
 
 	var err error

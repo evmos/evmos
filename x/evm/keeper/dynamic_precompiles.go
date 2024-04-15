@@ -51,7 +51,7 @@ func (k Keeper) GetDynamicPrecompileInstance(
 	params *types.Params,
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
-	if k.IsAvailableDynamicPrecompile(params, address.String()) {
+	if k.IsAvailableDynamicPrecompile(params, address) {
 		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
 			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
