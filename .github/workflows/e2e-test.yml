@@ -93,7 +93,7 @@ jobs:
           else
             TOKEN=${{ secrets.GITHUB_TOKEN }}
           fi
-          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"         
+          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
           token: ${{ steps.token_check.outputs.token }}        
