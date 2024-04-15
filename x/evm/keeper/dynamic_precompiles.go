@@ -64,5 +64,5 @@ func (k Keeper) GetDynamicPrecompileInstance(
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
 func (k Keeper) IsAvailableDynamicPrecompile(params *types.Params, address common.Address) bool {
-  return slices.Contains(params.ActiveDynamicPrecompiles, address.Hex())
+	return slices.Contains(params.ActiveDynamicPrecompiles, address.Hex())
 }

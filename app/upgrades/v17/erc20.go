@@ -24,14 +24,13 @@ func RegisterERC20Extensions(
 	var err error
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
 		address := tokenPair.GetERC20Contract()
-    
+
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
 		if !tokenPair.IsNativeCoin() ||
 			evmKeeper.IsAvailableDynamicPrecompile(&evmParams, address) {
 			return false
 		}
-
 
 		// try to self-destruct the old ERC20 contract
 		// NOTE(@fedekunze): From now on, the contract address will map to a precompile instead
