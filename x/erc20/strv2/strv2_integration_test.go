@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/utils"
 	"github.com/evmos/evmos/v16/x/erc20/keeper/testdata"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -38,9 +39,10 @@ type STRv2TrackingSuite struct {
 	nativeCoinERC20Addr   common.Address
 	registeredERC20Addr   common.Address
 	unregisteredERC20Addr common.Address
+	wevmosAddr            common.Address
 }
 
-func CreateTestSuite() (*STRv2TrackingSuite, error) {
+func CreateTestSuite(chainID string) (*STRv2TrackingSuite, error) {
 	keyring := testkeyring.New(3)
 
 	genesisSetup, err := CreateGenesisSetup(keyring)
@@ -48,7 +50,12 @@ func CreateTestSuite() (*STRv2TrackingSuite, error) {
 		return nil, errors.Wrap(err, "failed to create genesis setup")
 	}
 
+	if chainID == "" {
+		chainID = "evmos_9000-1"
+	}
+
 	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithChainID(chainID),
 		testnetwork.WithCustomGenesis(*genesisSetup.genesisState),
 	)
 	handler := grpc.NewIntegrationHandler(network)
@@ -84,13 +91,11 @@ var (
 )
 
 var _ = Describe("STRv2 Tracking -", func() {
-	var (
-		s *STRv2TrackingSuite
-	)
+	var s *STRv2TrackingSuite
 
 	BeforeEach(func() {
 		var err error
-		s, err = CreateTestSuite()
+		s, err = CreateTestSuite(utils.MainnetChainID + "-1")
 		Expect(err).ToNot(HaveOccurred(), "failed to create test suite")
 
 		// NOTE: this is necessary to enable e.g. erc20Keeper.BalanceOf(...) to work
@@ -542,6 +547,118 @@ var _ = Describe("STRv2 Tracking -", func() {
 
 				addrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
 				Expect(addrTracked).To(BeTrue(), "expected address to be stored")
+			})
+		})
+	})
+})
+
+var _ = Describe("STRv2 Tracking Wevmos-", func() {
+	var s *STRv2TrackingSuite
+
+	BeforeEach(func() {
+		var err error
+		s, err = CreateTestSuite(utils.TestingChainID + "-1")
+		Expect(err).ToNot(HaveOccurred(), "failed to create test suite")
+
+		// NOTE: this is necessary to enable e.g. erc20Keeper.BalanceOf(...) to work
+		// correctly internally.
+		// Removing it will break a bunch of tests giving errors like: "failed to retrieve balance"
+		Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+		// Deploy WEVMOS contract
+		s.wevmosAddr, err = s.factory.DeployContract(
+			s.keyring.GetPrivKey(erc20Deployer),
+			evmtypes.EvmTxArgs{},
+			testfactory.ContractDeploymentData{Contract: contracts.WEVMOSContract},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy wevmos contract")
+		// Send WEVMOS to account
+		_, err = s.factory.ExecuteEthTx(
+			s.keyring.GetPrivKey(0),
+			evmtypes.EvmTxArgs{
+				To:     &s.wevmosAddr,
+				Amount: sentWEVMOS.BigInt(),
+				// FIXME: the gas simulation is not working correctly - otherwise results in out of gas
+				GasLimit: 100_000,
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deposit to wevmos")
+
+		s.network.App.Erc20Keeper.DeleteSTRv2Address(s.network.GetContext(), s.keyring.GetKey(0).AccAddr)
+		s.network.App.Erc20Keeper.DeleteSTRv2Address(s.network.GetContext(), s.keyring.GetKey(2).AccAddr)
+	})
+
+	When("sending an EVM transaction", func() {
+		Context("which interacts with a registered native token pair ERC-20 contract", func() {
+			Context("in a direct call to the token pair contract", func() {
+				It("should add the from and to addresses to the store if it is not already stored", func() {
+					sender := s.keyring.GetKey(0)
+					receiver := s.keyring.GetKey(2)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+					receiverAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
+					Expect(receiverAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To:       &s.wevmosAddr,
+							GasLimit: 100_000,
+						},
+						testfactory.CallArgs{
+							ContractABI: contracts.WEVMOSContract.ABI,
+							MethodName:  "transfer",
+							Args: []interface{}{
+								receiver.Addr,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to transfer tokens of Cosmos native ERC-20 token pair")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
+					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be stored")
+				})
+				It("should not fail if the addresses are already stored", func() {
+					sender := s.keyring.GetKey(0)
+					receiver := s.keyring.GetKey(2)
+
+					senderAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+					receiverAddrTracked := s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
+					Expect(receiverAddrTracked).To(BeFalse(), "expected address not to be stored before conversion")
+
+					s.network.App.Erc20Keeper.SetSTRv2Address(s.network.GetContext(), s.keyring.GetKey(0).AccAddr)
+					s.network.App.Erc20Keeper.SetSTRv2Address(s.network.GetContext(), s.keyring.GetKey(2).AccAddr)
+
+					_, err := s.factory.ExecuteContractCall(
+						sender.Priv,
+						evmtypes.EvmTxArgs{
+							To: &s.wevmosAddr,
+						},
+						testfactory.CallArgs{
+							ContractABI: contracts.WEVMOSContract.ABI,
+							MethodName:  "transfer",
+							Args: []interface{}{
+								receiver.Addr,
+								transferAmount,
+							},
+						},
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to transfer tokens of Cosmos native ERC-20 token pair")
+
+					Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+					senderAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(senderAddrTracked).To(BeTrue(), "expected address to be stored")
+					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), sender.AccAddr)
+					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be stored")
+				})
 			})
 		})
 	})

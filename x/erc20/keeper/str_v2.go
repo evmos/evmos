@@ -28,3 +28,13 @@ func (k Keeper) HasSTRv2Address(ctx sdk.Context, address sdk.AccAddress) bool {
 	)
 	return store.Has(address.Bytes())
 }
+
+// DeleteSTRv2Address removes the entry already stored
+// NOTE: for testing purpose only
+func (k Keeper) DeleteSTRv2Address(ctx sdk.Context, address sdk.AccAddress) {
+	store := prefix.NewStore(
+		ctx.KVStore(k.storeKey),
+		types.KeyPrefixSTRv2Addresses,
+	)
+	store.Delete(address.Bytes())
+}

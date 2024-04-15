@@ -389,7 +389,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().NoError(err)
 		})
 		It("should register receiver address", func() {
-
 			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
 			s.Require().False(found)
 
@@ -420,10 +419,8 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
 			senderAcc = sdk.MustAccAddressFromBech32(sender)
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
-
 		})
 		It("should not register receiver address", func() {
-
 			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
 			s.Require().False(found)
 
