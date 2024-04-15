@@ -1,0 +1,23 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.abci.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v16/abci/types";
+
+message EVMVoteExtension {
+  // block height
+  int64 height = 1; 
+  // EIP-1559 base fee of the 
+  string base_fee = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // gas used in the block
+  uint64 block_gas_used = 3;
+  // bloom represents the bloom filter bytes
+  bytes bloom = 4;
+  // hex address of the miner (validator/sequencer) of the block
+  string miner = 5;
+  // extra data provided by the miner of the block
+  bytes extraData = 6;
+}

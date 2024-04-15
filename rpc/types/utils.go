@@ -242,7 +242,7 @@ func BaseFeeFromEvents(events []abci.Event) *big.Int {
 				return nil
 			}
 		}
-	}
+
 	return nil
 }
 
