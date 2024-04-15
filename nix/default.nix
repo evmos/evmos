@@ -1,16 +1,16 @@
 { sources ? import ./sources.nix, system ? builtins.currentSystem, ... }:
 let
-  # use a newer version of nixpkgs to get go_1_21
+  # use a newer version of nixpkgs to get go_1_22
   # We're not updating this on the whole setup because breaks other stuff
   # but we can import the needed packages from the newer version
-  nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/23.11.tar.gz";
+  nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
-  go_1_21 = nixpkgs.pkgs.go_1_21;
+  go_1_22 = nixpkgs.pkgs.go_1_22;
 in
 import sources.nixpkgs {
   overlays = [
     (final: pkgs: rec {
-      go = go_1_21;
+      go = go_1_22;
       go-ethereum = pkgs.callPackage ./go-ethereum.nix {
         inherit (pkgs.darwin) libobjc;
         inherit (pkgs.darwin.apple_sdk.frameworks) IOKit;
