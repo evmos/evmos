@@ -31,7 +31,6 @@ import (
 // NOTE: the RANDOM opcode is currently not supported since it requires
 // RANDAO implementation. See https://github.com/evmos/ethermint/pull/1520#pullrequestreview-1200504697
 // for more information.
-
 func (k *Keeper) NewEVM(
 	ctx sdk.Context,
 	msg core.Message,
@@ -57,7 +56,18 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+	extCall := func(evm *vm.EVM, addr common.Address) error {
+		precompiles, found, err := k.GetPrecompileInstance(ctx, addr)
+		if err != nil {
+			return err
+		}
+
+		if found {
+			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
+		}
+		return nil
+	}
+	return vm.NewEVMWithCallback(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:
@@ -270,14 +280,6 @@ func (k *Keeper) ApplyMessageWithConfig(
 
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
-
-	// Set the custom precompiles to the EVM if:
-	// 1. there are custom precompiles
-	// 2. the message is a contract call
-	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
-		activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
-		evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
-	}
 
 	leftoverGas := msg.Gas()
 

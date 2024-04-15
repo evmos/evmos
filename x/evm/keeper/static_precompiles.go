@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -180,9 +181,30 @@ func (k Keeper) GetStaticPrecompilesInstances(
 	return addresses, activePrecompileMap
 }
 
+// GetStaticPrecompileInstance returns the instance of the given static precompile address.
+func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
+	if k.IsAvailableStaticPrecompile(params, address) {
+		precompile, found := k.precompiles[address]
+		// If the precompile is within params but not found in the precompiles map,
+		// we should return an error
+		if !found {
+			return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
+		}
+		return precompile, true, nil
+	}
+	return nil, false, nil
+}
+
 // IsAvailablePrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available precompiles map.
 func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	_, ok := k.precompiles[address]
 	return ok
+}
+
+// IsAvailablePrecompile returns true if the given static precompile address is contained in the
+// EVM keeper's available precompiles map.
+func (k Keeper) IsAvailableStaticPrecompile(params *types.Params, address common.Address) bool {
+	return slices.Contains(params.ActiveStaticPrecompiles, address.String()) ||
+		slices.Contains(vm.PrecompiledAddressesBerlin, address)
 }

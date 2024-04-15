@@ -106,6 +106,8 @@ func (k Keeper) OnRecvPacket(
 	// Case 1. token pair is not registered and is a single hop IBC Coin
 	// by checking the prefix we ensure that only coins not native from this chain are evaluated.
 	// IsNativeFromSourceChain will check if the coin is native from the source chain.
+	// If the coin denom starts with `factory/` then it is a token factory coin, and we should not convert it
+	// NOTE: Check https://docs.osmosis.zone/osmosis-core/modules/tokenfactory/ for more information
 	case !found && strings.HasPrefix(coin.Denom, "ibc/") && ibc.IsNativeFromSourceChain(data.Denom):
 		tokenPair, err := k.RegisterERC20Extension(ctx, coin.Denom)
 		if err != nil {
@@ -125,7 +127,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 
 	// Case 2. native ERC20 token
-	case pair.IsNativeERC20():
+	case found && pair.IsNativeERC20():
 		// Token pair is disabled -> return
 		if !pair.Enabled {
 			return ack
@@ -135,10 +137,8 @@ func (k Keeper) OnRecvPacket(
 		if err := k.ConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
-	}
 
-	// For now the only case we are interested in adding telemetry is a successful conversion.
-	defer func() {
+		// For now the only case we are interested in adding telemetry is a successful conversion.
 		telemetry.IncrCounterWithLabels(
 			[]string{types.ModuleName, "ibc", "on_recv", "total"},
 			1,
@@ -148,7 +148,7 @@ func (k Keeper) OnRecvPacket(
 				telemetry.NewLabel("source_port", packet.SourcePort),
 			},
 		)
-	}()
+	}
 
 	return ack
 }

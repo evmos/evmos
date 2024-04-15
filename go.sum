@@ -484,8 +484,8 @@ github.com/envoyproxy/protoc-gen-validate v1.0.4 h1:gVPz/FMfvh57HdSJQyvBtF00j8JU
 github.com/envoyproxy/protoc-gen-validate v1.0.4/go.mod h1:qys6tmnRsYrQqIhm2bvKZH4Blx/1gTIZ2UKVY1M+Yew=
 github.com/evmos/cosmos-sdk v0.47.8-evmos h1:XOkJq3MeWDnTrNfDZk1bvCdrmjyyoxyL5gaTrguHPuA=
 github.com/evmos/cosmos-sdk v0.47.8-evmos/go.mod h1:VTAtthIsmfplanhFfUTfT6ED4F+kkJxT7nmvmKXRthI=
-github.com/evmos/go-ethereum v1.10.26-evmos-rc2 h1:tYghk1ZZ8X4/OQ4YI9hvtm8aSN8OSqO0g9vo/sCMdBo=
-github.com/evmos/go-ethereum v1.10.26-evmos-rc2/go.mod h1:/6CsT5Ceen2WPLI/oCA3xMcZ5sWMF/D46SjM/ayY0Oo=
+github.com/evmos/go-ethereum v1.10.26-evmos-rc3 h1:8xUBg5SBZVUT9JZWSAlsM5DMG6GXnw7GV28GGDiPmQU=
+github.com/evmos/go-ethereum v1.10.26-evmos-rc3/go.mod h1:/6CsT5Ceen2WPLI/oCA3xMcZ5sWMF/D46SjM/ayY0Oo=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/felixge/httpsnoop v1.0.1/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
