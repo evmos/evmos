@@ -87,6 +87,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
 - (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
 - (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
+- (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
 
 ## [v17.0.0] - 2024-04-08
 
