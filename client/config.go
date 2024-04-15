@@ -5,7 +5,7 @@ package client
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,7 +24,7 @@ func InitConfig(cmd *cobra.Command) error {
 		return err
 	}
 
-	configFile := path.Join(home, "config", "config.toml")
+	configFile := filepath.Join(home, "config", "config.toml")
 	_, err = os.Stat(configFile)
 	if err != nil && !os.IsNotExist(err) {
 		// Immediately return if the error isn't related to the file not existing.
