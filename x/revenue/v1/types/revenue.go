@@ -6,7 +6,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v17/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
 )
 
 // NewRevenue returns an instance of Revenue. If the provided withdrawer

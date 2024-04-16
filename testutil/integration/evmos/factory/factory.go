@@ -18,14 +18,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/precompiles/testutil"
-	"github.com/evmos/evmos/v17/server/config"
-	commonfactory "github.com/evmos/evmos/v17/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v17/types"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	"github.com/evmos/evmos/v18/server/config"
+	commonfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 type TxFactory interface {

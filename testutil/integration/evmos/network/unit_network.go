@@ -4,8 +4,8 @@ package network
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/x/evm/statedb"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
