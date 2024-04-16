@@ -15,29 +15,31 @@ from pathlib import Path
 from typing import List
 
 # The path to the main level of the Evmos repository.
-EVMOS_REPO = Path(__file__).parent.parent.parent
+REPO_PATH = Path(__file__).parent.parent.parent
 
 
 # This is the main target directory inside of the contracts folder.
-MAIN_CONTRACTS_TARGET = EVMOS_REPO / "contracts" / "contracts"
+CONTRACTS_TARGET = REPO_PATH / "contracts" / "contracts"
 
 
-# This list contains all files that should be ignored when scanning the repository
-# for Solidity files.
+# This list contains all files that should be ignored when scanning the
+# repository for Solidity files.
 IGNORED_FILES: List[str] = [
-    # Ignored because it uses a different OpenZeppelin contracts version to compile
+    # Ignored because it uses a different OpenZeppelin contracts version to
+    # compile
     "ERC20Minter_OpenZeppelinV5.sol",
 ]
 
 
-# This list contains all folders that should be ignored when scanning the repository
-# for Solidity files.
+# This list contains all folders that should be ignored when scanning the
+# repository for Solidity files.
 IGNORED_FOLDERS: List[str] = [
-    "contracts/contracts", # Ignored because the files are already in the correct folder
     "nix_tests",
     "node_modules",
     "scripts",
     "tests/solidity",
+    # Ignored because the files are already in the correct folder
+    "contracts/contracts",
 ]
 
 
@@ -52,12 +54,15 @@ class Contract:
     path: Path
     relative_path: Path
     # TODO: Maybe this can also be removed again
-    compiledJSONPath: Path
+    compiledJSONPath: Path | None
 
 
 def find_solidity_contracts(path: Path) -> List[Contract]:
     """
     Finds all Solidity files in the given Path.
+    It also checks if the compiled JSON file is present (in the same directory)
+    which is the indicator if the compilation result should be copied
+    back to the source directory.
     """
 
     solidity_files: List[Contract] = []
@@ -75,18 +80,20 @@ def find_solidity_contracts(path: Path) -> List[Contract]:
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
-                compiledJSONPath = os.path.join(root, f"{filename}.json")
+                compiledJSONPath = Path(root) / f"{filename}.json"
                 if not os.path.exists(compiledJSONPath):
-                    # TODO: collect failed compilations
-                    print("failed to find compiled JSON file for contract: ", file)
-                    continue
+                    print(
+                        "failed to find compiled JSON file for contract: ",
+                        file
+                    )
+                    compiledJSONPath = None
 
                 solidity_files.append(
                     Contract(
-                        filename=file,
+                        filename=filename,
                         path=Path(os.path.join(root, file)),
                         relative_path=relative_path,
-                        compiledJSONPath=Path(root) / f"{filename}.json"
+                        compiledJSONPath=compiledJSONPath,
                     )
                 )
 
@@ -119,12 +126,17 @@ def copy_to_contracts_directory(
 
     for contract in contracts:
         sub_dir = target_dir / contract.relative_path
-        sub_dir.mkdir(parents=True, exist_ok=True) # if sub dir already exists this is skipped when using exist_ok=True
+        # if sub dir already exists this is skipped when using exist_ok=True
+        sub_dir.mkdir(parents=True, exist_ok=True)
         copy(contract.path, sub_dir)
 
-        print(f"copying {contract.path} to contracts directory  relative path: {contract.relative_path}")
+        print(
+            f"copying {contract.path} to contracts directory -- " +
+            f"relative path: {contract.relative_path}",
+        )
 
     return True
+
 
 def is_evmos_repo(path: Path) -> bool:
     """
@@ -135,21 +147,91 @@ def is_evmos_repo(path: Path) -> bool:
     print("Path: ", path)
     contents = os.listdir(path)
 
-    if not "go.mod" in contents:
+    if "go.mod" not in contents:
         return False
 
     with open(path / "go.mod", "r") as go_mod:
-        for line in go_mod.readlines():
+        while True:
+            line = go_mod.readline()
+            if not line:
+                break
+
             if "module github.com/evmos/evmos" in line:
                 return True
 
     return False
 
 
-if __name__ == "__main__":
-    dir_to_execute = Path(__file__).parent.parent.parent
-    if not is_evmos_repo(dir_to_execute):
-        raise ValueError("This script should only be executed in the evmos repository.")
+def compile_contracts_in_dir(target_dir: Path):
+    """
+    This function compiles the Solidity contracts in the target directory
+    with Hardhat.
+    """
 
-    found_contracts = find_solidity_contracts(dir_to_execute)
-    copy_to_contracts_directory(dir_to_execute / "contracts", found_contracts)
+    cur_dir = os.getcwd()
+
+    # Change to the root directory of the hardhat setup to compile.
+    os.chdir(target_dir.parent)
+    if not os.path.exists("hardhat.config.js"):
+        raise ValueError(
+            "compilation can only work in a HardHat setup"
+        )
+
+    install_failed = os.system("npm install")
+    if install_failed:
+        raise ValueError("Failed to install npm packages.")
+
+    compilation_failed = os.system("npx hardhat compile")
+    if compilation_failed:
+        raise ValueError("Failed to compile Solidity contracts.")
+
+    os.chdir(cur_dir)
+
+
+def copy_compiled_contracts_back_to_source(
+    contracts: List[Contract],
+    compiled_dir: Path,
+):
+    """
+    This function checks if the given contracts have
+    been compiled in the compilation target directory
+    and copies those back, that have a corresponding JSON
+    file found originally.
+    """
+
+    for contract in contracts:
+        if contract.compiledJSONPath is None:
+            continue
+
+        compiledPath = CONTRACTS_TARGET / \
+            contract.relative_path / f"{contract.filename}.json"
+        if not os.path.exists(compiledPath):
+            print(f"compiled JSON data not found for {contract.filename}")
+            continue
+
+        copy(compiledPath, contract.compiledJSONPath)
+
+
+def clean_up_hardhat_project(hardhat_dir: Path):
+    os.removedirs(hardhat_dir / "node_modules")
+    os.removedirs(hardhat_dir / "artefacts")
+    os.removedirs(hardhat_dir / "cache")
+
+
+if __name__ == "__main__":
+    if not is_evmos_repo(REPO_PATH):
+        raise ValueError(
+            "This script should only be executed in the evmos repository. " +
+            f"Current path: {REPO_PATH}"
+        )
+
+    found_contracts = find_solidity_contracts(REPO_PATH)
+    if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
+        raise ValueError("Failed to copy contracts to target directory.")
+    print("Successfully copied contracts to target directory.")
+
+    compile_contracts_in_dir(CONTRACTS_TARGET)
+
+    copy_compiled_contracts_back_to_source(found_contracts, CONTRACTS_TARGET)
+
+    # clean_up_hardhat_project(CONTRACTS_TARGET.parent)
