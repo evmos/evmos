@@ -1,11 +1,24 @@
-{ sources ? import ./sources.nix, system ? builtins.currentSystem, ... }:
+{ sources ? import ./sources.nix, system ? builtins.currentSystem,... }:
 let
   # use a newer version of nixpkgs to get go_1_22
   # We're not updating this on the whole setup because breaks other stuff
   # but we can import the needed packages from the newer version
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
-  go_1_22 = nixpkgs.pkgs.go_1_22;
+  # the go_1_22 nixpkgs is v1.22.1
+  # but we need the v1.22.2.
+  # This overrides the pkg to use
+  # the v1.22.2 version
+  go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
+    pname = "golang";
+    version = "go1.22.2";
+    src = nixpkgs.fetchFromGitHub {
+      owner = "golang";
+      repo = "go";
+      rev = "dddf0ae40fa0c1223aba191d73a44425a08e1035";
+      sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
+    };
+  };
 in
 import sources.nixpkgs {
   overlays = [
