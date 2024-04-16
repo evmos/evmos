@@ -104,9 +104,6 @@ schema = 3
   [mod."github.com/cenkalti/backoff/v4"]
     version = "v4.1.3"
     hash = "sha256-u6MEDopHoTWAZoVvvXOKnAg++xre53YgQx0gmf6t2KU="
-  [mod."github.com/cespare/xxhash"]
-    version = "v1.1.0"
-    hash = "sha256-nVDTtXH9PC3yJ0THaQZEN243UP9xgLi/clt5xRqj3+M="
   [mod."github.com/cespare/xxhash/v2"]
     version = "v2.2.0"
     hash = "sha256-nPufwYQfTkyrEkbBrpqM3C2vnMxfIz6tAaBmiUP7vd4="
@@ -138,8 +135,8 @@ schema = 3
     version = "v0.37.4"
     hash = "sha256-rEzIdkxeE5FsIGwvzZiPdifPr0v9SmKHQw78I7v2WUA="
   [mod."github.com/cometbft/cometbft-db"]
-    version = "v0.11.0"
-    hash = "sha256-qs3J+9ZW7gStN2W+5SQf/JSmgX5Q5kmIau1BLxze5iE="
+    version = "v0.12.0"
+    hash = "sha256-mfeUD8+V+xUzEhSOLgQQP0GFDWt7ch/TeBw9gnTJuHk="
   [mod."github.com/confio/ics23/go"]
     version = "v0.9.0"
     hash = "sha256-guD8w7YygfUp7lpTAUyXQuCPx8F3lXkcg+yR5+JOCbk="
@@ -207,15 +204,12 @@ schema = 3
   [mod."github.com/desertbit/timer"]
     version = "v0.0.0-20180107155436-c41aec40b27f"
     hash = "sha256-abLOtEcomAqCWLphd2X6WkD/ED764w6sa6unox4BXss="
-  [mod."github.com/dgraph-io/badger/v2"]
-    version = "v2.2007.4"
-    hash = "sha256-+KwqZJZpViv8S3TqUVvPXrFoMgWFyS3NoLsi4RR5fGk="
+  [mod."github.com/dgraph-io/badger/v4"]
+    version = "v4.2.0"
+    hash = "sha256-hsNONsIJIYmMzjTXdNxjheL2Zz3Z86J8Uxj2r0el/DY="
   [mod."github.com/dgraph-io/ristretto"]
     version = "v0.1.1"
     hash = "sha256-Wr9ovXhGi71+n37EnrpIj2o9goyaQHtY4Vvurv6IVlY="
-  [mod."github.com/dgryski/go-farm"]
-    version = "v0.0.0-20200201041132-a6ae2369ad13"
-    hash = "sha256-aOMlPwFY36bLiiIx4HonbCYRAhagk5N6HAWN7Ygif+E="
   [mod."github.com/dlclark/regexp2"]
     version = "v1.4.1-0.20201116162257-a2a8dda75c91"
     hash = "sha256-VNNMZIc7NkDg3DVLnqeJNM/KZqkkaZu2/HTLBL8X2xE="
@@ -317,6 +311,9 @@ schema = 3
   [mod."github.com/google/btree"]
     version = "v1.1.2"
     hash = "sha256-K7V2obq3pLM71Mg0vhhHtZ+gtaubwXPQx3xcIyZDCjM="
+  [mod."github.com/google/flatbuffers"]
+    version = "v1.12.1"
+    hash = "sha256-v9/ewAmNdQ4SNBlBwgHkxn3IVJAf31D7zVlxwEK/LRs="
   [mod."github.com/google/go-cmp"]
     version = "v0.6.0"
     hash = "sha256-qgra5jze4iPGP0JSTVeY5qV5AvEnEu39LYAuUCIkMtg="
@@ -643,8 +640,8 @@ schema = 3
     version = "v0.14.3"
     hash = "sha256-tldEok5ebZ4R4B7H8dSlYS5oVuLvh89n9wUaVlDjYwg="
   [mod."go.etcd.io/bbolt"]
-    version = "v1.3.8"
-    hash = "sha256-ekKy8198B2GfPldHLYZnvNjID6x07dUPYKgFx84TgVs="
+    version = "v1.4.0-alpha.0.0.20240404170359-43604f3112c5"
+    hash = "sha256-U/PkBhk4m6iKFDuR0ULO4EFXb8gFnKNGgNnwMU0OGoM="
   [mod."go.opencensus.io"]
     version = "v0.24.0"
     hash = "sha256-4H+mGZgG2c9I1y0m8avF4qmt8LUKxxVsTqR8mKgP4yo="
