@@ -128,13 +128,7 @@ def copy_to_contracts_directory(
 
     for contract in contracts:
         sub_dir = target_dir / contract.relative_path
-        print(
-            f"\n------\n{contract.filename}:\n1. {contract.relative_path}\n2. {RELATIVE_TARGET}")
         if contract.relative_path == RELATIVE_TARGET:
-            print(
-                "contract is already in correct directory:",
-                contract.filename
-            )
             continue
 
         # if sub dir already exists this is skipped when using exist_ok=True

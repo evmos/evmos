@@ -93,7 +93,6 @@ def setup_contracts_directory(tmp_path):
     """
 
     testdata_dir = Path(__file__).parent / "testdata"
-    print(f"Working directory: {testdata_dir}")
     copytree(testdata_dir, tmp_path, dirs_exist_ok=True)
 
     return tmp_path
