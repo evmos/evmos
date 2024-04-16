@@ -4,14 +4,14 @@ As part of our vulnerability disclosure policy,
 we operate a security vulnerability program through [Immunefi](https://immunefi.com/).
 This document serves as a complementary guideline for reporting vulnerabilities
 and how the disclosure process is managed.
-Please refer to the official Evmos [bug bounty program](https://immunefi.com/bounty/evmos/)
+Please refer to the official Evmos bug bounty program
 for up-to-date information.
 
 ## Guidelines
 
 We require that all researchers:
 
-- Use the Evmos [bug bounty program](https://immunefi.com/bounty/evmos/) on Immunefi to disclose all vulnerabilities,
+- Use the Evmos bug bounty program on Immunefi to disclose all vulnerabilities,
   and avoid posting vulnerability information in public places,
   including GitHub, Discord, Telegram, Twitter or other non-private channels.
 - Make every effort to avoid privacy violations, degradation of user experience, disruption to production systems,

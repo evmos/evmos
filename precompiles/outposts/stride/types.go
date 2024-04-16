@@ -10,11 +10,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"github.com/evmos/evmos/v17/utils"
+	"github.com/evmos/evmos/v18/utils"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
 )
 
 const (

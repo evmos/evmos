@@ -15,12 +15,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v17/app"
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	"github.com/evmos/evmos/v17/utils"
-	evm "github.com/evmos/evmos/v17/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
-	"github.com/evmos/evmos/v17/x/revenue/v1/types"
+	"github.com/evmos/evmos/v18/app"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	evm "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	"github.com/evmos/evmos/v18/x/revenue/v1/types"
 
 	"github.com/stretchr/testify/suite"
 )

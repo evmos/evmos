@@ -250,10 +250,6 @@ schema = 3
   [mod."github.com/getsentry/sentry-go"]
     version = "v0.23.0"
     hash = "sha256-VR6IL+yIc+BV5xBGfPJ7ixsAVzJ/hzuvXmkkAn1cTk4="
-  [mod."github.com/gin-gonic/gin"]
-    version = "v1.9.1"
-    hash = "sha256-3FHywH5QuhTeQcdF8v06jt9vIkH0ON6ydpMYciAc8xQ="
-    replaced = "github.com/gin-gonic/gin"
   [mod."github.com/go-kit/kit"]
     version = "v0.12.0"
     hash = "sha256-5RkXo6s0oye8etgD5qy+AvkkkNsQ6jc0kWJj6flA4GM="

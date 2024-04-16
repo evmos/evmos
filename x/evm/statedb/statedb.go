@@ -470,7 +470,7 @@ func (s *StateDB) Commit() error {
 				// Update the pendingStorage cache to the new value.
 				// This is specially needed for precompiles calls where
 				// multiple Commits calls are done within the same transaction
-				// for the appropiate changes to be committed.
+				// for the appropriate changes to be committed.
 				obj.transientStorage[key] = dirtyValue
 			}
 		}

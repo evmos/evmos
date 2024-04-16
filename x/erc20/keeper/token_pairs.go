@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // GetTokenPairs gets all registered token tokenPairs.

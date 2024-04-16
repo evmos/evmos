@@ -6,8 +6,8 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 
 	errorsmod "cosmossdk.io/errors"
 )

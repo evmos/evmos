@@ -13,13 +13,13 @@ import (
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
 
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	"github.com/evmos/evmos/v17/utils"
-	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/x/erc20"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/x/erc20"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 type GenesisTestSuite struct {

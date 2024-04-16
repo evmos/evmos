@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmosapp "github.com/evmos/evmos/v17/app"
+	evmosapp "github.com/evmos/evmos/v18/app"
 	"github.com/stretchr/testify/suite"
 )
 

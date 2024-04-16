@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/staking"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -17,11 +17,11 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v17/testutil"
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	"github.com/evmos/evmos/v17/x/revenue/v1/types"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v18/x/revenue/v1/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )

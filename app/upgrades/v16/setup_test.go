@@ -11,11 +11,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
-	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 type IntegrationTestSuite struct {

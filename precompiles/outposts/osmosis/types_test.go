@@ -8,9 +8,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	osmosisoutpost "github.com/evmos/evmos/v17/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v17/utils"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	osmosisoutpost "github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 func TestCreatePacketWithMemo(t *testing.T) {
