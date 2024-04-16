@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	errorsmod "cosmossdk.io/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
@@ -32,9 +33,7 @@ func newTransferBytes(t transfertypes.FungibleTokenPacketData) []byte {
 
 func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 	keyring := testkeyring.New(2)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
+	networkDenom := utils.BaseDenom
 
 	// Common vars for every test
 	sourceChannel := "channel-292"
@@ -53,12 +52,12 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 	erc20Address := utiltx.GenerateAddress()
 	erc20TestPair := types.NewTokenPair(erc20Address, types.CreateDenom(erc20Address.String()), types.OWNER_EXTERNAL)
 	prefixedErc20Denom := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel) + erc20TestPair.GetDenom()
-	HelperRegisterPair(unitNetwork, erc20TestPair)
 
 	testCases := []struct {
 		name           string
 		transferBytes  []byte
 		expectedError  bool
+		malleate       func(unitNetwork *network.UnitTestNetwork) error
 		precompileAddr common.Address
 	}{
 		// Test Bad transfer package
@@ -72,7 +71,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			name: "error - invalid sender",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					unitNetwork.GetDenom(),
+					networkDenom,
 					amountValue,
 					"",
 					keyring.GetAccAddr(1).String(),
@@ -86,7 +85,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			name: "error - invalid receiver",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					unitNetwork.GetDenom(),
+					networkDenom,
 					amountValue,
 					keyring.GetAccAddr(0).String(),
 					"",
@@ -102,7 +101,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			name: "error - sender == receiver from non EVM channel",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					unitNetwork.GetDenom(),
+					networkDenom,
 					amountValue,
 					keyring.GetAccAddr(0).String(),
 					keyring.GetAccAddr(0).String(),
@@ -113,13 +112,13 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 		},
 		// Dont allow conversions from module accounts.
 		{
-			name: "no-op - sender is module account",
+			name: "no-op - receiver is module account",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					unitNetwork.GetDenom(),
+					networkDenom,
 					amountValue,
-					unitNetwork.App.AccountKeeper.GetModuleAddress("erc20").String(),
 					keyring.GetAccAddr(0).String(),
+					authtypes.NewModuleAddress(types.ModuleName).String(),
 					"",
 				),
 			),
@@ -142,13 +141,13 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			),
 			expectedError: false,
 		},
-		// If erc20 module is disabled its not possible to deploy any precompile
+		// If erc20 module is disabled it's not possible to deploy any precompile
 		// or convert any coin
 		{
 			name: "no-op - erc20 module param disabled",
 			transferBytes: newTransferBytes(
 				transfertypes.NewFungibleTokenPacketData(
-					unitNetwork.GetDenom(),
+					networkDenom,
 					amountValue,
 					keyring.GetAccAddr(0).String(),
 					keyring.GetAccAddr(1).String(),
@@ -156,6 +155,11 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				),
 			),
 			expectedError: false,
+			malleate: func(unitNetwork *network.UnitTestNetwork) error {
+				params := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext())
+				params.EnableErc20 = false
+				return unitNetwork.App.Erc20Keeper.SetParams(unitNetwork.GetContext(), params)
+			},
 		},
 		// Is single hop and not registered EVM Extension.
 		// Should register a new EVM extension
@@ -208,6 +212,20 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			unitNetwork := network.NewUnitTestNetwork(
+				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			)
+
+			// Register the token pair on the test network
+			HelperRegisterPair(unitNetwork, erc20TestPair)
+
+			if tc.malleate != nil {
+				err := tc.malleate(unitNetwork)
+				suite.Require().NoError(err, "expected no error setting up test case")
+			}
+
+			activeDynamicPrecompilesPre := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+
 			packet := channeltypes.NewPacket(
 				tc.transferBytes,
 				1,
@@ -241,15 +259,19 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().Contains(activeDynamicPrecompiles, tc.precompileAddr.String())
 				if tc.precompileAddr == contractAddr {
 					em := unitNetwork.GetContext().EventManager().Events()
-					suite.Require().Equal(em[1].Type, types.EventTypeRegisterERC20Extension)
-					suite.Require().Equal(em[1].Attributes[0].Value, sourceChannel)
-					suite.Require().Equal(em[1].Attributes[1].Value, tc.precompileAddr.String())
-					suite.Require().Equal(em[1].Attributes[2].Value, fakeOsmoDenomTrace.IBCDenom())
+					suite.Require().Equal(em[0].Type, types.EventTypeRegisterERC20Extension, "expected emitted event to show registered ERC-20 extension")
+					suite.Require().Equal(em[0].Attributes[0].Value, sourceChannel)
+					suite.Require().Equal(em[0].Attributes[1].Value, tc.precompileAddr.String())
+					suite.Require().Equal(em[0].Attributes[2].Value, fakeOsmoDenomTrace.IBCDenom())
 				}
 
 			} else {
 				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
-				suite.Require().NotContains(activeDynamicPrecompiles, tc.precompileAddr.String())
+				suite.Require().Equal(
+					activeDynamicPrecompilesPre,
+					activeDynamicPrecompiles,
+					"expected no change in active dynamic precompiles",
+				)
 			}
 		})
 	}

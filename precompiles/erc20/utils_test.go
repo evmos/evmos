@@ -197,7 +197,7 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 	sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
 	s.Require().True(ok, "expected send authorization")
 
-	s.Require().Equal(amount, sendAuthz.SpendLimit, "expected different spend limit amount")
+	s.Require().Equal(amount.String(), sendAuthz.SpendLimit.String(), "expected different spend limit amount")
 	if len(allowList) == 0 {
 		s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
 	} else {
@@ -369,7 +369,7 @@ func (is *IntegrationTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress,
 	sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
 	Expect(ok).To(BeTrue(), "expected send authorization")
 
-	Expect(sendAuthz.SpendLimit).To(Equal(expAmount), "expected different spend limit amount")
+	Expect(sendAuthz.SpendLimit.String()).To(Equal(expAmount.String()), "expected different spend limit amount")
 }
 
 // expectSendAuthzForERC20 is a helper function to check that a SendAuthorization
@@ -387,7 +387,7 @@ func (is *IntegrationTestSuite) expectSendAuthzForERC20(callType CallType, contr
 	var allowance *big.Int
 	err = contractABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking allowance")
-	Expect(allowance.Int64()).To(Equal(expAmount.AmountOf(is.tokenDenom).Int64()), "expected different allowance")
+	Expect(allowance.String()).To(Equal(expAmount.AmountOf(is.tokenDenom).String()), "expected different allowance")
 }
 
 // ExpectSendAuthzForContract is a helper function to check that a SendAuthorization

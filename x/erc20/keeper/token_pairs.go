@@ -15,7 +15,7 @@ import (
 
 // CreateNewTokenPair creates a new token pair and stores it in the state.
 func (k *Keeper) CreateNewTokenPair(ctx sdk.Context, denom string, owner types.Owner) (types.TokenPair, error) {
-	pair, err := types.NewTokenPairV2(denom, owner)
+	pair, err := types.NewTokenPairSTRv2(denom, owner)
 	if err != nil {
 		return types.TokenPair{}, err
 	}

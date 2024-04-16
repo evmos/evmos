@@ -19,7 +19,7 @@ message InflationDistribution {
   // to be allocated as staking rewards
   string staking_rewards = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 
-  // protolint:disable FIELDS_HAVE_COMMENT
+  //protolint:disable:next FIELDS_HAVE_COMMENT
 
   // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address

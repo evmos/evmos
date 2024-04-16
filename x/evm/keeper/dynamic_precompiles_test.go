@@ -81,17 +81,17 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 func (suite *KeeperTestSuite) TestIsAvailableDynamicPrecompile() {
 	testcases := []struct {
 		name         string
-		address      string
+		address      common.Address
 		expAvailable bool
 	}{
 		{
 			name:         "pass - available precompile",
-			address:      erc20precompile.WEVMOSContractMainnet,
+			address:      common.HexToAddress(erc20precompile.WEVMOSContractMainnet),
 			expAvailable: true,
 		},
 		{
 			name:         "fail - unavailable precompile",
-			address:      "0x0000000000000000000000000000000000099999",
+			address:      common.HexToAddress("0x0000000000000000000000000000000000099999"),
 			expAvailable: false,
 		},
 	}

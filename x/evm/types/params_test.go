@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/stretchr/testify/require"
@@ -167,24 +168,24 @@ func TestIsLondon(t *testing.T) {
 func TestIsActivePrecompile(t *testing.T) {
 	t.Parallel()
 
-	precompileAddr := "0x0000000000000000000000000000000000000800"
+	precompileAddr := common.HexToAddress("0x0000000000000000000000000000000000000800")
 
 	testCases := []struct {
 		name      string
-		malleate  func() (Params, string)
+		malleate  func() (Params, common.Address)
 		expActive bool
 	}{
 		{
 			name: "inactive precompile",
-			malleate: func() (Params, string) {
+			malleate: func() (Params, common.Address) {
 				return Params{}, precompileAddr
 			},
 			expActive: false,
 		},
 		{
 			name: "active precompile",
-			malleate: func() (Params, string) {
-				return Params{ActiveStaticPrecompiles: []string{precompileAddr}}, precompileAddr
+			malleate: func() (Params, common.Address) {
+				return Params{ActiveStaticPrecompiles: []string{precompileAddr.Hex()}}, precompileAddr
 			},
 			expActive: true,
 		},

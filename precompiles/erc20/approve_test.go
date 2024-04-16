@@ -49,7 +49,16 @@ func (s *PrecompileTestSuite) TestApprove() {
 					"invalid address", big.NewInt(2),
 				}
 			},
-			errContains: "invalid address",
+			errContains: "invalid spender address",
+		},
+		{
+			name: "fail - invalid address (zero address)",
+			malleate: func() []interface{} {
+				return []interface{}{
+					common.Address{}, big.NewInt(2),
+				}
+			},
+			errContains: "invalid spender address",
 		},
 		{
 			name: "fail - invalid amount",
@@ -297,10 +306,19 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			name: "fail - invalid address",
 			malleate: func() []interface{} {
 				return []interface{}{
-					"invalid address", big.NewInt(2),
+					"invalid spender address", big.NewInt(2),
 				}
 			},
-			errContains: "invalid address",
+			errContains: "invalid spender address",
+		},
+		{
+			name: "fail - invalid address (zero address)",
+			malleate: func() []interface{} {
+				return []interface{}{
+					common.Address{}, big.NewInt(2),
+				}
+			},
+			errContains: "invalid spender address",
 		},
 		{
 			name: "fail - invalid amount",
@@ -498,7 +516,16 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					"invalid address", big.NewInt(2),
 				}
 			},
-			errContains: "invalid address",
+			errContains: "invalid spender address",
+		},
+		{
+			name: "fail - invalid address (zero address)",
+			malleate: func() []interface{} {
+				return []interface{}{
+					common.Address{}, big.NewInt(2),
+				}
+			},
+			errContains: "invalid spender address",
 		},
 		{
 			name: "fail - invalid amount",

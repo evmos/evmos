@@ -15,10 +15,9 @@ import (
 
 // AddDynamicPrecompiles adds the given precompiles to the list of active precompiles
 func (k *Keeper) AddDynamicPrecompiles(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
-	addresses := make([]string, len(precompiles))
+	addresses := make([]common.Address, len(precompiles))
 	for i, precompile := range precompiles {
-		address := precompile.Address()
-		addresses[i] = address.String()
+		addresses[i] = precompile.Address()
 	}
 
 	return k.EnableDynamicPrecompiles(ctx, addresses...)
@@ -52,7 +51,7 @@ func (k Keeper) GetDynamicPrecompileInstance(
 	params *types.Params,
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
-	if k.IsAvailableDynamicPrecompile(params, address.String()) {
+	if k.IsAvailableDynamicPrecompile(params, address) {
 		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
 			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
@@ -64,6 +63,6 @@ func (k Keeper) GetDynamicPrecompileInstance(
 
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
-func (k Keeper) IsAvailableDynamicPrecompile(params *types.Params, address string) bool {
-	return slices.Contains(params.ActiveDynamicPrecompiles, address)
+func (k Keeper) IsAvailableDynamicPrecompile(params *types.Params, address common.Address) bool {
+	return slices.Contains(params.ActiveDynamicPrecompiles, address.Hex())
 }

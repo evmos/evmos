@@ -138,7 +138,7 @@ func IsNativeFromSourceChain(rawDenom string) bool {
 	pathComponents := strings.Split(denomTrace.Path, "/")
 
 	// Each hop in the path is represented by a pair of port and channel ids
-	// If the number of components in the path is more than 2, it has hopped multiple chains
+	// If the number of components in the path is equal to or more than 2, it has hopped multiple chains
 	return len(pathComponents) < 2
 }
 
