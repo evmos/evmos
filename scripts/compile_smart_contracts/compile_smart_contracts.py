@@ -7,9 +7,10 @@ Usage:
 
 """
 
-from shutil import copy
+from shutil import copy, rmtree
 import os
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -28,6 +29,8 @@ IGNORED_FILES: List[str] = [
     # Ignored because it uses a different OpenZeppelin contracts version to
     # compile
     "ERC20Minter_OpenZeppelinV5.sol",
+    # Ignored because it requires an older version of Solidity
+    "WEVMOS.sol"
 ]
 
 
@@ -213,25 +216,46 @@ def copy_compiled_contracts_back_to_source(
 
 
 def clean_up_hardhat_project(hardhat_dir: Path):
-    os.removedirs(hardhat_dir / "node_modules")
-    os.removedirs(hardhat_dir / "artefacts")
-    os.removedirs(hardhat_dir / "cache")
+    node_modules = hardhat_dir / "node_modules"
+    if os.path.exists(node_modules):
+        rmtree(hardhat_dir / "node_modules")
+
+    artefacts = hardhat_dir / "artefacts"
+    if os.path.exists(artefacts):
+        rmtree(artefacts)
+
+    cache = hardhat_dir / "cache"
+    if os.path.exists(cache):
+        rmtree(cache)
 
 
 if __name__ == "__main__":
-    if not is_evmos_repo(REPO_PATH):
+    if len(sys.argv) != 2:
         raise ValueError(
-            "This script should only be executed in the evmos repository. " +
-            f"Current path: {REPO_PATH}"
+            'Either "--compile" or "--clean" must be passed as a CLI argument',
         )
 
-    found_contracts = find_solidity_contracts(REPO_PATH)
-    if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
-        raise ValueError("Failed to copy contracts to target directory.")
-    print("Successfully copied contracts to target directory.")
+    if sys.argv[1] == "--compile":
+        if not is_evmos_repo(REPO_PATH):
+            raise ValueError(
+                "This script should only be executed " +
+                "in the evmos repository." +
+                f"Current path: {REPO_PATH}"
+            )
 
-    compile_contracts_in_dir(CONTRACTS_TARGET)
+        found_contracts = find_solidity_contracts(REPO_PATH)
+        if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
+            raise ValueError("Failed to copy contracts to target directory.")
 
-    copy_compiled_contracts_back_to_source(found_contracts, CONTRACTS_TARGET)
+        compile_contracts_in_dir(CONTRACTS_TARGET)
+        copy_compiled_contracts_back_to_source(
+            found_contracts, CONTRACTS_TARGET)
 
-    # clean_up_hardhat_project(CONTRACTS_TARGET.parent)
+    elif sys.argv[1] == "--clean":
+        # In any case we want to clean up the hardhat setup
+        clean_up_hardhat_project(CONTRACTS_TARGET.parent)
+
+    else:
+        raise ValueError(
+            'Either "--compile" or "--clean" must be passed as a CLI argument',
+        )
