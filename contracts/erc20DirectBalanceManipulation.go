@@ -15,8 +15,12 @@ import (
 // This is an evil token. Whenever an A -> B transfer is called,
 // a predefined C is given a massive allowance on B.
 var (
-	//go:embed compiled_contracts/ERC20DirectBalanceManipulation.json
+	//go:embed contracts/ERC20DirectBalanceManipulation.json
 	ERC20DirectBalanceManipulationJSON []byte //nolint: golint
+
+	// ERC20DirectBalanceManipulationHardhatContract is the compiled erc20 contract
+	// generated with hardhat
+	ERC20DirectBalanceManipulationHardhatContract evmtypes.HardhatCompiledContract
 
 	// ERC20DirectBalanceManipulationContract is the compiled erc20 contract
 	ERC20DirectBalanceManipulationContract evmtypes.CompiledContract
@@ -28,7 +32,12 @@ var (
 func init() {
 	ERC20DirectBalanceManipulationAddress = types.ModuleAddress
 
-	err := json.Unmarshal(ERC20DirectBalanceManipulationJSON, &ERC20DirectBalanceManipulationContract)
+	err := json.Unmarshal(ERC20DirectBalanceManipulationJSON, &ERC20DirectBalanceManipulationHardhatContract)
+	if err != nil {
+		panic(err)
+	}
+
+	ERC20DirectBalanceManipulationContract, err = ERC20DirectBalanceManipulationHardhatContract.ToCompiledContract()
 	if err != nil {
 		panic(err)
 	}

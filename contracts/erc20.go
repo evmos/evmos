@@ -14,8 +14,12 @@ import (
 )
 
 var (
-	//go:embed compiled_contracts/ERC20MinterBurnerDecimals.json
+	//go:embed contracts/ERC20MinterBurnerDecimals.json
 	ERC20MinterBurnerDecimalsJSON []byte //nolint: golint
+
+	// ERC20MinterBurnerDecimalsHardhatContract is the compiled erc20 contract
+	// generated with hardhat
+	ERC20MinterBurnerDecimalsHardhatContract evmtypes.HardhatCompiledContract
 
 	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
 	ERC20MinterBurnerDecimalsContract evmtypes.CompiledContract
@@ -27,7 +31,12 @@ var (
 func init() {
 	ERC20MinterBurnerDecimalsAddress = types.ModuleAddress
 
-	err := json.Unmarshal(ERC20MinterBurnerDecimalsJSON, &ERC20MinterBurnerDecimalsContract)
+	err := json.Unmarshal(ERC20MinterBurnerDecimalsJSON, &ERC20MinterBurnerDecimalsHardhatContract)
+	if err != nil {
+		panic(err)
+	}
+
+	ERC20MinterBurnerDecimalsContract, err = ERC20MinterBurnerDecimalsHardhatContract.ToCompiledContract()
 	if err != nil {
 		panic(err)
 	}
