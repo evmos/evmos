@@ -10,12 +10,12 @@ Usage:
 
 """
 
-from shutil import copy, rmtree
 import os
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from shutil import copy, rmtree
 from typing import List
 
 # The path to the main level of the Evmos repository.
@@ -46,8 +46,8 @@ IGNORED_FOLDERS: List[str] = [
     "scripts",
     "tests/solidity",
     # We don't want to copy anything that has already been copied into the
-    # contracts subdirectory.
-    f"{RELATIVE_TARGET}/*"
+    # contracts subdirectory, but we do want to have the ones stored there originally.
+    rf"{RELATIVE_TARGET}/\w+"
 ]
 
 
@@ -128,7 +128,7 @@ def copy_to_contracts_directory(
 
     for contract in contracts:
         sub_dir = target_dir / contract.relative_path
-        if contract.relative_path == RELATIVE_TARGET:
+        if is_relative_target(contract.relative_path):
             continue
 
         # if sub dir already exists this is skipped when using exist_ok=True
@@ -204,7 +204,7 @@ def copy_compiled_contracts_back_to_source(
         if contract.compiledJSONPath is None:
             continue
 
-        if contract.relative_path == RELATIVE_TARGET:
+        if is_relative_target(contract.relative_path):
             dir_with_json = compiled_dir
         else:
             dir_with_json = compiled_dir / \
@@ -225,6 +225,7 @@ def clean_up_hardhat_project(hardhat_dir: Path):
     """
     This function removes the build artifacts as well as the downloaded
     node modules from the Hardhat project folder.
+    Also, the file that have been copied to the contracts directory are deleted.
     """
 
     node_modules = hardhat_dir / "node_modules"
@@ -238,6 +239,20 @@ def clean_up_hardhat_project(hardhat_dir: Path):
     cache = hardhat_dir / "cache"
     if os.path.exists(cache):
         rmtree(cache)
+
+    contracts_dir = hardhat_dir / "contracts"
+    for entry in contracts_dir.iterdir():
+        if entry.is_dir():
+            rmtree(entry)
+
+
+def is_relative_target(path: Path) -> bool:
+    """
+    Checks if the given path is the target directory,
+    where the contracts are copied to.
+    """
+
+    return path == RELATIVE_TARGET
 
 
 if __name__ == "__main__":

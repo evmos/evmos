@@ -7,6 +7,7 @@ from compile_smart_contracts import (
     copy_to_contracts_directory,
     find_solidity_contracts,
     is_evmos_repo,
+    is_ignored_folder,
 )
 
 
@@ -107,3 +108,12 @@ def test_compile_contracts_in_dir(setup_contracts_directory):
         hardhat_dir / "artifacts" / "contracts" /
         "SimpleContract.sol" / "SimpleContract.json"
     )
+
+
+def test_is_ignored_folder():
+    assert is_ignored_folder("abc/contracts/contracts") is False
+    assert is_ignored_folder("abc/contracts/contracts/precompiles") is True
+    assert is_ignored_folder("abc/contracts/contracts/01_example") is True
+    assert is_ignored_folder("abc/node_modules/precompiles") is True
+    assert is_ignored_folder("abc/tests/solidity/precompiles") is True
+    assert is_ignored_folder("abc/nix_tests/precompiles") is True
