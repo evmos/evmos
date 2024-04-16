@@ -1,9 +1,12 @@
 """
 This file contains the script to compile all Solidity smart contracts
 in this repository.
+It also can be used to clean up the build artifacts and downloaded dependencies
+from the Hardhat project directory.
 
 Usage:
-    python3 compile_smart_contracts.py
+    python3 compile_smart_contracts.py --compile
+    python3 compile_smart_contracts.py --clean
 
 """
 
@@ -20,7 +23,8 @@ REPO_PATH = Path(__file__).parent.parent.parent
 
 
 # This is the main target directory inside of the contracts folder.
-CONTRACTS_TARGET = REPO_PATH / "contracts" / "contracts"
+RELATIVE_TARGET = Path("contracts") / "contracts"
+CONTRACTS_TARGET = REPO_PATH / RELATIVE_TARGET
 
 
 # This list contains all files that should be ignored when scanning the
@@ -41,8 +45,9 @@ IGNORED_FOLDERS: List[str] = [
     "node_modules",
     "scripts",
     "tests/solidity",
-    # Ignored because the files are already in the correct folder
-    "contracts/contracts",
+    # We don't want to copy anything that has already been copied into the
+    # contracts subdirectory.
+    f"{RELATIVE_TARGET}/*"
 ]
 
 
@@ -53,11 +58,10 @@ class Contract:
     as well as the path to where the compiled JSON data is stored.
     """
 
+    compiledJSONPath: Path | None
     filename: str
     path: Path
     relative_path: Path
-    # TODO: Maybe this can also be removed again
-    compiledJSONPath: Path | None
 
 
 def find_solidity_contracts(path: Path) -> List[Contract]:
@@ -78,17 +82,12 @@ def find_solidity_contracts(path: Path) -> List[Contract]:
 
         for file in files:
             if file in IGNORED_FILES:
-                print(f"Ignoring file: {file}")
                 continue
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
                 compiledJSONPath = Path(root) / f"{filename}.json"
                 if not os.path.exists(compiledJSONPath):
-                    print(
-                        "failed to find compiled JSON file for contract: ",
-                        file
-                    )
                     compiledJSONPath = None
 
                 solidity_files.append(
@@ -129,14 +128,20 @@ def copy_to_contracts_directory(
 
     for contract in contracts:
         sub_dir = target_dir / contract.relative_path
+        print(
+            f"\n------\n{contract.filename}:\n1. {contract.relative_path}\n2. {RELATIVE_TARGET}")
+        if contract.relative_path == RELATIVE_TARGET:
+            print(
+                "contract is already in correct directory:",
+                contract.filename
+            )
+            continue
+
         # if sub dir already exists this is skipped when using exist_ok=True
+        #
+        # TODO: we need to check which directories have been created in order to remove them during the cleanup
         sub_dir.mkdir(parents=True, exist_ok=True)
         copy(contract.path, sub_dir)
-
-        print(
-            f"copying {contract.path} to contracts directory -- " +
-            f"relative path: {contract.relative_path}",
-        )
 
     return True
 
@@ -147,7 +152,6 @@ def is_evmos_repo(path: Path) -> bool:
     where this script is designed to be executed.
     """
 
-    print("Path: ", path)
     contents = os.listdir(path)
 
     if "go.mod" not in contents:
@@ -206,23 +210,36 @@ def copy_compiled_contracts_back_to_source(
         if contract.compiledJSONPath is None:
             continue
 
-        compiledPath = CONTRACTS_TARGET / \
-            contract.relative_path / f"{contract.filename}.json"
-        if not os.path.exists(compiledPath):
-            print(f"compiled JSON data not found for {contract.filename}")
+        if contract.relative_path == RELATIVE_TARGET:
+            dir_with_json = compiled_dir
+        else:
+            dir_with_json = compiled_dir / \
+                contract.relative_path
+
+        compiled_path = dir_with_json / \
+            f"{contract.filename}.sol" / \
+            f"{contract.filename}.json"
+
+        if not os.path.exists(compiled_path):
+            print(f"did not find compiled JSON file for {contract.filename}")
             continue
 
-        copy(compiledPath, contract.compiledJSONPath)
+        copy(compiled_path, contract.compiledJSONPath)
 
 
 def clean_up_hardhat_project(hardhat_dir: Path):
+    """
+    This function removes the build artifacts as well as the downloaded
+    node modules from the Hardhat project folder.
+    """
+
     node_modules = hardhat_dir / "node_modules"
     if os.path.exists(node_modules):
         rmtree(hardhat_dir / "node_modules")
 
-    artefacts = hardhat_dir / "artefacts"
-    if os.path.exists(artefacts):
-        rmtree(artefacts)
+    artifacts = hardhat_dir / "artifacts"
+    if os.path.exists(artifacts):
+        rmtree(artifacts)
 
     cache = hardhat_dir / "cache"
     if os.path.exists(cache):
@@ -249,7 +266,9 @@ if __name__ == "__main__":
 
         compile_contracts_in_dir(CONTRACTS_TARGET)
         copy_compiled_contracts_back_to_source(
-            found_contracts, CONTRACTS_TARGET)
+            found_contracts,
+            CONTRACTS_TARGET.parent / "artifacts" / "contracts"
+        )
 
     elif sys.argv[1] == "--clean":
         # In any case we want to clean up the hardhat setup
