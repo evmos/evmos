@@ -597,6 +597,11 @@ contracts-compile:
 	@echo "Compiling smart contracts..."
 	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
 
+# Add a new solidity contract to be compiled
+contracts-add:
+	@echo "Adding a new smart contract to be compiled..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --add $(CONTRACT)
+
 ###############################################################################
 ###                           Miscellaneous Checks                          ###
 ###############################################################################

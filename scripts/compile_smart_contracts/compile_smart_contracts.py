@@ -64,15 +64,22 @@ class Contract:
     relative_path: Path
 
 
-def find_solidity_contracts(path: Path) -> List[Contract]:
+def find_solidity_contracts(
+    path: Path,
+    added_contract: str | None = None,
+) -> List[Contract]:
     """
     Finds all Solidity files in the given Path.
     It also checks if the compiled JSON file is present (in the same directory)
     which is the indicator if the compilation result should be copied
     back to the source directory.
+
+    If an added contract is provided, it will be checked that this is actually
+    in the repository and the new compiledJSONPath will be added to the list.
     """
 
     solidity_files: List[Contract] = []
+    found_added_contract = False
 
     for root, _, files in os.walk(path):
         if is_ignored_folder(root):
@@ -87,7 +94,10 @@ def find_solidity_contracts(path: Path) -> List[Contract]:
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
                 compiledJSONPath = Path(root) / f"{filename}.json"
-                if not os.path.exists(compiledJSONPath):
+
+                if added_contract is not None and added_contract in f"{Path(root) / file}":
+                    found_added_contract = True
+                elif not os.path.exists(compiledJSONPath):
                     compiledJSONPath = None
 
                 solidity_files.append(
@@ -98,6 +108,11 @@ def find_solidity_contracts(path: Path) -> List[Contract]:
                         compiledJSONPath=compiledJSONPath,
                     )
                 )
+
+    if not found_added_contract and added_contract is not None:
+        raise ValueError(
+            f"Contract {added_contract} not found in the repository."
+        )
 
     return solidity_files
 
@@ -255,35 +270,55 @@ def is_relative_target(path: Path) -> bool:
     return path == RELATIVE_TARGET
 
 
+def compile_files(
+    repo_path: Path,
+    added_contract: str | None = None
+):
+    """
+    This function compiles the Solidity contracts in the repository
+    with Hardhat.
+    """
+
+    found_contracts = find_solidity_contracts(REPO_PATH, added_contract = added_contract)
+
+    if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
+        raise ValueError("Failed to copy contracts to target directory.")
+
+    compile_contracts_in_dir(CONTRACTS_TARGET)
+    copy_compiled_contracts_back_to_source(
+        found_contracts,
+        CONTRACTS_TARGET.parent / "artifacts" / "contracts"
+    )
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if not is_evmos_repo(REPO_PATH):
         raise ValueError(
-            'Either "--compile" or "--clean" must be passed as a CLI argument',
+            "This script should only be executed " +
+            "in the evmos repository." +
+            f"Current path: {REPO_PATH}"
+        )
+
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        raise ValueError(
+            'Wrong usage, please refer to the README of this script',
         )
 
     if sys.argv[1] == "--compile":
-        if not is_evmos_repo(REPO_PATH):
-            raise ValueError(
-                "This script should only be executed " +
-                "in the evmos repository." +
-                f"Current path: {REPO_PATH}"
-            )
-
-        found_contracts = find_solidity_contracts(REPO_PATH)
-        if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
-            raise ValueError("Failed to copy contracts to target directory.")
-
-        compile_contracts_in_dir(CONTRACTS_TARGET)
-        copy_compiled_contracts_back_to_source(
-            found_contracts,
-            CONTRACTS_TARGET.parent / "artifacts" / "contracts"
-        )
+        compile_files(REPO_PATH, added_contract=None)
 
     elif sys.argv[1] == "--clean":
         # In any case we want to clean up the hardhat setup
         clean_up_hardhat_project(CONTRACTS_TARGET.parent)
 
+    elif sys.argv[1] == "--add":
+        added_contract = sys.argv[2]
+        if not added_contract.endswith(".sol"):
+            raise ValueError("Provided contract is not a Solidity file.")
+
+        compile_files(REPO_PATH, added_contract=added_contract)
+
     else:
         raise ValueError(
-            'Either "--compile" or "--clean" must be passed as a CLI argument',
+            'Wrong usage, please refer to the README of this script',
         )
