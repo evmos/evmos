@@ -1,7 +1,8 @@
 import os
-import pytest
 from pathlib import Path
 from shutil import copytree
+
+import pytest
 from compile_smart_contracts import (
     compile_contracts_in_dir,
     copy_to_contracts_directory,
@@ -52,7 +53,8 @@ def test_find_solidity_files(setup_example_contracts_files):
 
     assert found_solidity_contracts[2].filename == "Contract4"
     assert found_solidity_contracts[2].path == Path(
-        tmp_path / "precompiles" / "Contract4.sol")
+        tmp_path / "precompiles" / "Contract4.sol"
+    )
     assert found_solidity_contracts[2].relative_path == Path("precompiles")
     assert found_solidity_contracts[2].compiledJSONPath == Path(
         tmp_path / "precompiles" / "Contract4.json"
@@ -105,8 +107,11 @@ def test_compile_contracts_in_dir(setup_contracts_directory):
 
     compile_contracts_in_dir(target_dir)
     assert os.path.exists(
-        hardhat_dir / "artifacts" / "contracts" /
-        "SimpleContract.sol" / "SimpleContract.json"
+        hardhat_dir
+        / "artifacts"
+        / "contracts"
+        / "SimpleContract.sol"
+        / "SimpleContract.json"
     )
 
 
