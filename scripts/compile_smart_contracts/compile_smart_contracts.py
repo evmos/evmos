@@ -147,8 +147,6 @@ def copy_to_contracts_directory(
             continue
 
         # if sub dir already exists this is skipped when using exist_ok=True
-        #
-        # TODO: we need to check which directories have been created in order to remove them during the cleanup
         sub_dir.mkdir(parents=True, exist_ok=True)
         copy(contract.path, sub_dir)
 
