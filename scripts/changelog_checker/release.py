@@ -73,8 +73,8 @@ class Release:
         )
         if not version_match:
             raise ValueError(
-                f'Invalid release version in line "{self.line}" ' +
-                'or possibly wrong header style used'
+                f'Invalid release version in line "{self.line}" '
+                + "or possibly wrong header style used"
             )
 
         major = int(version_match.group("major"))
@@ -87,7 +87,8 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
 
     :param link: the link in the release header.
     :param version: the version in the release header.
-    :return: a tuple containing the fixed link and a list of problems, which is empty if there are none.
+    :return: a tuple containing the fixed link and a list of problems,
+    which is empty if there are none.
     """
 
     base_url: str = "https://github.com/evmos/evmos/releases/tag/"
@@ -101,13 +102,12 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
 
     link = link[1:-1]
     if not link.startswith(base_url):
-        problems.append(
-            f'Release link should point to an Evmos release: "{link}"')
+        problems.append(f'Release link should point to an Evmos release: "{link}"')
 
     if version not in link:
         problems.append(
-            f'Release header version "{
-                version}" does not match version in link "{link}"'
+            f'Release header version "{version}" '
+            + 'does not match version in link "{link}"'
         )
 
     return fixed, problems

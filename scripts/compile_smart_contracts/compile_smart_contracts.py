@@ -93,15 +93,17 @@ def find_solidity_contracts(
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
-                compiledJSONPath: Path | None = Path(root) / f"{filename}.json"
 
                 if (
                     added_contract is not None
                     and added_contract in f"{Path(root) / file}"
                 ):
                     found_added_contract = True
+                    compiledJSONPath = Path(root) / f"{filename}.json"
                 elif not os.path.exists(compiledJSONPath):
                     compiledJSONPath = None
+                else:
+                    raise ValueError("Unexpected behavior.")
 
                 solidity_files.append(
                     Contract(
