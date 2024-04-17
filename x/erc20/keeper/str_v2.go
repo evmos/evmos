@@ -38,3 +38,21 @@ func (k Keeper) DeleteSTRv2Address(ctx sdk.Context, address sdk.AccAddress) {
 	)
 	store.Delete(address.Bytes())
 }
+
+// GetAllSTRV2Address iterates over all the stored account that interacted with registered coins.
+// and returns them in an array
+func (k Keeper) GetAllSTRV2Address(ctx sdk.Context) []sdk.AccAddress {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixSTRv2Addresses)
+	defer iterator.Close()
+
+	accAddresses := []sdk.AccAddress{}
+
+	for ; iterator.Valid(); iterator.Next() {
+		// First byte is the prefix, final bytes is the address
+		// iterator.Value is empty
+		address := sdk.AccAddress(iterator.Key()[1:])
+		accAddresses = append(accAddresses, address)
+	}
+	return accAddresses
+}
