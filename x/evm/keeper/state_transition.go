@@ -4,8 +4,7 @@ package keeper
 
 import (
 	"math/big"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
