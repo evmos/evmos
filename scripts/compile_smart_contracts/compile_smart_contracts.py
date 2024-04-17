@@ -34,7 +34,7 @@ IGNORED_FILES: List[str] = [
     # compile
     "ERC20Minter_OpenZeppelinV5.sol",
     # Ignored because it requires an older version of Solidity
-    "WEVMOS.sol"
+    "WEVMOS.sol",
 ]
 
 
@@ -47,7 +47,7 @@ IGNORED_FOLDERS: List[str] = [
     "tests/solidity",
     # We don't want to copy anything that has already been copied into the
     # contracts subdirectory, but we do want to have the ones stored there originally.
-    rf"{RELATIVE_TARGET}/\w+"
+    rf"{RELATIVE_TARGET}/\w+",
 ]
 
 
@@ -95,7 +95,10 @@ def find_solidity_contracts(
                 filename = os.path.splitext(file)[0]
                 compiledJSONPath = Path(root) / f"{filename}.json"
 
-                if added_contract is not None and added_contract in f"{Path(root) / file}":
+                if (
+                    added_contract is not None
+                    and added_contract in f"{Path(root) / file}"
+                ):
                     found_added_contract = True
                 elif not os.path.exists(compiledJSONPath):
                     compiledJSONPath = None
@@ -110,9 +113,7 @@ def find_solidity_contracts(
                 )
 
     if not found_added_contract and added_contract is not None:
-        raise ValueError(
-            f"Contract {added_contract} not found in the repository."
-        )
+        raise ValueError(f"Contract {added_contract} not found in the repository.")
 
     return solidity_files
 
@@ -125,10 +126,7 @@ def is_ignored_folder(path: str) -> bool:
     return any([re.search(folder, path) for folder in IGNORED_FOLDERS])
 
 
-def copy_to_contracts_directory(
-    target_dir: Path,
-    contracts: List[Contract]
-) -> bool:
+def copy_to_contracts_directory(target_dir: Path, contracts: List[Contract]) -> bool:
     """
     This function copies the list of Contracts found in the repository
     to the target directory.
@@ -187,9 +185,7 @@ def compile_contracts_in_dir(target_dir: Path):
     # Change to the root directory of the hardhat setup to compile.
     os.chdir(target_dir.parent)
     if not os.path.exists("hardhat.config.js"):
-        raise ValueError(
-            "compilation can only work in a HardHat setup"
-        )
+        raise ValueError("compilation can only work in a HardHat setup")
 
     install_failed = os.system("npm install")
     if install_failed:
@@ -220,12 +216,11 @@ def copy_compiled_contracts_back_to_source(
         if is_relative_target(contract.relative_path):
             dir_with_json = compiled_dir
         else:
-            dir_with_json = compiled_dir / \
-                contract.relative_path
+            dir_with_json = compiled_dir / contract.relative_path
 
-        compiled_path = dir_with_json / \
-            f"{contract.filename}.sol" / \
-            f"{contract.filename}.json"
+        compiled_path = (
+            dir_with_json / f"{contract.filename}.sol" / f"{contract.filename}.json"
+        )
 
         if not os.path.exists(compiled_path):
             print(f"did not find compiled JSON file for {contract.filename}")
@@ -268,38 +263,34 @@ def is_relative_target(path: Path) -> bool:
     return path == RELATIVE_TARGET
 
 
-def compile_files(
-    repo_path: Path,
-    added_contract: str | None = None
-):
+def compile_files(repo_path: Path, added_contract: str | None = None):
     """
     This function compiles the Solidity contracts in the repository
     with Hardhat.
     """
 
-    found_contracts = find_solidity_contracts(REPO_PATH, added_contract = added_contract)
+    found_contracts = find_solidity_contracts(REPO_PATH, added_contract=added_contract)
 
     if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
         raise ValueError("Failed to copy contracts to target directory.")
 
     compile_contracts_in_dir(CONTRACTS_TARGET)
     copy_compiled_contracts_back_to_source(
-        found_contracts,
-        CONTRACTS_TARGET.parent / "artifacts" / "contracts"
+        found_contracts, CONTRACTS_TARGET.parent / "artifacts" / "contracts"
     )
 
 
 if __name__ == "__main__":
     if not is_evmos_repo(REPO_PATH):
         raise ValueError(
-            "This script should only be executed " +
-            "in the evmos repository." +
-            f"Current path: {REPO_PATH}"
+            "This script should only be executed "
+            + "in the evmos repository."
+            + f"Current path: {REPO_PATH}"
         )
 
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         raise ValueError(
-            'Wrong usage, please refer to the README of this script',
+            "Wrong usage, please refer to the README of this script",
         )
 
     if sys.argv[1] == "--compile":
@@ -318,5 +309,5 @@ if __name__ == "__main__":
 
     else:
         raise ValueError(
-            'Wrong usage, please refer to the README of this script',
+            "Wrong usage, please refer to the README of this script",
         )
