@@ -1269,14 +1269,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v17 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v17.UpgradeName,
-		v17.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
 	// v18 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v18.UpgradeName,
@@ -1349,7 +1341,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
-	case v17.UpgradeName, v18.UpgradeName:
+	case v17.UpgradeName:
 		// no store upgrades
 	}
 
