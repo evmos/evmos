@@ -4,7 +4,9 @@
   "fallbackRetryDelay": "20s",
   "ignorePatterns": [
     {
-      "pattern": "^(http|https)://twitter.com/EvmosOrg",
+      "pattern": "^(http|https)://twitter.com/EvmosOrg"
+    },
+    {
       "pattern": "^(http|https)://immunefi.com/bounty/evmos/"
     }
   ]
