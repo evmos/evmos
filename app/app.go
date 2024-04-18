@@ -1269,10 +1269,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v18 upgrade handler
+	// v17 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v18.UpgradeName,
-		v18.CreateUpgradeHandler(
+		v17.UpgradeName,
+		v17.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
