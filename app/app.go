@@ -133,7 +133,6 @@ import (
 	v15 "github.com/evmos/evmos/v17/app/upgrades/v15"
 	v16 "github.com/evmos/evmos/v17/app/upgrades/v16"
 	v17 "github.com/evmos/evmos/v17/app/upgrades/v17"
-	v18 "github.com/evmos/evmos/v17/app/upgrades/v18"
 	v8 "github.com/evmos/evmos/v17/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v17/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v17/app/upgrades/v8_2"
