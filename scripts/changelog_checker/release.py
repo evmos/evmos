@@ -107,7 +107,7 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
     if version not in link:
         problems.append(
             f'Release header version "{version}" '
-            + 'does not match version in link "{link}"'
+            + f'does not match version in link "{link}"'
         )
 
     return fixed, problems
