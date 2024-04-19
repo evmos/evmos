@@ -60,6 +60,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (all) [#2451](https://github.com/evmos/evmos/pull/2451) Updating the safu.pdf document.
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
 - (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
@@ -84,6 +85,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC-20 extension registration.
 - (erc20) [#2352](https://github.com/evmos/evmos/pull/2352) Remove WERC-20 precompile and register WEVMOS as standard ERC-20 precompile.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
+<<<<<<< HEAD
 - (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
 
 ## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
@@ -93,8 +95,35 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
 - (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
 - (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
+=======
+- (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
+- (evm) [#2436](https://github.com/evmos/evmos/pull/2436) Using maps.Clone API to simplify code.
+- (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
+- (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
+- (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
+- (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
+- (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
+>>>>>>> main
 
-## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
+## [v17.0.0] - 2024-04-08
+
+### State Machine Breaking
+
+- (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
+
+## [v16.0.4] - 2024-04-05
+
+### Improvements
+
+- (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
+
+## [v16.0.3] - 2024-02-02
+
+## Bug Fixes
+
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+
+## [v16.0.2] - 2024-01-16
 
 ### Bug Fixes
 

@@ -5,6 +5,7 @@ package types
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"sort"
 	"strings"
 
@@ -19,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
-	"golang.org/x/exp/slices"
 )
 
 var (

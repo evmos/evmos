@@ -11,13 +11,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/math"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
-	"golang.org/x/exp/slices"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -764,6 +764,8 @@ func NewEvmos(
 	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
 	if slices.Contains(streamers, versionDB) {
 		queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		// ignore linter here because the error returned will depend on the
+		// binary build: if it is built with rocksdb or not
 		if err != nil {
 			panic(errorsmod.Wrap(err, "error on versionDB setup"))
 		}
