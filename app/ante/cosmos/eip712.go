@@ -198,11 +198,11 @@ func VerifySignature(
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if !ok {
-			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesnt contain any extensions")
+			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesn't contain any extensions")
 		}
 		opts := txWithExtensions.GetExtensionOptions()
 		if len(opts) != 1 {
-			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesnt contain expected amount of extension options")
+			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesn't contain expected amount of extension options")
 		}
 
 		extOpt, ok := opts[0].GetCachedValue().(*types.ExtensionOptionsWeb3Tx)
