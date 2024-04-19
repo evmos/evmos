@@ -3,13 +3,13 @@
 syntax = "proto3";
 package ethermint.evm.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "ethermint/evm/v1/evm.proto";
 import "ethermint/evm/v1/tx.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v16/x/evm/types";
 

@@ -3,9 +3,9 @@
 syntax = "proto3";
 package ethermint.feemarket.v1;
 
+import "amino/amino.proto";
 import "ethermint/feemarket/v1/feemarket.proto";
 import "gogoproto/gogo.proto";
-import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v16/x/feemarket/types";
 
