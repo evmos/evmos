@@ -93,17 +93,22 @@ def find_solidity_contracts(
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
+                optionalJSONPath: Path | None = Path(root) / f"{filename}.json"
 
                 if (
                     added_contract is not None
                     and added_contract in f"{Path(root) / file}"
                 ):
                     found_added_contract = True
-                    compiledJSONPath = Path(root) / f"{filename}.json"
-                elif not os.path.exists(compiledJSONPath):
+                    compiledJSONPath = optionalJSONPath
+                elif os.path.exists(optionalJSONPath):
+                    compiledJSONPath = optionalJSONPath
+                elif not os.path.exists(optionalJSONPath):
                     compiledJSONPath = None
                 else:
-                    raise ValueError("Unexpected behavior.")
+                    raise ValueError(
+                        f"Unexpected behavior for '{Path(root) / file}'.",
+                    )
 
                 solidity_files.append(
                     Contract(
@@ -115,7 +120,8 @@ def find_solidity_contracts(
                 )
 
     if not found_added_contract and added_contract is not None:
-        raise ValueError(f"Contract {added_contract} not found in the repository.")
+        raise ValueError(
+            f"Contract {added_contract} not found in the repository.")
 
     return solidity_files
 
@@ -221,7 +227,8 @@ def copy_compiled_contracts_back_to_source(
             dir_with_json = compiled_dir / contract.relative_path
 
         compiled_path = (
-            dir_with_json / f"{contract.filename}.sol" / f"{contract.filename}.json"
+            dir_with_json / f"{contract.filename}.sol" /
+            f"{contract.filename}.json"
         )
 
         if not os.path.exists(compiled_path):
@@ -271,7 +278,8 @@ def compile_files(repo_path: Path, added_contract: str | None = None):
     with Hardhat.
     """
 
-    found_contracts = find_solidity_contracts(REPO_PATH, added_contract=added_contract)
+    found_contracts = find_solidity_contracts(
+        REPO_PATH, added_contract=added_contract)
 
     if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
         raise ValueError("Failed to copy contracts to target directory.")

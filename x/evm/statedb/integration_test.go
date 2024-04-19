@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/x/evm/statedb/testdata"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
@@ -144,7 +145,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			deployer.Priv,
 			evmtypes.EvmTxArgs{},
 			testfactory.ContractDeploymentData{
-				Contract: contracts.FlashLoanContract,
+				Contract: testdata.FlashLoanContract,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
@@ -236,7 +237,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &flashLoanAddr},
 			testfactory.CallArgs{
-				ContractABI: contracts.FlashLoanContract.ABI,
+				ContractABI: testdata.FlashLoanContract.ABI,
 				MethodName:  "flashLoan",
 				Args: []interface{}{
 					erc20Addr,
