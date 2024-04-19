@@ -119,8 +119,14 @@ def test_compile_contracts_in_dir(setup_contracts_directory):
 
 def test_is_ignored_folder():
     assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}") is False
-    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles") is True
-    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example") is True
+    assert (
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles")
+        is True
+    )
+    assert (
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example")
+        is True
+    )
     assert is_ignored_folder("abc/node_modules/precompiles") is True
     assert is_ignored_folder("abc/tests/solidity/precompiles") is True
     assert is_ignored_folder("abc/nix_tests/precompiles") is True
