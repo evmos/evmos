@@ -5,9 +5,9 @@ package grpc
 
 import (
 	"fmt"
+	"slices"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"golang.org/x/exp/slices"
 )
 
 // GetGovParams returns the gov params from the gov module.
