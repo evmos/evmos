@@ -93,6 +93,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
+		Expect(network.NextBlock()).To(BeNil())
 	})
 
 	It("should mint some tokens", func() {
@@ -109,6 +110,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
+		Expect(network.NextBlock()).To(BeNil())
 
 		// Check the balance of the deployer
 		res, err := factory.ExecuteContractCall(
@@ -123,6 +125,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+		Expect(network.NextBlock()).To(BeNil())
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
@@ -148,6 +151,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
+		Expect(network.NextBlock()).To(BeNil())
 	})
 
 	It("should approve the flash loan contract to spend tokens", func() {
@@ -163,6 +167,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
+		Expect(network.NextBlock()).To(BeNil())
 
 		// Check the allowance
 		res, err := factory.ExecuteContractCall(
@@ -177,6 +182,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
+		Expect(network.NextBlock()).To(BeNil())
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
@@ -207,6 +213,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
+		Expect(network.NextBlock()).To(BeNil())
 
 		// Check the allowance
 		res, err := factory.ExecuteContractCall(
@@ -221,6 +228,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
+		Expect(network.NextBlock()).To(BeNil())
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
@@ -246,6 +254,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to execute flash loan")
+		Expect(network.NextBlock()).To(BeNil())
 	})
 
 	It("should show the delegation", func() {
@@ -271,6 +280,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+		Expect(network.NextBlock()).To(BeNil())
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
