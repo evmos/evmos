@@ -588,7 +588,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		expErr   bool
 	}{
 		{
-			"messsage applied ok",
+			"message applied ok",
 			func() {
 				msg, err = newNativeMessage(
 					vmdb.GetNonce(suite.address),
