@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/evmos/v16/testutil"
-	"github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v17/testutil"
+	"github.com/evmos/evmos/v17/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestBalances() {

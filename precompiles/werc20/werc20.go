@@ -12,10 +12,10 @@ import (
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	erc20 "github.com/evmos/evmos/v16/precompiles/erc20"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	erc20 "github.com/evmos/evmos/v17/precompiles/erc20"
+	erc20types "github.com/evmos/evmos/v17/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the WERC-20 precompile ABI JSON file.

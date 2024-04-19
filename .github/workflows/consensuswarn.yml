@@ -10,10 +10,10 @@ on:
 jobs:
   main:
     permissions:
-      pull-requests: write  # For reading the PR and posting comment
+      pull-requests: write # For reading the PR and posting comment
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: orijtech/consensuswarn@main
         with:
-          roots: 'github.com/evmos/evmos/v16/app.Evmos.DeliverTx,github.com/evmos/evmos/v16/app.Evmos.BeginBlocker,github.com/evmos/evmos/v16/app.Evmos.EndBlocker'
+          roots: "github.com/evmos/evmos/v17/app.Evmos.DeliverTx,github.com/evmos/evmos/v17/app.Evmos.BeginBlocker,github.com/evmos/evmos/v17/app.Evmos.EndBlocker"

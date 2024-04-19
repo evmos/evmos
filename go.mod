@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v16
+module github.com/evmos/evmos/v17
 
 go 1.22.2
 

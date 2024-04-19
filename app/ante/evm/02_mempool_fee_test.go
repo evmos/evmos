@@ -5,7 +5,7 @@ package evm_test
 import (
 	sdkmath "cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v17/app/ante/evm"
 )
 
 func (suite *EvmAnteTestSuite) TestMempoolFee() {

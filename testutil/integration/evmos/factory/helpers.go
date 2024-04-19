@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	amino "github.com/cosmos/cosmos-sdk/codec"
@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	enccodec "github.com/evmos/evmos/v16/encoding/codec"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
+	enccodec "github.com/evmos/evmos/v17/encoding/codec"
+	"github.com/evmos/evmos/v17/precompiles/testutil"
 )
 
 // buildMsgEthereumTx builds an Ethereum transaction from the given arguments and populates the From field.

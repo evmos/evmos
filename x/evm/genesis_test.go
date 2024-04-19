@@ -6,13 +6,13 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/evm"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
+	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v17/types"
+	"github.com/evmos/evmos/v17/x/evm"
+	"github.com/evmos/evmos/v17/x/evm/statedb"
+	"github.com/evmos/evmos/v17/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -9,17 +9,17 @@ import (
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/app/ante"
-	ethante "github.com/evmos/evmos/v16/app/ante/evm"
-	"github.com/evmos/evmos/v16/encoding"
-	cmmnfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/app/ante"
+	ethante "github.com/evmos/evmos/v17/app/ante/evm"
+	"github.com/evmos/evmos/v17/encoding"
+	cmmnfactory "github.com/evmos/evmos/v17/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v17/types"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 )
 
 type benchmarkSuite struct {

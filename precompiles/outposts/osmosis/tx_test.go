@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v17/precompiles/erc20"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
-	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
-	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	"github.com/evmos/evmos/v17/precompiles/ics20"
+	"github.com/evmos/evmos/v17/precompiles/outposts/osmosis"
+	commonnetwork "github.com/evmos/evmos/v17/testutil/integration/common/network"
+	testutils "github.com/evmos/evmos/v17/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v17/testutil/integration/ibc/coordinator"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
 )
 
 func (s *PrecompileTestSuite) TestSwap() {

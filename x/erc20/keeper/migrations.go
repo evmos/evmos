@@ -6,8 +6,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	v3 "github.com/evmos/evmos/v16/x/erc20/migrations/v3"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	v3 "github.com/evmos/evmos/v17/x/erc20/migrations/v3"
+	"github.com/evmos/evmos/v17/x/erc20/types"
 )
 
 var _ module.MigrationHandler = Migrator{}.Migrate2to3

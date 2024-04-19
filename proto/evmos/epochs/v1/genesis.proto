@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/epochs/types";
+option go_package = "github.com/evmos/evmos/v17/x/epochs/types";
 
 // EpochInfo defines the message interface containing the relevant informations about
 // an epoch.

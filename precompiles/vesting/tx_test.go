@@ -9,16 +9,16 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v17/precompiles/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v16/testutil"
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	"github.com/evmos/evmos/v17/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v17/testutil"
+	evmosutiltx "github.com/evmos/evmos/v17/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v17/types"
+	"github.com/evmos/evmos/v17/utils"
+	vestingtypes "github.com/evmos/evmos/v17/x/vesting/types"
 )
 
 var (

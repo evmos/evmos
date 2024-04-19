@@ -15,7 +15,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v17/ethereum/eip712"
 )
 
 const (
