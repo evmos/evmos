@@ -16,14 +16,11 @@ import (
 	"github.com/evmos/evmos/v16/wallets/ledger"
 )
 
-// Test Mnemonic:
-// glow spread dentist swamp people siren hint muscle first sausage castle metal cycle abandon accident logic again around mix dial knee organ episode usual
-
 // Load encoding config for sign doc encoding/decoding
 func init() {
 	config := encoding.MakeConfig(app.ModuleBasics)
 	eip712.SetEncodingConfig(config)
-	sdk.GetConfig().SetBech32PrefixForAccount("cosmos", "")
+	sdk.GetConfig().SetBech32PrefixForAccount("evmos", "")
 }
 
 func (suite *LedgerTestSuite) TestEvmosLedgerDerivation() {
