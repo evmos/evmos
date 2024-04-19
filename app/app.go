@@ -799,7 +799,7 @@ func NewEvmos(
 			// 	 This can happen with memiavl async-commit.
 			// The latter case is not harmful, so we can relax the checking to improve UX.
 			if v1 > 0 && v1 < v2 {
-				tmos.Exit(fmt.Sprintf("versiondb lastest version %d lag behind iavl latest version %d", v1, v2))
+				tmos.Exit(fmt.Sprintf("latest version of version-db (%d) lags behind iavl's latest version (%d)", v1, v2))
 			}
 		}
 	}
