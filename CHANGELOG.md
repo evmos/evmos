@@ -53,7 +53,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
 
-
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
@@ -85,17 +84,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (str-v2) [#2350](https://github.com/evmos/evmos/pull/2350) Handle `tokenfactory` edge case for automatic ERC-20 extension registration.
 - (erc20) [#2352](https://github.com/evmos/evmos/pull/2352) Remove WERC-20 precompile and register WEVMOS as standard ERC-20 precompile.
 - (tests) [#2421](https://github.com/evmos/evmos/pull/2421) Remove configuration for deprecated modules from local node script.
-<<<<<<< HEAD
 - (erc20) [#2142](https://github.com/evmos/evmos/pull/2142) Adjust required gas on ERC-20 extension.
-
-## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
-
-### Bug Fixes
-
-- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
-- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix `TraceTx` `KVGasConfig` setup.
-=======
 - (ante) [#2427](https://github.com/evmos/evmos/pull/2427) Minor improvements to EVM mono ante handler readability.
 - (evm) [#2436](https://github.com/evmos/evmos/pull/2436) Using maps.Clone API to simplify code.
 - (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
@@ -103,7 +92,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
 - (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
 - (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
->>>>>>> main
 
 ## [v17.0.0] - 2024-04-08
 
@@ -117,11 +105,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
 
-## [v16.0.3] - 2024-02-02
+## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
-## Bug Fixes
+### Bug Fixes
 
 - (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+- (ci) [#2321](https://github.com/evmos/evmos/pull/2321) Add build and markdown lint checker for `main` and `release` branches.
+- (tests) [#2301](https://github.com/evmos/evmos/pull/2301) Run Nix tests in parallel.
 
 ## [v16.0.2] - 2024-01-16
 
@@ -994,8 +984,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-
-
-
-
-
