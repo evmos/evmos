@@ -91,29 +91,33 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	var ctx sdk.Context
 	testCases := []struct {
-		name     string
-		malleate func()
-		expRes   []int
+		name       string
+		malleate   func() map[uint64]int
+		expStorage bool
 	}{
 		{
 			"Only one account that's not a contract (no storage)",
-			func() {
+			func() map[uint64]int {
+				expRes := make(map[uint64]int)
 				i := 0
 				// NOTE: here we're removing all accounts except for one
 				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 					defer func() { i++ }()
 					if i == 0 {
+						expRes[account.GetAccountNumber()] = 0
 						return false
 					}
 					suite.network.App.AccountKeeper.RemoveAccount(ctx, account)
 					return false
 				})
+				return expRes
 			},
-			[]int{0},
+			false,
 		},
 		{
 			"Two accounts - one contract (with storage), one wallet",
-			func() {
+			func() map[uint64]int {
+				expRes := make(map[uint64]int)
 				supply := big.NewInt(100)
 				suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 				i := 0
@@ -124,23 +128,28 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 					if ok {
 						storage = suite.network.App.EvmKeeper.GetAccountStorage(ctx, ethAccount.EthAddress())
 					}
+					expRes[account.GetAccountNumber()] = len(storage)
+
 					if i == 0 || len(storage) > 0 {
 						return false
 					}
+
 					suite.network.App.AccountKeeper.RemoveAccount(ctx, account)
 					return false
 				})
+				return expRes
 			},
-			[]int{0, 2},
+			true,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			var passed bool
 			suite.SetupTest()
 			ctx = suite.network.GetContext()
-			tc.malleate()
-			i := 0
+			expRes := tc.malleate()
+
 			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
@@ -151,10 +160,23 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				addr := ethAccount.EthAddress()
 				storage := suite.network.App.EvmKeeper.GetAccountStorage(ctx, addr)
 
-				suite.Require().Equal(tc.expRes[i], len(storage))
-				i++
+				storageEntriesCount := len(storage)
+				expCount, ok := expRes[account.GetAccountNumber()]
+				suite.Require().True(ok)
+				suite.Require().Equal(expCount, storageEntriesCount)
+				if !tc.expStorage {
+					if storageEntriesCount > 0 {
+						passed = false
+						return true
+					}
+					passed = true
+				}
+				if tc.expStorage && storageEntriesCount > 0 {
+					passed = true
+				}
 				return false
 			})
+			suite.Require().True(passed)
 		})
 	}
 }
