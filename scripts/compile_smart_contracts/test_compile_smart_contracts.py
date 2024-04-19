@@ -7,8 +7,10 @@ from compile_smart_contracts import (
     compile_contracts_in_dir,
     copy_to_contracts_directory,
     find_solidity_contracts,
+    HARDHAT_PROJECT_DIR,
     is_evmos_repo,
     is_ignored_folder,
+    SOLIDITY_SOURCE,
 )
 
 
@@ -23,9 +25,9 @@ def setup_example_contracts_files(tmp_path):
     (tmp_path / "Contract2.sol").touch()
     # NOTE: we're not adding the JSON file for Contract2
 
-    (tmp_path / "contracts").mkdir()
-    (tmp_path / "contracts" / "Contract3.sol").touch()
-    (tmp_path / "contracts" / "Contract3.json").touch()
+    (tmp_path / HARDHAT_PROJECT_DIR).mkdir()
+    (tmp_path / HARDHAT_PROJECT_DIR / "Contract3.sol").touch()
+    (tmp_path / HARDHAT_PROJECT_DIR / "Contract3.json").touch()
 
     (tmp_path / "precompiles").mkdir()
     (tmp_path / "precompiles" / "Contract4.sol").touch()
@@ -61,9 +63,9 @@ def test_find_solidity_files(setup_example_contracts_files):
     )
 
     assert found_solidity_contracts[3].filename == "Contract3"
-    assert found_solidity_contracts[3].relative_path == Path("contracts")
+    assert found_solidity_contracts[3].relative_path == Path(HARDHAT_PROJECT_DIR)
     assert found_solidity_contracts[3].compiledJSONPath == Path(
-        tmp_path / "contracts" / "Contract3.json"
+        tmp_path / HARDHAT_PROJECT_DIR / "Contract3.json"
     )
 
 
@@ -103,22 +105,22 @@ def setup_contracts_directory(tmp_path):
 
 def test_compile_contracts_in_dir(setup_contracts_directory):
     hardhat_dir = setup_contracts_directory
-    target_dir = hardhat_dir / "contracts"
+    target_dir = hardhat_dir / SOLIDITY_SOURCE
 
     compile_contracts_in_dir(target_dir)
     assert os.path.exists(
         hardhat_dir
         / "artifacts"
-        / "contracts"
+        / SOLIDITY_SOURCE
         / "SimpleContract.sol"
         / "SimpleContract.json"
     )
 
 
 def test_is_ignored_folder():
-    assert is_ignored_folder("abc/contracts/contracts") is False
-    assert is_ignored_folder("abc/contracts/contracts/precompiles") is True
-    assert is_ignored_folder("abc/contracts/contracts/01_example") is True
+    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}") is False
+    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles") is True
+    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example") is True
     assert is_ignored_folder("abc/node_modules/precompiles") is True
     assert is_ignored_folder("abc/tests/solidity/precompiles") is True
     assert is_ignored_folder("abc/nix_tests/precompiles") is True

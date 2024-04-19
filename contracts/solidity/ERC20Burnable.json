@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "ERC20Burnable",
-  "sourceName": "contracts/ERC20Burnable.sol",
+  "sourceName": "solidity/ERC20Burnable.sol",
   "abi": [
     {
       "anonymous": false,

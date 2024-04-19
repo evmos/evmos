@@ -23,7 +23,9 @@ REPO_PATH = Path(__file__).parent.parent.parent
 
 
 # This is the main target directory inside of the contracts folder.
-RELATIVE_TARGET = Path("contracts") / "contracts"
+HARDHAT_PROJECT_DIR = "contracts"
+SOLIDITY_SOURCE = "solidity"
+RELATIVE_TARGET = Path(HARDHAT_PROJECT_DIR) / SOLIDITY_SOURCE
 CONTRACTS_TARGET = REPO_PATH / RELATIVE_TARGET
 
 
@@ -232,7 +234,8 @@ def copy_compiled_contracts_back_to_source(
         )
 
         if not os.path.exists(compiled_path):
-            print(f"did not find compiled JSON file for {contract.filename}")
+            print(f"Path: {compiled_path}")
+            print(f"-> did not find compiled JSON file for {contract.filename}")
             continue
 
         copy(compiled_path, contract.compiledJSONPath)
@@ -257,7 +260,7 @@ def clean_up_hardhat_project(hardhat_dir: Path):
     if os.path.exists(cache):
         rmtree(cache)
 
-    contracts_dir = hardhat_dir / "contracts"
+    contracts_dir = hardhat_dir / SOLIDITY_SOURCE
     for entry in contracts_dir.iterdir():
         if entry.is_dir():
             rmtree(entry)
@@ -286,7 +289,7 @@ def compile_files(repo_path: Path, added_contract: str | None = None):
 
     compile_contracts_in_dir(CONTRACTS_TARGET)
     copy_compiled_contracts_back_to_source(
-        found_contracts, CONTRACTS_TARGET.parent / "artifacts" / "contracts"
+        found_contracts, CONTRACTS_TARGET.parent / "artifacts" / SOLIDITY_SOURCE
     )
 
 
