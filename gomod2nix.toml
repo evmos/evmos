@@ -483,8 +483,8 @@ schema = 3
     version = "v2.17.1"
     hash = "sha256-kZgSreUHuYwl6Hh1SHmSasBwbV7qeYeg4BFYoxMchg8="
   [mod."github.com/onsi/gomega"]
-    version = "v1.32.0"
-    hash = "sha256-FzYwmABdsJFJhATLXRJgQjZBQqL6yycRm2SZ7iJCjo0="
+    version = "v1.33.0"
+    hash = "sha256-0LMaPjLYtaFy95PdY0oyFo00pN0ZStCvaurUuoPSPIo="
   [mod."github.com/opencontainers/go-digest"]
     version = "v1.0.0"
     hash = "sha256-cfVDjHyWItmUGZ2dzQhCHgmOmou8v7N+itDkLZVkqkQ="
