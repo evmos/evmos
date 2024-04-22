@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/encoding"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
 
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -28,11 +28,11 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	epochstypes "github.com/evmos/evmos/v17/x/epochs/types"
-	infltypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
-	evmosutil "github.com/evmos/evmos/v17/utils"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	evmosutil "github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified

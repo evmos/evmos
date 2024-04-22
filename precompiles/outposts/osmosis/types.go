@@ -18,8 +18,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	"github.com/evmos/evmos/v17/utils"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 const (
