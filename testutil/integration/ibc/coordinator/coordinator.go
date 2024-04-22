@@ -40,7 +40,6 @@ type Coordinator interface {
 	CommitAll() error
 }
 
-// TODO: Replace for a config
 var AmountOfDummyChains = 2
 
 var _ Coordinator = (*IntegrationCoordinator)(nil)
