@@ -293,6 +293,7 @@ func (suite *VestingAccountTestSuite) TestGetCoinsFunctions() {
 		})
 	}
 }
+
 func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 	now := tmtime.Now()
 	endTime := now.Add(24 * time.Hour)

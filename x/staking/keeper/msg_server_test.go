@@ -30,7 +30,7 @@ func TestMsgDelegate(t *testing.T) {
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
 
-	testCases := []struct {
+	testCases := []struct { //nolint:dupl
 		name   string
 		setup  func() sdk.Coin
 		expErr bool
@@ -74,7 +74,7 @@ func TestMsgDelegate(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				nw.NextBlockAfter(cliffDuration * time.Second)
+				require.NoError(t, nw.NextBlockAfter(cliffDuration*time.Second))
 				ctx = nw.GetContext()
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
@@ -99,7 +99,7 @@ func TestMsgDelegate(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				nw.NextBlockAfter(lockDuration * time.Second)
+				require.NoError(t, nw.NextBlockAfter(lockDuration*time.Second))
 				ctx = nw.GetContext()
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
@@ -149,7 +149,7 @@ func TestMsgCreateValidator(t *testing.T) {
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
 
-	testCases := []struct {
+	testCases := []struct { //nolint:dupl
 		name   string
 		setup  func() sdk.Coin
 		expErr bool
@@ -193,7 +193,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				nw.NextBlockAfter(cliffDuration * time.Second)
+				require.NoError(t, nw.NextBlockAfter(cliffDuration*time.Second))
 				ctx = nw.GetContext()
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
@@ -218,7 +218,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				nw.NextBlockAfter(lockDuration * time.Second)
+				require.NoError(t, nw.NextBlockAfter(lockDuration*time.Second))
 				ctx = nw.GetContext()
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
