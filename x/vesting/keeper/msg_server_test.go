@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // Reset
+			suite.Require().NoError(suite.SetupTest()) // Reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			// fund the recipient account to set the account and then
@@ -165,7 +165,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// ---------------------------
 	// Test blocked address
 	suite.Run("fail - blocked address", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 		msg := &types.MsgFundVestingAccount{
 			FunderAddress:  funder.String(),
 			VestingAddress: authtypes.NewModuleAddress("transfer").String(),
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// Test wrong funder by first creating a clawback vesting account
 	// and then trying to fund it with a different funder
 	suite.Run("fail - wrong funder", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 
 		// fund the recipient account to set the account
 		err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)

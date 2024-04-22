@@ -375,7 +375,7 @@ func (k Keeper) ConvertVestingAccount(
 	if vestingAcc.HasLockedCoins(ctx.BlockTime()) {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "locked up coins still left in account: %s", msg.VestingAddress)
 	}
-	
+
 	// if gov clawback is disabled, remove the entry from the store.
 	// if no entry is found for the address, this will no-op
 	k.DeleteGovClawbackDisabled(ctx, address)
