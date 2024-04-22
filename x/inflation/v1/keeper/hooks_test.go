@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v17/x/epochs/types"
+	"github.com/evmos/evmos/v17/x/inflation/v1/types"
 )
 
 func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {

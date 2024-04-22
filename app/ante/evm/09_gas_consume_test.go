@@ -5,10 +5,10 @@ package evm_test
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	evmante "github.com/evmos/evmos/v16/app/ante/evm"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	evmante "github.com/evmos/evmos/v17/app/ante/evm"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {

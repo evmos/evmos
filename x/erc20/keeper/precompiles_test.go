@@ -6,11 +6,11 @@ package keeper_test
 import (
 	"slices"
 
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	erc20precompile "github.com/evmos/evmos/v17/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
+	"github.com/evmos/evmos/v17/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {

@@ -2569,7 +2569,7 @@
           },
           {
             "name": "chain_id",
-            "description": "chain_id is the the eip155 chain id parsed from the requested block header.",
+            "description": "chain_id is the eip155 chain id parsed from the requested block header.",
             "in": "query",
             "required": false,
             "type": "string",
