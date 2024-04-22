@@ -83,17 +83,6 @@ func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress
 	return genAccounts
 }
 
-// getAccAddrsFromBalances returns a slice of genesis accounts from the
-// given balances.
-func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress {
-	numberOfBalances := len(balances)
-	genAccounts := make([]sdktypes.AccAddress, 0, numberOfBalances)
-	for _, balance := range balances {
-		genAccounts = append(genAccounts, balance.GetAddress())
-	}
-	return genAccounts
-}
-
 // createBalances creates balances for the given accounts and coin
 func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
