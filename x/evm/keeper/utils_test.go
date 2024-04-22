@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"encoding/json"
-	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
 	"time"
+
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"

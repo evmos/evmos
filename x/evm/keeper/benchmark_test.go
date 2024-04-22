@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
-	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
 	"testing"
+
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"

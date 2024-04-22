@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
+
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
