@@ -28,6 +28,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	evmostypes "github.com/evmos/evmos/v18/types"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
@@ -58,9 +60,25 @@ func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
+	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		genAccounts = append(genAccounts, baseAcc)
+		ethAcc := &evmostypes.EthAccount{
+			BaseAccount: baseAcc,
+			CodeHash:    emptyCodeHash,
+		}
+		genAccounts = append(genAccounts, ethAcc)
+	}
+	return genAccounts
+}
+
+// getAccAddrsFromBalances returns a slice of genesis accounts from the
+// given balances.
+func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress {
+	numberOfBalances := len(balances)
+	genAccounts := make([]sdktypes.AccAddress, 0, numberOfBalances)
+	for _, balance := range balances {
+		genAccounts = append(genAccounts, balance.GetAddress())
 	}
 	return genAccounts
 }

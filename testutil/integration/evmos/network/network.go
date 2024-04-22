@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"math"
 	"math/big"
+	"time"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -164,11 +165,13 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	consensusParams := app.DefaultConsensusParams
+	now := time.Now()
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
+			Time:            now,
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
-			ConsensusParams: app.DefaultConsensusParams,
+			ConsensusParams: consensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -178,6 +181,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	header := tmproto.Header{
 		ChainID:            n.cfg.chainID,
 		Height:             evmosApp.LastBlockHeight() + 1,
+		Time:               now,
 		AppHash:            evmosApp.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),

@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 			suite.Commit()

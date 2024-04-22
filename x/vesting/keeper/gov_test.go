@@ -6,7 +6,9 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGovClawbackStore() {
-	suite.SetupTest()
+	if err := suite.SetupTest(); err != nil {
+		panic(err)
+	}
 
 	addr := sdk.AccAddress(suite.address.Bytes())
 
@@ -30,7 +32,9 @@ func (suite *KeeperTestSuite) TestGovClawbackStore() {
 }
 
 func (suite *KeeperTestSuite) TestGovClawbackNoOps() {
-	suite.SetupTest()
+	if err := suite.SetupTest(); err != nil {
+		panic(err)
+	}
 
 	addr := sdk.AccAddress(suite.address.Bytes())
 	addr2 := sdk.AccAddress(testutiltx.GenerateAddress().Bytes())

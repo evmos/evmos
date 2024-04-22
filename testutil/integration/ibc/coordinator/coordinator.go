@@ -41,10 +41,7 @@ type Coordinator interface {
 }
 
 // TODO: Replace for a config
-var (
-	AmountOfDummyChains = 2
-	GlobalTime          = time.Date(time.Now().Year()+1, 1, 2, 0, 0, 0, 0, time.UTC)
-)
+var AmountOfDummyChains = 2
 
 var _ Coordinator = (*IntegrationCoordinator)(nil)
 
@@ -62,7 +59,7 @@ type IntegrationCoordinator struct {
 func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Network) *IntegrationCoordinator {
 	coord := &ibctesting.Coordinator{
 		T:           t,
-		CurrentTime: GlobalTime,
+		CurrentTime: time.Now(),
 	}
 	ibcChains := getIBCChains(t, coord, preConfiguredChains)
 	dummyChains, dummyChainsIDs := generateDummyChains(t, coord, AmountOfDummyChains)
