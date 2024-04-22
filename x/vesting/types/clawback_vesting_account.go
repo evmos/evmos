@@ -174,7 +174,6 @@ func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-
 // GetPassedPeriodCount returns the amount of passed periods at blockTime.
 func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 	return ReadPastPeriodCount(va.GetStartTime(), va.EndTime, va.VestingPeriods, blockTime.Unix())
