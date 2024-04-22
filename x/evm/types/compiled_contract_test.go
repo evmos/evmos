@@ -1,10 +1,11 @@
-package types
+package types_test
 
 import (
 	"encoding/json"
 	"os"
 	"testing"
 
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +14,7 @@ func TestHardhatCompiledContract(t *testing.T) {
 	require.NoError(t, err, "failed to read file")
 	require.NotEmpty(t, contents, "expected contents not to be empty")
 
-	var hardhatContract HardhatCompiledContract
+	var hardhatContract evmtypes.HardhatCompiledContract
 	err = json.Unmarshal(contents, &hardhatContract)
 	require.NoError(t, err, "failed to unmarshal contract")
 

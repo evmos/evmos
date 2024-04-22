@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
 	"testing"
 
@@ -78,7 +79,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 }
 
 func BenchmarkTokenTransfer(b *testing.B) {
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
@@ -99,7 +100,7 @@ func BenchmarkTokenTransfer(b *testing.B) {
 }
 
 func BenchmarkEmitLogs(b *testing.B) {
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
@@ -120,7 +121,7 @@ func BenchmarkEmitLogs(b *testing.B) {
 }
 
 func BenchmarkTokenTransferFrom(b *testing.B) {
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err)
 
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
@@ -141,7 +142,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 }
 
 func BenchmarkTokenMint(b *testing.B) {
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
@@ -164,7 +165,7 @@ func BenchmarkTokenMint(b *testing.B) {
 func BenchmarkMessageCall(b *testing.B) {
 	suite, contract := SetupTestMessageCall(b)
 
-	messageCallContract, err := types.LoadMessageCallContract()
+	messageCallContract, err := testdata.LoadMessageCallContract()
 	require.NoError(b, err, "failed to load message call contract")
 
 	input, err := messageCallContract.ABI.Pack("benchmarkMessageCall", big.NewInt(10000))

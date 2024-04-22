@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -498,7 +499,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 	higherGas := hexutil.Uint64(25000)
 	hexBigInt := hexutil.Big(*big.NewInt(1))
 
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	var (
@@ -774,7 +775,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		chainID      *sdkmath.Int
 	)
 
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	testCases := []struct {
@@ -1199,7 +1200,7 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 	// occupy nonce 0
 	_ = suite.DeployTestContract(suite.T(), address, supply)
 
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	// do an EthCall/EstimateGas with nonce 0
@@ -1311,7 +1312,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 
 	hexBigInt := hexutil.Big(*big.NewInt(1))
 
-	erc20Contract, err := types.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	ctorArgs, err := erc20Contract.ABI.Pack("", address, supply)

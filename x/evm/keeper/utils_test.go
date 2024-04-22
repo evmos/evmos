@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"github.com/evmos/evmos/v16/x/evm/keeper/testdata"
 	"math/big"
 	"time"
 
@@ -44,7 +45,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	erc20Contract, err := evmtypes.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
 
 	ctorArgs, err := erc20Contract.ABI.Pack("", owner, supply)
@@ -101,7 +102,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	erc20Contract, err := evmtypes.LoadERC20Contract()
+	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
 
 	transferData, err := erc20Contract.ABI.Pack("transfer", to, amount)
@@ -155,7 +156,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	testMessageCallContract, err := evmtypes.LoadMessageCallContract()
+	testMessageCallContract, err := testdata.LoadMessageCallContract()
 	require.NoError(t, err, "failed to load contract")
 
 	data := testMessageCallContract.Bin
