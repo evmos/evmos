@@ -4,12 +4,12 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
 )
 
 // GetParams returns the total set of evm parameters.

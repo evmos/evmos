@@ -4,8 +4,7 @@ package utils
 
 import (
 	"fmt"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 

@@ -3,6 +3,7 @@ package staking_test
 import (
 	"encoding/json"
 	"math/big"
+	"slices"
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -38,7 +39,6 @@ import (
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	"golang.org/x/exp/slices"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts

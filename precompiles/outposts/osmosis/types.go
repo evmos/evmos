@@ -7,11 +7,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"slices"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-
-	"golang.org/x/exp/slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
