@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package contracts
+package testdata
 
 import (
 	_ "embed" // embed compiled smart contract
@@ -14,7 +14,7 @@ import (
 // This is an evil token. Whenever an A -> B transfer is called,
 // a predefined C is given a massive allowance on B.
 var (
-	//go:embed solidity/ERC20MaliciousDelayed.json
+	//go:embed ERC20MaliciousDelayed.json
 	ERC20MaliciousDelayedJSON []byte //nolint: golint
 )
 
