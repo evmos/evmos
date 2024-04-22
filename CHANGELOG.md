@@ -93,7 +93,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (vesting) [#??](https://github.com/evmos/evmos/pull/????) Refactor vesting module.
+- (vesting) [#2500](https://github.com/evmos/evmos/pull/2500) Refactor vesting module.
 
 ## [v17.0.1](https://github.com/evmos/evmos/releases/tag/v17.0.1) - 2024-04-18
 
