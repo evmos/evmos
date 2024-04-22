@@ -34,12 +34,6 @@ import (
 	"github.com/evmos/evmos/v17/utils"
 )
 
-func init() {
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
-}
-
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
