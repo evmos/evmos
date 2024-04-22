@@ -107,7 +107,7 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 		validator, err := stakingtypes.NewValidator(valAddr, suite.consKey, stakingtypes.Description{})
 		suite.Require().NoError(err)
 
-		validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+		validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
 
 		err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 		suite.Require().NoError(err)
@@ -253,7 +253,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			suite.Require().Equal(math.ZeroInt(), initialDel)
 
 			if utils.IsMainnet(tc.chainID) {
-				v11.HandleRewardDistribution(suite.ctx, suite.app.Logger(), suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
+				v11.HandleRewardDistribution(suite.ctx, suite.app.Logger(), suite.app.BankKeeper, *suite.app.StakingKeeper.Keeper, suite.app.DistrKeeper)
 			}
 
 			// account not in list should NOT get rewards

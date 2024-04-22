@@ -20,7 +20,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
@@ -33,6 +32,7 @@ import (
 	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 )
 

@@ -9,7 +9,6 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -19,6 +18,7 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

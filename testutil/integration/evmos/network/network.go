@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"math"
 	"math/big"
+	"time"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -105,9 +106,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -154,8 +153,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
+	now := time.Now()
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
+			Time:            now,
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: app.DefaultConsensusParams,
@@ -168,6 +169,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	header := tmproto.Header{
 		ChainID:            n.cfg.chainID,
 		Height:             evmosApp.LastBlockHeight() + 1,
+		Time:               now,
 		AppHash:            evmosApp.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),

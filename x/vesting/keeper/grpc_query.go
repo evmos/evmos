@@ -40,9 +40,9 @@ func (k Keeper) Balances(
 		)
 	}
 
-	locked := clawbackAccount.GetLockedOnly(ctx.BlockTime())
-	unvested := clawbackAccount.GetUnvestedOnly(ctx.BlockTime())
-	vested := clawbackAccount.GetVestedOnly(ctx.BlockTime())
+	locked := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
+	unvested := clawbackAccount.GetVestingCoins(ctx.BlockTime())
+	vested := clawbackAccount.GetVestedCoins(ctx.BlockTime())
 
 	return &types.QueryBalancesResponse{
 		Locked:   locked,
