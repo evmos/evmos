@@ -55,6 +55,7 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 
 func (suite *KeeperTestSuite) TestBalanceOf() {
 	var mockEVMKeeper *erc20mocks.EVMKeeper
+
 	contract := utiltx.GenerateAddress()
 	testCases := []struct {
 		name       string
@@ -102,8 +103,12 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 
 		tc.malleate()
 
-		abi := contracts.ERC20BurnableContract.ABI
-		balance := suite.app.Erc20Keeper.BalanceOf(suite.ctx, abi, contract, utiltx.GenerateAddress())
+		balance := suite.app.Erc20Keeper.BalanceOf(
+			suite.ctx,
+			contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			contract,
+			utiltx.GenerateAddress(),
+		)
 		if tc.res {
 			suite.Require().Equal(balance.Int64(), tc.expBalance)
 		} else {

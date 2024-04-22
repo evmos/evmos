@@ -1,15 +1,14 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package contracts
 
 import (
 	_ "embed" // embed compiled smart contract
 	"encoding/json"
+	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
-	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // This is an evil token. Whenever an A -> B transfer is called,
@@ -17,32 +16,26 @@ import (
 var (
 	//go:embed solidity/ERC20MaliciousDelayed.json
 	ERC20MaliciousDelayedJSON []byte //nolint: golint
-
-	// ERC20MaliciousDelayedHardhatContract is the compiled erc20 contract
-	// generated with hardhat
-	ERC20MaliciousDelayedHardhatContract evmtypes.HardhatCompiledContract
-
-	// ERC20MaliciousDelayedContract is the compiled erc20 contract
-	ERC20MaliciousDelayedContract evmtypes.CompiledContract
-
-	// ERC20MaliciousDelayedAddress is the erc20 module address
-	ERC20MaliciousDelayedAddress common.Address
 )
 
-func init() {
-	ERC20MaliciousDelayedAddress = types.ModuleAddress
+func LoadMaliciousDelayedContract() (evmtypes.CompiledContract, error) {
+	// ERC20MaliciousDelayedHardhatContract is the compiled erc20 contract
+	// generated with hardhat
+	var ERC20MaliciousDelayedHardhatContract evmtypes.HardhatCompiledContract
 
 	err := json.Unmarshal(ERC20MaliciousDelayedJSON, &ERC20MaliciousDelayedHardhatContract)
 	if err != nil {
-		panic(err)
+		return evmtypes.CompiledContract{}, err
 	}
 
-	ERC20MaliciousDelayedContract, err = ERC20MaliciousDelayedHardhatContract.ToCompiledContract()
+	ERC20MaliciousDelayedContract, err := ERC20MaliciousDelayedHardhatContract.ToCompiledContract()
 	if err != nil {
-		panic(err)
+		return evmtypes.CompiledContract{}, err
 	}
 
 	if len(ERC20MaliciousDelayedContract.Bin) == 0 {
-		panic("load contract failed")
+		return evmtypes.CompiledContract{}, errors.New("load contract failed")
 	}
+
+	return ERC20MaliciousDelayedContract, nil
 }

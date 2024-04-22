@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package types
 
 import (
@@ -7,6 +8,7 @@ import (
 	_ "embed"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -97,9 +99,6 @@ var (
 	//go:embed testdata/ERC20Contract.json
 	erc20JSON []byte
 
-	// ERC20Contract is the compiled test erc20 contract
-	ERC20Contract CompiledContract
-
 	//go:embed testdata/SimpleContractHardhat.json
 	SimpleContractJSON []byte
 
@@ -119,38 +118,71 @@ var (
 	TestMessageCall CompiledContract
 )
 
-func init() {
-	// Unmarshal the compiled contracts in the legacy format
+func LoadERC20Contract() (CompiledContract, error) {
+	// ERC20Contract is the compiled test erc20 contract
+	var ERC20Contract CompiledContract
+
 	err := json.Unmarshal(erc20JSON, &ERC20Contract)
 	if err != nil {
-		panic(err)
+		return CompiledContract{}, err
 	}
 
 	if len(ERC20Contract.Bin) == 0 {
-		panic("load contract failed")
+		return CompiledContract{}, errors.New("load contract failed")
 	}
 
-	err = json.Unmarshal(testMessageCallJSON, &TestMessageCall)
+	return ERC20Contract, nil
+}
+
+func LoadSimpleHardhatContract() (CompiledContract, error) {
+	// SimpleContract is the compiled test simple contract
+	var SimpleContract HardhatCompiledContract
+
+	err := json.Unmarshal(SimpleContractJSON, &SimpleContract)
 	if err != nil {
-		panic(err)
+		return CompiledContract{}, err
 	}
 
-	if len(TestMessageCall.Bin) == 0 {
-		panic("load contract failed")
-	}
-
-	err = json.Unmarshal(simpleStorageJSON, &SimpleStorageContract)
+	compiledContract, err := SimpleContract.ToCompiledContract()
 	if err != nil {
-		panic(err)
+		return CompiledContract{}, err
 	}
 
-	if len(TestMessageCall.Bin) == 0 {
-		panic("load contract failed")
+	if len(compiledContract.Bin) == 0 {
+		return CompiledContract{}, errors.New("load contract failed")
 	}
 
-	// Compile the contract in Hardhat format
-	err = json.Unmarshal(SimpleContractJSON, &SimpleContract)
+	return compiledContract, nil
+}
+
+func LoadMessageCallContract() (CompiledContract, error) {
+	// messageCallContract is the compiled message call benchmark contract
+	var messageCallContract CompiledContract
+
+	err := json.Unmarshal(testMessageCallJSON, &messageCallContract)
 	if err != nil {
-		panic(err)
+		return CompiledContract{}, err
 	}
+
+	if len(messageCallContract.Bin) == 0 {
+		return CompiledContract{}, errors.New("load contract failed")
+	}
+
+	return messageCallContract, nil
+}
+
+func LoadSimpleStorageContract() (CompiledContract, error) {
+	// SimpleStorageContract is the compiled test simple storage contract
+	var simpleStorageContract CompiledContract
+
+	err := json.Unmarshal(simpleStorageJSON, &simpleStorageContract)
+	if err != nil {
+		return CompiledContract{}, err
+	}
+
+	if len(simpleStorageContract.Bin) == 0 {
+		return CompiledContract{}, errors.New("load contract failed")
+	}
+
+	return simpleStorageContract, nil
 }

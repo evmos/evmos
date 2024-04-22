@@ -1,15 +1,14 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package contracts
 
 import (
 	_ "embed" // embed compiled smart contract
 	"encoding/json"
+	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
-	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // This is an evil token. Whenever an A -> B transfer is called,
@@ -17,32 +16,28 @@ import (
 var (
 	//go:embed solidity/ERC20DirectBalanceManipulation.json
 	ERC20DirectBalanceManipulationJSON []byte //nolint: golint
-
-	// ERC20DirectBalanceManipulationHardhatContract is the compiled erc20 contract
-	// generated with hardhat
-	ERC20DirectBalanceManipulationHardhatContract evmtypes.HardhatCompiledContract
-
-	// ERC20DirectBalanceManipulationContract is the compiled erc20 contract
-	ERC20DirectBalanceManipulationContract evmtypes.CompiledContract
-
-	// ERC20DirectBalanceManipulationAddress is the erc20 module address
-	ERC20DirectBalanceManipulationAddress common.Address
 )
 
-func init() {
-	ERC20DirectBalanceManipulationAddress = types.ModuleAddress
+// LoadBalanceManipulationContract loads the ERC20DirectBalanceManipulation contract
+// from the compiled JSON data.
+func LoadBalanceManipulationContract() (evmtypes.CompiledContract, error) {
+	// ERC20DirectBalanceManipulationHardhatContract is the compiled erc20 contract
+	// generated with hardhat
+	var ERC20DirectBalanceManipulationHardhatContract evmtypes.HardhatCompiledContract
 
 	err := json.Unmarshal(ERC20DirectBalanceManipulationJSON, &ERC20DirectBalanceManipulationHardhatContract)
 	if err != nil {
-		panic(err)
+		return evmtypes.CompiledContract{}, err
 	}
 
-	ERC20DirectBalanceManipulationContract, err = ERC20DirectBalanceManipulationHardhatContract.ToCompiledContract()
+	ERC20DirectBalanceManipulationContract, err := ERC20DirectBalanceManipulationHardhatContract.ToCompiledContract()
 	if err != nil {
-		panic(err)
+		return evmtypes.CompiledContract{}, err
 	}
 
 	if len(ERC20DirectBalanceManipulationContract.Bin) == 0 {
-		panic("load contract failed")
+		return evmtypes.CompiledContract{}, errors.New("load contract failed")
 	}
+
+	return ERC20DirectBalanceManipulationContract, nil
 }

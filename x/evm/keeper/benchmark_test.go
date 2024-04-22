@@ -78,8 +78,11 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 }
 
 func BenchmarkTokenTransfer(b *testing.B) {
+	erc20Contract, err := types.LoadERC20Contract()
+	require.NoError(b, err, "failed to load erc20 contract")
+
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
-		input, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+		input, err := erc20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 		ethTxParams := &types.EvmTxArgs{
@@ -96,8 +99,11 @@ func BenchmarkTokenTransfer(b *testing.B) {
 }
 
 func BenchmarkEmitLogs(b *testing.B) {
+	erc20Contract, err := types.LoadERC20Contract()
+	require.NoError(b, err, "failed to load erc20 contract")
+
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
-		input, err := types.ERC20Contract.ABI.Pack("benchmarkLogs", big.NewInt(1000))
+		input, err := erc20Contract.ABI.Pack("benchmarkLogs", big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 		ethTxParams := &types.EvmTxArgs{
@@ -114,8 +120,11 @@ func BenchmarkEmitLogs(b *testing.B) {
 }
 
 func BenchmarkTokenTransferFrom(b *testing.B) {
+	erc20Contract, err := types.LoadERC20Contract()
+	require.NoError(b, err)
+
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
-		input, err := types.ERC20Contract.ABI.Pack("transferFrom", suite.address, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(0))
+		input, err := erc20Contract.ABI.Pack("transferFrom", suite.address, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(0))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 		ethTxParams := &types.EvmTxArgs{
@@ -132,8 +141,11 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 }
 
 func BenchmarkTokenMint(b *testing.B) {
+	erc20Contract, err := types.LoadERC20Contract()
+	require.NoError(b, err, "failed to load erc20 contract")
+
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
-		input, err := types.ERC20Contract.ABI.Pack("mint", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+		input, err := erc20Contract.ABI.Pack("mint", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 		ethTxParams := &types.EvmTxArgs{
@@ -152,7 +164,10 @@ func BenchmarkTokenMint(b *testing.B) {
 func BenchmarkMessageCall(b *testing.B) {
 	suite, contract := SetupTestMessageCall(b)
 
-	input, err := types.TestMessageCall.ABI.Pack("benchmarkMessageCall", big.NewInt(10000))
+	messageCallContract, err := types.LoadMessageCallContract()
+	require.NoError(b, err, "failed to load message call contract")
+
+	input, err := messageCallContract.ABI.Pack("benchmarkMessageCall", big.NewInt(10000))
 	require.NoError(b, err)
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 	ethTxParams := &types.EvmTxArgs{

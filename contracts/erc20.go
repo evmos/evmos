@@ -7,10 +7,7 @@ import (
 	_ "embed" // embed compiled smart contract
 	"encoding/json"
 
-	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
-	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var (
@@ -23,14 +20,9 @@ var (
 
 	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
 	ERC20MinterBurnerDecimalsContract evmtypes.CompiledContract
-
-	// ERC20MinterBurnerDecimalsAddress is the erc20 module address
-	ERC20MinterBurnerDecimalsAddress common.Address
 )
 
 func init() {
-	ERC20MinterBurnerDecimalsAddress = types.ModuleAddress
-
 	err := json.Unmarshal(ERC20MinterBurnerDecimalsJSON, &ERC20MinterBurnerDecimalsHardhatContract)
 	if err != nil {
 		panic(err)
