@@ -11,10 +11,8 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-var (
-	//go:embed FlashLoan.json
-	FlashLoanJSON []byte //nolint:golint // used to embed the compiled contract
-)
+//go:embed FlashLoan.json
+var FlashLoanJSON []byte //nolint:golint // used to embed the compiled contract
 
 func LoadFlashLoanContract() (evmtypes.CompiledContract, error) {
 	// FlashLoanHardhatContract is the compiled flash loan contract

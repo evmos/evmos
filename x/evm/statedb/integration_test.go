@@ -4,7 +4,6 @@
 package statedb_test
 
 import (
-	"github.com/evmos/evmos/v16/x/evm/statedb/testdata"
 	"math/big"
 	"testing"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/x/evm/statedb/testdata"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
