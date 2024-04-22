@@ -218,7 +218,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				nw.NextBlockAfter(lockDuration * time.Second)
+				require.NoError(t, nw.NextBlockAfter(lockDuration*time.Second))
 				ctx = nw.GetContext()
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
