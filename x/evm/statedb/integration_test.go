@@ -9,13 +9,13 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/contracts"
-	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
-	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/contracts"
+	stakingprecompile "github.com/evmos/evmos/v17/precompiles/staking"
+	testfactory "github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

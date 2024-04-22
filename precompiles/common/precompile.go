@@ -11,7 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v17/x/evm/statedb"
 )
 
 // Precompile is a common struct for all precompiles that holds the common data each

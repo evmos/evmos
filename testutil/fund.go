@@ -7,8 +7,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/evmos/v16/utils"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v17/utils"
+	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
 )
 
 // FundAccount is a utility function that funds an account by minting and

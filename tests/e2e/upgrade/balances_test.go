@@ -6,9 +6,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/encoding"
+	"github.com/evmos/evmos/v17/tests/e2e/upgrade"
 	"github.com/stretchr/testify/require"
 )
 

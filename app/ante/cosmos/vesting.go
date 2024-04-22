@@ -10,9 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	anteutils "github.com/evmos/evmos/v17/app/ante/utils"
+	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v17/x/vesting/types"
 )
 
 // TODO: remove once Cosmos SDK is upgraded to v0.46

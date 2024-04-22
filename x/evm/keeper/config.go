@@ -10,8 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/x/evm/statedb"
+	"github.com/evmos/evmos/v17/x/evm/types"
 )
 
 // EVMConfig creates the EVMConfig based on current state

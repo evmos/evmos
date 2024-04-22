@@ -15,13 +15,13 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
+	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/x/erc20"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/x/erc20"
+	"github.com/evmos/evmos/v17/x/erc20/types"
 )
 
 type GenesisTestSuite struct {

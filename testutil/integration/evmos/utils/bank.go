@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
+	"github.com/evmos/evmos/v17/testutil/integration/common/grpc"
 )
 
 // CheckBalances checks that the given accounts have the expected balances and

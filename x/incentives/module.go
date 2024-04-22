@@ -24,7 +24,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v16/x/incentives/types"
+	"github.com/evmos/evmos/v17/x/incentives/types"
 )
 
 // consensusVersion defines the current x/incentives module consensus version.

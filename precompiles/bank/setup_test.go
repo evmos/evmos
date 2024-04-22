@@ -5,15 +5,15 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/precompiles/bank"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v17/precompiles/bank"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

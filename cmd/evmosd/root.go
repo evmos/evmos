@@ -41,18 +41,18 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmosclient "github.com/evmos/evmos/v16/client"
-	"github.com/evmos/evmos/v16/client/block"
-	"github.com/evmos/evmos/v16/client/debug"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
-	evmosserver "github.com/evmos/evmos/v16/server"
-	servercfg "github.com/evmos/evmos/v16/server/config"
-	srvflags "github.com/evmos/evmos/v16/server/flags"
+	evmosclient "github.com/evmos/evmos/v17/client"
+	"github.com/evmos/evmos/v17/client/block"
+	"github.com/evmos/evmos/v17/client/debug"
+	"github.com/evmos/evmos/v17/encoding"
+	"github.com/evmos/evmos/v17/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v17/server"
+	servercfg "github.com/evmos/evmos/v17/server/config"
+	srvflags "github.com/evmos/evmos/v17/server/flags"
 
-	"github.com/evmos/evmos/v16/app"
-	cmdcfg "github.com/evmos/evmos/v16/cmd/config"
-	evmoskr "github.com/evmos/evmos/v16/crypto/keyring"
+	"github.com/evmos/evmos/v17/app"
+	cmdcfg "github.com/evmos/evmos/v17/cmd/config"
+	evmoskr "github.com/evmos/evmos/v17/crypto/keyring"
 )
 
 const (

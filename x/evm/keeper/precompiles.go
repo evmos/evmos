@@ -9,9 +9,9 @@ import (
 	"maps"
 	"sort"
 
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/utils"
 
-	"github.com/evmos/evmos/v16/precompiles/bech32"
+	"github.com/evmos/evmos/v17/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -22,18 +22,18 @@ import (
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
-	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
-	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
-	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
-	"github.com/evmos/evmos/v16/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
-	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
+	bankprecompile "github.com/evmos/evmos/v17/precompiles/bank"
+	distprecompile "github.com/evmos/evmos/v17/precompiles/distribution"
+	erc20precompile "github.com/evmos/evmos/v17/precompiles/erc20"
+	ics20precompile "github.com/evmos/evmos/v17/precompiles/ics20"
+	osmosisoutpost "github.com/evmos/evmos/v17/precompiles/outposts/osmosis"
+	strideoutpost "github.com/evmos/evmos/v17/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v17/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v17/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v17/precompiles/vesting"
+	erc20Keeper "github.com/evmos/evmos/v17/x/erc20/keeper"
+	transferkeeper "github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
+	vestingkeeper "github.com/evmos/evmos/v17/x/vesting/keeper"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.

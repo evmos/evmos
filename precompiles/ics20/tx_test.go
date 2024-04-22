@@ -10,11 +10,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
-	evmosutil "github.com/evmos/evmos/v16/testutil"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	"github.com/evmos/evmos/v17/precompiles/ics20"
+	evmosutil "github.com/evmos/evmos/v17/testutil"
+	testutiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
 )
 
 var (

@@ -10,11 +10,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	v6 "github.com/evmos/evmos/v16/x/evm/migrations/v6"
-	v5types "github.com/evmos/evmos/v16/x/evm/migrations/v6/types"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/encoding"
+	v6 "github.com/evmos/evmos/v17/x/evm/migrations/v6"
+	v5types "github.com/evmos/evmos/v17/x/evm/migrations/v6/types"
+	"github.com/evmos/evmos/v17/x/evm/types"
 )
 
 func TestMigrate(t *testing.T) {

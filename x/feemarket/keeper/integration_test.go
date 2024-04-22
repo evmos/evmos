@@ -12,10 +12,10 @@ import (
 	. "github.com/onsi/gomega"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v17/testutil"
+	utiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v17/utils"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )

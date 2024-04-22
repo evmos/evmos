@@ -6,7 +6,7 @@ package mocks
 
 import (
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
-	accounts "github.com/evmos/evmos/v16/wallets/accounts"
+	accounts "github.com/evmos/evmos/v17/wallets/accounts"
 
 	big "math/big"
 

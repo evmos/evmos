@@ -17,9 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v16/precompiles/p256"
-	"github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v17/precompiles/p256"
+	"github.com/evmos/evmos/v17/types"
+	"github.com/evmos/evmos/v17/utils"
 )
 
 var (
