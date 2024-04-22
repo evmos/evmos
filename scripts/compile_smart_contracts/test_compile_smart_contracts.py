@@ -4,13 +4,13 @@ from shutil import copytree
 
 import pytest
 from compile_smart_contracts import (
+    HARDHAT_PROJECT_DIR,
+    SOLIDITY_SOURCE,
     compile_contracts_in_dir,
     copy_to_contracts_directory,
     find_solidity_contracts,
-    HARDHAT_PROJECT_DIR,
     is_evmos_repo,
     is_ignored_folder,
-    SOLIDITY_SOURCE,
 )
 
 
