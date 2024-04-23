@@ -51,35 +51,55 @@ func NewClawbackVestingAccount(
 	}
 }
 
-// GetVestedCoins returns the total number of vested coins that are still in lockup. If no coins are
-// vested, nil is returned.
-func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
-	// It's likely that one or the other schedule will be nearly trivial,
-	// so there should be little overhead in recomputing the conjunction each time.
-	coins := va.GetUnlockedOnly(blockTime).Min(va.GetVestedOnly(blockTime))
+// GetLockedUpVestedCoins returns the total number of vested coins that are locked.
+func (va ClawbackVestingAccount) GetLockedUpVestedCoins(blockTime time.Time) sdk.Coins {
+	return va.GetVestedCoins(blockTime).Sub(va.GetUnlockedVestedCoins(blockTime)...)
+}
+
+// GetUnlockedVestedCoins returns the total number of vested coins that are unlocked.
+// If no coins are vested and unlocked, nil is returned.
+func (va ClawbackVestingAccount) GetUnlockedVestedCoins(blockTime time.Time) sdk.Coins {
+	coins := va.GetUnlockedCoins(blockTime).Min(va.GetVestedCoins(blockTime))
 	if coins.IsZero() {
-		return nil
+		return sdk.Coins{}
 	}
 	return coins
 }
 
-// GetVestingCoins returns the total number of vesting coins. If no coins are
-// vesting, nil is returned.
+// GetVestingCoins returns the total number of vesting coins (unvested coins).
+// If no coins are vesting, nil is returned.
 func (va ClawbackVestingAccount) GetVestingCoins(blockTime time.Time) sdk.Coins {
 	return va.OriginalVesting.Sub(va.GetVestedCoins(blockTime)...)
 }
 
-// LockedCoins returns the set of coins that are not spendable (i.e. locked),
-// defined as the vesting coins that are not delegated.
+// LockedCoins returns the set of coins that are not spendable (i.e. locked or unvested),
+// defined as the vesting coins (unvested) plus locked vested coins.
+//
+// totalAmt = vesting(un/locked) + lockedVested + unlockedVested
+//
+//	(all)   =   (cannot spend)    (cannot spend)   (CAN spend)
+//
+// lockedCoins = totalAmt - unlockedVested
 func (va ClawbackVestingAccount) LockedCoins(blockTime time.Time) sdk.Coins {
-	return va.BaseVestingAccount.LockedCoinsFromVesting(va.GetVestingCoins(blockTime))
+	return va.OriginalVesting.Sub(va.GetUnlockedVestedCoins(blockTime)...)
 }
 
 // TrackDelegation tracks a desired delegation amount by setting the appropriate
-// values for the amount of delegated vesting, delegated free, and reducing the
-// overall amount of base coins.
-func (va *ClawbackVestingAccount) TrackDelegation(blockTime time.Time, balance, amount sdk.Coins) {
-	va.BaseVestingAccount.TrackDelegation(balance, va.GetVestingCoins(blockTime), amount)
+// values for the amount of delegated free coins.
+// The 'balance' input parameter is the delegator account balance.
+// The 'amount' input parameter are the delegated coins
+// Note that unvested coins cannot be delegated
+func (va *ClawbackVestingAccount) TrackDelegation(_ time.Time, balance, amount sdk.Coins) {
+	// Can only delegate vested (free) coins
+	for _, coin := range amount {
+		baseAmt := balance.AmountOf(coin.Denom)
+		// Panic if the delegation amount is zero or if the base coins does not
+		// exceed the desired delegation amount.
+		if coin.Amount.IsZero() || baseAmt.LT(coin.Amount) {
+			panic("delegation attempt with zero coins or insufficient funds")
+		}
+		va.DelegatedFree = va.DelegatedFree.Add(coin)
+	}
 }
 
 // GetStartTime returns the time when vesting starts for a periodic vesting
@@ -125,7 +145,7 @@ func (va ClawbackVestingAccount) Validate() error {
 	}
 
 	if vestingEnd > va.EndTime {
-		return errors.New("vesting schedule exteds beyond account end time")
+		return errors.New("vesting schedule extends beyond account end time")
 	}
 
 	if !CoinEq(vestingCoins, va.OriginalVesting) {
@@ -135,28 +155,23 @@ func (va ClawbackVestingAccount) Validate() error {
 	return va.BaseVestingAccount.Validate()
 }
 
-// GetUnlockedOnly returns the unlocking schedule at blockTime.
-func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins {
+// GetUnlockedCoins returns the unlocked coins at blockTime.
+// Note that these unlocked coins can be vested or unvested
+// and is determined by the lockup periods
+func (va ClawbackVestingAccount) GetUnlockedCoins(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-// GetLockedOnly returns the locking schedule at blockTime.
-func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
-	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime)...)
+// GetLockedUpCoins returns the locked coins at blockTime.
+// Note that these locked up coins can be vested or unvested,
+// and is determined by the lockup periods
+func (va ClawbackVestingAccount) GetLockedUpCoins(blockTime time.Time) sdk.Coins {
+	return va.OriginalVesting.Sub(va.GetUnlockedCoins(blockTime)...)
 }
 
-// GetVestedOnly returns the vesting schedule at blockTime.
-func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
+// GetVestedCoins returns the vested coins at blockTime.
+func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
-}
-
-// GetUnvestedOnly returns the unvesting schedule at blockTime.
-func (va ClawbackVestingAccount) GetUnvestedOnly(blockTime time.Time) sdk.Coins {
-	totalUnvested := va.OriginalVesting.Sub(va.GetVestedOnly(blockTime)...)
-	if totalUnvested == nil {
-		totalUnvested = sdk.Coins{}
-	}
-	return totalUnvested
 }
 
 // GetPassedPeriodCount returns the amount of passed periods at blockTime.
@@ -170,8 +185,8 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
-	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
-	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
+	totalVested := va.GetVestedCoins(time.Unix(clawbackTime, 0))
+	totalUnvested := va.GetVestingCoins(time.Unix(clawbackTime, 0))
 
 	// Remove all unvested periods from the schedule
 	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
@@ -203,5 +218,5 @@ func (va ClawbackVestingAccount) ComputeClawback(
 // HasLockedCoins returns true if the block time has not passed all clawback
 // account's lockup periods
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
-	return !va.GetLockedOnly(blockTime).IsZero()
+	return !va.GetLockedUpCoins(blockTime).IsZero()
 }

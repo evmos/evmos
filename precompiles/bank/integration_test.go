@@ -4,24 +4,24 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/evmos/v17/precompiles/bank/testdata"
+	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v17/utils"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
-	evmosutiltx "github.com/evmos/evmos/v17/testutil/tx"
+	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v17/precompiles/bank"
+	"github.com/evmos/evmos/v18/precompiles/bank"
 
-	"github.com/evmos/evmos/v17/precompiles/testutil"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

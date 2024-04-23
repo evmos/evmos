@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response

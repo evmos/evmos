@@ -9,9 +9,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	testtx "github.com/evmos/evmos/v17/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/utils"
+	testtx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 // Config defines the configuration for a chain.

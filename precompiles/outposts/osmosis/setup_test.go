@@ -6,13 +6,13 @@ package osmosis_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v17/precompiles/erc20"
+	"github.com/evmos/evmos/v18/precompiles/erc20"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

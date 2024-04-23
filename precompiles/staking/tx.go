@@ -8,13 +8,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v17/precompiles/authorization"
-	"github.com/evmos/evmos/v17/x/evm/statedb"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 const (

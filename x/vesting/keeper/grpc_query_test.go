@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/evmos/v17/testutil"
-	"github.com/evmos/evmos/v17/x/vesting/types"
+	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestBalances() {
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 			suite.Commit()

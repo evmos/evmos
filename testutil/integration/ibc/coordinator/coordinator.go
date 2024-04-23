@@ -9,9 +9,9 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	evmosibc "github.com/evmos/evmos/v17/ibc/testing"
-	"github.com/evmos/evmos/v17/testutil/integration/common/network"
-	ibcchain "github.com/evmos/evmos/v17/testutil/integration/ibc/chain"
+	evmosibc "github.com/evmos/evmos/v18/ibc/testing"
+	"github.com/evmos/evmos/v18/testutil/integration/common/network"
+	ibcchain "github.com/evmos/evmos/v18/testutil/integration/ibc/chain"
 )
 
 // Coordinator is the interface that defines the methods that are used to
@@ -40,11 +40,7 @@ type Coordinator interface {
 	CommitAll() error
 }
 
-// TODO: Replace for a config
-var (
-	AmountOfDummyChains = 2
-	GlobalTime          = time.Date(time.Now().Year()+1, 1, 2, 0, 0, 0, 0, time.UTC)
-)
+var AmountOfDummyChains = 2
 
 var _ Coordinator = (*IntegrationCoordinator)(nil)
 
@@ -62,7 +58,7 @@ type IntegrationCoordinator struct {
 func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Network) *IntegrationCoordinator {
 	coord := &ibctesting.Coordinator{
 		T:           t,
-		CurrentTime: GlobalTime,
+		CurrentTime: time.Now(),
 	}
 	ibcChains := getIBCChains(t, coord, preConfiguredChains)
 	dummyChains, dummyChainsIDs := generateDummyChains(t, coord, AmountOfDummyChains)

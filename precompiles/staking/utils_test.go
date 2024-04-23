@@ -2,6 +2,7 @@ package staking_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"slices"
 	"time"
@@ -21,25 +22,31 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	"github.com/evmos/evmos/v17/precompiles/staking"
-	"github.com/evmos/evmos/v17/precompiles/testutil"
-	"github.com/evmos/evmos/v17/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v17/testutil"
-	testutiltx "github.com/evmos/evmos/v17/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	evmosapp "github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
+
+// stipend to pay EVM tx fees
+var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
@@ -328,6 +335,13 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approvalArgs, logCheckArgs)
 	Expect(err).To(BeNil(), "error while approving: %v", err)
 
+	// get granter address from private key provided
+	pk, ok := approvalArgs.PrivKey.(*ethsecp256k1.PrivKey)
+	Expect(ok).To(BeTrue(), fmt.Sprintf("expected a ethsecp256k1.PrivKey, but got %T", approvalArgs.PrivKey))
+	key, err := pk.ToECDSA()
+	Expect(err).To(BeNil())
+	granter := crypto.PubkeyToAddress(key.PublicKey)
+
 	// iterate over args
 	var expectedAuthz stakingtypes.AuthorizationType
 	for _, msgType := range msgTypes {
@@ -341,7 +355,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime := s.CheckAuthorization(expectedAuthz, approvalArgs.ContractAddr, s.address)
+		authz, expirationTime := s.CheckAuthorization(expectedAuthz, approvalArgs.ContractAddr, granter)
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
 		Expect(authz.MsgTypeURL()).To(Equal(msgType), "expected different message type")
@@ -363,8 +377,13 @@ func (s *PrecompileTestSuite) DeployContract(contract evmtypes.CompiledContract)
 
 // NextBlock commits the current block and sets up the next block.
 func (s *PrecompileTestSuite) NextBlock() {
+	s.NextBlockAfter(time.Second)
+}
+
+// NextBlock commits the current block and sets up the next block.
+func (s *PrecompileTestSuite) NextBlockAfter(t time.Duration) {
 	var err error
-	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, nil)
+	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, t, nil)
 	Expect(err).To(BeNil(), "failed to commit block")
 }
 
@@ -501,7 +520,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 
 	// create a validator with s.address and s.privKey
 	// then create a redelegation from validator[0] to this new validator
-	testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), s.app.StakingKeeper, math.NewInt(100))
+	testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, math.NewInt(100))
 	msg.ValidatorDstAddress = sdk.ValAddress(s.address.Bytes()).String()
 	_, err := msgSrv.BeginRedelegate(s.ctx, &msg)
 	return err
@@ -518,4 +537,38 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
+}
+
+// setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
+// using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc sdk.AccAddress) *vestingtypes.ClawbackVestingAccount {
+	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+
+	vestingStart := s.ctx.BlockTime()
+	baseAccount := authtypes.NewBaseAccountWithAddress(vestAcc.Bytes())
+	clawbackAccount := vestingtypes.NewClawbackVestingAccount(
+		baseAccount,
+		funder,
+		vestingAmtTotal,
+		vestingStart,
+		evmosutil.TestVestingSchedule.LockupPeriods,
+		evmosutil.TestVestingSchedule.VestingPeriods,
+	)
+
+	err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), vestingAmtTotal)
+	Expect(err).To(BeNil())
+	acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+	s.app.AccountKeeper.SetAccount(s.ctx, acc)
+
+	// Check all coins are locked up
+	lockedUp := clawbackAccount.GetLockedUpCoins(s.ctx.BlockTime())
+	Expect(vestingAmtTotal).To(Equal(lockedUp))
+
+	// Grant gas stipend to cover EVM fees
+	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
+	Expect(err).To(BeNil())
+	granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
+	Expect(granteeBalance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
+
+	return clawbackAccount
 }

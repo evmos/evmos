@@ -16,11 +16,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v17/server/config"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/server/config"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
-	"github.com/evmos/evmos/v17/contracts"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the

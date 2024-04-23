@@ -14,9 +14,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/feemarket/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
 
