@@ -527,6 +527,10 @@ func NewEvmos(
 		),
 	)
 
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(),
+	)
+
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
