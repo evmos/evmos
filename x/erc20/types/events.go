@@ -27,6 +27,10 @@ const (
 
 	// ERC20EventTransfer defines the transfer event for ERC20
 	ERC20EventTransfer = "Transfer"
+	// WevmosEventWithdraw defines the withdrawal event for Wevmos
+	WevmosEventWithdraw = "Withdrawal"
+	// WevmosEventWithdraw defines the deposit event for Wevmos
+	WevmosEventDeposit = "Deposit"
 )
 
 // LogTransfer Event type for Transfer(address from, address to, uint256 value)
