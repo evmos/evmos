@@ -24,6 +24,9 @@ const (
 	AttributeKeyCosmosCoin = "cosmos_coin"
 	AttributeKeyERC20Token = "erc20_token" // #nosec
 	AttributeKeyReceiver   = "receiver"
+
+	// ERC20EventTransfer defines the transfer event for ERC20
+	ERC20EventTransfer = "Transfer"
 )
 
 // LogTransfer Event type for Transfer(address from, address to, uint256 value)
