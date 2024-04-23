@@ -20,16 +20,16 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v17/app"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	"github.com/evmos/evmos/v17/precompiles/distribution"
-	evmosutil "github.com/evmos/evmos/v17/testutil"
-	evmosutiltx "github.com/evmos/evmos/v17/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
+	evmosapp "github.com/evmos/evmos/v18/app"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/distribution"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 		s.Require().NoError(err)
 
 		// end block to bond validator and increase block height
-		sdkstaking.EndBlocker(s.ctx, &s.app.StakingKeeper)
+		sdkstaking.EndBlocker(s.ctx, s.app.StakingKeeper.Keeper)
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(math.NewInt(2))))
 		s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, r.Validator, allocatedRewards)

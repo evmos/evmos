@@ -16,13 +16,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosapp "github.com/evmos/evmos/v17/app"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	evmosutil "github.com/evmos/evmos/v17/testutil"
-	testutiltx "github.com/evmos/evmos/v17/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/utils"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v18/app"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts

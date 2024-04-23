@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/evmos/evmos/v17/x/vesting/types"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -40,9 +40,9 @@ func (k Keeper) Balances(
 		)
 	}
 
-	locked := clawbackAccount.GetLockedOnly(ctx.BlockTime())
-	unvested := clawbackAccount.GetUnvestedOnly(ctx.BlockTime())
-	vested := clawbackAccount.GetVestedOnly(ctx.BlockTime())
+	locked := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
+	unvested := clawbackAccount.GetVestingCoins(ctx.BlockTime())
+	vested := clawbackAccount.GetVestedCoins(ctx.BlockTime())
 
 	return &types.QueryBalancesResponse{
 		Locked:   locked,

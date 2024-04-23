@@ -3,12 +3,12 @@ package werc20_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v17/precompiles/werc20"
+	"github.com/evmos/evmos/v18/precompiles/werc20"
 
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 
 	//nolint:revive // dot imports are fine for Ginkgo

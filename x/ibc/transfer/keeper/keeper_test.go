@@ -28,18 +28,18 @@ import (
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v17/server/config"
-	"github.com/evmos/evmos/v17/testutil"
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/evm/statedb"
-	evm "github.com/evmos/evmos/v17/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/server/config"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evm "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/contracts"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
 	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)

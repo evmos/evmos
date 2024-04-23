@@ -89,19 +89,31 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
 - (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
 
-## [v17.0.0] - 2024-04-08
+## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
+
+### State Machine Breaking
+
+- (vesting) [#2500](https://github.com/evmos/evmos/pull/2500) Refactor vesting module.
+
+## [v17.0.1](https://github.com/evmos/evmos/releases/tag/v17.0.1) - 2024-04-18
+
+### Improvements
+
+- (app) [#2491](https://github.com/evmos/evmos/pull/2491) Schedule v18 upgrade.
+
+## [v17.0.0](https://github.com/evmos/evmos/releases/tag/v17.0.0) - 2024-04-08
 
 ### State Machine Breaking
 
 - (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
 
-## [v16.0.4] - 2024-04-05
+## [v16.0.4](https://github.com/evmos/evmos/releases/tag/v16.0.4) - 2024-04-05
 
 ### Improvements
 
 - (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
 
-## [v16.0.3] - 2024-02-02
+## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
 ## Bug Fixes
 

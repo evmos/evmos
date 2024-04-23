@@ -10,10 +10,10 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	"github.com/evmos/evmos/v17/testutil"
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/x/vesting/types"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var (
@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // Reset
+			suite.Require().NoError(suite.SetupTest()) // Reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			// fund the recipient account to set the account and then
@@ -165,7 +165,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// ---------------------------
 	// Test blocked address
 	suite.Run("fail - blocked address", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 		msg := &types.MsgFundVestingAccount{
 			FunderAddress:  funder.String(),
 			VestingAddress: authtypes.NewModuleAddress("transfer").String(),
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// Test wrong funder by first creating a clawback vesting account
 	// and then trying to fund it with a different funder
 	suite.Run("fail - wrong funder", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 
 		// fund the recipient account to set the account
 		err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
@@ -284,7 +284,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 	for _, tc := range testcases {
 		tc := tc
 		suite.Run(tc.name, func() {
-			suite.SetupTest() // Reset
+			suite.Require().NoError(suite.SetupTest()) // Reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			tc.malleate(tc.funder, tc.vestingAddr)
@@ -425,7 +425,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			// fund the vesting target address to initialize it as an account and
@@ -553,7 +553,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			// fund the account at the vesting address to initialize it and then sund all funds to the funder account
@@ -596,7 +596,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
-	suite.SetupTest()
+	suite.Require().NoError(suite.SetupTest())
 
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
@@ -612,7 +612,7 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
-	suite.SetupTest()
+	suite.Require().NoError(suite.SetupTest())
 
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
@@ -718,7 +718,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			acc := tc.malleate()
 
 			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())

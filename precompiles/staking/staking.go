@@ -11,12 +11,12 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v17/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
