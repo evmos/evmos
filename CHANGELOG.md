@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
 - (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion from EVM hooks (#2380)
+- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion from EVM hooks (#2154) (#2442)
 
 ### Bug Fixes
 
