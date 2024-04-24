@@ -2,7 +2,7 @@ name: Slither Analysis
 
 on:
   pull_request:
-permissions: read
+permissions: read-all
 
 jobs:
   analyze:
