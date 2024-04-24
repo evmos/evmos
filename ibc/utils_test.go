@@ -22,48 +22,24 @@ func init() {
 func TestGetTransferSenderRecipient(t *testing.T) {
 	testCases := []struct {
 		name         string
-		packet       channeltypes.Packet
+		data         transfertypes.FungibleTokenPacketData
 		expSender    string
 		expRecipient string
 		expError     bool
 	}{
 		{
-			name:         "empty packet",
-			packet:       channeltypes.Packet{},
-			expSender:    "",
-			expRecipient: "",
-			expError:     true,
-		},
-		{
-			name: "invalid packet data",
-			packet: channeltypes.Packet{
-				Data: ibctesting.MockFailPacketData,
-			},
-			expSender:    "",
-			expRecipient: "",
-			expError:     true,
-		},
-		{
-			name: "empty FungibleTokenPacketData",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{},
-				),
-			},
+			name:         "empty FungibleTokenPacketData",
+			data:         transfertypes.FungibleTokenPacketData{},
 			expSender:    "",
 			expRecipient: "",
 			expError:     true,
 		},
 		{
 			name: "invalid sender",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "cosmos1",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-						Amount:   "123456",
-					},
-				),
+			data: transfertypes.FungibleTokenPacketData{
+				Sender:   "cosmos1",
+				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Amount:   "123456",
 			},
 			expSender:    "",
 			expRecipient: "",
@@ -71,14 +47,10 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		},
 		{
 			name: "invalid recipient",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1",
-						Amount:   "123456",
-					},
-				),
+			data: transfertypes.FungibleTokenPacketData{
+				Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+				Receiver: "evmos1",
+				Amount:   "123456",
 			},
 			expSender:    "",
 			expRecipient: "",
@@ -86,14 +58,10 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		},
 		{
 			name: "valid - cosmos sender, evmos recipient",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-						Amount:   "123456",
-					},
-				),
+			data: transfertypes.FungibleTokenPacketData{
+				Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Amount:   "123456",
 			},
 			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
@@ -101,14 +69,10 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		},
 		{
 			name: "valid - evmos sender, cosmos recipient",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-						Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Amount:   "123456",
-					},
-				),
+			data: transfertypes.FungibleTokenPacketData{
+				Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+				Amount:   "123456",
 			},
 			expSender:    "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 			expRecipient: "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
@@ -116,14 +80,10 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		},
 		{
 			name: "valid - osmosis sender, evmos recipient",
-			packet: channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-						Amount:   "123456",
-					},
-				),
+			data: transfertypes.FungibleTokenPacketData{
+				Sender:   "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
+				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Amount:   "123456",
 			},
 			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
@@ -132,7 +92,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		sender, recipient, _, _, err := GetTransferSenderRecipient(tc.packet)
+		sender, recipient, _, _, err := GetTransferSenderRecipient(tc.data)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
