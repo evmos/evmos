@@ -4,8 +4,6 @@
 package types
 
 import (
-	// embed compiled smart contract
-	_ "embed"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"

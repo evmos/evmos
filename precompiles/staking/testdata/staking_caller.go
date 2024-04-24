@@ -4,17 +4,10 @@
 package testdata
 
 import (
-	"os"
-
 	contractutils "github.com/evmos/evmos/v16/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func LoadStakingCallerContract() (evmtypes.CompiledContract, error) {
-	stakingCallerJSON, err := os.ReadFile("StakingCaller.json")
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	return contractutils.LoadContract(stakingCallerJSON)
+	return contractutils.LoadContractFromJSONFile("StakingCaller.json")
 }

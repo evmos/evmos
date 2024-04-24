@@ -4,17 +4,10 @@
 package testdata
 
 import (
-	"os"
-
 	contractutils "github.com/evmos/evmos/v16/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func LoadERC20NoMetadataContract() (evmtypes.CompiledContract, error) {
-	erc20NoMetadataJSON, err := os.ReadFile("ERC20NoMetadataContract.json")
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	return contractutils.LoadContract(erc20NoMetadataJSON)
+	return contractutils.LoadContractFromJSONFile("ERC20NoMetadata.json")
 }

@@ -4,17 +4,10 @@
 package contracts
 
 import (
-	"os"
-
 	contractutils "github.com/evmos/evmos/v16/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func LoadDistributionCallerContract() (evmtypes.CompiledContract, error) {
-	distCallerJSON, err := os.ReadFile("DistributionCaller.json")
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	return contractutils.LoadContract(distCallerJSON)
+	return contractutils.LoadContractFromJSONFile("DistributionCaller.json")
 }

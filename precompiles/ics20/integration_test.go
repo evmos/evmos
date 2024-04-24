@@ -1063,6 +1063,9 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		s.SetupTest()
 		s.setupAllocationsForTesting()
 
+		interchainSenderContract, err = contracts.LoadInterchainSenderContract()
+		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
+
 		contractAddr, err = DeployContract(
 			s.chainA.GetContext(),
 			s.app,
