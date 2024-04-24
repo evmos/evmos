@@ -1,5 +1,6 @@
 # argument to provide specific version of evmos node
 ARG INITIAL_VERSION
+# checkov:skip=CKV_DOCKER_3:No need to create a user, this is only used on tests
 FROM tharsishq/evmos:$INITIAL_VERSION
 
 WORKDIR /go/src/github.com/evmos/evmos
@@ -8,5 +9,7 @@ COPY ./init-node.sh .
 
 # JSON-RPC server
 EXPOSE 8545
+
+HEALTHCHECK CMD curl --fail http://localhost:26657 || exit 1
 
 CMD ["sh", "./init-node.sh"]
