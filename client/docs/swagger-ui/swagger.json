@@ -5,6 +5,14 @@
     "description": "A REST interface for state queries and transactions",
     "version": "1.0.0"
   },
+  "securityDefinitions": {
+    "default": {
+      "type": "basic"
+    }
+  },
+  "security": {
+    "default": []
+  },  
   "paths": {
     "/evmos/epochs/v1/current_epoch": {
       "get": {
@@ -44,6 +52,8 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "minimum": 0,
+                    "maximum": 10,                    
                     "properties": {
                       "type_url": {
                         "type": "string"

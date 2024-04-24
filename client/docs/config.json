@@ -5,6 +5,14 @@
     "description": "A REST interface for state queries and transactions",
     "version": "1.0.0"
   },
+  "securityDefinitions": {
+    "default": {
+      "type": "basic"
+    }
+  },
+  "security": {
+    "default": []
+  },
   "apis": [
     {
       "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
