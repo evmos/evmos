@@ -17,7 +17,6 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
-	testcontracts "github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
@@ -42,8 +41,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
@@ -64,7 +61,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.ABI.Events,
 		}
-		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address, differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
@@ -553,7 +549,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	BeforeEach(func() {
 		s.SetupTest()
 
-		distributionCallerContract, err := testcontracts.LoadDistributionCallerContract()
+		distributionCallerContract, err := contracts.LoadDistributionCallerContract()
 		Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
 
 		contractAddr, err = s.DeployContract(distributionCallerContract)

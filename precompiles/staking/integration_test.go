@@ -4,7 +4,6 @@ package staking_test
 
 import (
 	"fmt"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"math/big"
 	"time"
 
@@ -31,6 +30,7 @@ import (
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // General variables used for integration tests

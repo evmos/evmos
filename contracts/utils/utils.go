@@ -5,6 +5,7 @@ package utils
 
 import (
 	"encoding/json"
+
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
