@@ -1,7 +1,4 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
-package transfer
+package callbacks
 
 import (
 	ibccallbacks "github.com/cosmos/ibc-go/modules/apps/callbacks/types"
