@@ -28,5 +28,5 @@ func TestHardhatCompiledContract(t *testing.T) {
 	compiledContract, err := hardhatContract.ToCompiledContract()
 	require.NoError(t, err, "failed to convert hardhat contract to compiled contract type")
 	require.Equal(t, compiledContract.ABI, hardhatContract.ABI, "expected ABIs to be equal")
-	require.NotEmpty(t, compiledContract.Bin, "expected bin data  not to be empty")
+	require.NotEmpty(t, compiledContract.Bin, "expected bin data not to be empty")
 }

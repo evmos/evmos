@@ -25,7 +25,7 @@ make contracts-clean
 
 **Note**: The tool will compile all smart contracts found
 (except for the ignored paths defined in the script)
-but only overwrite the compiled JSON data for already contracts,
+but only overwrite the compiled JSON data for contracts
 that already have a corresponding compiled JSON file in the same directory.
 
 If you want to add a new smart contract and have a JSON file generated for it,
