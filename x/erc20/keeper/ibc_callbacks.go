@@ -55,7 +55,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(data)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
