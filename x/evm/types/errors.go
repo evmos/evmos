@@ -32,6 +32,8 @@ const (
 	codeErrInactivePrecompile
 )
 
+var ErrPostTxProcessing = errors.New("failed to execute post processing")
+
 var (
 	// ErrInvalidState returns an error resulting from an invalid Storage State.
 	ErrInvalidState = errorsmod.Register(ModuleName, codeErrInvalidState, "invalid storage state")
