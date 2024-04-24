@@ -9,6 +9,7 @@ name: Lint Code Base
 
 on:
   pull_request:
+permissions: read-all
 jobs:
   run-lint:
     runs-on: ubuntu-latest
