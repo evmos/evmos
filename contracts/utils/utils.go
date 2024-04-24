@@ -5,7 +5,7 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -33,7 +33,7 @@ func LoadContractFromJSONFile(jsonFile string) (evmtypes.CompiledContract, error
 	}
 
 	if len(compiledContract.Bin) == 0 {
-		return evmtypes.CompiledContract{}, err
+		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
 	}
 
 	return compiledContract, nil
@@ -56,7 +56,7 @@ func LegacyLoadContractFromJSONFile(jsonFile string) (evmtypes.CompiledContract,
 	}
 
 	if len(contract.Bin) == 0 {
-		return evmtypes.CompiledContract{}, err
+		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
 	}
 
 	return contract, nil
@@ -73,7 +73,7 @@ func loadCompiledBytesFromJSONFile(jsonFile string) ([]byte, error) {
 	// method is being called in the functions above.
 	_, caller, _, ok := runtime.Caller(2)
 	if !ok {
-		return nil, fmt.Errorf("could not get the caller")
+		return nil, errors.New("could not get the caller")
 	}
 
 	callerDir := filepath.Dir(caller)

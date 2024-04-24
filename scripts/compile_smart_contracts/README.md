@@ -11,7 +11,6 @@ that already have a corresponding compiled JSON file in the same directory.
 If you want to add a new JSON file to the repository, use the `add` command
 described below.
 
-
 ## Usage
 
 To compile the smart contracts, run the following command:
