@@ -2,7 +2,7 @@ name: "Close stale issues & pull requests"
 on:
   schedule:
     - cron: "0 0 * * *"
-permissions: read
+permissions: read-all
 
 jobs:
   stale:

@@ -1,6 +1,6 @@
 name: "Consensus Warn"
 
-permissions: read 
+permissions: read-all
 
 on:
   pull_request_target:
