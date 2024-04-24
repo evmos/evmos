@@ -5,8 +5,8 @@ package contracts
 
 import (
 	_ "embed" // embed compiled smart contract
-	"encoding/json"
 
+	contractutils "github.com/evmos/evmos/v16/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -14,26 +14,14 @@ var (
 	//go:embed solidity/ERC20MinterBurnerDecimals.json
 	ERC20MinterBurnerDecimalsJSON []byte //nolint: golint
 
-	// ERC20MinterBurnerDecimalsHardhatContract is the compiled erc20 contract
-	// generated with hardhat
-	ERC20MinterBurnerDecimalsHardhatContract evmtypes.HardhatCompiledContract
-
 	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
 	ERC20MinterBurnerDecimalsContract evmtypes.CompiledContract
 )
 
 func init() {
-	err := json.Unmarshal(ERC20MinterBurnerDecimalsJSON, &ERC20MinterBurnerDecimalsHardhatContract)
+	var err error
+	ERC20MinterBurnerDecimalsContract, err = contractutils.LoadContract(ERC20MinterBurnerDecimalsJSON)
 	if err != nil {
 		panic(err)
-	}
-
-	ERC20MinterBurnerDecimalsContract, err = ERC20MinterBurnerDecimalsHardhatContract.ToCompiledContract()
-	if err != nil {
-		panic(err)
-	}
-
-	if len(ERC20MinterBurnerDecimalsContract.Bin) == 0 {
-		panic("load contract failed")
 	}
 }

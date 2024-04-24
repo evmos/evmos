@@ -4,27 +4,28 @@
 package testdata
 
 import (
-	_ "embed" // embed compiled smart contract
 	"encoding/json"
+	"errors"
+	"os"
 
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-var (
-	//go:embed WEVMOS.json
-	WevmosJSON []byte
-
-	// WEVMOSContract is the compiled contract of WEVMOS
-	WEVMOSContract evmtypes.CompiledContract
-)
-
-func init() {
-	err := json.Unmarshal(WevmosJSON, &WEVMOSContract)
+func LoadWEVMOSContract() (evmtypes.CompiledContract, error) {
+	wevmosJSON, err := os.ReadFile("WEVMOS.json")
 	if err != nil {
-		panic(err)
+		return evmtypes.CompiledContract{}, err
 	}
 
-	if len(WEVMOSContract.Bin) == 0 {
-		panic("failed to load WEVMOS smart contract")
+	var wevmosContract evmtypes.CompiledContract
+	err = json.Unmarshal(wevmosJSON, &wevmosContract)
+	if err != nil {
+		return evmtypes.CompiledContract{}, err
 	}
+
+	if len(wevmosContract.Bin) == 0 {
+		return evmtypes.CompiledContract{}, errors.New("empty contract binary")
+	}
+
+	return wevmosContract, nil
 }

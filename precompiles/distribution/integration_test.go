@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v16/utils"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -19,9 +17,10 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/distribution"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	testcontracts "github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-
+	"github.com/evmos/evmos/v16/utils"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -545,8 +544,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
-		// err is a basic error type
-		err error
 
 		// execRevertedCheck defines the default log checking arguments which includes the
 		// standard revert message.
@@ -555,7 +552,11 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 	BeforeEach(func() {
 		s.SetupTest()
-		contractAddr, err = s.DeployContract(contracts.DistributionCallerContract)
+
+		distributionCallerContract, err := testcontracts.LoadDistributionCallerContract()
+		Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
+
+		contractAddr, err = s.DeployContract(distributionCallerContract)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 
 		// NextBlock the smart contract
@@ -569,7 +570,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		// populate default call args
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: contractAddr,
-			ContractABI:  contracts.DistributionCallerContract.ABI,
+			ContractABI:  distributionCallerContract.ABI,
 			PrivKey:      s.privKey,
 		}
 

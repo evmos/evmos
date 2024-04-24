@@ -4,38 +4,21 @@
 package testdata
 
 import (
-	_ "embed" // embed compiled smart contract
-	"encoding/json"
-	"errors"
+	"os"
 
+	contractutils "github.com/evmos/evmos/v16/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
+// LoadMaliciousDelayedContract loads the ERC20MaliciousDelayed contract.
+//
 // This is an evil token. Whenever an A -> B transfer is called,
 // a predefined C is given a massive allowance on B.
-var (
-	//go:embed ERC20MaliciousDelayed.json
-	ERC20MaliciousDelayedJSON []byte //nolint: golint
-)
-
 func LoadMaliciousDelayedContract() (evmtypes.CompiledContract, error) {
-	// ERC20MaliciousDelayedHardhatContract is the compiled erc20 contract
-	// generated with hardhat
-	var ERC20MaliciousDelayedHardhatContract evmtypes.HardhatCompiledContract
-
-	err := json.Unmarshal(ERC20MaliciousDelayedJSON, &ERC20MaliciousDelayedHardhatContract)
+	contractJSON, err := os.ReadFile("ERC20MaliciousDelayed.json")
 	if err != nil {
 		return evmtypes.CompiledContract{}, err
 	}
 
-	ERC20MaliciousDelayedContract, err := ERC20MaliciousDelayedHardhatContract.ToCompiledContract()
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	if len(ERC20MaliciousDelayedContract.Bin) == 0 {
-		return evmtypes.CompiledContract{}, errors.New("load contract failed")
-	}
-
-	return ERC20MaliciousDelayedContract, nil
+	return contractutils.LoadContract(contractJSON)
 }

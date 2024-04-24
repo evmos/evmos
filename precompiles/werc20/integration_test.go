@@ -43,6 +43,8 @@ var _ = Describe("WEVMOS Extension -", func() {
 		contractData         ContractData
 		contractDataOriginal ContractData
 
+		wevmosContract evmtypes.CompiledContract
+
 		failCheck testutil.LogCheckArgs
 		passCheck testutil.LogCheckArgs
 	)
@@ -52,11 +54,14 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		sender = s.keyring.GetKey(0)
 
+		wevmosContract, err = testdata.LoadWEVMOSContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load WEVMOS contract")
+
 		WERC20ContractAddr, err = s.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract:        testdata.WEVMOSContract,
+				Contract:        wevmosContract,
 				ConstructorArgs: []interface{}{},
 			},
 		)
@@ -82,7 +87,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
 			erc20Addr:      WERC20ContractAddr,
-			erc20ABI:       testdata.WEVMOSContract.ABI,
+			erc20ABI:       wevmosContract.ABI,
 			precompileAddr: s.precompile.Address(),
 			precompileABI:  s.precompile.ABI,
 		}
@@ -245,7 +250,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				sender.Priv,
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
-					Contract:        testdata.WEVMOSContract,
+					Contract:        wevmosContract,
 					ConstructorArgs: []interface{}{},
 				},
 			)
@@ -253,7 +258,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 			contractDataOriginal = ContractData{
 				ownerPriv: sender.Priv,
 				erc20Addr: WEVMOSOriginalContractAddr,
-				erc20ABI:  testdata.WEVMOSContract.ABI,
+				erc20ABI:  wevmosContract.ABI,
 			}
 		})
 

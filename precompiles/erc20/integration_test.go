@@ -89,6 +89,9 @@ var _ = Describe("ERC20 Extension -", func() {
 		// contract instances that are subject to testing here.
 		contractsData ContractsData
 
+		allowanceCallerContract evmtypes.CompiledContract
+		erc20MinterV5Contract   evmtypes.CompiledContract
+
 		execRevertedCheck testutil.LogCheckArgs
 		failCheck         testutil.LogCheckArgs
 		passCheck         testutil.LogCheckArgs
@@ -97,12 +100,19 @@ var _ = Describe("ERC20 Extension -", func() {
 	BeforeEach(func() {
 		is.SetupTest()
 
+		var err error
+		allowanceCallerContract, err = testdata.LoadERC20AllowanceCaller()
+		Expect(err).ToNot(HaveOccurred(), "failed to load ERC20 allowance caller contract")
+
+		erc20MinterV5Contract, err = testdata.LoadERC20MinterV5Contract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load ERC20 minter contract")
+
 		sender := is.keyring.GetKey(0)
 		contractAddr, err := is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.ERC20AllowanceCallerContract,
+				Contract: allowanceCallerContract,
 				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
 				// to make calls to the correct ERC20 precompile.
 				ConstructorArgs: []interface{}{is.precompile.Address()},
@@ -126,7 +136,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.ERC20MinterV5Contract,
+				Contract: erc20MinterV5Contract,
 				ConstructorArgs: []interface{}{
 					"Xmpl", "Xmpl",
 				},
@@ -138,7 +148,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.ERC20AllowanceCallerContract,
+				Contract: allowanceCallerContract,
 				ConstructorArgs: []interface{}{
 					ERC20MinterV5Addr,
 				},
@@ -156,7 +166,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				},
 				contractCall: {
 					Address: contractAddr,
-					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+					ABI:     allowanceCallerContract.ABI,
 				},
 				erc20Call: {
 					Address: erc20MinterBurnerAddr,
@@ -164,11 +174,11 @@ var _ = Describe("ERC20 Extension -", func() {
 				},
 				erc20V5Call: {
 					Address: ERC20MinterV5Addr,
-					ABI:     testdata.ERC20MinterV5Contract.ABI,
+					ABI:     erc20MinterV5Contract.ABI,
 				},
 				erc20V5CallerCall: {
 					Address: erc20MinterV5CallerAddr,
-					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+					ABI:     allowanceCallerContract.ABI,
 				},
 			},
 		}
@@ -1385,11 +1395,14 @@ var _ = Describe("ERC20 Extension -", func() {
 		Context("for a token without registered metadata", func() {
 			BeforeEach(func() {
 				// Deploy ERC20NoMetadata contract for this test
+				erc20NoMetadataContract, err := testdata.LoadERC20NoMetadataContract()
+				Expect(err).ToNot(HaveOccurred(), "failed to load contract")
+
 				erc20NoMetadataAddr, err := is.factory.DeployContract(
 					is.keyring.GetPrivKey(0),
 					evmtypes.EvmTxArgs{},
 					factory.ContractDeploymentData{
-						Contract: testdata.ERC20NoMetadataContract,
+						Contract: erc20NoMetadataContract,
 					},
 				)
 				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
@@ -1478,7 +1491,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					is.keyring.GetPrivKey(0),
 					evmtypes.EvmTxArgs{},
 					factory.ContractDeploymentData{
-						Contract: testdata.ERC20AllowanceCallerContract,
+						Contract: allowanceCallerContract,
 						ConstructorArgs: []interface{}{
 							is.precompile.Address(),
 						},
@@ -1488,7 +1501,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				contractsData.contractData[contractCall] = ContractData{
 					Address: callerAddr,
-					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+					ABI:     allowanceCallerContract.ABI,
 				}
 			})
 
@@ -1554,7 +1567,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				is.keyring.GetPrivKey(0),
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
-					Contract:        testdata.ERC20AllowanceCallerContract,
+					Contract:        allowanceCallerContract,
 					ConstructorArgs: []interface{}{is.precompile.Address()},
 				},
 			)
@@ -1562,7 +1575,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			contractsData.contractData[erc20CallerCall] = ContractData{
 				Address: contractAddr,
-				ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+				ABI:     allowanceCallerContract.ABI,
 			}
 
 			grantee = is.keyring.GetKey(0)
@@ -2124,7 +2137,8 @@ var _ = Describe("ERC20 Extension -", func() {
 var _ = Describe("ERC20 Extension migration Flows -", func() {
 	When("migrating an existing ERC20 token", func() {
 		var (
-			contractData ContractsData
+			contractData          ContractsData
+			erc20MinterV5Contract evmtypes.CompiledContract
 
 			tokenDenom  = "xmpl"
 			tokenName   = "Xmpl"
@@ -2136,6 +2150,10 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 		BeforeEach(func() {
 			is.SetupTest()
 
+			var err error
+			erc20MinterV5Contract, err = testdata.LoadERC20MinterV5Contract()
+			Expect(err).ToNot(HaveOccurred(), "failed to load ERC20 minter contract")
+
 			contractOwner := is.keyring.GetKey(0)
 
 			// Deploy an ERC20 contract
@@ -2143,7 +2161,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 				contractOwner.Priv,
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
-					Contract: testdata.ERC20MinterV5Contract,
+					Contract: erc20MinterV5Contract,
 					ConstructorArgs: []interface{}{
 						tokenName, tokenSymbol,
 					},
@@ -2158,7 +2176,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 				contractData: map[CallType]ContractData{
 					erc20V5Call: {
 						Address: erc20Addr,
-						ABI:     testdata.ERC20MinterV5Contract.ABI,
+						ABI:     erc20MinterV5Contract.ABI,
 					},
 				},
 			}
