@@ -263,10 +263,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			coinsToDelegate := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e18)))
 			// check that coins to delegate are greater than the locked up vested coins
 			Expect(coinsToDelegate.IsAllGT(vested)).To(BeTrue())
-			
+
 			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, testAccount.address, coinsToDelegate)
 			Expect(err).To(BeNil())
-
 
 			// the free coins delegated will be the delegatedCoins - lockedUp vested coins
 			freeCoinsDelegated := coinsToDelegate.Sub(vested...)
