@@ -19,9 +19,7 @@ import (
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetAllAccounts(ctx sdk.Context) (accounts []authtypes.AccountI)
 	IterateAccounts(ctx sdk.Context, cb func(account authtypes.AccountI) bool)
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	SetAccount(ctx sdk.Context, account authtypes.AccountI)
 	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
@@ -47,7 +45,6 @@ type StakingKeeper interface {
 type FeeMarketKeeper interface {
 	GetBaseFee(ctx sdk.Context) *big.Int
 	GetParams(ctx sdk.Context) feemarkettypes.Params
-	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	CalculateBaseFee(ctx sdk.Context) *big.Int
 }
 
