@@ -96,6 +96,12 @@ func (k Keeper) PostTxProcessing(
 			continue
 		}
 
+		// Check if tokens are sent to module address
+		to := common.BytesToAddress(log.Topics[2].Bytes())
+		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
+			continue
+		}
+
 		// Check that the contract is a registered token pair
 		contractAddr := log.Address
 		id := k.GetERC20Map(ctx, contractAddr)
@@ -105,12 +111,6 @@ func (k Keeper) PostTxProcessing(
 
 		pair, found := k.GetTokenPair(ctx, id)
 		if !found {
-			continue
-		}
-
-		// Check if tokens are sent to module address
-		to := common.BytesToAddress(log.Topics[2].Bytes())
-		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
 			continue
 		}
 
