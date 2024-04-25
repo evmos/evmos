@@ -4,12 +4,12 @@
 package transfer
 
 import (
-	ibccallbacks "github.com/cosmos/ibc-go/modules/apps/callbacks/types"
 	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	"github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
 )
 
-var _ ibccallbacks.CallbacksCompatibleModule = IBCModule{}
+var _ porttypes.IBCModule = IBCModule{}
 
 // IBCModule implements the ICS26 interface for transfer given the transfer keeper.
 type IBCModule struct {

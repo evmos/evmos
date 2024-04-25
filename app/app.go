@@ -560,14 +560,10 @@ func NewEvmos(
 
 	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule
-	//var callbackStack porttypes.IBCModule
 
-	contractKeeper := callbackskeeper.Keeper{}
-
+	contractKeeper := callbackskeeper.NewKeeper(evmKeeper)
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
-	//transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
-	//callbackStack = callbacks.NewIBCModule(app.TransferKeeper)
-	transferStack = ibccallbacks.NewIBCMiddleware(transferStack, app.IBCKeeper.ChannelKeeper, contractKeeper, 1)
+	transferStack = ibccallbacks.NewIBCMiddleware(transferStack, app.IBCKeeper.ChannelKeeper, contractKeeper, 1000000000000000000)
 	app.TransferKeeper.WithICS4Wrapper(transferStack.(porttypes.ICS4Wrapper))
 
 	// Create static IBC router, add transfer route, then set and seal it

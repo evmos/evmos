@@ -8,15 +8,11 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	callbacktypes "github.com/cosmos/ibc-go/modules/apps/callbacks/types"
-
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	"github.com/evmos/evmos/v17/x/ibc/transfer/types"
 )
-
-var _ callbacktypes.ContractKeeper = Keeper{}
 
 // Keeper defines the modified IBC transfer keeper that embeds the original one.
 // It also contains the bank keeper and the erc20 keeper to support ERC20 tokens

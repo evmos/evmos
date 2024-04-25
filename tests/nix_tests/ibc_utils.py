@@ -55,7 +55,7 @@ IBC_CHAINS_META = {
         "bin": "osmosisd",
         "denom": "uosmo",
     },
-    "gaia": {
+    "cosmoshub-1": {
         "chain_name": "cosmoshub-1",
         "bin": "gaiad",
         "denom": "uatom",

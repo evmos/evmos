@@ -33,6 +33,7 @@ EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
 WEVMOS_ADDRESS = Web3.toChecksumAddress("0xcc491f589b45d4a3c679016195b3fb87d7848210")
 TEST_CONTRACTS = {
+    "PacketActorCounter": "PacketActorCounter.sol",
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
     "BurnGas": "BurnGas.sol",

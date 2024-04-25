@@ -839,6 +839,7 @@ class CosmosCLI:
         amount,
         channel,  # src channel
         target_version,  # chain version number of target chain
+        memo= "",
         i=0,
         fees="0aevmos",
     ):
@@ -851,6 +852,8 @@ class CosmosCLI:
                 channel,
                 to,
                 amount,
+                "--memo",
+                memo,
                 "-y",
                 # FIXME https://github.com/cosmos/cosmos-sdk/issues/8059
                 "--absolute-timeouts",
