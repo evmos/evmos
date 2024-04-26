@@ -46,7 +46,12 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 // sender of the tx is a clawback vesting account and then relay the message to the Cosmos SDK staking
 // method.
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
-	if err := k.validateDelegationAmountNotUnvested(goCtx, msg.DelegatorAddress, msg.Value.Amount); err != nil {
+	bz, err := k.ValidatorAddressCodec().StringToBytes(msg.ValidatorAddress)
+	if err != nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid validator address. %w", err)
+	}
+
+	if err := k.validateDelegationAmountNotUnvested(goCtx, sdk.AccAddress(bz).String(), msg.Value.Amount); err != nil {
 		return nil, err
 	}
 
