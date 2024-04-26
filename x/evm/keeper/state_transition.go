@@ -12,14 +12,15 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v18/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -144,7 +145,10 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 //
 // For relevant discussion see: https://github.com/cosmos/cosmos-sdk/discussions/9072
 func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*types.MsgEthereumTxResponse, error) {
-	var bloom *big.Int
+	var (
+		bloom        *big.Int
+		bloomReceipt ethtypes.Bloom
+	)
 
 	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress), k.eip155ChainID)
 	if err != nil {
@@ -181,6 +185,34 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		bloom.Or(bloom, big.NewInt(0).SetBytes(ethtypes.LogsBloom(logs)))
 	}
 
+	cumulativeGasUsed := res.GasUsed
+	if ctx.BlockGasMeter() != nil {
+		limit := ctx.BlockGasMeter().Limit()
+		cumulativeGasUsed += ctx.BlockGasMeter().GasConsumed()
+		if cumulativeGasUsed > limit {
+			cumulativeGasUsed = limit
+		}
+	}
+
+	var contractAddr common.Address
+	if msg.To() == nil {
+		contractAddr = crypto.CreateAddress(msg.From(), msg.Nonce())
+	}
+
+	receipt := &ethtypes.Receipt{
+		Type:              tx.Type(),
+		PostState:         nil, // TODO: intermediate state root
+		CumulativeGasUsed: cumulativeGasUsed,
+		Bloom:             bloomReceipt,
+		Logs:              logs,
+		TxHash:            txConfig.TxHash,
+		ContractAddress:   contractAddr,
+		GasUsed:           res.GasUsed,
+		BlockHash:         txConfig.BlockHash,
+		BlockNumber:       big.NewInt(ctx.BlockHeight()),
+		TransactionIndex:  txConfig.TxIndex,
+	}
+
 	if !res.Failed() {
 		commit()
 		ctx.EventManager().EmitEvents(tmpCtx.EventManager().Events())
@@ -191,9 +223,9 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		return nil, errorsmod.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
 	}
 
-	if len(logs) > 0 {
+	if len(receipt.Logs) > 0 {
 		// Update transient block bloom filter
-		k.SetBlockBloomTransient(ctx, bloom)
+		k.SetBlockBloomTransient(ctx, receipt.Bloom.Big())
 		k.SetLogSizeTransient(ctx, uint64(txConfig.LogIndex)+uint64(len(logs)))
 	}
 

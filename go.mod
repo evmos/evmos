@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v16
+module github.com/evmos/evmos/v18
 
 go 1.22.2
 
@@ -13,7 +13,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/cometbft/cometbft v0.37.4
 	github.com/cometbft/cometbft-db v0.12.0
-	github.com/cosmos/cosmos-proto v1.0.0-beta.4
+	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.47.8
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
@@ -35,7 +35,7 @@ require (
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
-	github.com/rs/cors v1.10.1
+	github.com/rs/cors v1.11.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.16.0

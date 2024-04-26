@@ -147,8 +147,8 @@ schema = 3
     version = "v1.0.5"
     hash = "sha256-t572Sr5iiHcuMKLMWa2i+LBAt192oa+G1oA371tG/eI="
   [mod."github.com/cosmos/cosmos-proto"]
-    version = "v1.0.0-beta.4"
-    hash = "sha256-5Kn82nsZfiEtuwhhLZqmMxdAY1tX/Fi3HJ0/MEaRohw="
+    version = "v1.0.0-beta.5"
+    hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
   [mod."github.com/cosmos/cosmos-sdk"]
     version = "v0.47.8-evmos"
     hash = "sha256-B+0qa8x/FKNcTV4iQIStB7zz26JXzruoTBRP4voZlbo="
@@ -537,8 +537,8 @@ schema = 3
     version = "v1.11.0"
     hash = "sha256-BucSndJVnqX9e6p5PfA6Z8N2bGfIeRfxAxYLUDXTbIo="
   [mod."github.com/rs/cors"]
-    version = "v1.10.1"
-    hash = "sha256-um4INJM5/675MLK42npIsDbSQ1/Iy5ZiUNuAFReUfeM="
+    version = "v1.11.0"
+    hash = "sha256-hF25bVehtWCQsxiOfLuL4Hv8NKVunEqLPk/Vcuheha0="
   [mod."github.com/rs/zerolog"]
     version = "v1.31.0"
     hash = "sha256-OF4VM+Rv6M5EAaUVD2nOzcbZLQ4b7OAMteyyTqIoU0M="

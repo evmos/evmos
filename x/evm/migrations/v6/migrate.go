@@ -6,10 +6,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/types"
 
-	v5types "github.com/evmos/evmos/v16/x/evm/migrations/v6/types"
-	"github.com/evmos/evmos/v16/x/evm/migrations/v7/types"
+	v5types "github.com/evmos/evmos/v18/x/evm/migrations/v6/types"
+	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 5 to
@@ -21,7 +22,7 @@ func MigrateStore(
 ) error {
 	var (
 		paramsV5 v5types.V5Params
-		params   types.V6Params
+		params   v6types.V6Params
 	)
 
 	store := ctx.KVStore(storeKey)
@@ -33,7 +34,7 @@ func MigrateStore(
 	params.EnableCreate = paramsV5.EnableCreate
 	params.EnableCall = paramsV5.EnableCall
 	params.ExtraEIPs = paramsV5.ExtraEIPs
-	params.ChainConfig = types.V6ChainConfig{
+	params.ChainConfig = v6types.V6ChainConfig{
 		HomesteadBlock:      paramsV5.ChainConfig.HomesteadBlock,
 		DAOForkBlock:        paramsV5.ChainConfig.DAOForkBlock,
 		DAOForkSupport:      paramsV5.ChainConfig.DAOForkSupport,

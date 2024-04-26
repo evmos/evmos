@@ -8,11 +8,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/types"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 const (

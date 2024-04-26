@@ -4,7 +4,7 @@
 package types
 
 import (
-	context "context"
+	"context"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
@@ -16,13 +16,12 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
-	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 }

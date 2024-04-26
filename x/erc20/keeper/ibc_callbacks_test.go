@@ -4,19 +4,31 @@ import (
 	"errors"
 	"testing"
 
+	// "cosmossdk.io/math"
 	errorsmod "cosmossdk.io/errors"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/stretchr/testify/suite"
+
+	// "github.com/evmos/evmos/v18/x/erc20/keeper"
+
+	"github.com/ethereum/go-ethereum/common"
+
+	// "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	// "github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	// "github.com/evmos/evmos/v18/testutil"
+
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	ibcmock "github.com/cosmos/ibc-go/v7/testing/mock"
-	"github.com/ethereum/go-ethereum/common"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	"github.com/stretchr/testify/suite"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+
+	// "github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 type Erc20KeeperTestSuite struct {
