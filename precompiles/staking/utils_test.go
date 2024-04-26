@@ -8,8 +8,10 @@ import (
 
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
+	cmnfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -19,7 +21,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -40,7 +41,11 @@ import (
 )
 
 // stipend to pay EVM tx fees
-var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
+var (
+	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
+	gas                = uint64(200_000)
+	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(utils.BaseDenom)
+)
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
 func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, granter, grantee testkeyring.Key, msgType string, amount *big.Int) {
@@ -403,35 +408,57 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 // setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
 // using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
-func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc sdk.AccAddress) *vestingtypes.ClawbackVestingAccount {
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc keyring.Key) *vestingtypes.ClawbackVestingAccount {
 	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
-
 	ctx := s.network.GetContext()
+
+	// send some funds to the vesting acccount to pay for fees
+	err := s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 1. Create vesting account
+	createAccMsg := vestingtypes.NewMsgCreateClawbackVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
+		false,
+	)
+
+	_, err = s.factory.ExecuteCosmosTx(vestAcc.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}, Gas: &gas, GasPrice: &gasPrices})
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 2. Funder funds the vesting account
 	vestingStart := ctx.BlockTime()
-	baseAccount := authtypes.NewBaseAccountWithAddress(vestAcc.Bytes())
-	clawbackAccount := vestingtypes.NewClawbackVestingAccount(
-		baseAccount,
-		funder,
-		vestingAmtTotal,
+	fundMsg := vestingtypes.NewMsgFundVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
 		vestingStart,
 		evmosutil.TestVestingSchedule.LockupPeriods,
 		evmosutil.TestVestingSchedule.VestingPeriods,
 	)
-
-	err := evmosutil.FundAccount(ctx, s.network.App.BankKeeper, clawbackAccount.GetAddress(), vestingAmtTotal)
+	_, err = s.factory.ExecuteCosmosTx(funder.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{fundMsg}})
 	Expect(err).To(BeNil())
-	acc := s.network.App.AccountKeeper.NewAccount(ctx, clawbackAccount)
-	s.network.App.AccountKeeper.SetAccount(ctx, acc)
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	acc, err := s.grpcHandler.GetAccount(vestAcc.AccAddr.String())
+	Expect(err).To(BeNil())
+
+	clawbackAccount, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+	Expect(ok).To(BeTrue(), "account should be a ClawbackVestingAccount")
 
 	// Check all coins are locked up
 	lockedUp := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
 	Expect(vestingAmtTotal).To(Equal(lockedUp))
 
 	// Grant gas stipend to cover EVM fees
-	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
+	err = s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
 	Expect(err).To(BeNil())
-	granteeBalance := s.network.App.BankKeeper.GetBalance(ctx, clawbackAccount.GetAddress(), s.bondDenom)
-	Expect(granteeBalance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+	Expect(err).To(BeNil())
+	Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
 
 	return clawbackAccount
 }
