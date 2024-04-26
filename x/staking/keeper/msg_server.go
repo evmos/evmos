@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -48,7 +49,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	bz, err := k.ValidatorAddressCodec().StringToBytes(msg.ValidatorAddress)
 	if err != nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid validator address. %w", err)
+		return nil, errorsmod.Wrap(errortypes.ErrInvalidAddress, fmt.Sprintf("invalid validator address. %s", err))
 	}
 
 	if err := k.validateDelegationAmountNotUnvested(goCtx, sdk.AccAddress(bz).String(), msg.Value.Amount); err != nil {
@@ -70,9 +71,9 @@ func (k msgServer) validateDelegationAmountNotUnvested(goCtx context.Context, de
 
 	acc := k.ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return errorsmod.Wrapf(
+		return errorsmod.Wrap(
 			errortypes.ErrUnknownAddress,
-			"account %s does not exist", addr,
+			fmt.Sprintf("account %s does not exist", addr),
 		)
 	}
 	// check if delegator address is a clawback vesting account. If not, no check
