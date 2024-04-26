@@ -21,18 +21,22 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	compiledcontracts "github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/distribution"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/precompiles/staking/testdata"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	compiledcontracts "github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/distribution"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/staking/testdata"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {
@@ -926,6 +930,234 @@ var _ = Describe("Calling staking precompile directly", func() {
 				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
 				Expect(err).To(BeNil())
 				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation not to have been canceled")
+			})
+		})
+	})
+
+	Describe("Calling precompile txs from a vesting account", func() {
+		var (
+			funder          common.Address
+			vestAcc         common.Address
+			vestAccPriv     *ethsecp256k1.PrivKey
+			clawbackAccount *vestingtypes.ClawbackVestingAccount
+			unvested        sdk.Coins
+			vested          sdk.Coins
+			// unlockedVested are unlocked vested coins of the vesting schedule
+			unlockedVested sdk.Coins
+			delegateArgs   factory.CallArgs
+		)
+
+		BeforeEach(func() {
+			// Setup vesting account
+			funder = s.keyring.GetAddr(0)
+			vestAcc, vestAccPriv = testutiltx.NewAddrKey()
+			vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+
+			clawbackAccount = s.setupVestingAccount(funder.Bytes(), vestAcc.Bytes())
+
+			// Check if all tokens are unvested at vestingStart
+			ctx := s.network.GetContext()
+			unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+			vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+			Expect(vestingAmtTotal).To(Equal(unvested))
+			Expect(vested.IsZero()).To(BeTrue())
+
+			// populate the default delegate args
+			delegateArgs = factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.DelegateMethod,
+				Args: []interface{}{
+					vestAcc, valAddr.String(), big.NewInt(1e18),
+				},
+			}
+		})
+
+		Context("before first vesting period - all tokens locked and unvested", func() {
+			BeforeEach(func() {
+				s.Require().NoError(s.network.NextBlock())
+
+				ctx := s.network.GetContext()
+				// Ensure no tokens are vested
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
+				zeroCoins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.ZeroInt()))
+				Expect(vested).To(Equal(zeroCoins), "expected different vested coins")
+				Expect(unvested).To(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins), "expected different unvested coins")
+				Expect(unlocked).To(Equal(zeroCoins), "expected different unlocked coins")
+			})
+
+			It("Should not be able to delegate unvested tokens", func() {
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), unvested.AmountOf(s.bondDenom).BigInt(),
+				}
+
+				failCheck := defaultLogCheck.
+					WithErrContains("cannot delegate unvested coins")
+
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, failCheck)
+				Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(err.Error()).To(ContainSubstring("coins available for delegation < delegation amount"))
+			})
+
+			It("Should be able to delegate tokens not involved in vesting schedule", func() {
+				// send some coins to the vesting account
+				coinsToDelegate := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+				err := evmosutil.FundAccount(s.network.GetContext(), s.network.App.BankKeeper, clawbackAccount.GetAddress(), coinsToDelegate)
+				Expect(err).To(BeNil())
+
+				// check balance is updated
+				balance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), clawbackAccount.GetAddress(), s.bondDenom)
+				Expect(balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(coinsToDelegate[0])))
+
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), coinsToDelegate.AmountOf(s.bondDenom).BigInt(),
+				}
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+				_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				delegation, found := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), vestAcc.Bytes(), valAddr)
+				Expect(found).To(BeTrue(), "expected delegation to be found")
+				Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+
+				// check vesting balance is untouched
+				balancePost := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), clawbackAccount.GetAddress(), s.bondDenom)
+				Expect(balancePost.IsGTE(evmosutil.TestVestingSchedule.TotalVestingCoins[0])).To(BeTrue())
+			})
+		})
+
+		Context("after first vesting period and before lockup - some vested tokens, but still all locked", func() {
+			BeforeEach(func() {
+				// Surpass cliff but none of lockup duration
+				cliffDuration := time.Duration(evmosutil.TestVestingSchedule.CliffPeriodLength)
+				s.Require().NoError(s.network.NextBlockAfter(cliffDuration * time.Second))
+				ctx := s.network.GetContext()
+
+				// Check if some, but not all tokens are vested
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.CliffMonths))))
+				Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins), "expected some tokens to have been vested")
+				Expect(vested).To(Equal(expVested), "expected different vested amount")
+
+				// check the vested tokens are still locked
+				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(ctx.BlockTime())
+				Expect(unlockedVested).To(Equal(sdk.Coins{}))
+
+				vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+				res, err := s.network.App.VestingKeeper.Balances(ctx, &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
+				Expect(err).To(BeNil())
+				Expect(res.Vested).To(Equal(expVested))
+				Expect(res.Unvested).To(Equal(vestingAmtTotal.Sub(expVested...)))
+				// All coins from vesting schedule should be locked
+				Expect(res.Locked).To(Equal(vestingAmtTotal))
+			})
+
+			It("Should be able to delegate locked vested tokens", func() {
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), vested[0].Amount.BigInt(),
+				}
+
+				ctx := s.network.GetContext()
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				delegation, found := s.network.App.StakingKeeper.GetDelegation(ctx, vestAcc.Bytes(), valAddr)
+				Expect(found).To(BeTrue(), "expected delegation to be found")
+				Expect(delegation.Shares.BigInt()).To(Equal(vested[0].Amount.BigInt()))
+			})
+
+			It("Should be able to delegate locked vested tokens + free tokens (not in vesting schedule)", func() {
+				ctx := s.network.GetContext()
+				// send some coins to the vesting account
+				amt := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+				err := evmosutil.FundAccount(ctx, s.network.App.BankKeeper, clawbackAccount.GetAddress(), amt)
+				Expect(err).To(BeNil())
+
+				// check balance is updated
+				balance := s.network.App.BankKeeper.GetBalance(ctx, clawbackAccount.GetAddress(), s.bondDenom)
+				Expect(balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(amt[0])))
+
+				coinsToDelegate := amt.Add(vested...)
+
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), coinsToDelegate[0].Amount.BigInt(),
+				}
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+				_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				delegation, found := s.network.App.StakingKeeper.GetDelegation(ctx, vestAcc.Bytes(), valAddr)
+				Expect(found).To(BeTrue(), "expected delegation to be found")
+				Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+			})
+		})
+
+		Context("Between first and second lockup periods - vested coins are unlocked", func() {
+			BeforeEach(func() {
+				// Surpass first lockup
+				vestDuration := time.Duration(evmosutil.TestVestingSchedule.LockupPeriodLength)
+				s.Require().NoError(s.network.NextBlockAfter(vestDuration * time.Second))
+				ctx := s.network.GetContext()
+
+				// Check if some, but not all tokens are vested and unlocked
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
+				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(ctx.BlockTime())
+
+				expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.LockupMonths))))
+				expUnlockedVested := expVested
+
+				Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins), "expected not all tokens to be vested")
+				Expect(vested).To(Equal(expVested), "expected different amount of vested tokens")
+				// all vested coins are unlocked
+				Expect(unlockedVested).To(Equal(vested))
+				Expect(unlocked).To(Equal(evmosutil.TestVestingSchedule.UnlockedCoinsPerLockup))
+				Expect(unlockedVested).To(Equal(expUnlockedVested))
+			})
+			It("Should be able to delegate unlocked vested tokens", func() {
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), unlockedVested[0].Amount.BigInt(),
+				}
+
+				ctx := s.network.GetContext()
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				delegation, found := s.network.App.StakingKeeper.GetDelegation(ctx, vestAcc.Bytes(), valAddr)
+				Expect(found).To(BeTrue(), "expected delegation to be found")
+				Expect(delegation.Shares.BigInt()).To(Equal(unlockedVested[0].Amount.BigInt()))
+			})
+
+			It("Cannot delegate more than vested tokens (and free tokens)", func() {
+				ctx := s.network.GetContext()
+				// calculate the delegatable amount
+				balance := s.network.App.BankKeeper.GetBalance(ctx, vestAcc.Bytes(), s.bondDenom)
+				unvestedOnly := clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				delegatable := balance.Sub(unvestedOnly[0])
+
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), delegatable.Amount.Add(math.OneInt()).BigInt(),
+				}
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
+				Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(err.Error()).To(ContainSubstring("cannot delegate unvested coins"))
+
+				_, found := s.network.App.StakingKeeper.GetDelegation(ctx, vestAcc.Bytes(), valAddr)
+				Expect(found).To(BeFalse(), "expected delegation NOT to be found")
 			})
 		})
 	})
@@ -2143,6 +2375,189 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				delegation := res.DelegationResponse.Delegation
 				Expect(delegation.GetShares()).To(Equal(prevDelegation.GetShares()), "expected only the delegation from creating the validator, no more")
+			})
+		})
+		Describe("delegation from a vesting account", func() {
+			var (
+				funder          common.Address
+				vestAcc         common.Address
+				vestAccPriv     *ethsecp256k1.PrivKey
+				clawbackAccount *vestingtypes.ClawbackVestingAccount
+				unvested        sdk.Coins
+				vested          sdk.Coins
+				// unlockedVested are unlocked vested coins of the vesting schedule
+				unlockedVested sdk.Coins
+			)
+
+			BeforeEach(func() {
+				// Setup vesting account
+				funder = s.keyring.GetAddr(0)
+				vestAccKey := keyring.NewKey()
+				vestAcc, vestAccPriv = vestAccKey.Addr, vestAccKey.Priv.(*ethsecp256k1.PrivKey)
+
+				clawbackAccount = s.setupVestingAccount(funder.Bytes(), vestAcc.Bytes())
+				ctx := s.network.GetContext()
+
+				// Check if all tokens are unvested at vestingStart
+				totalVestingCoins := evmosutil.TestVestingSchedule.TotalVestingCoins
+				unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				Expect(unvested).To(Equal(totalVestingCoins))
+				Expect(vested.IsZero()).To(BeTrue())
+
+				approveArgs := factory.CallArgs{
+					ContractABI: testdata.StakingCallerContract.ABI,
+					Args: []interface{}{
+						contractAddr, []string{staking.DelegateMsg}, totalVestingCoins.AmountOf(s.bondDenom).BigInt(),
+					},
+				}
+				// create approval to allow spending all vesting coins
+				s.SetupApprovalWithContractCalls(vestAccKey, txArgs, approveArgs)
+			})
+
+			Context("before first vesting period - all tokens locked and unvested", func() {
+				BeforeEach(func() {
+					s.Require().NoError(s.network.NextBlock())
+					ctx := s.network.GetContext()
+
+					// Ensure no tokens are vested
+					vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+					unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+					unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
+					zeroCoins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.ZeroInt()))
+					Expect(vested).To(Equal(zeroCoins))
+					Expect(unvested).To(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins))
+					Expect(unlocked).To(Equal(zeroCoins))
+				})
+
+				It("Should not be able to delegate unvested tokens", func() {
+					callArgs.Args = []interface{}{
+						vestAcc, valAddr.String(), unvested.AmountOf(s.bondDenom).BigInt(),
+					}
+
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, execRevertedCheck)
+					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				})
+
+				It("Should be able to delegate tokens not involved in vesting schedule", func() {
+					// send some coins to the vesting account
+					coinsToDelegate := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+					err := evmosutil.FundAccount(s.network.GetContext(), s.network.App.BankKeeper, clawbackAccount.GetAddress(), coinsToDelegate)
+					Expect(err).To(BeNil())
+
+					callArgs.Args = []interface{}{
+						vestAcc, valAddr.String(), coinsToDelegate.AmountOf(s.bondDenom).BigInt(),
+					}
+
+					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+					_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+					delegation, found := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), vestAcc.Bytes(), valAddr)
+					Expect(found).To(BeTrue(), "expected delegation to be found")
+					Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+				})
+			})
+
+			Context("after first vesting period and before lockup - some vested tokens, but still all locked", func() {
+				BeforeEach(func() {
+					// Surpass cliff but none of lockup duration
+					cliffDuration := time.Duration(evmosutil.TestVestingSchedule.CliffPeriodLength)
+					Expect(s.network.NextBlockAfter(cliffDuration * time.Second)).Error().To(BeNil())
+
+					// Check if some, but not all tokens are vested
+					vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
+					expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.CliffMonths))))
+					Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins))
+					Expect(vested).To(Equal(expVested))
+
+					// check the vested tokens are still locked
+					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.network.GetContext().BlockTime())
+					Expect(unlockedVested).To(Equal(sdk.Coins{}))
+
+					vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+					res, err := s.network.App.VestingKeeper.Balances(s.network.GetContext(), &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
+					Expect(err).To(BeNil())
+					Expect(res.Vested).To(Equal(expVested))
+					Expect(res.Unvested).To(Equal(vestingAmtTotal.Sub(expVested...)))
+					// All coins from vesting schedule should be locked
+					Expect(res.Locked).To(Equal(vestingAmtTotal))
+				})
+
+				It("Should be able to delegate locked vested tokens", func() {
+					callArgs.Args = []interface{}{
+						vestAcc, valAddr.String(), vested[0].Amount.BigInt(),
+					}
+
+					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+					delegation, found := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), vestAcc.Bytes(), valAddr)
+					Expect(found).To(BeTrue(), "expected delegation to be found")
+					Expect(delegation.Shares.BigInt()).To(Equal(vested[0].Amount.BigInt()))
+				})
+
+				It("Should be able to delegate locked vested tokens + free tokens (not in vesting schedule)", func() {
+					// send some coins to the vesting account
+					amt := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+					err := evmosutil.FundAccount(s.network.GetContext(), s.network.App.BankKeeper, clawbackAccount.GetAddress(), amt)
+					Expect(err).To(BeNil())
+
+					coinsToDelegate := amt.Add(vested...)
+
+					callArgs.Args = []interface{}{
+						vestAcc, valAddr.String(), coinsToDelegate[0].Amount.BigInt(),
+					}
+
+					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+					_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+					delegation, found := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), vestAcc.Bytes(), valAddr)
+					Expect(found).To(BeTrue(), "expected delegation to be found")
+					Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+				})
+			})
+
+			Context("Between first and second lockup periods - vested coins are unlocked", func() {
+				BeforeEach(func() {
+					// Surpass first lockup
+					vestDuration := time.Duration(evmosutil.TestVestingSchedule.LockupPeriodLength)
+					Expect(s.network.NextBlockAfter(vestDuration * time.Second)).To(BeNil())
+
+					// Check if some, but not all tokens are vested and unlocked
+					vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
+					unlocked := clawbackAccount.GetUnlockedCoins(s.network.GetContext().BlockTime())
+					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.network.GetContext().BlockTime())
+
+					expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.LockupMonths))))
+					expUnlockedVested := expVested
+
+					Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins))
+					Expect(vested).To(Equal(expVested))
+					// all vested coins are unlocked
+					Expect(unlockedVested).To(Equal(vested))
+					Expect(unlocked).To(Equal(evmosutil.TestVestingSchedule.UnlockedCoinsPerLockup))
+					Expect(unlockedVested).To(Equal(expUnlockedVested))
+				})
+				It("Should be able to delegate unlocked vested tokens", func() {
+					callArgs.Args = []interface{}{
+						vestAcc, valAddr.String(), unlockedVested[0].Amount.BigInt(),
+					}
+
+					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+					delegation, found := s.network.App.StakingKeeper.GetDelegation(s.network.GetContext(), vestAcc.Bytes(), valAddr)
+					Expect(found).To(BeTrue(), "expected delegation to be found")
+					Expect(delegation.Shares.BigInt()).To(Equal(unlockedVested[0].Amount.BigInt()))
+				})
 			})
 		})
 	})

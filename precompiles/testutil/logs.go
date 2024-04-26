@@ -4,11 +4,11 @@ package testutil
 
 import (
 	"fmt"
+	"slices"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // CheckLogs checks the logs for the given events and whether the transaction was successful or not.

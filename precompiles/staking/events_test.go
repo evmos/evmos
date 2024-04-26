@@ -3,7 +3,7 @@ package staking_test
 import (
 	"math/big"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,10 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {

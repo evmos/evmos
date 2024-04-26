@@ -49,6 +49,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
+- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion from EVM hooks (#2380)
+- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion from EVM hooks (#2154) (#2442)
 
 ### Bug Fixes
 
@@ -86,20 +88,36 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (make) [#2444](https://github.com/evmos/evmos/pull/2444) Run `protolint` Docker image during `make proto-lint` target.
 - (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
 - (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
+- (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
+- (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
+- (cli) [#2503](https://github.com/evmos/evmos/pull/2503) Revert deletion of ConvertCoin for erc20 module (#2155).
+- (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
 
-## [v17.0.0] - 2024-04-08
+## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
+
+### State Machine Breaking
+
+- (vesting) [#2500](https://github.com/evmos/evmos/pull/2500) Refactor vesting module.
+
+## [v17.0.1](https://github.com/evmos/evmos/releases/tag/v17.0.1) - 2024-04-18
+
+### Improvements
+
+- (app) [#2491](https://github.com/evmos/evmos/pull/2491) Schedule v18 upgrade.
+
+## [v17.0.0](https://github.com/evmos/evmos/releases/tag/v17.0.0) - 2024-04-08
 
 ### State Machine Breaking
 
 - (evm) [#2475](https://github.com/evmos/evmos/pull/2475) Improve commit efficiency on EVM & bump IBC version to `v7.4.0`.
 
-## [v16.0.4] - 2024-04-05
+## [v16.0.4](https://github.com/evmos/evmos/releases/tag/v16.0.4) - 2024-04-05
 
 ### Improvements
 
 - (all) [#2460](https://github.com/evmos/evmos/pull/2460) Schedule v17 upgrade.
 
-## [v16.0.3] - 2024-02-02
+## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
 ## Bug Fixes
 

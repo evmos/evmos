@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 )
 
 func TestEvmosExport(t *testing.T) {

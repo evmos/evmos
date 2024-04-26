@@ -10,10 +10,10 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var (
@@ -165,7 +165,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// ---------------------------
 	// Test blocked address
 	suite.Run("fail - blocked address", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 		msg := &types.MsgFundVestingAccount{
 			FunderAddress:  funder.String(),
 			VestingAddress: authtypes.NewModuleAddress("transfer").String(),
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// Test wrong funder by first creating a clawback vesting account
 	// and then trying to fund it with a different funder
 	suite.Run("fail - wrong funder", func() {
-		suite.SetupTest()
+		suite.Require().NoError(suite.SetupTest())
 
 		// fund the recipient account to set the account
 		err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
@@ -598,7 +598,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
-	suite.SetupTest()
+	suite.Require().NoError(suite.SetupTest())
 
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
@@ -697,7 +697,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset
+			suite.Require().NoError(suite.SetupTest()) // reset
 			acc := tc.malleate()
 
 			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())

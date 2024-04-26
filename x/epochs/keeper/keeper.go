@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/epochs/types"
 )
 
 // Keeper of this module maintains collections of epochs and hooks.

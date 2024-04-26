@@ -4,12 +4,13 @@
 package keeper_test
 
 import (
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
+	"slices"
+
+	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {

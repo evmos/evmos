@@ -13,6 +13,7 @@ name: "CodeQL"
 
 on:
   pull_request:
+permissions: read-all
 
 jobs:
   analyze:

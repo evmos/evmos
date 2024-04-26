@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/epochs/types"
 )
 
 func TestEpochLifeCycle(t *testing.T) {

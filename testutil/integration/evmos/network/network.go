@@ -12,8 +12,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -26,11 +26,11 @@ import (
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.

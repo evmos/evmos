@@ -3,10 +3,10 @@ package keeper_test
 import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestNewKeeper() {

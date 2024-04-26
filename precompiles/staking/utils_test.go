@@ -3,36 +3,44 @@ package staking_test
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
+
+// stipend to pay EVM tx fees
+var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
 func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, granter, grantee testkeyring.Key, msgType string, amount *big.Int) {
@@ -391,4 +399,39 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
+}
+
+// setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
+// using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc sdk.AccAddress) *vestingtypes.ClawbackVestingAccount {
+	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+
+	ctx := s.network.GetContext()
+	vestingStart := ctx.BlockTime()
+	baseAccount := authtypes.NewBaseAccountWithAddress(vestAcc.Bytes())
+	clawbackAccount := vestingtypes.NewClawbackVestingAccount(
+		baseAccount,
+		funder,
+		vestingAmtTotal,
+		vestingStart,
+		evmosutil.TestVestingSchedule.LockupPeriods,
+		evmosutil.TestVestingSchedule.VestingPeriods,
+	)
+
+	err := evmosutil.FundAccount(ctx, s.network.App.BankKeeper, clawbackAccount.GetAddress(), vestingAmtTotal)
+	Expect(err).To(BeNil())
+	acc := s.network.App.AccountKeeper.NewAccount(ctx, clawbackAccount)
+	s.network.App.AccountKeeper.SetAccount(ctx, acc)
+
+	// Check all coins are locked up
+	lockedUp := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
+	Expect(vestingAmtTotal).To(Equal(lockedUp))
+
+	// Grant gas stipend to cover EVM fees
+	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
+	Expect(err).To(BeNil())
+	granteeBalance := s.network.App.BankKeeper.GetBalance(ctx, clawbackAccount.GetAddress(), s.bondDenom)
+	Expect(granteeBalance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
+
+	return clawbackAccount
 }

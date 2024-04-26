@@ -11,13 +11,13 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	"github.com/evmos/evmos/v16/precompiles/bech32"
-	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
-	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
-	"github.com/evmos/evmos/v16/precompiles/p256"
-	"github.com/evmos/evmos/v16/utils"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v18/precompiles/bech32"
+	osmosisoutpost "github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
+	strideoutpost "github.com/evmos/evmos/v18/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v18/precompiles/p256"
+	"github.com/evmos/evmos/v18/utils"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v16.0.0

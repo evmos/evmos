@@ -11,12 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/crypto/hd"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/crypto/hd"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 
 	"github.com/spf13/cobra"
 

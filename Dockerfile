@@ -1,7 +1,7 @@
 FROM golang:1.22.2-alpine3.18 AS build-env
 
 ARG DB_BACKEND=goleveldb
-ARG ROCKSDB_VERSION="8.9.1"
+ARG ROCKSDB_VERSION="8.11.3"
 
 WORKDIR /go/src/github.com/evmos/evmos
 
@@ -49,5 +49,6 @@ USER 1000
 WORKDIR /home/evmos
 
 EXPOSE 26656 26657 1317 9090 8545 8546
+HEALTHCHECK CMD curl --fail http://localhost:26657 || exit 1
 
 CMD ["evmosd"]

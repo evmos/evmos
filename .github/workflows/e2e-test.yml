@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - release/**
+permissions: read-all
 
 jobs:
   test-e2e:
@@ -14,7 +15,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.22'
           check-latest: true
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
@@ -80,6 +81,8 @@ jobs:
           echo "Test matrix: ${TEST_FILES}"
   test-nix:
     needs: test-files-matrix
+    permissions:
+      contents: write       
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -125,7 +128,7 @@ jobs:
         run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v5   
         with:
           commit_message: update gomod2nix.toml file
           file_pattern: '*.toml'

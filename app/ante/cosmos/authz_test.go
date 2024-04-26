@@ -18,11 +18,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
-	testutil "github.com/evmos/evmos/v16/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
+	testutil "github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func TestAuthzLimiterDecorator(t *testing.T) {

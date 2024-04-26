@@ -92,8 +92,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
@@ -121,40 +120,43 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v16/client/docs/statik"
+	_ "github.com/evmos/evmos/v18/client/docs/statik"
 
-	"github.com/evmos/evmos/v16/app/ante"
-	ethante "github.com/evmos/evmos/v16/app/ante/evm"
-	"github.com/evmos/evmos/v16/app/post"
-	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
-	"github.com/evmos/evmos/v16/precompiles/common"
-	srvflags "github.com/evmos/evmos/v16/server/flags"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v16/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	"github.com/evmos/evmos/v16/x/erc20"
-	erc20client "github.com/evmos/evmos/v16/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	"github.com/evmos/evmos/v16/x/evm"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"github.com/evmos/evmos/v16/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v16/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	"github.com/evmos/evmos/v16/x/vesting"
-	vestingclient "github.com/evmos/evmos/v16/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v18/app/ante"
+	ethante "github.com/evmos/evmos/v18/app/ante/evm"
+	"github.com/evmos/evmos/v18/app/post"
+	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
+	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
+	"github.com/evmos/evmos/v18/ethereum/eip712"
+	"github.com/evmos/evmos/v18/precompiles/common"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/erc20"
+	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/evm"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v18/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	inflation "github.com/evmos/evmos/v18/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	staking "github.com/evmos/evmos/v18/x/staking"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	"github.com/evmos/evmos/v18/x/vesting"
+	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v16/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v18/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -193,7 +195,7 @@ var (
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
@@ -565,6 +567,12 @@ func NewEvmos(
 		),
 	)
 
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
+		),
+	)
+
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
@@ -657,12 +665,12 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper,
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper),
 	)
 
 	// NOTE: upgrade module is required to be prioritized
@@ -866,7 +874,7 @@ func NewEvmos(
 			// 	 This can happen with memiavl async-commit.
 			// The latter case is not harmful, so we can relax the checking to improve UX.
 			if v1 > 0 && v1 < v2 {
-				tmos.Exit(fmt.Sprintf("versiondb lastest version %d lag behind iavl latest version %d", v1, v2))
+				tmos.Exit(fmt.Sprintf("latest version of version-db (%d) lags behind iavl's latest version (%d)", v1, v2))
 			}
 		}
 	}
@@ -1211,6 +1219,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v17.UpgradeName,
 		v17.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v18 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v18.UpgradeName,
+		v18.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)

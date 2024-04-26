@@ -16,12 +16,12 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	commonfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // TxFactory defines a struct that can build and broadcast transactions for the Evmos

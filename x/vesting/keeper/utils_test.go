@@ -20,19 +20,18 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v16/app"
-	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v16/app/ante/evm"
-	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v18/app"
+	evmante "github.com/evmos/evmos/v18/app/ante/evm"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -105,7 +104,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr.String(), priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
 	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, valAddr)
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
@@ -221,15 +220,6 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 		// Use GreaterOrEqual because the gas fee is non-recoverable
 		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(amount).Amount.Uint64(), gb.Amount.Uint64())
 	}
-}
-
-// delegate is a helper function which creates a message to delegate a given amount of tokens
-// to a validator and checks if the Cosmos vesting delegation decorator returns no error.
-func delegate(account TestClawbackAccount, coins sdk.Coins) (*stakingtypes.MsgDelegate, error) {
-	msg := stakingtypes.NewMsgDelegate(account.address.String(), s.validator.GetOperator(), coins[0])
-	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, s.app.BankKeeper, types.ModuleCdc)
-	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msg)
-	return msg, err
 }
 
 // validateEthVestingTransactionDecorator is a helper function to execute the eth vesting transaction decorator

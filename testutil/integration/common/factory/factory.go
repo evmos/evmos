@@ -5,8 +5,8 @@ package factory
 
 import (
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 )
 
 const (

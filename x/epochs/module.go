@@ -21,8 +21,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v16/x/epochs/keeper"
-	"github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/epochs/keeper"
+	"github.com/evmos/evmos/v18/x/epochs/types"
 )
 
 // consensusVersion defines the current x/epochs module consensus version.

@@ -11,8 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	commonfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 type VestingTxFactory interface {

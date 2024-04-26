@@ -19,11 +19,11 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
-	"github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/ethereum/eip712"
+	"github.com/evmos/evmos/v18/types"
 
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 var evmosCodec codec.ProtoCodecMarshaler
@@ -197,11 +197,11 @@ func VerifySignature(
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if !ok {
-			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesnt contain any extensions")
+			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesn't contain any extensions")
 		}
 		opts := txWithExtensions.GetExtensionOptions()
 		if len(opts) != 1 {
-			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesnt contain expected amount of extension options")
+			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesn't contain expected amount of extension options")
 		}
 
 		extOpt, ok := opts[0].GetCachedValue().(*types.ExtensionOptionsWeb3Tx)
