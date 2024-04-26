@@ -119,10 +119,9 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 // newCosmosAnteHandler creates the default ante handler for Cosmos transactions
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		cosmosante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
+		cosmosante.NewRejectMessagesDecorator(BlockedMessages()), // reject MsgEthereumTxs
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
+			BlockedMessages()...,
 		),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
