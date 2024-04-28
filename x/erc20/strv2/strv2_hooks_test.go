@@ -45,7 +45,7 @@ func TestDepositWEVMOS(t *testing.T) {
 		malleate    func(suite *STRV2WEVMOSHooksTestSuite) error
 		expFound    bool
 		errContains string
-		chainId     string
+		chainID     string
 	}{
 		{
 			name: "found - deposit WEVMOS",
@@ -66,7 +66,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainId:  "test_9000-1",
+			chainID:  "test_9000-1",
 		},
 		{
 			name: "found - should not fail if address already there while deposit WEVMOS",
@@ -87,7 +87,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainId:  "test_9000-1",
+			chainID:  "test_9000-1",
 		},
 		{
 			name: "not found - should not register since its not expected contract",
@@ -106,7 +106,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: false,
-			chainId:  "evmos_9000-1",
+			chainID:  "evmos_9000-1",
 		},
 	}
 
@@ -118,7 +118,7 @@ func TestDepositWEVMOS(t *testing.T) {
 
 			// Set up a new network
 			nw := network.NewUnitTestNetwork(
-				network.WithChainID(tc.chainId),
+				network.WithChainID(tc.chainID),
 				network.WithPreFundedAccounts(kr.GetAllAccAddrs()...),
 			)
 			handler := grpchandler.NewIntegrationHandler(nw)
@@ -161,7 +161,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 		malleate    func(suite *STRV2WEVMOSHooksTestSuite) error
 		expFound    bool
 		errContains string
-		chainId     string
+		chainID     string
 	}{
 		{
 			name: "found - withdraw WEVMOS",
@@ -197,7 +197,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainId:  "test_9000-1",
+			chainID:  "test_9000-1",
 		},
 		{
 			name: "found - with address already registered - withdraw WEVMOS",
@@ -230,7 +230,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainId:  "test_9000-1",
+			chainID:  "test_9000-1",
 		},
 		{
 			name: "not found - wrong contract - withdraw WEVMOS",
@@ -263,7 +263,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: false,
-			chainId:  "evmos_9000-1",
+			chainID:  "evmos_9000-1",
 		},
 	}
 

@@ -16,8 +16,8 @@ import (
 	// "github.com/evmos/evmos/v18/x/erc20/keeper/testdata"
 	// erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive
+	. "github.com/onsi/gomega"    //nolint:revive
 	"github.com/pkg/errors"
 )
 
@@ -36,7 +36,6 @@ type STRv2TrackingSuite struct {
 	nativeCoinERC20Addr   common.Address
 	registeredERC20Addr   common.Address
 	unregisteredERC20Addr common.Address
-	wevmosAddr            common.Address
 }
 
 func CreateTestSuite(chainID string) (*STRv2TrackingSuite, error) {

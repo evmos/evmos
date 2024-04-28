@@ -120,16 +120,7 @@ func (k Keeper) PostProcessTransferEvent(
 
 	// Check that the contract is a registered token pair
 	contractAddr := log.Address
-
-	var isWevmos bool
-	if utils.IsMainnet(ctx.ChainID()) {
-		isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractMainnet
-	} else if utils.IsTestnet(ctx.ChainID()) {
-		isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractTestnet
-	} else if utils.IsTesting(ctx.ChainID()) {
-		isWevmos = true
-	}
-
+	isWevmos := getIsWevmos(ctx, contractAddr)
 	var pair types.TokenPair
 	var found bool
 	if !isWevmos {
@@ -224,7 +215,7 @@ func (k Keeper) PostProcessTransferEvent(
 
 func (k Keeper) PostProcessWithdrawDepositEvent(
 	ctx sdk.Context,
-	receipt *ethtypes.Receipt,
+	_ *ethtypes.Receipt,
 	log *ethtypes.Log,
 ) {
 	wevmos := contracts.WEVMOSContract.ABI
@@ -259,15 +250,7 @@ func (k Keeper) PostProcessWithdrawDepositEvent(
 	// Check that the contract is a registered token pair
 	contractAddr := log.Address
 
-	var isWevmos bool
-	if utils.IsMainnet(ctx.ChainID()) {
-		isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractMainnet
-	} else if utils.IsTestnet(ctx.ChainID()) {
-		isWevmos = contractAddr.String() == erc20precompile.WEVMOSContractTestnet
-	} else if utils.IsTesting(ctx.ChainID()) {
-		isWevmos = true
-	}
-
+	isWevmos := getIsWevmos(ctx, contractAddr)
 	if !isWevmos {
 		return
 	}
@@ -276,5 +259,18 @@ func (k Keeper) PostProcessWithdrawDepositEvent(
 
 	if !k.HasSTRv2Address(ctx, from.Bytes()) {
 		k.SetSTRv2Address(ctx, from.Bytes())
+	}
+}
+
+func getIsWevmos(ctx sdk.Context, contractAddr common.Address) bool {
+	switch {
+	case utils.IsMainnet(ctx.ChainID()):
+		return contractAddr.String() == erc20precompile.WEVMOSContractMainnet
+	case utils.IsTestnet(ctx.ChainID()):
+		return contractAddr.String() == erc20precompile.WEVMOSContractTestnet
+	case utils.IsTesting(ctx.ChainID()):
+		return true
+	default:
+		return false
 	}
 }
