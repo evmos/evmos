@@ -5,7 +5,7 @@ package evmos.inflation.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/inflation/v1/types";
+option go_package = "github.com/evmos/evmos/v18/x/inflation/v1/types";
 
 // InflationDistribution defines the distribution in which inflation is
 // allocated through minting on each epoch (staking, incentives, community). It
@@ -19,7 +19,7 @@ message InflationDistribution {
   // to be allocated as staking rewards
   string staking_rewards = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 
-  //protolint:disable:next FIELDS_HAVE_COMMENT
+  // protolint:disable:next FIELDS_HAVE_COMMENT
 
   // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address

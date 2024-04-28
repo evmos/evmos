@@ -9,16 +9,16 @@ import (
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
-	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
-	evmosutils "github.com/evmos/evmos/v16/testutil"
-	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/ics20"
+	"github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
+	evmosutils "github.com/evmos/evmos/v18/testutil"
+	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v18/testutil/integration/ibc/coordinator"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 func (s *PrecompileTestSuite) TestSwap() {

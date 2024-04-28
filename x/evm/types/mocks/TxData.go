@@ -6,7 +6,7 @@ import (
 	big "math/big"
 
 	common "github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	mock "github.com/stretchr/testify/mock"
 

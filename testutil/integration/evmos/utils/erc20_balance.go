@@ -10,9 +10,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/contracts"
-	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/contracts"
+	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // GetERC20Balance is a helper method to return the balance of the given ERC-20 contract for the given address.

@@ -6,14 +6,14 @@ package stride_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v18/precompiles/erc20"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
-	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v18/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v18/testutil/integration/common/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

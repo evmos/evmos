@@ -6,7 +6,7 @@ package grpc
 import (
 	"context"
 
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // GetTokenPair returns the ERC-20 token pair corresponding to the given token.

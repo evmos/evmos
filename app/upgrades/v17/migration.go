@@ -10,9 +10,9 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
+	"github.com/evmos/evmos/v18/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
 // RunSTRv2Migration converts all the registered ERC-20 tokens of Cosmos native token pairs

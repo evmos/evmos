@@ -5,6 +5,8 @@ on:
     branches:
       - main
 
+permissions: read-all
+
 jobs:
   ante-benchmark-test:
     runs-on: ubuntu-latest

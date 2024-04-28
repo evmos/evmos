@@ -7,15 +7,23 @@ import (
 	"fmt"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+
 	"cosmossdk.io/simapp"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/testutil/mock"
+	"github.com/cosmos/gogoproto/proto"
+
+	sdkmath "cosmossdk.io/math"
+
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
+
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -23,14 +31,15 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/gogoproto/proto"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	evmosutil "github.com/evmos/evmos/v16/utils"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+
+	"github.com/ethereum/go-ethereum/crypto"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+
+	evmosutil "github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -56,9 +65,14 @@ func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
+	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		genAccounts = append(genAccounts, baseAcc)
+		ethAcc := &evmostypes.EthAccount{
+			BaseAccount: baseAcc,
+			CodeHash:    emptyCodeHash,
+		}
+		genAccounts = append(genAccounts, ethAcc)
 	}
 	return genAccounts
 }
