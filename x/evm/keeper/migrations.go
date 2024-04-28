@@ -7,7 +7,7 @@ import (
 	v4 "github.com/evmos/evmos/v18/x/evm/migrations/v4"
 	v5 "github.com/evmos/evmos/v18/x/evm/migrations/v5"
 	v6 "github.com/evmos/evmos/v18/x/evm/migrations/v6"
-    v7 "github.com/evmos/evmos/v18/x/evm/migrations/v7"
+	v7 "github.com/evmos/evmos/v18/x/evm/migrations/v7"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 

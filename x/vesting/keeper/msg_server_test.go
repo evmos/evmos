@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-    sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/evmos/evmos/v18/testutil"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v18/types"
