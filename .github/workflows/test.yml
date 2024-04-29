@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - release/**
+permissions: read-all
 
 jobs:
   cleanup-runs:
@@ -20,7 +21,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: "1.22"
           check-latest: true
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
@@ -58,8 +59,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip' # caching pip dependencies
+          python-version: "3.11"
+          cache: "pip" # caching pip dependencies
         if: env.GIT_DIFF
       - name: Install Pytest
         run: |
