@@ -126,6 +126,7 @@ import (
 	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
+	v20 "github.com/evmos/evmos/v18/app/upgrades/v20"
 	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/ethereum/eip712"
 	"github.com/evmos/evmos/v18/precompiles/common"
@@ -1142,6 +1143,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.UpgradeName,
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
+		),
+	)
+
+	// v19 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v20.UpgradeName,
+		v20.CreateUpgradeHandler(
+			app.mm, app.configurator, app.AccountKeeper, app.BankKeeper, app.Erc20Keeper, app.EvmKeeper,
 		),
 	)
 
