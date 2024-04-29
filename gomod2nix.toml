@@ -305,9 +305,9 @@ schema = 3
   [mod."github.com/go-stack/stack"]
     version = "v1.8.1"
     hash = "sha256-ixcJ2RrK1ZH3YWGQZF9QFBo02NOuLeSp9wJ7gniipgY="
-  [mod."github.com/go-task/slim-sprig"]
-    version = "v0.0.0-20230315185526-52ccab3ef572"
-    hash = "sha256-D6NjCQbcYC53NdwzyAm4i9M1OjTJIVu4EIt3AD/Vxfg="
+  [mod."github.com/go-task/slim-sprig/v3"]
+    version = "v3.0.0"
+    hash = "sha256-vCCw4MXVBm33VNLXcOBccVDD1CSnzDvDdWB6w5FN1cA="
   [mod."github.com/godbus/dbus"]
     version = "v0.0.0-20190726142602-4481cbc300e2"
     hash = "sha256-R7Gb9+Zjy80FbQSDGketoVEqfdOQKuOVTfWRjQ5kxZY="
@@ -342,8 +342,8 @@ schema = 3
     version = "v0.0.1"
     hash = "sha256-KrExYovtUQrHGI1mPQf57jGw8soz7eWOC2xqEaV0uGk="
   [mod."github.com/google/pprof"]
-    version = "v0.0.0-20230228050547-1710fef4ab10"
-    hash = "sha256-ts+I48BUzyra4LFY+qc7I7uPliuMMAh1d1UfANDBqPo="
+    version = "v0.0.0-20240424215950-a892ee059fd6"
+    hash = "sha256-j3nKXUZtSbCVR+/UcMhB8VpgV11ZAf7lpVj1dgn0LSY="
   [mod."github.com/google/s2a-go"]
     version = "v0.1.7"
     hash = "sha256-E+SX/3VmRI5qN7SbnRP4Tt+gQTq93pScpY9U2tTmIU0="
@@ -507,8 +507,8 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.17.1"
-    hash = "sha256-kZgSreUHuYwl6Hh1SHmSasBwbV7qeYeg4BFYoxMchg8="
+    version = "v2.17.2"
+    hash = "sha256-APrPglqYnX2a6EypqDXi05Quou30UQdcDxztT1yhM3s="
   [mod."github.com/onsi/gomega"]
     version = "v1.33.0"
     hash = "sha256-0LMaPjLYtaFy95PdY0oyFo00pN0ZStCvaurUuoPSPIo="
@@ -703,8 +703,8 @@ schema = 3
     version = "v0.17.0"
     hash = "sha256-M2ZZQZt449RJL18YpzGiAiqfGsDVMsr1IVWbYp/G/go="
   [mod."golang.org/x/sync"]
-    version = "v0.6.0"
-    hash = "sha256-LLims/wjDZtIqlYCVHREewcUOX4hwRwplEuZKPOJ/HI="
+    version = "v0.7.0"
+    hash = "sha256-2ETllEu2GDWoOd/yMkOkLC2hWBpKzbVZ8LhjLu0d2A8="
   [mod."golang.org/x/sys"]
     version = "v0.19.0"
     hash = "sha256-cmuL31TYLJmDm/fDnI2Sn0wB88cpdOHV1+urorsJWx4="

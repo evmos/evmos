@@ -256,28 +256,47 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(delRes.DelegationResponses[0].Balance.Amount).To(Equal(vested[0].Amount))
 		})
 
-		It("can delegate tokens from account balance - tokens not in vesting schedule", func() {
+		It("account with free balance - delegates the free balance amount. It is tracked as locked vested tokens for the spendable balance calculation", func() {
 			testAccount := testAccounts[0]
 
 			// send some funds to the account to delegate
 			coinsToDelegate := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e18)))
+			// check that coins to delegate are greater than the locked up vested coins
+			Expect(coinsToDelegate.IsAllGT(vested)).To(BeTrue())
+
 			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, testAccount.address, coinsToDelegate)
 			Expect(err).To(BeNil())
 
+			// the free coins delegated will be the delegatedCoins - lockedUp vested coins
+			freeCoinsDelegated := coinsToDelegate.Sub(vested...)
+
+			initialBalances := s.app.BankKeeper.GetAllBalances(s.ctx, testAccount.address)
+			Expect(initialBalances).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins.Add(coinsToDelegate...).Add(accountGasCoverage...)))
 			// Verify that the total spendable coins should only be coins
 			// not in the vesting schedule. Because all coins from the vesting
-			// schedule are still locked
+			// schedule are still locked up
 			spendablePre := s.app.BankKeeper.SpendableCoins(s.ctx, testAccount.address)
 			Expect(spendablePre).To(Equal(accountGasCoverage.Add(coinsToDelegate...)))
 
-			// delegate funds not in vesting schedule
+			// delegate funds - the delegation amount will be tracked as locked up vested coins delegated + some free coins
 			res, err := testutil.Delegate(s.ctx, s.app, testAccount.privKey, coinsToDelegate[0], s.validator)
 			Expect(err).NotTo(HaveOccurred(), "expected no error during delegation")
 			Expect(res.IsOK()).To(BeTrue())
 
+			// check balances updated properly
+			finalBalances := s.app.BankKeeper.GetAllBalances(s.ctx, testAccount.address)
+			Expect(finalBalances).To(Equal(initialBalances.Sub(coinsToDelegate...).Sub(accountGasCoverage...)))
+
+			// the expected spendable balance will be
+			// spendable = bank balances - (coins in vesting schedule - unlocked vested coins (0) - locked up vested coins delegated)
+			expSpendable := finalBalances.Sub(testutil.TestVestingSchedule.TotalVestingCoins...).Add(vested...)
+
+			// which should be equal to the initial freeCoins - freeCoins delegated
+			Expect(expSpendable).To(Equal(coinsToDelegate.Sub(freeCoinsDelegated...)))
+
 			// check spendable balance is updated properly
 			spendablePost := s.app.BankKeeper.SpendableCoins(s.ctx, testAccount.address)
-			Expect(spendablePost).To(Equal(spendablePre.Sub(coinsToDelegate...).Sub(accountGasCoverage...)))
+			Expect(spendablePost).To(Equal(expSpendable))
 		})
 
 		It("can delegate tokens from account balance (free tokens) + locked vested tokens", func() {
