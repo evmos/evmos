@@ -178,14 +178,9 @@ func ConvertERC20Coins(
 		panic(err)
 	}
 
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
 	// Store in file
 	// file, _ := json.MarshalIndent(jsonExport, "", " ")
-	file, err := os.ReadFile(fmt.Sprint(userHomeDir, "/results-full.json"))
+	file, err := os.ReadFile("./results-full.json")
 	if err != nil {
 		panic(err)
 	}

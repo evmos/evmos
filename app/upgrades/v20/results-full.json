@@ -1,0 +1,27 @@
+[
+ {
+  "Address": "evmos1q04jewhxw4xxu3vlg3rc85240h9q7ns6zh5687",
+  "Balance": "180",
+  "Erc20": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+ },
+ {
+  "Address": "evmos1x7x9pkfxf33l87ftspk5aetwnkr0lvlvyw7zsm",
+  "Balance": "10",
+  "Erc20": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+ },
+ {
+  "Address": "evmos12luku6uxehhak02py4rcz65zu0swh7wj9u9hfh",
+  "Balance": "200",
+  "Erc20": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+ },
+ {
+  "Address": "evmos10z9ephaxvz56jrz8gss9psha6sf96gdwqvuntw",
+  "Balance": "200",
+  "Erc20": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+ },
+ {
+  "Address": "evmos16z0herz998946wr659lr84c8c556da55c86dlp",
+  "Balance": "200",
+  "Erc20": "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+ }
+]

@@ -47,6 +47,15 @@ func (k *Keeper) GetState(ctx sdk.Context, addr common.Address, key common.Hash)
 	return common.BytesToHash(value)
 }
 
+func (k *Keeper) SetStorageDummy(ctx sdk.Context) {
+	k.storage = ctx.KVStore(k.storeKey)
+	// return prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(contractAddr))
+}
+
+func (k *Keeper) GetStoreDummy(ctx sdk.Context, contractAddr common.Address) sdk.KVStore {
+	return prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(contractAddr))
+}
+
 // GetCode loads contract code from database, implements `statedb.Keeper` interface.
 func (k *Keeper) GetCode(ctx sdk.Context, codeHash common.Hash) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)

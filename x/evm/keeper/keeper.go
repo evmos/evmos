@@ -54,6 +54,8 @@ type Keeper struct {
 	// chain ID number obtained from the context's chain id
 	eip155ChainID *big.Int
 
+	storage sdk.KVStore
+
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
 

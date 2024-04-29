@@ -62,7 +62,111 @@ func (k Keeper) ConvertERC20(
 	return nil, types.ErrUndefinedOwner
 }
 
-// convertERC20IntoCoinsForNativeToken handles the erc20 conversion for a native erc20 token
+// convertERC20NativeCoin handles the erc20 conversion for a native Cosmos coin
+// token pair:
+//   - burn escrowed tokens
+//   - unescrow coins that have been previously escrowed with ConvertCoin
+//   - check if coin balance increased by amount
+//   - check if token balance decreased by amount
+func (k Keeper) convertERC20NativeCoin(
+	ctx sdk.Context,
+	pair types.TokenPair,
+	msg *types.MsgConvertERC20,
+	receiver sdk.AccAddress,
+	sender common.Address,
+) (*types.MsgConvertERC20Response, error) {
+	// NOTE: coin fields already validated
+	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	contract := pair.GetERC20Contract()
+	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
+	balanceToken := k.BalanceOf(ctx, erc20, contract, sender)
+	if balanceToken == nil {
+		return nil, errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+
+	// Burn escrowed tokens
+	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "burnCoins", sender, msg.Amount.BigInt())
+	if err != nil {
+		return nil, err
+	}
+
+	// Unescrow coins and send to receiver
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check expected receiver balance after transfer
+	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
+	expCoin := balanceCoin.Add(coins[0])
+	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
+		return nil, errorsmod.Wrapf(
+			types.ErrBalanceInvariance,
+			"invalid coin balance - expected: %v, actual: %v",
+			expCoin, balanceCoinAfter,
+		)
+	}
+
+	// Check expected Sender balance after transfer
+	tokens := coins[0].Amount.BigInt()
+	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, sender)
+	if balanceTokenAfter == nil {
+		return nil, errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+
+	expToken := big.NewInt(0).Sub(balanceToken, tokens)
+	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
+		return nil, errorsmod.Wrapf(
+			types.ErrBalanceInvariance,
+			"invalid token balance - expected: %v, actual: %v",
+			expToken, balanceTokenAfter,
+		)
+	}
+
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver) {
+		k.SetSTRv2Address(ctx, receiver)
+	}
+
+	defer func() {
+		telemetry.IncrCounterWithLabels(
+			[]string{"tx", "msg", "convert", "erc20", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("denom", pair.Denom),
+			},
+		)
+
+		if msg.Amount.IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{"tx", "msg", "convert", "erc20", "amount", "total"},
+				float32(msg.Amount.Int64()),
+				[]metrics.Label{
+					telemetry.NewLabel("denom", pair.Denom),
+				},
+			)
+		}
+	}()
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertERC20,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+			),
+		},
+	)
+
+	return &types.MsgConvertERC20Response{}, nil
+}
+
+// convertERC20NativeToken handles the erc20 conversion for a native erc20 token
 // pair:
 //   - escrow tokens on module account
 //   - mint coins on bank module
