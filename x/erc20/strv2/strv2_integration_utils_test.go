@@ -20,15 +20,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GenesisSetup struct {
-	keyring      testkeyring.Keyring
-	genesisState *testnetwork.CustomGenesisState
-
-	nativeCoinERC20Addr   common.Address
-	registeredERC20Addr   common.Address
-	unregisteredERC20Addr common.Address
-}
-
 func CreateTestSuite(chainID string) (*STRv2TrackingSuite, error) {
 	keyring := testkeyring.New(3)
 
@@ -178,10 +169,6 @@ func CreateTestSuite(chainID string) (*STRv2TrackingSuite, error) {
 	)
 	if err != nil {
 		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to mint ERC-20 tokens")
-	}
-
-	if chainID == "" {
-		chainID = "evmos_9000-1"
 	}
 
 	network.App.Erc20Keeper.DeleteSTRv2Address(network.GetContext(), keyring.GetAccAddr(0))

@@ -71,7 +71,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 	When("sending an EVM transaction", func() {
 		Context("which interacts with a registered native token pair ERC-20 contract", func() {
 			Context("in a direct call to the token pair contract", func() {
-				It("should add the from and to addresses to the store if it is not already stored", func() {
+				It("should add the from and to addresses to the store if it is not already stored", func() { //nolint:all
 					sender := s.keyring.GetKey(0)
 					receiver := s.keyring.GetKey(2)
 
@@ -154,8 +154,7 @@ var _ = Describe("STRv2 Tracking -", func() {
 					receiverAddrTracked = s.network.App.Erc20Keeper.HasSTRv2Address(s.network.GetContext(), receiver.AccAddr)
 					Expect(receiverAddrTracked).To(BeTrue(), "expected address to be still stored")
 				})
-
-				It("should not store anything if calling a different method than transfer or transferFrom", func() {
+				It("should not store anything if calling a different method than transfer or transferFrom", func() { //nolint:all
 					sender := s.keyring.GetKey(0)
 					grantee := s.keyring.GetKey(2)
 
