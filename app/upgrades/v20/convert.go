@@ -26,8 +26,10 @@ import (
 )
 
 // storeKey contains the slot in which the balance is stored in the evm.
-var storeKey []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-var storeKeyWevmos []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
+var (
+	storeKey       []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	storeKeyWevmos []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
+)
 
 type parseTokenPairs = []common.Address
 
@@ -123,7 +125,7 @@ func ConvertERC20Coins(
 	}
 
 	modifiedBalancesAccounts := erc20Keeper.GetAllSTRV2Address(ctx)
-	var modifiedBalancesWallets = make([]string, len(modifiedBalancesAccounts))
+	modifiedBalancesWallets := make([]string, len(modifiedBalancesAccounts))
 	for i, addr := range modifiedBalancesAccounts {
 		modifiedBalancesWallets[i] = addr.String()
 	}

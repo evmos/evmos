@@ -119,7 +119,8 @@ func GetAllMissingWallets() []string {
 }
 
 func GetMissingWalletsFromAuthModule(ctx sdk.Context,
-	accountKeeper authkeeper.AccountKeeper) (Addresses []string) {
+	accountKeeper authkeeper.AccountKeeper,
+) (Addresses []string) {
 	missingWallets := GetAllMissingWallets()
 	for _, wallet := range missingWallets {
 		ethAddr := common.HexToAddress(wallet)

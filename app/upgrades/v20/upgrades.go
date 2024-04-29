@@ -32,6 +32,11 @@ func CreateUpgradeHandler(
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
 
+		uvm, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return uvm, err
+		}
+
 		// Leave modules as-is to avoid running InitGenesis.
 		// Get EVM denomination
 		evmDenom := ek.GetParams(ctx).EvmDenom
@@ -72,6 +77,6 @@ func CreateUpgradeHandler(
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
-		return mm.RunMigrations(ctx, configurator, vm)
+		return uvm, err
 	}
 }
