@@ -40,6 +40,7 @@ type STRv2TrackingSuite struct {
 	nativeCoinERC20Addr   common.Address
 	registeredERC20Addr   common.Address
 	unregisteredERC20Addr common.Address
+	wevmosAddr            common.Address
 }
 
 const (
