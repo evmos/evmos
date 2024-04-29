@@ -8,14 +8,13 @@ import (
 
 	"cosmossdk.io/core/address"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/ethereum/go-ethereum/core"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
@@ -52,7 +51,6 @@ type StakingKeeper interface {
 type FeeMarketKeeper interface {
 	GetBaseFee(ctx sdk.Context) *big.Int
 	GetParams(ctx sdk.Context) feemarkettypes.Params
-	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	CalculateBaseFee(ctx sdk.Context) *big.Int
 }
 

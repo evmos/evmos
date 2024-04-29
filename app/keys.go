@@ -21,13 +21,12 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revenuetypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 // StoreKeys returns the application store keys,
@@ -53,7 +52,6 @@ func StoreKeys() (
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey,
 		epochstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey,
 	}
 
 	keys := storetypes.NewKVStoreKeys(storeKeys...)

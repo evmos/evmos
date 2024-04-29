@@ -14,25 +14,25 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v16/server/config"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/server/config"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error) {
 	defaultArgs := evmtypes.EvmTxArgs{}
 	switch txType {
 	case gethtypes.DynamicFeeTxType:
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	case gethtypes.AccessListTxType:
 		defaultArgs.Accesses = &gethtypes.AccessList{{
 			Address:     sender,
 			StorageKeys: []common.Hash{{0}},
 		}}
 		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	case gethtypes.LegacyTxType:
 		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tf.populateEvmTxArgs(sender, defaultArgs)
+		return tf.populateEvmTxArgsWithDefault(sender, defaultArgs)
 	default:
 		return evmtypes.EvmTxArgs{}, errors.New("tx type not supported")
 	}
@@ -91,7 +91,7 @@ func (tf *IntegrationTxFactory) GenerateMsgEthereumTx(
 ) (evmtypes.MsgEthereumTx, error) {
 	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
 	// Fill TxArgs with default values
-	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
+	txArgs, err := tf.populateEvmTxArgsWithDefault(fromAddr, txArgs)
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
@@ -123,4 +123,40 @@ func (tf *IntegrationTxFactory) GenerateGethCoreMsg(
 		tf.network.GetEIP155ChainID(),
 	)
 	return signedMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
+}
+
+// GenerateContractCallArgs generates the txArgs for a contract call.
+func (tf *IntegrationTxFactory) GenerateContractCallArgs(
+	txArgs evmtypes.EvmTxArgs,
+	callArgs CallArgs,
+) (evmtypes.EvmTxArgs, error) {
+	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+	if err != nil {
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+	}
+	txArgs.Input = input
+	return txArgs, nil
+}
+
+// GenerateDeployContractArgs generates the txArgs for a contract deployment.
+func (tf *IntegrationTxFactory) GenerateDeployContractArgs(
+	from common.Address,
+	txArgs evmtypes.EvmTxArgs,
+	deploymentData ContractDeploymentData,
+) (evmtypes.EvmTxArgs, error) {
+	account, err := tf.grpcHandler.GetEvmAccount(from)
+	if err != nil {
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
+	}
+	txArgs.Nonce = account.GetNonce()
+
+	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
+	if err != nil {
+		return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
+	}
+	data := deploymentData.Contract.Bin
+	data = append(data, ctorArgs...)
+
+	txArgs.Input = data
+	return txArgs, nil
 }

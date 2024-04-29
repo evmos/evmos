@@ -8,15 +8,14 @@ import (
 	"embed"
 	"fmt"
 
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -92,6 +91,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+
+	if err := stateDB.Commit(); err != nil {
+		return nil, err
+	}
 
 	switch method.Name {
 	// Custom transactions

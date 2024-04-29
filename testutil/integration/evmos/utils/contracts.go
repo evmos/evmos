@@ -4,16 +4,15 @@ package utils
 
 import (
 	"fmt"
+	"slices"
 
-	"golang.org/x/exp/slices"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-
-	abcitypes "github.com/cometbft/cometbft/abci/types"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response

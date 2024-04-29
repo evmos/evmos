@@ -6,9 +6,9 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/precompiles/bank"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v18/precompiles/bank"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {

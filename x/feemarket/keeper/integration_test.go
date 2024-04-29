@@ -18,10 +18,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	testutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	fmkttypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	fmkttypes "github.com/evmos/evmos/v18/x/feemarket/types"
 )
 
 type txParams struct {

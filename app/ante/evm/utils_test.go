@@ -29,8 +29,8 @@ import (
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/evmos/evmos/v16/app/ante/testutils"
-	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/app/ante/testutils"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 
 	evtypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
@@ -38,10 +38,10 @@ import (
 
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
-	"github.com/evmos/evmos/v16/testutil"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/ethereum/eip712"
+	"github.com/evmos/evmos/v18/testutil"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, unsetExtensionOptions ...bool) client.TxBuilder {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/vesting"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/vesting"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {
@@ -27,7 +27,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
@@ -39,7 +39,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid type for vestingAddress",
 		},
@@ -51,7 +51,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"is not a vesting account",
 		},

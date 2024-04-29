@@ -9,9 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v16/x/evm/keeper"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/x/evm/keeper"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // LogRecordHook records all the logs
@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 			func() types.EvmHooks {
 				return &FailureHook{}
 			},
-			func(hook types.EvmHooks, result error) {
+			func(_ types.EvmHooks, result error) {
 				suite.Require().Error(result)
 			},
 		},

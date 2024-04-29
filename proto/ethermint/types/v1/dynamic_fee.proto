@@ -3,10 +3,10 @@
 syntax = "proto3";
 package ethermint.types.v1;
 
-import "gogoproto/gogo.proto";
 import "amino/amino.proto";
+import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v16/types";
+option go_package = "github.com/evmos/evmos/v18/types";
 
 // ExtensionOptionDynamicFeeTx is an extension option that specifies the maxPrioPrice for cosmos tx
 message ExtensionOptionDynamicFeeTx {

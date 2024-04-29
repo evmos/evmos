@@ -13,8 +13,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
 )
 
 const (
@@ -50,7 +50,7 @@ func (p Precompile) Delegation(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper.Keeper}
 
 	res, err := queryServer.Delegation(ctx, req)
 	if err != nil {
@@ -84,7 +84,7 @@ func (p Precompile) UnbondingDelegation(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper.Keeper}
 
 	res, err := queryServer.UnbondingDelegation(ctx, req)
 	if err != nil {
@@ -113,7 +113,7 @@ func (p Precompile) Validator(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper.Keeper}
 
 	res, err := queryServer.Validator(ctx, req)
 	if err != nil {
@@ -142,7 +142,7 @@ func (p Precompile) Validators(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper.Keeper}
 
 	res, err := queryServer.Validators(ctx, req)
 	if err != nil {
@@ -188,7 +188,7 @@ func (p Precompile) Redelegations(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper.Keeper}
 
 	res, err := queryServer.Redelegations(ctx, req)
 	if err != nil {

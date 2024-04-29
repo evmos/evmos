@@ -9,11 +9,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/precompiles/bank"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/precompiles/bank"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"

@@ -16,8 +16,8 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v16/ibc"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/ibc"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -55,7 +55,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(data)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
@@ -135,7 +135,7 @@ func (k Keeper) OnRecvPacket(
 	return ack
 }
 
-// OnAcknowledgementPacket responds to the the success or failure of a packet
+// OnAcknowledgementPacket responds to the success or failure of a packet
 // acknowledgement written on the receiving chain. If the acknowledgement was a
 // success then nothing occurs. If the acknowledgement failed, then the sender
 // is refunded and then the IBC Coins are converted to ERC20.

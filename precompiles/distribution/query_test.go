@@ -12,10 +12,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/distribution"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/distribution"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 )
 
 var expValAmount int64 = 1
@@ -35,7 +34,7 @@ var baseTestCases = []distrTestCases{
 		func() []interface{} {
 			return []interface{}{}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid number of arguments",
@@ -47,7 +46,7 @@ var baseTestCases = []distrTestCases{
 				"invalid",
 			}
 		},
-		func(bz []byte) {},
+		func([]byte) {},
 		100000,
 		true,
 		"invalid bech32 string",
@@ -69,7 +68,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -81,7 +80,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 					s.network.GetValidators()[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"no delegation for (address, validator) tuple",
@@ -520,7 +519,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"invalid bech32 string",
@@ -536,7 +535,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					sdk.ValAddress(pk.Address().Bytes()).String(),
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"validator does not exist",
@@ -550,7 +549,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 					s.network.GetValidators()[0].OperatorAddress,
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			"no delegation for (address, validator) tuple",
@@ -635,7 +634,7 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -766,7 +765,7 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
@@ -849,7 +848,7 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 					"invalid",
 				}
 			},
-			func(bz []byte) {},
+			func([]byte) {},
 			100000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),

@@ -5,11 +5,11 @@ package vesting_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/precompiles/vesting"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

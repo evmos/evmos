@@ -3,15 +3,15 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "amino/amino.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/vesting/types";
+option go_package = "github.com/evmos/evmos/v18/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
@@ -133,6 +133,8 @@ message MsgUpdateVestingFunderResponse {}
 
 // MsgConvertVestingAccount defines a message that enables converting a vesting account to an eth account
 message MsgConvertVestingAccount {
+  option (amino.name) = "evmos/MsgConvertVestingAccount";
+  option (cosmos.msg.v1.signer) = "vesting_address";
   // vesting_address is the address of the vesting account to convert
   string vesting_address = 1;
 }

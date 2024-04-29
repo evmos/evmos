@@ -6,12 +6,11 @@ package grpc
 import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
-	commongrpc "github.com/evmos/evmos/v16/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	commongrpc "github.com/evmos/evmos/v18/testutil/integration/common/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // Handler is an interface that defines the methods that are used to query
@@ -31,10 +30,6 @@ type Handler interface {
 	// Gov methods
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
 	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
-
-	// Revenue methods
-	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
-	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
 
 	// Inflation methods
 	GetPeriod() (*infltypes.QueryPeriodResponse, error)

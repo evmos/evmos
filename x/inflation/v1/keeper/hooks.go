@@ -8,12 +8,11 @@ import (
 
 	"github.com/hashicorp/go-metrics"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here
@@ -71,9 +70,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		)
 		return
 	}
-
-	// per proposal 258, subtract 2/3 of the prev issuance
-	epochMintProvision = epochMintProvision.Quo(sdkmath.LegacyNewDec(ReductionFactor))
 
 	mintedCoin := sdk.Coin{
 		Denom:  params.MintDenom,

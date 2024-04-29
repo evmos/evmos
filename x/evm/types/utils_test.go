@@ -14,10 +14,10 @@ import (
 
 	proto "github.com/cosmos/gogoproto/proto"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -86,7 +86,7 @@ func TestBinSearch(t *testing.T) {
 		target := uint64(21000)
 		return gas < target, nil, nil
 	}
-	failedExecutable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
+	failedExecutable := func(_ uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
 		return true, nil, errors.New("contract failed")
 	}
 

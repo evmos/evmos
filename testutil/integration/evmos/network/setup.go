@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -33,14 +33,14 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v16/types"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	evmosutil "github.com/evmos/evmos/v16/utils"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	evmosutil "github.com/evmos/evmos/v18/utils"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // genSetupFn is the type for the module genesis setup functions
@@ -112,12 +112,12 @@ func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSe
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
-	codeHash := crypto.Keccak256Hash(nil).String()
+	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
 		ethAcc := &evmostypes.EthAccount{
 			BaseAccount: baseAcc,
-			CodeHash:    codeHash,
+			CodeHash:    emptyCodeHash,
 		}
 		genAccounts = append(genAccounts, ethAcc)
 	}

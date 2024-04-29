@@ -14,9 +14,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
@@ -162,25 +162,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		// 4. validate basic and updates gas
-		// txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
-		// 	txData.GetTo(),
-		// 	from,
-		// 	decUtils.TxGasLimit,
-		// 	gas,
-		// 	decUtils.EvmParams.EnableCreate,
-		// 	decUtils.EvmParams.EnableCall,
-		// 	decUtils.BaseFee,
-		// 	txData.Fee(),
-		// 	txData.TxType(),
-		// 	decUtils.EvmDenom,
-		// 	decUtils.TxFee,
-		// )
-		// if err != nil {
-		// 	return ctx, err
-		// }
-
-		// 4. validate basic and updates gas
+		// 4. validate msg contents
 		err = ValidateMsg(
 			decUtils.EvmParams,
 			txData,

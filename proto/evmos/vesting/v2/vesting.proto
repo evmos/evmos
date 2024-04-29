@@ -3,12 +3,12 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "amino/amino.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
-import "amino/amino.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/vesting/types";
+option go_package = "github.com/evmos/evmos/v18/x/vesting/types";
 
 // ClawbackVestingAccount implements the VestingAccount interface. It provides
 // an account that can hold contributions subject to "lockup" (like a

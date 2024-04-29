@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"

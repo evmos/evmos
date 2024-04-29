@@ -29,11 +29,11 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
 
-	"github.com/evmos/evmos/v16/rpc/ethereum/pubsub"
-	rpcfilters "github.com/evmos/evmos/v16/rpc/namespaces/ethereum/eth/filters"
-	"github.com/evmos/evmos/v16/rpc/types"
-	"github.com/evmos/evmos/v16/server/config"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/rpc/ethereum/pubsub"
+	rpcfilters "github.com/evmos/evmos/v18/rpc/namespaces/ethereum/eth/filters"
+	"github.com/evmos/evmos/v18/rpc/types"
+	"github.com/evmos/evmos/v18/server/config"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 type WebsocketsServer interface {
@@ -117,7 +117,7 @@ func (s *websocketsServer) Start() {
 
 func (s *websocketsServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
+		CheckOrigin: func(_ *http.Request) bool {
 			return true
 		},
 	}

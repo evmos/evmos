@@ -7,16 +7,10 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v16/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
 
-	utils "github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
-)
-
-const (
-	// ReductionFactor is the value used as denominator to divide the provision amount computed
-	// with the CalculateEpochMintProvision function.
-	ReductionFactor = 3
+	utils "github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 // 200M token at year 4 allocated to the team
@@ -186,5 +180,5 @@ func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
 		k.GetPeriod(ctx),
 		k.GetEpochsPerPeriod(ctx),
 		bondedRadio,
-	).Quo(math.LegacyNewDec(ReductionFactor))
+	).Quo(math.LegacyNewDec(types.ReductionFactor))
 }

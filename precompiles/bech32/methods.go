@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
 )
 
 const (
@@ -48,7 +48,7 @@ func (p Precompile) HexToBech32(
 		)
 	}
 
-	// NOTE: safety check, should not happen given that the address is is 20 bytes.
+	// NOTE: safety check, should not happen given that the address is 20 bytes.
 	if err := sdk.VerifyAddressFormat(address.Bytes()); err != nil {
 		return nil, err
 	}

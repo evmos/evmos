@@ -12,10 +12,10 @@ import (
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	erc20 "github.com/evmos/evmos/v16/precompiles/erc20"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	erc20 "github.com/evmos/evmos/v18/precompiles/erc20"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the WERC-20 precompile ABI JSON file.
@@ -114,10 +114,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
-		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+		bz, err = p.Deposit()
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
-		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+		bz, err = p.Withdraw()
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)

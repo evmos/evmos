@@ -3,11 +3,11 @@ package utils_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/app"
-	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
-	"github.com/evmos/evmos/v16/testutil"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/app"
+	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
+	"github.com/evmos/evmos/v18/testutil"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 // TestClaimStakingRewardsIfNecessary tests the ClaimStakingRewardsIfNecessary function
@@ -117,20 +117,20 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		},
 		{
 			name:        "fail - insufficient staking rewards to withdraw",
-			malleate:    func(addr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress) {},
 			amount:      sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1000)}},
 			expErr:      true,
 			errContains: "insufficient staking rewards to cover transaction fees",
 		},
 		{
 			name:     "pass - zero amount to be claimed",
-			malleate: func(addr sdk.AccAddress) {},
+			malleate: func(sdk.AccAddress) {},
 			amount:   sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.ZeroInt()}},
 			expErr:   false,
 		},
 		{
 			name:        "fail - wrong coin denom",
-			malleate:    func(addr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress) {},
 			amount:      sdk.Coins{sdk.Coin{Denom: "wrongCoin", Amount: math.NewInt(1000)}},
 			expErr:      true,
 			errContains: "wrong fee denomination",

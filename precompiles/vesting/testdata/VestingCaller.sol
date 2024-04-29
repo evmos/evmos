@@ -92,7 +92,11 @@ contract VestingCaller {
 
     /// @dev Defines a method to test getting the balances of a vesting account.
     /// @param vestingAddr The address of the vesting account.
-    function balances(address vestingAddr) public view returns (Coin[] memory locked, Coin[] memory unvested, Coin[] memory vested) {
+    function balances(address vestingAddr) public view returns (
+        Coin[] memory locked, 
+        Coin[] memory unvested, 
+        Coin[] memory vested
+    ) {
         return vesting.VESTING_CONTRACT.balances(vestingAddr);
     }
 }

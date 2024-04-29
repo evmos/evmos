@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"time"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 
@@ -14,12 +14,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {

@@ -11,12 +11,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 type UpdateParamsInput struct {
@@ -32,12 +31,6 @@ var authority = authtypes.NewModuleAddress(govtypes.ModuleName).String()
 // It submits an update params proposal, votes for it, and waits till it passes
 func UpdateEvmParams(input UpdateParamsInput) error {
 	return updateModuleParams[evmtypes.Params](input, evmtypes.ModuleName)
-}
-
-// UpdateRevenueParams helper function to update the revenue module parameters
-// It submits an update params proposal, votes for it, and waits till it passes
-func UpdateRevenueParams(input UpdateParamsInput) error {
-	return updateModuleParams[revtypes.Params](input, revtypes.ModuleName)
 }
 
 // UpdateInflationParams helper function to update the inflation module parameters
@@ -82,8 +75,6 @@ func createProposalMsg(params interface{}, name string) sdk.Msg {
 	switch name {
 	case evmtypes.ModuleName:
 		return &evmtypes.MsgUpdateParams{Authority: authority, Params: params.(evmtypes.Params)}
-	case revtypes.ModuleName:
-		return &revtypes.MsgUpdateParams{Authority: authority, Params: params.(revtypes.Params)}
 	case infltypes.ModuleName:
 		return &infltypes.MsgUpdateParams{Authority: authority, Params: params.(infltypes.Params)}
 	case govtypes.ModuleName:

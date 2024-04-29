@@ -7,8 +7,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 )
 
 // WaitToAccrueRewards is a helper function that waits for rewards to

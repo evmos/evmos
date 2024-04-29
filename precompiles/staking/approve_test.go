@@ -5,20 +5,20 @@ import (
 	"math/big"
 	"time"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -70,7 +70,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		//			[]string{"invalid"},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -413,7 +413,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",
@@ -564,7 +564,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 		//			[]string{staking.DelegateMsg},
 		//		}
 		//	},
-		//	func(data []byte, inputArgs []interface{}) {},
+		//	(data []byte inputArgs []interface{}) {},
 		//	200000,
 		//	true,
 		//	"is the same as spender",

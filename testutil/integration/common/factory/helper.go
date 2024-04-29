@@ -61,9 +61,12 @@ func (tf *baseTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArg
 	}
 	txBuilder.SetGasLimit(gasLimit)
 
-	fees, err := tf.calculateFees(txArgs.GasPrice, gasLimit)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to calculate fees")
+	fees := txArgs.Fees
+	if fees.IsZero() {
+		fees, err = tf.calculateFees(txArgs.GasPrice, gasLimit)
+		if err != nil {
+			return nil, errorsmod.Wrap(err, "failed to calculate fees")
+		}
 	}
 	txBuilder.SetFeeAmount(fees)
 

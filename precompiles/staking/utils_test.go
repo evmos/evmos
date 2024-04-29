@@ -3,35 +3,48 @@ package staking_test
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"time"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	cmnfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	"golang.org/x/exp/slices"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+)
+
+// stipend to pay EVM tx fees
+var (
+	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
+	gas                = uint64(200_000)
+	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(utils.BaseDenom)
 )
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
@@ -391,4 +404,61 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
+}
+
+// setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
+// using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc keyring.Key) *vestingtypes.ClawbackVestingAccount {
+	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+	ctx := s.network.GetContext()
+
+	// send some funds to the vesting acccount to pay for fees
+	err := s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 1. Create vesting account
+	createAccMsg := vestingtypes.NewMsgCreateClawbackVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
+		false,
+	)
+
+	_, err = s.factory.ExecuteCosmosTx(vestAcc.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}, Gas: &gas, GasPrice: &gasPrices})
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 2. Funder funds the vesting account
+	vestingStart := ctx.BlockTime()
+	fundMsg := vestingtypes.NewMsgFundVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
+		vestingStart,
+		evmosutil.TestVestingSchedule.LockupPeriods,
+		evmosutil.TestVestingSchedule.VestingPeriods,
+	)
+	_, err = s.factory.ExecuteCosmosTx(funder.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{fundMsg}})
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	acc, err := s.grpcHandler.GetAccount(vestAcc.AccAddr.String())
+	Expect(err).To(BeNil())
+
+	clawbackAccount, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+	Expect(ok).To(BeTrue(), "account should be a ClawbackVestingAccount")
+
+	// Check all coins are locked up
+	lockedUp := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
+	Expect(vestingAmtTotal).To(Equal(lockedUp))
+
+	// Grant gas stipend to cover EVM fees
+	err = s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+	Expect(err).To(BeNil())
+	Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
+
+	return clawbackAccount
 }

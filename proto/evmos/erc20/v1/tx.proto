@@ -3,15 +3,15 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "amino/amino.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/erc20/types";
+option go_package = "github.com/evmos/evmos/v18/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {

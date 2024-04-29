@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - release/**
+permissions: read-all
 
 jobs:
   cleanup-runs:
@@ -20,12 +21,13 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: "1.22"
           check-latest: true
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
+            .github/workflows/test.yml
             **/**.sol
             **/**.go
             go.mod
@@ -35,11 +37,15 @@ jobs:
         run: |
           make test-unit-cover
         if: env.GIT_DIFF
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           file: ./coverage.txt
-          fail_ci_if_error: true
+          # We were getting a 500 error on codecov servers
+          # so we decided to avoid blocking the CI if this fails
+          fail_ci_if_error: false
         if: env.GIT_DIFF
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-scripts:
     runs-on: ubuntu-latest
@@ -48,12 +54,13 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
+            .github/workflows/test.yml
             ./scripts/**
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip' # caching pip dependencies
+          python-version: "3.11"
+          cache: "pip" # caching pip dependencies
         if: env.GIT_DIFF
       - name: Install Pytest
         run: |

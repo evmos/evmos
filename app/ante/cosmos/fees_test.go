@@ -6,12 +6,12 @@ import (
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/app"
-	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
-	"github.com/evmos/evmos/v16/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/app"
+	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
+	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 type deductFeeDecoratorTestCase struct {
@@ -217,7 +217,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
-			errContains: fmt.Sprintf("%s does not not allow to pay fees for %s", fgAddr, addr),
+			errContains: fmt.Sprintf("%s does not allow to pay fees for %s", fgAddr, addr),
 		},
 		{
 			name:        "success - with authorized fee granter",

@@ -2,6 +2,7 @@ name: Slither Analysis
 
 on:
   pull_request:
+permissions: read-all
 
 jobs:
   analyze:
@@ -23,7 +24,7 @@ jobs:
           cd contracts && npm i
           cp -r node_modules/@openzeppelin .
       - name: Run Slither Action
-        uses: crytic/slither-action@v0.3.0
+        uses: crytic/slither-action@v0.3.2
         continue-on-error: true
         id: slither
         with:

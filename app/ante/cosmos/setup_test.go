@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v16/app/ante/testutils"
+	"github.com/evmos/evmos/v18/app/ante/testutils"
 )
 
 type AnteTestSuite struct {

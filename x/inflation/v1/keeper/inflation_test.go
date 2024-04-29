@@ -8,12 +8,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -120,13 +119,13 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 			"high supply",
 			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
-			math.LegacyMustNewDecFromStr("51.562500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
+			math.LegacyMustNewDecFromStr("5.729166666666666700"),
 		},
 		{
 			"low supply",
 			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
 			func() {},
-			math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
+			math.LegacyMustNewDecFromStr("17.187500000000000000"),
 		},
 		{
 			"zero circulating supply",

@@ -13,14 +13,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v16/testutil"
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	"github.com/evmos/evmos/v18/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var (
@@ -64,7 +64,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -150,7 +150,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 5, 0),
 		},
@@ -239,7 +239,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -319,7 +319,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
@@ -407,7 +407,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				return []interface{}{}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
@@ -419,7 +419,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				}
 			},
 			200000,
-			func(data []byte) {},
+			func([]byte) {},
 			true,
 			"invalid type for vestingAddress",
 		},

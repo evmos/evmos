@@ -12,12 +12,12 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	"github.com/evmos/evmos/v16/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/vesting/types"
+	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var (
@@ -230,7 +230,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 	}{
 		{
 			name:        "fail - account does not exist",
-			malleate:    func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {},
+			malleate:    func(sdk.AccAddress, sdk.AccAddress) {},
 			funder:      funderAddr,
 			vestingAddr: vestingAddr,
 			expPass:     false,
@@ -238,7 +238,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		},
 		{
 			name: "fail - account is not an eth account",
-			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
+			malleate: func(_ sdk.AccAddress, vestingAddr sdk.AccAddress) {
 				acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
 				acc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
 				nw.App.AccountKeeper.SetAccount(ctx, acc)
@@ -268,7 +268,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		},
 		{
 			name: "fail - vesting address is in the blocked addresses list",
-			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
+			malleate: func(funder sdk.AccAddress, _ sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
 				require.NoError(t, err)

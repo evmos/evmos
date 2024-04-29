@@ -12,10 +12,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	integrationutils "github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	integrationutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 var (
@@ -442,7 +441,7 @@ var _ = Describe("Inflation", Ordered, func() {
 							provisionAfterRes, err := s.handler.GetEpochMintProvision()
 							Expect(err).To(BeNil(), "failed to get epoch mint provision")
 							Expect(provisionAfterRes.EpochMintProvision.Amount).ToNot(Equal(provision))
-							Expect(provisionAfterRes.EpochMintProvision.Amount).To(Equal(math.LegacyMustNewDecFromStr("436643835616438356164384").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))))
+							Expect(provisionAfterRes.EpochMintProvision.Amount).To(Equal(math.LegacyMustNewDecFromStr("145547945205479452054795").Quo(math.LegacyNewDec(types.ReductionFactor))))
 						})
 					})
 				})

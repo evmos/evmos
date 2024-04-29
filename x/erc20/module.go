@@ -19,8 +19,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	"github.com/evmos/evmos/v16/x/erc20/keeper"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/erc20/keeper"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // consensusVersion defines the current x/erc20 module consensus version.

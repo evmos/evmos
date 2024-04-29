@@ -3,15 +3,15 @@
 syntax = "proto3";
 package ethermint.evm.v1;
 
+import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "ethermint/evm/v1/evm.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
-import "amino/amino.proto";
 
-option go_package = "github.com/evmos/evmos/v16/x/evm/types";
+option go_package = "github.com/evmos/evmos/v18/x/evm/types";
 
 // Msg defines the evm Msg service.
 service Msg {
@@ -136,7 +136,7 @@ message DynamicFeeTx {
   uint64 gas = 5 [(gogoproto.customname) = "GasLimit"];
   // to is the hex formatted address of the recipient
   string to = 6;
-  // value defines the the transaction amount.
+  // value defines the transaction amount.
   string value = 7 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.customname) = "Amount"];
   // data is the data payload bytes of the transaction.
   bytes data = 8;

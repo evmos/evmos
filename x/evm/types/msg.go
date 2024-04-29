@@ -22,8 +22,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	evmapi "github.com/evmos/evmos/v16/api/ethermint/evm/v1"
-	"github.com/evmos/evmos/v16/types"
+	evmapi "github.com/evmos/evmos/v18/api/ethermint/evm/v1"
+	"github.com/evmos/evmos/v18/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"

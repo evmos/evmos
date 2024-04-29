@@ -50,18 +50,18 @@ import (
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	evmosclient "github.com/evmos/evmos/v16/client"
-	"github.com/evmos/evmos/v16/client/block"
-	"github.com/evmos/evmos/v16/client/debug"
-	"github.com/evmos/evmos/v16/encoding"
-	"github.com/evmos/evmos/v16/ethereum/eip712"
-	evmosserver "github.com/evmos/evmos/v16/server"
-	servercfg "github.com/evmos/evmos/v16/server/config"
-	srvflags "github.com/evmos/evmos/v16/server/flags"
+	evmosclient "github.com/evmos/evmos/v18/client"
+	"github.com/evmos/evmos/v18/client/block"
+	"github.com/evmos/evmos/v18/client/debug"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v18/server"
+	servercfg "github.com/evmos/evmos/v18/server/config"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
 
-	"github.com/evmos/evmos/v16/app"
-	cmdcfg "github.com/evmos/evmos/v16/cmd/config"
-	evmoskr "github.com/evmos/evmos/v16/crypto/keyring"
+	"github.com/evmos/evmos/v18/app"
+	cmdcfg "github.com/evmos/evmos/v18/cmd/config"
+	evmoskr "github.com/evmos/evmos/v18/crypto/keyring"
 )
 
 const (

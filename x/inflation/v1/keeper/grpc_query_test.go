@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v16/x/inflation/v1/types"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 func TestPeriod(t *testing.T) { //nolint:dupl
@@ -70,10 +70,11 @@ func TestPeriod(t *testing.T) { //nolint:dupl
 
 func TestEpochMintProvision(t *testing.T) {
 	var (
-		ctx    sdk.Context
-		nw     *network.UnitTestNetwork
-		req    *types.QueryEpochMintProvisionRequest
-		expRes *types.QueryEpochMintProvisionResponse
+		ctx         sdk.Context
+		nw          *network.UnitTestNetwork
+		req         *types.QueryEpochMintProvisionRequest
+		expRes      *types.QueryEpochMintProvisionResponse
+		bondedRatio math.LegacyDec
 	)
 
 	testCases := []struct {
@@ -89,11 +90,12 @@ func TestEpochMintProvision(t *testing.T) {
 					params,
 					uint64(0),
 					365,
-					math.LegacyOneDec(),
-				).Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+					bondedRatio,
+				)
+				expEpochMintProvision := defaultEpochMintProvision.Quo(math.LegacyNewDec(types.ReductionFactor))
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
+					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, expEpochMintProvision),
 				}
 			},
 			true,
@@ -102,9 +104,14 @@ func TestEpochMintProvision(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			// reset
-			nw = network.NewUnitTestNetwork()
+			nw = network.NewUnitTestNetwork(network.WithChainID(utils.TestnetChainID + "-1"))
 			ctx = nw.GetContext()
 			qc := nw.GetInflationClient()
+
+			// get bonded ratio
+			var err error
+			bondedRatio, err = nw.App.InflationKeeper.BondedRatio(ctx)
+			require.NoError(t, err)
 
 			tc.malleate()
 
@@ -225,7 +232,7 @@ func TestQueryInflationRate(t *testing.T) {
 	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
 	require.NoError(t, err)
 
-	expInflationRate := math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor))
+	expInflationRate := math.LegacyMustNewDecFromStr("51.5625").Quo(math.LegacyNewDec(types.ReductionFactor))
 	res, err := qc.InflationRate(ctx, &types.QueryInflationRateRequest{})
 	require.NoError(t, err)
 	require.Equal(t, expInflationRate, res.InflationRate)

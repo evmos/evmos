@@ -6,9 +6,9 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v16/precompiles/staking"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 type stakingRewards struct {

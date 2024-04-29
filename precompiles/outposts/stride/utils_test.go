@@ -6,14 +6,14 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
-	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
+	"github.com/evmos/evmos/v18/testutil/integration/ibc/coordinator"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 const (
@@ -96,7 +96,7 @@ func (s *PrecompileTestSuite) setupIBCCoordinator() {
 	)
 
 	IBCCoordinator.SetDefaultSignerForChain(s.network.GetChainID(), ibcSenderPrivKey, ibcAcc)
-	IBCCoordinator.Setup(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIds()[0])
+	IBCCoordinator.Setup(s.network.GetChainID(), IBCCoordinator.GetDummyChainsIDs()[0])
 
 	err = IBCCoordinator.CommitAll()
 	s.Require().NoError(err)

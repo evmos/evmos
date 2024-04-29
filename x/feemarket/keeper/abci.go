@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v18/x/feemarket/types"
 
 	"cosmossdk.io/math"
 
