@@ -6,9 +6,7 @@ package strv2_test
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
 	commonfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
@@ -17,28 +15,14 @@ import (
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/erc20"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	"github.com/evmos/evmos/v18/x/evm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/pkg/errors"
 )
 
-type GenesisSetup struct {
-	keyring      testkeyring.Keyring
-	genesisState *testnetwork.CustomGenesisState
+func CreateTestSuite(chainID string) (*STRv2TrackingSuite, error) {
+	keyring := testkeyring.New(3)
 
-	nativeCoinERC20Addr   common.Address
-	registeredERC20Addr   common.Address
-	unregisteredERC20Addr common.Address
-}
-
-// CreateGenesisSetup sets up a genesis state to base the tracking of interactions with
-// ERC-20 token pairs on.
-//
-// NOTE: it sets up another test network and then exports the genesis state to be used in the actual tests,
-// which is similar to how real upgrades work, where a previous network state is used to start with the
-// new version.
-func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 	genesisBalances := []banktypes.Balance{
 		{
 			Address: keyring.GetAccAddr(0).String(),
@@ -57,6 +41,7 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 	}
 
 	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithChainID(chainID),
 		testnetwork.WithBalances(genesisBalances...),
 	)
 	handler := grpc.NewIntegrationHandler(network)
@@ -78,12 +63,12 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 
 	ibcNativeTokenPair, err := network.App.Erc20Keeper.RegisterCoin(network.GetContext(), ibcCoinMetaData)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to register native IBC coin")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to register native IBC coin")
 	}
 	nativeCoinERC20Addr := common.HexToAddress(ibcNativeTokenPair.Erc20Address)
 
 	if err := network.NextBlock(); err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to advance block")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to advance block")
 	}
 
 	// Convert a balance for the deployer
@@ -96,11 +81,11 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 		Msgs: []sdk.Msg{&msgConvertCoin},
 	})
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to convert a balance")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to convert a balance")
 	}
 
 	if err := network.NextBlock(); err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to advance block")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to advance block")
 	}
 
 	// ------------------------------------------------------------------
@@ -114,11 +99,11 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 		},
 	)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to deploy ERC-20 contract")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to deploy ERC-20 contract")
 	}
 
 	if err := network.NextBlock(); err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to advance block")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to advance block")
 	}
 
 	// Mint some tokens for the deployer
@@ -137,16 +122,16 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 		},
 	)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to mint ERC-20 tokens")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to mint ERC-20 tokens")
 	}
 
 	_, err = network.App.Erc20Keeper.RegisterERC20(network.GetContext(), registeredERC20Addr)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to register token pair")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to register token pair")
 	}
 
 	if err := network.NextBlock(); err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to advance block")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to advance block")
 	}
 
 	// ------------------------------------------------------------------
@@ -160,11 +145,11 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 		},
 	)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to deploy ERC-20 contract")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to deploy ERC-20 contract")
 	}
 
 	if err := network.NextBlock(); err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to advance block")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to advance block")
 	}
 
 	// Mint some tokens for the deployer
@@ -183,26 +168,23 @@ func CreateGenesisSetup(keyring testkeyring.Keyring) (GenesisSetup, error) {
 		},
 	)
 	if err != nil {
-		return GenesisSetup{}, errorsmod.Wrap(err, "failed to mint ERC-20 tokens")
+		return &STRv2TrackingSuite{}, errorsmod.Wrap(err, "failed to mint ERC-20 tokens")
 	}
 
-	// ------------------------------------------------------------------
-	// Export genesis states
-	ag := network.App.AccountKeeper.ExportGenesis(network.GetContext())
-	bg := network.App.BankKeeper.ExportGenesis(network.GetContext())
-	dg := network.App.DistrKeeper.ExportGenesis(network.GetContext())
-	eg := evm.ExportGenesis(network.GetContext(), network.App.EvmKeeper, network.App.AccountKeeper)
-	ercg := erc20.ExportGenesis(network.GetContext(), network.App.Erc20Keeper)
+	network.App.Erc20Keeper.DeleteSTRv2Address(network.GetContext(), keyring.GetAccAddr(0))
 
-	return GenesisSetup{
-		keyring: keyring,
-		genesisState: &testnetwork.CustomGenesisState{
-			authtypes.ModuleName:         ag,
-			banktypes.ModuleName:         bg,
-			distributiontypes.ModuleName: dg,
-			evmtypes.ModuleName:          eg,
-			erc20types.ModuleName:        ercg,
-		},
+	// NOTE: this is necessary to enable e.g. erc20Keeper.BalanceOf(...) to work
+	// correctly internally.
+	// Removing it will break a bunch of tests giving errors like: "failed to retrieve balance"
+	if err = network.NextBlock(); err != nil {
+		return nil, errors.Wrap(err, "failed to advance block")
+	}
+
+	return &STRv2TrackingSuite{
+		keyring:               keyring,
+		network:               network,
+		handler:               handler,
+		factory:               factory,
 		nativeCoinERC20Addr:   nativeCoinERC20Addr,
 		registeredERC20Addr:   registeredERC20Addr,
 		unregisteredERC20Addr: unregisteredERC20Addr,
