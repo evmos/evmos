@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"slices"
 	"time"
 
@@ -178,9 +179,16 @@ func ConvertERC20Coins(
 		panic(err)
 	}
 
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error:", err)
+		panic(err)
+	}
+
+	filePath := filepath.Join(dir, "results-full.json")
 	// Store in file
 	// file, _ := json.MarshalIndent(jsonExport, "", " ")
-	file, err := os.ReadFile("./results-full.json")
+	file, err := os.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
