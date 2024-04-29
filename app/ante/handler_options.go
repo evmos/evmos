@@ -33,7 +33,6 @@ import (
 	evmante "github.com/evmos/evmos/v12/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 
-	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	vestingtypes "github.com/evmos/evmos/v12/x/vesting/types"
 )
 
@@ -146,10 +145,9 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 // newCosmosAnteHandlerEip712 creates the ante handler for transactions signed with EIP712
 func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		cosmosante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
+		cosmosante.NewRejectMessagesDecorator(BlockedMessages()), // reject MsgEthereumTxs
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
+			BlockedMessages()...,
 		),
 		ante.NewSetUpContextDecorator(),
 		ante.NewValidateBasicDecorator(),
