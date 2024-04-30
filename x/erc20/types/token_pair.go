@@ -7,8 +7,8 @@ import (
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 // NewTokenPair returns an instance of TokenPair

@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*.*.*"
+permissions: read-all
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest

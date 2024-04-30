@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/contracts"
-	ibctesting "github.com/evmos/evmos/v16/ibc/testing"
-	teststypes "github.com/evmos/evmos/v16/types/tests"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/contracts"
+	ibctesting "github.com/evmos/evmos/v18/ibc/testing"
+	teststypes "github.com/evmos/evmos/v18/types/tests"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

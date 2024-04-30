@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v16/precompiles/erc20"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/precompiles/erc20"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // InstantiateERC20Precompile returns an ERC20 precompile instance for the given contract address

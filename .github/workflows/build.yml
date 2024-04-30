@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - release/**
+      
+permissions: read-all
 
 jobs:
   cleanup-runs:

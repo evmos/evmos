@@ -5,7 +5,7 @@ package mocks
 import (
 	big "math/big"
 
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 
 	mock "github.com/stretchr/testify/mock"
 

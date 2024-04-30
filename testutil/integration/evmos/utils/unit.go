@@ -13,9 +13,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 
 const (

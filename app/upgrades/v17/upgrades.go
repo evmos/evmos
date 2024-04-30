@@ -10,10 +10,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	"github.com/evmos/evmos/v16/utils"
-	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
+	"github.com/evmos/evmos/v18/utils"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0

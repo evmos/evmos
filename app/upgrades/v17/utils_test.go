@@ -5,14 +5,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v16/contracts"
-	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/contracts"
+	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 const (

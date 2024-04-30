@@ -1,6 +1,7 @@
 name: Run Gosec
 on:
   pull_request:
+permissions: read-all
 
 jobs:
   Gosec:

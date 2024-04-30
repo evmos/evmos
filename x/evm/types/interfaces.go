@@ -9,21 +9,20 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/ethereum/go-ethereum/core"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetAllAccounts(ctx sdk.Context) (accounts []authtypes.AccountI)
 	IterateAccounts(ctx sdk.Context, cb func(account authtypes.AccountI) bool)
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	SetAccount(ctx sdk.Context, account authtypes.AccountI)
 	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
@@ -54,8 +53,16 @@ type Erc20Keeper interface {
 type FeeMarketKeeper interface {
 	GetBaseFee(ctx sdk.Context) *big.Int
 	GetParams(ctx sdk.Context) feemarkettypes.Params
-	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	CalculateBaseFee(ctx sdk.Context) *big.Int
+}
+
+// Event Hooks
+// These can be utilized to customize evm transaction processing.
+
+// EvmHooks event hooks for evm tx processing
+type EvmHooks interface {
+	// Must be called after tx is processed successfully, if return an error, the whole transaction is reverted.
+	PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error
 }
 
 type (

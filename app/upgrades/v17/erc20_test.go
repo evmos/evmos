@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
+	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/stretchr/testify/require"
 )
 

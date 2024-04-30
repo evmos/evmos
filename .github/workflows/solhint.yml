@@ -3,10 +3,12 @@ name: Solhint
 on:
   pull_request:
 
+permissions: read-all
+
 jobs:
   solhint:
     name: runner / solhint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     steps:
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2

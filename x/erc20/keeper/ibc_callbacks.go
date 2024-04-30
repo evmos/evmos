@@ -18,8 +18,9 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	"github.com/evmos/evmos/v16/ibc"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+
+	"github.com/evmos/evmos/v18/ibc"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -58,7 +59,7 @@ func (k Keeper) OnRecvPacket(
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(data)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}

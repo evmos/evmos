@@ -14,10 +14,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/contracts"
-	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v18/contracts"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // ConvertERC20Coins converts Native IBC coins from their ERC20 representation

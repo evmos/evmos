@@ -7,9 +7,9 @@ import (
 	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
-	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
-	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {

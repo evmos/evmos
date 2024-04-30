@@ -5,6 +5,16 @@
     "description": "A REST interface for state queries and transactions",
     "version": "1.0.0"
   },
+  "//": [
+    "checkov:skip=CKV_OPENAPI_13: The API is public, no need for authentication",
+    "checkov:skip=CKV_OPENAPI_6: The API is public, no need for authentication",
+    "checkov:skip=CKV_OPENAPI_4: The API is public, no need for authentication"
+  ],
+  "securityDefinitions": {
+    "default": {
+      "type": "basic"
+    }
+  },
   "paths": {
     "/evmos/epochs/v1/current_epoch": {
       "get": {
@@ -1783,19 +1793,26 @@
                       "type": "boolean",
                       "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
                     },
-                    "active_precompiles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-                    },
                     "evm_channels": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
+                    },
+                    "active_dynamic_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "active_dynamic_precompiles defines the slice of hex addresses of the\nprecompiled contracts that are active and can be dynamically added"
+                    },
+                    "active_static_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
                     }
                   },
                   "title": "Params defines the EVM module parameters"
@@ -2569,7 +2586,7 @@
           },
           {
             "name": "chain_id",
-            "description": "chain_id is the the eip155 chain id parsed from the requested block header.",
+            "description": "chain_id is the eip155 chain id parsed from the requested block header.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -21661,19 +21678,26 @@
           "type": "boolean",
           "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
         },
-        "active_precompiles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-        },
         "evm_channels": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
+        },
+        "active_dynamic_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "active_dynamic_precompiles defines the slice of hex addresses of the\nprecompiled contracts that are active and can be dynamically added"
+        },
+        "active_static_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
         }
       },
       "title": "Params defines the EVM module parameters"
@@ -21862,19 +21886,26 @@
               "type": "boolean",
               "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
             },
-            "active_precompiles": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-            },
             "evm_channels": {
               "type": "array",
               "items": {
                 "type": "string"
               },
               "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
+            },
+            "active_dynamic_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "active_dynamic_precompiles defines the slice of hex addresses of the\nprecompiled contracts that are active and can be dynamically added"
+            },
+            "active_static_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
             }
           },
           "title": "Params defines the EVM module parameters"

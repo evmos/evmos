@@ -19,9 +19,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	"github.com/evmos/evmos/v16/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // Keeper grants access to the EVM module state and implements the go-ethereum StateDB interface.
@@ -56,6 +56,9 @@ type Keeper struct {
 
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
+
+	// EVM Hooks for tx post-processing
+	hooks types.EvmHooks
 
 	// Legacy subspace
 	ss paramstypes.Subspace
@@ -352,4 +355,34 @@ func (k Keeper) AddTransientGasUsed(ctx sdk.Context, gasUsed uint64) (uint64, er
 	}
 	k.SetTransientGasUsed(ctx, result)
 	return result, nil
+}
+
+// ----------------------------------------------------------------------------
+// Hooks
+// ----------------------------------------------------------------------------
+
+// SetHooks sets the hooks for the EVM module
+// It should be called only once during initialization, it panic if called more than once.
+func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
+	if k.hooks != nil {
+		panic("cannot set evm hooks twice")
+	}
+
+	k.hooks = eh
+	return k
+}
+
+// CleanHooks resets the hooks for the EVM module
+// NOTE: Should only be used for testing purposes
+func (k *Keeper) CleanHooks() *Keeper {
+	k.hooks = nil
+	return k
+}
+
+// PostTxProcessing delegate the call to the hooks. If no hook has been registered, this function returns with a `nil` error
+func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	if k.hooks == nil {
+		return nil
+	}
+	return k.hooks.PostTxProcessing(ctx, msg, receipt)
 }

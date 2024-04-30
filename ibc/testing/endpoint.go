@@ -59,7 +59,7 @@ func NewDefaultEndpoint(chain *ibctesting.TestChain) *Endpoint {
 	}
 }
 
-// QueryProof queries proof associated with this endpoint using the lastest client state
+// QueryProof queries proof associated with this endpoint using the latest client state
 // height on the counterparty chain.
 func (endpoint *Endpoint) QueryProof(key []byte) ([]byte, clienttypes.Height) {
 	// obtain the counterparty client representing the chain associated with the endpoint
