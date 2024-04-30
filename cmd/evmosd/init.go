@@ -31,7 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 type printInfo struct {

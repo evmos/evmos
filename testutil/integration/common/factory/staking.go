@@ -39,8 +39,16 @@ func (tf *stakingTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validato
 		amount,
 	)
 
+	// set gas and gas prices to pay the same fees
+	// every time this function is called
+	feesToPay := math.NewInt(1e16)
+	gas := uint64(400_000)
+	gasPrice := feesToPay.QuoRaw(int64(gas))
+
 	resp, err := tf.ExecuteCosmosTx(delegatorPriv, CosmosTxArgs{
-		Msgs: []sdk.Msg{msgDelegate},
+		Msgs:     []sdk.Msg{msgDelegate},
+		Gas:      &gas,
+		GasPrice: &gasPrice,
 	})
 
 	if resp.Code != 0 {

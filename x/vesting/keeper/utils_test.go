@@ -14,7 +14,7 @@ import (
 func (s *KeeperTestSuite) setupClawbackVestingAccount(vestingAccount, funder keyring.Key, vestingPeriods, lockupPeriods sdkvesting.Periods, enableGovClawback bool) *types.ClawbackVestingAccount {
 	// send a create vesting account tx
 	createAccMsg := types.NewMsgCreateClawbackVestingAccount(funder.AccAddr, vestingAccount.AccAddr, enableGovClawback)
-	res, err := s.factory.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}})
+	res, err := s.factory.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}, Gas: &gasLimit, GasPrice: &gasPrice})
 	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(BeTrue())
 	Expect(s.network.NextBlock()).To(BeNil())
