@@ -9,6 +9,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/vesting/keeper"
 	v1vestingtypes "github.com/evmos/evmos/v18/x/vesting/migrations/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
@@ -54,9 +55,9 @@ func TestMigrate1to2(t *testing.T) {
 }
 
 func TestMigrate2to3(t *testing.T) {
+	var emptyCoins types.Coins
 	nw := network.NewUnitTestNetwork()
 	ctx := nw.GetContext()
-	emptyCoins := types.Coins{}
 
 	// Create account addresses for testing
 	vestingAddr, _ := testutiltx.NewAccAddressAndKey()
@@ -64,6 +65,7 @@ func TestMigrate2to3(t *testing.T) {
 
 	// create a base vesting account instead of a clawback vesting account at the vesting address
 	baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
+	baseAccount.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
 	acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
 	require.NoError(t, err)
 
@@ -83,7 +85,7 @@ func TestMigrate2to3(t *testing.T) {
 			name:                    "delegated vesting > 0 and delegated free > 0",
 			initialDelegatedVesting: quarter,
 			initialDelegatedFree:    quarter,
-			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin("test", 500)),
+			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin(utils.BaseDenom, 500)),
 		},
 		{
 			name:                    "delegated vesting == 0 and delegated free > 0",

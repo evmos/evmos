@@ -597,7 +597,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (multi-account, single-tx)", func() {
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
+			spRes, err := s.handler.GetSpendableBalance(vestingAccs[0].AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			spendableBalance := spRes.Balance
+			// check that the spendable balance > than the initial free coins
+			Expect(spendableBalance.Sub(initialFreeCoins[0]).IsPositive()).To(BeTrue())
+
+			txAmount := spendableBalance.Amount.Sub(remainingAmtToPayFees)
 
 			msgs := make([]sdk.Msg, len(vestingAccs))
 			for i, grantee := range vestingAccs {
@@ -625,7 +631,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
-			amtSentByAcc := vestingAccInitialBalance.Add(unlockedPerLockupAmt).Sub(remainingAmtToPayFees)
+			spRes, err := s.handler.GetSpendableBalance(vestingAccs[0].AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			spendableBalance := spRes.Balance
+			// check that the spendable balance > than the initial free coins
+			Expect(spendableBalance.Sub(initialFreeCoins[0]).IsPositive()).To(BeTrue())
+
+			amtSentByAcc := spendableBalance.Amount.Sub(remainingAmtToPayFees.MulRaw(int64(numTestMsgs)))
 			txAmount := amtSentByAcc.QuoRaw(int64(numTestMsgs))
 
 			msgs := []sdk.Msg{}
@@ -658,7 +670,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens (single-account, single-msg)", func() {
 			testAccount := vestingAccs[0]
 			// Attempt to spend entire vesting balance
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestingAmtTotal.AmountOf(stakeDenom))
+			txAmount := initialFreeCoins.Add(vestingAmtTotal...)[0].Amount.Sub(remainingAmtToPayFees)
 
 			msg, err := s.factory.GenerateSignedMsgEthereumTx(testAccount.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
@@ -763,7 +775,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			vestAcc := vestingAccs[0]
 			normalAcc := funder
 
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestingAmtTotal.AmountOf(stakeDenom))
+			txAmount := initialFreeCoins.Add(vestingAmtTotal...)[0].Amount.Sub(remainingAmtToPayFees)
 
 			// Get message from a normal account to try to short-circuit the AnteHandler
 			normAccMsg, err := s.factory.GenerateSignedMsgEthereumTx(normalAcc.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: big.NewInt(100_000)})
@@ -809,7 +821,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(unlockedPerLockupAmt)
+			spRes, err := s.handler.GetSpendableBalance(account.AccAddr, stakeDenom)
+			Expect(err).To(BeNil())
+			spendableBalance := spRes.Balance
+			// check that the spendable balance > than the initial free coins
+			Expect(spendableBalance.Sub(initialFreeCoins[0]).IsPositive()).To(BeTrue())
+
+			txAmount := spendableBalance.Amount.Sub(remainingAmtToPayFees)
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
@@ -832,11 +850,11 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens", func() {
 			account := vestingAccs[0]
 
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vested.AmountOf(stakeDenom))
+			txAmount := initialFreeCoins.Add(vested...)[0].Amount.Sub(remainingAmtToPayFees).Add(math.OneInt())
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("clawback vesting account has insufficient unlocked tokens to execute transaction"))
+			Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 			Expect(res.IsErr()).To(BeTrue())
 		})
 	})
@@ -865,7 +883,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
 			// save some balance to pay fees
-			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+			delCoin := initialFreeCoins.Add(vestedCoin).Sub(accountGasCoverage...)[0]
 			err = s.factory.Delegate(
 				account.Priv,
 				s.network.GetValidators()[0].OperatorAddress,
@@ -904,7 +922,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			balancePrev := balRes.Balance
 
 			// save some balance to pay fees
-			coins := vested.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+			coins := initialFreeCoins.Add(vested...).Sub(accountGasCoverage...)
 			sendAmt := coins[0].Amount
 
 			msg := banktypes.NewMsgSend(account.AccAddr, dest.Bytes(), coins)
@@ -942,7 +960,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// save some balance to pay fees
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
-			txAmount := vestingAccInitialBalance.Sub(remainingAmtToPayFees).Add(vestedCoin.Amount)
+			txAmount := initialFreeCoins.Add(vestedCoin).Sub(accountGasCoverage...)[0].Amount
 
 			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
@@ -997,7 +1015,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Add(vestingAccInitialBalance.Sub(remainingAmtToPayFees))
+			txAmount := initialFreeCoins.Add(vestingAmtTotal...).Sub(accountGasCoverage...)[0].Amount
 
 			res, err := s.factory.ExecuteEthTx(account.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
