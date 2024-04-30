@@ -10,6 +10,7 @@ import (
 	grpchandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +67,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainID:  "test_9000-1",
+			chainID:  utils.TestingChainID + "-1",
 		},
 		{
 			name: "found - should not fail if address already there while deposit WEVMOS",
@@ -87,7 +88,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainID:  "test_9000-1",
+			chainID:  utils.TestingChainID + "-1",
 		},
 		{
 			name: "not found - should not register since its not expected contract",
@@ -106,7 +107,7 @@ func TestDepositWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: false,
-			chainID:  "evmos_9000-1",
+			chainID:  utils.TestnetChainID + "-1",
 		},
 	}
 
@@ -197,9 +198,9 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainID:  "test_9000-1",
+			chainID:  utils.TestingChainID + "-1",
 		},
-		{
+		{ //nolint:dupl
 			name: "found - with address already registered - withdraw WEVMOS",
 			malleate: func(ts *STRV2WEVMOSHooksTestSuite) error {
 				// Deploy WEVMOS contract
@@ -230,9 +231,9 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: true,
-			chainID:  "test_9000-1",
+			chainID:  utils.TestingChainID + "-1",
 		},
-		{
+		{ //nolint:dupl
 			name: "not found - wrong contract - withdraw WEVMOS",
 			malleate: func(ts *STRV2WEVMOSHooksTestSuite) error {
 				// Deploy WEVMOS contract
@@ -263,7 +264,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 				return nil
 			},
 			expFound: false,
-			chainID:  "evmos_9000-1",
+			chainID:  utils.TestnetChainID + "-1",
 		},
 	}
 
@@ -275,7 +276,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 
 			// Set up a new network
 			nw := network.NewUnitTestNetwork(
-				network.WithChainID("test_9000-1"),
+				network.WithChainID(utils.TestingChainID+"-1"),
 				network.WithPreFundedAccounts(kr.GetAllAccAddrs()...),
 			)
 			handler := grpchandler.NewIntegrationHandler(nw)

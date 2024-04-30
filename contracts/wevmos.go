@@ -12,14 +12,14 @@ import (
 
 var (
 	//go:embed compiled_contracts/WEVMOS.json
-	WevmosJSON []byte
+	WEVMOSJSON []byte
 
 	// WEVMOSContract is the compiled contract of WEVMOS
 	WEVMOSContract evmtypes.CompiledContract
 )
 
 func init() {
-	err := json.Unmarshal(WevmosJSON, &WEVMOSContract)
+	err := json.Unmarshal(WEVMOSJSON, &WEVMOSContract)
 	if err != nil {
 		panic(err)
 	}

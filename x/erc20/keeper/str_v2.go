@@ -39,7 +39,7 @@ func (k Keeper) DeleteSTRv2Address(ctx sdk.Context, address sdk.AccAddress) {
 	store.Delete(address.Bytes())
 }
 
-// GetAllSTRV2Address iterates over all the stored account that interacted with registered coins.
+// GetAllSTRV2Address iterates over all the stored accounts that interacted with registered coins.
 // and returns them in an array
 func (k Keeper) GetAllSTRV2Address(ctx sdk.Context) []sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
