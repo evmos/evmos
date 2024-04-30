@@ -12,13 +12,13 @@ func (suite *KeeperTestSuite) TestSetDeleteSTRV2Address() {
 
 	suite.SetupTest()
 
-	// Set the same address twice, and it shouldnt fail
+	// Set the same address twice, and it shouldn't fail
 	suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 	suite.Require().Equal(true, suite.app.Erc20Keeper.HasSTRv2Address(suite.ctx, address1))
 	suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 	suite.Require().Equal(true, suite.app.Erc20Keeper.HasSTRv2Address(suite.ctx, address1))
 
-	// Set a different address and it shouldnt affect the first address
+	// Set a different address and it shouldn't affect the first address
 	suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address2)
 	suite.Require().Equal(true, suite.app.Erc20Keeper.HasSTRv2Address(suite.ctx, address2))
 	suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestSetDeleteSTRV2Address() {
 
 	// Delete the first address.
 	// - it should delete the first address
-	// - it shouldnt affect the second one
+	// - it shouldn't affect the second one
 	suite.app.Erc20Keeper.DeleteSTRv2Address(suite.ctx, address1)
 	suite.Require().Equal(false, suite.app.Erc20Keeper.HasSTRv2Address(suite.ctx, address1))
 	suite.app.Erc20Keeper.DeleteSTRv2Address(suite.ctx, address1)
@@ -55,14 +55,14 @@ func (suite *KeeperTestSuite) TestHasSTRV2Address() {
 			false,
 		},
 		{
-			"one address",
+			"set one address - should have it",
 			func() {
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 			},
 			true,
 		},
 		{
-			"two addresses",
+			"set two addresses - should have the first one",
 			func() {
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address2)
@@ -98,14 +98,14 @@ func (suite *KeeperTestSuite) TestGetAllSTRV2Address() {
 			[]sdk.AccAddress{},
 		},
 		{
-			"one address",
+			"set one address - should return it",
 			func() {
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 			},
 			[]sdk.AccAddress{address1},
 		},
 		{
-			"two addresses",
+			"set two addresses - should return both",
 			func() {
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address1)
 				suite.app.Erc20Keeper.SetSTRv2Address(suite.ctx, address2)
