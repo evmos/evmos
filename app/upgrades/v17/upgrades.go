@@ -10,10 +10,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/utils"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0
@@ -39,9 +39,9 @@ func CreateUpgradeHandler(
 		var wrappedContractAddr common.Address
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
-			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
+			wrappedContractAddr = common.HexToAddress(evmtypes.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
-			wrappedContractAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
+			wrappedContractAddr = common.HexToAddress(evmtypes.WEVMOSContractTestnet)
 		default:
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
 		}

@@ -1800,6 +1800,13 @@
                       },
                       "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
                     },
+                    "wrapped_native_coin_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "wrapped_native_coin_precompiles defines the slice of hex addresses of the\nwrapped native coins represented as precompiles"
+                    },
                     "active_dynamic_precompiles": {
                       "type": "array",
                       "items": {
@@ -21685,6 +21692,13 @@
           },
           "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
         },
+        "wrapped_native_coin_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "wrapped_native_coin_precompiles defines the slice of hex addresses of the\nwrapped native coins represented as precompiles"
+        },
         "active_dynamic_precompiles": {
           "type": "array",
           "items": {
@@ -21892,6 +21906,13 @@
                 "type": "string"
               },
               "title": "evm_channels is the list of channel identifiers from EVM compatible chains"
+            },
+            "wrapped_native_coin_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "wrapped_native_coin_precompiles defines the slice of hex addresses of the\nwrapped native coins represented as precompiles"
             },
             "active_dynamic_precompiles": {
               "type": "array",

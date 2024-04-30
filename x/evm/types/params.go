@@ -22,6 +22,13 @@ import (
 	"github.com/evmos/evmos/v18/utils"
 )
 
+const (
+	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
+	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
+)
+
 var (
 	// DefaultEVMDenom defines the default EVM denomination on Evmos
 	DefaultEVMDenom = utils.BaseDenom
@@ -40,8 +47,6 @@ var (
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 		"0x0000000000000000000000000000000000000804", // Bank precompile
-		"0x0000000000000000000000000000000000000900", // Stride outpost
-		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
 	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
 	DefaultActiveDynamicPrecompiles []string
@@ -53,6 +58,8 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
+	// DefaultWrappedNativeCoinPrecompiles defines the default precompiles for the wrapped native coin
+	DefaultWrappedNativeCoinPrecompiles = []string{WEVMOSContractMainnet}
 )
 
 // NewParams creates a new Params instance
@@ -66,17 +73,19 @@ func NewParams(
 	activeStaticPrecompiles []string,
 	evmChannels []string,
 	activeDynamicPrecompiles []string,
+	wrappedNativeCoinsPrecompiles []string,
 ) Params {
 	return Params{
-		EvmDenom:                 evmDenom,
-		AllowUnprotectedTxs:      allowUnprotectedTxs,
-		EnableCreate:             enableCreate,
-		EnableCall:               enableCall,
-		ExtraEIPs:                extraEIPs,
-		ChainConfig:              config,
-		ActiveStaticPrecompiles:  activeStaticPrecompiles,
-		EVMChannels:              evmChannels,
-		ActiveDynamicPrecompiles: activeDynamicPrecompiles,
+		EvmDenom:                     evmDenom,
+		AllowUnprotectedTxs:          allowUnprotectedTxs,
+		EnableCreate:                 enableCreate,
+		EnableCall:                   enableCall,
+		ExtraEIPs:                    extraEIPs,
+		ChainConfig:                  config,
+		ActiveStaticPrecompiles:      activeStaticPrecompiles,
+		EVMChannels:                  evmChannels,
+		ActiveDynamicPrecompiles:     activeDynamicPrecompiles,
+		WrappedNativeCoinPrecompiles: wrappedNativeCoinsPrecompiles,
 	}
 }
 
@@ -86,15 +95,16 @@ func NewParams(
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:                 DefaultEVMDenom,
-		EnableCreate:             DefaultEnableCreate,
-		EnableCall:               DefaultEnableCall,
-		ChainConfig:              DefaultChainConfig(),
-		ExtraEIPs:                DefaultExtraEIPs,
-		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
-		ActiveStaticPrecompiles:  AvailableEVMExtensions,
-		EVMChannels:              DefaultEVMChannels,
-		ActiveDynamicPrecompiles: DefaultActiveDynamicPrecompiles,
+		EvmDenom:                     DefaultEVMDenom,
+		EnableCreate:                 DefaultEnableCreate,
+		EnableCall:                   DefaultEnableCall,
+		ChainConfig:                  DefaultChainConfig(),
+		ExtraEIPs:                    DefaultExtraEIPs,
+		AllowUnprotectedTxs:          DefaultAllowUnprotectedTxs,
+		ActiveStaticPrecompiles:      AvailableEVMExtensions,
+		EVMChannels:                  DefaultEVMChannels,
+		ActiveDynamicPrecompiles:     DefaultActiveDynamicPrecompiles,
+		WrappedNativeCoinPrecompiles: DefaultWrappedNativeCoinPrecompiles,
 	}
 }
 

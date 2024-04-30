@@ -16,14 +16,10 @@ import (
 	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
-	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
-	osmosisoutpost "github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
-	strideoutpost "github.com/evmos/evmos/v18/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
-	"github.com/evmos/evmos/v18/utils"
 	erc20Keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	"github.com/evmos/evmos/v18/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
@@ -81,37 +77,6 @@ func AvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	var WEVMOSAddress common.Address
-	if utils.IsMainnet(chainID) {
-		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
-	} else {
-		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
-	}
-
-	strideOutpost, err := strideoutpost.NewPrecompile(
-		WEVMOSAddress,
-		transferKeeper,
-		erc20Keeper,
-		authzKeeper,
-		stakingKeeper,
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
-	}
-
-	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
-		WEVMOSAddress,
-		authzKeeper,
-		bankKeeper,
-		transferKeeper,
-		stakingKeeper,
-		erc20Keeper,
-		channelKeeper,
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate osmosis outpost: %w", err))
-	}
-
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -122,11 +87,6 @@ func AvailableStaticPrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
-
-	// Outposts
-	precompiles[strideOutpost.Address()] = strideOutpost
-	precompiles[osmosisOutpost.Address()] = osmosisOutpost
-
 	return precompiles
 }
 

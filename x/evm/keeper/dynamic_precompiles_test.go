@@ -7,7 +7,6 @@ import (
 	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
-	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -36,8 +35,8 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 		},
 		{
 			name:               "pass - precompile",
-			actual:             []string{erc20precompile.WEVMOSContractMainnet},
-			expected:           []common.Address{common.HexToAddress(erc20precompile.WEVMOSContractMainnet)},
+			actual:             []string{types.WEVMOSContractMainnet},
+			expected:           []common.Address{common.HexToAddress(types.WEVMOSContractMainnet)},
 			expectPanic:        false,
 			expectErrorMessage: "",
 		},
@@ -69,7 +68,7 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 			params := types.DefaultParams()
 			params.ActiveDynamicPrecompiles = tc.actual
 
-			pair := erc20types.NewTokenPair(common.HexToAddress(erc20precompile.WEVMOSContractMainnet), "aevmos", erc20types.OWNER_MODULE)
+			pair := erc20types.NewTokenPair(common.HexToAddress(types.WEVMOSContractMainnet), "aevmos", erc20types.OWNER_MODULE)
 			suite.app.Erc20Keeper.SetToken(s.ctx, pair)
 
 			addresses, _ := suite.app.EvmKeeper.GetDynamicPrecompilesInstances(s.ctx, &params)
@@ -86,7 +85,7 @@ func (suite *KeeperTestSuite) TestIsAvailableDynamicPrecompile() {
 	}{
 		{
 			name:         "pass - available precompile",
-			address:      common.HexToAddress(erc20precompile.WEVMOSContractMainnet),
+			address:      common.HexToAddress(types.WEVMOSContractMainnet),
 			expAvailable: true,
 		},
 		{
@@ -103,7 +102,7 @@ func (suite *KeeperTestSuite) TestIsAvailableDynamicPrecompile() {
 			suite.SetupTest()
 
 			params := types.DefaultParams()
-			params.ActiveDynamicPrecompiles = []string{erc20precompile.WEVMOSContractMainnet}
+			params.ActiveDynamicPrecompiles = []string{types.WEVMOSContractMainnet}
 			err := suite.app.EvmKeeper.SetParams(s.ctx, params)
 			suite.Require().NoError(err)
 
