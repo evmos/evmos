@@ -211,6 +211,7 @@ def assert_ready(ibc):
     output = subprocess.getoutput(
         f"curl -s -X GET 'http://127.0.0.1:{ibc.hermes.port}/state' | jq"
     )
+    print("here", output)
     assert json.loads(output)["status"] == "success"
 
 

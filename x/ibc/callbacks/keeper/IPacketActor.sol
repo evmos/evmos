@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.0;
 
+import "./IERC165.sol";
+
 struct Packet {
     // Sequence number corresponds to the order of sends and receives
     uint64 sequence;
@@ -30,7 +32,7 @@ struct Height {
 /// @title Packet Actor Interface
 /// @dev The interface through which solidity contracts define their own IBC
 /// packet callbacks handling logic
-interface IPacketActor {
+interface IPacketActor is IERC165 {
 
     /// @dev onSendPacket will be called on the IBCActor after the IBC application
     /// handles the RecvPacket callback if the packet has an IBC Actor as a receiver.

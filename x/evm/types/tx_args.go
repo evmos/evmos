@@ -19,6 +19,7 @@ import (
 // or a message call using JSON-RPC.
 // Duplicate struct definition since geth struct is in internal package
 // Ref: https://github.com/ethereum/go-ethereum/blob/release/1.10.4/internal/ethapi/transaction_args.go#L36
+
 type TransactionArgs struct {
 	From                 *common.Address `json:"from"`
 	To                   *common.Address `json:"to"`

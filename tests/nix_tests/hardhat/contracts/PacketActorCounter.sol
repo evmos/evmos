@@ -3,9 +3,19 @@ pragma solidity ^0.8.0;
 
 import "./IPacketActor.sol";
 
-contract PacketActorCounter is IPacketActor {
+contract PacketActorCounter is IPacketActor  {
 
     int public counter = 0;
+
+    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+        return (
+            interfaceId == this.supportsInterface.selector ||
+            interfaceId == this.onSendPacket.selector ||
+            interfaceId == this.onRecvPacket.selector ||
+            interfaceId == this.onAcknowledgementPacket.selector ||
+            interfaceId == this.onTimeoutPacket.selector
+        );
+    }
 
     function onSendPacket(
         address relayer
