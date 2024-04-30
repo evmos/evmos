@@ -483,8 +483,8 @@ schema = 3
     version = "v2.17.2"
     hash = "sha256-APrPglqYnX2a6EypqDXi05Quou30UQdcDxztT1yhM3s="
   [mod."github.com/onsi/gomega"]
-    version = "v1.33.0"
-    hash = "sha256-0LMaPjLYtaFy95PdY0oyFo00pN0ZStCvaurUuoPSPIo="
+    version = "v1.33.1"
+    hash = "sha256-oYfRaN1xqngIHQQxEEc+FQZ6UHC99VZQzAePT0Xkz8s="
   [mod."github.com/opencontainers/go-digest"]
     version = "v1.0.0"
     hash = "sha256-cfVDjHyWItmUGZ2dzQhCHgmOmou8v7N+itDkLZVkqkQ="
@@ -712,8 +712,8 @@ schema = 3
     version = "v1.63.2"
     hash = "sha256-RmtVjYLam97k7IHTHU7Gn16xNX+GvA9AiLKlQwOiZXU="
   [mod."google.golang.org/protobuf"]
-    version = "v1.33.0"
-    hash = "sha256-cWwQjtUwSIEkAlAadrlxK1PYZXTRrV4NKzt7xDpJgIU="
+    version = "v1.34.0"
+    hash = "sha256-0fqsqQTyOicm4+NiuAf2IaJhavMVJh50VhNcRmZPSus="
   [mod."gopkg.in/ini.v1"]
     version = "v1.67.0"
     hash = "sha256-V10ahGNGT+NLRdKUyRg1dos5RxLBXBk1xutcnquc/+4="
