@@ -200,7 +200,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 			expFound: true,
 			chainID:  utils.TestingChainID + "-1",
 		},
-		{
+		{ //nolint:dupl
 			name: "found - with address already registered - withdraw WEVMOS",
 			malleate: func(ts *STRV2WEVMOSHooksTestSuite) error {
 				// Deploy WEVMOS contract
@@ -233,7 +233,7 @@ func TestWithdrawWEVMOS(t *testing.T) {
 			expFound: true,
 			chainID:  utils.TestingChainID + "-1",
 		},
-		{
+		{ //nolint:dupl
 			name: "not found - wrong contract - withdraw WEVMOS",
 			malleate: func(ts *STRV2WEVMOSHooksTestSuite) error {
 				// Deploy WEVMOS contract
