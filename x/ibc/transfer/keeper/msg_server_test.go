@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
@@ -233,6 +234,53 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				return transferMsg
 			},
 			false,
+		},
+
+		// STRV2
+		{
+			"no-op - pair not registered",
+			func() *types.MsgTransfer {
+				senderAcc := sdk.AccAddress(suite.address.Bytes())
+
+				denom := "test"
+				coinMetadata := banktypes.Metadata{
+					Name:        "Generic IBC name",
+					Symbol:      "IBC",
+					Description: "Generic IBC token description",
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    denom,
+							Exponent: 0,
+							Aliases:  []string{denom},
+						},
+						{
+							Denom:    denom,
+							Exponent: 18,
+						},
+					},
+					Display: denom,
+					Base:    denom,
+				}
+
+				coin := sdk.NewCoin(denom, math.NewInt(10))
+				coins := sdk.NewCoins(coin)
+
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, coins)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, coinMetadata)
+				suite.Require().Equal(pair.Denom, denom)
+				suite.Require().NoError(err)
+
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0, "")
+
+				return transferMsg
+			},
+			true,
 		},
 	}
 	for _, tc := range testCases {

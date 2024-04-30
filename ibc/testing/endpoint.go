@@ -4,6 +4,7 @@ package ibctesting
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -109,10 +110,22 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		return err
 	}
 
+	require.NotNil(
+		endpoint.Chain.T, endpoint.Chain.SenderAccount,
+		fmt.Sprintf("expected sender account on chain with ID %q not to be nil", endpoint.Chain.ChainID),
+	)
+
+	zeroTimestamp := uint64(time.Time{}.UnixNano())
+	require.NotEqual(
+		endpoint.Chain.T, consensusState.GetTimestamp(), zeroTimestamp,
+		"current timestamp on the last header is the zero time; it might be necessary to commit blocks with the IBC coordinator",
+	)
+
 	msg, err := clienttypes.NewMsgCreateClient(
 		clientState, consensusState, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.T, msg.ValidateBasic(), "failed to validate create client msg")
 
 	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
 	if err != nil {
