@@ -13,32 +13,36 @@ import (
 
 func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 	testcases := []struct {
-		name               string
-		actual             []string
-		expected           []common.Address
-		expectPanic        bool
-		expectErrorMessage string
+		name                         string
+		dynamicPrecompiles           []string
+		wrappedNativeCoinPrecompiles []string
+		expected                     []common.Address
+		expectPanic                  bool
+		expectErrorMessage           string
 	}{
 		{
-			name:               "pass - empty precompiles",
-			actual:             []string{},
-			expected:           []common.Address{},
-			expectPanic:        false,
-			expectErrorMessage: "",
+			name:                         "pass - empty precompiles",
+			dynamicPrecompiles:           []string{},
+			wrappedNativeCoinPrecompiles: []string{},
+			expected:                     []common.Address{},
+			expectPanic:                  false,
+			expectErrorMessage:           "",
 		},
 		{
-			name:               "fail - unavailable precompile",
-			actual:             []string{"0x0000000000000000000000000000000000099999"},
-			expected:           []common.Address{common.HexToAddress("0x0000000000000000000000000000000000099999")},
-			expectPanic:        true,
-			expectErrorMessage: "precompiled contract not initialized: 0x0000000000000000000000000000000000099999",
+			name:                         "fail - unavailable precompile",
+			dynamicPrecompiles:           []string{"0x0000000000000000000000000000000000099999"},
+			wrappedNativeCoinPrecompiles: []string{},
+			expected:                     []common.Address{common.HexToAddress("0x0000000000000000000000000000000000099999")},
+			expectPanic:                  true,
+			expectErrorMessage:           "precompiled contract not initialized: 0x0000000000000000000000000000000000099999",
 		},
 		{
-			name:               "pass - precompile",
-			actual:             []string{types.WEVMOSContractMainnet},
-			expected:           []common.Address{common.HexToAddress(types.WEVMOSContractMainnet)},
-			expectPanic:        false,
-			expectErrorMessage: "",
+			name:                         "pass - precompile",
+			dynamicPrecompiles:           []string{types.WEVMOSContractMainnet},
+			wrappedNativeCoinPrecompiles: []string{},
+			expected:                     []common.Address{common.HexToAddress(types.WEVMOSContractMainnet)},
+			expectPanic:                  false,
+			expectErrorMessage:           "",
 		},
 	}
 
@@ -66,7 +70,8 @@ func (suite *KeeperTestSuite) TestGetDynamicPrecompilesInstances() {
 			}()
 
 			params := types.DefaultParams()
-			params.ActiveDynamicPrecompiles = tc.actual
+			params.ActiveDynamicPrecompiles = tc.dynamicPrecompiles
+			params.WrappedNativeCoinPrecompiles = tc.wrappedNativeCoinPrecompiles
 
 			pair := erc20types.NewTokenPair(common.HexToAddress(types.WEVMOSContractMainnet), "aevmos", erc20types.OWNER_MODULE)
 			suite.app.Erc20Keeper.SetToken(s.ctx, pair)

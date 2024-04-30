@@ -29,11 +29,24 @@ func (k Keeper) GetDynamicPrecompilesInstances(
 	params *types.Params,
 ) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-	addresses := make([]common.Address, len(params.ActiveDynamicPrecompiles))
+	totalPrecompiles := len(params.WrappedNativeCoinPrecompiles) + len(params.ActiveDynamicPrecompiles)
+	addresses := make([]common.Address, totalPrecompiles)
 
+	// Iterate over the wrapped native coin precompiles and instantiate them
+	for i, address := range params.WrappedNativeCoinPrecompiles {
+		hexAddress := common.HexToAddress(address)
+		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, hexAddress)
+		if err != nil {
+			panic(errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address))
+		}
+
+		activePrecompileMap[hexAddress] = precompile
+		addresses[i] = hexAddress
+	}
+
+	// Iterate over the active dynamic precompiles and instantiate them
 	for i, address := range params.ActiveDynamicPrecompiles {
 		hexAddress := common.HexToAddress(address)
-
 		precompile, err := k.erc20Keeper.InstantiateERC20Precompile(ctx, hexAddress)
 		if err != nil {
 			panic(errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address))
@@ -64,5 +77,6 @@ func (k Keeper) GetDynamicPrecompileInstance(
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
 func (k Keeper) IsAvailableDynamicPrecompile(params *types.Params, address common.Address) bool {
-	return slices.Contains(params.ActiveDynamicPrecompiles, address.Hex())
+	return slices.Contains(params.WrappedNativeCoinPrecompiles, address.Hex()) ||
+		slices.Contains(params.ActiveDynamicPrecompiles, address.Hex())
 }
