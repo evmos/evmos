@@ -1161,7 +1161,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	switch upgradeInfo.Name {
 	case v19.UpgradeName:
-		// revenue module is deprecated in v17
+		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
 		}
