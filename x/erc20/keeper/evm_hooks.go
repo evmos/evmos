@@ -228,7 +228,7 @@ func (k Keeper) PostProcessWithdrawDepositEvent(
 		return
 	}
 
-	// Check if event is a `Withdrawal` or Deposit event.
+	// Check if event is a `Withdrawal` or `Deposit` event.
 	if event.Name != types.WevmosEventWithdraw && event.Name != types.WevmosEventDeposit {
 		return
 	}
