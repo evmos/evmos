@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	_ "embed"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

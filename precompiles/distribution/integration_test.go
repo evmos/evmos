@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v18/utils"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -21,7 +19,7 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-
+	"github.com/evmos/evmos/v18/utils"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -43,8 +41,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
@@ -65,7 +61,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.ABI.Events,
 		}
-		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address, differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
@@ -545,8 +540,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
-		// err is a basic error type
-		err error
 
 		// execRevertedCheck defines the default log checking arguments which includes the
 		// standard revert message.
@@ -555,7 +548,11 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 	BeforeEach(func() {
 		s.SetupTest()
-		contractAddr, err = s.DeployContract(contracts.DistributionCallerContract)
+
+		distributionCallerContract, err := contracts.LoadDistributionCallerContract()
+		Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
+
+		contractAddr, err = s.DeployContract(distributionCallerContract)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 
 		// NextBlock the smart contract
@@ -569,7 +566,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		// populate default call args
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: contractAddr,
-			ContractABI:  contracts.DistributionCallerContract.ABI,
+			ContractABI:  distributionCallerContract.ABI,
 			PrivKey:      s.privKey,
 		}
 

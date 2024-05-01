@@ -49,10 +49,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
-- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion from EVM hooks (#2380)
-- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion from EVM hooks (#2154) (#2442)
+- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion of EVM hooks (#2380).
+- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion of EVM hooks (#2154) (#2442).
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
-- (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade
+- (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade.
 
 ### Bug Fixes
 
@@ -91,9 +91,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [#2472](https://github.com/evmos/evmos/pull/2472) Update security policy.
 - (docs) [#2478](https://github.com/evmos/evmos/pull/2478) Change Evmos SDK with evmOS.
 - (build) [#2484](https://github.com/evmos/evmos/pull/2484) Bump golang version to v1.22.
-- (client) [#2481](https://github.com/evmos/evmos/pull/2481) Replace path.Join with filepath.Join.
-- (cli) [#2503](https://github.com/evmos/evmos/pull/2503) Revert deletion of ConvertCoin for erc20 module (#2155).
+- (cli) [#2503](https://github.com/evmos/evmos/pull/2503) Revert deletion of ConvertCoin for ERC-20 module (#2155).
 - (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
+- (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 
 ## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
 
@@ -121,11 +121,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v16.0.3](https://github.com/evmos/evmos/releases/tag/v16.0.3) - 2024-02-02
 
-## Bug Fixes
+### Bug Fixes
 
-- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup
+- (evm) [#2302](https://github.com/evmos/evmos/pull/2302) Fix TraceTx KVGasConfig setup.
 
-## [v16.0.2] - 2024-01-16
+## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
 
 ### Bug Fixes
 
@@ -995,3 +995,4 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
+

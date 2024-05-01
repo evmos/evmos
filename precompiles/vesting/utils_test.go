@@ -202,6 +202,10 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	vestingCallerContract, err := testdata.LoadVestingCallerContract()
+	s.Require().NoError(err)
+	s.vestingCallerContract = vestingCallerContract
 }
 
 // CallType is a struct that represents the type of call to be made to the
@@ -227,7 +231,7 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 		callArgs.ContractAddr = s.precompile.Address()
 	} else {
 		callArgs.ContractAddr = contractAddr
-		callArgs.ContractABI = testdata.VestingCallerContract.ABI
+		callArgs.ContractABI = s.vestingCallerContract.ABI
 	}
 
 	return callArgs
