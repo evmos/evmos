@@ -3,6 +3,8 @@ on:
   # Scan changed files in PRs, block on new issues only (existing issues ignored)
   pull_request:
 
+permissions: read-all
+
 jobs:
   # Update from: https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#github-actions [removing GH Security Dashboard]
   semgrep:

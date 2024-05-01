@@ -6,11 +6,8 @@ package types
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
@@ -19,7 +16,6 @@ import (
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
 	transfertypes.AccountKeeper
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 }
 
 // BankKeeper defines the expected interface needed to check balances and send coins.
@@ -32,7 +28,6 @@ type BankKeeper interface {
 // ERC20 token transfers via IBC.
 type ERC20Keeper interface {
 	IsERC20Enabled(ctx sdk.Context) bool
-	IsERC20Registered(ctx sdk.Context, contractAddr common.Address) bool
 	GetTokenPairID(ctx sdk.Context, token string) []byte
 	GetTokenPair(ctx sdk.Context, id []byte) (erc20types.TokenPair, bool)
 	ConvertERC20(ctx context.Context, msg *erc20types.MsgConvertERC20) (*erc20types.MsgConvertERC20Response, error)

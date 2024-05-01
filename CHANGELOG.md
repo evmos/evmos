@@ -49,8 +49,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
-- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion from EVM hooks (#2380).
-- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion from EVM hooks (#2154) (#2442).
+- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion of EVM hooks (#2380).
+- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion of EVM hooks (#2154) (#2442).
+- (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
+- (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade.
 
 ### Bug Fixes
 

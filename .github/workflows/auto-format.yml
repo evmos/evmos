@@ -3,6 +3,8 @@ name: Auto Format
 on:
   pull_request:
 
+permissions: read-all
+
 jobs:
   format-go-code:
     runs-on: ubuntu-latest

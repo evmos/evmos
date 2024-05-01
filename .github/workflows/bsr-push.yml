@@ -6,6 +6,7 @@ on:
   push:
     tags:
       - "v*.*.*"
+permissions: read-all
 
 jobs:
   push:
