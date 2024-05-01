@@ -21,22 +21,7 @@ func LoadContractFromJSONFile(jsonFile string) (evmtypes.CompiledContract, error
 		return evmtypes.CompiledContract{}, err
 	}
 
-	var contract evmtypes.HardhatCompiledContract
-	err = json.Unmarshal(compiledBytes, &contract)
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	compiledContract, err := contract.ToCompiledContract()
-	if err != nil {
-		return evmtypes.CompiledContract{}, err
-	}
-
-	if len(compiledContract.Bin) == 0 {
-		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
-	}
-
-	return compiledContract, nil
+	return ConvertHardhatBytesToCompiledContract(compiledBytes)
 }
 
 // LegacyLoadContractFromJSONFile is a helper method to convert the embedded bytes from a JSON file,
@@ -83,4 +68,25 @@ func loadCompiledBytesFromJSONFile(jsonFile string) ([]byte, error) {
 	}
 
 	return compiledBytes, nil
+}
+
+// ConvertHardhatBytesToCompiledContract is a helper method to convert the embedded bytes from a
+// Hardhat JSON file into an instance of the CompiledContract type.
+func ConvertHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
+	var hardhatContract evmtypes.HardhatCompiledContract
+	err := json.Unmarshal(bz, &hardhatContract)
+	if err != nil {
+		return evmtypes.CompiledContract{}, err
+	}
+
+	compiledContract, err := hardhatContract.ToCompiledContract()
+	if err != nil {
+		return evmtypes.CompiledContract{}, err
+	}
+
+	if len(compiledContract.Bin) == 0 {
+		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
+	}
+
+	return compiledContract, nil
 }
