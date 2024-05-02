@@ -38,7 +38,8 @@ func CreateUpgradeHandler(
 }
 
 func RemoveOutpostsFromEvmParams(ctx sdk.Context,
-	evmKeeper *evmkeeper.Keeper) error {
+	evmKeeper *evmkeeper.Keeper,
+) error {
 	params := evmKeeper.GetParams(ctx)
 	newActivePrecompiles := make([]string, 0)
 	for _, precompile := range params.ActivePrecompiles {
