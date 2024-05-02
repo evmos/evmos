@@ -18,8 +18,10 @@ const (
 
 // Parameter store key
 var (
-	ParamStoreKeyEnableErc20   = []byte("EnableErc20")
-	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
+	ParamStoreKeyEnableErc20        = []byte("EnableErc20")
+	ParamStoreKeyEnableEVMHook      = []byte("EnableEVMHook")
+	// ParamStoreKeyDynamicPrecompiles = []byte("DynamicPrecompiles")
+	// ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
 	// DefaultWrappedNativeCoinPrecompiles defines the default precompiles for the wrapped native coin
 	DefaultNativePrecompiles = []string{WEVMOSContractMainnet}
 	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles

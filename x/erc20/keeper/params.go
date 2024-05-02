@@ -6,27 +6,49 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/x/erc20/types"
+	"slices"
 )
 
 var isTrue = []byte("0x01")
 
 // GetParams returns the total set of erc20 parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	enableErc20 := k.IsERC20Enabled(ctx)
-	enableEvmHook := k.GetEnableEVMHook(ctx)
-
-	return types.NewParams(enableErc20, enableEvmHook)
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.KeyPrefixParams)
+	if len(bz) == 0 {
+		panic("ERC20 params not found")
+	}
+	k.cdc.MustUnmarshal(bz, &params)
+	return
+	// enableErc20 := k.IsERC20Enabled(ctx)
+	// enableEvmHook := k.GetEnableEVMHook(ctx)
+	//
+	// return types.NewParams(enableErc20, enableEvmHook)
 }
 
+// TODO - DO NOT LET ME MERGE THIS
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	if err := params.Validate(); err != nil {
 		return err
 	}
+	// and keep params equal between different executions
+	slices.Sort(params.DynamicPrecompiles)
+	slices.Sort(params.NativePrecompiles)
 
-	k.setERC20Enabled(ctx, params.EnableErc20)
-	k.setEnableEVMHook(ctx, params.EnableEVMHook)
+	store := ctx.KVStore(k.storeKey)
+	bz, err := k.cdc.Marshal(&params)
+	if err != nil {
+		return err
+	}
+
+	store.Set(types.KeyPrefixParams, bz)
 	return nil
+
+	// k.setERC20Enabled(ctx, params.EnableErc20)
+	// k.setEnableEVMHook(ctx, params.EnableEVMHook)
+	//
+	// return nil
 }
 
 // IsERC20Enabled returns true if the module logic is enabled

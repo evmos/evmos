@@ -32,6 +32,7 @@ const (
 	prefixTokenPair = iota + 1
 	prefixTokenPairByERC20
 	prefixTokenPairByDenom
+	prefixParams
 )
 
 // KVStore key prefixes
@@ -39,4 +40,5 @@ var (
 	KeyPrefixTokenPair        = []byte{prefixTokenPair}
 	KeyPrefixTokenPairByERC20 = []byte{prefixTokenPairByERC20}
 	KeyPrefixTokenPairByDenom = []byte{prefixTokenPairByDenom}
+	KeyPrefixParams           = []byte{prefixParams}
 )
