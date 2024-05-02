@@ -47,6 +47,7 @@ type StakingKeeper interface {
 // Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
 type Erc20Keeper interface {
 	InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error)
+	GetERC20PrecompileInstance(ctx sdk.Context, address common.Address) (contract vm.PrecompiledContract, found bool, err error)
 }
 
 // FeeMarketKeeper

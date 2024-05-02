@@ -26,7 +26,6 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 
 	k.setERC20Enabled(ctx, params.EnableErc20)
 	k.setEnableEVMHook(ctx, params.EnableEVMHook)
-
 	return nil
 }
 

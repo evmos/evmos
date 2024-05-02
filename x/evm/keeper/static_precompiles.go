@@ -104,42 +104,42 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 	return k
 }
 
-// GetStaticPrecompilesInstances returns the addresses and instances of the active static precompiles.
-// Includes the Berlin precompiles.
-func (k Keeper) GetStaticPrecompilesInstances(
-	params *types.Params,
-) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
-	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
-	activeLen := len(params.ActiveStaticPrecompiles)
-	totalLen := activeLen + len(vm.PrecompiledAddressesBerlin)
-	addresses := make([]common.Address, totalLen)
-	// Append the Berlin precompiles to the active precompiles addresses
-	// Add params precompiles
-	for i, address := range params.ActiveStaticPrecompiles {
-		hexAddress := common.HexToAddress(address)
-
-		precompile, ok := k.precompiles[hexAddress]
-		if !ok {
-			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
-		}
-
-		activePrecompileMap[hexAddress] = precompile
-		addresses[i] = hexAddress
-	}
-
-	// Add Berlin precompiles to map
-	for _, precompile := range vm.PrecompiledAddressesBerlin {
-		precompile, ok := k.precompiles[precompile]
-		if !ok {
-			panic(fmt.Sprintf("precompiled contract not initialized: %s", precompile))
-		}
-		activePrecompileMap[precompile.Address()] = precompile
-	}
-	// Copy Berlin precompiles to addresses
-	copy(addresses[activeLen:], vm.PrecompiledAddressesBerlin)
-
-	return addresses, activePrecompileMap
-}
+// // GetStaticPrecompilesInstances returns the addresses and instances of the active static precompiles.
+// // Includes the Berlin precompiles.
+// func (k Keeper) GetStaticPrecompilesInstances(
+// 	params *types.Params,
+// ) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
+// 	activePrecompileMap := make(map[common.Address]vm.PrecompiledContract)
+// 	activeLen := len(params.ActiveStaticPrecompiles)
+// 	totalLen := activeLen + len(vm.PrecompiledAddressesBerlin)
+// 	addresses := make([]common.Address, totalLen)
+// 	// Append the Berlin precompiles to the active precompiles addresses
+// 	// Add params precompiles
+// 	for i, address := range params.ActiveStaticPrecompiles {
+// 		hexAddress := common.HexToAddress(address)
+//
+// 		precompile, ok := k.precompiles[hexAddress]
+// 		if !ok {
+// 			panic(fmt.Sprintf("precompiled contract not initialized: %s", address))
+// 		}
+//
+// 		activePrecompileMap[hexAddress] = precompile
+// 		addresses[i] = hexAddress
+// 	}
+//
+// 	// Add Berlin precompiles to map
+// 	for _, precompile := range vm.PrecompiledAddressesBerlin {
+// 		precompile, ok := k.precompiles[precompile]
+// 		if !ok {
+// 			panic(fmt.Sprintf("precompiled contract not initialized: %s", precompile))
+// 		}
+// 		activePrecompileMap[precompile.Address()] = precompile
+// 	}
+// 	// Copy Berlin precompiles to addresses
+// 	copy(addresses[activeLen:], vm.PrecompiledAddressesBerlin)
+//
+// 	return addresses, activePrecompileMap
+// }
 
 // GetStaticPrecompileInstance returns the instance of the given static precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {

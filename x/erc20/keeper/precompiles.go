@@ -6,12 +6,31 @@ package keeper
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/x/erc20/types"
+	"slices"
 )
+
+// GetDynamicPrecompileInstance returns the dynamic precompile instance for the given address.
+func (k Keeper) GetERC20PrecompileInstance(
+	ctx sdk.Context,
+	address common.Address,
+) (contract vm.PrecompiledContract, found bool, err error) {
+	params := k.GetParams(ctx)
+
+	if k.IsAvailableERC20Precompile(&params, address) {
+		precompile, err := k.InstantiateERC20Precompile(ctx, address)
+		if err != nil {
+			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
+		}
+		return precompile, true, nil
+	}
+	return nil, false, nil
+}
 
 // InstantiateERC20Precompile returns an ERC20 precompile instance for the given contract address
 func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error) {
@@ -28,22 +47,9 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
-// RegisterERC20Extension creates and adds an ERC20 precompile interface for an IBC Coin.
-//
-// It derives the ERC-20 address from the token denomination and registers the
-// EVM extension as an active dynamic precompile.
-//
-// CONTRACT: This must ONLY be called if there is no existing token pair for the given denom.
-func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.TokenPair, error) {
-	pair, err := k.CreateNewTokenPair(ctx, denom, types.OWNER_MODULE)
-	if err != nil {
-		return nil, err
-	}
-	// Add to existing EVM extensions
-	err = k.evmKeeper.EnableDynamicPrecompiles(ctx, pair.GetERC20Contract())
-	if err != nil {
-		return nil, err
-	}
-
-	return &pair, err
+// IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
+// EVM keeper's available dynamic precompiles precompiles params.
+func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
+	return slices.Contains(params.NativePrecompiles, address.Hex()) ||
+		slices.Contains(params.DynamicPrecompiles, address.Hex())
 }

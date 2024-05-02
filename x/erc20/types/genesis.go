@@ -23,6 +23,7 @@ func DefaultGenesisState() *GenesisState {
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
+// TODO: Validate that the precompiles have a corresponding token pair
 func (gs GenesisState) Validate() error {
 	seenErc20 := make(map[string]bool)
 	seenDenom := make(map[string]bool)

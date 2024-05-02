@@ -19,7 +19,7 @@ func RegisterERC20Extensions(
 	evmKeeper *evmkeeper.Keeper,
 ) error {
 	precompiles := make([]common.Address, 0)
-	evmParams := evmKeeper.GetParams(ctx)
+	erc20Params := erc20Keeper.GetParams(ctx)
 
 	var err error
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
@@ -28,7 +28,7 @@ func RegisterERC20Extensions(
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
 		if !tokenPair.IsNativeCoin() ||
-			evmKeeper.IsAvailableDynamicPrecompile(&evmParams, address) {
+			erc20Keeper.IsAvailableERC20Precompile(&erc20Params, address) {
 			return false
 		}
 

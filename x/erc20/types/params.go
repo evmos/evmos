@@ -4,13 +4,26 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
+	"github.com/evmos/evmos/v18/types"
+	"slices"
+)
+
+const (
+	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
+	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
 
 // Parameter store key
 var (
 	ParamStoreKeyEnableErc20   = []byte("EnableErc20")
 	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
+	// DefaultWrappedNativeCoinPrecompiles defines the default precompiles for the wrapped native coin
+	DefaultNativePrecompiles = []string{WEVMOSContractMainnet}
+	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
+	DefaultDynamicPrecompiles []string
 )
 
 // NewParams creates a new Params object
@@ -26,8 +39,10 @@ func NewParams(
 
 func DefaultParams() Params {
 	return Params{
-		EnableErc20:   true,
-		EnableEVMHook: true,
+		EnableErc20:        true,
+		EnableEVMHook:      true,
+		NativePrecompiles:  DefaultNativePrecompiles,
+		DynamicPrecompiles: DefaultDynamicPrecompiles,
 	}
 }
 
@@ -45,5 +60,41 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return ValidateBool(p.EnableErc20)
+	if err := ValidateBool(p.EnableErc20); err != nil {
+		return err
+	}
+
+	if err := ValidatePrecompiles(p.NativePrecompiles); err != nil {
+		return err
+	}
+	return ValidatePrecompiles(p.DynamicPrecompiles)
+}
+
+// ValidatePrecompiles checks if the precompile addresses are valid and unique.
+func ValidatePrecompiles(i interface{}) error {
+	precompiles, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid precompile slice type: %T", i)
+	}
+
+	seenPrecompiles := make(map[string]struct{})
+	for _, precompile := range precompiles {
+		if _, ok := seenPrecompiles[precompile]; ok {
+			return fmt.Errorf("duplicate precompile %s", precompile)
+		}
+
+		if err := types.ValidateAddress(precompile); err != nil {
+			return fmt.Errorf("invalid precompile %s", precompile)
+		}
+
+		seenPrecompiles[precompile] = struct{}{}
+	}
+
+	// NOTE: Check that the precompiles are sorted. This is required for the
+	// precompiles to be found correctly when using the IsActivePrecompile method,
+	// because of the use of sort.Find.
+	if !slices.IsSorted(precompiles) {
+		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
+	}
+	return nil
 }

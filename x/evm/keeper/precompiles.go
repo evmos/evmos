@@ -7,30 +7,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v18/x/evm/types"
-	"golang.org/x/exp/maps"
 )
-
-// GetActivePrecompilesInstances returns a map of both static and dynamic active precompiles
-func (k *Keeper) GetActivePrecompilesInstances(
-	ctx sdktypes.Context,
-	params types.Params,
-) ([]common.Address, map[common.Address]vm.PrecompiledContract) {
-	staticAddresses, staticPrecompilesMap := k.GetStaticPrecompilesInstances(&params)
-	dynamicAddresses, dynamicPrecompileMap := k.GetDynamicPrecompilesInstances(ctx, &params)
-	// Append the dynamic precompiles to the active precompiles
-	maps.Copy(staticPrecompilesMap, dynamicPrecompileMap)
-
-	// Append the dynamic precompiles to the active precompiles addresses
-	staticLen := len(staticAddresses)
-	dynamicLen := len(dynamicAddresses)
-	totalLen := staticLen + dynamicLen
-	addresses := make([]common.Address, totalLen)
-	copy(addresses[:staticLen], staticAddresses)
-	copy(addresses[staticLen:], dynamicAddresses)
-
-	return addresses, staticPrecompilesMap
-}
 
 type Precompiles struct {
 	Map       map[common.Address]vm.PrecompiledContract
@@ -56,7 +33,7 @@ func (k *Keeper) GetPrecompileInstance(
 	}
 
 	// Get the precompile from the dynamic precompiles
-	precompile, found, err := k.GetDynamicPrecompileInstance(ctx, &params, address)
+	precompile, found, err := k.erc20Keeper.GetERC20PrecompileInstance(ctx, address)
 	if err != nil || !found {
 		return nil, false, err
 	}

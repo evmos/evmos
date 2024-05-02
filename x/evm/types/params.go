@@ -6,21 +6,23 @@ import (
 	"fmt"
 	"math/big"
 	"slices"
-	"sort"
-	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	"github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
 )
+
+type WrappedNativeCoinPrecompile struct {
+	ContractAddress string `json:"contract_address"`
+	Denom           string `json:"denom"`
+}
 
 const (
 	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
@@ -172,36 +174,10 @@ func (p Params) EIPs() []int {
 	return eips
 }
 
-// HasCustomPrecompiles returns true if the ActiveStaticPrecompiles slice is not empty.
-func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActiveStaticPrecompiles) > 0 || len(p.ActiveDynamicPrecompiles) > 0
-}
-
 // IsEVMChannel returns true if the channel provided is in the list of
 // EVM channels
 func (p Params) IsEVMChannel(channel string) bool {
 	return slices.Contains(p.EVMChannels, channel)
-}
-
-// IsActiveStaticPrecompile returns true if the given precompile address is
-// registered as an active precompile.
-func (p Params) IsActiveStaticPrecompile(address common.Address) bool {
-	addrHex := address.Hex()
-	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
-		return strings.Compare(addrHex, p.ActiveStaticPrecompiles[i])
-	})
-
-	return found
-}
-
-// IsActiveDynamicPrecompile returns true if the given precompile address is
-// registered as an active dynamic precompile.
-func (p Params) IsActiveDynamicPrecompile(address common.Address) bool {
-	addrHex := address.Hex()
-	_, found := sort.Find(len(p.ActiveDynamicPrecompiles), func(i int) int {
-		return strings.Compare(addrHex, p.ActiveDynamicPrecompiles[i])
-	})
-	return found
 }
 
 func validateEVMDenom(i interface{}) error {
