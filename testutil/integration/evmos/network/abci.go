@@ -18,9 +18,23 @@ func (n *IntegrationNetwork) NextBlock() error {
 }
 
 // NextBlockAfter is a private helper function that runs the FinalizeBlock logic, updates the context and
-//
-//	commits the changes to have a block time after the given duration.
+// commits the changes to have a block time after the given duration.
 func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
+	_, err := n.finalizeBlockAndCommit(duration)
+	return err
+}
+
+// NextBlockWithTxs is a helper function that runs the FinalizeBlock logic
+// with the provided tx bytes, updates the context and
+// commits the changes to have a block time after the given duration.
+func (n *IntegrationNetwork) NextBlockWithTxs(txBytes ...[]byte) (*abcitypes.ResponseFinalizeBlock, error) {
+	return n.finalizeBlockAndCommit(time.Second, txBytes...)
+}
+
+// finalizeBlockAndCommit is a private helper function that runs the FinalizeBlock logic
+// with the provided txBytes, updates the context and
+// commits the changes to have a block time after the given duration.
+func (n *IntegrationNetwork) finalizeBlockAndCommit(duration time.Duration, txBytes ...[]byte) (*abcitypes.ResponseFinalizeBlock, error) {
 	header := n.ctx.BlockHeader()
 	// Update block header and BeginBlock
 	header.Height++
@@ -30,10 +44,11 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	header.Time = newBlockTime
 
 	// FinalizeBlock to run endBlock, deliverTx & beginBlock logic
-	req := buildFinalizeBlockReq(header, n.valSet.Validators)
+	req := buildFinalizeBlockReq(header, n.valSet.Validators, txBytes...)
 
-	if _, err := n.app.FinalizeBlock(req); err != nil {
-		return err
+	res, err := n.app.FinalizeBlock(req)
+	if err != nil {
+		return nil, err
 	}
 
 	newCtx := n.app.BaseApp.NewContextLegacy(false, header)
@@ -49,9 +64,9 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	n.ctx = newCtx
 
 	// commit changes
-	_, err := n.app.Commit()
+	_, err = n.app.Commit()
 
-	return err
+	return res, err
 }
 
 // buildFinalizeBlockReq is a helper function to build

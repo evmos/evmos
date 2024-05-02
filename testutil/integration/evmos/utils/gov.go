@@ -78,7 +78,7 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 		"",
 	)
 
-	res, err := tf.ExecuteCosmosTx(voterPriv, commonfactory.CosmosTxArgs{
+	res, err := tf.CommitCosmosTx(voterPriv, commonfactory.CosmosTxArgs{
 		Msgs: []sdk.Msg{msgVote},
 	})
 
@@ -141,7 +141,7 @@ func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
 }
 
 func submitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, txArgs commonfactory.CosmosTxArgs) (uint64, error) {
-	res, err := tf.ExecuteCosmosTx(proposerPriv, txArgs)
+	res, err := tf.CommitCosmosTx(proposerPriv, txArgs)
 	if err != nil {
 		return 0, err
 	}

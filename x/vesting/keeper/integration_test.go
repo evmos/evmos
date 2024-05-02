@@ -1640,7 +1640,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		It("should claw back any unvested amount after cliff before unlocking", func() {
 			// Surpass cliff but not lockup duration
 			cliffDuration := time.Duration(cliffLength)
-			s.network.NextBlockAfter(cliffDuration * time.Second)
+			Expect(s.network.NextBlockAfter(cliffDuration * time.Second)).To(BeNil())
 			blockTime := s.network.GetContext().BlockTime()
 
 			// Check that all tokens are locked and some, but not all tokens are vested
@@ -1664,7 +1664,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			poolRes, err := s.handler.GetCommunityPool()
 			Expect(err).To(BeNil())
 			dustPerTx := poolRes.Pool[0]
-			totalDust := dustPerTx.Amount.MulInt64(9).TruncateInt()
+			totalDust := dustPerTx.Amount.MulInt64(8).TruncateInt()
 
 			// stake vested tokens
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
@@ -1676,7 +1676,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				delCoin,
 			)
 			Expect(err).To(BeNil())
-			Expect(s.network.NextBlock()).To(BeNil())
 
 			balRes, err := s.handler.GetBalance(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())

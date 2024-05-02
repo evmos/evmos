@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -24,6 +26,9 @@ type BaseTxFactory interface {
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 	// EncodeTx encodes the provided transaction
 	EncodeTx(tx sdktypes.Tx) ([]byte, error)
+	// CommitCosmosTx creates, signs and commits a cosmos tx
+	// (produces a block with the specified transaction)
+	CommitCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 }
 
 // baseTxFactory is the struct of the basic tx factory
@@ -69,6 +74,30 @@ func (tf *baseTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs Cos
 	}
 
 	return tf.network.BroadcastTxSync(txBytes)
+}
+
+// CommitCosmosTx creates and signs a Cosmos transaction, and then includes it in
+// a block and commits the state changes on the chain
+func (tf *baseTxFactory) CommitCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error) {
+	signedTx, err := tf.BuildCosmosTx(privKey, txArgs)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build tx")
+	}
+
+	txBytes, err := tf.EncodeTx(signedTx)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode tx")
+	}
+
+	blockRes, err := tf.network.NextBlockWithTxs(txBytes)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to include the tx in a block")
+	}
+	txResCount := len(blockRes.TxResults)
+	if txResCount != 1 {
+		return abcitypes.ExecTxResult{}, fmt.Errorf("expected to receive only one tx result, but got %d", txResCount)
+	}
+	return *blockRes.TxResults[0], nil
 }
 
 // SignCosmosTx is a helper function that signs a Cosmos transaction

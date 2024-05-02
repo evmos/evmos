@@ -45,14 +45,14 @@ func (tf *stakingTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validato
 	gas := uint64(400_000)
 	gasPrice := feesToPay.QuoRaw(int64(gas))
 
-	resp, err := tf.ExecuteCosmosTx(delegatorPriv, CosmosTxArgs{
+	res, err := tf.CommitCosmosTx(delegatorPriv, CosmosTxArgs{
 		Msgs:     []sdk.Msg{msgDelegate},
 		Gas:      &gas,
 		GasPrice: &gasPrice,
 	})
 
-	if resp.Code != 0 {
-		err = fmt.Errorf("received error code %d on Delegate transaction. Logs: %s", resp.Code, resp.Log)
+	if res.IsErr() {
+		return fmt.Errorf("tx result with code %d. Logs: %s", res.Code, res.Log)
 	}
 
 	return err
