@@ -24,7 +24,7 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 		return nil, err
 	}
 	// Add to existing EVM extensions
-	err = k.enableDynamicPrecompiles(ctx, pair.GetERC20Contract())
+	err = k.EnableDynamicPrecompiles(ctx, pair.GetERC20Contract())
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active dynamic precompiles.
-func (k Keeper) enableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	// Get the current params and append the new precompiles
 	params := k.GetParams(ctx)
 	activePrecompiles := params.DynamicPrecompiles

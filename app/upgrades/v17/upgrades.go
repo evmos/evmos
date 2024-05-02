@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v18/utils"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	erctypes "github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0
@@ -39,9 +39,9 @@ func CreateUpgradeHandler(
 		var wrappedContractAddr common.Address
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
-			wrappedContractAddr = common.HexToAddress(evmtypes.WEVMOSContractMainnet)
+			wrappedContractAddr = common.HexToAddress(erctypes.WEVMOSContractMainnet)
 		case utils.IsTestnet(ctx.ChainID()):
-			wrappedContractAddr = common.HexToAddress(evmtypes.WEVMOSContractTestnet)
+			wrappedContractAddr = common.HexToAddress(erctypes.WEVMOSContractTestnet)
 		default:
 			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
 		}

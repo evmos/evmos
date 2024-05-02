@@ -28,8 +28,6 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
 	// and keep params equal between different executions
 	slices.Sort(params.ActiveStaticPrecompiles)
-	slices.Sort(params.ActiveDynamicPrecompiles)
-	slices.Sort(params.WrappedNativeCoinPrecompiles)
 
 	if err := params.Validate(); err != nil {
 		return err
@@ -52,24 +50,6 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	return params
 }
 
-// EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
-// of active dynamic precompiles.
-func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
-	// Get the current params and append the new precompiles
-	params := k.GetParams(ctx)
-	activePrecompiles := params.ActiveDynamicPrecompiles
-
-	// Append and sort the new precompiles
-	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
-
-	// Update params
-	params.ActiveDynamicPrecompiles = updatedPrecompiles
-	return k.SetParams(ctx, params)
-}
-
 // EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
 // of active static precompiles.
 func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
@@ -83,22 +63,6 @@ func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Add
 	}
 
 	params.ActiveStaticPrecompiles = updatedPrecompiles
-	return k.SetParams(ctx, params)
-}
-
-// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
-// of active static precompiles.
-func (k Keeper) EnableWrappNativeCoinPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
-	params := k.GetParams(ctx)
-	activePrecompiles := params.WrappedNativeCoinPrecompiles
-
-	// Append and sort the new precompiles
-	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
-	if err != nil {
-		return err
-	}
-
-	params.WrappedNativeCoinPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
 }
 

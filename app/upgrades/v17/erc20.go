@@ -53,5 +53,6 @@ func RegisterERC20Extensions(
 	}
 
 	// add the ERC20s to the EVM active and available precompiles
-	return evmKeeper.EnableDynamicPrecompiles(ctx, precompiles...)
+	// TODO - DO NOT LET ME MERGE UNTIL I ORGANIZE THIS
+	return erc20Keeper.EnableDynamicPrecompiles(ctx, precompiles...)
 }
