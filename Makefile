@@ -545,56 +545,24 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-CONTRACTS_DIR := contracts
-COMPILED_DIR := $(CONTRACTS_DIR)/compiled_contracts
-TMP := tmp
-TMP_CONTRACTS := $(TMP)/contracts
-TMP_COMPILED := $(TMP)/compiled.json
-TMP_JSON := $(TMP)/tmp.json
+# Clean up the contracts directory, install the necessary dependencies
+# and then compile the solidity contracts found in the Evmos repository.
+contracts-all: contracts-clean contracts-compile
 
-# Compile and format solidity contracts for the erc20 module. Also install
-# openzeppeling as the contracts are build on top of openzeppelin templates.
-contracts-compile: contracts-clean openzeppelin create-contracts-json
-
-# Install openzeppelin solidity contracts
-openzeppelin:
-	@echo "Importing openzeppelin contracts..."
-	@cd $(CONTRACTS_DIR) && \
-	 npm install && \
-	 mv node_modules $(TMP) && \
-	 mv $(TMP)/@openzeppelin . && \
-	 rm -rf $(TMP)
-
-# Clean tmp files
+# Clean smart contract compilation artifacts, dependencies and cache files
 contracts-clean:
-	@rm -rf $(CONTRACTS_DIR)/$(TMP)
-	@rm -rf $(CONTRACTS_DIR)/node_modules
-	@rm -rf $(COMPILED_DIR)
-	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
+	@echo "Cleaning up the contracts directory..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --clean
 
-# Compile, filter out and format contracts into the following format.
-# {
-# 	"abi": "[{\"inpu 			# JSON string
-# 	"bin": "60806040
-# 	"contractName": 			# filename without .sol
-# }
-create-contracts-json:
-	@for c in $(shell ls $(CONTRACTS_DIR) | grep '\.sol' | sed 's/.sol//g'); do \
-		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
-		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
-		mkdir -p $(COMPILED_DIR) ;\
-		mkdir -p $(TMP) ;\
-		echo "\nCompiling solidity contract $${c}..." ;\
-		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${c}.sol > $(TMP_COMPILED) ;\
-		echo "Formatting JSON..." ;\
-		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/'$$c'.sol:'$$c'"]' $(TMP_COMPILED)) ;\
-		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "'$$c'" }') ;\
-		echo $$add_contract_name | jq > $(TMP_JSON) ;\
-		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
-		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
-		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
-	done
-	@rm -rf $(TMP)
+# Compile the solidity contracts found in the Evmos repository.
+contracts-compile:
+	@echo "Compiling smart contracts..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
+
+# Add a new solidity contract to be compiled
+contracts-add:
+	@echo "Adding a new smart contract to be compiled..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --add $(CONTRACT)
 
 ###############################################################################
 ###                           Miscellaneous Checks                          ###

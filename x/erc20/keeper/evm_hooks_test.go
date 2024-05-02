@@ -223,7 +223,8 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 
 	transferData := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	transferData[31] = uint8(10)
-	erc20 := contracts.ERC20BurnableContract.ABI
+
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	transferEvent := erc20.Events["Transfer"]
 

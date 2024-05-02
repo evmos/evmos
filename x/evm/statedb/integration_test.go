@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/x/evm/statedb/testdata"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
@@ -46,8 +47,9 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 
 		deployer testkeyring.Key
 
-		erc20Addr     common.Address
-		flashLoanAddr common.Address
+		erc20Addr         common.Address
+		flashLoanAddr     common.Address
+		flashLoanContract evmtypes.CompiledContract
 
 		validatorToDelegateTo string
 
@@ -80,6 +82,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		res, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
 		delegatedAmountPre = res.DelegationResponse.Balance.Amount
+
+		// Load the flash loan contract from the compiled JSON data
+		flashLoanContract, err = testdata.LoadFlashLoanContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load flash loan contract")
 	})
 
 	It("should deploy an ERC-20 token contract", func() {
@@ -144,7 +150,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			deployer.Priv,
 			evmtypes.EvmTxArgs{},
 			testfactory.ContractDeploymentData{
-				Contract: contracts.FlashLoanContract,
+				Contract: flashLoanContract,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
@@ -236,7 +242,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &flashLoanAddr},
 			testfactory.CallArgs{
-				ContractABI: contracts.FlashLoanContract.ABI,
+				ContractABI: flashLoanContract.ABI,
 				MethodName:  "flashLoan",
 				Args: []interface{}{
 					erc20Addr,
