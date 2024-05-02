@@ -53,7 +53,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion of EVM hooks (#2154) (#2442).
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
 - (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade.
+- (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
+
 
 ### Bug Fixes
 
