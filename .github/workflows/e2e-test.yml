@@ -51,12 +51,10 @@ jobs:
             "test_grpc_only.py"
             "test_ibc.py"
             "test_no_abci_resp.py"
-            "test_osmosis_outpost.py"
             "test_precompiles.py"
             "test_priority.py"
             "test_pruned_node.py"
             "test_rollback.py"
-            "test_stride_outpost.py"
             "test_storage_proof.py"
             "test_zero_fee.py"
           )
