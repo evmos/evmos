@@ -10,8 +10,6 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v18/precompiles/bech32"
-	osmosisoutpost "github.com/evmos/evmos/v18/precompiles/outposts/osmosis"
-	strideoutpost "github.com/evmos/evmos/v18/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	"github.com/evmos/evmos/v18/utils"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
@@ -38,13 +36,6 @@ func CreateUpgradeHandler(
 			if err := ek.EnablePrecompiles(ctx, p256Address, bech32Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
-		}
-
-		// enable stride and osmosis outposts
-		strideAddress := strideoutpost.Precompile{}.Address()
-		osmosisAddress := osmosisoutpost.Precompile{}.Address()
-		if err := ek.EnablePrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
-			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
 		// Add Burner role to fee collector

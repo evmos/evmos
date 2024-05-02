@@ -498,11 +498,9 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
-	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
-			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -1142,6 +1140,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.UpgradeName,
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.EvmKeeper,
 		),
 	)
 
