@@ -2,10 +2,10 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestNewKeeper() {

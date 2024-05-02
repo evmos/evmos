@@ -9,7 +9,7 @@ import (
 	"maps"
 	"sort"
 
-	"github.com/evmos/evmos/v18/precompiles/bech32"
+	"github.com/evmos/evmos/v19/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -19,16 +19,16 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
-	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
-	"github.com/evmos/evmos/v18/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
-	erc20Keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
-	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
+	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
+	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
+	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
+	"github.com/evmos/evmos/v19/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
+	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.

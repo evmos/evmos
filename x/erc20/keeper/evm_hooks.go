@@ -13,12 +13,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
-	"github.com/evmos/evmos/v18/contracts"
-	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/contracts"
+	erc20precompile "github.com/evmos/evmos/v19/precompiles/erc20"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}

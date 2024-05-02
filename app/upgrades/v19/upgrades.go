@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 )
 
 const (
