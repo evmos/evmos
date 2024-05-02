@@ -13,7 +13,8 @@ import (
 )
 
 type StakingTxFactory interface {
-	// Delegate is a method to create and broadcast a MsgDelegate paying always the same fee amount
+	// Delegate is a method to create and execute a MsgDelegate paying always the same fee amount
+	// The tx is included in a block and committed in the chain state
 	Delegate(delegatorPriv cryptotypes.PrivKey, validatorAddr string, amount sdk.Coin) error
 	// CreateValidator is a method to create and broadcast a MsgCreateValidator
 	CreateValidator(operatorPriv cryptotypes.PrivKey, pubKey cryptotypes.PubKey, selfDelegation sdk.Coin, description stakingtypes.Description, commission stakingtypes.CommissionRates, minSelfDelegation math.Int) error
