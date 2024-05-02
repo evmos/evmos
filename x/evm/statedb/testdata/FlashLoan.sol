@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../precompiles/staking/StakingI.sol" as staking;
-import "./@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../../../precompiles/staking/StakingI.sol" as staking;
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract FlashLoan {
     address public owner;

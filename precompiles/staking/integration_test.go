@@ -31,6 +31,7 @@ import (
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
@@ -1468,6 +1469,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
 
+		// stakingCallerContract is the contract instance calling into the staking precompile
+		stakingCallerContract evmtypes.CompiledContract
+
 		// approvalCheck is a configuration for the log checker to see if an approval event was emitted.
 		approvalCheck testutil.LogCheckArgs
 		// execRevertedCheck defines the default log checking arguments which include the
@@ -1484,7 +1488,11 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-		contractAddr, err = s.DeployContract(testdata.StakingCallerContract)
+
+		stakingCallerContract, err = testdata.LoadStakingCallerContract()
+		Expect(err).To(BeNil(), "error while loading the staking caller contract: %v", err)
+
+		contractAddr, err = s.DeployContract(stakingCallerContract)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 		valAddr = s.validators[0].GetOperator()
 		valAddr2 = s.validators[1].GetOperator()
@@ -1499,7 +1507,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// populate default call args
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: contractAddr,
-			ContractABI:  testdata.StakingCallerContract.ABI,
+			ContractABI:  stakingCallerContract.ABI,
 			PrivKey:      s.privKey,
 		}
 		// populate default approval args
@@ -3097,6 +3105,8 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 	var (
 		// contractAddr is the address of the deployed StakingCaller contract
 		contractAddr common.Address
+		// stakingCallerContract is the contract instance calling into the staking precompile
+		stakingCallerContract evmtypes.CompiledContract
 		// erc20ContractAddr is the address of the deployed ERC20 contract
 		erc20ContractAddr common.Address
 		// erc20Contract is the compiled ERC20 contract
@@ -3117,8 +3127,11 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		s.SetupTest()
 		s.NextBlock()
 
+		stakingCallerContract, err = testdata.LoadStakingCallerContract()
+		Expect(err).To(BeNil(), "error while loading the StakingCaller contract")
+
 		// Deploy StakingCaller contract
-		contractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, testdata.StakingCallerContract)
+		contractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, stakingCallerContract)
 		Expect(err).To(BeNil(), "error while deploying the StakingCaller contract")
 
 		// Deploy ERC20 contract
@@ -3151,7 +3164,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 
 		// populate default call args
 		defaultCallArgs = contracts.CallArgs{
-			ContractABI:  testdata.StakingCallerContract.ABI,
+			ContractABI:  stakingCallerContract.ABI,
 			ContractAddr: contractAddr,
 			MethodName:   "callERC20AndDelegate",
 			PrivKey:      s.privKey,

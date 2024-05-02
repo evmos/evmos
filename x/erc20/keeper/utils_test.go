@@ -30,6 +30,7 @@ import (
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	teststypes "github.com/evmos/evmos/v18/types/tests"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/keeper/testdata"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evm "github.com/evmos/evmos/v18/x/evm/types"
@@ -323,12 +324,16 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 func (suite *KeeperTestSuite) DeployContractMaliciousDelayed() (common.Address, error) {
 	suite.Commit()
+
+	maliciousDelayedContract, err := testdata.LoadMaliciousDelayedContract()
+	suite.Require().NoError(err, "failed to load malicious delayed contract")
+
 	addr, err := testutil.DeployContract(
 		suite.ctx,
 		suite.app,
 		suite.priv,
 		suite.queryClientEvm,
-		contracts.ERC20MaliciousDelayedContract,
+		maliciousDelayedContract,
 		big.NewInt(1000000000000000000),
 	)
 	suite.Commit()
@@ -337,12 +342,16 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed() (common.Address, 
 
 func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation() (common.Address, error) {
 	suite.Commit()
+
+	balanceManipulationContract, err := testdata.LoadBalanceManipulationContract()
+	suite.Require().NoError(err, "failed to load balance manipulation contract")
+
 	addr, err := testutil.DeployContract(
 		suite.ctx,
 		suite.app,
 		suite.priv,
 		suite.queryClientEvm,
-		contracts.ERC20DirectBalanceManipulationContract,
+		balanceManipulationContract,
 		big.NewInt(1000000000000000000),
 	)
 	suite.Commit()

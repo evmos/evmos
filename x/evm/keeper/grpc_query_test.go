@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -498,6 +500,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 	higherGas := hexutil.Uint64(25000)
 	hexBigInt := hexutil.Big(*big.NewInt(1))
 
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
+
 	var (
 		args   interface{}
 		gasCap uint64
@@ -571,10 +576,10 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 		{
 			"contract deployment",
 			func() {
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+				ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
 
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
@@ -591,7 +596,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() {
 				contractAddr := suite.DeployTestContract(suite.T(), suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Commit()
-				transferData, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+				transferData, err := erc20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 				suite.Require().NoError(err)
 				args = types.TransactionArgs{To: &contractAddr, From: &suite.address, Data: (*hexutil.Bytes)(&transferData)}
 			},
@@ -649,9 +654,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 		{
 			"contract deployment w/ enableFeemarket",
 			func() {
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+				ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
@@ -667,7 +672,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() {
 				contractAddr := suite.DeployTestContract(suite.T(), suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Commit()
-				transferData, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+				transferData, err := erc20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 				suite.Require().NoError(err)
 				args = types.TransactionArgs{To: &contractAddr, From: &suite.address, Data: (*hexutil.Bytes)(&transferData)}
 			},
@@ -678,9 +683,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 		{
 			"contract creation but 'create' param disabled",
 			func() {
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+				ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
@@ -770,6 +775,10 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		predecessors []*types.MsgEthereumTx
 		chainID      *sdkmath.Int
 	)
+
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
+
 	testCases := []struct {
 		msg             string
 		malleate        func()
@@ -918,7 +927,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 				chainID := suite.app.EvmKeeper.ChainID()
 				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				ethTxParams := &types.EvmTxArgs{
 					ChainID:  chainID,
 					Nonce:    nonce,
@@ -977,7 +986,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				// if data is to big, slice the result
+				// if data is too big, slice the result
 				if len(res.Data) > 150 {
 					suite.Require().Equal(tc.traceResponse, string(res.Data[:150]))
 				} else {
@@ -1166,7 +1175,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				// if data is to big, slice the result
+				// if data is too big, slice the result
 				if len(res.Data) > 150 {
 					suite.Require().Equal(tc.traceResponse, string(res.Data[:150]))
 				} else {
@@ -1189,14 +1198,17 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
-	// accupy nonce 0
+	// occupy nonce 0
 	_ = suite.DeployTestContract(suite.T(), address, supply)
 
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
+
 	// do an EthCall/EstimateGas with nonce 0
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
+	ctorArgs, err := erc20Contract.ABI.Pack("", address, supply)
 	suite.Require().NoError(err)
 
-	data := types.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&types.TransactionArgs{
 		From: &address,
@@ -1252,7 +1264,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			true, true, true,
 		},
 		{
-			"pass - nil Base Fee when london hardfork not activated",
+			"pass - nil Base Fee when london hard-fork not activated",
 			func() {
 				baseFee := sdkmath.OneInt().BigInt()
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
@@ -1300,10 +1312,14 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
 	hexBigInt := hexutil.Big(*big.NewInt(1))
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
+
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
+
+	ctorArgs, err := erc20Contract.ABI.Pack("", address, supply)
 	suite.Require().NoError(err)
 
-	data := types.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 
 	testCases := []struct {

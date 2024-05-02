@@ -41,6 +41,8 @@ type PrecompileTestSuite struct {
 	stateDB    *statedb.StateDB
 
 	queryClientEVM evmtypes.QueryClient
+
+	vestingCallerContract evmtypes.CompiledContract
 }
 
 func TestPrecompileTestSuite(t *testing.T) {

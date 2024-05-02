@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v18/precompiles/vesting"
-	"github.com/evmos/evmos/v18/precompiles/vesting/testdata"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
@@ -76,7 +75,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 		instantPeriods = []vesting.Period{instantPeriod}
 
 		// Deploy the smart contract that calls the vesting extension
-		contractAddr, err = s.DeployContract(testdata.VestingCallerContract)
+		contractAddr, err = s.DeployContract(s.vestingCallerContract)
 		Expect(err).ToNot(HaveOccurred(), "error while deploying the smart contract: %v", err)
 
 		// Set up the checks

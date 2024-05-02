@@ -118,9 +118,11 @@ func TestIntegrationSuite(t *testing.T) {
 var _ = Describe("Bank Extension -", func() {
 	var (
 		bankCallerContractAddr common.Address
-		err                    error
-		sender                 keyring.Key
-		amount                 *big.Int
+		bankCallerContract     evmtypes.CompiledContract
+
+		err    error
+		sender keyring.Key
+		amount *big.Int
 
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
@@ -135,11 +137,14 @@ var _ = Describe("Bank Extension -", func() {
 		sender = is.keyring.GetKey(0)
 		amount = big.NewInt(1e18)
 
+		bankCallerContract, err = testdata.LoadBankCallerContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load BankCaller contract")
+
 		bankCallerContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.BankCallerContract,
+				Contract: bankCallerContract,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
@@ -149,7 +154,7 @@ var _ = Describe("Bank Extension -", func() {
 			precompileAddr: is.precompile.Address(),
 			precompileABI:  is.precompile.ABI,
 			contractAddr:   bankCallerContractAddr,
-			contractABI:    testdata.BankCallerContract.ABI,
+			contractABI:    bankCallerContract.ABI,
 		}
 
 		passCheck = testutil.LogCheckArgs{}.WithExpPass(true)
