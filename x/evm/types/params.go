@@ -60,6 +60,9 @@ var (
 	}
 	// DefaultWrappedNativeCoinPrecompiles defines the default precompiles for the wrapped native coin
 	DefaultWrappedNativeCoinPrecompiles = []string{WEVMOSContractMainnet}
+	DefaultWhiteListedCreateAddresses   = []string{
+		"0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101",
+	}
 )
 
 // NewParams creates a new Params instance
@@ -105,6 +108,7 @@ func DefaultParams() Params {
 		EVMChannels:                  DefaultEVMChannels,
 		ActiveDynamicPrecompiles:     DefaultActiveDynamicPrecompiles,
 		WrappedNativeCoinPrecompiles: DefaultWrappedNativeCoinPrecompiles,
+		WhitelistedCreateAddresses:   DefaultWhiteListedCreateAddresses,
 	}
 }
 
