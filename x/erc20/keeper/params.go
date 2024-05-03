@@ -20,8 +20,8 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	}
 	k.cdc.MustUnmarshal(bz, &params)
 	return
-    // enableErc20 := k.IsERC20Enabled(ctx)
-    // enableEvmHook := k.GetEnableEVMHook(ctx)
+	// enableErc20 := k.IsERC20Enabled(ctx)
+	// enableEvmHook := k.GetEnableEVMHook(ctx)
 	//
 	// return types.NewParams(enableErc20, enableEvmHook)
 }
@@ -59,14 +59,16 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 
 // IsERC20Enabled returns true if the module logic is enabled
 func (k Keeper) IsERC20Enabled(ctx sdk.Context) bool {
-	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.ParamStoreKeyEnableErc20)
+	// store := ctx.KVStore(k.storeKey)
+	// return store.Has(types.ParamStoreKeyEnableErc20)
+	return k.GetParams(ctx).EnableErc20
 }
 
 // GetEnableEVMHook returns true if the EVM hooks are enabled
 func (k Keeper) GetEnableEVMHook(ctx sdk.Context) bool {
-	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.ParamStoreKeyEnableEVMHook)
+	// store := ctx.KVStore(k.storeKey)
+	// return store.Has(types.ParamStoreKeyEnableEVMHook)
+	return k.GetParams(ctx).EnableEVMHook
 }
 
 // setERC20Enabled sets the EnableERC20 param in the store
