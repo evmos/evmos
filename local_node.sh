@@ -125,6 +125,16 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+    # Update the genesis files to add the default token pairs for the native precompiles
+    native_erc20_precompiles=(
+      "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517 aevmos"
+    )
+    for pair in "${native_erc20_precompiles[@]}"; do
+      # Split the pair string into address and denom
+      read -r address denom <<< "$pair"
+      jq '.app_state["erc20"]["token_pairs"] += [{"erc20_address": "'$address'", "denom": "'$denom'", "enabled": true, "contract_owner": 1}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+    done
+
 	# Set gas limit in genesis
 	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 

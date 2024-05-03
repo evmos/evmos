@@ -18,11 +18,12 @@ const (
 
 // Parameter store key
 var (
-	ParamStoreKeyEnableErc20        = []byte("EnableErc20")
-	ParamStoreKeyEnableEVMHook      = []byte("EnableEVMHook")
+	ParamStoreKeyEnableErc20   = []byte("EnableErc20")
+	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
 	// ParamStoreKeyDynamicPrecompiles = []byte("DynamicPrecompiles")
 	// ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
 	// DefaultWrappedNativeCoinPrecompiles defines the default precompiles for the wrapped native coin
+	// NOTE: If you modify this, make sure you modify it on the local_node genesis script as well
 	DefaultNativePrecompiles = []string{WEVMOSContractMainnet}
 	// DefaultActiveDynamicPrecompiles defines the default active dynamic precompiles
 	DefaultDynamicPrecompiles []string
