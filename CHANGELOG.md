@@ -56,7 +56,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
 
-
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
@@ -998,4 +997,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-
