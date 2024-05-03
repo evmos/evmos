@@ -4,7 +4,9 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
+	"slices"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -56,7 +58,9 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	extCall := func(evm *vm.EVM, addr common.Address) error {
+
+	evmHooks := vm.OpCodeHooks{}
+	evmHooks.CallHook = func(evm *vm.EVM, addr common.Address) error {
 		precompiles, found, err := k.GetPrecompileInstance(ctx, addr)
 		if err != nil {
 			return err
@@ -67,7 +71,15 @@ func (k *Keeper) NewEVM(
 		}
 		return nil
 	}
-	return vm.NewEVMWithCallback(extCall, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+	evmHooks.CreateHook = func(evm *vm.EVM, contractAddr common.Address) error {
+		whitelistAddresses := k.GetWhitelistedAccounts(ctx)
+		if slices.Contains(whitelistAddresses, contractAddr.Hex()) {
+			return nil
+		}
+		return fmt.Errorf("contract address %s is not whitelisted", contractAddr.Hex())
+	}
+
+	return vm.NewEVMWithCallback(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:

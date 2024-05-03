@@ -484,7 +484,6 @@ func (e *PublicAPI) Resend(_ context.Context,
 // and have a from address that is one of the accounts this node manages.
 func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error) {
 	e.logger.Debug("eth_getPendingTransactions")
-
 	txs, err := e.backend.PendingTransactions()
 	if err != nil {
 		return nil, err

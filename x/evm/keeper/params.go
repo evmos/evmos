@@ -44,6 +44,11 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	return nil
 }
 
+func (k Keeper) GetWhitelistedAccounts(ctx sdk.Context) []string {
+	params := k.GetParams(ctx)
+	return params.WhitelistedCreateAddresses
+}
+
 // GetLegacyParams returns param set for version before migrate
 func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	var params types.Params

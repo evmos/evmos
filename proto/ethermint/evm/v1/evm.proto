@@ -36,6 +36,9 @@ message Params {
   // active_static_precompiles defines the slice of hex addresses of the precompiled
   // contracts that are active
   repeated string active_static_precompiles = 11;
+  // whitelisted_create_addresses defines the slice of hex addresses that are
+  // whitelisted for contract creation
+  repeated string whitelisted_create_addresses = 12;
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
