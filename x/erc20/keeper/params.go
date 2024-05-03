@@ -20,13 +20,13 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	}
 	k.cdc.MustUnmarshal(bz, &params)
 	return
-	// enableErc20 := k.IsERC20Enabled(ctx)
-	// enableEvmHook := k.GetEnableEVMHook(ctx)
+    // enableErc20 := k.IsERC20Enabled(ctx)
+    // enableEvmHook := k.GetEnableEVMHook(ctx)
 	//
 	// return types.NewParams(enableErc20, enableEvmHook)
 }
 
-// TODO - DO NOT LET ME MERGE THIS
+// TODO - DO NOT LET ME MERGE THIS. THIS REQUIRES A MIGRATION OF THE STORE
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	if err := params.Validate(); err != nil {
@@ -45,11 +45,17 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	store.Set(types.KeyPrefixParams, bz)
 	return nil
 
-	// k.setERC20Enabled(ctx, params.EnableErc20)
-	// k.setEnableEVMHook(ctx, params.EnableEVMHook)
-	//
+	// // k.setERC20Enabled(ctx, params.EnableErc20)
+	// // k.setEnableEVMHook(ctx, params.EnableEVMHook)
 	// return nil
 }
+
+// // GetLegacyParams returns param set for version before migrate
+// func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
+// 	var params types.Params
+// 	k.ss.GetParamSetIfExists(ctx, &params)
+// 	return params
+// }
 
 // IsERC20Enabled returns true if the module logic is enabled
 func (k Keeper) IsERC20Enabled(ctx sdk.Context) bool {

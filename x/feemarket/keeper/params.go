@@ -29,7 +29,6 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	if params.MinGasMultiplier.IsNil() {
 		params.MinGasMultiplier = math.LegacyZeroDec()
 	}
-
 	return
 }
 
@@ -42,7 +41,6 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	}
 
 	store.Set(types.ParamsKey, bz)
-
 	return nil
 }
 
