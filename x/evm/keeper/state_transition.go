@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 	"slices"
 
@@ -58,7 +59,18 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+
+	evmHooks := vm.NewDefaultOpCodeHooks()
+
+	from := msg.From()
+	canCreate := slices.Contains(cfg.WhitelistAddresses, from.String())
+	evmHooks.CreateHook = func(evm *vm.EVM, _ common.Address) error {
+		if canCreate {
+			return nil
+		}
+		return fmt.Errorf("caller address %s does not have permission to deploy contracts", from.Hex())
+	}
+	return vm.NewEVMWithCallback(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:

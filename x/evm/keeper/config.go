@@ -27,10 +27,11 @@ func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, cha
 
 	baseFee := k.GetBaseFee(ctx, ethCfg)
 	return &statedb.EVMConfig{
-		Params:      params,
-		ChainConfig: ethCfg,
-		CoinBase:    coinbase,
-		BaseFee:     baseFee,
+		Params:             params,
+		ChainConfig:        ethCfg,
+		CoinBase:           coinbase,
+		BaseFee:            baseFee,
+		WhitelistAddresses: params.CreateWhitelistAddresses,
 	}, nil
 }
 

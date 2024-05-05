@@ -49,6 +49,9 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
+	DefaultCreateWhitelistAddresses = []string{
+		"0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101",
+	}
 )
 
 // NewParams creates a new Params instance
@@ -80,14 +83,15 @@ func NewParams(
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:            DefaultEVMDenom,
-		EnableCreate:        DefaultEnableCreate,
-		EnableCall:          DefaultEnableCall,
-		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           DefaultExtraEIPs,
-		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   AvailableEVMExtensions,
-		EVMChannels:         DefaultEVMChannels,
+		EvmDenom:                 DefaultEVMDenom,
+		EnableCreate:             DefaultEnableCreate,
+		EnableCall:               DefaultEnableCall,
+		ChainConfig:              DefaultChainConfig(),
+		ExtraEIPs:                DefaultExtraEIPs,
+		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:        AvailableEVMExtensions,
+		EVMChannels:              DefaultEVMChannels,
+		CreateWhitelistAddresses: DefaultCreateWhitelistAddresses,
 	}
 }
 

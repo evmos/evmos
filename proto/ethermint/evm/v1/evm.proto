@@ -28,6 +28,9 @@ message Params {
   repeated string active_precompiles = 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
+  // create_whitelist_addresses is the list of addresses that are allowed to
+  // deploy contracts
+  repeated string create_whitelist_addresses = 9 [(gogoproto.customname) = "CreateWhitelistAddresses"];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
