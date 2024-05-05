@@ -10,6 +10,7 @@ import (
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,24 +24,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the module's genesis state.
-type GenesisState struct {
+// V4GenesisState defines the module's genesis state.
+type V4GenesisState struct {
 	// params are the erc20 module parameters at genesis
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// token_pairs is a slice of the registered token pairs at genesis
-	TokenPairs []TokenPair `protobuf:"bytes,2,rep,name=token_pairs,json=tokenPairs,proto3" json:"token_pairs"`
+	TokenPairs []types.TokenPair `protobuf:"bytes,2,rep,name=token_pairs,json=tokenPairs,proto3" json:"token_pairs"`
 }
 
-func (m *GenesisState) Reset()         { *m = GenesisState{} }
-func (m *GenesisState) String() string { return proto.CompactTextString(m) }
-func (*GenesisState) ProtoMessage()    {}
-func (*GenesisState) Descriptor() ([]byte, []int) {
+func (m *V4GenesisState) Reset()         { *m = V4GenesisState{} }
+func (m *V4GenesisState) String() string { return proto.CompactTextString(m) }
+func (*V4GenesisState) ProtoMessage()    {}
+func (*V4GenesisState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2f4674601b0d6987, []int{0}
 }
-func (m *GenesisState) XXX_Unmarshal(b []byte) error {
+func (m *V4GenesisState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V4GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_GenesisState.Marshal(b, m, deterministic)
 	} else {
@@ -52,26 +53,26 @@ func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *GenesisState) XXX_Merge(src proto.Message) {
+func (m *V4GenesisState) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_GenesisState.Merge(m, src)
 }
-func (m *GenesisState) XXX_Size() int {
+func (m *V4GenesisState) XXX_Size() int {
 	return m.Size()
 }
-func (m *GenesisState) XXX_DiscardUnknown() {
+func (m *V4GenesisState) XXX_DiscardUnknown() {
 	xxx_messageInfo_GenesisState.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_GenesisState proto.InternalMessageInfo
 
-func (m *GenesisState) GetParams() Params {
+func (m *V4GenesisState) GetParams() Params {
 	if m != nil {
 		return m.Params
 	}
 	return Params{}
 }
 
-func (m *GenesisState) GetTokenPairs() []TokenPair {
+func (m *V4GenesisState) GetTokenPairs() []types.TokenPair {
 	if m != nil {
 		return m.TokenPairs
 	}
@@ -82,12 +83,9 @@ func (m *GenesisState) GetTokenPairs() []TokenPair {
 type Params struct {
 	// enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
 	EnableErc20 bool `protobuf:"varint,1,opt,name=enable_erc20,json=enableErc20,proto3" json:"enable_erc20,omitempty"`
-	// native_precompiles defines the slice of hex addresses of the
-	// active precompiles that are used to interact with native staking coins as ERC20s
-	NativePrecompiles []string `protobuf:"bytes,3,rep,name=native_precompiles,json=nativePrecompiles,proto3" json:"native_precompiles,omitempty"`
-	// dynamic_precompiles defines the slice of hex addresses of the
-	// active precompiles that are used to interact with Bank coins as ERC20s
-	DynamicPrecompiles []string `protobuf:"bytes,4,rep,name=dynamic_precompiles,json=dynamicPrecompiles,proto3" json:"dynamic_precompiles,omitempty"`
+	// enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
+	// Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address.
+	EnableEVMHook bool `protobuf:"varint,2,opt,name=enable_evm_hook,json=enableEvmHook,proto3" json:"enable_evm_hook,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -130,52 +128,44 @@ func (m *Params) GetEnableErc20() bool {
 	return false
 }
 
-func (m *Params) GetNativePrecompiles() []string {
+func (m *Params) GetEnableEVMHook() bool {
 	if m != nil {
-		return m.NativePrecompiles
+		return m.EnableEVMHook
 	}
-	return nil
-}
-
-func (m *Params) GetDynamicPrecompiles() []string {
-	if m != nil {
-		return m.DynamicPrecompiles
-	}
-	return nil
+	return false
 }
 
 func init() {
-	proto.RegisterType((*GenesisState)(nil), "evmos.erc20.v1.GenesisState")
+	proto.RegisterType((*V4GenesisState)(nil), "evmos.erc20.v1.GenesisState")
 	proto.RegisterType((*Params)(nil), "evmos.erc20.v1.Params")
 }
 
 func init() { proto.RegisterFile("evmos/erc20/v1/genesis.proto", fileDescriptor_2f4674601b0d6987) }
 
 var fileDescriptor_2f4674601b0d6987 = []byte{
-	// 320 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x90, 0x41, 0x4b, 0xc3, 0x30,
-	0x14, 0xc7, 0x9b, 0x75, 0x8c, 0x99, 0x0e, 0xd1, 0x28, 0x32, 0x87, 0xd4, 0xb9, 0x53, 0x2f, 0x36,
-	0x6e, 0x7a, 0xf0, 0x28, 0x03, 0x11, 0x3c, 0x8d, 0xe9, 0xc9, 0xcb, 0xc8, 0xea, 0xa3, 0x06, 0xd7,
-	0x26, 0x24, 0xb1, 0xb8, 0x2f, 0xe0, 0x59, 0xbf, 0xd5, 0x8e, 0x3b, 0x7a, 0x12, 0xd9, 0xbe, 0x88,
-	0x2c, 0xa9, 0xe8, 0x76, 0x29, 0x8f, 0xff, 0xef, 0xf7, 0x7f, 0x0d, 0x0f, 0x1f, 0x41, 0x91, 0x09,
-	0x4d, 0x41, 0x25, 0xbd, 0x33, 0x5a, 0x74, 0x69, 0x0a, 0x39, 0x68, 0xae, 0x63, 0xa9, 0x84, 0x11,
-	0x64, 0xdb, 0xd2, 0xd8, 0xd2, 0xb8, 0xe8, 0xb6, 0x5a, 0x1b, 0xb6, 0x03, 0xd6, 0x6d, 0xed, 0xa7,
-	0x22, 0x15, 0x76, 0xa4, 0xab, 0xc9, 0xa5, 0x9d, 0x37, 0x84, 0x1b, 0x37, 0x6e, 0xe7, 0x9d, 0x61,
-	0x06, 0xc8, 0x05, 0xae, 0x49, 0xa6, 0x58, 0xa6, 0x9b, 0xa8, 0x8d, 0xa2, 0xa0, 0x77, 0x10, 0xaf,
-	0xff, 0x23, 0x1e, 0x58, 0xda, 0xaf, 0xce, 0xbe, 0x8e, 0xbd, 0x61, 0xe9, 0x92, 0x2b, 0x1c, 0x18,
-	0xf1, 0x0c, 0xf9, 0x48, 0x32, 0xae, 0x74, 0xb3, 0xd2, 0xf6, 0xa3, 0xa0, 0x77, 0xb8, 0x59, 0xbd,
-	0x5f, 0x29, 0x03, 0xc6, 0x55, 0xd9, 0xc6, 0xe6, 0x37, 0xd0, 0x9d, 0x0f, 0x84, 0x6b, 0x6e, 0x35,
-	0x39, 0xc1, 0x0d, 0xc8, 0xd9, 0x78, 0x02, 0x23, 0xdb, 0xb4, 0x0f, 0xa9, 0x0f, 0x03, 0x97, 0x5d,
-	0xaf, 0x22, 0x72, 0x8a, 0x49, 0xce, 0x0c, 0x2f, 0x60, 0x24, 0x15, 0x24, 0x22, 0x93, 0x7c, 0x02,
-	0xba, 0xe9, 0xb7, 0xfd, 0x68, 0x6b, 0xb8, 0xeb, 0xc8, 0xe0, 0x0f, 0x10, 0x8a, 0xf7, 0x1e, 0xa7,
-	0x39, 0xcb, 0x78, 0xb2, 0xe6, 0x57, 0xad, 0x4f, 0x4a, 0xf4, 0xaf, 0x70, 0x5b, 0xad, 0x57, 0x76,
-	0xfc, 0x7e, 0x7f, 0xb6, 0x08, 0xd1, 0x7c, 0x11, 0xa2, 0xef, 0x45, 0x88, 0xde, 0x97, 0xa1, 0x37,
-	0x5f, 0x86, 0xde, 0xe7, 0x32, 0xf4, 0x1e, 0xa2, 0x94, 0x9b, 0xa7, 0x97, 0x71, 0x9c, 0x88, 0x8c,
-	0x96, 0x37, 0xb7, 0xdf, 0xa2, 0x7b, 0x49, 0x5f, 0xcb, 0xfb, 0x9b, 0xa9, 0x04, 0x3d, 0xae, 0xd9,
-	0x3b, 0x9f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0xfe, 0xa3, 0xe9, 0x91, 0xc9, 0x01, 0x00, 0x00,
+	// 302 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x49, 0x2d, 0xcb, 0xcd,
+	0x2f, 0xd6, 0x4f, 0x2d, 0x4a, 0x36, 0x32, 0xd0, 0x2f, 0x33, 0xd4, 0x4f, 0x4f, 0xcd, 0x4b, 0x2d,
+	0xce, 0x2c, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x03, 0xcb, 0xea, 0x81, 0x65, 0xf5,
+	0xca, 0x0c, 0xa5, 0xa4, 0xd0, 0x54, 0x43, 0x24, 0xc0, 0x6a, 0xa5, 0x44, 0xd2, 0xf3, 0xd3, 0xf3,
+	0xc1, 0x4c, 0x7d, 0x10, 0x0b, 0x22, 0xaa, 0xd4, 0xc6, 0xc8, 0xc5, 0xe3, 0x0e, 0x31, 0x33, 0xb8,
+	0x24, 0xb1, 0x24, 0x55, 0xc8, 0x84, 0x8b, 0xad, 0x20, 0xb1, 0x28, 0x31, 0xb7, 0x58, 0x82, 0x51,
+	0x81, 0x51, 0x83, 0xdb, 0x48, 0x4c, 0x0f, 0xd5, 0x0e, 0xbd, 0x00, 0xb0, 0xac, 0x13, 0xcb, 0x89,
+	0x7b, 0xf2, 0x0c, 0x41, 0x50, 0xb5, 0x42, 0x0e, 0x5c, 0xdc, 0x25, 0xf9, 0xd9, 0xa9, 0x79, 0xf1,
+	0x05, 0x89, 0x99, 0x45, 0xc5, 0x12, 0x4c, 0x0a, 0xcc, 0x1a, 0xdc, 0x46, 0x92, 0xe8, 0x5a, 0x43,
+	0x40, 0x4a, 0x02, 0x12, 0x33, 0x8b, 0xa0, 0xba, 0xb9, 0x4a, 0x60, 0x02, 0xc5, 0x4a, 0x69, 0x5c,
+	0x6c, 0x10, 0x93, 0x85, 0x14, 0xb9, 0x78, 0x52, 0xf3, 0x12, 0x93, 0x72, 0x52, 0xe3, 0xc1, 0x1a,
+	0xc1, 0xee, 0xe0, 0x08, 0xe2, 0x86, 0x88, 0xb9, 0x82, 0x84, 0x84, 0x2c, 0xb9, 0xf8, 0x61, 0x4a,
+	0xca, 0x72, 0xe3, 0x33, 0xf2, 0xf3, 0xb3, 0x25, 0x98, 0x40, 0xaa, 0x9c, 0x04, 0x1f, 0xdd, 0x93,
+	0xe7, 0x75, 0x85, 0xa8, 0x0c, 0xf3, 0xf5, 0xc8, 0xcf, 0xcf, 0x0e, 0xe2, 0x85, 0x6a, 0x2c, 0xcb,
+	0x05, 0x71, 0x9d, 0x9c, 0x4e, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39,
+	0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0x4a, 0x23,
+	0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x57, 0x1f, 0x1a, 0x8e, 0x60, 0xb2, 0xcc,
+	0xd0, 0x42, 0xbf, 0x02, 0x1a, 0xa6, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0xe0, 0xb0, 0x33,
+	0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0xee, 0x86, 0xeb, 0x8e, 0x9d, 0x01, 0x00, 0x00,
 }
 
-func (m *GenesisState) Marshal() (dAtA []byte, err error) {
+func (m *V4GenesisState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -185,12 +175,12 @@ func (m *GenesisState) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GenesisState) MarshalTo(dAtA []byte) (int, error) {
+func (m *V4GenesisState) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V4GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -242,23 +232,15 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.DynamicPrecompiles) > 0 {
-		for iNdEx := len(m.DynamicPrecompiles) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.DynamicPrecompiles[iNdEx])
-			copy(dAtA[i:], m.DynamicPrecompiles[iNdEx])
-			i = encodeVarintGenesis(dAtA, i, uint64(len(m.DynamicPrecompiles[iNdEx])))
-			i--
-			dAtA[i] = 0x22
+	if m.EnableEVMHook {
+		i--
+		if m.EnableEVMHook {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
 		}
-	}
-	if len(m.NativePrecompiles) > 0 {
-		for iNdEx := len(m.NativePrecompiles) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.NativePrecompiles[iNdEx])
-			copy(dAtA[i:], m.NativePrecompiles[iNdEx])
-			i = encodeVarintGenesis(dAtA, i, uint64(len(m.NativePrecompiles[iNdEx])))
-			i--
-			dAtA[i] = 0x1a
-		}
+		i--
+		dAtA[i] = 0x10
 	}
 	if m.EnableErc20 {
 		i--
@@ -284,7 +266,7 @@ func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GenesisState) Size() (n int) {
+func (m *V4GenesisState) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -310,17 +292,8 @@ func (m *Params) Size() (n int) {
 	if m.EnableErc20 {
 		n += 2
 	}
-	if len(m.NativePrecompiles) > 0 {
-		for _, s := range m.NativePrecompiles {
-			l = len(s)
-			n += 1 + l + sovGenesis(uint64(l))
-		}
-	}
-	if len(m.DynamicPrecompiles) > 0 {
-		for _, s := range m.DynamicPrecompiles {
-			l = len(s)
-			n += 1 + l + sovGenesis(uint64(l))
-		}
+	if m.EnableEVMHook {
+		n += 2
 	}
 	return n
 }
@@ -331,7 +304,7 @@ func sovGenesis(x uint64) (n int) {
 func sozGenesis(x uint64) (n int) {
 	return sovGenesis(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GenesisState) Unmarshal(dAtA []byte) error {
+func (m *V4GenesisState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -422,7 +395,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TokenPairs = append(m.TokenPairs, TokenPair{})
+			m.TokenPairs = append(m.TokenPairs, types.TokenPair{})
 			if err := m.TokenPairs[len(m.TokenPairs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -497,11 +470,11 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.EnableErc20 = bool(v != 0)
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NativePrecompiles", wireType)
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EnableEVMHook", wireType)
 			}
-			var stringLen uint64
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -511,56 +484,12 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.NativePrecompiles = append(m.NativePrecompiles, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DynamicPrecompiles", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DynamicPrecompiles = append(m.DynamicPrecompiles, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
+			m.EnableEVMHook = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGenesis(dAtA[iNdEx:])

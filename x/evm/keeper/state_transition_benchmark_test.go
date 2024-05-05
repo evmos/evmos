@@ -595,7 +595,7 @@ func generateCustomGenesisState(keyring testkeyring.Keyring) network.CustomGenes
 	erc20GenesisState.TokenPairs = tokenPairs
 	evmGenesisState := evmtypes.DefaultGenesisState()
 	sortPrecompiles(precompileAddresses)
-	evmGenesisState.Params.ActiveDynamicPrecompiles = precompileAddresses
+	erc20GenesisState.Params.DynamicPrecompiles = precompileAddresses
 
 	return network.CustomGenesisState{
 		evmtypes.ModuleName:   evmGenesisState,

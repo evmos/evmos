@@ -29,7 +29,6 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		s.SetupTest()
 
 		params := s.app.Erc20Keeper.GetParams(s.ctx)
-		params.EnableEVMHook = true
 		params.EnableErc20 = true
 		err := s.app.Erc20Keeper.SetParams(s.ctx, params)
 		Expect(err).To(BeNil())
@@ -39,7 +38,6 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 	Context("with the ERC20 module and EVM Hook disabled", func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
-			params.EnableEVMHook = false
 			params.EnableErc20 = false
 			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
@@ -61,19 +59,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		})
 	})
 
-	Context("with the EVMHook disabled", func() {
-		BeforeEach(func() {
-			params := s.app.Erc20Keeper.GetParams(s.ctx)
-			params.EnableEVMHook = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
-		})
-		It("should be successful", func() {
-			_, err := s.DeployContract("coin", "token", erc20Decimals)
-			Expect(err).To(BeNil())
-		})
-	})
-
-	Context("with the ERC20 module and EVM Hook enabled", func() {
+	Context("with the ERC20 module enabled", func() {
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
 			Expect(err).To(BeNil())

@@ -63,7 +63,6 @@ func NewParams(
 	extraEIPs []int64,
 	activeStaticPrecompiles []string,
 	evmChannels []string,
-	wrappedNativeCoinsPrecompiles []string,
 ) Params {
 	return Params{
 		EvmDenom:                evmDenom,

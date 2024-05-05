@@ -26,7 +26,7 @@ import (
 )
 
 // consensusVersion defines the current x/erc20 module consensus version.
-const consensusVersion = 3
+const consensusVersion = 4
 
 // type check to ensure the interface is properly implemented
 var (

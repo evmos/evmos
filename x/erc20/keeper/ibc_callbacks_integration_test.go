@@ -234,7 +234,7 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), teststypes.UosmoIbcdenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().True(found)
-		activeDynamicPrecompiles := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext()).ActiveDynamicPrecompiles
+		activeDynamicPrecompiles := s.app.Erc20Keeper.GetParams(s.EvmosChain.GetContext()).DynamicPrecompiles
 		s.Require().Contains(activeDynamicPrecompiles, uosmoContractAddr.String())
 	})
 	It("Not native from source chain - should transfer and not register pair or deploy precompile", func() {
@@ -278,7 +278,7 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), teststypes.UatomOsmoIbcdenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().False(found)
-		activeDynamicPrecompiles := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext()).ActiveDynamicPrecompiles
+		activeDynamicPrecompiles := s.app.Erc20Keeper.GetParams(s.EvmosChain.GetContext()).DynamicPrecompiles
 		s.Require().NotContains(activeDynamicPrecompiles, uosmoContractAddr.String())
 	})
 	It("Aevmos - Should transfer aevmos from Osmosis to Evmos and not register pair", func() {

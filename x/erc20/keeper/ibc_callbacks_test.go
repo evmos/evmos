@@ -228,7 +228,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().NoError(err, "expected no error setting up test case")
 			}
 
-			activeDynamicPrecompilesPre := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+			activeDynamicPrecompilesPre := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext()).DynamicPrecompiles
 
 			packet := channeltypes.NewPacket(
 				tc.transferBytes,
@@ -259,7 +259,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 			}
 
 			if tc.precompileAddr != emptyAddress {
-				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+				activeDynamicPrecompiles := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext()).DynamicPrecompiles
 				suite.Require().Contains(activeDynamicPrecompiles, tc.precompileAddr.String())
 				if tc.precompileAddr == contractAddr {
 					em := unitNetwork.GetContext().EventManager().Events()
@@ -270,7 +270,7 @@ func (suite *Erc20KeeperTestSuite) TestOnRecvPacket() {
 				}
 
 			} else {
-				activeDynamicPrecompiles := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext()).ActiveDynamicPrecompiles
+				activeDynamicPrecompiles := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext()).DynamicPrecompiles
 				suite.Require().Equal(
 					activeDynamicPrecompilesPre,
 					activeDynamicPrecompiles,
