@@ -70,7 +70,7 @@ func (k *Keeper) NewEVM(
 		}
 		return fmt.Errorf("caller address %s does not have permission to deploy contracts", from.Hex())
 	}
-	return vm.NewEVMWithCallback(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+	return vm.NewEVMWithHooks(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
 // GetHashFn implements vm.GetHashFunc for Ethermint. It handles 3 cases:
