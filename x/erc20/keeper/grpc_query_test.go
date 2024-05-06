@@ -27,7 +27,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				req = &types.QueryTokenPairsRequest{}
 				expRes = &types.QueryTokenPairsResponse{
 					TokenPairs: types.DefaultTokenPairs,
-					Pagination: &query.PageResponse{Total: 1}}
+					Pagination: &query.PageResponse{Total: 1},
+				}
 			},
 			true,
 		},

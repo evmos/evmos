@@ -108,7 +108,7 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 
 	for _, tc := range testCases {
 		gen := network.CustomGenesisState{
-			types.ModuleName: &tc.genesisState,
+			types.ModuleName: &tc.genesisState, // #nosec G601
 		}
 		nw := network.NewUnitTestNetwork(
 			network.WithCustomGenesis(gen),

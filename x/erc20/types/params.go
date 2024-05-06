@@ -74,7 +74,8 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	combined := append(p.DynamicPrecompiles, p.NativePrecompiles...)
+	combined := p.DynamicPrecompiles
+	combined = append(combined, p.NativePrecompiles...)
 	return ValidatePrecompilesUniqueness(combined)
 }
 
@@ -115,5 +116,4 @@ func ValidatePrecompilesUniqueness(i interface{}) error {
 		seenPrecompiles[precompile] = struct{}{}
 	}
 	return nil
-
 }

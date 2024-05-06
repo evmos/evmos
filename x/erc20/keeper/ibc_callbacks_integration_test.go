@@ -8,23 +8,12 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
-	ibctesting "github.com/evmos/evmos/v18/ibc/testing"
 	teststypes "github.com/evmos/evmos/v18/types/tests"
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
-)
-
-var (
-	// sendAndReceiveMsgFee corresponds to the fees paid on Evmos chain when calling the SendAndReceive function
-	// This function makes 3 cosmos txs under the hood
-	sendAndReceiveMsgFee = math.NewInt(ibctesting.DefaultFeeAmt * 3)
-	// sendBackCoinsFee corresponds to the fees paid on Evmos chain when calling the SendBackCoins function
-	// or calling the SendAndReceive from another chain to Evmos
-	// This function makes 2 cosmos txs under the hood
-	sendBackCoinsFee = math.NewInt(ibctesting.DefaultFeeAmt * 2)
 )
 
 var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordered, func() {

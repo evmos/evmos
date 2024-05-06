@@ -18,7 +18,6 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	bz := store.Get(types.KeyPrefixParams)
 	if len(bz) == 0 {
 		panic("EVM params not found")
-		return k.GetLegacyParams(ctx)
 	}
 	k.cdc.MustUnmarshal(bz, &params)
 	return

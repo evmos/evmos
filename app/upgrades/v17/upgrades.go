@@ -12,8 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/utils"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	erctypes "github.com/evmos/evmos/v18/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v17.0.0

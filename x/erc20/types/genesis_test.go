@@ -25,7 +25,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			Erc20Address: types.WEVMOSContractMainnet,
 			Denom:        utils.BaseDenom,
 			Enabled:      true,
-		}})
+		},
+	})
 
 	testCases := []struct {
 		name     string

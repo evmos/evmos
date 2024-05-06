@@ -57,7 +57,7 @@ func (k Keeper) setERC20Enabled(ctx sdk.Context, enable bool) {
 
 func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
-	var bz []byte = make([]byte, 0)
+	bz := make([]byte, 0)
 	for _, str := range dynamicPrecompiles {
 		bz = append(bz, []byte(str)...)
 	}
@@ -75,7 +75,7 @@ func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []str
 
 func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
-	var bz []byte = make([]byte, 0)
+	bz := make([]byte, 0)
 	for _, str := range nativePrecompiles {
 		bz = append(bz, []byte(str)...)
 	}

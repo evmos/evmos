@@ -24,8 +24,8 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 			func() {
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
-
-				expRes = append(types.DefaultTokenPairs, pair)
+				expRes = types.DefaultTokenPairs
+				expRes = append(expRes, pair)
 			},
 		},
 		{
@@ -35,8 +35,8 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
-
-				expRes = append(types.DefaultTokenPairs, []types.TokenPair{pair, pair2}...)
+				expRes = types.DefaultTokenPairs
+				expRes = append(expRes, []types.TokenPair{pair, pair2}...)
 			},
 		},
 	}
