@@ -83,11 +83,8 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		genesisState types.GenesisState
 	}{
 		{
-			name: "empty genesis",
-			genesisState: types.GenesisState{
-				Params:     types.DefaultParams(),
-				TokenPairs: types.DefaultTokenPairs,
-			},
+			name:         "empty genesis",
+			genesisState: types.GenesisState{},
 		},
 		{
 			name:         "default genesis",
