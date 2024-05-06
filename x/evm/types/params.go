@@ -136,6 +136,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := validatePermissionsPolicy(p.PermissionsPolicy); err != nil {
+		return err
+	}
+
 	// TODO - add validate for PermissionsPolicy
 	return validateChannels(p.EVMChannels)
 }
@@ -178,6 +182,64 @@ func (p Params) IsActivePrecompile(address string) bool {
 	})
 
 	return found
+}
+
+func validatePermissionsPolicy(i interface{}) error {
+	permissions, ok := i.(*Permissions)
+	if !ok {
+		return fmt.Errorf("invalid permissions policy type: %T", i)
+	}
+
+	if err := validatePermissionType(permissions.Create); err != nil {
+		return err
+	}
+
+	return validatePermissionType(permissions.Call)
+}
+
+func validatePermissionType(i interface{}) error {
+	permission, ok := i.(*PermissionType)
+	if !ok || permission == nil {
+		return fmt.Errorf("invalid permission type: %T", i)
+	}
+
+	if err := validateAccessType(permission.AccessType); err != nil {
+		return err
+	}
+
+	if err := validateWhitelistAddresses(permission.WhitelistAddresses); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateAccessType(i interface{}) error {
+	accessType, ok := i.(AccessType)
+	if !ok {
+		return fmt.Errorf("invalid access type type: %T", i)
+	}
+
+	switch accessType {
+	case AccessTypeEverybody, AccessTypeNobody, AccessTypeWhitelistAddress:
+		return nil
+	default:
+		return fmt.Errorf("invalid access type: %s", accessType)
+	}
+}
+
+func validateWhitelistAddresses(i interface{}) error {
+	addresses, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid whitelist addresses type: %T", i)
+	}
+
+	for _, address := range addresses {
+		if err := types.ValidateAddress(address); err != nil {
+			return fmt.Errorf("invalid whitelist address: %s", address)
+		}
+	}
+	return nil
 }
 
 func validateEVMDenom(i interface{}) error {
