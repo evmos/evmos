@@ -28,8 +28,7 @@ func ValidateMsg(
 
 	return checkDisabledCreateCall(
 		txData,
-		evmParams.EnableCreate,
-		evmParams.EnableCall,
+		evmParams.PermissionsPolicy,
 	)
 }
 
@@ -37,8 +36,7 @@ func ValidateMsg(
 // and it is disabled through governance
 func checkDisabledCreateCall(
 	txData evmtypes.TxData,
-	enableCreate,
-	enableCall bool,
+	permissions *evmtypes.Permissions,
 ) error {
 	to := txData.GetTo()
 	data := txData.GetData()
@@ -47,11 +45,14 @@ func checkDisabledCreateCall(
 		return nil
 	}
 
+	isCreateBlocked := permissions.Create.AccessType == evmtypes.AccessTypeNobody
+	isCallBlocked := permissions.Call.AccessType == evmtypes.AccessTypeNobody
+
 	// return error if contract creation or call are disabled through governance
 	// and the transaction is trying to create a contract or call a contract
-	if !enableCreate && to == nil {
+	if isCreateBlocked && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
-	} else if !enableCall && to != nil {
+	} else if isCallBlocked && to != nil {
 		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
 	}
 	return nil

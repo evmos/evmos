@@ -220,7 +220,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			types.ModuleAddress,
 			func() ([]byte, *common.Address) {
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
+				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
 				_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
 				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic

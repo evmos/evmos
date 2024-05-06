@@ -27,10 +27,6 @@ var (
 	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
-	// DefaultEnableCreate enables contract creation (i.e true)
-	DefaultEnableCreate = true
-	// DefaultEnableCall enables contract calls (i.e true)
-	DefaultEnableCall = true
 	// AvailableEVMExtensions defines the default active precompiles
 	AvailableEVMExtensions = []string{
 		p256.PrecompileAddress,                       // P256 precompile
@@ -49,16 +45,14 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
-	DefaultCreateWhitelistAddresses = []string{
-      "0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101",
-    }
+	DefaultCreateWhitelistAddresses = []string{}
 	DefaultCallWhitelistAddresses   = []string{}
 	DefaultPermissionPolicy         = Permissions{
-		Create: &PermissionTypes{
-			AccessType:         AccessTypeWhitelistAddress,
+		Create: &PermissionType{
+			AccessType:         AccessTypeEverybody,
 			WhitelistAddresses: DefaultCreateWhitelistAddresses,
 		},
-		Call: &PermissionTypes{
+		Call: &PermissionType{
 			AccessType:         AccessTypeEverybody,
 			WhitelistAddresses: DefaultCallWhitelistAddresses,
 		},
@@ -68,9 +62,7 @@ var (
 // NewParams creates a new Params instance
 func NewParams(
 	evmDenom string,
-	allowUnprotectedTxs,
-	enableCreate,
-	enableCall bool,
+	allowUnprotectedTxs bool,
 	config ChainConfig,
 	extraEIPs []int64,
 	activePrecompiles,
@@ -80,8 +72,6 @@ func NewParams(
 	return Params{
 		EvmDenom:            evmDenom,
 		AllowUnprotectedTxs: allowUnprotectedTxs,
-		EnableCreate:        enableCreate,
-		EnableCall:          enableCall,
 		ExtraEIPs:           extraEIPs,
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
@@ -97,8 +87,6 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EvmDenom:            DefaultEVMDenom,
-		EnableCreate:        DefaultEnableCreate,
-		EnableCall:          DefaultEnableCall,
 		ChainConfig:         DefaultChainConfig(),
 		ExtraEIPs:           DefaultExtraEIPs,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
@@ -136,14 +124,6 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateBool(p.EnableCall); err != nil {
-		return err
-	}
-
-	if err := validateBool(p.EnableCreate); err != nil {
-		return err
-	}
-
 	if err := validateBool(p.AllowUnprotectedTxs); err != nil {
 		return err
 	}
@@ -156,6 +136,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	// TODO - add validate for PermissionsPolicy
 	return validateChannels(p.EVMChannels)
 }
 

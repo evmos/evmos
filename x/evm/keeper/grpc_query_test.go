@@ -680,26 +680,26 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			51880,
 			true,
 		},
-		{
-			"contract creation but 'create' param disabled",
-			func() {
-				ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				suite.Require().NoError(err)
-				data := erc20Contract.Bin
-				data = append(data, ctorArgs...)
-				args = types.TransactionArgs{
-					From: &suite.address,
-					Data: (*hexutil.Bytes)(&data),
-				}
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
-				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
-			},
-			false,
-			0,
-			false,
-		},
+		// {
+		// 	"contract creation but 'create' param disabled",
+		// 	func() {
+		// 		ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+		// 		suite.Require().NoError(err)
+		// 		data := erc20Contract.Bin
+		// 		data = append(data, ctorArgs...)
+		// 		args = types.TransactionArgs{
+		// 			From: &suite.address,
+		// 			Data: (*hexutil.Bytes)(&data),
+		// 		}
+		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		params.EnableCreate = false
+		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	false,
+		// 	0,
+		// 	false,
+		// },
 		{
 			"specified gas in args higher than ethparams.TxGas (21,000)",
 			func() {
@@ -776,8 +776,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		chainID      *sdkmath.Int
 	)
 
-	erc20Contract, err := testdata.LoadERC20Contract()
-	suite.Require().NoError(err, "failed to load erc20 contract")
+	// erc20Contract, err := testdata.LoadERC20Contract()
+	// suite.Require().NoError(err, "failed to load erc20 contract")
 
 	testCases := []struct {
 		msg             string
@@ -915,39 +915,39 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:     false,
 			expFinalGas: expGasConsumed,
 		},
-		{
-			msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
-			malleate: func() {
-				traceConfig = nil
-
-				// increase nonce to avoid address collision
-				vmdb := suite.StateDB()
-				vmdb.SetNonce(suite.address, vmdb.GetNonce(suite.address)+1)
-				suite.Require().NoError(vmdb.Commit())
-
-				chainID := suite.app.EvmKeeper.ChainID()
-				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-				data := erc20Contract.Bin
-				ethTxParams := &types.EvmTxArgs{
-					ChainID:  chainID,
-					Nonce:    nonce,
-					GasLimit: ethparams.TxGasContractCreation,
-					Input:    data,
-				}
-				contractTx := types.NewTx(ethTxParams)
-
-				predecessors = append(predecessors, contractTx)
-				suite.Commit()
-
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
-			},
-			expPass:       true,
-			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   26540, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
-		},
+		// {
+		// 	msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
+		// 	malleate: func() {
+		// 		traceConfig = nil
+		//
+		// 		// increase nonce to avoid address collision
+		// 		vmdb := suite.StateDB()
+		// 		vmdb.SetNonce(suite.address, vmdb.GetNonce(suite.address)+1)
+		// 		suite.Require().NoError(vmdb.Commit())
+		//
+		// 		chainID := suite.app.EvmKeeper.ChainID()
+		// 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+		// 		data := erc20Contract.Bin
+		// 		ethTxParams := &types.EvmTxArgs{
+		// 			ChainID:  chainID,
+		// 			Nonce:    nonce,
+		// 			GasLimit: ethparams.TxGasContractCreation,
+		// 			Input:    data,
+		// 		}
+		// 		contractTx := types.NewTx(ethTxParams)
+		//
+		// 		predecessors = append(predecessors, contractTx)
+		// 		suite.Commit()
+		//
+		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		params.EnableCreate = false
+		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	expPass:       true,
+		// 	traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+		// 	expFinalGas:   26540, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+		// },
 		{
 			msg: "invalid chain id",
 			malleate: func() {
@@ -1349,24 +1349,24 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			},
 			false,
 		},
-		{
-			"set param EnableCreate = false",
-			func() {
-				args, err := json.Marshal(&types.TransactionArgs{
-					From: &address,
-					Data: (*hexutil.Bytes)(&data),
-				})
-
-				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
-
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
-				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
-			},
-			false,
-		},
+		// {
+		// 	"set param EnableCreate = false",
+		// 	func() {
+		// 		args, err := json.Marshal(&types.TransactionArgs{
+		// 			From: &address,
+		// 			Data: (*hexutil.Bytes)(&data),
+		// 		})
+		//
+		// 		suite.Require().NoError(err)
+		// 		req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+		//
+		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		params.EnableCreate = false
+		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	false,
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {

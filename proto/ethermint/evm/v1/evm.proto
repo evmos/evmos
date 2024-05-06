@@ -12,10 +12,8 @@ message Params {
   // evm_denom represents the token denomination used to run the EVM state
   // transitions.
   string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
-  // enable_create toggles state transitions that use the vm.Create function
-  bool enable_create = 2 [(gogoproto.moretags) = "yaml:\"enable_create\""];
-  // enable_call toggles state transitions that use the vm.Call function
-  bool enable_call = 3 [(gogoproto.moretags) = "yaml:\"enable_call\""];
+  // enable_create and enable call: EWASM, YOLOV3 and Catalyst block have been deprecated
+  reserved 2 ,3;
   // extra_eips defines the additional EIPs for the vm.Config
   repeated int64 extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
   // chain_config defines the EVM chain configuration parameters
@@ -28,17 +26,21 @@ message Params {
   repeated string active_precompiles = 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
-  // create_whitelist_addresses is the list of addresses that are allowed to
-  // deploy contracts
+  // permissions defines the permission policy of the EVM
   Permissions permissions = 9 [(gogoproto.customname) = "PermissionsPolicy"];
 }
 
+// Permissions defines the permission policy of the EVM
+// for creating and calling contracts
 message Permissions {
-  PermissionTypes create = 1;
-  PermissionTypes call = 2;
+  // create defines the permission policy for creating contracts
+  PermissionType create = 1;
+  // call defines the permission policy for calling contracts
+  PermissionType call = 2;
 }
 
-message PermissionTypes {
+// PermissionType defines the permission type for policies
+message PermissionType {
   AccessType access_type = 1;
   repeated string whitelist_addresses = 2;
 }

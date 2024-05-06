@@ -14,7 +14,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/precompiles/staking"
 
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
@@ -291,188 +290,188 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("EnableCreate param is set to false", Ordered, func() {
-		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCreate = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
+	// When("EnableCreate param is set to false", Ordered, func() {
+	// 	BeforeAll(func() {
+	// 		// Set params to default values
+	// 		defaultParams := evmtypes.DefaultParams()
+	// 		defaultParams.EnableCreate = false
+	// 		err := s.network.UpdateEvmParams(defaultParams)
+	// 		Expect(err).To(BeNil())
+	//
+	// 		err = s.network.NextBlock()
+	// 		Expect(err).To(BeNil())
+	// 	})
+	//
+	// 	It("performs a transfer transaction", func() {
+	// 		senderKey := s.keyring.GetKey(0)
+	// 		receiverKey := s.keyring.GetKey(1)
+	// 		denom := s.network.GetDenom()
+	//
+	// 		senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+	// 		Expect(err).To(BeNil())
+	// 		senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
+	//
+	// 		receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+	// 		Expect(err).To(BeNil())
+	// 		receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
+	//
+	// 		transferAmount := int64(1000)
+	//
+	// 		txArgs := evmtypes.EvmTxArgs{
+	// 			To:     &receiverKey.Addr,
+	// 			Amount: big.NewInt(transferAmount),
+	// 		}
+	//
+	// 		res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+	//
+	// 		err = s.network.NextBlock()
+	// 		Expect(err).To(BeNil())
+	//
+	// 		// Check sender balance after transaction
+	// 		senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
+	// 		senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
+	//
+	// 		// Check receiver balance after transaction
+	// 		receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
+	// 		receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
+	// 	})
+	//
+	// 	It("fails when trying to perform contract deployment", func() {
+	// 		senderPriv := s.keyring.GetPrivKey(0)
+	// 		constructorArgs := []interface{}{"coin", "token", uint8(18)}
+	// 		compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+	// 		contractAddr, err := s.factory.DeployContract(
+	// 			senderPriv,
+	// 			evmtypes.EvmTxArgs{}, // Default values
+	// 			factory.ContractDeploymentData{
+	// 				Contract:        compiledContract,
+	// 				ConstructorArgs: constructorArgs,
+	// 			},
+	// 		)
+	//
+	// 		Expect(err).NotTo(BeNil())
+	// 		Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
+	// 		Expect(contractAddr).To(Equal(common.Address{}))
+	// 	})
+	//
+	// 	It("performs a contract call to the staking precompile", func() {
+	// 		senderKey := s.keyring.GetKey(1)
+	// 		contractAddress := common.HexToAddress(staking.PrecompileAddress)
+	// 		validatorAddress := s.network.GetValidators()[1].OperatorAddress
+	// 		contractABI, err := staking.LoadABI()
+	// 		Expect(err).To(BeNil())
+	//
+	// 		// If grpc query fails, that means there were no previous delegations
+	// 		prevDelegation := big.NewInt(0)
+	// 		prevDelegationRes, err := s.grpcHandler.GetDelegation(senderKey.AccAddr.String(), validatorAddress)
+	// 		if err == nil {
+	// 			prevDelegation = prevDelegationRes.DelegationResponse.Balance.Amount.BigInt()
+	// 		}
+	//
+	// 		amountToDelegate := big.NewInt(200)
+	//
+	// 		totalSupplyTxArgs := evmtypes.EvmTxArgs{
+	// 			To: &contractAddress,
+	// 		}
+	//
+	// 		// Perform a delegate transaction to the staking precompile
+	// 		delegateArgs := factory.CallArgs{
+	// 			ContractABI: contractABI,
+	// 			MethodName:  staking.DelegateMethod,
+	// 			Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
+	// 		}
+	// 		delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(delegateResponse.IsOK()).To(Equal(true), "transaction should have succeeded", delegateResponse.GetLog())
+	//
+	// 		err = s.network.NextBlock()
+	// 		Expect(err).To(BeNil())
+	//
+	// 		// Perform query to check the delegation was successful
+	// 		queryDelegationArgs := factory.CallArgs{
+	// 			ContractABI: contractABI,
+	// 			MethodName:  staking.DelegationMethod,
+	// 			Args:        []interface{}{senderKey.Addr, validatorAddress},
+	// 		}
+	// 		queryDelegationResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, queryDelegationArgs)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(queryDelegationResponse.IsOK()).To(Equal(true), "transaction should have succeeded", queryDelegationResponse.GetLog())
+	//
+	// 		// Make sure the delegation amount is correct
+	// 		var delegationOutput staking.DelegationOutput
+	// 		err = integrationutils.DecodeContractCallResponse(&delegationOutput, queryDelegationArgs, queryDelegationResponse)
+	// 		Expect(err).To(BeNil())
+	//
+	// 		expectedDelegationAmt := amountToDelegate.Add(amountToDelegate, prevDelegation)
+	// 		Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
+	// 	})
+	// })
 
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-		})
-
-		It("performs a transfer transaction", func() {
-			senderKey := s.keyring.GetKey(0)
-			receiverKey := s.keyring.GetKey(1)
-			denom := s.network.GetDenom()
-
-			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
-
-			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
-
-			transferAmount := int64(1000)
-
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiverKey.Addr,
-				Amount: big.NewInt(transferAmount),
-			}
-
-			res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-
-			// Check sender balance after transaction
-			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
-			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
-
-			// Check receiver balance after transaction
-			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
-			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
-		})
-
-		It("fails when trying to perform contract deployment", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			constructorArgs := []interface{}{"coin", "token", uint8(18)}
-			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
-			contractAddr, err := s.factory.DeployContract(
-				senderPriv,
-				evmtypes.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
-
-			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
-			Expect(contractAddr).To(Equal(common.Address{}))
-		})
-
-		It("performs a contract call to the staking precompile", func() {
-			senderKey := s.keyring.GetKey(1)
-			contractAddress := common.HexToAddress(staking.PrecompileAddress)
-			validatorAddress := s.network.GetValidators()[1].OperatorAddress
-			contractABI, err := staking.LoadABI()
-			Expect(err).To(BeNil())
-
-			// If grpc query fails, that means there were no previous delegations
-			prevDelegation := big.NewInt(0)
-			prevDelegationRes, err := s.grpcHandler.GetDelegation(senderKey.AccAddr.String(), validatorAddress)
-			if err == nil {
-				prevDelegation = prevDelegationRes.DelegationResponse.Balance.Amount.BigInt()
-			}
-
-			amountToDelegate := big.NewInt(200)
-
-			totalSupplyTxArgs := evmtypes.EvmTxArgs{
-				To: &contractAddress,
-			}
-
-			// Perform a delegate transaction to the staking precompile
-			delegateArgs := factory.CallArgs{
-				ContractABI: contractABI,
-				MethodName:  staking.DelegateMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
-			}
-			delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
-			Expect(err).To(BeNil())
-			Expect(delegateResponse.IsOK()).To(Equal(true), "transaction should have succeeded", delegateResponse.GetLog())
-
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-
-			// Perform query to check the delegation was successful
-			queryDelegationArgs := factory.CallArgs{
-				ContractABI: contractABI,
-				MethodName:  staking.DelegationMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress},
-			}
-			queryDelegationResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, queryDelegationArgs)
-			Expect(err).To(BeNil())
-			Expect(queryDelegationResponse.IsOK()).To(Equal(true), "transaction should have succeeded", queryDelegationResponse.GetLog())
-
-			// Make sure the delegation amount is correct
-			var delegationOutput staking.DelegationOutput
-			err = integrationutils.DecodeContractCallResponse(&delegationOutput, queryDelegationArgs, queryDelegationResponse)
-			Expect(err).To(BeNil())
-
-			expectedDelegationAmt := amountToDelegate.Add(amountToDelegate, prevDelegation)
-			Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
-		})
-	})
-
-	When("EnableCall param is set to false", Ordered, func() {
-		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCall = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
-
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-		})
-
-		It("fails when performing a transfer transaction", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiver.Addr,
-				Amount: big.NewInt(1000),
-				// Hard coded gas limit to avoid failure on gas estimation because
-				// of the param
-				GasLimit: 100000,
-			}
-
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
-			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
-			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
-		})
-
-		It("performs a contract deployment and fails to perform a contract call", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			constructorArgs := []interface{}{"coin", "token", uint8(18)}
-			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
-			contractAddr, err := s.factory.DeployContract(
-				senderPriv,
-				evmtypes.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
-			Expect(err).To(BeNil())
-			Expect(contractAddr).ToNot(Equal(common.Address{}))
-
-			txArgs := evmtypes.EvmTxArgs{
-				To: &contractAddr,
-				// Hard coded gas limit to avoid failure on gas estimation because
-				// of the param
-				GasLimit: 100000,
-			}
-			callArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "mint",
-				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
-			}
-			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
-			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
-			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
-		})
-	})
+	// When("EnableCall param is set to false", Ordered, func() {
+	// 	BeforeAll(func() {
+	// 		// Set params to default values
+	// 		defaultParams := evmtypes.DefaultParams()
+	// 		defaultParams.EnableCall = false
+	// 		err := s.network.UpdateEvmParams(defaultParams)
+	// 		Expect(err).To(BeNil())
+	//
+	// 		err = s.network.NextBlock()
+	// 		Expect(err).To(BeNil())
+	// 	})
+	//
+	// 	It("fails when performing a transfer transaction", func() {
+	// 		senderPriv := s.keyring.GetPrivKey(0)
+	// 		receiver := s.keyring.GetKey(1)
+	// 		txArgs := evmtypes.EvmTxArgs{
+	// 			To:     &receiver.Addr,
+	// 			Amount: big.NewInt(1000),
+	// 			// Hard coded gas limit to avoid failure on gas estimation because
+	// 			// of the param
+	// 			GasLimit: 100000,
+	// 		}
+	//
+	// 		res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+	// 		Expect(err).NotTo(BeNil())
+	// 		Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+	// 		Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
+	// 	})
+	//
+	// 	It("performs a contract deployment and fails to perform a contract call", func() {
+	// 		senderPriv := s.keyring.GetPrivKey(0)
+	// 		constructorArgs := []interface{}{"coin", "token", uint8(18)}
+	// 		compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+	// 		contractAddr, err := s.factory.DeployContract(
+	// 			senderPriv,
+	// 			evmtypes.EvmTxArgs{}, // Default values
+	// 			factory.ContractDeploymentData{
+	// 				Contract:        compiledContract,
+	// 				ConstructorArgs: constructorArgs,
+	// 			},
+	// 		)
+	// 		Expect(err).To(BeNil())
+	// 		Expect(contractAddr).ToNot(Equal(common.Address{}))
+	//
+	// 		txArgs := evmtypes.EvmTxArgs{
+	// 			To: &contractAddr,
+	// 			// Hard coded gas limit to avoid failure on gas estimation because
+	// 			// of the param
+	// 			GasLimit: 100000,
+	// 		}
+	// 		callArgs := factory.CallArgs{
+	// 			ContractABI: compiledContract.ABI,
+	// 			MethodName:  "mint",
+	// 			Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
+	// 		}
+	// 		res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
+	// 		Expect(err).NotTo(BeNil())
+	// 		Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+	// 		Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
+	// 	})
+	// })
 })

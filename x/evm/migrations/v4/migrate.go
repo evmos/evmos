@@ -40,14 +40,5 @@ func MigrateStore(
 	if params.AllowUnprotectedTxs {
 		store.Set(types.ParamStoreKeyAllowUnprotectedTxs, []byte{0x01})
 	}
-
-	if params.EnableCall {
-		store.Set(types.ParamStoreKeyEnableCall, []byte{0x01})
-	}
-
-	if params.EnableCreate {
-		store.Set(types.ParamStoreKeyEnableCreate, []byte{0x01})
-	}
-
 	return nil
 }

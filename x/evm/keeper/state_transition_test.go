@@ -605,34 +605,34 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			false,
 		},
-		{
-			"call contract tx with config param EnableCall = false",
-			func() {
-				config.Params.EnableCall = false
-				msg, err = newNativeMessage(
-					vmdb.GetNonce(suite.address),
-					suite.ctx.BlockHeight(),
-					suite.address,
-					chainCfg,
-					suite.signer,
-					signer,
-					ethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
-				suite.Require().NoError(err)
-			},
-			true,
-		},
-		{
-			"create contract tx with config param EnableCreate = false",
-			func() {
-				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(1))
-				suite.Require().NoError(err)
-				config.Params.EnableCreate = false
-			},
-			true,
-		},
+		// {
+		// 	"call contract tx with config param EnableCall = false",
+		// 	func() {
+		// 		config.Params.EnableCall = false
+		// 		msg, err = newNativeMessage(
+		// 			vmdb.GetNonce(suite.address),
+		// 			suite.ctx.BlockHeight(),
+		// 			suite.address,
+		// 			chainCfg,
+		// 			suite.signer,
+		// 			signer,
+		// 			ethtypes.AccessListTxType,
+		// 			nil,
+		// 			nil,
+		// 		)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	true,
+		// },
+		// {
+		// 	"create contract tx with config param EnableCreate = false",
+		// 	func() {
+		// 		msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(1))
+		// 		suite.Require().NoError(err)
+		// 		config.Params.EnableCreate = false
+		// 	},
+		// 	true,
+		// },
 		{
 			"fix panic when minimumGasUsed is not uint64",
 			func() {

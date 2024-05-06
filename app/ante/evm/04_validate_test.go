@@ -61,8 +61,8 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
-				params.EnableCreate = false
+				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
+				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
 
 				return validateMsgParams{
 					evmParams: params,
@@ -94,7 +94,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCreate = false
+				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
 
 				return validateMsgParams{
 					evmParams: params,
@@ -112,7 +112,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
+				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
 
 				return validateMsgParams{
 					evmParams: params,
@@ -144,7 +144,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
+				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
 
 				return validateMsgParams{
 					evmParams: params,
@@ -162,7 +162,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCreate = false
+				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
 
 				return validateMsgParams{
 					evmParams: params,

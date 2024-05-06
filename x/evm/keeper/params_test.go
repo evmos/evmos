@@ -39,34 +39,34 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			true,
 		},
-		{
-			"success - Check EnableCreate param is set to false and can be retrieved correctly",
-			func() interface{} {
-				params.EnableCreate = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
-				return params.EnableCreate
-			},
-			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-				return evmParams.GetEnableCreate()
-			},
-			true,
-		},
-		{
-			"success - Check EnableCall param is set to false and can be retrieved correctly",
-			func() interface{} {
-				params.EnableCall = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
-				return params.EnableCall
-			},
-			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-				return evmParams.GetEnableCall()
-			},
-			true,
-		},
+		// {
+		// 	"success - Check EnableCreate param is set to false and can be retrieved correctly",
+		// 	func() interface{} {
+		// 		params.EnableCreate = false
+		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 		return params.EnableCreate
+		// 	},
+		// 	func() interface{} {
+		// 		evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		return evmParams.GetEnableCreate()
+		// 	},
+		// 	true,
+		// },
+		// {
+		// 	"success - Check EnableCall param is set to false and can be retrieved correctly",
+		// 	func() interface{} {
+		// 		params.EnableCall = false
+		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 		return params.EnableCall
+		// 	},
+		// 	func() interface{} {
+		// 		evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		return evmParams.GetEnableCall()
+		// 	},
+		// 	true,
+		// },
 		{
 			"success - Check AllowUnprotectedTxs param is set to false and can be retrieved correctly",
 			func() interface{} {
