@@ -1,44 +1,59 @@
 package v3_test
 
-// type mockSubspace struct {
-// 	ps           v3types.V3Params
-// 	storeKey     storetypes.StoreKey
-// 	transientKey storetypes.StoreKey
-// }
+import (
+	"testing"
 
-// func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.StoreKey) mockSubspace {
-// 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
-// }
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	v3 "github.com/evmos/evmos/v18/x/erc20/migrations/v3"
+	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
+	v4types "github.com/evmos/evmos/v18/x/erc20/migrations/v4/types"
+	"github.com/stretchr/testify/require"
+)
 
-// func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
-// 	*ps.(*v3types.V3Params) = ms.ps
-// }
+type mockSubspace struct {
+	ps           v3types.V3Params
+	storeKey     storetypes.StoreKey
+	transientKey storetypes.StoreKey
+}
 
-// func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
-// 	encCfg := encoding.MakeConfig(app.ModuleBasics)
-// 	cdc := encCfg.Codec
-// 	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
-// }
+func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.StoreKey) mockSubspace {
+	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
+}
 
-// func TestMigrate(t *testing.T) {
-// 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-// 	tKey := sdk.NewTransientStoreKey("transient_test")
-// 	ctx := testutil.DefaultContext(storeKey, tKey)
-// 	store := ctx.KVStore(storeKey)
+func (ms mockSubspace) GetParamSet(_ sdk.Context, ps v4types.LegacyParams) {
+	*ps.(*v3types.V3Params) = ms.ps
+}
 
-// 	var outputParams v3types.V3Params
-// 	inputParams := v3types.DefaultParams()
-// 	legacySubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey).WithKeyTable(v3types.ParamKeyTable())
-// 	legacySubspace.SetParamSet(ctx, &inputParams)
-// 	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
+func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
+	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	cdc := encCfg.Codec
+	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
+}
 
-// 	mockSubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey)
-// 	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
+func TestMigrate(t *testing.T) {
+	storeKey := sdk.NewKVStoreKey(v4types.ModuleName)
+	tKey := sdk.NewTransientStoreKey("transient_test")
+	ctx := testutil.DefaultContext(storeKey, tKey)
+	store := ctx.KVStore(storeKey)
 
-// 	// Get all the new parameters from the store
-// 	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
-// 	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
+	var outputParams v3types.V3Params
+	inputParams := v3types.DefaultParams()
+	legacySubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey).WithKeyTable(v3types.ParamKeyTable())
+	legacySubspace.SetParamSet(ctx, &inputParams)
+	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
 
-// 	params := v3types.NewParams(enableErc20, enableEvmHook)
-// 	require.Equal(t, params, outputParams)
-// }
+	mockSubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey)
+	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
+
+	// Get all the new parameters from the store
+	enableEvmHook := store.Has(v4types.ParamStoreKeyEnableEVMHook)
+	enableErc20 := store.Has(v4types.ParamStoreKeyEnableErc20)
+
+	params := v3types.NewParams(enableErc20, enableEvmHook)
+	require.Equal(t, params, outputParams)
+}

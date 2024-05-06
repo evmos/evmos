@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package types
+package v4types
 
 import (
 	fmt "fmt"
@@ -17,15 +17,15 @@ var (
 func NewParams(
 	enableErc20 bool,
 	enableEVMHook bool,
-) Params {
-	return Params{
+) V4Params {
+	return V4Params{
 		EnableErc20:   enableErc20,
 		EnableEVMHook: enableEVMHook,
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V4Params {
+	return V4Params{
 		EnableErc20:   true,
 		EnableEVMHook: true,
 	}
@@ -40,7 +40,7 @@ func ValidateBool(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V4Params) Validate() error {
 	if err := ValidateBool(p.EnableEVMHook); err != nil {
 		return err
 	}

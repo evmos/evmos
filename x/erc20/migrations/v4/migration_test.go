@@ -1,62 +1,40 @@
 package v4_test
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-// 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-// 	"github.com/evmos/evmos/v18/app"
-// 	"github.com/evmos/evmos/v18/encoding"
+	v4 "github.com/evmos/evmos/v18/x/erc20/migrations/v4"
+	v4types "github.com/evmos/evmos/v18/x/erc20/migrations/v4/types"
 
-// 	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
+	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/stretchr/testify/require"
 
-// 	"github.com/evmos/evmos/v18/x/erc20/types"
-// 	"github.com/stretchr/testify/require"
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
-// 	"github.com/cosmos/cosmos-sdk/testutil"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	v3 "github.com/evmos/evmos/v18/x/erc20/migrations/v3"
-// )
+var isTrue = []byte("0x01")
 
-// type mockSubspace struct {
-// 	ps           v3types.V3Params
-// 	storeKey     storetypes.StoreKey
-// 	transientKey storetypes.StoreKey
-// }
+func TestMigrate(t *testing.T) {
+	storeKey := sdk.NewKVStoreKey(types.ModuleName)
+	tKey := sdk.NewTransientStoreKey("transient_test")
+	ctx := testutil.DefaultContext(storeKey, tKey)
+	store := ctx.KVStore(storeKey)
 
-// func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.StoreKey) mockSubspace {
-// 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
-// }
+	store.Set(v4types.ParamStoreKeyEnableEVMHook, isTrue)
+	store.Set(v4types.ParamStoreKeyEnableErc20, isTrue)
 
-// func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
-// 	*ps.(*v3types.V3Params) = ms.ps
-// }
+	require.NoError(t, v4.MigrateStore(ctx, storeKey))
 
-// func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
-// 	encCfg := encoding.MakeConfig(app.ModuleBasics)
-// 	cdc := encCfg.Codec
-// 	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
-// }
+	// Get all the new parameters from the store
+	enableEvmHook := store.Has(v4types.ParamStoreKeyEnableEVMHook)
+	enableErc20 := store.Has(v4types.ParamStoreKeyEnableErc20)
 
-// func TestMigrate(t *testing.T) {
-// 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-// 	tKey := sdk.NewTransientStoreKey("transient_test")
-// 	ctx := testutil.DefaultContext(storeKey, tKey)
-// 	store := ctx.KVStore(storeKey)
+	dynamicbz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
+	nativebz := store.Get(types.ParamStoreKeyNativePrecompiles)
 
-// 	var outputParams v3types.V3Params
-// 	inputParams := v3types.DefaultParams()
-// 	legacySubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey).WithKeyTable(v3types.ParamKeyTable())
-// 	legacySubspace.SetParamSet(ctx, &inputParams)
-// 	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
-
-// 	mockSubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey)
-// 	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
-
-// 	// Get all the new parameters from the store
-// 	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
-// 	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
-
-// 	params := v3types.NewParams(enableErc20, enableEvmHook)
-// 	require.Equal(t, params, outputParams)
-// }
+	require.ElementsMatch(t, dynamicbz, []byte{})
+	require.ElementsMatch(t, nativebz, []byte{})
+	require.False(t, enableEvmHook, "params should have been deleted")
+	require.True(t, enableErc20, "params should be enabled")
+}
