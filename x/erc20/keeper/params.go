@@ -43,7 +43,6 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 func (k Keeper) IsERC20Enabled(ctx sdk.Context) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.ParamStoreKeyEnableErc20)
-	// return k.GetParams(ctx).EnableErc20
 }
 
 // setERC20Enabled sets the EnableERC20 param in the store

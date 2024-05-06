@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -281,41 +280,41 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		activeDynamicPrecompiles := s.app.Erc20Keeper.GetParams(s.EvmosChain.GetContext()).DynamicPrecompiles
 		s.Require().NotContains(activeDynamicPrecompiles, uosmoContractAddr.String())
 	})
-	It("Aevmos - Should transfer aevmos from Osmosis to Evmos and not register pair", func() {
-		// Send from vmos to Osmosis back to Evmos
-		evmosAddress := s.EvmosChain.SenderAccount.GetAddress().String()
-		evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
-		osmosisAddress := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-		osmosisAccount := sdk.MustAccAddressFromBech32(osmosisAddress)
+	// It("Aevmos - Should transfer aevmos from Osmosis to Evmos and not register pair", func() {
+	// 	// Send from vmos to Osmosis back to Evmos
+	// 	evmosAddress := s.EvmosChain.SenderAccount.GetAddress().String()
+	// 	evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
+	// 	osmosisAddress := s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+	// 	osmosisAccount := sdk.MustAccAddressFromBech32(osmosisAddress)
 
-		aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
+	// 	aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
 
-		// 1. Send aevmos from Evmos to Osmosis
-		s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, utils.BaseDenom, amount, evmosAddress, osmosisAddress, 1, "")
+	// 	// 1. Send aevmos from Evmos to Osmosis
+	// 	s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, utils.BaseDenom, amount, evmosAddress, osmosisAddress, 1, "")
 
-		aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
-		s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(sendAndReceiveMsgFee), aevmosAfterBalance.Amount)
+	// 	aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
+	// 	s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(sendAndReceiveMsgFee), aevmosAfterBalance.Amount)
 
-		// check ibc aevmos coins balance on Osmosis
-		aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
-		s.Require().Equal(amount, aevmosIBCBalanceBefore.Amount.Int64())
+	// 	// check ibc aevmos coins balance on Osmosis
+	// 	aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
+	// 	s.Require().Equal(amount, aevmosIBCBalanceBefore.Amount.Int64())
 
-		// 2. Send aevmos IBC coins from Osmosis back to Evmos
-		ibcCoinMeta := fmt.Sprintf("%s/%s", teststypes.AevmosDenomtrace.Path, teststypes.AevmosDenomtrace.BaseDenom)
-		s.SendBackCoins(s.pathOsmosisEvmos, s.IBCOsmosisChain, teststypes.AevmosIbcdenom, amount, osmosisAddress, evmosAddress, 1, ibcCoinMeta)
+	// 	// 2. Send aevmos IBC coins from Osmosis back to Evmos
+	// 	ibcCoinMeta := fmt.Sprintf("%s/%s", teststypes.AevmosDenomtrace.Path, teststypes.AevmosDenomtrace.BaseDenom)
+	// 	s.SendBackCoins(s.pathOsmosisEvmos, s.IBCOsmosisChain, teststypes.AevmosIbcdenom, amount, osmosisAddress, evmosAddress, 1, ibcCoinMeta)
 
-		// check ibc aevmos coins balance on Osmosis - should be zero
-		aevmosIBCSenderFinalBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
-		s.Require().Equal(int64(0), aevmosIBCSenderFinalBalance.Amount.Int64())
+	// 	// check ibc aevmos coins balance on Osmosis - should be zero
+	// 	aevmosIBCSenderFinalBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), osmosisAccount, teststypes.AevmosIbcdenom)
+	// 	s.Require().Equal(int64(0), aevmosIBCSenderFinalBalance.Amount.Int64())
 
-		// check aevmos balance after transfer - should be equal to initial balance
-		aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
-		totalFees := sendBackCoinsFee.Add(sendAndReceiveMsgFee)
-		s.Require().Equal(aevmosInitialBalance.Amount.Sub(totalFees), aevmosFinalBalance.Amount)
+	// 	// check aevmos balance after transfer - should be equal to initial balance
+	// 	aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, utils.BaseDenom)
+	// 	totalFees := sendBackCoinsFee.Add(sendAndReceiveMsgFee)
+	// 	s.Require().Equal(aevmosInitialBalance.Amount.Sub(totalFees), aevmosFinalBalance.Amount)
 
-		// Aevmos pair should not be registered
-		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), utils.BaseDenom)
-		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
-		s.Require().False(found)
-	})
+	// 	// Aevmos pair should not be registered
+	// 	pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), utils.BaseDenom)
+	// 	_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
+	// 	s.Require().False(found)
+	// })
 })

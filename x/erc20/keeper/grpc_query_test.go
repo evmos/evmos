@@ -22,15 +22,17 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 		expPass  bool
 	}{
 		{
-			"no pairs registered",
+			"default pairs registered",
 			func() {
 				req = &types.QueryTokenPairsRequest{}
-				expRes = &types.QueryTokenPairsResponse{Pagination: &query.PageResponse{}}
+				expRes = &types.QueryTokenPairsResponse{
+					TokenPairs: types.DefaultTokenPairs,
+					Pagination: &query.PageResponse{Total: 1}}
 			},
 			true,
 		},
 		{
-			"1 pair registered w/pagination",
+			"1 extra pair registered w/pagination",
 			func() {
 				req = &types.QueryTokenPairsRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
@@ -39,8 +41,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 
 				expRes = &types.QueryTokenPairsResponse{
-					Pagination: &query.PageResponse{Total: 1},
-					TokenPairs: []types.TokenPair{pair},
+					Pagination: &query.PageResponse{Total: 2},
+					TokenPairs: append(types.DefaultTokenPairs, pair),
 				}
 			},
 			true,
@@ -55,8 +57,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
 
 				expRes = &types.QueryTokenPairsResponse{
-					Pagination: &query.PageResponse{Total: 2},
-					TokenPairs: []types.TokenPair{pair, pair2},
+					Pagination: &query.PageResponse{Total: 3},
+					TokenPairs: append(types.DefaultTokenPairs, []types.TokenPair{pair, pair2}...),
 				}
 			},
 			true,
