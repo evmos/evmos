@@ -3,7 +3,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
 	"slices"
 
@@ -60,16 +59,9 @@ func (k *Keeper) NewEVM(
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
 
-	evmHooks := vm.NewDefaultOpCodeHooks()
-
-	from := msg.From()
-	canCreate := slices.Contains(cfg.WhitelistAddresses, from.String())
-	evmHooks.CreateHook = func(evm *vm.EVM, _ common.Address) error {
-		if canCreate {
-			return nil
-		}
-		return fmt.Errorf("caller address %s does not have permission to deploy contracts", from.Hex())
-	}
+	signer := msg.From().String()
+	permissionsPolicy := NewRestrictedPermissionPolicy(cfg.Params.PermissionsPolicy, signer)
+	evmHooks := NewDefaultOpCodesHooks(permissionsPolicy, signer)
 	return vm.NewEVMWithHooks(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 

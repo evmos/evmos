@@ -49,10 +49,6 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	return params
 }
 
-func (k Keeper) GetCreateWhitelistAddresses(ctx sdk.Context) []string {
-	return k.GetParams(ctx).CreateWhitelistAddresses
-}
-
 // EnablePrecompiles appends the addresses of the given Precompiles to the list
 // of active precompiles.
 func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) error {

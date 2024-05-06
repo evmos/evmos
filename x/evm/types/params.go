@@ -50,7 +50,18 @@ var (
 		"channel-83", // Kava
 	}
 	DefaultCreateWhitelistAddresses = []string{
-		"0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101",
+      "0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101",
+    }
+	DefaultCallWhitelistAddresses   = []string{}
+	DefaultPermissionPolicy         = Permissions{
+		Create: &PermissionTypes{
+			AccessType:         AccessTypeWhitelistAddress,
+			WhitelistAddresses: DefaultCreateWhitelistAddresses,
+		},
+		Call: &PermissionTypes{
+			AccessType:         AccessTypeEverybody,
+			WhitelistAddresses: DefaultCallWhitelistAddresses,
+		},
 	}
 )
 
@@ -64,6 +75,7 @@ func NewParams(
 	extraEIPs []int64,
 	activePrecompiles,
 	evmChannels []string,
+	permissionsPolicy *Permissions,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -74,6 +86,7 @@ func NewParams(
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
 		EVMChannels:         evmChannels,
+		PermissionsPolicy:   permissionsPolicy,
 	}
 }
 
@@ -83,15 +96,15 @@ func NewParams(
 // from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:                 DefaultEVMDenom,
-		EnableCreate:             DefaultEnableCreate,
-		EnableCall:               DefaultEnableCall,
-		ChainConfig:              DefaultChainConfig(),
-		ExtraEIPs:                DefaultExtraEIPs,
-		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:        AvailableEVMExtensions,
-		EVMChannels:              DefaultEVMChannels,
-		CreateWhitelistAddresses: DefaultCreateWhitelistAddresses,
+		EvmDenom:            DefaultEVMDenom,
+		EnableCreate:        DefaultEnableCreate,
+		EnableCall:          DefaultEnableCall,
+		ChainConfig:         DefaultChainConfig(),
+		ExtraEIPs:           DefaultExtraEIPs,
+		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:   AvailableEVMExtensions,
+		EVMChannels:         DefaultEVMChannels,
+		PermissionsPolicy:   &DefaultPermissionPolicy,
 	}
 }
 

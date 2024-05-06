@@ -30,7 +30,28 @@ message Params {
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
   // create_whitelist_addresses is the list of addresses that are allowed to
   // deploy contracts
-  repeated string create_whitelist_addresses = 9 [(gogoproto.customname) = "CreateWhitelistAddresses"];
+  Permissions permissions = 9 [(gogoproto.customname) = "PermissionsPolicy"];
+}
+
+message Permissions {
+  PermissionTypes create = 1;
+  PermissionTypes call = 2;
+}
+
+message PermissionTypes {
+  AccessType access_type = 1;
+  repeated string whitelist_addresses = 2;
+}
+
+enum AccessType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  ACCESS_TYPE_EVERYBODY = 0
+      [ (gogoproto.enumvalue_customname) = "AccessTypeEverybody" ];
+  ACCESS_TYPE_NOBODY = 1
+      [ (gogoproto.enumvalue_customname) = "AccessTypeNobody" ];
+  ACCESS_TYPE_WHITELIST_ADDRESSES = 2
+      [ (gogoproto.enumvalue_customname) = "AccessTypeWhitelistAddress" ];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
