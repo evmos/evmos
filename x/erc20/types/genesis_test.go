@@ -20,13 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), []types.TokenPair{
-		{
-			Erc20Address: types.WEVMOSContractMainnet,
-			Denom:        utils.BaseDenom,
-			Enabled:      true,
-		},
-	})
+	newGen := types.NewGenesisState(types.DefaultParams(), types.DefaultTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -46,14 +40,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name: "valid genesis",
 			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				TokenPairs: []types.TokenPair{
-					{
-						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
-						Enabled:      true,
-					},
-				},
+				Params:     types.DefaultParams(),
+				TokenPairs: types.DefaultTokenPairs,
 			},
 			expPass: true,
 		},
