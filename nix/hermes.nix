@@ -2,17 +2,12 @@
 , lib
 , stdenv
 , darwin
-, rustPlatform
 , symlinkJoin
 , openssl
-, rust-bin
+, platform
 }:
-rustPlatform.buildRustPackage rec {
+platform.buildRustPackage rec {
   name = "hermes";
-
-  nativeBuildInputs = [
-    rust-bin.stable.latest.minimal
-  ];
 
   inherit src;
   cargoSha256 = "sha256-jqmIBmvY3PXpLFfv6XrnXJ0RmR6amFFMNfgK8qDFHb8=";
