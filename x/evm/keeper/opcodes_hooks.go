@@ -19,14 +19,14 @@ func NewDefaultOpCodesHooks(permissionsPolicy PermissionPolicy, signer string) v
 	}
 }
 
-func (h *DefaultOpCodesHooks) CreateHook(evm *vm.EVM, caller common.Address) error {
+func (h *DefaultOpCodesHooks) CreateHook(_ *vm.EVM, caller common.Address) error {
 	if h.permissions.CanCreate(h.signer, caller.String()) {
 		return nil
 	}
 	return fmt.Errorf("caller address %s does not have permission to deploy contracts", h.signer)
 }
 
-func (h *DefaultOpCodesHooks) CallHook(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+func (h *DefaultOpCodesHooks) CallHook(_ *vm.EVM, caller common.Address, recipient common.Address) error {
 	if h.permissions.CanCall(h.signer, caller.String(), recipient.String()) {
 		return nil
 	}

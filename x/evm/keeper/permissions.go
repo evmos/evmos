@@ -49,9 +49,9 @@ func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 func getCreateCallerFn(permissions *types.Permissions, signer string) callerFn {
 	switch permissions.Create.AccessType {
 	case types.AccessTypeEverybody:
-		return func(caller string) bool { return true }
+		return func(_ string) bool { return true }
 	case types.AccessTypeNobody:
-		return func(caller string) bool { return false }
+		return func(_ string) bool { return false }
 	case types.AccessTypeWhitelistAddress:
 		addresses := permissions.Create.WhitelistAddresses
 		isSignerAllowed := slices.Contains(addresses, signer)
@@ -59,7 +59,7 @@ func getCreateCallerFn(permissions *types.Permissions, signer string) callerFn {
 			return isSignerAllowed || slices.Contains(addresses, caller)
 		}
 	}
-	return func(caller string) bool { return false }
+	return func(_ string) bool { return false }
 }
 
 // CanCreate implements the PermissionPolicy interface.
@@ -74,9 +74,9 @@ func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 func generateCallerFn(permissions *types.Permissions, signer string) callerFn {
 	switch permissions.Call.AccessType {
 	case types.AccessTypeEverybody:
-		return func(caller string) bool { return true }
+		return func(_ string) bool { return true }
 	case types.AccessTypeNobody:
-		return func(caller string) bool { return false }
+		return func(_ string) bool { return false }
 	case types.AccessTypeWhitelistAddress:
 		addresses := permissions.Call.WhitelistAddresses
 		isSignerAllowed := slices.Contains(addresses, signer)
@@ -84,5 +84,5 @@ func generateCallerFn(permissions *types.Permissions, signer string) callerFn {
 			return isSignerAllowed || slices.Contains(addresses, caller)
 		}
 	}
-	return func(caller string) bool { return false }
+	return func(_ string) bool { return false }
 }
