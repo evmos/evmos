@@ -18,6 +18,7 @@ contract PacketActorCounter is IPacketActor  {
     }
 
     function onSendPacket(
+        ICS20Packet calldata packet,
         address relayer
     ) external returns (bool success) {
         counter += 1;
@@ -25,15 +26,15 @@ contract PacketActorCounter is IPacketActor  {
     }
 
     function onRecvPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         address relayer
-    ) external returns (bytes calldata acknowledgement) {
+    ) external returns (bool success) {
 
-        return packet.data;
+        return true;
     }
 
     function onAcknowledgementPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         bytes calldata acknowledgement,
         address relayer
     ) external returns (bool success) {
@@ -42,7 +43,7 @@ contract PacketActorCounter is IPacketActor  {
     }
 
     function onTimeoutPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         address relayer
     ) external returns (bool success) {
         return true;

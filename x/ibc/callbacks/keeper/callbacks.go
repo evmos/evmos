@@ -1,18 +1,16 @@
 package keeper
 
 import (
-	"encoding/json"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v17/server/config"
 	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 	"math/big"
 )
@@ -25,82 +23,54 @@ const (
 	IBCReceivePacketMethod         = "onReceivePacket"
 )
 
-var (
-	OnSendPacketInterfaceID = common.HexToHash("0x1ac28d54")
-)
+type ICS20Packet struct {
+	SourcePort       string                                `abi:"sourcePort"`
+	SourceChannel    string                                `abi:"sourceChannel"`
+	Data             transfertypes.FungibleTokenPacketData `abi:"data"`
+	TimeoutHeight    clienttypes.Height                    `abi:"timeoutHeight"`
+	TimeoutTimestamp uint64                                `abi:"timeoutTimestamp"`
+}
 
 func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, sourceChannel string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, packetData []byte, contractAddress, packetSenderAddress string) error {
 	cachedCtx.Logger().Info("IBCSendPacketCallback, logger")
-	chainId := k.evmKeeper.ChainID()
+	fmt.Println("IBCSendPacketCallback, test", sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetData, contractAddress, packetSenderAddress)
 	contractHex := common.HexToAddress(contractAddress)
-	//packet := channeltypes.Packet{
-	//	Sequence:           0,
-	//	SourcePort:         sourcePort,
-	//	SourceChannel:      sourceChannel,
-	//	DestinationPort:    "",
-	//	DestinationChannel: "",
-	//	Data:               packetData,
-	//	TimeoutHeight:      timeoutHeight,
-	//	TimeoutTimestamp:   timeoutTimestamp,
-	//}
-	//args := []interface{}{packetSenderAddress}
+
+	if err := k.DetectInterface(cachedCtx, OnSendPacketInterfaceID, packetSenderAddress, contractHex); err != nil {
+		return err
+	}
+
+	ics20Packet, err := k.DecodeTransferPacketData(packetData)
+	if err != nil {
+		return err
+	}
+
+	packet := ICS20Packet{
+		SourcePort:       sourcePort,
+		SourceChannel:    sourceChannel,
+		TimeoutHeight:    timeoutHeight,
+		TimeoutTimestamp: timeoutTimestamp,
+		Data:             ics20Packet,
+	}
+
+	fmt.Println("The ics20 packet is", ics20Packet)
+
+	newInput, err := k.ABI.Pack(IBCSendPacketMethod, packet, common.HexToAddress(packetSenderAddress))
+	if err != nil {
+		fmt.Println("The packing error in IBCSendPacketMethod is", err)
+		return err
+	}
+
 	privkey, _ := ethsecp256k1.GenerateKey()
 	key, err := privkey.ToECDSA()
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
-	var interfaceID [4]byte
-	copy(interfaceID[:], OnSendPacketInterfaceID.Bytes())
-	fmt.Println("interface id", interfaceID)
-	input, err := k.ABI.Pack(SupportsInterfaceQuery, interfaceID)
-	if err != nil {
-		fmt.Println("The error in packing is", err)
-		return err
-	}
-
-	//anotherInput, err := k.ABI.Pack(SupportsInterfaceQuery, 0x1ac28d54)
-	//if err != nil {
-	//	fmt.Println("The error in packing another is", err)
-	//	return err
-	//}
-	//fmt.Println("another input", anotherInput)
-	fmt.Println("input here", input, string(input))
-	packetSender := common.HexToAddress(packetSenderAddress)
-	callArgs := evmtypes.TransactionArgs{
-		From: &packetSender,
-		To:   &contractHex,
-		Data: (*hexutil.Bytes)(&input),
-	}
-	fmt.Println("the call args", callArgs)
-	bz, err := json.Marshal(&callArgs)
-	if err != nil {
-		fmt.Println("The error in marshalling is", err)
-		return err
-	}
-	callReq := evmtypes.EthCallRequest{
-		Args:            bz,
-		GasCap:          config.DefaultGasCap,
-		ProposerAddress: cachedCtx.BlockHeader().ProposerAddress,
-		ChainId:         chainId.Int64(),
-	}
-	res, err := k.evmKeeper.EthCall(cachedCtx, &callReq)
-	if err != nil {
-		fmt.Println("The error in ETH CALL is", err)
-		return err
-	}
-
-	fmt.Println("The result in ETH CALL is", res.Ret, res.VmError, res.Logs, res.Hash, res.Failed())
-
-	input, err = k.ABI.Pack(IBCSendPacketMethod, common.HexToAddress(packetSenderAddress))
-	if err != nil {
-		fmt.Println("The packing error is", err)
-		return err
-	}
+	chainId := k.evmKeeper.ChainID()
 	ethTxParams := &evmtypes.EvmTxArgs{
-		ChainID: chainId,
-		Nonce:   1,
-
+		ChainID:  chainId,
+		Nonce:    1,
 		GasLimit: cachedCtx.GasMeter().Limit(),
-		Input:    input,
+		Input:    newInput,
 		To:       &contractHex,
 		Accesses: &ethtypes.AccessList{},
 	}

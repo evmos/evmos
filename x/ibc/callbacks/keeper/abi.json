@@ -4,11 +4,6 @@
       {
         "components": [
           {
-            "internalType": "uint64",
-            "name": "sequence",
-            "type": "uint64"
-          },
-          {
             "internalType": "string",
             "name": "sourcePort",
             "type": "string"
@@ -19,19 +14,36 @@
             "type": "string"
           },
           {
-            "internalType": "string",
-            "name": "destinationPort",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "destinationChannel",
-            "type": "string"
-          },
-          {
-            "internalType": "bytes",
+            "components": [
+              {
+                "internalType": "string",
+                "name": "denom",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "amount",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "sender",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "receiver",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "memo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct ICS20Data",
             "name": "data",
-            "type": "bytes"
+            "type": "tuple"
           },
           {
             "components": [
@@ -56,7 +68,7 @@
             "type": "uint64"
           }
         ],
-        "internalType": "struct Packet",
+        "internalType": "struct ICS20Packet",
         "name": "packet",
         "type": "tuple"
       },
@@ -87,11 +99,6 @@
       {
         "components": [
           {
-            "internalType": "uint64",
-            "name": "sequence",
-            "type": "uint64"
-          },
-          {
             "internalType": "string",
             "name": "sourcePort",
             "type": "string"
@@ -102,19 +109,36 @@
             "type": "string"
           },
           {
-            "internalType": "string",
-            "name": "destinationPort",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "destinationChannel",
-            "type": "string"
-          },
-          {
-            "internalType": "bytes",
+            "components": [
+              {
+                "internalType": "string",
+                "name": "denom",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "amount",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "sender",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "receiver",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "memo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct ICS20Data",
             "name": "data",
-            "type": "bytes"
+            "type": "tuple"
           },
           {
             "components": [
@@ -139,7 +163,7 @@
             "type": "uint64"
           }
         ],
-        "internalType": "struct Packet",
+        "internalType": "struct ICS20Packet",
         "name": "packet",
         "type": "tuple"
       },
@@ -152,9 +176,9 @@
     "name": "onRecvPacket",
     "outputs": [
       {
-        "internalType": "bytes",
-        "name": "acknowledgement",
-        "type": "bytes"
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
       }
     ],
     "stateMutability": "nonpayable",
@@ -162,6 +186,77 @@
   },
   {
     "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "sourcePort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "sourceChannel",
+            "type": "string"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "denom",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "amount",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "sender",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "receiver",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "memo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct ICS20Data",
+            "name": "data",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "revisionNumber",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "revisionHeight",
+                "type": "uint64"
+              }
+            ],
+            "internalType": "struct Height",
+            "name": "timeoutHeight",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timeoutTimestamp",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct ICS20Packet",
+        "name": "packet",
+        "type": "tuple"
+      },
       {
         "internalType": "address",
         "name": "relayer",
@@ -184,11 +279,6 @@
       {
         "components": [
           {
-            "internalType": "uint64",
-            "name": "sequence",
-            "type": "uint64"
-          },
-          {
             "internalType": "string",
             "name": "sourcePort",
             "type": "string"
@@ -199,19 +289,36 @@
             "type": "string"
           },
           {
-            "internalType": "string",
-            "name": "destinationPort",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "destinationChannel",
-            "type": "string"
-          },
-          {
-            "internalType": "bytes",
+            "components": [
+              {
+                "internalType": "string",
+                "name": "denom",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "amount",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "sender",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "receiver",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "memo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct ICS20Data",
             "name": "data",
-            "type": "bytes"
+            "type": "tuple"
           },
           {
             "components": [
@@ -236,7 +343,7 @@
             "type": "uint64"
           }
         ],
-        "internalType": "struct Packet",
+        "internalType": "struct ICS20Packet",
         "name": "packet",
         "type": "tuple"
       },

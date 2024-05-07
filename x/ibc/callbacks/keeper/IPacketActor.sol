@@ -3,19 +3,22 @@ pragma solidity ^0.8.0;
 
 import "./IERC165.sol";
 
-struct Packet {
-    // Sequence number corresponds to the order of sends and receives
-    uint64 sequence;
+// TODO: This can be made into more developer friendly types like address and uint256
+struct ICS20Data {
+    string denom;
+    string amount;
+    string sender;
+    string receiver;
+    string memo;
+}
+
+struct ICS20Packet {
     // Identifies the port on the sending chain
     string sourcePort;
     // Identifies the channel end on the sending chain
     string sourceChannel;
-    // Identifies the port on the receiving chain
-    string destinationPort;
-    // Identifies the channel end on the receiving chain
-    string destinationChannel;
     // Actual opaque bytes transferred directly to the application module
-    bytes data;
+    ICS20Data data;
     // Block height after which the packet times out
     Height timeoutHeight;
     // Block timestamp (in nanoseconds) after which the packet times out
@@ -38,6 +41,7 @@ interface IPacketActor is IERC165 {
     /// handles the RecvPacket callback if the packet has an IBC Actor as a receiver.
     /// @param relayer The relayer address that sent the packet.
     function onSendPacket(
+        ICS20Packet calldata packet,
         address relayer
     ) external returns (bool success);
 
@@ -48,9 +52,9 @@ interface IPacketActor is IERC165 {
     /// @param relayer The relayer address that sent the packet.
     /// @return acknowledgement The success or failure acknowledgement bytes.
     function onRecvPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         address relayer
-    ) external returns (bytes calldata acknowledgement);
+    ) external returns (bool success);
 
     /// @dev onAcknowledgementPacket will be called on the IBC Actor
     /// after the IBC Application handles its own OnAcknowledgementPacket callback
@@ -59,7 +63,7 @@ interface IPacketActor is IERC165 {
     /// @param relayer The relayer that handled the acknowledgment.
     /// @return success The success or failure boolean.
     function onAcknowledgementPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         bytes calldata acknowledgement,
         address relayer
     ) external returns (bool success);
@@ -70,7 +74,7 @@ interface IPacketActor is IERC165 {
     /// @param relayer The relayer that handled the timeout.
     /// @return success The success or failure boolean.
     function onTimeoutPacket(
-        Packet calldata packet,
+        ICS20Packet calldata packet,
         address relayer
     ) external returns (bool success);
 }

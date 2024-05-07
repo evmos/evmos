@@ -331,7 +331,7 @@ func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rp
 func (b *Backend) DoCall(
 	args evmtypes.TransactionArgs, blockNr rpctypes.BlockNumber,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
-	fmt.Println("DOCALL", args)
+	//fmt.Println("DOCALL", args)
 	bz, err := json.Marshal(&args)
 	if err != nil {
 		return nil, err

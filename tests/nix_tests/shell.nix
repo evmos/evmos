@@ -9,7 +9,7 @@ pkgs.mkShell {
     pkgs.go-ethereum
     pkgs.nodejs
     pkgs.test-env
-    pkgs.rocksdb
+    # pkgs.rocksdb
     pkgs.evmosd-rocksdb
     pkgs.chain-maind
     pkgs.strided

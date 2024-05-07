@@ -53,7 +53,5 @@ def test_ibc_transfer_callback(ibc):
     )
     assert rsp["code"] == 0
     wait_for_ack(evmos_cli, "Evmos")
-
-    time.sleep(15)
-
+    time.sleep(5)
     print("the counter after", eth_contract.functions.counter().call())
