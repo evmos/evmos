@@ -14,6 +14,7 @@ type PermissionPolicy interface {
 	CanCall(signer string, caller string, recipient string) bool
 }
 
+// RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of permissions.
 type RestrictedPermissionPolicy struct {
 	permissions *types.Permissions
 	canCreate   callerFn
@@ -37,7 +38,8 @@ func NewRestrictedPermissionPolicy(permissions *types.Permissions, signer string
 var _ PermissionPolicy = RestrictedPermissionPolicy{}
 
 // CanCreate implements the PermissionPolicy interface.
-// It allows contract creation if:
+// It allows contract creation if access type is set to everybody.
+// Otherwise, it checks if:
 // - The signer is allowed to do so.
 // - If the signer is not allowed, then we check if the caller is allowed to do so.
 func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
@@ -60,6 +62,11 @@ func getCreateCallerFn(permissions *types.Permissions, signer string) callerFn {
 	return func(caller string) bool { return false }
 }
 
+// CanCreate implements the PermissionPolicy interface.
+// It allows calls if access type is set to everybody.
+// Otherwise, it checks if:
+// - The signer is allowed to do so.
+// - If the signer is not allowed, then we check if the caller is allowed to do so.
 func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 	return p.canCall(caller)
 }
