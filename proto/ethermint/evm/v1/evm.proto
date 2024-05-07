@@ -41,8 +41,8 @@ message Permissions {
 
 // PermissionType defines the permission type for policies
 message PermissionType {
-  AccessType access_type = 1 [(gogoproto.customname) = "AccessTypes", (gogoproto.moretags) = "yaml:\"access_types\""];
-  repeated string whitelist_addresses = 2 [(gogoproto.customname) = "WhitelistAddress", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
+  AccessType access_type = 1 [(gogoproto.customname) = "AccessType", (gogoproto.moretags) = "yaml:\"access_type\""];
+  repeated string whitelist_addresses = 2 [(gogoproto.customname) = "WhitelistAddresses", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
 }
 
 enum AccessType {
