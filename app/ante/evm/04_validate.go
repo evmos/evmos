@@ -45,14 +45,14 @@ func checkDisabledCreateCall(
 		return nil
 	}
 
-	isCreateBlocked := permissions.Create.AccessType == evmtypes.AccessTypeNobody
-	isCallBlocked := permissions.Call.AccessType == evmtypes.AccessTypeNobody
+	blockCreated := permissions.Create.AccessType == evmtypes.AccessTypeNobody
+	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeNobody
 
 	// return error if contract creation or call are disabled through governance
 	// and the transaction is trying to create a contract or call a contract
-	if isCreateBlocked && to == nil {
+	if blockCreated && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
-	} else if isCallBlocked && to != nil {
+	} else if blockCall && to != nil {
 		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
 	}
 	return nil

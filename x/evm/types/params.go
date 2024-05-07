@@ -47,15 +47,13 @@ var (
 	}
 	DefaultCreateWhitelistAddresses = []string{}
 	DefaultCallWhitelistAddresses   = []string{}
-	DefaultPermissionPolicy         = Permissions{
-		Create: &PermissionType{
-			AccessType:         AccessTypeEverybody,
-			WhitelistAddresses: DefaultCreateWhitelistAddresses,
-		},
-		Call: &PermissionType{
-			AccessType:         AccessTypeEverybody,
-			WhitelistAddresses: DefaultCallWhitelistAddresses,
-		},
+	DefaultCreatePermission         = PermissionType{
+		AccessType:         AccessTypeEverybody,
+		WhitelistAddresses: DefaultCreateWhitelistAddresses,
+	}
+	DefaultCallPermission = PermissionType{
+		AccessType:         AccessTypeEverybody,
+		WhitelistAddresses: DefaultCreateWhitelistAddresses,
 	}
 )
 
@@ -85,6 +83,14 @@ func NewParams(
 // ActivePrecompiles is empty to prevent overriding the default precompiles
 // from the EVM configuration.
 func DefaultParams() Params {
+	// Create a copy of the default permissions polic  to avoid
+	// modifying the global defaultPermissions variable.
+	permissions := &Permissions{}
+	create := DefaultCreatePermission
+	call := DefaultCallPermission
+	permissions.Create = &create
+	permissions.Call = &call
+
 	return Params{
 		EvmDenom:            DefaultEVMDenom,
 		ChainConfig:         DefaultChainConfig(),
@@ -92,7 +98,7 @@ func DefaultParams() Params {
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
-		PermissionsPolicy:   &DefaultPermissionPolicy,
+		PermissionsPolicy:   permissions,
 	}
 }
 
@@ -188,6 +194,14 @@ func validatePermissionsPolicy(i interface{}) error {
 	permissions, ok := i.(*Permissions)
 	if !ok {
 		return fmt.Errorf("invalid permissions policy type: %T", i)
+	}
+
+	if permissions == nil {
+		return fmt.Errorf("permissions policy cannot be nil")
+	}
+
+	if permissions.Create == nil || permissions.Call == nil {
+		return fmt.Errorf("permissions policy cannot have nil permission types")
 	}
 
 	if err := validatePermissionType(permissions.Create); err != nil {
