@@ -21,6 +21,7 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
@@ -586,6 +587,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		name     string
 		malleate func()
 		expErr   bool
+		expVmErr bool
 	}{
 		{
 			"message applied ok",
@@ -604,35 +606,46 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 			},
 			false,
+			false,
 		},
-		// {
-		// 	"call contract tx with config param EnableCall = false",
-		// 	func() {
-		// 		config.Params.EnableCall = false
-		// 		msg, err = newNativeMessage(
-		// 			vmdb.GetNonce(suite.address),
-		// 			suite.ctx.BlockHeight(),
-		// 			suite.address,
-		// 			chainCfg,
-		// 			suite.signer,
-		// 			signer,
-		// 			ethtypes.AccessListTxType,
-		// 			nil,
-		// 			nil,
-		// 		)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	true,
-		// },
-		// {
-		// 	"create contract tx with config param EnableCreate = false",
-		// 	func() {
-		// 		msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(1))
-		// 		suite.Require().NoError(err)
-		// 		config.Params.EnableCreate = false
-		// 	},
-		// 	true,
-		// },
+		{
+			"call contract tx with config param EnableCall = false",
+			func() {
+				config.Params.PermissionsPolicy = evmtypes.Permissions{
+					Call: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeNobody,
+					},
+				}
+				msg, err = newNativeMessage(
+					vmdb.GetNonce(suite.address),
+					suite.ctx.BlockHeight(),
+					suite.address,
+					chainCfg,
+					suite.signer,
+					signer,
+					ethtypes.AccessListTxType,
+					nil,
+					nil,
+				)
+				suite.Require().NoError(err)
+			},
+			false,
+			true,
+		},
+		{
+			"create contract tx with config param EnableCreate = false",
+			func() {
+				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
+				suite.Require().NoError(err)
+				config.Params.PermissionsPolicy = evmtypes.Permissions{
+					Create: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeNobody,
+					},
+				}
+			},
+			false,
+			true,
+		},
 		{
 			"fix panic when minimumGasUsed is not uint64",
 			func() {
@@ -654,6 +667,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 			},
 			true,
+			false,
 		},
 	}
 
@@ -680,6 +694,11 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return
 			}
 
+			if tc.expVmErr {
+				suite.Require().NotEmpty(res.VmError)
+				return
+			}
+
 			suite.Require().NoError(err)
 			suite.Require().False(res.Failed())
 			suite.Require().Equal(expectedGasUsed, res.GasUsed)
@@ -700,7 +719,7 @@ func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtype
 func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
 	contractCreateTx := &ethtypes.AccessListTx{
 		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation,
+		Gas:      params.TxGasContractCreation + 1000, // account for data lenght
 		To:       nil,
 		Data:     []byte("contract_data"),
 		Nonce:    nonce,
