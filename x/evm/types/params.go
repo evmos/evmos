@@ -45,8 +45,8 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
-	DefaultCreateWhitelistAddresses = []string{}
-	DefaultCallWhitelistAddresses   = []string{}
+	DefaultCreateWhitelistAddresses []string
+	DefaultCallWhitelistAddresses   []string
 	DefaultPermissionsPolicy        = Permissions{
 		Create: PermissionType{
 			AccessType:         AccessTypeEverybody,
@@ -140,7 +140,6 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	// TODO - add validate for PermissionsPolicy
 	return validateChannels(p.EVMChannels)
 }
 

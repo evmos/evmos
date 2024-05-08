@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 	"time"
@@ -1136,114 +1137,173 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	suite.enableLondonHF = true
 }
 
-// func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
-// 	addr, privKey := utiltx.NewAddrKey()
-// 	to := utiltx.GenerateAddress()
-//
-// 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
-// 		ChainID:   suite.app.EvmKeeper.ChainID(),
-// 		Nonce:     1,
-// 		Amount:    big.NewInt(10),
-// 		GasLimit:  100000,
-// 		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
-// 		GasTipCap: big.NewInt(1),
-// 		Input:     []byte("create bytes"),
-// 		Accesses:  &types.AccessList{},
-// 	}
-//
-// 	ethTxParams := &evmtypes.EvmTxArgs{
-// 		ChainID:   suite.app.EvmKeeper.ChainID(),
-// 		Nonce:     1,
-// 		Amount:    big.NewInt(10),
-// 		GasLimit:  100000,
-// 		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
-// 		GasTipCap: big.NewInt(1),
-// 		Accesses:  &types.AccessList{},
-// 		Input:     []byte("call bytes"),
-// 		To:        &to,
-// 	}
-//
-// 	testCases := []struct {
-// 		name         string
-// 		txFn         func() sdk.Tx
-// 		enableCall   bool
-// 		enableCreate bool
-// 		expErr       error
-// 	}{
-// 		{
-// 			"fail - Contract Creation Disabled",
-// 			func() sdk.Tx {
-// 				signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
-// 				signedContractTx.From = addr.Hex()
-//
-// 				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
-// 				return tx
-// 			},
-// 			true, false,
-// 			evmtypes.ErrCreateDisabled,
-// 		},
-// 		{
-// 			"success - Contract Creation Enabled",
-// 			func() sdk.Tx {
-// 				signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
-// 				signedContractTx.From = addr.Hex()
-//
-// 				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
-// 				return tx
-// 			},
-// 			true, true,
-// 			nil,
-// 		},
-// 		{
-// 			"fail - EVM Call Disabled",
-// 			func() sdk.Tx {
-// 				signedTx := evmtypes.NewTx(ethTxParams)
-// 				signedTx.From = addr.Hex()
-//
-// 				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
-// 				return tx
-// 			},
-// 			false, true,
-// 			evmtypes.ErrCallDisabled,
-// 		},
-// 		{
-// 			"success - EVM Call Enabled",
-// 			func() sdk.Tx {
-// 				signedTx := evmtypes.NewTx(ethTxParams)
-// 				signedTx.From = addr.Hex()
-//
-// 				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
-// 				return tx
-// 			},
-// 			true, true,
-// 			nil,
-// 		},
-// 	}
-//
-// 	for _, tc := range testCases {
-// 		suite.Run(tc.name, func() {
-// 			suite.evmParamsOption = func(params *evmtypes.Params) {
-// 				params.EnableCall = tc.enableCall
-// 				params.EnableCreate = tc.enableCreate
-// 			}
-// 			suite.SetupTest() // reset
-//
-// 			acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr.Bytes())
-// 			suite.Require().NoError(acc.SetSequence(1))
-// 			suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-//
-// 			suite.ctx = suite.ctx.WithIsCheckTx(true)
-// 			err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
-// 			suite.Require().NoError(err)
-//
-// 			_, err = suite.anteHandler(suite.ctx, tc.txFn(), false)
-// 			if tc.expErr == nil {
-// 				suite.Require().NoError(err)
-// 			} else {
-// 				suite.Require().Error(err)
-// 				suite.Require().True(errors.Is(err, tc.expErr))
-// 			}
-// 		})
-// 	}
-// 	suite.evmParamsOption = nil
-// }
+func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
+	addr, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
+
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
+		ChainID:   suite.app.EvmKeeper.ChainID(),
+		Nonce:     1,
+		Amount:    big.NewInt(10),
+		GasLimit:  100000,
+		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
+		GasTipCap: big.NewInt(1),
+		Input:     []byte("create bytes"),
+		Accesses:  &types.AccessList{},
+	}
+
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:   suite.app.EvmKeeper.ChainID(),
+		Nonce:     1,
+		Amount:    big.NewInt(10),
+		GasLimit:  100000,
+		GasFeeCap: big.NewInt(ethparams.InitialBaseFee + 1),
+		GasTipCap: big.NewInt(1),
+		Accesses:  &types.AccessList{},
+		Input:     []byte("call bytes"),
+		To:        &to,
+	}
+
+	testCases := []struct {
+		name        string
+		txFn        func() sdk.Tx
+		permissions evmtypes.Permissions
+		expErr      error
+	}{
+		{
+			"fail - Contract Creation Disabled",
+			func() sdk.Tx {
+				signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
+				signedContractTx.From = addr.Hex()
+
+				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
+				return tx
+			},
+			evmtypes.Permissions{
+				Create: evmtypes.PermissionType{
+					AccessType:         evmtypes.AccessTypeNobody,
+					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+				},
+				Call: evmtypes.PermissionType{
+					AccessType:         evmtypes.AccessTypeEverybody,
+					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+				},
+			},
+			evmtypes.ErrCreateDisabled,
+		},
+		{
+			"success - Contract Creation Enabled",
+			func() sdk.Tx {
+				signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
+				signedContractTx.From = addr.Hex()
+
+				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
+				return tx
+			},
+			evmtypes.DefaultPermissionsPolicy,
+			nil,
+		},
+		// Add if checkDisabledCreateCall should check whitelisted address
+		// {
+		// 	"success - Contract Creation Enabled only for address",
+		// 	func() sdk.Tx {
+		// 		signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
+		// 		signedContractTx.From = addr.Hex()
+
+		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
+		// 		return tx
+		// 	},
+		// 	evmtypes.Permissions{
+		// 		Create: evmtypes.PermissionType{
+		// 			AccessType:         evmtypes.AccessTypeWhitelistAddress,
+		// 			WhitelistAddresses: []string{},
+		// 		},
+		// 		Call: evmtypes.PermissionType{
+		// 			AccessType:         evmtypes.AccessTypeNobody,
+		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+		// 		},
+		// 	},
+		// 	nil,
+		// },
+		// {
+		// 	"fail - Contract Creation not allowed for address",
+		// 	func() sdk.Tx {
+		// 		signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
+		// 		signedContractTx.From = addr.Hex()
+
+		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
+		// 		return tx
+		// 	},
+		// 	evmtypes.Permissions{
+		// 		Create: evmtypes.PermissionType{
+		// 			AccessType:         evmtypes.AccessTypeWhitelistAddress,
+		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+		// 		},
+		// 		Call: evmtypes.PermissionType{
+		// 			AccessType:         evmtypes.AccessTypeNobody,
+		// 			WhitelistAddresses: evmtypes.DefaultCallWhitelistAddresses,
+		// 		},
+		// 	},
+		// 	evmtypes.ErrCreateDisabled,
+		// },
+		{
+			"fail - EVM Call Disabled",
+			func() sdk.Tx {
+				signedTx := evmtypes.NewTx(ethTxParams)
+				signedTx.From = addr.Hex()
+
+				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
+				return tx
+			},
+			evmtypes.Permissions{
+				Create: evmtypes.PermissionType{
+					AccessType:         evmtypes.AccessTypeEverybody,
+					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+				},
+				Call: evmtypes.PermissionType{
+					AccessType:         evmtypes.AccessTypeNobody,
+					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+				},
+			},
+			evmtypes.ErrCallDisabled,
+		},
+		{
+			"success - EVM Call Enabled",
+			func() sdk.Tx {
+				signedTx := evmtypes.NewTx(ethTxParams)
+				signedTx.From = addr.Hex()
+
+				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
+				return tx
+			},
+			evmtypes.DefaultPermissionsPolicy,
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.evmParamsOption = func(params *evmtypes.Params) {
+				params.PermissionsPolicy = tc.permissions
+			}
+			suite.SetupTest() // reset
+
+			acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr.Bytes())
+			suite.Require().NoError(acc.SetSequence(1))
+			suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+			suite.ctx = suite.ctx.WithIsCheckTx(true)
+			err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
+			suite.Require().NoError(err)
+
+			_, err = suite.anteHandler(suite.ctx, tc.txFn(), false)
+			if tc.expErr == nil {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+				suite.Require().True(errors.Is(err, tc.expErr))
+			}
+		})
+	}
+	suite.evmParamsOption = nil
+}

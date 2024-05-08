@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -680,26 +681,30 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			51880,
 			true,
 		},
-		// {
-		// 	"contract creation but 'create' param disabled",
-		// 	func() {
-		// 		ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-		// 		suite.Require().NoError(err)
-		// 		data := erc20Contract.Bin
-		// 		data = append(data, ctorArgs...)
-		// 		args = types.TransactionArgs{
-		// 			From: &suite.address,
-		// 			Data: (*hexutil.Bytes)(&data),
-		// 		}
-		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		params.EnableCreate = false
-		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	false,
-		// 	0,
-		// 	false,
-		// },
+		{
+			"contract creation but 'create' param disabled",
+			func() {
+				ctorArgs, err := erc20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+				suite.Require().NoError(err)
+				data := erc20Contract.Bin
+				data = append(data, ctorArgs...)
+				args = types.TransactionArgs{
+					From: &suite.address,
+					Data: (*hexutil.Bytes)(&data),
+				}
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.PermissionsPolicy = evmtypes.Permissions{
+					Create: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeNobody,
+					},
+				}
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			false,
+			0,
+			false,
+		},
 		{
 			"specified gas in args higher than ethparams.TxGas (21,000)",
 			func() {
@@ -776,8 +781,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		chainID      *sdkmath.Int
 	)
 
-	// erc20Contract, err := testdata.LoadERC20Contract()
-	// suite.Require().NoError(err, "failed to load erc20 contract")
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	testCases := []struct {
 		msg             string
@@ -915,39 +920,43 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:     false,
 			expFinalGas: expGasConsumed,
 		},
-		// {
-		// 	msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
-		// 	malleate: func() {
-		// 		traceConfig = nil
-		//
-		// 		// increase nonce to avoid address collision
-		// 		vmdb := suite.StateDB()
-		// 		vmdb.SetNonce(suite.address, vmdb.GetNonce(suite.address)+1)
-		// 		suite.Require().NoError(vmdb.Commit())
-		//
-		// 		chainID := suite.app.EvmKeeper.ChainID()
-		// 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-		// 		data := erc20Contract.Bin
-		// 		ethTxParams := &types.EvmTxArgs{
-		// 			ChainID:  chainID,
-		// 			Nonce:    nonce,
-		// 			GasLimit: ethparams.TxGasContractCreation,
-		// 			Input:    data,
-		// 		}
-		// 		contractTx := types.NewTx(ethTxParams)
-		//
-		// 		predecessors = append(predecessors, contractTx)
-		// 		suite.Commit()
-		//
-		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		params.EnableCreate = false
-		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	expPass:       true,
-		// 	traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-		// 	expFinalGas:   26540, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
-		// },
+		{
+			msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
+			malleate: func() {
+				traceConfig = nil
+
+				// increase nonce to avoid address collision
+				vmdb := suite.StateDB()
+				vmdb.SetNonce(suite.address, vmdb.GetNonce(suite.address)+1)
+				suite.Require().NoError(vmdb.Commit())
+
+				chainID := suite.app.EvmKeeper.ChainID()
+				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+				data := erc20Contract.Bin
+				ethTxParams := &types.EvmTxArgs{
+					ChainID:  chainID,
+					Nonce:    nonce,
+					GasLimit: ethparams.TxGasContractCreation,
+					Input:    data,
+				}
+				contractTx := types.NewTx(ethTxParams)
+
+				predecessors = append(predecessors, contractTx)
+				suite.Commit()
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.PermissionsPolicy = evmtypes.Permissions{
+					Create: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeNobody,
+					},
+				}
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			expPass:       true,
+			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+		},
 		{
 			msg: "invalid chain id",
 			malleate: func() {
@@ -1323,9 +1332,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	data = append(data, ctorArgs...)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name       string
+		malleate   func()
+		expVmError bool
 	}{
 		{
 			"invalid args",
@@ -1349,24 +1358,50 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			},
 			false,
 		},
-		// {
-		// 	"set param EnableCreate = false",
-		// 	func() {
-		// 		args, err := json.Marshal(&types.TransactionArgs{
-		// 			From: &address,
-		// 			Data: (*hexutil.Bytes)(&data),
-		// 		})
-		//
-		// 		suite.Require().NoError(err)
-		// 		req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
-		//
-		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		params.EnableCreate = false
-		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	false,
-		// },
+		{
+			"set param PermissionsPolicy - no Access",
+			func() {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &address,
+					Data: (*hexutil.Bytes)(&data),
+				})
+
+				suite.Require().NoError(err)
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.PermissionsPolicy = evmtypes.Permissions{
+					Create: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeNobody,
+					},
+				}
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			true,
+		},
+		{
+			"set param PermissionsPolicy = non whitelist",
+			func() {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &address,
+					Data: (*hexutil.Bytes)(&data),
+				})
+
+				suite.Require().NoError(err)
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.PermissionsPolicy = evmtypes.Permissions{
+					Create: evmtypes.PermissionType{
+						AccessType: evmtypes.AccessTypeWhitelistAddress,
+					},
+				}
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
@@ -1374,9 +1409,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			tc.malleate()
 
 			res, err := suite.queryClient.EthCall(suite.ctx, req)
-			if tc.expPass {
+			if tc.expVmError {
 				suite.Require().NotNil(res)
-				suite.Require().NoError(err)
+				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")
 			} else {
 				suite.Require().Error(err)
 			}
