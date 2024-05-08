@@ -47,13 +47,15 @@ var (
 	}
 	DefaultCreateWhitelistAddresses = []string{}
 	DefaultCallWhitelistAddresses   = []string{}
-	DefaultCreatePermission         = PermissionType{
-		AccessType:         AccessTypeEverybody,
-		WhitelistAddresses: DefaultCreateWhitelistAddresses,
-	}
-	DefaultCallPermission = PermissionType{
-		AccessType:         AccessTypeEverybody,
-		WhitelistAddresses: DefaultCreateWhitelistAddresses,
+	DefaultPermissionsPolicy        = Permissions{
+		Create: PermissionType{
+			AccessType:         AccessTypeEverybody,
+			WhitelistAddresses: DefaultCreateWhitelistAddresses,
+		},
+		Call: PermissionType{
+			AccessType:         AccessTypeEverybody,
+			WhitelistAddresses: DefaultCreateWhitelistAddresses,
+		},
 	}
 )
 
@@ -65,7 +67,7 @@ func NewParams(
 	extraEIPs []int64,
 	activePrecompiles,
 	evmChannels []string,
-	permissionsPolicy *Permissions,
+	permissionsPolicy Permissions,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -83,14 +85,6 @@ func NewParams(
 // ActivePrecompiles is empty to prevent overriding the default precompiles
 // from the EVM configuration.
 func DefaultParams() Params {
-	// Create a copy of the default permissions polic  to avoid
-	// modifying the global defaultPermissions variable.
-	permissions := &Permissions{}
-	create := DefaultCreatePermission
-	call := DefaultCallPermission
-	permissions.Create = &create
-	permissions.Call = &call
-
 	return Params{
 		EvmDenom:            DefaultEVMDenom,
 		ChainConfig:         DefaultChainConfig(),
@@ -98,7 +92,7 @@ func DefaultParams() Params {
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
-		PermissionsPolicy:   permissions,
+		PermissionsPolicy:   DefaultPermissionsPolicy,
 	}
 }
 
@@ -191,17 +185,9 @@ func (p Params) IsActivePrecompile(address string) bool {
 }
 
 func validatePermissionsPolicy(i interface{}) error {
-	permissions, ok := i.(*Permissions)
+	permissions, ok := i.(Permissions)
 	if !ok {
 		return fmt.Errorf("invalid permissions policy type: %T", i)
-	}
-
-	if permissions == nil {
-		return fmt.Errorf("permissions policy cannot be nil")
-	}
-
-	if permissions.Create == nil || permissions.Call == nil {
-		return fmt.Errorf("permissions policy cannot have nil permission types")
 	}
 
 	if err := validatePermissionType(permissions.Create); err != nil {
@@ -212,8 +198,8 @@ func validatePermissionsPolicy(i interface{}) error {
 }
 
 func validatePermissionType(i interface{}) error {
-	permission, ok := i.(*PermissionType)
-	if !ok || permission == nil {
+	permission, ok := i.(PermissionType)
+	if !ok {
 		return fmt.Errorf("invalid permission type: %T", i)
 	}
 

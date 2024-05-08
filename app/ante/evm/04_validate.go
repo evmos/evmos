@@ -28,7 +28,7 @@ func ValidateMsg(
 
 	return checkDisabledCreateCall(
 		txData,
-		evmParams.PermissionsPolicy,
+		&evmParams.PermissionsPolicy,
 	)
 }
 
@@ -39,12 +39,6 @@ func checkDisabledCreateCall(
 	permissions *evmtypes.Permissions,
 ) error {
 	to := txData.GetTo()
-	data := txData.GetData()
-	// If its not a contract creation or contract call this check is irrelevant
-	if data == nil {
-		return nil
-	}
-
 	blockCreated := permissions.Create.AccessType == evmtypes.AccessTypeNobody
 	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeNobody
 
@@ -53,7 +47,7 @@ func checkDisabledCreateCall(
 	if blockCreated && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
 	} else if blockCall && to != nil {
-		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
+		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to perform a call")
 	}
 	return nil
 }

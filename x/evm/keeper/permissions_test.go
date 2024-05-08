@@ -21,7 +21,7 @@ func (suite *UnitTestSuite) TestPermissions() {
 		{
 			name: "should allow call and create with default permissions",
 			getPermissions: func() types.Permissions {
-				return *types.DefaultParams().PermissionsPolicy
+				return types.DefaultParams().PermissionsPolicy
 			},
 			canCall:   true,
 			canCreate: true,
@@ -35,7 +35,7 @@ func (suite *UnitTestSuite) TestPermissions() {
 				p := types.DefaultParams().PermissionsPolicy
 				p.Create.AccessType = types.AccessTypeNobody
 				p.Call.AccessType = types.AccessTypeNobody
-				return *p
+				return p
 			},
 			canCall:   false,
 			canCreate: false,
@@ -49,7 +49,7 @@ func (suite *UnitTestSuite) TestPermissions() {
 				p := types.DefaultParams().PermissionsPolicy
 				p.Call.AccessType = types.AccessTypeWhitelistAddress
 				p.Call.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
-				return *p
+				return p
 			},
 			canCall:   false,
 			canCreate: true,
@@ -63,7 +63,7 @@ func (suite *UnitTestSuite) TestPermissions() {
 				p := types.DefaultParams().PermissionsPolicy
 				p.Create.AccessType = types.AccessTypeWhitelistAddress
 				p.Create.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
-				return *p
+				return p
 			},
 			canCall:   true,
 			canCreate: false,
@@ -79,7 +79,7 @@ func (suite *UnitTestSuite) TestPermissions() {
 				p.Create.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
 				p.Call.AccessType = types.AccessTypeWhitelistAddress
 				p.Call.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
-				return *p
+				return p
 			},
 			canCall:   true,
 			canCreate: true,

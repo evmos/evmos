@@ -27,16 +27,16 @@ message Params {
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
   // permissions defines the permission policy of the EVM
-  Permissions permissions = 9 [(gogoproto.customname) = "PermissionsPolicy"];
+  Permissions permissions = 9 [(gogoproto.customname) = "PermissionsPolicy", (gogoproto.nullable) = false];
 }
 
 // Permissions defines the permission policy of the EVM
 // for creating and calling contracts
 message Permissions {
   // create defines the permission policy for creating contracts
-  PermissionType create = 1;
+  PermissionType create = 1 [(gogoproto.nullable) = false];
   // call defines the permission policy for calling contracts
-  PermissionType call = 2;
+  PermissionType call = 2 [(gogoproto.nullable) = false];
 }
 
 // PermissionType defines the permission type for policies

@@ -10,7 +10,10 @@ import (
 )
 
 type PermissionPolicy interface {
+	// CanCreate checks if the contract creation is allowed.
 	CanCreate(signer string, caller string) bool
+	// CanCall checks if the any type of CALL opcode execution is allowed. This includes
+	// contract calls and transfers.
 	CanCall(signer string, caller string, recipient string) bool
 }
 
