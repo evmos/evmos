@@ -16,7 +16,7 @@ This Arrangement attempts to address the following issues during active vulnerab
 - **Deposit Interval:** the grace period in which a sender must deposit funds in the Dropbox after removing them from the protocol.
 - **Claim Delay:** a minimum waiting period before a sender may claim rewards. We recommend at least 24 hours, during which the extent of an exploit will become clear.
 - **Sender Claim Interval:** a maximum waiting period after which the protocol may reclaim the sender’s reward, to avoid leaving funds stranded in the contract.
-- B**ounty Percent**: Pro-rata share of funds secured that are claimable by the whitehats.
+- **Bounty Percent**: Pro-rata share of funds secured that are claimable by the whitehats.
 - **Bounty Cap**: Maximum amount of tokens that a whitehat can claim after securing the vulnerable funds.
 
 ## Statement for Whitehats
