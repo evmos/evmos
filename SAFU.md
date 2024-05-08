@@ -29,7 +29,7 @@ The Team gives 48 hours to hackers (”Grace Period”) to deposit the funds to 
 
 Evmos guarantees that the claiming for the funds process to begin not after 30 days (Claim Delay) ****of the transfer or during the next upgrade. This is due to the fact that transfers will need to be executed during an upgrade. We expect this process to become automatic after a dedicated trustless Cosmos module is incorporated for this purpose.
 
-If the whitehat doesn’t reclaim the tokens transferred before the 30th day from the transfer day (Sender **C**laim ****Interval**)**, the tokens will be reclaimed and transferred to the Evmos community pool (aka. community treasury).
+If the whitehat doesn’t reclaim the tokens transferred before the 30th day from the transfer day (Sender Claim Interval), the tokens will be reclaimed and transferred to the Evmos community pool (aka. community treasury).
 
 ### Reward Policy
 
