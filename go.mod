@@ -50,7 +50,7 @@ require (
 	golang.org/x/text v0.15.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de
 	google.golang.org/grpc v1.63.2
-	google.golang.org/protobuf v1.34.0
+	google.golang.org/protobuf v1.34.1
 	sigs.k8s.io/yaml v1.4.0
 )
 
