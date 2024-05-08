@@ -37,7 +37,7 @@ Whitehats that secure vulnerable funds are able to claim 5% of the total funds s
 
 There is no minimum to the amount that can be secured. The reward white hack hacker can secure from 1 atto EVMOS (1e-18 EVMOS or the equivalent unit of 1 wei on Ethereum).
 
-We encourage whitehat hackers to report undisclosed vulnerabilities on using the [security@evmos.org](mailto:security@evmos.org) email
+We encourage whitehat hackers to report undisclosed vulnerabilities using the [security@evmos.org](mailto:security@evmos.org) email.
 
 ## Dropbox for Protocol Funds
 
