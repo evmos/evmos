@@ -6,7 +6,6 @@ import (
 	"math/big"
 
 	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -693,9 +692,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 					Data: (*hexutil.Bytes)(&data),
 				}
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -945,9 +944,9 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				suite.Commit()
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
 					},
 				}
 				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -1334,7 +1333,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	testCases := []struct {
 		name       string
 		malleate   func()
-		expVmError bool
+		expVMError bool
 	}{
 		{
 			"invalid args",
@@ -1370,9 +1369,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -1392,9 +1391,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypePermissioned,
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypePermissioned,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -1409,7 +1408,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			tc.malleate()
 
 			res, err := suite.queryClient.EthCall(suite.ctx, req)
-			if tc.expVmError {
+			if tc.expVMError {
 				suite.Require().NotNil(res)
 				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")
 			} else {

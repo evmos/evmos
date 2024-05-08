@@ -39,34 +39,42 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			true,
 		},
-		// {
-		// 	"success - Check EnableCreate param is set to false and can be retrieved correctly",
-		// 	func() interface{} {
-		// 		params.EnableCreate = false
-		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 		return params.EnableCreate
-		// 	},
-		// 	func() interface{} {
-		// 		evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		return evmParams.GetEnableCreate()
-		// 	},
-		// 	true,
-		// },
-		// {
-		// 	"success - Check EnableCall param is set to false and can be retrieved correctly",
-		// 	func() interface{} {
-		// 		params.EnableCall = false
-		// 		err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 		return params.EnableCall
-		// 	},
-		// 	func() interface{} {
-		// 		evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		return evmParams.GetEnableCall()
-		// 	},
-		// 	true,
-		// },
+		{
+			"success - Check Access Control Create param is set to restricted and can be retrieved correctly",
+			func() interface{} {
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+				return types.AccessTypeRestricted
+			},
+			func() interface{} {
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				return evmParams.GetAccessControl().Create.AccessType
+			},
+			true,
+		},
+		{
+			"success - Check Access control param is set to restricted and can be retrieved correctly",
+			func() interface{} {
+				params.AccessControl = types.AccessControl{
+					Call: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+				return types.AccessTypeRestricted
+			},
+			func() interface{} {
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				return evmParams.GetAccessControl().Call.AccessType
+			},
+			true,
+		},
 		{
 			"success - Check AllowUnprotectedTxs param is set to false and can be retrieved correctly",
 			func() interface{} {
