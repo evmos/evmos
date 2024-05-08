@@ -25,7 +25,7 @@ Tharsis Labs Ltd. (the ”Team”) commits to not pursue legal action against wh
 
 ### Timeline
 
-The Team gives 48 hrs to hackers (”Grace Period”) to deposit the funds to the Dropbox from the moment they obtain the tokens from the exploited vulnerability. After this time, the Team will assume that the hacker is acting maliciously and against this Arrangement if they haven’t transferred the full amount of tokens.
+The Team gives 48 hours to hackers (”Grace Period”) to deposit the funds to the Dropbox from the moment they obtain the tokens from the exploited vulnerability. After this time, the Team will assume that the hacker is acting maliciously and against this Arrangement if they haven’t transferred the full amount of tokens.
 
 Evmos guarantees that the claiming for the funds process to begin not after 30 days (Claim Delay) ****of the transfer or during the next upgrade. This is due to the fact that transfers will need to be executed during an upgrade. We expect this process to become automatic after a dedicated trustless Cosmos module is incorporated for this purpose.
 
