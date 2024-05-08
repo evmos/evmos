@@ -1167,7 +1167,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	testCases := []struct {
 		name        string
 		txFn        func() sdk.Tx
-		permissions evmtypes.Permissions
+		permissions evmtypes.AccessControl
 		expErr      error
 	}{
 		{
@@ -1179,13 +1179,13 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
 				return tx
 			},
-			evmtypes.Permissions{
-				Create: evmtypes.PermissionType{
-					AccessType:         evmtypes.AccessTypeNobody,
+			evmtypes.AccessControl{
+				Create: evmtypes.AccessControlType{
+					AccessType:         evmtypes.AccessTypeRestricted,
 					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 				},
-				Call: evmtypes.PermissionType{
-					AccessType:         evmtypes.AccessTypeEverybody,
+				Call: evmtypes.AccessControlType{
+					AccessType:         evmtypes.AccessTypePermissionless,
 					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 				},
 			},
@@ -1200,7 +1200,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
 				return tx
 			},
-			evmtypes.DefaultPermissionsPolicy,
+			evmtypes.DefaultAccessControl,
 			nil,
 		},
 		// Add if checkDisabledCreateCall should check whitelisted address
@@ -1213,13 +1213,13 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
 		// 		return tx
 		// 	},
-		// 	evmtypes.Permissions{
-		// 		Create: evmtypes.PermissionType{
-		// 			AccessType:         evmtypes.AccessTypeWhitelistAddress,
+		// 	evmtypes.AccessControl{
+		// 		Create: evmtypes.AccessControlType{
+		// 			AccessType:         evmtypes.AccessTypePermissioned,
 		// 			WhitelistAddresses: []string{},
 		// 		},
-		// 		Call: evmtypes.PermissionType{
-		// 			AccessType:         evmtypes.AccessTypeNobody,
+		// 		Call: evmtypes.AccessControlType{
+		// 			AccessType:         evmtypes.AccessTypeRestricted,
 		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 		// 		},
 		// 	},
@@ -1234,13 +1234,13 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
 		// 		return tx
 		// 	},
-		// 	evmtypes.Permissions{
-		// 		Create: evmtypes.PermissionType{
-		// 			AccessType:         evmtypes.AccessTypeWhitelistAddress,
+		// 	evmtypes.AccessControl{
+		// 		Create: evmtypes.AccessControlType{
+		// 			AccessType:         evmtypes.AccessTypePermissioned,
 		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 		// 		},
-		// 		Call: evmtypes.PermissionType{
-		// 			AccessType:         evmtypes.AccessTypeNobody,
+		// 		Call: evmtypes.AccessControlType{
+		// 			AccessType:         evmtypes.AccessTypeRestricted,
 		// 			WhitelistAddresses: evmtypes.DefaultCallWhitelistAddresses,
 		// 		},
 		// 	},
@@ -1255,13 +1255,13 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
 				return tx
 			},
-			evmtypes.Permissions{
-				Create: evmtypes.PermissionType{
-					AccessType:         evmtypes.AccessTypeEverybody,
+			evmtypes.AccessControl{
+				Create: evmtypes.AccessControlType{
+					AccessType:         evmtypes.AccessTypePermissionless,
 					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 				},
-				Call: evmtypes.PermissionType{
-					AccessType:         evmtypes.AccessTypeNobody,
+				Call: evmtypes.AccessControlType{
+					AccessType:         evmtypes.AccessTypeRestricted,
 					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
 				},
 			},
@@ -1276,7 +1276,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				tx := suite.CreateTestTx(signedTx, privKey, 1, false)
 				return tx
 			},
-			evmtypes.DefaultPermissionsPolicy,
+			evmtypes.DefaultAccessControl,
 			nil,
 		},
 	}
@@ -1284,7 +1284,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.evmParamsOption = func(params *evmtypes.Params) {
-				params.PermissionsPolicy = tc.permissions
+				params.AccessControl = tc.permissions
 			}
 			suite.SetupTest() // reset
 

@@ -17,24 +17,24 @@ type PermissionPolicy interface {
 	CanCall(signer string, caller string, recipient string) bool
 }
 
-// RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of permissions.
+// RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of accessControl.
 type RestrictedPermissionPolicy struct {
-	permissions *types.Permissions
-	canCreate   callerFn
-	canCall     callerFn
+	accessControl *types.AccessControl
+	canCreate     callerFn
+	canCall       callerFn
 }
 
 type callerFn = func(caller string) bool
 
-func NewRestrictedPermissionPolicy(permissions *types.Permissions, signer string) RestrictedPermissionPolicy {
+func NewRestrictedPermissionPolicy(accessControl *types.AccessControl, signer string) RestrictedPermissionPolicy {
 	// generate create function at instantiation for signer address to be check only once
 	// since it remains constant
-	canCreate := getCreateCallerFn(permissions, signer)
-	canCall := generateCallerFn(permissions, signer)
+	canCreate := getCreateCallerFn(accessControl, signer)
+	canCall := generateCallerFn(accessControl, signer)
 	return RestrictedPermissionPolicy{
-		permissions: permissions,
-		canCreate:   canCreate,
-		canCall:     canCall,
+		accessControl: accessControl,
+		canCreate:     canCreate,
+		canCall:       canCall,
 	}
 }
 
@@ -49,14 +49,14 @@ func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 	return p.canCreate(caller)
 }
 
-func getCreateCallerFn(permissions *types.Permissions, signer string) callerFn {
-	switch permissions.Create.AccessType {
-	case types.AccessTypeEverybody:
+func getCreateCallerFn(accessControl *types.AccessControl, signer string) callerFn {
+	switch accessControl.Create.AccessType {
+	case types.AccessTypePermissionless:
 		return func(_ string) bool { return true }
-	case types.AccessTypeNobody:
+	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
-	case types.AccessTypeWhitelistAddress:
-		addresses := permissions.Create.WhitelistAddresses
+	case types.AccessTypePermissioned:
+		addresses := accessControl.Create.WhitelistAddresses
 		isSignerAllowed := slices.Contains(addresses, signer)
 		return func(caller string) bool {
 			return isSignerAllowed || slices.Contains(addresses, caller)
@@ -74,14 +74,14 @@ func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 	return p.canCall(caller)
 }
 
-func generateCallerFn(permissions *types.Permissions, signer string) callerFn {
-	switch permissions.Call.AccessType {
-	case types.AccessTypeEverybody:
+func generateCallerFn(accessControl *types.AccessControl, signer string) callerFn {
+	switch accessControl.Call.AccessType {
+	case types.AccessTypePermissionless:
 		return func(_ string) bool { return true }
-	case types.AccessTypeNobody:
+	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
-	case types.AccessTypeWhitelistAddress:
-		addresses := permissions.Call.WhitelistAddresses
+	case types.AccessTypePermissioned:
+		addresses := accessControl.Call.WhitelistAddresses
 		isSignerAllowed := slices.Contains(addresses, signer)
 		return func(caller string) bool {
 			return isSignerAllowed || slices.Contains(addresses, caller)

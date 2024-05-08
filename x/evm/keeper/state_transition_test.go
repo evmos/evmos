@@ -611,9 +611,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		{
 			"call contract tx with config param EnableCall = false",
 			func() {
-				config.Params.PermissionsPolicy = evmtypes.Permissions{
-					Call: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeNobody,
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Call: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
 					},
 				}
 				msg, err = newNativeMessage(
@@ -637,9 +637,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			func() {
 				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
 				suite.Require().NoError(err)
-				config.Params.PermissionsPolicy = evmtypes.Permissions{
-					Create: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeNobody,
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
 					},
 				}
 			},

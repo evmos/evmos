@@ -693,9 +693,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 					Data: (*hexutil.Bytes)(&data),
 				}
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.PermissionsPolicy = evmtypes.Permissions{
-					Create: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeNobody,
+				params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -945,9 +945,9 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				suite.Commit()
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.PermissionsPolicy = evmtypes.Permissions{
-					Create: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeNobody,
+				params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
 					},
 				}
 				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -1359,7 +1359,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			false,
 		},
 		{
-			"set param PermissionsPolicy - no Access",
+			"set param AccessControl - no Access",
 			func() {
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &address,
@@ -1370,9 +1370,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.PermissionsPolicy = evmtypes.Permissions{
-					Create: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeNobody,
+				params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
@@ -1381,7 +1381,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			true,
 		},
 		{
-			"set param PermissionsPolicy = non whitelist",
+			"set param AccessControl = non whitelist",
 			func() {
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &address,
@@ -1392,9 +1392,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.PermissionsPolicy = evmtypes.Permissions{
-					Create: evmtypes.PermissionType{
-						AccessType: evmtypes.AccessTypeWhitelistAddress,
+				params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypePermissioned,
 					},
 				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)

@@ -6,22 +6,22 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
-func (suite *UnitTestSuite) TestPermissions() {
+func (suite *UnitTestSuite) TestAccessControl() {
 	keyring := testkeyring.New(2)
 
 	testCases := []struct {
-		name           string
-		getPermissions func() types.Permissions
-		canCall        bool
-		canCreate      bool
-		signer         string
-		caller         string
-		recipient      string
+		name             string
+		getAccessControl func() types.AccessControl
+		canCall          bool
+		canCreate        bool
+		signer           string
+		caller           string
+		recipient        string
 	}{
 		{
-			name: "should allow call and create with default permissions",
-			getPermissions: func() types.Permissions {
-				return types.DefaultParams().PermissionsPolicy
+			name: "should allow call and create with default accessControl",
+			getAccessControl: func() types.AccessControl {
+				return types.DefaultParams().AccessControl
 			},
 			canCall:   true,
 			canCreate: true,
@@ -30,11 +30,11 @@ func (suite *UnitTestSuite) TestPermissions() {
 			recipient: keyring.GetAddr(0).String(),
 		},
 		{
-			name: "should not allow call and create with nobody permissions",
-			getPermissions: func() types.Permissions {
-				p := types.DefaultParams().PermissionsPolicy
-				p.Create.AccessType = types.AccessTypeNobody
-				p.Call.AccessType = types.AccessTypeNobody
+			name: "should not allow call and create with nobody accessControl",
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Create.AccessType = types.AccessTypeRestricted
+				p.Call.AccessType = types.AccessTypeRestricted
 				return p
 			},
 			canCall:   false,
@@ -45,9 +45,9 @@ func (suite *UnitTestSuite) TestPermissions() {
 		},
 		{
 			name: "should not allow call with whitelisted policy and not in whitelist",
-			getPermissions: func() types.Permissions {
-				p := types.DefaultParams().PermissionsPolicy
-				p.Call.AccessType = types.AccessTypeWhitelistAddress
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Call.AccessType = types.AccessTypePermissioned
 				p.Call.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
 				return p
 			},
@@ -59,9 +59,9 @@ func (suite *UnitTestSuite) TestPermissions() {
 		},
 		{
 			name: "should not allow create with whitelisted policy and not in whitelist",
-			getPermissions: func() types.Permissions {
-				p := types.DefaultParams().PermissionsPolicy
-				p.Create.AccessType = types.AccessTypeWhitelistAddress
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Create.AccessType = types.AccessTypePermissioned
 				p.Create.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
 				return p
 			},
@@ -73,11 +73,11 @@ func (suite *UnitTestSuite) TestPermissions() {
 		},
 		{
 			name: "should allow call and create with whitelisted policy and address in whitelist",
-			getPermissions: func() types.Permissions {
-				p := types.DefaultParams().PermissionsPolicy
-				p.Create.AccessType = types.AccessTypeWhitelistAddress
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Create.AccessType = types.AccessTypePermissioned
 				p.Create.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
-				p.Call.AccessType = types.AccessTypeWhitelistAddress
+				p.Call.AccessType = types.AccessTypePermissioned
 				p.Call.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
 				return p
 			},
@@ -91,9 +91,9 @@ func (suite *UnitTestSuite) TestPermissions() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			permissions := tc.getPermissions()
+			accessControl := tc.getAccessControl()
 			permissionPolicy := keeper.NewRestrictedPermissionPolicy(
-				&permissions,
+				&accessControl,
 				tc.signer,
 			)
 

@@ -295,7 +295,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			defaultParams.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
+			defaultParams.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
 
@@ -418,7 +418,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			defaultParams.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
+			defaultParams.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 			defaultParams.AllowUnprotectedTxs = true
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
@@ -483,8 +483,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			defaultParams.PermissionsPolicy.Call = evmtypes.PermissionType{
-				AccessType:         evmtypes.AccessTypeWhitelistAddress,
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:         evmtypes.AccessTypePermissioned,
 				WhitelistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)
@@ -595,8 +595,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			defaultParams.PermissionsPolicy.Create = evmtypes.PermissionType{
-				AccessType:         evmtypes.AccessTypeWhitelistAddress,
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:         evmtypes.AccessTypePermissioned,
 				WhitelistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)

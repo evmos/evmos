@@ -47,13 +47,13 @@ var (
 	}
 	DefaultCreateWhitelistAddresses []string
 	DefaultCallWhitelistAddresses   []string
-	DefaultPermissionsPolicy        = Permissions{
-		Create: PermissionType{
-			AccessType:         AccessTypeEverybody,
+	DefaultAccessControl            = AccessControl{
+		Create: AccessControlType{
+			AccessType:         AccessTypePermissionless,
 			WhitelistAddresses: DefaultCreateWhitelistAddresses,
 		},
-		Call: PermissionType{
-			AccessType:         AccessTypeEverybody,
+		Call: AccessControlType{
+			AccessType:         AccessTypePermissionless,
 			WhitelistAddresses: DefaultCreateWhitelistAddresses,
 		},
 	}
@@ -67,7 +67,7 @@ func NewParams(
 	extraEIPs []int64,
 	activePrecompiles,
 	evmChannels []string,
-	permissionsPolicy Permissions,
+	accessControl AccessControl,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -76,7 +76,7 @@ func NewParams(
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
 		EVMChannels:         evmChannels,
-		PermissionsPolicy:   permissionsPolicy,
+		AccessControl:       accessControl,
 	}
 }
 
@@ -92,7 +92,7 @@ func DefaultParams() Params {
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
-		PermissionsPolicy:   DefaultPermissionsPolicy,
+		AccessControl:       DefaultAccessControl,
 	}
 }
 
@@ -136,7 +136,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validatePermissionsPolicy(p.PermissionsPolicy); err != nil {
+	if err := validateAccessControl(p.AccessControl); err != nil {
 		return err
 	}
 
@@ -183,8 +183,8 @@ func (p Params) IsActivePrecompile(address string) bool {
 	return found
 }
 
-func validatePermissionsPolicy(i interface{}) error {
-	permissions, ok := i.(Permissions)
+func validateAccessControl(i interface{}) error {
+	permissions, ok := i.(AccessControl)
 	if !ok {
 		return fmt.Errorf("invalid permissions policy type: %T", i)
 	}
@@ -197,7 +197,7 @@ func validatePermissionsPolicy(i interface{}) error {
 }
 
 func validatePermissionType(i interface{}) error {
-	permission, ok := i.(PermissionType)
+	permission, ok := i.(AccessControlType)
 	if !ok {
 		return fmt.Errorf("invalid permission type: %T", i)
 	}
@@ -220,7 +220,7 @@ func validateAccessType(i interface{}) error {
 	}
 
 	switch accessType {
-	case AccessTypeEverybody, AccessTypeNobody, AccessTypeWhitelistAddress:
+	case AccessTypePermissionless, AccessTypeRestricted, AccessTypePermissioned:
 		return nil
 	default:
 		return fmt.Errorf("invalid access type: %s", accessType)

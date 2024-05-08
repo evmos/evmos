@@ -12,7 +12,7 @@ message Params {
   // evm_denom represents the token denomination used to run the EVM state
   // transitions.
   string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
-  // enable_create and enable call: EWASM, YOLOV3 and Catalyst block have been deprecated
+  // enable_create and enable call have been deprecated
   reserved 2 ,3;
   // extra_eips defines the additional EIPs for the vm.Config
   repeated int64 extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
@@ -26,34 +26,41 @@ message Params {
   repeated string active_precompiles = 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
-  // permissions defines the permission policy of the EVM
-  Permissions permissions = 9 [(gogoproto.customname) = "PermissionsPolicy", (gogoproto.nullable) = false];
+  // access_control defines the permission policy of the EVM
+  AccessControl access_control = 9 [(gogoproto.customname) = "AccessControl", (gogoproto.nullable) = false];
 }
 
-// Permissions defines the permission policy of the EVM
+// AccessControl defines the permission policy of the EVM
 // for creating and calling contracts
-message Permissions {
+message AccessControl {
   // create defines the permission policy for creating contracts
-  PermissionType create = 1 [(gogoproto.nullable) = false];
+  AccessControlType create = 1 [(gogoproto.nullable) = false];
   // call defines the permission policy for calling contracts
-  PermissionType call = 2 [(gogoproto.nullable) = false];
+  AccessControlType call = 2 [(gogoproto.nullable) = false];
 }
 
-// PermissionType defines the permission type for policies
-message PermissionType {
+// AccessControlType defines the permission type for policies
+message AccessControlType {
+  // access_type defines which type of permission is required for the operation
   AccessType access_type = 1 [(gogoproto.customname) = "AccessType", (gogoproto.moretags) = "yaml:\"access_type\""];
-  repeated string whitelist_addresses = 2 [(gogoproto.customname) = "WhitelistAddresses", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
+  // whitelist_addresses defines which addresses have permissions in case of permissioned access_type
+  repeated string whitelist_addresses = 2
+    [(gogoproto.customname) = "WhitelistAddresses", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
 }
 
+// AccessType defines the types of permissions for the operations
 enum AccessType {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  ACCESS_TYPE_EVERYBODY = 0
-      [ (gogoproto.enumvalue_customname) = "AccessTypeEverybody" ];
-  ACCESS_TYPE_NOBODY = 1
-      [ (gogoproto.enumvalue_customname) = "AccessTypeNobody" ];
-  ACCESS_TYPE_WHITELIST_ADDRESSES = 2
-      [ (gogoproto.enumvalue_customname) = "AccessTypeWhitelistAddress" ];
+  // ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone
+  ACCESS_TYPE_PERMISSIONLESS = 0
+      [ (gogoproto.enumvalue_customname) = "AccessTypePermissionless" ];
+  // ACCESS_TYPE_RESTRICTED restrict the operation to anyone
+  ACCESS_TYPE_RESTRICTED = 1
+      [ (gogoproto.enumvalue_customname) = "AccessTypeRestricted" ];
+  // ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses
+  ACCESS_TYPE_PERMISSIONED = 2
+      [ (gogoproto.enumvalue_customname) = "AccessTypePermissioned" ];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values

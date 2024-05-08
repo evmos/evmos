@@ -3,7 +3,6 @@
 package evm_test
 
 import (
-	"fmt"
 	"math/big"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -62,8 +61,8 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
-				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -95,7 +94,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -113,7 +112,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -145,7 +144,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.PermissionsPolicy.Call.AccessType = evmtypes.AccessTypeNobody
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -163,7 +162,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.PermissionsPolicy.Create.AccessType = evmtypes.AccessTypeNobody
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -177,8 +176,6 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			params := tc.getFunctionParams()
-
-			fmt.Println(params.evmParams.PermissionsPolicy.Create.AccessType)
 
 			// Function under test
 			err := evm.ValidateMsg(
