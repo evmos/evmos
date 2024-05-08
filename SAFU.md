@@ -61,7 +61,7 @@ address = address(shaSum256([]byte("safu"))[:20]))
 
 ### Source Addresses
 
-In the event of a vulnerability, the rewards for whitehats will be taken out from the Dropbox account. The total amount claimable by each whitehat the is defined by the Bounty Percent and Bounty Cap using the following formula:
+In the event of a vulnerability, the rewards for whitehats will be taken out from the Dropbox account. The total amount claimable by each whitehat is defined by the Bounty Percent and Bounty Cap using the following formula:
 
 ```bash
 amount_claimable = min(bounty_cap, amount_secured * bounty_percent)
