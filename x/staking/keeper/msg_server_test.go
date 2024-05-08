@@ -74,7 +74,7 @@ func TestMsgDelegate(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration*time.Second))
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -98,7 +98,7 @@ func TestMsgDelegate(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration*time.Second))
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -191,7 +191,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration*time.Second))
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -215,7 +215,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration*time.Second))
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
