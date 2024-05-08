@@ -33,7 +33,7 @@ If the whitehat doesn’t reclaim the tokens transferred before the 30th day fro
 
 ### Reward Policy
 
-Whitehats that secure vulnerable funds are is able to claim 5% of the total funds secured (Bounty Percent) up to a total of 750,000 EVMOS (Bounty Cap).
+Whitehats that secure vulnerable funds are able to claim 5% of the total funds secured (Bounty Percent) up to a total of 750,000 EVMOS (Bounty Cap).
 
 There is no minimum to the amount that can be secured. The reward white hack hacker can secure from 1 atto EVMOS (1e-18 EVMOS or the equivalent unit of 1 wei on Ethereum).
 
