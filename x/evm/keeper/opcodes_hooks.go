@@ -15,7 +15,7 @@ type DefaultOpCodesHooks struct {
 }
 
 func NewDefaultOpCodesHooks(msg core.Message, accessControl PermissionPolicy, signer string) vm.OpCodeHooks {
-	isTransferCall := msg.To() != nil && msg.Data() == nil
+	isTransferCall := IsTransferCall(msg)
 	return &DefaultOpCodesHooks{
 		isTransferCall: isTransferCall,
 		accessControl:  accessControl,
