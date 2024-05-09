@@ -61,7 +61,7 @@ func (k *Keeper) NewEVM(
 
 	signer := msg.From().String()
 	AccessControl := NewRestrictedPermissionPolicy(&cfg.Params.AccessControl, signer)
-	evmHooks := NewDefaultOpCodesHooks(AccessControl, signer)
+	evmHooks := NewDefaultOpCodesHooks(msg, AccessControl, signer)
 	return vm.NewEVMWithHooks(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 

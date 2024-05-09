@@ -414,7 +414,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("Call permission policy is set to nobody", Ordered, func() {
+	When("Call permission policy is set to restricted", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -427,7 +427,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("fails when performing a transfer transaction", func() {
+		It("succeds when performing a transfer transaction", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
@@ -439,9 +439,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
-			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
-			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
+			Expect(err).To(BeNil())
+			Expect(res.Log).To(ContainSubstring("transfer"))
 		})
 
 		It("performs a contract deployment and fails to perform a contract call", func() {
@@ -494,7 +493,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("fails when performing a transfer transaction with invalid address", func() {
+		It("succed when performing a transfer transaction with invalid address", func() {
 			signer := s.keyring.GetKey(invalidSignerIndex)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
@@ -505,9 +504,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				GasLimit: 100000,
 			}
 
-			_, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
-			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.Log).To(ContainSubstring("transfer"))
 		})
 
 		It("performs a transfer transaction with valid address", func() {

@@ -39,6 +39,11 @@ func checkDisabledCreateCall(
 	permissions *evmtypes.AccessControl,
 ) error {
 	to := txData.GetTo()
+	data := txData.GetData()
+	// If its not a contract creation or contract call this check is irrelevant
+	if data == nil {
+		return nil
+	}
 	blockCreated := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
 	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeRestricted
 
