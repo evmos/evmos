@@ -7,10 +7,10 @@ import (
 	"fmt"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	v4types "github.com/evmos/evmos/v18/x/erc20/migrations/v4/types"
 )
 
-var _ types.LegacyParams = &V3Params{}
+var _ v4types.LegacyParams = &V3Params{}
 
 var (
 	DefaultErc20   = true

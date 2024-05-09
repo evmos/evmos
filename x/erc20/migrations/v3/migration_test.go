@@ -4,18 +4,15 @@ import (
 	"testing"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
-
-	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
-
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	"github.com/stretchr/testify/require"
-
-	"github.com/cosmos/cosmos-sdk/testutil"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	v3 "github.com/evmos/evmos/v18/x/erc20/migrations/v3"
+	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
+	v4types "github.com/evmos/evmos/v18/x/erc20/migrations/v4/types"
+	"github.com/stretchr/testify/require"
 )
 
 type mockSubspace struct {
@@ -28,7 +25,7 @@ func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.Stor
 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
-func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
+func (ms mockSubspace) GetParamSet(_ sdk.Context, ps v4types.LegacyParams) {
 	*ps.(*v3types.V3Params) = ms.ps
 }
 
@@ -39,7 +36,7 @@ func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Sub
 }
 
 func TestMigrate(t *testing.T) {
-	storeKey := sdk.NewKVStoreKey(types.ModuleName)
+	storeKey := sdk.NewKVStoreKey(v4types.ModuleName)
 	tKey := sdk.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
@@ -54,8 +51,8 @@ func TestMigrate(t *testing.T) {
 	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
 
 	// Get all the new parameters from the store
-	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
-	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
+	enableEvmHook := store.Has(v4types.ParamStoreKeyEnableEVMHook)
+	enableErc20 := store.Has(v4types.ParamStoreKeyEnableErc20)
 
 	params := v3types.NewParams(enableErc20, enableEvmHook)
 	require.Equal(t, params, outputParams)

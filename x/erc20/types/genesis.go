@@ -5,7 +5,17 @@ package types
 
 import (
 	"fmt"
+
+	"github.com/evmos/evmos/v18/utils"
 )
+
+var DefaultTokenPairs = []TokenPair{
+	{
+		Erc20Address: WEVMOSContractMainnet,
+		Denom:        utils.BaseDenom,
+		Enabled:      true,
+	},
+}
 
 // NewGenesisState creates a new genesis state.
 func NewGenesisState(params Params, pairs []TokenPair) GenesisState {
@@ -19,7 +29,8 @@ func NewGenesisState(params Params, pairs []TokenPair) GenesisState {
 // default params and chain config values.
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params: DefaultParams(),
+		Params:     DefaultParams(),
+		TokenPairs: DefaultTokenPairs,
 	}
 }
 

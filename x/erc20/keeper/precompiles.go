@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/x/erc20/types"
-	"slices"
 )
 
 // GetDynamicPrecompileInstance returns the dynamic precompile instance for the given address.

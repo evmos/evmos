@@ -4,71 +4,45 @@
 package keeper
 
 import (
+	"slices"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/x/erc20/types"
-	"slices"
 )
 
 var isTrue = []byte("0x01")
 
+const addressLength = 42
+
 // GetParams returns the total set of erc20 parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyPrefixParams)
-	if len(bz) == 0 {
-		panic("ERC20 params not found")
-	}
-	k.cdc.MustUnmarshal(bz, &params)
-	return
-	// enableErc20 := k.IsERC20Enabled(ctx)
-	// enableEvmHook := k.GetEnableEVMHook(ctx)
-	//
-	// return types.NewParams(enableErc20, enableEvmHook)
+	enableErc20 := k.IsERC20Enabled(ctx)
+	dynamicPrecompiles := k.getDynamicPrecompiles(ctx)
+	nativePrecompiles := k.getNativePrecompiles(ctx)
+	return types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
 }
 
 // TODO - DO NOT LET ME MERGE THIS. THIS REQUIRES A MIGRATION OF THE STORE
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
-	if err := params.Validate(); err != nil {
-		return err
-	}
 	// and keep params equal between different executions
 	slices.Sort(params.DynamicPrecompiles)
 	slices.Sort(params.NativePrecompiles)
 
-	store := ctx.KVStore(k.storeKey)
-	bz, err := k.cdc.Marshal(&params)
-	if err != nil {
+	if err := params.Validate(); err != nil {
 		return err
 	}
 
-	store.Set(types.KeyPrefixParams, bz)
+	k.setERC20Enabled(ctx, params.EnableErc20)
+	k.setDynamicPrecompiles(ctx, params.DynamicPrecompiles)
+	k.setNativePrecompiles(ctx, params.NativePrecompiles)
 	return nil
-
-	// // k.setERC20Enabled(ctx, params.EnableErc20)
-	// // k.setEnableEVMHook(ctx, params.EnableEVMHook)
-	// return nil
 }
-
-// // GetLegacyParams returns param set for version before migrate
-// func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
-// 	var params types.Params
-// 	k.ss.GetParamSetIfExists(ctx, &params)
-// 	return params
-// }
 
 // IsERC20Enabled returns true if the module logic is enabled
 func (k Keeper) IsERC20Enabled(ctx sdk.Context) bool {
-	// store := ctx.KVStore(k.storeKey)
-	// return store.Has(types.ParamStoreKeyEnableErc20)
-	return k.GetParams(ctx).EnableErc20
-}
-
-// GetEnableEVMHook returns true if the EVM hooks are enabled
-func (k Keeper) GetEnableEVMHook(ctx sdk.Context) bool {
-	// store := ctx.KVStore(k.storeKey)
-	// return store.Has(types.ParamStoreKeyEnableEVMHook)
-	return k.GetParams(ctx).EnableEVMHook
+	store := ctx.KVStore(k.storeKey)
+	return store.Has(types.ParamStoreKeyEnableErc20)
 }
 
 // setERC20Enabled sets the EnableERC20 param in the store
@@ -81,12 +55,38 @@ func (k Keeper) setERC20Enabled(ctx sdk.Context, enable bool) {
 	store.Delete(types.ParamStoreKeyEnableErc20)
 }
 
-// setEnableEVMHook sets the EnableEVMHook param in the store
-func (k Keeper) setEnableEVMHook(ctx sdk.Context, enable bool) {
+func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
-	if enable {
-		store.Set(types.ParamStoreKeyEnableEVMHook, isTrue)
-		return
+	bz := make([]byte, 0, addressLength*len(dynamicPrecompiles))
+	for _, str := range dynamicPrecompiles {
+		bz = append(bz, []byte(str)...)
 	}
-	store.Delete(types.ParamStoreKeyEnableEVMHook)
+	store.Set(types.ParamStoreKeyDynamicPrecompiles, bz)
+}
+
+func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
+	for i := 0; i < len(bz); i += addressLength {
+		dynamicPrecompiles = append(dynamicPrecompiles, string(bz[i:i+addressLength]))
+	}
+	return dynamicPrecompiles
+}
+
+func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := make([]byte, 0, addressLength*len(nativePrecompiles))
+	for _, str := range nativePrecompiles {
+		bz = append(bz, []byte(str)...)
+	}
+	store.Set(types.ParamStoreKeyNativePrecompiles, bz)
+}
+
+func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamStoreKeyNativePrecompiles)
+	for i := 0; i < len(bz); i += addressLength {
+		nativePrecompiles = append(nativePrecompiles, string(bz[i:i+addressLength]))
+	}
+	return nativePrecompiles
 }

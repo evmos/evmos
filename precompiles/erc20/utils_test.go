@@ -253,9 +253,11 @@ func setupERC20PrecompileForTokenPair(
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 	}
 
-	err = unitNetwork.App.EvmKeeper.AddDynamicPrecompiles(unitNetwork.GetContext(), precompile)
+	params := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext())
+	params.DynamicPrecompiles = append(params.DynamicPrecompiles, precompile.Address().Hex())
+	err = unitNetwork.App.Erc20Keeper.SetParams(unitNetwork.GetContext(), params)
 	if err != nil {
-		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
+		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to erc20 params", tokenPair.Denom)
 	}
 
 	return precompile, nil

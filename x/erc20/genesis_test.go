@@ -15,6 +15,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
@@ -106,18 +107,21 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 	}
 
 	for _, tc := range testCases {
-		suite.Require().NotPanics(func() {
-			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
-		})
+		gen := network.CustomGenesisState{
+			types.ModuleName: &tc.genesisState, // #nosec G601
+		}
+		nw := network.NewUnitTestNetwork(
+			network.WithCustomGenesis(gen),
+		)
 
-		params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+		params := nw.App.Erc20Keeper.GetParams(nw.GetContext())
 
-		tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
+		tokenPairs := nw.App.Erc20Keeper.GetTokenPairs(nw.GetContext())
 		suite.Require().Equal(tc.genesisState.Params, params)
 		if len(tokenPairs) > 0 {
-			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
+			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs, tc.name)
 		} else {
-			suite.Require().Len(tc.genesisState.TokenPairs, 0)
+			suite.Require().Len(tc.genesisState.TokenPairs, 0, tc.name)
 		}
 	}
 }

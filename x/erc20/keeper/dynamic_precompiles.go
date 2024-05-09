@@ -5,11 +5,12 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/x/erc20/types"
-	"slices"
-	"sort"
 )
 
 // RegisterERC20Extension creates and adds an ERC20 precompile interface for an IBC Coin.
