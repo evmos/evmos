@@ -9,7 +9,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v18/testutil"
@@ -18,7 +17,6 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/utils"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -61,27 +59,8 @@ var _ = Describe("Staking module tests", func() {
 			vestingAccount = keys.GetKey(1)
 			otherAccount = keys.GetKey(2)
 
-			// set a higher initial balance for the funder to have
-			// enough for the vesting schedule
-			funderInitialBalance, ok := math.NewIntFromString("100_000_000_000_000_000_000")
-			Expect(ok).To(BeTrue())
-			balances := []banktypes.Balance{
-				{
-					Address: funder.AccAddr.String(),
-					Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, funderInitialBalance)),
-				},
-				{
-					Address: vestingAccount.AccAddr.String(),
-					Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, network.PrefundedAccountInitialBalance)),
-				},
-				{
-					Address: otherAccount.AccAddr.String(),
-					Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, network.PrefundedAccountInitialBalance)),
-				},
-			}
-
 			nw = network.NewUnitTestNetwork(
-				network.WithBalances(balances...),
+				network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 			)
 			gh = grpc.NewIntegrationHandler(nw)
 			tf = evmosfactory.New(nw, gh)
@@ -109,6 +88,7 @@ var _ = Describe("Staking module tests", func() {
 			Expect(nw.NextBlock()).To(BeNil())
 
 			// check vesting account was created successfully
+			var ok bool
 			acc, err := gh.GetAccount(vestingAccount.AccAddr.String())
 			Expect(err).To(BeNil())
 			clawbackAccount, ok = acc.(*vestingtypes.ClawbackVestingAccount)
