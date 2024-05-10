@@ -202,7 +202,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// delegate some tokens and make sure the remaining balance is not sufficient to cover the tx fees
 			valAddr := s.network.GetValidators()[1].OperatorAddress
-			err = s.factory.Delegate(priv, valAddr, sdk.NewCoin(s.network.GetDenom(), sdkmath.NewInt(9999e14)))
+			err = s.factory.Delegate(priv, valAddr, sdk.NewCoin(s.network.GetDenom(), sdkmath.NewInt(9888e14)))
 			Expect(err).To(BeNil())
 
 			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, addr.String(), minExpRewards)

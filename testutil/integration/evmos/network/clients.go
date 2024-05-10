@@ -22,6 +22,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
@@ -97,4 +98,10 @@ func (n *IntegrationNetwork) GetEpochsClient() epochstypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	epochstypes.RegisterQueryServer(queryHelper, n.app.EpochsKeeper)
 	return epochstypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetVestingClient() vestingtypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	vestingtypes.RegisterQueryServer(queryHelper, n.app.VestingKeeper)
+	return vestingtypes.NewQueryClient(queryHelper)
 }

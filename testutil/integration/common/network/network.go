@@ -31,6 +31,7 @@ type Network interface {
 
 	NextBlock() error
 	NextBlockAfter(duration time.Duration) error
+	NextBlockWithTxs(txBytes ...[]byte) (*abcitypes.ResponseFinalizeBlock, error)
 
 	// Clients
 	GetAuthClient() authtypes.QueryClient
