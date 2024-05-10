@@ -104,8 +104,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	BeforeEach(func() {
 		s = new(KeeperTestSuite)
 		// create 5 prefunded accounts:
-		// index 0 will be the funder and
-		// index 1-3 will be vesting accounts
 		keys := keyring.New(5)
 		nw := network.NewUnitTestNetwork(
 			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
