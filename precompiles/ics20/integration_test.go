@@ -5,6 +5,7 @@ package ics20_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,6 +56,12 @@ var (
 	// array of allocations with only one allocation for 'aevmos' coin
 	defaultSingleAlloc []cmn.ICS20Allocation
 )
+
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "ICS20 Precompile Integration Test Suite")
+}
 
 var _ = Describe("IBCTransfer Precompile", func() {
 	BeforeEach(func() {

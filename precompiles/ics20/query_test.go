@@ -87,9 +87,9 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			contract := s.NewPrecompileContract(tc.gas)
+			ctx, contract := s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
-			bz, err := s.precompile.DenomTrace(s.ctx, contract, &method, args)
+			bz, err := s.precompile.DenomTrace(ctx, contract, &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -157,9 +157,9 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			contract := s.NewPrecompileContract(tc.gas)
+			ctx, contract := s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
-			bz, err := s.precompile.DenomTraces(s.ctx, contract, &method, args)
+			bz, err := s.precompile.DenomTraces(ctx, contract, &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -222,10 +222,10 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			contract := s.NewPrecompileContract(tc.gas)
+			ctx, contract := s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
 
-			bz, err := s.precompile.DenomHash(s.ctx, contract, &method, args)
+			bz, err := s.precompile.DenomHash(ctx, contract, &method, args)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
