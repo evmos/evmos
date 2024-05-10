@@ -38,8 +38,8 @@ func GetEventAttributeValue(event abcitypes.Event, attrKey string) string {
 	return ""
 }
 
-// GetEventAttributeValue returns the value for the required
-// attribute key
+// GetFeesFromEvents returns the fees value for the
+// specified events
 func GetFeesFromEvents(events []abcitypes.Event) (sdktypes.DecCoins, error) {
 	event := GetEventType(events, sdktypes.EventTypeTx)
 	if event == nil {
