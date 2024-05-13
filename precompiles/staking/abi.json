@@ -155,13 +155,13 @@
         "indexed": false,
         "internalType": "int256",
         "name": "commissionRate",
-        "type": "uint256"
+        "type": "int256"
       },
       {
         "indexed": false,
         "internalType": "int256",
         "name": "minSelfDelegation",
-        "type": "uint256"
+        "type": "int256"
       }
     ],
     "name": "EditValidator",
