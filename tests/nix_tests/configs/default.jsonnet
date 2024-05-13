@@ -18,7 +18,6 @@
         'logs-cap': 10000,
         'fix-revert-gas-refund-height': 1,
         enable: true,
-        'allow-insecure-unlock': true,
       },
       api: {
         enable: true
