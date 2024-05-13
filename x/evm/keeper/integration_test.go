@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/precompiles/staking"
 
@@ -427,9 +428,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("succeds when performing a transfer transaction", func() {
+		It("succeeds when performing a transfer transaction", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
+			receiver := s.keyring.GetKey(2)
+
+			toAccount, err := s.network.GetEvmClient().Account(s.network.GetContext(), &evmtypes.QueryAccountRequest{Address: receiver.Addr.Hex()})
+			Expect(toAccount.CodeHash).To(BeEquivalentTo(crypto.Keccak256Hash(nil).String()))
+
 			txArgs := evmtypes.EvmTxArgs{
 				To:     &receiver.Addr,
 				Amount: big.NewInt(1000),
@@ -478,7 +483,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	When("Call permission policy is set to whitelist address", Ordered, func() {
 		allowedSignerIndex := 0
-		invalidSignerIndex := 1
+		unallowedSignerIndex := 1
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -493,8 +498,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("succed when performing a transfer transaction with invalid address", func() {
-			signer := s.keyring.GetKey(invalidSignerIndex)
+		It("succeed when performing a transfer transaction with unallowed address", func() {
+			signer := s.keyring.GetKey(unallowedSignerIndex)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
 				To:     &receiver.Addr,
@@ -525,8 +530,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})
 
-		It("performs a contract deployment and fails to perform a contract call with invalid address", func() {
-			signer := s.keyring.GetKey(invalidSignerIndex)
+		It("performs a contract deployment and fails to perform a contract call with unallowed address", func() {
+			signer := s.keyring.GetKey(unallowedSignerIndex)
 			constructorArgs := []interface{}{"coin", "token", uint8(18)}
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
 			contractAddr, err := s.factory.DeployContract(
@@ -552,6 +557,32 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
 			}
 			_, err = s.factory.ExecuteContractCall(signer.Priv, txArgs, callArgs)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		})
+		It("performs a contract deployment and fails to perform a transfer to the contract", func() {
+			signer := s.keyring.GetKey(unallowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			contractAddr, err := s.factory.DeployContract(
+				signer.Priv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &contractAddr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+			_, err = s.factory.ExecuteEthTx(signer.Priv, txArgs)
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
 		})

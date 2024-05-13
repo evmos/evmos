@@ -4,11 +4,16 @@ package evm
 
 import (
 	"errors"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	evmostypes "github.com/evmos/evmos/v18/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -16,7 +21,6 @@ import (
 //
 // It checks the following requirements:
 // - nil MUST be passed as the from address
-// - If the transaction is a contract creation or call, the corresponding operation must be enabled in the EVM parameters
 func ValidateMsg(
 	evmParams evmtypes.Params,
 	txData evmtypes.TxData,
@@ -26,35 +30,79 @@ func ValidateMsg(
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address; expected nil; got: %q", from.String())
 	}
 
-	return checkDisabledCreateCall(
-		txData,
-		&evmParams.AccessControl,
-	)
+	return nil
 }
 
-// checkDisabledCreateCall checks if the transaction is a contract creation or call
-// and it is disabled through governance
-func checkDisabledCreateCall(
+// Validate Permission
+// - If the transaction is a contract creation
+//   - Check the permission type
+//   - if is permissioned, checks that the address is included in whitelist
+//
+// - If the transaction is a contract call
+//   - if the recipient is not a contract it allows it
+//   - if its a contract it:
+//   - Checks the permission type
+//   - if is permissioned, checks that the address is included in whitelist
+func ValidatePermission(
+	ctx sdk.Context,
 	txData evmtypes.TxData,
-	permissions *evmtypes.AccessControl,
+	accountKeeper evmtypes.AccountKeeper,
+	evmParams evmtypes.Params,
+	from common.Address,
 ) error {
-	to := txData.GetTo()
+	permissions := &evmParams.AccessControl
+	contractDeploy := txData.GetTo() == nil
+
+	addr := common.Address(from.Bytes())
+	if contractDeploy {
+		return validateCreate(permissions, addr)
+	}
+
 	data := txData.GetData()
+	toAccount := accountKeeper.GetAccount(ctx, txData.GetTo().Bytes())
+	ethAcct, ok := toAccount.(evmostypes.EthAccountI)
+	emptyCodeHash := crypto.Keccak256Hash(nil)
 	// If its not a contract creation or contract call this check is irrelevant
-	if data == nil {
+	if data == nil && ok && (ethAcct.GetCodeHash() == emptyCodeHash) {
 		return nil
 	}
-	blockCreated := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
-	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeRestricted
+	return validateCall(permissions, addr)
+}
 
-	// return error if contract creation or call are disabled through governance
-	// and the transaction is trying to create a contract or call a contract
-	if blockCreated && to == nil {
+func validateCreate(
+	permissions *evmtypes.AccessControl,
+	sender common.Address,
+) error {
+	switch permissions.Create.AccessType {
+	case evmtypes.AccessTypePermissionless:
+		return nil
+	case evmtypes.AccessTypeRestricted:
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
-	} else if blockCall && to != nil {
-		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to perform a call")
+	case evmtypes.AccessTypePermissioned:
+		if len(permissions.Create.WhitelistAddresses) >= 1 && slices.Contains(permissions.Create.WhitelistAddresses, sender.Hex()) {
+			return nil
+		}
+		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "does not have permission to create new contract")
 	}
-	return nil
+	return errors.New("undefined access type")
+}
+
+func validateCall(
+	permissions *evmtypes.AccessControl,
+	sender common.Address,
+) error {
+	switch permissions.Call.AccessType {
+	case evmtypes.AccessTypePermissionless:
+		return nil
+	case evmtypes.AccessTypeRestricted:
+		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to perform a call")
+	case evmtypes.AccessTypePermissioned:
+		if len(permissions.Call.WhitelistAddresses) >= 1 && slices.Contains(permissions.Call.WhitelistAddresses, sender.Hex()) {
+			return nil
+		}
+		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "does not have permission to perform a call")
+	}
+	return errors.New("undefined access type")
 }
 
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type

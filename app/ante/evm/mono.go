@@ -181,6 +181,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 6. account balance verification
 		fromAddr := common.HexToAddress(ethMsg.From)
+
+		// 4. validate msg permissions
+		// need to delay the call to load the signer address
+		if err := ValidatePermission(ctx, txData, md.accountKeeper, decUtils.EvmParams, fromAddr); err != nil {
+			return ctx, err
+		}
+
 		// TODO: Use account from AccountKeeper instead
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(
