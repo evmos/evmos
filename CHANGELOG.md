@@ -56,6 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
+- (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
 
 ### Bug Fixes
 
@@ -208,20 +209,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20-precompile) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC-20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
-- (staking) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
-- (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
-- (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
-- (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
-- (staking) [#2046](https://github.com/evmos/evmos/pull/2046) Format any type ConsensusPubkey into a base64 string.
-- (bank) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
-- (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test
-- (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
-- (staking) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
-- (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
-- (distribution) [#2054](https://github.com/evmos/evmos/pull/2054) Change the validator address in the events from string type to address type.
-- (staking) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
-- (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
-- (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
+- (erc20-precompile) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC-20 extension.
+- (bank-precompile) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
+- (bank-precompile) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
+- (staking-precompile) [#2046](https://github.com/evmos/evmos/pull/2046) Format any type ConsensusPubkey into a base64 string.
+- (bank-precompile) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
+- (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test.
+- (staking-precompile) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
+- (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC-20 contracts.
+- (werc20-precompile) [#2057](https://github.com/evmos/evmos/pull/2057) WERC-20 refactors and handling of fallback and receive functions.
+- (werc20-precompile) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC-20 base integration tests.
+- (werc20-precompile) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
 - (osmosis-outpost) [#2063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
 - (precompiles) [#2064](https://github.com/evmos/evmos/pull/2064) Handle all `fallback` and `receive` function cases.
 - (erc20-precompile) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC-20 EVM extension allowance behavior to align with standard ERC-20 smart contracts.
