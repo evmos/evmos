@@ -35,6 +35,13 @@ type EventCreateValidator struct {
 	Value            *big.Int
 }
 
+// EventEditValidator defines the event data for the staking EditValidator transaction.
+type EventEditValidator struct {
+	ValidatorAddress  common.Address
+	CommissionRate    *big.Int
+	MinSelfDelegation *big.Int
+}
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
@@ -184,7 +191,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 	commissionRateBigInt, ok := args[2].(*big.Int)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", "int256", args[2])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", &big.Int{}, args[2])
 	}
 
 	// The default value of a variable declared using a pointer is nil, indicating that the user does not want to modify its value.
@@ -197,7 +204,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 	minSelfDelegationBigInt, ok := args[3].(*big.Int)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", "int256", args[3])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", &big.Int{}, args[3])
 	}
 
 	var minSelfDelegation *math.Int

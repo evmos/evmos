@@ -302,8 +302,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @param minSelfDelegation The min self delegation.
     event EditValidator(
         address indexed validatorAddress,
-        int256 commissionRate,
-        int256 minSelfDelegation
+        uint256 commissionRate,
+        uint256 minSelfDelegation
     );
 
     /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
