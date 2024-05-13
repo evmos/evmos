@@ -62,8 +62,8 @@ const (
 	// DefaultGasCap is the default cap on gas that can be used in eth_call/estimateGas
 	DefaultGasCap uint64 = 25000000
 
-	// DefaultJSONRPCAllowInsecureUnlock is false
-	DefaultJSONRPCAllowInsecureUnlock bool = false
+	// DefaultJSONRPCAllowInsecureUnlock is true
+	DefaultJSONRPCAllowInsecureUnlock bool = true
 
 	// DefaultFilterCap is the default cap for total number of filters that can be created
 	DefaultFilterCap int32 = 200
