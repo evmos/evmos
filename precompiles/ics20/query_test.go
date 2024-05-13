@@ -3,18 +3,26 @@ package ics20_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	"github.com/ethereum/go-ethereum/core/vm"
+	evmosibc "github.com/evmos/evmos/v18/ibc/testing"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/ics20"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/ibc/coordinator"
 	"github.com/evmos/evmos/v18/utils"
 )
 
 func (s *PrecompileTestSuite) TestDenomTrace() {
-	var expTrace types.DenomTrace
-	method := s.precompile.Methods[ics20.DenomTraceMethod]
+	var (
+		ctx      sdk.Context
+		nw       *network.UnitTestNetwork
+		expTrace types.DenomTrace
+	)
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -66,7 +74,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 			func() []interface{} {
 				expTrace.Path = "transfer/channelToA/transfer/channelToB"
 				expTrace.BaseDenom = utils.BaseDenom
-				s.app.TransferKeeper.SetDenomTrace(s.ctx, expTrace)
+				nw.App.TransferKeeper.SetDenomTrace(ctx, expTrace)
 				return []interface{}{
 					expTrace.IBCDenom(),
 				}
@@ -87,7 +95,12 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			ctx, contract := s.NewPrecompileContract(tc.gas)
+			nw = s.network
+			ctx = nw.GetContext()
+			method := s.precompile.Methods[ics20.DenomTraceMethod]
+
+			var contract *vm.Contract
+			ctx, contract = s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
 			bz, err := s.precompile.DenomTrace(ctx, contract, &method, args)
 
@@ -103,8 +116,11 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 }
 
 func (s *PrecompileTestSuite) TestDenomTraces() {
-	expTraces := types.Traces(nil)
-	method := s.precompile.Methods[ics20.DenomTracesMethod]
+	var (
+		ctx       sdk.Context
+		nw        *network.UnitTestNetwork
+		expTraces = types.Traces(nil)
+	)
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -129,7 +145,7 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToB", BaseDenom: utils.BaseDenom})
 
 				for _, trace := range expTraces {
-					s.app.TransferKeeper.SetDenomTrace(s.ctx, trace)
+					nw.App.TransferKeeper.SetDenomTrace(ctx, trace)
 				}
 				return []interface{}{
 					query.PageRequest{
@@ -157,7 +173,13 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			ctx, contract := s.NewPrecompileContract(tc.gas)
+			nw = s.network
+			ctx = nw.GetContext()
+
+			method := s.precompile.Methods[ics20.DenomTracesMethod]
+
+			var contract *vm.Contract
+			ctx, contract = s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
 			bz, err := s.precompile.DenomTraces(ctx, contract, &method, args)
 
@@ -173,11 +195,14 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 }
 
 func (s *PrecompileTestSuite) TestDenomHash() {
+	var (
+		ctx sdk.Context
+		nw  *network.UnitTestNetwork
+	)
 	reqTrace := types.DenomTrace{
 		Path:      "transfer/channelToA/transfer/channelToB",
 		BaseDenom: utils.BaseDenom,
 	}
-	method := s.precompile.Methods[ics20.DenomHashMethod]
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -202,7 +227,7 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 		{
 			"success - get the hash of a denom trace",
 			func() []interface{} {
-				s.app.TransferKeeper.SetDenomTrace(s.ctx, reqTrace)
+				nw.App.TransferKeeper.SetDenomTrace(ctx, reqTrace)
 				return []interface{}{
 					reqTrace.GetFullDenomPath(),
 				}
@@ -222,7 +247,13 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			ctx, contract := s.NewPrecompileContract(tc.gas)
+			nw = s.network
+			ctx = nw.GetContext()
+
+			method := s.precompile.Methods[ics20.DenomHashMethod]
+
+			var contract *vm.Contract
+			ctx, contract = s.NewPrecompileContract(tc.gas)
 			args := tc.malleate()
 
 			bz, err := s.precompile.DenomHash(ctx, contract, &method, args)
@@ -240,14 +271,15 @@ func (s *PrecompileTestSuite) TestDenomHash() {
 
 func (s *PrecompileTestSuite) TestAllowance() {
 	var (
-		path   = NewTransferPath(s.chainA, s.chainB)
-		path2  = NewTransferPath(s.chainA, s.chainB)
-		paths  = []*ibctesting.Path{path, path2}
-		method = s.precompile.Methods[authorization.AllowanceMethod]
+		ctx    sdk.Context
+		nw     *network.UnitTestNetwork
+		coord  *coordinator.IntegrationCoordinator
+		keys keyring.Keyring
+		path   evmosibc.Path
+		path2  evmosibc.Path
+		paths  []evmosibc.Path
+		chainB string
 	)
-	// set channel, otherwise is "" and throws error
-	path.EndpointA.ChannelID = "channel-0"
-	path2.EndpointA.ChannelID = "channel-1"
 
 	testCases := []struct {
 		name        string
@@ -271,8 +303,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			"success - no allowance == empty array",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
-					s.differentAddr,
+					keys.GetAddr(0),
+					keys.GetAddr(1),
 				}
 			},
 			func(bz []byte) {
@@ -289,19 +321,19 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			"success - auth with one allocation",
 			func() []interface{} {
 				err := s.NewTransferAuthorization(
-					s.ctx,
-					s.app,
-					s.differentAddr,
-					s.address,
-					path,
+					ctx,
+					nw.App,
+					keys.GetAddr(1),
+					keys.GetAddr(0),
+					&path,
 					defaultCoins,
-					[]string{s.chainB.SenderAccount.GetAddress().String()},
+					[]string{coord.GetChainSenderAcc(chainB).GetAddress().String()},
 				)
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.differentAddr,
-					s.address,
+					keys.GetAddr(1),
+					keys.GetAddr(0),
 				}
 			},
 			func(bz []byte) {
@@ -310,7 +342,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourcePort:    path.EndpointA.ChannelConfig.PortID,
 						SourceChannel: path.EndpointA.ChannelID,
 						SpendLimit:    defaultCmnCoins,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowList:     []string{coord.GetChainSenderAcc(chainB).GetAddress().String()},
 					},
 				}
 
@@ -333,22 +365,22 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourcePort:    p.EndpointA.ChannelConfig.PortID,
 						SourceChannel: p.EndpointA.ChannelID,
 						SpendLimit:    mutliSpendLimit,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowList:     []string{coord.GetChainSenderAcc(chainB).GetAddress().String()},
 					}
 				}
 
 				err := s.NewTransferAuthorizationWithAllocations(
-					s.ctx,
-					s.app,
-					s.differentAddr,
-					s.address,
+					ctx,
+					nw.App,
+					keys.GetAddr(1),
+					keys.GetAddr(0),
 					allocs,
 				)
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.differentAddr,
-					s.address,
+					keys.GetAddr(1),
+					keys.GetAddr(0),
 				}
 			},
 			func(bz []byte) {
@@ -358,7 +390,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourcePort:    p.EndpointA.ChannelConfig.PortID,
 						SourceChannel: p.EndpointA.ChannelID,
 						SpendLimit:    mutliCmnCoins,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowList:     []string{coord.GetChainSenderAcc(chainB).GetAddress().String()},
 					}
 				}
 
@@ -377,9 +409,22 @@ func (s *PrecompileTestSuite) TestAllowance() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
+			nw = s.network
+			ctx = nw.GetContext()
+			coord = s.coordinator
+			chainB = s.chainB
+
+			// set channel, otherwise is "" and throws error
+			path = *s.transferPath
+			path2 = *s.transferPath
+			path.EndpointA.ChannelID = "channel-0"
+			path2.EndpointA.ChannelID = "channel-1"
+			paths = []evmosibc.Path{path, path2}
+
+			method := s.precompile.Methods[authorization.AllowanceMethod]
 
 			args := tc.malleate()
-			bz, err := s.precompile.Allowance(s.ctx, &method, args)
+			bz, err := s.precompile.Allowance(nw.GetContext(), &method, args)
 
 			if tc.expErr {
 				s.Require().Error(err)

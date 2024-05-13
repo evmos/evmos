@@ -169,7 +169,7 @@ func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
 
 func (suite *VestingAccountTestSuite) TestGetCoinsFunctions() {
 	var va *types.ClawbackVestingAccount
-	now := tmtime.Now()
+	now := time.Now()
 	endTime := now.Add(24 * time.Hour)
 	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	bacc := authtypes.NewBaseAccountWithAddress(addr)

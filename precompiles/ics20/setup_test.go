@@ -13,6 +13,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+
 	"github.com/evmos/evmos/v18/testutil/integration/ibc/coordinator"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 
@@ -36,6 +37,8 @@ type PrecompileTestSuite struct {
 
 	coordinator  *coordinator.IntegrationCoordinator
 	transferPath *evmosibc.Path
+	chainA       string
+	chainB       string
 
 	defaultExpirationDuration time.Time
 
@@ -78,9 +81,9 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	IBCCoordinator.SetDefaultSignerForChain(s.network.GetChainID(), s.keyring.GetPrivKey(0), acc)
-	chainA := s.network.GetChainID()
-	chainB := IBCCoordinator.GetDummyChainsIDs()[0]
-	IBCCoordinator.Setup(chainA, chainB)
+	s.chainA = s.network.GetChainID()
+	s.chainB = IBCCoordinator.GetDummyChainsIDs()[0]
+	IBCCoordinator.Setup(s.chainA, s.chainB)
 
 	err = IBCCoordinator.CommitAll()
 	if err != nil {
@@ -88,5 +91,5 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	s.coordinator = IBCCoordinator
-	s.transferPath = IBCCoordinator.GetPath(chainA, chainB)
+	s.transferPath = IBCCoordinator.GetPath(s.chainA, s.chainB)
 }

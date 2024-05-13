@@ -20,11 +20,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	evmosapp "github.com/evmos/evmos/v18/app"
-	evmoscontracts "github.com/evmos/evmos/v18/contracts"
 	evmosibc "github.com/evmos/evmos/v18/ibc/testing"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/precompiles/ics20"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
@@ -32,8 +30,9 @@ import (
 	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 )
 
 type erc20Meta struct {
@@ -149,7 +148,6 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	return path
 }
 
-
 // setTransferApproval sets the transfer approval for the given grantee and allocations
 func (s *PrecompileTestSuite) setTransferApproval(
 	args contracts.CallArgs,
@@ -168,13 +166,13 @@ func (s *PrecompileTestSuite) setTransferApproval(
 		ExpPass:   true,
 	}
 
-	_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, logCheckArgs)
+	_, _, err := contracts.CallContractAndCheckLogs(s.coordinator.GetChain(s.chainA).GetContext(), s.network.App, args, logCheckArgs)
 	Expect(err).To(BeNil(), "error while calling the contract to approve")
 
-	s.chainA.NextBlock()
+	s.coordinator.GetChain(s.chainA).NextBlock()
 
 	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
+	authz, _ := s.network.App.AuthzKeeper.GetAuthorization(s.coordinator.GetChain(s.chainA).GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
 	Expect(authz).NotTo(BeNil())
 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
 	Expect(ok).To(BeTrue())
@@ -186,37 +184,37 @@ func (s *PrecompileTestSuite) setTransferApproval(
 	}
 }
 
-// setTransferApprovalForContract sets the transfer approval for the given contract
-func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.CallArgs) {
-	logCheckArgs := testutil.LogCheckArgs{
-		ABIEvents: s.precompile.Events,
-		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
-		ExpPass:   true,
-	}
+// // setTransferApprovalForContract sets the transfer approval for the given contract
+// func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.CallArgs) {
+// 	logCheckArgs := testutil.LogCheckArgs{
+// 		ABIEvents: s.precompile.Events,
+// 		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
+// 		ExpPass:   true,
+// 	}
 
-	_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, logCheckArgs)
-	Expect(err).To(BeNil(), "error while calling the contract to approve")
+// 	_, _, err := contracts.CallContractAndCheckLogs(s.coordinator.GetChain(s.chainA).GetContext(), s.network.App, args, logCheckArgs)
+// 	Expect(err).To(BeNil(), "error while calling the contract to approve")
 
-	s.chainA.NextBlock()
+// 	s.coordinator.GetChain(s.chainA).NextBlock()
 
-	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
-	Expect(authz).NotTo(BeNil())
-	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
-	Expect(ok).To(BeTrue())
-	Expect(len(transferAuthz.Allocations) > 0).To(BeTrue())
-}
+// 	// check auth created successfully
+// 	authz, _ := s.network.App.AuthzKeeper.GetAuthorization(s.coordinator.GetChain(s.chainA).GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
+// 	Expect(authz).NotTo(BeNil())
+// 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
+// 	Expect(ok).To(BeTrue())
+// 	Expect(len(transferAuthz.Allocations) > 0).To(BeTrue())
+// }
 
-// setupAllocationsForTesting sets the allocations for testing
-func (s *PrecompileTestSuite) setupAllocationsForTesting() {
-	defaultSingleAlloc = []cmn.ICS20Allocation{
-		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: s.transferPath.EndpointA.ChannelID,
-			SpendLimit:    defaultCmnCoins,
-		},
-	}
-}
+// // setupAllocationsForTesting sets the allocations for testing
+// func (s *PrecompileTestSuite) setupAllocationsForTesting() {
+// 	defaultSingleAlloc = []cmn.ICS20Allocation{
+// 		{
+// 			SourcePort:    ibctesting.TransferPort,
+// 			SourceChannel: s.transferPath.EndpointA.ChannelID,
+// 			SpendLimit:    defaultCmnCoins,
+// 		},
+// 	}
+// }
 
 // TODO upstream this change to evmos (adding gasPrice)
 // DeployContract deploys a contract with the provided private key,
@@ -269,66 +267,66 @@ func DeployContract(
 	return crypto.CreateAddress(from, nonce), nil
 }
 
-// DeployERC20Contract deploys a ERC20 token with the provided name, symbol and decimals
-func (s *PrecompileTestSuite) DeployERC20Contract(chain *ibctesting.TestChain, name, symbol string, decimals uint8) (common.Address, error) {
-	addr, err := DeployContract(
-		chain.GetContext(),
-		s.app,
-		s.privKey,
-		gasPrice,
-		s.queryClientEVM,
-		evmoscontracts.ERC20MinterBurnerDecimalsContract,
-		name,
-		symbol,
-		decimals,
-	)
-	chain.NextBlock()
-	return addr, err
-}
+// // DeployERC20Contract deploys a ERC20 token with the provided name, symbol and decimals
+// func (s *PrecompileTestSuite) DeployERC20Contract(chain chain.Chain, name, symbol string, decimals uint8) (common.Address, error) {
+// 	addr, err := DeployContract(
+// 		chain.GetContext(),
+// 		s.network.App,
+// 		s.keyring.GetPrivKey(0),
+// 		gasPrice,
+// 		s.network.GetEvmClient(),
+// 		evmoscontracts.ERC20MinterBurnerDecimalsContract,
+// 		name,
+// 		symbol,
+// 		decimals,
+// 	)
+// 	chain.NextBlock()
+// 	return addr, err
+// }
 
-// setupERC20ContractTests deploys a ERC20 token
-// and mint some tokens to the deployer address (s.keyring.GetAddr(0)).
-// The amount of tokens sent to the deployer address is defined in
-// the 'amount' input argument
-func (s *PrecompileTestSuite) setupERC20ContractTests(amount *big.Int) common.Address {
-	erc20Addr, err := s.DeployERC20Contract(s.chainA, testERC20.Name, testERC20.Symbol, testERC20.Decimals)
-	Expect(err).To(BeNil(), "error while deploying ERC20 contract: %v", err)
+// // setupERC20ContractTests deploys a ERC20 token
+// // and mint some tokens to the deployer address (s.keyring.GetAddr(0)).
+// // The amount of tokens sent to the deployer address is defined in
+// // the 'amount' input argument
+// func (s *PrecompileTestSuite) setupERC20ContractTests(amount *big.Int) common.Address {
+// 	erc20Addr, err := s.DeployERC20Contract(s.coordinator.GetChain(s.chainA), testERC20.Name, testERC20.Symbol, testERC20.Decimals)
+// 	Expect(err).To(BeNil(), "error while deploying ERC20 contract: %v", err)
 
-	defaultERC20CallArgs := contracts.CallArgs{
-		ContractAddr: erc20Addr,
-		ContractABI:  evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-		PrivKey:      s.privKey,
-		GasPrice:     gasPrice,
-	}
+// 	defaultERC20CallArgs := contracts.CallArgs{
+// 		ContractAddr: erc20Addr,
+// 		ContractABI:  evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+// 		PrivKey:      s.keyring.GetPrivKey(0),
+// 		GasPrice:     gasPrice,
+// 	}
 
-	// mint coins to the address
-	mintCoinsArgs := defaultERC20CallArgs.
-		WithMethodName("mint").
-		WithArgs(s.keyring.GetAddr(0), amount)
+// 	// mint coins to the address
+// 	mintCoinsArgs := defaultERC20CallArgs.
+// 		WithMethodName("mint").
+// 		WithArgs(s.keyring.GetAddr(0), amount)
 
-	mintCheck := testutil.LogCheckArgs{
-		ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
-		ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
-		ExpPass:   true,
-	}
+// 	mintCheck := testutil.LogCheckArgs{
+// 		ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
+// 		ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
+// 		ExpPass:   true,
+// 	}
 
-	_, _, err = contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, mintCoinsArgs, mintCheck)
-	Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+// 	_, _, err = contracts.CallContractAndCheckLogs(s.coordinator.GetChain(s.chainA).GetContext(), s.network.App, mintCoinsArgs, mintCheck)
+// 	Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-	s.chainA.NextBlock()
+// 	s.coordinator.GetChain(s.chainA).NextBlock()
 
-	// check that the address has the tokens -- this has to be done using the stateDB because
-	// unregistered token pairs do not show up in the bank keeper
-	balance := s.app.Erc20Keeper.BalanceOf(
-		s.chainA.GetContext(),
-		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-		erc20Addr,
-		s.keyring.GetAddr(0),
-	)
-	Expect(balance).To(Equal(amount), "address does not have the expected amount of tokens")
+// 	// check that the address has the tokens -- this has to be done using the stateDB because
+// 	// unregistered token pairs do not show up in the bank keeper
+// 	balance := s.network.App.Erc20Keeper.BalanceOf(
+// 		s.coordinator.GetChain(s.chainA).GetContext(),
+// 		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+// 		erc20Addr,
+// 		s.keyring.GetAddr(0),
+// 	)
+// 	Expect(balance).To(Equal(amount), "address does not have the expected amount of tokens")
 
-	return erc20Addr
-}
+// 	return erc20Addr
+// }
 
 // makePacket is a helper function to build the sent IBC packet
 // to perform an ICS20 transfer.
