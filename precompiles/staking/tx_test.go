@@ -555,7 +555,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			},
 			false,
 			"",
-		},		
+		},
 	}
 
 	for _, tc := range testCases {
