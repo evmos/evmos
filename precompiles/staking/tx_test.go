@@ -499,7 +499,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {
+			func(data []byte) { //nolint:dupl
 				success, err := s.precompile.Unpack(staking.EditValidatorMethod, data)
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
@@ -534,7 +534,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
-			func(data []byte) {
+			func(data []byte) { //nolint:dupl
 				success, err := s.precompile.Unpack(staking.EditValidatorMethod, data)
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
