@@ -20,19 +20,19 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v16/app"
-	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/precompiles/vesting/testdata"
-	evmosutil "github.com/evmos/evmos/v16/testutil"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
+	evmosapp "github.com/evmos/evmos/v18/app"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v18/precompiles/vesting"
+	"github.com/evmos/evmos/v18/precompiles/vesting/testdata"
+	evmosutil "github.com/evmos/evmos/v18/testutil"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -202,6 +202,10 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	vestingCallerContract, err := testdata.LoadVestingCallerContract()
+	s.Require().NoError(err)
+	s.vestingCallerContract = vestingCallerContract
 }
 
 // CallType is a struct that represents the type of call to be made to the
@@ -227,7 +231,7 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 		callArgs.ContractAddr = s.precompile.Address()
 	} else {
 		callArgs.ContractAddr = contractAddr
-		callArgs.ContractABI = testdata.VestingCallerContract.ABI
+		callArgs.ContractABI = s.vestingCallerContract.ABI
 	}
 
 	return callArgs

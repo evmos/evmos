@@ -2,9 +2,12 @@ name: "Close stale issues & pull requests"
 on:
   schedule:
     - cron: "0 0 * * *"
+permissions: read-all
 
 jobs:
   stale:
+    permissions:
+      pull-requests: write # For reading the PR and adding the label    
     runs-on: ubuntu-latest
     steps:
       - uses: actions/stale@v9

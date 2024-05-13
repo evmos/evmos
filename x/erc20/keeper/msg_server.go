@@ -15,8 +15,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -138,6 +138,12 @@ func (k Keeper) convertCoinNativeCoin(
 		return nil, err
 	}
 
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver.Bytes()) {
+		k.SetSTRv2Address(ctx, receiver.Bytes())
+	}
+
 	// Check expected receiver balance after transfer
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
@@ -249,6 +255,12 @@ func (k Keeper) convertERC20NativeCoin(
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
+	}
+
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver) {
+		k.SetSTRv2Address(ctx, receiver)
 	}
 
 	defer func() {

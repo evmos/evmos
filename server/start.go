@@ -49,12 +49,12 @@ import (
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/cmd/evmosd/opendb"
-	"github.com/evmos/evmos/v16/indexer"
-	ethdebug "github.com/evmos/evmos/v16/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/evmos/v16/server/config"
-	srvflags "github.com/evmos/evmos/v16/server/flags"
-	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v18/cmd/evmosd/opendb"
+	"github.com/evmos/evmos/v18/indexer"
+	ethdebug "github.com/evmos/evmos/v18/rpc/namespaces/ethereum/debug"
+	"github.com/evmos/evmos/v18/server/config"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmostypes "github.com/evmos/evmos/v18/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.
@@ -468,7 +468,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 			grpcAddress := fmt.Sprintf("127.0.0.1:%s", port)
 
 			// If grpc is enabled, configure grpc client for grpc gateway and json-rpc.
-			grpcClient, err := grpc.Dial(
+			grpcClient, err := grpc.NewClient(
 				grpcAddress,
 				grpc.WithTransportCredentials(insecure.NewCredentials()),
 				grpc.WithDefaultCallOptions(

@@ -36,12 +36,12 @@
         "branch": "master",
         "description": "Convert applications using Go modules to Nix expressions",
         "homepage": null,
-        "owner": "tweag",
+        "owner": "nix-community",
         "repo": "gomod2nix",
-        "rev": "40d32f82fc60d66402eb0972e6e368aeab3faf58",
-        "sha256": "0li17ynbg2wg0xqy655m5rmcw905sbv7d4ir35z7s5pg1yhhzxkp",
+        "rev": "872b63ddd28f318489c929d25f1f0a3c6039c971",
+        "sha256": "1wh9rlhg2w42fsavh7wxvmw42l7m5wg290gnp571dq0qcr1z7kg1",
         "type": "tarball",
-        "url": "https://github.com/tweag/gomod2nix/archive/40d32f82fc60d66402eb0972e6e368aeab3faf58.tar.gz"
+        "url": "https://github.com/nix-community/gomod2nix/archive/872b63ddd28f318489c929d25f1f0a3c6039c971.tar.gz"
     },
     "hermes": {
         "branch": "v1.6.0",

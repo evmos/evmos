@@ -27,18 +27,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v16/encoding"
-	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v18/encoding"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 
-	"github.com/evmos/evmos/v16/cmd/config"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/cmd/config"
+	"github.com/evmos/evmos/v18/utils"
 )
-
-func init() {
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
-}
 
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp

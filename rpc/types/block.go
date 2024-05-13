@@ -19,7 +19,7 @@ import (
 
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 
-	"github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v18/types"
 )
 
 // BlockNumber represents decoding hex string to block values
@@ -51,7 +51,7 @@ func NewBlockNumber(n *big.Int) BlockNumber {
 
 // ContextWithHeight wraps a context with the a gRPC block height header. If the provided height is
 // 0, it will return an empty context and the gRPC query will use the latest block height for querying.
-// Note that all metadata are processed and removed by tendermint layer, so it wont be accessible at gRPC server level.
+// Note that all metadata is processed and removed by the CometBFT layer, so it won't be accessible at gRPC server level.
 func ContextWithHeight(height int64) context.Context {
 	if height == 0 {
 		return context.Background()

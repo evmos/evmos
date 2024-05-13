@@ -50,7 +50,7 @@ linters-settings:
     require-explanation: false
     require-specific: false
   gofumpt:
-    lang-version: "1.21"
+    lang-version: "1.22"
   gomodguard:
     blocked:
       versions:                                                         # List of blocked module version constraints

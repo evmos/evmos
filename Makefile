@@ -26,7 +26,7 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
-ROCKSDB_VERSION ?= "8.9.1"
+ROCKSDB_VERSION ?= "8.11.3"
 # Deps
 DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep 'github.com/evmos/cosmos-sdk' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_IBC_GO_VERSION := $(shell cat go.sum | grep 'github.com/cosmos/ibc-go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
@@ -505,54 +505,11 @@ proto-download-deps:
 .PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-swagger-gen
 
 ###############################################################################
-###                                Localnet                                 ###
-###############################################################################
-
-# Build image for a local testnet
-localnet-build:
-	@$(MAKE) -C networks/local
-
-# Start a 4-node testnet locally
-localnet-start: localnet-stop localnet-build
-	@if ! [ -f build/node0/$(EVMOS_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/evmos:Z evmos/node "./evmosd testnet init-files --v 4 -o /evmos --keyring-backend=test --starting-ip-address 192.167.10.2"; fi
-	docker-compose up -d
-
-# Stop testnet
-localnet-stop:
-	docker-compose down
-
-# Clean testnet
-localnet-clean:
-	docker-compose down
-	sudo rm -rf build/*
-
- # Reset testnet
-localnet-unsafe-reset:
-	docker-compose down
-ifeq ($(OS),Windows_NT)
-	@docker run --rm -v $(CURDIR)\build\node0\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\build\node1\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\build\node2\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\build\node3\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-else
-	@docker run --rm -v $(CURDIR)/build/node0/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/build/node1/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/build/node2/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/build/node3/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
-endif
-
-# Clean testnet
-localnet-show-logstream:
-	docker-compose logs --tail=1000 -f
-
-.PHONY: localnet-build localnet-start localnet-stop
-
-###############################################################################
 ###                                Releasing                                ###
 ###############################################################################
 
 PACKAGE_NAME:=github.com/evmos/evmos
-GOLANG_CROSS_VERSION  = v1.21
+GOLANG_CROSS_VERSION  = v1.22
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
 	docker run \
@@ -588,56 +545,24 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-CONTRACTS_DIR := contracts
-COMPILED_DIR := $(CONTRACTS_DIR)/compiled_contracts
-TMP := tmp
-TMP_CONTRACTS := $(TMP)/contracts
-TMP_COMPILED := $(TMP)/compiled.json
-TMP_JSON := $(TMP)/tmp.json
+# Clean up the contracts directory, install the necessary dependencies
+# and then compile the solidity contracts found in the Evmos repository.
+contracts-all: contracts-clean contracts-compile
 
-# Compile and format solidity contracts for the erc20 module. Also install
-# openzeppeling as the contracts are build on top of openzeppelin templates.
-contracts-compile: contracts-clean openzeppelin create-contracts-json
-
-# Install openzeppelin solidity contracts
-openzeppelin:
-	@echo "Importing openzeppelin contracts..."
-	@cd $(CONTRACTS_DIR) && \
-	 npm install && \
-	 mv node_modules $(TMP) && \
-	 mv $(TMP)/@openzeppelin . && \
-	 rm -rf $(TMP)
-
-# Clean tmp files
+# Clean smart contract compilation artifacts, dependencies and cache files
 contracts-clean:
-	@rm -rf $(CONTRACTS_DIR)/$(TMP)
-	@rm -rf $(CONTRACTS_DIR)/node_modules
-	@rm -rf $(COMPILED_DIR)
-	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
+	@echo "Cleaning up the contracts directory..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --clean
 
-# Compile, filter out and format contracts into the following format.
-# {
-# 	"abi": "[{\"inpu 			# JSON string
-# 	"bin": "60806040
-# 	"contractName": 			# filename without .sol
-# }
-create-contracts-json:
-	@for c in $(shell ls $(CONTRACTS_DIR) | grep '\.sol' | sed 's/.sol//g'); do \
-		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
-		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
-		mkdir -p $(COMPILED_DIR) ;\
-		mkdir -p $(TMP) ;\
-		echo "\nCompiling solidity contract $${c}..." ;\
-		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${c}.sol > $(TMP_COMPILED) ;\
-		echo "Formatting JSON..." ;\
-		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/'$$c'.sol:'$$c'"]' $(TMP_COMPILED)) ;\
-		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "'$$c'" }') ;\
-		echo $$add_contract_name | jq > $(TMP_JSON) ;\
-		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
-		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
-		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
-	done
-	@rm -rf $(TMP)
+# Compile the solidity contracts found in the Evmos repository.
+contracts-compile:
+	@echo "Compiling smart contracts..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
+
+# Add a new solidity contract to be compiled
+contracts-add:
+	@echo "Adding a new smart contract to be compiled..."
+	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --add $(CONTRACT)
 
 ###############################################################################
 ###                           Miscellaneous Checks                          ###

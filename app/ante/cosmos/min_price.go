@@ -5,12 +5,11 @@ package cosmos
 import (
 	"fmt"
 	"math/big"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	evmante "github.com/evmos/evmos/v16/app/ante/evm"
+	evmante "github.com/evmos/evmos/v18/app/ante/evm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
