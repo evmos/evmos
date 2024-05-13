@@ -407,7 +407,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			"invalid validator address",
 		},
 		{
-			"fail - commision change rate too high",
+			"fail - commission change rate too high",
 			func() []interface{} {
 				return []interface{}{
 					description,
