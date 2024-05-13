@@ -60,6 +60,10 @@ type stateObject struct {
 	originStorage Storage
 	dirtyStorage  Storage
 
+	// transientStorage is an in memory storage of the latest committed entries in the current transaction execution.
+	// It is only used when multiple commits are made within the same transaction execution.
+	transientStorage Storage
+
 	address common.Address
 
 	// flags
@@ -76,11 +80,12 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 		account.CodeHash = emptyCodeHash
 	}
 	return &stateObject{
-		db:            db,
-		address:       address,
-		account:       account,
-		originStorage: make(Storage),
-		dirtyStorage:  make(Storage),
+		db:               db,
+		address:          address,
+		account:          account,
+		originStorage:    make(Storage),
+		dirtyStorage:     make(Storage),
+		transientStorage: make(Storage),
 	}
 }
 

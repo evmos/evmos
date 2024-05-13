@@ -13,9 +13,9 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
@@ -24,17 +24,11 @@ import (
 //   - the packet data is not FungibleTokenPacketData
 //   - sender address is invalid
 //   - recipient address is invalid
-func GetTransferSenderRecipient(packet channeltypes.Packet) (
+func GetTransferSenderRecipient(data transfertypes.FungibleTokenPacketData) (
 	sender, recipient sdk.AccAddress,
 	senderBech32, recipientBech32 string,
 	err error,
 ) {
-	// unmarshal packet data to obtain the sender and recipient
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return nil, nil, "", "", errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-	}
-
 	// validate the sender bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
 	sender, err = utils.GetEvmosAddressFromBech32(data.Sender)

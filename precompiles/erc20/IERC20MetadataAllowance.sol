@@ -25,7 +25,7 @@ interface IERC20MetadataAllowance is IERC20Metadata {
       * This is an alternative to approve that can be used as a mitigation for problems described in
       * IERC20.approve.
       * @param spender The address which will spend the funds.
-      * @param subtractedValue The amount to be substracted from the spender allowance.
+      * @param subtractedValue The amount to be subtracted from the spender allowance.
       * @return approved Boolean value to indicate if the approval was successful.
     */
     function decreaseAllowance(

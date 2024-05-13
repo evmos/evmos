@@ -17,12 +17,17 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // SendTransaction sends transaction based on received args using Node's key to sign it
 func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, error) {
 	// Look up the wallet containing the requested signer
+	if !b.cfg.JSONRPC.AllowInsecureUnlock {
+		b.logger.Debug("account unlock with HTTP access is forbidden")
+		return common.Hash{}, fmt.Errorf("account unlock with HTTP access is forbidden")
+	}
+
 	_, err := b.clientCtx.Keyring.KeyByAddress(sdk.AccAddress(args.GetFrom().Bytes()))
 	if err != nil {
 		b.logger.Error("failed to find key in keyring", "address", args.GetFrom(), "error", err.Error())

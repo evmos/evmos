@@ -11,12 +11,12 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/contracts"
-	ibctesting "github.com/evmos/evmos/v16/ibc/testing"
-	teststypes "github.com/evmos/evmos/v16/types/tests"
-	"github.com/evmos/evmos/v16/utils"
-	"github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/contracts"
+	ibctesting "github.com/evmos/evmos/v18/ibc/testing"
+	teststypes "github.com/evmos/evmos/v18/types/tests"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -369,6 +369,67 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			// IBC coin balance should be zero
 			erc20CoinsBalance = s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
+		})
+	})
+	Describe("strv2 bookkeeping - registered uosmo", func() {
+		BeforeEach(func() {
+			erc20params := types.DefaultParams()
+			erc20params.EnableErc20 = true
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
+
+			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
+			senderAcc = sdk.MustAccAddressFromBech32(sender)
+			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+
+			// Register uosmo pair
+			pair, err = s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
+			s.Require().NoError(err)
+		})
+		It("should register receiver address", func() {
+			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
+
+			s.EvmosChain.Coordinator.CommitBlock()
+			// Send coins
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().True(found)
+
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 2, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().True(found)
+		})
+	})
+
+	Describe("strv2 bookkeeping - unregistered uosmo", func() {
+		BeforeEach(func() {
+			erc20params := types.DefaultParams()
+			erc20params.EnableErc20 = true
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
+
+			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
+			senderAcc = sdk.MustAccAddressFromBech32(sender)
+			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+		})
+		It("should not register receiver address", func() {
+			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
+
+			s.EvmosChain.Coordinator.CommitBlock()
+			// Send coins
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
 		})
 	})
 })

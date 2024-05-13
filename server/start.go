@@ -49,12 +49,12 @@ import (
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v16/cmd/evmosd/opendb"
-	"github.com/evmos/evmos/v16/indexer"
-	ethdebug "github.com/evmos/evmos/v16/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/evmos/v16/server/config"
-	srvflags "github.com/evmos/evmos/v16/server/flags"
-	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v18/cmd/evmosd/opendb"
+	"github.com/evmos/evmos/v18/indexer"
+	ethdebug "github.com/evmos/evmos/v18/rpc/namespaces/ethereum/debug"
+	"github.com/evmos/evmos/v18/server/config"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmostypes "github.com/evmos/evmos/v18/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.
@@ -187,8 +187,9 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().StringSlice(srvflags.JSONRPCAPI, config.GetDefaultAPINamespaces(), "Defines a list of JSON-RPC namespaces that should be enabled")
 	cmd.Flags().String(srvflags.JSONRPCAddress, config.DefaultJSONRPCAddress, "the JSON-RPC server address to listen on")
 	cmd.Flags().String(srvflags.JSONWsAddress, config.DefaultJSONRPCWsAddress, "the JSON-RPC WS server address to listen on")
-	cmd.Flags().Uint64(srvflags.JSONRPCGasCap, config.DefaultGasCap, "Sets a cap on gas that can be used in eth_call/estimateGas unit is aevmos (0=infinite)")     //nolint:lll
-	cmd.Flags().Float64(srvflags.JSONRPCTxFeeCap, config.DefaultTxFeeCap, "Sets a cap on transaction fee that can be sent via the RPC APIs (1 = default 1 evmos)") //nolint:lll
+	cmd.Flags().Uint64(srvflags.JSONRPCGasCap, config.DefaultGasCap, "Sets a cap on gas that can be used in eth_call/estimateGas unit is aevmos (0=infinite)")                        //nolint:lll
+	cmd.Flags().Bool(srvflags.JSONRPCAllowInsecureUnlock, config.DefaultJSONRPCAllowInsecureUnlock, "Allow insecure account unlocking when account-related RPCs are exposed by http") //nolint:lll
+	cmd.Flags().Float64(srvflags.JSONRPCTxFeeCap, config.DefaultTxFeeCap, "Sets a cap on transaction fee that can be sent via the RPC APIs (1 = default 1 evmos)")                    //nolint:lll
 	cmd.Flags().Int32(srvflags.JSONRPCFilterCap, config.DefaultFilterCap, "Sets the global cap for total number of filters that can be created")
 	cmd.Flags().Duration(srvflags.JSONRPCEVMTimeout, config.DefaultEVMTimeout, "Sets a timeout used for eth_call (0=infinite)")
 	cmd.Flags().Duration(srvflags.JSONRPCHTTPTimeout, config.DefaultHTTPTimeout, "Sets a read/write timeout for json-rpc http server (0=infinite)")
@@ -467,7 +468,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 			grpcAddress := fmt.Sprintf("127.0.0.1:%s", port)
 
 			// If grpc is enabled, configure grpc client for grpc gateway and json-rpc.
-			grpcClient, err := grpc.Dial(
+			grpcClient, err := grpc.NewClient(
 				grpcAddress,
 				grpc.WithTransportCredentials(insecure.NewCredentials()),
 				grpc.WithDefaultCallOptions(

@@ -1,24 +1,19 @@
 # Security
 
-As part of our vulnerability disclosure policy,
-we operate a security vulnerability program through [Immunefi](https://immunefi.com/).
-This document serves as a complementary guideline for reporting vulnerabilities
-and how the disclosure process is managed.
-Please refer to the official Evmos [bug bounty program](https://immunefi.com/bounty/evmos/)
-for up-to-date information.
+As part of our vulnerability disclosure policy. This document serves as a complementary guideline
+for reporting vulnerabilities and how the disclosure process is managed.
 
 ## Guidelines
 
-We require that all researchers:
+We require that all whitehat hackers and researchers:
 
-- Use the Evmos [bug bounty program](https://immunefi.com/bounty/evmos/) on Immunefi to disclose all vulnerabilities,
-  and avoid posting vulnerability information in public places,
-  including GitHub, Discord, Telegram, Twitter or other non-private channels.
+- Use the Evmos security email ([security@evmos.org](mailto:security@evmos.org)) to disclose all vulnerabilities,
+and avoid posting vulnerability information in public places, including GitHub, Discord, Telegram, X (Twitter) or
+other non-private channels.
 - Make every effort to avoid privacy violations, degradation of user experience, disruption to production systems,
-  and destruction of data.
-- Keep any information about vulnerabilities that you’ve discovered
-  confidential between yourself and the engineering team
-  until the issue has been resolved and disclosed
+and destruction of data.
+- Keep any information about vulnerabilities that you’ve discovered confidential between yourself and the engineering
+team until the issue has been resolved and disclosed
 - Avoid posting personally identifiable information, privately or publicly
 
 If you follow these guidelines when reporting an issue to us, we commit to:
@@ -30,10 +25,8 @@ If you follow these guidelines when reporting an issue to us, we commit to:
 
 Evmos uses the following disclosure process:
 
-1. Once a security report is received via the Immunefi Bug Bounty program,
-the team works to verify the issue and confirm its severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss)
-or [Immunefi’s Vulnerability Severity Classification System v2.2](https://immunefi.com/immunefi-vulnerability-severity-classification-system-v2-2/).
-
+1. Once a security report is received via the security email, the team works to verify the issue and confirm its
+severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss) in its latest version (v4 at the time of writing).
     1. Two people from the affected project will review, replicate and acknowledge the report
        within 48-96 hours of the alert according to the table below:
 
@@ -45,8 +38,8 @@ or [Immunefi’s Vulnerability Severity Classification System v2.2](https://immu
         | Low or Informational | 96                                            |
         | None                 | 96                                            |
 
-    2. If the report is not applicable or reproducible,
-       the Security Lead (or Security Secondary) will revert to the reporter to request more info or close the report.
+    2. If the report is not applicable or the vulnerability is not able to be reproduced,
+       the Security Lead will revert to the reporter to request more info or close the report.
     3. The report is confirmed by the Security Lead to the reporter.
 
 2. The team determines the vulnerability’s potential impact on Evmos.
@@ -90,7 +83,91 @@ as secure as possible.
 
 ### Payment Process
 
-The payment process will be executed according to Evmos’s Immunefi Bug Bounty program Rules.
+The payment process will be executed according to Evmos SAFU for `Critical` and `High` severity vulnerabilities.
+Payouts can only be executed in accordance and under supervision of the Evmos Operations team and only once the
+following requirements have been completed:
+
+- The whitehat hacker or organization successfully completes the KYC/KYB process (i.e KYC/KYB accepted).
+- The vulnerability is patched in production (eg. mainnet).
+
+#### KYC/KYB Process
+
+The Operations team will get in contact with the whitehat hacker to coordinate the submission of KYC/KYC with
+the Service Provider [Provenance](http://provenancecompliance.com).
+
+The KYC/KYB process is performed independently by the Service Provider, which submits a report with the
+KYC/KYB result
+(Accepted or Rejected) to the Evmos Core Team. The Evmos Core team does not have access to any of the information
+provided to the Service Provider.
+
+The following information is to be submitted to the independent Service Provider:
+
+- **Email**
+- **Physical Address**
+- **Proof of Address**: Utility bill (with exception of mobile phone invoice) or bank statement with no
+more than 3 months old from the current date.
+- **Passport** (National Identification) + Selfie photo.
+- **Receiving Address**: The on-chain address account that will receive the Payouts.
+
+#### Supported Releases
+
+The team commits to releasing security patch releases for the latest release that Evmos is running.
+
+If evmOS licensees are running older versions, we encourage them to upgrade at the earliest opportunity
+so that you can receive
+security patches directly from the repo, according to the terms set in the License Agreement. While project
+are welcomed to backport security patches to older versions for their own use, the Evmos team reserves
+the right to prioritize patches for
+latest versions being used by projects.
+
+#### Scope of Vulnerabilities
+
+We’re interested in a full range of bugs with demonstrable security risk: from those that can be proven
+with a simple unit test,
+to those that require a full cluster and a complex sequence of transactions.
+
+Please note that, in the interest of the safety of our users and staff, a few things are explicitly
+excluded from scope:
+
+- Any third-party services.
+- Findings derived from social engineering (e.g., phishing).
+
+Examples of vulnerabilities that are of interest to us include memory allocation bugs, race conditions,
+timing attacks,information leaks, authentication bypasses, denial of service
+(specifically at the application- or protocol-layer),
+lost-write bugs, unauthorized account or capability access, stolen or loss of funds, token inflation bugs,
+payloads/transactions that cause panics, non deterministic logic, etc.
+
+##### JSON-RPC
+
+- Write-access to anything besides sending transactions
+- Bypassing transactions authentication
+- Denial-of-Service
+- Leakage of secrets
+
+##### Denial-of-Service
+
+Attacks may come through the P2P network or the RPC layer:
+
+- Amplification attacks
+- Resource abuse
+- Deadlocks and race conditions
+
+##### Precompiles
+
+- Override of state due to misuse of `DELEGATECALL`, `STATICCALL`, `CALLCODE`
+- Unauthorized transactions via precompiles (eg. ERC-20 token approvals)
+
+##### EVM Module
+
+- Memory allocation bugs
+- Payloads that cause panics
+- Authorization of invalid transactions
+
+##### Fee Market Module (EIP-1559)
+
+- Memory allocation bugs
+- Improper / unpenalized manipulation of the BaseFee value
 
 ### Contact
 

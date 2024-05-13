@@ -5,6 +5,7 @@ package types
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"sort"
 	"strings"
 
@@ -16,10 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v16/precompiles/p256"
-	"github.com/evmos/evmos/v16/types"
-	"github.com/evmos/evmos/v16/utils"
-	"golang.org/x/exp/slices"
+	"github.com/evmos/evmos/v18/precompiles/p256"
+	"github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 var (
@@ -40,8 +40,6 @@ var (
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 		"0x0000000000000000000000000000000000000804", // Bank precompile
-		"0x0000000000000000000000000000000000000900", // Stride outpost
-		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

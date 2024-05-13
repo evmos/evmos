@@ -17,8 +17,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
@@ -566,7 +566,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, false,
 		},
 		{
-			"fails - DeliverTx EIP712 signed Cosmos Tx with empty signature",
+			"fails - DeliverTx EIP712 signed Cosmos Tx with invalid chain id",
 			func() sdk.Tx {
 				from := acc.GetAddress()
 				gas := uint64(200000)

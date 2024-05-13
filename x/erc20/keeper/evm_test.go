@@ -7,14 +7,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/x/erc20/keeper"
-	"github.com/evmos/evmos/v16/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v16/x/erc20/types/mocks"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/keeper"
+	"github.com/evmos/evmos/v18/x/erc20/types"
+	erc20mocks "github.com/evmos/evmos/v18/x/erc20/types/mocks"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -55,6 +55,7 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 
 func (suite *KeeperTestSuite) TestBalanceOf() {
 	var mockEVMKeeper *erc20mocks.EVMKeeper
+
 	contract := utiltx.GenerateAddress()
 	testCases := []struct {
 		name       string
@@ -102,8 +103,12 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 
 		tc.malleate()
 
-		abi := contracts.ERC20BurnableContract.ABI
-		balance := suite.app.Erc20Keeper.BalanceOf(suite.ctx, abi, contract, utiltx.GenerateAddress())
+		balance := suite.app.Erc20Keeper.BalanceOf(
+			suite.ctx,
+			contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			contract,
+			utiltx.GenerateAddress(),
+		)
 		if tc.res {
 			suite.Require().Equal(balance.Int64(), tc.expBalance)
 		} else {

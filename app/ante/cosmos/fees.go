@@ -13,7 +13,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
+	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.
@@ -116,7 +116,7 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 		if !feeGranter.Equals(feePayer) {
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fees, sdkTx.GetMsgs())
 			if err != nil {
-				return errorsmod.Wrapf(err, "%s does not not allow to pay fees for %s", feeGranter, feePayer)
+				return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
 			}
 		}
 

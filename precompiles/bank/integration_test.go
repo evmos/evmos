@@ -4,24 +4,25 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
+	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/utils"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
-	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/precompiles/bank"
+	"github.com/evmos/evmos/v18/precompiles/bank"
 
-	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/precompiles/testutil"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -117,9 +118,11 @@ func TestIntegrationSuite(t *testing.T) {
 var _ = Describe("Bank Extension -", func() {
 	var (
 		bankCallerContractAddr common.Address
-		err                    error
-		sender                 keyring.Key
-		amount                 *big.Int
+		bankCallerContract     evmtypes.CompiledContract
+
+		err    error
+		sender keyring.Key
+		amount *big.Int
 
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
@@ -134,11 +137,14 @@ var _ = Describe("Bank Extension -", func() {
 		sender = is.keyring.GetKey(0)
 		amount = big.NewInt(1e18)
 
+		bankCallerContract, err = testdata.LoadBankCallerContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load BankCaller contract")
+
 		bankCallerContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.BankCallerContract,
+				Contract: bankCallerContract,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
@@ -148,7 +154,7 @@ var _ = Describe("Bank Extension -", func() {
 			precompileAddr: is.precompile.Address(),
 			precompileABI:  is.precompile.ABI,
 			contractAddr:   bankCallerContractAddr,
-			contractABI:    testdata.BankCallerContract.ABI,
+			contractABI:    bankCallerContract.ABI,
 		}
 
 		passCheck = testutil.LogCheckArgs{}.WithExpPass(true)
