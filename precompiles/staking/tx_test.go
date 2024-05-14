@@ -344,7 +344,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			200000,
 			func([]byte) {},
 			true,
-			"is not the same as validator operator address",
+			"origin is not the same as validator operator address",
 		},
 		{
 			"fail - invalid description",

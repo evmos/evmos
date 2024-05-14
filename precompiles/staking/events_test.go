@@ -330,6 +330,7 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 				}
 			},
 			postCheck: func() {
+				s.Require().Equal(len(s.stateDB.Logs()), 1)
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
