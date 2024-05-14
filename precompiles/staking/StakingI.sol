@@ -149,8 +149,8 @@ interface StakingI is authorization.AuthorizationI {
     ) external returns (bool success);
 
     /// @dev Defines a method for edit a validator.
-    /// @param description Description parameter to be updated, an string "[do-not-modify]"
-    /// means keeping it as is and not updating it.
+    /// @param description Description parameter to be updated, use string "[do-not-modify]"
+    /// for Description field means keeping it as is and not updating it.
     /// @param commissionRate CommissionRate parameter to be updated.
     /// Use commissionRate = -1 to keep the current value and not update it.
     /// @param minSelfDelegation MinSelfDelegation parameter to be updated.
