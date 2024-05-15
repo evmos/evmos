@@ -3,16 +3,12 @@ package keeper
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v17/crypto/ethsecp256k1"
 	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	"math/big"
+	"strings"
 )
 
 const (
@@ -24,20 +20,31 @@ const (
 )
 
 type ICS20Packet struct {
-	SourcePort       string                                `abi:"sourcePort"`
-	SourceChannel    string                                `abi:"sourceChannel"`
-	Data             transfertypes.FungibleTokenPacketData `abi:"data"`
-	TimeoutHeight    clienttypes.Height                    `abi:"timeoutHeight"`
-	TimeoutTimestamp uint64                                `abi:"timeoutTimestamp"`
+	SourcePort         string             `abi:"sourcePort"`
+	SourceChannel      string             `abi:"sourceChannel"`
+	DestinationPort    string             `abi:"destinationPort"`
+	DestinationChannel string             `abi:"destinationChannel"`
+	Data               ICS20EVMPacketData `abi:"data"`
+	TimeoutHeight      clienttypes.Height `abi:"timeoutHeight"`
+	TimeoutTimestamp   uint64             `abi:"timeoutTimestamp"`
 }
 
 func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, sourceChannel string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, packetData []byte, contractAddress, packetSenderAddress string) error {
-	cachedCtx.Logger().Info("IBCSendPacketCallback, logger")
-	fmt.Println("IBCSendPacketCallback, test", sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetData, contractAddress, packetSenderAddress)
 	contractHex := common.HexToAddress(contractAddress)
-
+	// Checks if the contract supports ERC-165
 	if err := k.DetectInterface(cachedCtx, OnSendPacketInterfaceID, packetSenderAddress, contractHex); err != nil {
 		return err
+	}
+
+	fmt.Println("The packetSenderAddress", packetSenderAddress)
+
+	// TODO: This does not produce the correct derrivation
+	bech32PacketSender := sdk.AccAddress(packetSenderAddress)
+	fmt.Println(common.BytesToAddress(bech32PacketSender.Bytes()).String())
+
+	channel, found := k.channelKeeper.GetChannel(cachedCtx, sourcePort, sourceChannel)
+	if !found {
+		return fmt.Errorf("channel not found")
 	}
 
 	ics20Packet, err := k.DecodeTransferPacketData(packetData)
@@ -46,11 +53,13 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 	}
 
 	packet := ICS20Packet{
-		SourcePort:       sourcePort,
-		SourceChannel:    sourceChannel,
-		TimeoutHeight:    timeoutHeight,
-		TimeoutTimestamp: timeoutTimestamp,
-		Data:             ics20Packet,
+		SourcePort:         sourcePort,
+		SourceChannel:      sourceChannel,
+		DestinationPort:    channel.Counterparty.PortId,
+		DestinationChannel: channel.Counterparty.ChannelId,
+		TimeoutHeight:      timeoutHeight,
+		TimeoutTimestamp:   timeoutTimestamp,
+		Data:               ics20Packet,
 	}
 
 	fmt.Println("The ics20 packet is", ics20Packet)
@@ -61,31 +70,31 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 		return err
 	}
 
-	privkey, _ := ethsecp256k1.GenerateKey()
-	key, err := privkey.ToECDSA()
-	addr := crypto.PubkeyToAddress(key.PublicKey)
+	// TODO: Hardcoded logic needs more work
+	//privkey, _ := ethsecp256k1.GenerateKey()
+	//key, err := privkey.ToECDSA()
+	//addr := crypto.PubkeyToAddress(key.PublicKey)
 
 	chainId := k.evmKeeper.ChainID()
 	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  chainId,
-		Nonce:    1,
 		GasLimit: cachedCtx.GasMeter().Limit(),
 		Input:    newInput,
 		To:       &contractHex,
-		Accesses: &ethtypes.AccessList{},
 	}
 
-	params := k.evmKeeper.GetParams(cachedCtx)
-	cfg := params.GetChainConfig()
-	ethCfg := cfg.EthereumConfig(chainId)
+	//params := k.evmKeeper.GetParams(cachedCtx)
+	//cfg := params.GetChainConfig()
+	//ethCfg := cfg.EthereumConfig(chainId)
+	//ethSigner := ethtypes.MakeSigner(ethCfg, big.NewInt(cachedCtx.BlockHeight()))
 
-	ethSigner := ethtypes.MakeSigner(ethCfg, big.NewInt(cachedCtx.BlockHeight()))
-	msgEthTx := evmtypes.NewTx(ethTxParams)
-	msgEthTx.From = addr.String()
-	if err := msgEthTx.Sign(ethSigner, NewSigner(privkey)); err != nil {
-		fmt.Println("The error signing is", err)
+	prefix := strings.SplitN(packetSenderAddress, "1", 2)[0]
+	hexAddr, err := sdk.GetFromBech32(packetSenderAddress, prefix)
+	if err != nil {
 		return err
 	}
+	msgEthTx := evmtypes.NewTx(ethTxParams)
+	msgEthTx.From = common.BytesToAddress(hexAddr).String()
 
 	txResponse, err := k.evmKeeper.EthereumTx(cachedCtx, msgEthTx)
 	if err != nil {
@@ -93,12 +102,12 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 		return err
 	}
 	fmt.Println(txResponse)
-	fmt.Println("IBCSendPacketCallback, test", sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetData, contractAddress, packetSenderAddress)
 	return nil
 }
 
 func (k Keeper) IBCOnAcknowledgementPacketCallback(cachedCtx sdk.Context, packet channeltypes.Packet, acknowledgement []byte, relayer sdk.AccAddress, contractAddress, packetSenderAddress string) error {
 	fmt.Println("IBCOnAcknowledgementPacketCallback")
+
 	return nil
 }
 

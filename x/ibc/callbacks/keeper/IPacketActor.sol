@@ -3,20 +3,25 @@ pragma solidity ^0.8.0;
 
 import "./IERC165.sol";
 
-// TODO: This can be made into more developer friendly types like address and uint256
+// The ICS20Data from the FungiblePacketData in the ICS20 standard
 struct ICS20Data {
     string denom;
-    string amount;
-    string sender;
+    uint256 amount;
+    address sender;
     string receiver;
     string memo;
 }
 
+// The custom ICS20Packet struct that includes the ICS20Data
 struct ICS20Packet {
     // Identifies the port on the sending chain
     string sourcePort;
     // Identifies the channel end on the sending chain
     string sourceChannel;
+    // Identifies the port of the receiving chain
+    string destinationPort;
+    // Identifies the channel of the receiving chain
+    string destinationChannel;
     // Actual opaque bytes transferred directly to the application module
     ICS20Data data;
     // Block height after which the packet times out
@@ -25,7 +30,7 @@ struct ICS20Packet {
     uint64 timeoutTimestamp;
 }
 
-// Define the Height struct if it's not already defined elsewhere in your code.
+// Define the Height struct
 struct Height {
     uint64 revisionNumber;
     uint64 revisionHeight;
@@ -50,7 +55,6 @@ interface IPacketActor is IERC165 {
     /// handles the RecvPacket callback if the packet has an IBC Actor as a receiver.
     /// @param packet The IBC packet received.
     /// @param relayer The relayer address that sent the packet.
-    /// @return acknowledgement The success or failure acknowledgement bytes.
     function onRecvPacket(
         ICS20Packet calldata packet,
         address relayer

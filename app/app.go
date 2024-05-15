@@ -561,7 +561,7 @@ func NewEvmos(
 	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule
 
-	contractKeeper := callbackskeeper.NewKeeper(evmKeeper)
+	contractKeeper := callbackskeeper.NewKeeper(evmKeeper, app.AccountKeeper, app.IBCKeeper.ChannelKeeper)
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = ibccallbacks.NewIBCMiddleware(transferStack, app.IBCKeeper.ChannelKeeper, contractKeeper, 1000000000000000000)
 	app.TransferKeeper.WithICS4Wrapper(transferStack.(porttypes.ICS4Wrapper))

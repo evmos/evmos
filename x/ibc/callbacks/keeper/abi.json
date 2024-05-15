@@ -14,6 +14,16 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "destinationPort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "destinationChannel",
+            "type": "string"
+          },
+          {
             "components": [
               {
                 "internalType": "string",
@@ -21,14 +31,14 @@
                 "type": "string"
               },
               {
-                "internalType": "string",
+                "internalType": "uint256",
                 "name": "amount",
-                "type": "string"
+                "type": "uint256"
               },
               {
-                "internalType": "string",
+                "internalType": "address",
                 "name": "sender",
-                "type": "string"
+                "type": "address"
               },
               {
                 "internalType": "string",
@@ -109,6 +119,16 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "destinationPort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "destinationChannel",
+            "type": "string"
+          },
+          {
             "components": [
               {
                 "internalType": "string",
@@ -116,14 +136,14 @@
                 "type": "string"
               },
               {
-                "internalType": "string",
+                "internalType": "uint256",
                 "name": "amount",
-                "type": "string"
+                "type": "uint256"
               },
               {
-                "internalType": "string",
+                "internalType": "address",
                 "name": "sender",
-                "type": "string"
+                "type": "address"
               },
               {
                 "internalType": "string",
@@ -199,6 +219,16 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "destinationPort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "destinationChannel",
+            "type": "string"
+          },
+          {
             "components": [
               {
                 "internalType": "string",
@@ -206,14 +236,14 @@
                 "type": "string"
               },
               {
-                "internalType": "string",
+                "internalType": "uint256",
                 "name": "amount",
-                "type": "string"
+                "type": "uint256"
               },
               {
-                "internalType": "string",
+                "internalType": "address",
                 "name": "sender",
-                "type": "string"
+                "type": "address"
               },
               {
                 "internalType": "string",
@@ -289,6 +319,16 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "destinationPort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "destinationChannel",
+            "type": "string"
+          },
+          {
             "components": [
               {
                 "internalType": "string",
@@ -296,14 +336,14 @@
                 "type": "string"
               },
               {
-                "internalType": "string",
+                "internalType": "uint256",
                 "name": "amount",
-                "type": "string"
+                "type": "uint256"
               },
               {
-                "internalType": "string",
+                "internalType": "address",
                 "name": "sender",
-                "type": "string"
+                "type": "address"
               },
               {
                 "internalType": "string",

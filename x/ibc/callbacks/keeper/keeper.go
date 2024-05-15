@@ -3,7 +3,9 @@ package keeper
 import (
 	"bytes"
 	"embed"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/ibc-go/modules/apps/callbacks/types"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	evmkeeper "github.com/evmos/evmos/v17/x/evm/keeper"
 )
@@ -19,12 +21,16 @@ var f embed.FS
 // It also contains the bank keeper and the erc20 keeper to support ERC20 tokens
 // to be sent via IBC.
 type Keeper struct {
-	evmKeeper *evmkeeper.Keeper
+	evmKeeper     *evmkeeper.Keeper
+	channelKeeper channelkeeper.Keeper
+	accountKeeper authtypes.AccountKeeper
 	abi.ABI
 }
 
 func NewKeeper(
 	evmKeeper *evmkeeper.Keeper,
+	accountKeeper authtypes.AccountKeeper,
+	channelKeeper channelkeeper.Keeper,
 ) Keeper {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -37,7 +43,9 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		ABI:       newAbi,
-		evmKeeper: evmKeeper,
+		ABI:           newAbi,
+		evmKeeper:     evmKeeper,
+		accountKeeper: accountKeeper,
+		channelKeeper: channelKeeper,
 	}
 }

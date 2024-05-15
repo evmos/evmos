@@ -14,7 +14,7 @@ import (
 // You can read more here in the 'How Interfaces are Identified' section - https://eips.ethereum.org/EIPS/eip-165
 var (
 	OnAckPacketInterfaceID     = [4]byte{0x40, 0xe6, 0xba, 0xfd} // 0x40e6bafd
-	OnSendPacketInterfaceID    = [4]byte{0xe0, 0xb1, 0x51, 0x2e} // 0xe0b1512e
+	OnSendPacketInterfaceID    = [4]byte{0x1e, 0xe6, 0x8e, 0x81} // 0x1ee68e81
 	OnRecvPacketInterfaceID    = [4]byte{0xeb, 0x8f, 0xcd, 0x41} // 0xeb8fcd41
 	OnTimeoutPacketInterfaceID = [4]byte{0x02, 0x08, 0x72, 0xcd} // 0x020872cd
 )
