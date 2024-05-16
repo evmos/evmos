@@ -99,7 +99,7 @@ jobs:
         with:
           token: ${{ steps.token_check.outputs.token }}        
       - name: Install Nix
-        uses: cachix/install-nix-action@v26
+        uses: cachix/install-nix-action@V27
         with:
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
