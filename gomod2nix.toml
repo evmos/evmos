@@ -366,8 +366,8 @@ schema = 3
     version = "v0.5.2"
     hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
   [mod."github.com/hashicorp/go-getter"]
-    version = "v1.7.1"
-    hash = "sha256-szIdn7GPvJ78gKKzQRWlx39X81QRDsXtJKo3P/4oMIg="
+    version = "v1.7.4"
+    hash = "sha256-GtJSwcS1WXLn9lFAuTRCseIQBXJOElAywEhTtYrsfbE="
   [mod."github.com/hashicorp/go-immutable-radix"]
     version = "v1.3.1"
     hash = "sha256-65+A2HiVfS/GV9G+6/TkXXjzXhI/V98e6RlJWjxy+mg="
