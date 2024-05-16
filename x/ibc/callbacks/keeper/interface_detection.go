@@ -24,7 +24,6 @@ var (
 func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, packetSenderAddress string, contractHex common.Address) error {
 	input, err := k.ABI.Pack(SupportsInterfaceQuery, interfaceID)
 	if err != nil {
-		fmt.Println("The error in packing SupportInterfaceQuery is", err)
 		return err
 	}
 
@@ -37,7 +36,6 @@ func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, pack
 
 	bz, err := json.Marshal(&callArgs)
 	if err != nil {
-		fmt.Println("The error in marshalling is", err)
 		return err
 	}
 
@@ -50,15 +48,11 @@ func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, pack
 
 	res, err := k.evmKeeper.EthCall(cachedCtx, &callReq)
 	if err != nil {
-		fmt.Println("The error in ETH CALL is", err)
 		return err
 	}
 
-	fmt.Println("The result in ETH CALL is", res.Ret, res.VmError, res.Logs, res.Hash, res.Failed())
-
 	unpacked, err := k.ABI.Unpack(SupportsInterfaceQuery, res.Ret)
 	if err != nil {
-		fmt.Println("The error in unpacking is", err)
 		return err
 	}
 
@@ -66,6 +60,5 @@ func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, pack
 		return fmt.Errorf("contract does not support interface %x", interfaceID)
 	}
 
-	fmt.Println("The unpacked is", unpacked)
 	return err
 }

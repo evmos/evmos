@@ -2,7 +2,6 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -31,7 +30,6 @@ func (k Keeper) DecodeTransferPacketData(packetData []byte) (ICS20EVMPacketData,
 
 	hexAddrBytes, err := sdk.GetFromBech32(data.Sender, "evmos")
 	if err != nil {
-		fmt.Println("the error in conversion is: ", err)
 		return ICS20EVMPacketData{}, err
 	}
 

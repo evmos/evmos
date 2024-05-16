@@ -62,15 +62,12 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 		Data:               ics20Packet,
 	}
 
-	fmt.Println("The ics20 packet is", ics20Packet)
-
 	newInput, err := k.ABI.Pack(IBCSendPacketMethod, packet, common.HexToAddress(packetSenderAddress))
 	if err != nil {
-		fmt.Println("The packing error in IBCSendPacketMethod is", err)
 		return err
 	}
 
-	// TODO: Hardcoded logic needs more work
+	// TODO: Hardcoded logic here needs to move to geth
 	//privkey, _ := ethsecp256k1.GenerateKey()
 	//key, err := privkey.ToECDSA()
 	//addr := crypto.PubkeyToAddress(key.PublicKey)
@@ -98,7 +95,6 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 
 	txResponse, err := k.evmKeeper.EthereumTx(cachedCtx, msgEthTx)
 	if err != nil {
-		fmt.Println("The error tx is", err)
 		return err
 	}
 	fmt.Println(txResponse)
