@@ -56,10 +56,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
+- (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
 
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
+- (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 
 ### Improvements
 
