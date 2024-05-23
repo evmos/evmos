@@ -22,6 +22,8 @@ import (
 const (
 	// EventTypeCreateValidator defines the event type for the staking CreateValidator transaction.
 	EventTypeCreateValidator = "CreateValidator"
+	// EventTypeEditValidator defines the event type for the staking EditValidator transaction.
+	EventTypeEditValidator = "EditValidator"
 	// EventTypeDelegate defines the event type for the staking Delegate transaction.
 	EventTypeDelegate = "Delegate"
 	// EventTypeUnbond defines the event type for the staking Undelegate transaction.
@@ -129,7 +131,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeCreateValidator]
 
-	topics, err := p.createValidatorTxTopics(2, event, validatorAddr)
+	topics, err := p.createEditValidatorTxTopics(2, event, validatorAddr)
 	if err != nil {
 		return err
 	}
@@ -137,6 +139,41 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	// Prepare the event data
 	var b bytes.Buffer
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        b.Bytes(),
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
+
+// EmitEditValidatorEvent creates a new edit validator event emitted on a EditValidator transaction.
+func (p Precompile) EmitEditValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgEditValidator, validatorAddr common.Address) error {
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeEditValidator]
+
+	topics, err := p.createEditValidatorTxTopics(2, event, validatorAddr)
+	if err != nil {
+		return err
+	}
+
+	commissionRate := big.NewInt(DoNotModifyCommissionRate)
+	if msg.CommissionRate != nil {
+		commissionRate = msg.CommissionRate.BigInt()
+	}
+
+	minSelfDelegation := big.NewInt(DoNotModifyMinSelfDelegation)
+	if msg.MinSelfDelegation != nil {
+		minSelfDelegation = msg.MinSelfDelegation.BigInt()
+	}
+
+	// Prepare the event data
+	var b bytes.Buffer
+	b.Write(cmn.PackNum(reflect.ValueOf(commissionRate)))
+	b.Write(cmn.PackNum(reflect.ValueOf(minSelfDelegation)))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -307,8 +344,8 @@ func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, del
 	return topics, nil
 }
 
-// createValidatorTxTopics creates the topics for staking transaction CreateValidator.
-func (p Precompile) createValidatorTxTopics(topicsLen uint64, event abi.Event, validatorAddr common.Address) ([]common.Hash, error) {
+// createEditValidatorTxTopics creates the topics for staking transactions CreateValidator and EditValidator.
+func (p Precompile) createEditValidatorTxTopics(topicsLen uint64, event abi.Event, validatorAddr common.Address) ([]common.Hash, error) {
 	topics := make([]common.Hash, topicsLen)
 	// NOTE: If your solidity event contains indexed event types, then they become a topic rather than part of the data property of the log.
 	// In solidity you may only have up to 4 topics but only 3 indexed event types. The first topic is always the signature of the event.
