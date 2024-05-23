@@ -14,7 +14,7 @@ const (
 	ErrInvalidAmount = "invalid amount: %v"
 	// ErrInvalidDelegator is raised when the delegator address is not valid.
 	ErrInvalidDelegator = "invalid delegator address: %s"
-	// ErrInvalidValidator is raised when the Validator address is not valid.
+	// ErrInvalidValidator is raised when the validator address is not valid.
 	ErrInvalidValidator = "invalid validator address: %s"
 	// ErrInvalidDenom is raised when the denom is not valid.
 	ErrInvalidDenom = "invalid denom: %s"
