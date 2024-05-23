@@ -22,10 +22,24 @@ import (
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 )
 
+const (
+	// DoNotModifyCommissionRate constant used in flags to indicate that commission rate field should not be updated
+	DoNotModifyCommissionRate = -1
+	// DoNotModifyMinSelfDelegation constant used in flags to indicate that min self delegation field should not be updated
+	DoNotModifyMinSelfDelegation = -1
+)
+
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.
 type EventCreateValidator struct {
 	ValidatorAddress common.Address
 	Value            *big.Int
+}
+
+// EventEditValidator defines the event data for the staking EditValidator transaction.
+type EventEditValidator struct {
+	ValidatorAddress  common.Address
+	CommissionRate    *big.Int
+	MinSelfDelegation *big.Int
 }
 
 // EventDelegate defines the event data for the staking Delegate transaction.
@@ -85,23 +99,13 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 6, len(args))
 	}
 
-	description := stakingtypes.Description{}
-	if descriptionInput, ok := args[0].(Description); ok {
-		description.Moniker = descriptionInput.Moniker
-		description.Identity = descriptionInput.Identity
-		description.Website = descriptionInput.Website
-		description.SecurityContact = descriptionInput.SecurityContact
-		description.Details = descriptionInput.Details
-	} else {
+	description, ok := args[0].(Description)
+	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
 
-	commission := stakingtypes.CommissionRates{}
-	if commissionInput, ok := args[1].(Commission); ok {
-		commission.Rate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.Rate, math.LegacyPrecision)
-		commission.MaxRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxRate, math.LegacyPrecision)
-		commission.MaxChangeRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, math.LegacyPrecision)
-	} else {
+	commission, ok := args[1].(Commission)
+	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
 	}
 
@@ -142,9 +146,19 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	msg := &stakingtypes.MsgCreateValidator{
-		Description:       description,
-		Commission:        commission,
-		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
+		Description: stakingtypes.Description{
+			Moniker:         description.Moniker,
+			Identity:        description.Identity,
+			Website:         description.Website,
+			SecurityContact: description.SecurityContact,
+			Details:         description.Details,
+		},
+		Commission: stakingtypes.CommissionRates{
+			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+		},
+		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
 		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Pubkey:            pubkey,
@@ -156,6 +170,67 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	return msg, validatorAddress, nil
+}
+
+// NewMsgEditValidator creates a new MsgEditValidator instance and does sanity checks
+// on the given arguments before populating the message.
+func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, common.Address, error) {
+	if len(args) != 4 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+	}
+
+	description, ok := args[0].(Description)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
+	}
+
+	validatorHexAddr, ok := args[1].(common.Address)
+	if !ok || validatorHexAddr == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
+	}
+
+	commissionRateBigInt, ok := args[2].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", &big.Int{}, args[2])
+	}
+
+	// The default value of a variable declared using a pointer is nil, indicating that the user does not want to modify its value.
+	// If the value passed in by the user is not DoNotModifyCommissionRate, which is -1, it means that the user wants to modify its value.
+	var commissionRate *math.LegacyDec
+	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
+		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+		commissionRate = &cr
+	}
+
+	minSelfDelegationBigInt, ok := args[3].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", &big.Int{}, args[3])
+	}
+
+	var minSelfDelegation *math.Int
+	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) != 0 {
+		msd := math.NewIntFromBigInt(minSelfDelegationBigInt)
+		minSelfDelegation = &msd
+	}
+
+	msg := &stakingtypes.MsgEditValidator{
+		Description: stakingtypes.Description{
+			Moniker:         description.Moniker,
+			Identity:        description.Identity,
+			Website:         description.Website,
+			SecurityContact: description.SecurityContact,
+			Details:         description.Details,
+		},
+		ValidatorAddress:  sdk.ValAddress(validatorHexAddr.Bytes()).String(),
+		CommissionRate:    commissionRate,
+		MinSelfDelegation: minSelfDelegation,
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return msg, validatorHexAddr, nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks
