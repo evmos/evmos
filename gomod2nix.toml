@@ -480,8 +480,8 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.17.3"
-    hash = "sha256-HKRJMYAVSVgCrLWMAMU6qqEG4K8+bwwdkzL8FGIyRS8="
+    version = "v2.18.0"
+    hash = "sha256-6wjy0DXUPg/SFtfTrh32cl/Cnbd7zd16WHTglgvBnXs="
   [mod."github.com/onsi/gomega"]
     version = "v1.33.1"
     hash = "sha256-oYfRaN1xqngIHQQxEEc+FQZ6UHC99VZQzAePT0Xkz8s="
@@ -691,8 +691,8 @@ schema = 3
     version = "v0.5.0"
     hash = "sha256-W6RgwgdYTO3byIPOFxrP2IpAZdgaGowAaVfYby7AULU="
   [mod."golang.org/x/tools"]
-    version = "v0.20.0"
-    hash = "sha256-g5T5FrNPO/cf2W1lc+/93FcFB3HftPjqI72FueD9Wt8="
+    version = "v0.21.0"
+    hash = "sha256-TU0gAxUX410AYc/nMxxZiaqXeORih1cXbKh3sxKufVg="
   [mod."google.golang.org/api"]
     version = "v0.162.0"
     hash = "sha256-+AsT4DPjefEmPPelZoSHuQ8nCHhmhhUWU4UGnJ/8+fg="
