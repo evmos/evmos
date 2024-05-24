@@ -375,8 +375,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-g5i9m7FSRInQzZ4iRpIsoUu685AY7fppUwjhuZCezT8="
   [mod."github.com/hashicorp/go-version"]
-    version = "v1.6.0"
-    hash = "sha256-UV0equpmW6BiJnp4W3TZlSJ+PTHuTA+CdOs2JTeHhjs="
+    version = "v1.7.0"
+    hash = "sha256-Umc/Q2mxRrPF4aEcDuDJq4lFBT+PSsnyANfyFwUIaxI="
   [mod."github.com/hashicorp/golang-lru"]
     version = "v0.5.5-0.20210104140557-80c98217689d"
     hash = "sha256-w5utLMR7p5pF9xX+mI3N9NyfQ8ixNXNTgfXDu8fudmc="
