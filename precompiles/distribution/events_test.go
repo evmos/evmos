@@ -211,6 +211,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
+// nolint
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	testCases := []struct {
 		name      string
@@ -248,6 +249,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}
 }
 
+// nolint
 func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	testCases := []struct {
 		name      string
@@ -255,7 +257,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 		postCheck func()
 	}{
 		{
-			"success",
+			"success - the correct event is emitted",
 			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
