@@ -71,6 +71,15 @@ interface DistributionI {
         uint256 commission
     );
 
+    /// @dev FundCommunityPool defines an Event emitted when an account to directly
+    /// fund the community pool
+    /// @param depositor the address of the delegator
+    /// @param amount the amount being withdrawn from the delegation
+    event FundCommunityPool(
+        address indexed depositor,
+        uint256 amount
+    );
+
     /// TRANSACTIONS
 
     /// @dev Claims all rewards from a select set of validators or all of them for a delegator.
@@ -107,6 +116,18 @@ interface DistributionI {
     function withdrawValidatorCommission(
         string memory validatorAddress
     ) external returns (Coin[] calldata amount);
+
+
+    /// @dev fundCommunityPool defines a method to allow an account to directly
+    /// fund the community pool.
+    /// @param depositor The address of the depositor
+    /// @param amount The amount of coin fund community pool
+    /// @return success Whether the transaction was successful or not
+    function fundCommunityPool(
+        address depositor,
+        uint256 amount
+    ) external returns (bool success);
+
 
     /// QUERIES
     /// @dev Queries validator commission and self-delegation rewards for validator.

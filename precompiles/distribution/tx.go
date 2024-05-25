@@ -30,6 +30,8 @@ const (
 	WithdrawValidatorCommissionMethod = "withdrawValidatorCommission"
 	// ClaimRewardsMethod defines the ABI method name for the custom ClaimRewards transaction
 	ClaimRewardsMethod = "claimRewards"
+	// FundCommunityPoolMethod defines the ABI method name for the fundCommunityPool transaction
+	FundCommunityPoolMethod = "fundCommunityPool"
 )
 
 // ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
@@ -183,4 +185,36 @@ func (p Precompile) WithdrawValidatorCommission(
 	}
 
 	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
+}
+
+// FundCommunityPool directly fund the community pool
+func (p Precompile) FundCommunityPool(
+	ctx sdk.Context,
+	origin common.Address,
+	_ *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, depositorHexAddr, err := NewMsgFundCommunityPool(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// we only allow the tx signer origin to fund the community pool.
+	if origin != depositorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), depositorHexAddr.String())
+	}
+
+	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
+	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
 }

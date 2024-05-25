@@ -107,6 +107,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.WithdrawDelegatorRewards(ctx, evm.Origin, contract, stateDB, method, args)
 	case WithdrawValidatorCommissionMethod:
 		bz, err = p.WithdrawValidatorCommission(ctx, evm.Origin, contract, stateDB, method, args)
+	case FundCommunityPoolMethod:
+		bz, err = p.FundCommunityPool(ctx, evm.Origin, contract, stateDB, method, args)
 	// Distribution queries
 	case ValidatorDistributionInfoMethod:
 		bz, err = p.ValidatorDistributionInfo(ctx, contract, method, args)
@@ -151,7 +153,8 @@ func (Precompile) IsTransaction(methodName string) bool {
 	case ClaimRewardsMethod,
 		SetWithdrawAddressMethod,
 		WithdrawDelegatorRewardsMethod,
-		WithdrawValidatorCommissionMethod:
+		WithdrawValidatorCommissionMethod,
+		FundCommunityPoolMethod:
 		return true
 	default:
 		return false

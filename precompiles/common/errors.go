@@ -12,6 +12,8 @@ const (
 	ErrInvalidABI = "invalid ABI: %w"
 	// ErrInvalidAmount is raised when the amount cannot be cast to a big.Int.
 	ErrInvalidAmount = "invalid amount: %v"
+	// ErrInvalidHexAddress is raised when the hex address is not valid.
+	ErrInvalidHexAddress = "invalid hex address address: %s"
 	// ErrInvalidDelegator is raised when the delegator address is not valid.
 	ErrInvalidDelegator = "invalid delegator address: %s"
 	// ErrInvalidValidator is raised when the validator address is not valid.
