@@ -211,7 +211,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
-// nolint
+//nolint:revive // allow dupl        214-249 lines are duplicate of `precompiles/distribution/events_test.go:251-286`
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	testCases := []struct {
 		name      string
@@ -249,7 +249,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}
 }
 
-// nolint
+//nolint:revive // allow dupl        251-286 lines are duplicate of `precompiles/distribution/events_test.go:214-249`
 func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	testCases := []struct {
 		name      string
