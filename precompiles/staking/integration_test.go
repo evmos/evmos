@@ -406,6 +406,69 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 	})
 
+	Describe("to create validator", func() {
+		var (
+			defaultDescription = staking.Description{
+				Moniker:         "new node",
+				Identity:        "",
+				Website:         "",
+				SecurityContact: "",
+				Details:         "",
+			}
+			defaultCommission = staking.Commission{
+				Rate:          big.NewInt(100000000000000000),
+				MaxRate:       big.NewInt(100000000000000000),
+				MaxChangeRate: big.NewInt(100000000000000000),
+			}
+			defaultMinSelfDelegation = big.NewInt(1)
+			defaultPubkeyBase64Str   = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
+			defaultValue             = big.NewInt(1)
+
+			// defaultCreateValidatorArgs are the default arguments for the delegate call
+			//
+			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
+			defaultCreateValidatorArgs contracts.CallArgs
+		)
+
+		BeforeEach(func() {
+			// populate the default delegate args
+			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName(staking.CreateValidatorMethod)
+		})
+
+		Context("validator address is the origin", func() {
+			It("should create validator success", func() {
+				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
+					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue,
+				)
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
+
+				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
+				Expect(found).To(BeTrue(), "expected delegation to be found")
+			})
+		})
+
+		Context("validator address is not the origin", func() {
+			It("should fail if validator address is not the origin", func() {
+				differentAddr := testutiltx.GenerateAddress()
+
+				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
+					defaultDescription, defaultCommission, defaultMinSelfDelegation, differentAddr, defaultPubkeyBase64Str, defaultValue,
+				)
+
+				logCheckArgs := defaultLogCheck.WithErrContains(
+					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address, differentAddr),
+				)
+
+				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
+				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			})
+		})
+	})
+
 	Describe("to delegate", func() {
 		var (
 			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
