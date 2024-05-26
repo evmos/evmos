@@ -58,6 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
 - (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
+- (precompiles) [#2573](https://github.com/evmos/evmos/pull/2573) Add precompile skeleton and vote tx for gov module.
 
 ### Bug Fixes
 
