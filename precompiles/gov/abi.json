@@ -1,0 +1,61 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "proposalId",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "option",
+        "type": "uint8"
+      }
+    ],
+    "name": "Vote",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "proposalId",
+        "type": "uint64"
+      },
+      {
+        "internalType": "enum VoteOption",
+        "name": "option",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "metadata",
+        "type": "string"
+      }
+    ],
+    "name": "vote",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
