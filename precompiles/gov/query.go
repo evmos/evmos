@@ -16,10 +16,10 @@ const (
 
 // Proposal returns the proposal info.
 func (p Precompile) Proposal(
-	ctx sdk.Context,
+	_ sdk.Context,
 	_ *vm.Contract,
-	method *abi.Method,
-	args []interface{},
+	_ *abi.Method,
+	_ []interface{},
 ) ([]byte, error) {
 	return nil, nil
 }

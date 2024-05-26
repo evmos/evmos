@@ -4,13 +4,11 @@ package gov_test
 
 import (
 	"fmt"
-	"math/big"
-
-	"github.com/evmos/evmos/v18/precompiles/gov"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/gov"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
@@ -24,10 +22,6 @@ import (
 var (
 	// differentAddr is an address generated for testing purposes that e.g. raises the different origin error
 	differentAddr = testutiltx.GenerateAddress()
-	// expRewardAmt is the expected amount of rewards
-	expRewardAmt = big.NewInt(2000000000000000000)
-	// gasPrice is the gas price used for the transactions
-	gasPrice = big.NewInt(1e9)
 	// defaultCallArgs  are the default arguments for calling the smart contract
 	//
 	// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
