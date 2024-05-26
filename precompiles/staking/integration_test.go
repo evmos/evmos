@@ -424,14 +424,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 			defaultPubkeyBase64Str   = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 			defaultValue             = big.NewInt(1)
 
-			// defaultCreateValidatorArgs are the default arguments for the delegate call
+			// defaultCreateValidatorArgs are the default arguments for the createValidator call
 			//
 			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
 			defaultCreateValidatorArgs contracts.CallArgs
 		)
 
 		BeforeEach(func() {
-			// populate the default delegate args
+			// populate the default createValidator args
 			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName(staking.CreateValidatorMethod)
 		})
 
@@ -447,7 +447,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
-				Expect(found).To(BeTrue(), "expected delegation to be found")
+				Expect(found).To(BeTrue(), "expected validator to be found")
 			})
 		})
 
