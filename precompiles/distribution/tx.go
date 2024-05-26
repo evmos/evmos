@@ -191,7 +191,7 @@ func (p Precompile) WithdrawValidatorCommission(
 func (p Precompile) FundCommunityPool(
 	ctx sdk.Context,
 	origin common.Address,
-	_ *vm.Contract,
+	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -201,8 +201,10 @@ func (p Precompile) FundCommunityPool(
 		return nil, err
 	}
 
-	// we only allow the tx signer origin to fund the community pool.
-	if origin != depositorHexAddr {
+	// If the contract is the depositor, we don't need an origin check
+	// Otherwise check if the origin matches the depositor address
+	isContractDelegator := contract.CallerAddress == depositorHexAddr
+	if !isContractDelegator && origin != depositorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), depositorHexAddr.String())
 	}
 
