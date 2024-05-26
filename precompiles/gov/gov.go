@@ -96,9 +96,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// gov transactions
 	case VoteMethod:
 		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
-	// gov queries
-	case ProposalMethod:
-		bz, err = p.Proposal(ctx, contract, method, args)
+		// gov queries
+		// next task
+		// case ProposalMethod:
+		//	bz, err = p.Proposal(ctx, contract, method, args)
 	}
 
 	if err != nil {
