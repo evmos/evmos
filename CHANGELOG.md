@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v18.0.1] - 2024-05-27
+
+### Improvements
+
+- (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
+
 ## [v18.0.0] - 2024-04-22
 
 ### State Machine Breaking
