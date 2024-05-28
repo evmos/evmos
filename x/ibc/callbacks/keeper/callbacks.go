@@ -7,7 +7,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
 	"strings"
 )
 
@@ -36,12 +35,6 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 		return err
 	}
 
-	fmt.Println("The packetSenderAddress", packetSenderAddress)
-
-	// TODO: This does not produce the correct derrivation
-	bech32PacketSender := sdk.AccAddress(packetSenderAddress)
-	fmt.Println(common.BytesToAddress(bech32PacketSender.Bytes()).String())
-
 	channel, found := k.channelKeeper.GetChannel(cachedCtx, sourcePort, sourceChannel)
 	if !found {
 		return fmt.Errorf("channel not found")
@@ -62,42 +55,21 @@ func (k Keeper) IBCSendPacketCallback(cachedCtx sdk.Context, sourcePort string, 
 		Data:               ics20Packet,
 	}
 
-	newInput, err := k.ABI.Pack(IBCSendPacketMethod, packet, common.HexToAddress(packetSenderAddress))
+	data, err := k.ABI.Pack(IBCSendPacketMethod, packet, common.HexToAddress(packetSenderAddress))
 	if err != nil {
 		return err
 	}
-
-	// TODO: Hardcoded logic here needs to move to geth
-	//privkey, _ := ethsecp256k1.GenerateKey()
-	//key, err := privkey.ToECDSA()
-	//addr := crypto.PubkeyToAddress(key.PublicKey)
-
-	chainId := k.evmKeeper.ChainID()
-	ethTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  chainId,
-		GasLimit: cachedCtx.GasMeter().Limit(),
-		Input:    newInput,
-		To:       &contractHex,
-	}
-
-	//params := k.evmKeeper.GetParams(cachedCtx)
-	//cfg := params.GetChainConfig()
-	//ethCfg := cfg.EthereumConfig(chainId)
-	//ethSigner := ethtypes.MakeSigner(ethCfg, big.NewInt(cachedCtx.BlockHeight()))
 
 	prefix := strings.SplitN(packetSenderAddress, "1", 2)[0]
 	hexAddr, err := sdk.GetFromBech32(packetSenderAddress, prefix)
-	if err != nil {
-		return err
-	}
-	msgEthTx := evmtypes.NewTx(ethTxParams)
-	msgEthTx.From = common.BytesToAddress(hexAddr).String()
 
-	txResponse, err := k.evmKeeper.EthereumTx(cachedCtx, msgEthTx)
+	txResponse, err := k.CallEVMWithData(cachedCtx, common.BytesToAddress(hexAddr), &contractHex, data, true)
 	if err != nil {
+		fmt.Println("the error in call with evm", err)
 		return err
 	}
-	fmt.Println(txResponse)
+
+	fmt.Println(txResponse, "here response")
 	return nil
 }
 
