@@ -13,7 +13,7 @@ message Params {
   // transitions.
   string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
   // enable_create and enable call have been deprecated
-  reserved 2 ,3;
+  reserved 2, 3;
   // extra_eips defines the additional EIPs for the vm.Config
   repeated int64 extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
   // chain_config defines the EVM chain configuration parameters
@@ -45,7 +45,7 @@ message AccessControlType {
   AccessType access_type = 1 [(gogoproto.customname) = "AccessType", (gogoproto.moretags) = "yaml:\"access_type\""];
   // whitelist_addresses defines which addresses have permissions in case of permissioned access_type
   repeated string whitelist_addresses = 2
-    [(gogoproto.customname) = "WhitelistAddresses", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
+      [(gogoproto.customname) = "WhitelistAddresses", (gogoproto.moretags) = "yaml:\"whitelist_addresses\""];
 }
 
 // AccessType defines the types of permissions for the operations
@@ -53,14 +53,11 @@ enum AccessType {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone
-  ACCESS_TYPE_PERMISSIONLESS = 0
-      [ (gogoproto.enumvalue_customname) = "AccessTypePermissionless" ];
+  ACCESS_TYPE_PERMISSIONLESS = 0 [(gogoproto.enumvalue_customname) = "AccessTypePermissionless"];
   // ACCESS_TYPE_RESTRICTED restrict the operation to anyone
-  ACCESS_TYPE_RESTRICTED = 1
-      [ (gogoproto.enumvalue_customname) = "AccessTypeRestricted" ];
+  ACCESS_TYPE_RESTRICTED = 1 [(gogoproto.enumvalue_customname) = "AccessTypeRestricted"];
   // ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses
-  ACCESS_TYPE_PERMISSIONED = 2
-      [ (gogoproto.enumvalue_customname) = "AccessTypePermissioned" ];
+  ACCESS_TYPE_PERMISSIONED = 2 [(gogoproto.enumvalue_customname) = "AccessTypePermissioned"];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
