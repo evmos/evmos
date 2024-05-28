@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
-/// @dev The GovI contract's address.
+/// @dev The IGov contract's address.
 address constant GOV_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000805;
 
 /// @dev Define all the available gov methods.
 string constant MSG_VOTE = "/cosmos.gov.v1.MsgVote";
 
-/// @dev The GovI contract's instance.
+/// @dev The IGov contract's instance.
 IGov constant GOV_CONTRACT = IGov(
     GOV_PRECOMPILE_ADDRESS
 );
