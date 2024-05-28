@@ -55,14 +55,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade.
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
-
+- (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
+- (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
+- (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
 
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
+- (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 
 ### Improvements
 
+- (all) [#2536](https://github.com/evmos/evmos/pull/2536) Updating the replaced safu pdf to safu markdown.
 - (all) [#2451](https://github.com/evmos/evmos/pull/2451) Updating the safu.pdf document.
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
@@ -97,6 +101,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#2503](https://github.com/evmos/evmos/pull/2503) Revert deletion of ConvertCoin for ERC-20 module (#2155).
 - (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
+- (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
 
 ## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
 
@@ -998,4 +1003,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-
