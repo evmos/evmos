@@ -8,7 +8,7 @@ address constant GOV_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000000
 string constant MSG_VOTE = "/cosmos.gov.v1.MsgVote";
 
 /// @dev The GovI contract's instance.
-GovI constant GOV_CONTRACT = GovI(
+IGov constant GOV_CONTRACT = IGov(
     GOV_PRECOMPILE_ADDRESS
 );
 
@@ -32,7 +32,7 @@ enum VoteOption {
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 /// @custom:address 0x0000000000000000000000000000000000000805
-interface GovI {
+interface IGov {
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
