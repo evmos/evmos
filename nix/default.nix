@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-{ sources ? import ./sources.nix, system ? builtins.currentSystem, ... }:
-
-=======
 { sources ? import ./sources.nix, system ? builtins.currentSystem,... }:
 let
   # use a newer version of nixpkgs to get go_1_22
@@ -30,7 +26,6 @@ let
   # This rustPlatform uses rust v1.77
   rustPlatform = nixpkgs.pkgs.rustPlatform;
 in
->>>>>>> bed85aa0 (chore(nix-tests): update rust version (#2546))
 import sources.nixpkgs {
   overlays = [
     (final: pkgs: rec {
