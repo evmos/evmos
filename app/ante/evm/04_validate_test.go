@@ -54,7 +54,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 		},
 		{
 			name:          "success: transfer with disable call and create",
-			expectedError: nil,
+			expectedError: evmtypes.ErrCallDisabled,
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("transfer", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
