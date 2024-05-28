@@ -1182,11 +1182,11 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 			evmtypes.AccessControl{
 				Create: evmtypes.AccessControlType{
 					AccessType:         evmtypes.AccessTypeRestricted,
-					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 				Call: evmtypes.AccessControlType{
 					AccessType:         evmtypes.AccessTypePermissionless,
-					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 			},
 			evmtypes.ErrCreateDisabled,
@@ -1203,49 +1203,6 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 			evmtypes.DefaultAccessControl,
 			nil,
 		},
-		// Add if checkDisabledCreateCall should check whitelisted address
-		// {
-		// 	"success - Contract Creation Enabled only for address",
-		// 	func() sdk.Tx {
-		// 		signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
-		// 		signedContractTx.From = addr.Hex()
-
-		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
-		// 		return tx
-		// 	},
-		// 	evmtypes.AccessControl{
-		// 		Create: evmtypes.AccessControlType{
-		// 			AccessType:         evmtypes.AccessTypePermissioned,
-		// 			WhitelistAddresses: []string{},
-		// 		},
-		// 		Call: evmtypes.AccessControlType{
-		// 			AccessType:         evmtypes.AccessTypeRestricted,
-		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
-		// 		},
-		// 	},
-		// 	nil,
-		// },
-		// {
-		// 	"fail - Contract Creation not allowed for address",
-		// 	func() sdk.Tx {
-		// 		signedContractTx := evmtypes.NewTx(ethContractCreationTxParams)
-		// 		signedContractTx.From = addr.Hex()
-
-		// 		tx := suite.CreateTestTx(signedContractTx, privKey, 1, false)
-		// 		return tx
-		// 	},
-		// 	evmtypes.AccessControl{
-		// 		Create: evmtypes.AccessControlType{
-		// 			AccessType:         evmtypes.AccessTypePermissioned,
-		// 			WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
-		// 		},
-		// 		Call: evmtypes.AccessControlType{
-		// 			AccessType:         evmtypes.AccessTypeRestricted,
-		// 			WhitelistAddresses: evmtypes.DefaultCallWhitelistAddresses,
-		// 		},
-		// 	},
-		// 	evmtypes.ErrCreateDisabled,
-		// },
 		{
 			"fail - EVM Call Disabled",
 			func() sdk.Tx {
@@ -1258,11 +1215,11 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 			evmtypes.AccessControl{
 				Create: evmtypes.AccessControlType{
 					AccessType:         evmtypes.AccessTypePermissionless,
-					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 				Call: evmtypes.AccessControlType{
 					AccessType:         evmtypes.AccessTypeRestricted,
-					WhitelistAddresses: evmtypes.DefaultCreateWhitelistAddresses,
+					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 			},
 			evmtypes.ErrCallDisabled,

@@ -29,8 +29,8 @@ type callerFn = func(caller string) bool
 func NewRestrictedPermissionPolicy(accessControl *types.AccessControl, signer string) RestrictedPermissionPolicy {
 	// generate create function at instantiation for signer address to be check only once
 	// since it remains constant
-	canCreate := getCreateCallerFn(accessControl, signer)
-	canCall := generateCallerFn(accessControl, signer)
+	canCreate := getCanCreateFn(accessControl, signer)
+	canCall := getCanCallFn(accessControl, signer)
 	return RestrictedPermissionPolicy{
 		accessControl: accessControl,
 		canCreate:     canCreate,
@@ -49,18 +49,15 @@ func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 	return p.canCreate(caller)
 }
 
-func getCreateCallerFn(accessControl *types.AccessControl, signer string) callerFn {
+func getCanCreateFn(accessControl *types.AccessControl, signer string) callerFn {
 	switch accessControl.Create.AccessType {
 	case types.AccessTypePermissionless:
 		return func(_ string) bool { return true }
 	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
 	case types.AccessTypePermissioned:
-		addresses := accessControl.Create.WhitelistAddresses
-		isSignerAllowed := slices.Contains(addresses, signer)
-		return func(caller string) bool {
-			return isSignerAllowed || slices.Contains(addresses, caller)
-		}
+		addresses := accessControl.Create.AllowlistAddresses
+		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }
 }
@@ -74,18 +71,22 @@ func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 	return p.canCall(caller)
 }
 
-func generateCallerFn(accessControl *types.AccessControl, signer string) callerFn {
+func getCanCallFn(accessControl *types.AccessControl, signer string) callerFn {
 	switch accessControl.Call.AccessType {
 	case types.AccessTypePermissionless:
 		return func(_ string) bool { return true }
 	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
 	case types.AccessTypePermissioned:
-		addresses := accessControl.Call.WhitelistAddresses
-		isSignerAllowed := slices.Contains(addresses, signer)
-		return func(caller string) bool {
-			return isSignerAllowed || slices.Contains(addresses, caller)
-		}
+		addresses := accessControl.Call.AllowlistAddresses
+		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }
+}
+
+func permissionedCheckFn(addresses []string, signer string) callerFn {
+	isSignerAllowed := slices.Contains(addresses, signer)
+	return func(caller string) bool {
+		return isSignerAllowed || slices.Contains(addresses, caller)
+	}
 }

@@ -485,7 +485,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:         evmtypes.AccessTypePermissioned,
-				WhitelistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
+				AllowlistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
@@ -597,7 +597,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:         evmtypes.AccessTypePermissioned,
-				WhitelistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
+				AllowlistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
@@ -705,7 +705,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 
-			nonWhitelistedSigner := s.keyring.GetPrivKey(invalidSignerIndex)
+			nonAllowlistedSigner := s.keyring.GetPrivKey(invalidSignerIndex)
 			totalSupplyTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
 			}
@@ -714,7 +714,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				MethodName:  "totalSupply",
 				Args:        []interface{}{},
 			}
-			res, err := s.factory.ExecuteContractCall(nonWhitelistedSigner, totalSupplyTxArgs, totalSupplyArgs)
+			res, err := s.factory.ExecuteContractCall(nonAllowlistedSigner, totalSupplyTxArgs, totalSupplyArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})

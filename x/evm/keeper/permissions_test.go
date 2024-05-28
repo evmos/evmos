@@ -51,7 +51,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissioned
-				p.Call.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
+				p.Call.AllowlistAddresses = []string{keyring.GetAddr(1).String()}
 				return p
 			},
 			canCall:   false,
@@ -65,7 +65,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned
-				p.Create.WhitelistAddresses = []string{keyring.GetAddr(1).String()}
+				p.Create.AllowlistAddresses = []string{keyring.GetAddr(1).String()}
 				return p
 			},
 			canCall:   true,
@@ -79,9 +79,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned
-				p.Create.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
+				p.Create.AllowlistAddresses = []string{keyring.GetAddr(0).String()}
 				p.Call.AccessType = types.AccessTypePermissioned
-				p.Call.WhitelistAddresses = []string{keyring.GetAddr(0).String()}
+				p.Call.AllowlistAddresses = []string{keyring.GetAddr(0).String()}
 				return p
 			},
 			canCall:   true,

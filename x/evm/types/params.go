@@ -45,16 +45,16 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
-	DefaultCreateWhitelistAddresses []string
-	DefaultCallWhitelistAddresses   []string
+	DefaultCreateAllowlistAddresses []string
+	DefaultCallAllowlistAddresses   []string
 	DefaultAccessControl            = AccessControl{
 		Create: AccessControlType{
 			AccessType:         AccessTypePermissionless,
-			WhitelistAddresses: DefaultCreateWhitelistAddresses,
+			AllowlistAddresses: DefaultCreateAllowlistAddresses,
 		},
 		Call: AccessControlType{
 			AccessType:         AccessTypePermissionless,
-			WhitelistAddresses: DefaultCreateWhitelistAddresses,
+			AllowlistAddresses: DefaultCreateAllowlistAddresses,
 		},
 	}
 )
@@ -206,7 +206,7 @@ func validatePermissionType(i interface{}) error {
 		return err
 	}
 
-	if err := validateWhitelistAddresses(permission.WhitelistAddresses); err != nil {
+	if err := validateAllowlistAddresses(permission.AllowlistAddresses); err != nil {
 		return err
 	}
 
@@ -227,7 +227,7 @@ func validateAccessType(i interface{}) error {
 	}
 }
 
-func validateWhitelistAddresses(i interface{}) error {
+func validateAllowlistAddresses(i interface{}) error {
 	addresses, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid whitelist addresses type: %T", i)
