@@ -664,8 +664,8 @@ schema = 3
     version = "v1.24.0"
     hash = "sha256-KB5UQiaVmbB2VZO3al4WHb5HY79ioWaAQjaGkUKLvP8="
   [mod."go.opentelemetry.io/otel/trace"]
-    version = "v1.22.0"
-    hash = "sha256-38zzkmcoOzYYeDN+rC44HmwmdnalIcEpObCS6tIvMO8="
+    version = "v1.24.0"
+    hash = "sha256-FHP0hg+i7+wxCsM0u/5hQcgvvr3D+lq8o/7E/HkaW4s="
   [mod."go.uber.org/atomic"]
     version = "v1.10.0"
     hash = "sha256-E6UEDc1eh/cLUFd+J86cDesQ0B8wEv/DdaAVKb+x2t8="
