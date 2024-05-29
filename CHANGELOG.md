@@ -35,24 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
+
 ## [v18.0.0] - 2024-04-22
 
 ### State Machine Breaking
 
 - (vesting) Refactor vesting module.
-- (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
-- (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
-- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
-- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
-- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
-- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
-- (tests) [#2332](https://github.com/evmos/evmos/pull/2332) Create configuration in temporary directory in `Init` command test.
-- (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
-- (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
-- (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
-- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion from EVM hooks (#2380)
-- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion from EVM hooks (#2154) (#2442)
-- (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
 
 ## [v17.0.0] - 2024-04-08
 
