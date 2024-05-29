@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
+
 ### State Machine Breaking
 
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
