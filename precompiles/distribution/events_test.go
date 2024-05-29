@@ -211,6 +211,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
+//nolint:dupl
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	testCases := []struct {
 		name      string
@@ -248,6 +249,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}
 }
 
+//nolint:dupl
 func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	testCases := []struct {
 		name      string

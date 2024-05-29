@@ -203,8 +203,8 @@ func (p Precompile) FundCommunityPool(
 
 	// If the contract is the depositor, we don't need an origin check
 	// Otherwise check if the origin matches the depositor address
-	isContractDelegator := contract.CallerAddress == depositorHexAddr
-	if !isContractDelegator && origin != depositorHexAddr {
+	isContractDepositor := contract.CallerAddress == depositorHexAddr
+	if !isContractDepositor && origin != depositorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), depositorHexAddr.String())
 	}
 
