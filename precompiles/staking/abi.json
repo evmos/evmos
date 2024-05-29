@@ -148,6 +148,31 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "validatorAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "commissionRate",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "minSelfDelegation",
+        "type": "int256"
+      }
+    ],
+    "name": "EditValidator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "delegatorAddress",
         "type": "address"
       },
@@ -512,6 +537,67 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "moniker",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "identity",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "website",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "securityContact",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "details",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct Description",
+        "name": "description",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "validatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "commissionRate",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "minSelfDelegation",
+        "type": "int256"
+      }
+    ],
+    "name": "editValidator",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
