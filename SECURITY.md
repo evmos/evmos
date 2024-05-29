@@ -65,7 +65,7 @@ Once the vulnerability severity is defined, the following steps apply:
        We also publish a security Advisory on GitHub and publish a
        [CVE](https://en.wikipedia.org/wiki/Common_Vulnerabilities_and_Exposures)
 
-- For `Informational` , `Low` and `Medium` severities:
+- For `Informational`, `Low` and `Medium` severities:
     1. `Medium` and `Low` severity bug reports are included in a public issue
        and will be incorporated in the current sprint and patched in the next release.
        `Informational` reports are additionally categorized as with low or medium priority
@@ -133,7 +133,7 @@ excluded from scope:
 - Findings derived from social engineering (e.g., phishing).
 
 Examples of vulnerabilities that are of interest to us include memory allocation bugs, race conditions,
-timing attacks,information leaks, authentication bypasses, denial of service
+timing attacks, information leaks, authentication bypasses, denial of service
 (specifically at the application- or protocol-layer),
 lost-write bugs, unauthorized account or capability access, stolen or loss of funds, token inflation bugs,
 payloads/transactions that cause panics, non deterministic logic, etc.
