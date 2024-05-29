@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package v18_1
+package v181
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
