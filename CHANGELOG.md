@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
+
 ### State Machine Breaking
 
 - (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
