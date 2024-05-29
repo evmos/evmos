@@ -6,7 +6,7 @@ This Simple Arrangement for Funding Upload (the
 “[SAFU](https://jumpcrypto.com/safu-creating-a-standard-for-whitehats/)” or
 “Arrangement”) is intended as a simple yet extensible way to specify a
 post-exploit policy for whitehats, particularly rewards and distributions. It is
-based in the SAFU Framework designed by [Jump Crypto](https://jumpcrypto.com/).
+based on the SAFU Framework designed by [Jump Crypto](https://jumpcrypto.com/).
 
 This Arrangement attempts to address the following issues during active
 vulnerabilities and post-exploits:
