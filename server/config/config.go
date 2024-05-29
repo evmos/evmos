@@ -62,6 +62,9 @@ const (
 	// DefaultGasCap is the default cap on gas that can be used in eth_call/estimateGas
 	DefaultGasCap uint64 = 25000000
 
+	// DefaultJSONRPCAllowInsecureUnlock is true
+	DefaultJSONRPCAllowInsecureUnlock bool = true
+
 	// DefaultFilterCap is the default cap for total number of filters that can be created
 	DefaultFilterCap int32 = 200
 
@@ -150,6 +153,8 @@ type JSONRPCConfig struct {
 	WsAddress string `mapstructure:"ws-address"`
 	// GasCap is the global gas cap for eth-call variants.
 	GasCap uint64 `mapstructure:"gas-cap"`
+	// AllowInsecureUnlock toggles if account unlocking is enabled when account-related RPCs are exposed by http.
+	AllowInsecureUnlock bool `mapstructure:"allow-insecure-unlock"`
 	// EVMTimeout is the global timeout for eth-call.
 	EVMTimeout time.Duration `mapstructure:"evm-timeout"`
 	// TxFeeCap is the global tx-fee cap for send transaction
@@ -276,6 +281,7 @@ func DefaultJSONRPCConfig() *JSONRPCConfig {
 		Address:                  DefaultJSONRPCAddress,
 		WsAddress:                DefaultJSONRPCWsAddress,
 		GasCap:                   DefaultGasCap,
+		AllowInsecureUnlock:      DefaultJSONRPCAllowInsecureUnlock,
 		EVMTimeout:               DefaultEVMTimeout,
 		TxFeeCap:                 DefaultTxFeeCap,
 		FilterCap:                DefaultFilterCap,
