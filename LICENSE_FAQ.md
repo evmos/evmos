@@ -45,7 +45,7 @@ transaction of economic value.
 
 "Designated Blockchains" refers to the version of the digital blockchain ledger
 that, at any given time, is recognized as canonical in accordance with the
-blockchain consensus.The initial Designated Blockchains shall be the Evmos
+blockchain consensus. The initial Designated Blockchains shall be the Evmos
 blockchains, identified by chain identifiers 9000 (testing network or testnet)
 and 9001 (main network or mainnet).
 
@@ -169,7 +169,7 @@ ENCL code in violation of the conditions of the license.
 to maintain the code as part of the ENCL-1.0 project. How do I contribute it?**
 
 **A:** First, a big thank you! You can contribute the code to the official Evmos
-repository by following the contributing guidelines a nd the official Code of
+repository by following the contributing guidelines and the official Code of
 Conduct (see CONTRIBUTING). You will need to sign a Contributor License
 Agreement (CLA) before your contribution is peer-reviewed and accepted. A bot
 has been implemented to assist you through the signing process when
