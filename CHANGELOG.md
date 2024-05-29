@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- (app) [#2373](https://github.com/evmos/evmos/pull/2373) Remove ChainID constraint.
+
 ## [v18.0.0] - 2024-04-22
 
 ### State Machine Breaking
