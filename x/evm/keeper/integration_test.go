@@ -226,13 +226,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Expect(err).To(BeNil())
 				Expect(mintResponse.IsOK()).To(Equal(true), "transaction should have succeeded", mintResponse.GetLog())
 
-				// Check contract call response has the expected topics for a mint
-				// call within an ERC20 contract
-				expectedTopics := []string{
-					"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-					"0x0000000000000000000000000000000000000000000000000000000000000000",
-				}
-				err = integrationutils.CheckTxTopics(mintResponse, expectedTopics)
+				err = checkMintTopics(mintResponse)
 				Expect(err).To(BeNil())
 
 				err = s.network.NextBlock()
@@ -578,14 +572,38 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				// of the param
 				GasLimit: 100000,
 			}
+			amountToMint := big.NewInt(1e18)
 			callArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
-				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
+				Args:        []interface{}{s.keyring.GetAddr(1), amountToMint},
 			}
 			res, err := s.factory.ExecuteContractCall(signerPriv, txArgs, callArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = checkMintTopics(res)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(signerPriv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
 		})
 	})
 
@@ -659,14 +677,39 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				// of the param
 				GasLimit: 100000,
 			}
+
+            amountToMint := big.NewInt(1e18)
 			callArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
-				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
+				Args:        []interface{}{s.keyring.GetAddr(1), amountToMint},
 			}
 			res, err := s.factory.ExecuteContractCall(signer.Priv, txArgs, callArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = checkMintTopics(res)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(signer.Priv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
 		})
 
 		It("fails to perform contract deployment with non whitelisted address", func() {
@@ -720,3 +763,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 })
+
+func checkMintTopics(res abcitypes.ResponseDeliverTx) error {
+	// Check contract call response has the expected topics for a mint
+	// call within an ERC20 contract
+	expectedTopics := []string{
+		"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+		"0x0000000000000000000000000000000000000000000000000000000000000000",
+	}
+	return integrationutils.CheckTxTopics(res, expectedTopics)
+}
