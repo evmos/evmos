@@ -477,6 +477,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				validator, found := s.app.StakingKeeper.GetValidator(s.ctx, newAddr.Bytes())
 				Expect(found).To(BeTrue(), "expected validator to be found")
 				Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker is updated")
+				Expect(validator.Commission.Rate.String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
 			})
 		})
 
