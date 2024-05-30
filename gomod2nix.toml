@@ -435,8 +435,8 @@ schema = 3
     version = "v0.1.0"
     hash = "sha256-wQqGTtRWsfR9n0O/SXHVgECebbnNmHddxJIbG63OJBQ="
   [mod."github.com/linxGnu/grocksdb"]
-    version = "v1.8.14"
-    hash = "sha256-dT647UzB25Ye1Gv6b9JEtJZjuWKdJo4D8kw9cB0W8gA="
+    version = "v1.9.1"
+    hash = "sha256-yRSGvZ5YeDqGOEmGPRSKxPjNoCQ/Xk/DMtNtutkbPGg="
   [mod."github.com/magiconair/properties"]
     version = "v1.8.7"
     hash = "sha256-XQ2bnc2s7/IH3WxEO4GishZurMyKwEclZy1DXg+2xXc="
