@@ -678,7 +678,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				GasLimit: 100000,
 			}
 
-            amountToMint := big.NewInt(1e18)
+			amountToMint := big.NewInt(1e18)
 			callArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
