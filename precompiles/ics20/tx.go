@@ -4,12 +4,16 @@
 package ics20
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 const (
@@ -37,14 +41,12 @@ func (p Precompile) Transfer(
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", msg.SourcePort, msg.SourceChannel)
 	}
 
-	// The provided sender address should always be equal to the origin address.
-	// In case the contract caller address is the same as the sender address provided,
-	// update the sender address to be equal to the origin address.
-	// Otherwise, if the provided delegator address is different from the origin address,
-	// return an error because is a forbidden operation
-	sender, err = CheckOriginAndSender(contract, origin, sender)
-	if err != nil {
-		return nil, err
+	// isCallerSender is true when the contract caller is the same as the sender
+	isCallerSender := contract.CallerAddress == sender
+
+	// If the contract caller is not the same as the sender, the sender must be the origin
+	if !isCallerSender && origin != sender {
+		return nil, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
 
 	// no need to have authorization when the contract caller is the same as origin (owner of funds)
@@ -76,6 +78,12 @@ func (p Precompile) Transfer(
 		msg.Memo,
 	); err != nil {
 		return nil, err
+	}
+
+	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+	if isCallerSender && msg.Token.Denom == p.stakingKeeper.BondDenom(ctx) {
+		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Token.Amount.BigInt())
 	}
 
 	return method.Outputs.Pack(res.Sequence)
