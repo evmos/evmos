@@ -51,6 +51,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v18.0.0] - 2024-04-22
 
+- (app) [2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade
+
+## [v18.0.0] - 2024-04-22
+
 ### State Machine Breaking
 
 - (vesting) Refactor vesting module.
