@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v18.1.0] - 2024-05-31
 
 ### Improvements
 
@@ -48,6 +48,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
+
+## [v18.0.1] - 2024-05-29
+
+- (app) [2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade
 
 ## [v18.0.0] - 2024-04-22
 
