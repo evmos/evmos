@@ -133,6 +133,7 @@ import (
 	v16 "github.com/evmos/evmos/v18/app/upgrades/v16"
 	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
+	v181 "github.com/evmos/evmos/v18/app/upgrades/v18_1"
 	v8 "github.com/evmos/evmos/v18/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v18/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v18/app/upgrades/v8_2"
@@ -897,7 +898,7 @@ func (app *Evmos) setPostHandler() {
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	// Perform any scheduled forks before executing the modules logic
 
-	// app.ScheduleForkUpgrade(ctx)
+	app.ScheduleForkUpgrade(ctx)
 
 	return app.mm.BeginBlock(ctx, req)
 }
@@ -1286,6 +1287,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v18_1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v181.UpgradeName,
+		v181.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1350,7 +1359,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
-	case v17.UpgradeName, v18.UpgradeName:
+	case v17.UpgradeName, v18.UpgradeName, v181.UpgradeName:
 		// no store upgrades
 	}
 
