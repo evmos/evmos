@@ -238,8 +238,8 @@ schema = 3
     version = "v1.1.0"
     hash = "sha256-LFcJue98awAFkSPRc93tVvon3kWS7AvumrluxxRzt4c="
   [mod."github.com/ethereum/go-ethereum"]
-    version = "v1.10.26-evmos-rc2"
-    hash = "sha256-hHTSv2zX22f3aoOKR6E2xvGqO8gZqJxw1y9YIMavpXk="
+    version = "v1.10.26-evmos-rc4"
+    hash = "sha256-6yEh1YOYIbnTmXfSaAkEfc0p9ufALhDGT8Jn1jB64zo="
     replaced = "github.com/evmos/go-ethereum"
   [mod."github.com/felixge/httpsnoop"]
     version = "v1.0.4"
