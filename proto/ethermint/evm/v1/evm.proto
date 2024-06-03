@@ -52,8 +52,6 @@ message AccessControlType {
 enum AccessType {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // (-- api-linter: core::0126::unspecified=disabled
-  //     aip.dev/not-precedent: This suffix is not relevant to us. --)
   // ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone
   ACCESS_TYPE_PERMISSIONLESS = 0 [(gogoproto.enumvalue_customname) = "AccessTypePermissionless"];
   // ACCESS_TYPE_RESTRICTED restrict the operation to anyone
