@@ -3,8 +3,6 @@ package common_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v18/cmd/config"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
