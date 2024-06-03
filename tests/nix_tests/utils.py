@@ -10,10 +10,12 @@ from collections import defaultdict
 from pathlib import Path
 
 import bech32
+import requests
 from dateutil.parser import isoparse
 from dotenv import load_dotenv
 from eth_account import Account
 from hexbytes import HexBytes
+from pystarport import ports
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
 from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
@@ -39,6 +41,7 @@ TEST_CONTRACTS = {
     "TestChainID": "ChainID.sol",
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
+    "ICS20FromContract": "ICS20FromContract.sol",
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "StakingI": "evmos/staking/StakingI.sol",
@@ -516,3 +519,16 @@ def erc20_balance(w3, erc20_contract_addr, addr):
     info = json.loads(CONTRACTS["IERC20"].read_text())
     contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
     return contract.functions.balanceOf(addr).call()
+
+
+def debug_trace_tx(evmos, tx_hash: str):
+    url = f"http://127.0.0.1:{ports.evmrpc_port(evmos.base_port(0))}"
+    params = {
+        "method": "debug_traceTransaction",
+        "params": [tx_hash, {"tracer": "callTracer"}],
+        "id": 1,
+        "jsonrpc": "2.0",
+    }
+    rsp = requests.post(url, json=params)
+    assert rsp.status_code == 200
+    return rsp.json()["result"]

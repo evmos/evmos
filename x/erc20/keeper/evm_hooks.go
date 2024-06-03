@@ -178,7 +178,7 @@ func (k Keeper) PostProcessTransferEvent(
 	// registered token wants to mint a Cosmos coin.
 	switch pair.ContractOwner {
 	case types.OWNER_MODULE:
-		_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
+		_, err = k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
 	case types.OWNER_EXTERNAL:
 		err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 	default:

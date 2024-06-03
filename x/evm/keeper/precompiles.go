@@ -64,7 +64,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate distribution precompile: %w", err))
 	}
 
-	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
+	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(stakingKeeper, transferKeeper, channelKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
