@@ -9,6 +9,8 @@ import (
 	"maps"
 	"sort"
 
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+
 	"github.com/evmos/evmos/v18/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -21,6 +23,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
+	govprecompile "github.com/evmos/evmos/v18/precompiles/gov"
 	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
@@ -42,6 +45,7 @@ func AvailablePrecompiles(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
+	govKeeper govkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -82,6 +86,11 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -92,6 +101,7 @@ func AvailablePrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
+	precompiles[govPrecompile.Address()] = govPrecompile
 
 	return precompiles
 }
