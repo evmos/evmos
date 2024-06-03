@@ -36,7 +36,7 @@ type V6Params struct {
 	// extra_eips defines the additional EIPs for the vm.Config
 	ExtraEIPs []int64 `protobuf:"varint,4,rep,packed,name=extra_eips,json=extraEips,proto3" json:"extra_eips,omitempty" yaml:"extra_eips"`
 	// chain_config defines the EVM chain configuration parameters
-	ChainConfig ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config" yaml:"chain_config"`
+	ChainConfig V6ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config" yaml:"chain_config"`
 	// allow_unprotected_txs defines if replay-protected (i.e non EIP155
 	// signed) transactions can be executed on the state machine.
 	AllowUnprotectedTxs bool `protobuf:"varint,6,opt,name=allow_unprotected_txs,json=allowUnprotectedTxs,proto3" json:"allow_unprotected_txs,omitempty"`
@@ -108,11 +108,11 @@ func (m *V6Params) GetExtraEIPs() []int64 {
 	return nil
 }
 
-func (m *V6Params) GetChainConfig() ChainConfig {
+func (m *V6Params) GetChainConfig() V6ChainConfig {
 	if m != nil {
 		return m.ChainConfig
 	}
-	return ChainConfig{}
+	return V6ChainConfig{}
 }
 
 func (m *V6Params) GetAllowUnprotectedTxs() bool {
@@ -136,9 +136,9 @@ func (m *V6Params) GetEVMChannels() []string {
 	return nil
 }
 
-// ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
+// V6ChainConfig defines the Ethereum V6ChainConfig parameters using *sdk.Int values
 // instead of *big.Int.
-type ChainConfig struct {
+type V6ChainConfig struct {
 	// homestead_block switch (nil no fork, 0 = already homestead)
 	HomesteadBlock *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=homestead_block,json=homesteadBlock,proto3,customtype=cosmossdk.io/math.Int" json:"homestead_block,omitempty" yaml:"homestead_block"`
 	// dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)
@@ -180,16 +180,16 @@ type ChainConfig struct {
 	CancunBlock *cosmossdk_io_math.Int `protobuf:"bytes,23,opt,name=cancun_block,json=cancunBlock,proto3,customtype=cosmossdk.io/math.Int" json:"cancun_block,omitempty" yaml:"cancun_block"`
 }
 
-func (m *ChainConfig) Reset()         { *m = ChainConfig{} }
-func (m *ChainConfig) String() string { return proto.CompactTextString(m) }
-func (*ChainConfig) ProtoMessage()    {}
-func (*ChainConfig) Descriptor() ([]byte, []int) {
+func (m *V6ChainConfig) Reset()         { *m = V6ChainConfig{} }
+func (m *V6ChainConfig) String() string { return proto.CompactTextString(m) }
+func (*V6ChainConfig) ProtoMessage()    {}
+func (*V6ChainConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{1}
 }
-func (m *ChainConfig) XXX_Unmarshal(b []byte) error {
+func (m *V6ChainConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ChainConfig.Marshal(b, m, deterministic)
 	} else {
@@ -201,50 +201,50 @@ func (m *ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *ChainConfig) XXX_Merge(src proto.Message) {
+func (m *V6ChainConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ChainConfig.Merge(m, src)
 }
-func (m *ChainConfig) XXX_Size() int {
+func (m *V6ChainConfig) XXX_Size() int {
 	return m.Size()
 }
-func (m *ChainConfig) XXX_DiscardUnknown() {
+func (m *V6ChainConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_ChainConfig.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_ChainConfig proto.InternalMessageInfo
 
-func (m *ChainConfig) GetDAOForkSupport() bool {
+func (m *V6ChainConfig) GetDAOForkSupport() bool {
 	if m != nil {
 		return m.DAOForkSupport
 	}
 	return false
 }
 
-func (m *ChainConfig) GetEIP150Hash() string {
+func (m *V6ChainConfig) GetEIP150Hash() string {
 	if m != nil {
 		return m.EIP150Hash
 	}
 	return ""
 }
 
-// State represents a single Storage key value pair item.
-type State struct {
+// V6State represents a single Storage key value pair item.
+type V6State struct {
 	// key is the stored key
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// value is the stored value for the given key
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 }
 
-func (m *State) Reset()         { *m = State{} }
-func (m *State) String() string { return proto.CompactTextString(m) }
-func (*State) ProtoMessage()    {}
-func (*State) Descriptor() ([]byte, []int) {
+func (m *V6State) Reset()         { *m = V6State{} }
+func (m *V6State) String() string { return proto.CompactTextString(m) }
+func (*V6State) ProtoMessage()    {}
+func (*V6State) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{2}
 }
-func (m *State) XXX_Unmarshal(b []byte) error {
+func (m *V6State) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_State.Marshal(b, m, deterministic)
 	} else {
@@ -256,52 +256,52 @@ func (m *State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *State) XXX_Merge(src proto.Message) {
+func (m *V6State) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_State.Merge(m, src)
 }
-func (m *State) XXX_Size() int {
+func (m *V6State) XXX_Size() int {
 	return m.Size()
 }
-func (m *State) XXX_DiscardUnknown() {
+func (m *V6State) XXX_DiscardUnknown() {
 	xxx_messageInfo_State.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_State proto.InternalMessageInfo
 
-func (m *State) GetKey() string {
+func (m *V6State) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *State) GetValue() string {
+func (m *V6State) GetValue() string {
 	if m != nil {
 		return m.Value
 	}
 	return ""
 }
 
-// TransactionLogs define the logs generated from a transaction execution
+// V6TransactionLogs define the logs generated from a transaction execution
 // with a given hash. It it used for import/export data as transactions are not
 // persisted on blockchain state after an upgrade.
-type TransactionLogs struct {
+type V6TransactionLogs struct {
 	// hash of the transaction
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	// logs is an array of Logs for the given transaction hash
-	Logs []*Log `protobuf:"bytes,2,rep,name=logs,proto3" json:"logs,omitempty"`
+	Logs []*V6Log `protobuf:"bytes,2,rep,name=logs,proto3" json:"logs,omitempty"`
 }
 
-func (m *TransactionLogs) Reset()         { *m = TransactionLogs{} }
-func (m *TransactionLogs) String() string { return proto.CompactTextString(m) }
-func (*TransactionLogs) ProtoMessage()    {}
-func (*TransactionLogs) Descriptor() ([]byte, []int) {
+func (m *V6TransactionLogs) Reset()         { *m = V6TransactionLogs{} }
+func (m *V6TransactionLogs) String() string { return proto.CompactTextString(m) }
+func (*V6TransactionLogs) ProtoMessage()    {}
+func (*V6TransactionLogs) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{3}
 }
-func (m *TransactionLogs) XXX_Unmarshal(b []byte) error {
+func (m *V6TransactionLogs) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TransactionLogs.Marshal(b, m, deterministic)
 	} else {
@@ -313,39 +313,39 @@ func (m *TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *TransactionLogs) XXX_Merge(src proto.Message) {
+func (m *V6TransactionLogs) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TransactionLogs.Merge(m, src)
 }
-func (m *TransactionLogs) XXX_Size() int {
+func (m *V6TransactionLogs) XXX_Size() int {
 	return m.Size()
 }
-func (m *TransactionLogs) XXX_DiscardUnknown() {
+func (m *V6TransactionLogs) XXX_DiscardUnknown() {
 	xxx_messageInfo_TransactionLogs.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TransactionLogs proto.InternalMessageInfo
 
-func (m *TransactionLogs) GetHash() string {
+func (m *V6TransactionLogs) GetHash() string {
 	if m != nil {
 		return m.Hash
 	}
 	return ""
 }
 
-func (m *TransactionLogs) GetLogs() []*Log {
+func (m *V6TransactionLogs) GetLogs() []*V6Log {
 	if m != nil {
 		return m.Logs
 	}
 	return nil
 }
 
-// Log represents an protobuf compatible Ethereum Log that defines a contract
+// V6Log represents an protobuf compatible Ethereum V6Log that defines a contract
 // log event. These events are generated by the LOG opcode and stored/indexed by
 // the node.
 //
 // NOTE: address, topics and data are consensus fields. The rest of the fields
 // are derived, i.e. filled in by the nodes, but not secured by consensus.
-type Log struct {
+type V6Log struct {
 	// address of the contract that generated the event
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// topics is a list of topics provided by the contract.
@@ -368,16 +368,16 @@ type Log struct {
 	Removed bool `protobuf:"varint,9,opt,name=removed,proto3" json:"removed,omitempty"`
 }
 
-func (m *Log) Reset()         { *m = Log{} }
-func (m *Log) String() string { return proto.CompactTextString(m) }
-func (*Log) ProtoMessage()    {}
-func (*Log) Descriptor() ([]byte, []int) {
+func (m *V6Log) Reset()         { *m = V6Log{} }
+func (m *V6Log) String() string { return proto.CompactTextString(m) }
+func (*V6Log) ProtoMessage()    {}
+func (*V6Log) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{4}
 }
-func (m *Log) XXX_Unmarshal(b []byte) error {
+func (m *V6Log) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Log.Marshal(b, m, deterministic)
 	} else {
@@ -389,83 +389,83 @@ func (m *Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Log) XXX_Merge(src proto.Message) {
+func (m *V6Log) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Log.Merge(m, src)
 }
-func (m *Log) XXX_Size() int {
+func (m *V6Log) XXX_Size() int {
 	return m.Size()
 }
-func (m *Log) XXX_DiscardUnknown() {
+func (m *V6Log) XXX_DiscardUnknown() {
 	xxx_messageInfo_Log.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_Log proto.InternalMessageInfo
 
-func (m *Log) GetAddress() string {
+func (m *V6Log) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-func (m *Log) GetTopics() []string {
+func (m *V6Log) GetTopics() []string {
 	if m != nil {
 		return m.Topics
 	}
 	return nil
 }
 
-func (m *Log) GetData() []byte {
+func (m *V6Log) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-func (m *Log) GetBlockNumber() uint64 {
+func (m *V6Log) GetBlockNumber() uint64 {
 	if m != nil {
 		return m.BlockNumber
 	}
 	return 0
 }
 
-func (m *Log) GetTxHash() string {
+func (m *V6Log) GetTxHash() string {
 	if m != nil {
 		return m.TxHash
 	}
 	return ""
 }
 
-func (m *Log) GetTxIndex() uint64 {
+func (m *V6Log) GetTxIndex() uint64 {
 	if m != nil {
 		return m.TxIndex
 	}
 	return 0
 }
 
-func (m *Log) GetBlockHash() string {
+func (m *V6Log) GetBlockHash() string {
 	if m != nil {
 		return m.BlockHash
 	}
 	return ""
 }
 
-func (m *Log) GetIndex() uint64 {
+func (m *V6Log) GetIndex() uint64 {
 	if m != nil {
 		return m.Index
 	}
 	return 0
 }
 
-func (m *Log) GetRemoved() bool {
+func (m *V6Log) GetRemoved() bool {
 	if m != nil {
 		return m.Removed
 	}
 	return false
 }
 
-// TxResult stores results of Tx execution.
-type TxResult struct {
+// V6TxResult stores results of Tx execution.
+type V6TxResult struct {
 	// contract_address contains the ethereum address of the created contract (if
 	// any). If the state transition is an evm.Call, the contract address will be
 	// empty.
@@ -474,7 +474,7 @@ type TxResult struct {
 	Bloom []byte `protobuf:"bytes,2,opt,name=bloom,proto3" json:"bloom,omitempty"`
 	// tx_logs contains the transaction hash and the proto-compatible ethereum
 	// logs.
-	TxLogs TransactionLogs `protobuf:"bytes,3,opt,name=tx_logs,json=txLogs,proto3" json:"tx_logs" yaml:"tx_logs"`
+	TxLogs V6TransactionLogs `protobuf:"bytes,3,opt,name=tx_logs,json=txLogs,proto3" json:"tx_logs" yaml:"tx_logs"`
 	// ret defines the bytes from the execution.
 	Ret []byte `protobuf:"bytes,4,opt,name=ret,proto3" json:"ret,omitempty"`
 	// reverted flag is set to true when the call has been reverted
@@ -483,16 +483,16 @@ type TxResult struct {
 	GasUsed uint64 `protobuf:"varint,6,opt,name=gas_used,json=gasUsed,proto3" json:"gas_used,omitempty"`
 }
 
-func (m *TxResult) Reset()         { *m = TxResult{} }
-func (m *TxResult) String() string { return proto.CompactTextString(m) }
-func (*TxResult) ProtoMessage()    {}
-func (*TxResult) Descriptor() ([]byte, []int) {
+func (m *V6TxResult) Reset()         { *m = V6TxResult{} }
+func (m *V6TxResult) String() string { return proto.CompactTextString(m) }
+func (*V6TxResult) ProtoMessage()    {}
+func (*V6TxResult) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{5}
 }
-func (m *TxResult) XXX_Unmarshal(b []byte) error {
+func (m *V6TxResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TxResult.Marshal(b, m, deterministic)
 	} else {
@@ -504,36 +504,36 @@ func (m *TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *TxResult) XXX_Merge(src proto.Message) {
+func (m *V6TxResult) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TxResult.Merge(m, src)
 }
-func (m *TxResult) XXX_Size() int {
+func (m *V6TxResult) XXX_Size() int {
 	return m.Size()
 }
-func (m *TxResult) XXX_DiscardUnknown() {
+func (m *V6TxResult) XXX_DiscardUnknown() {
 	xxx_messageInfo_TxResult.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TxResult proto.InternalMessageInfo
 
-// AccessTuple is the element type of an access list.
-type AccessTuple struct {
+// V6AccessTuple is the element type of an access list.
+type V6AccessTuple struct {
 	// address is a hex formatted ethereum address
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// storage_keys are hex formatted hashes of the storage keys
 	StorageKeys []string `protobuf:"bytes,2,rep,name=storage_keys,json=storageKeys,proto3" json:"storageKeys"`
 }
 
-func (m *AccessTuple) Reset()         { *m = AccessTuple{} }
-func (m *AccessTuple) String() string { return proto.CompactTextString(m) }
-func (*AccessTuple) ProtoMessage()    {}
-func (*AccessTuple) Descriptor() ([]byte, []int) {
+func (m *V6AccessTuple) Reset()         { *m = V6AccessTuple{} }
+func (m *V6AccessTuple) String() string { return proto.CompactTextString(m) }
+func (*V6AccessTuple) ProtoMessage()    {}
+func (*V6AccessTuple) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{6}
 }
-func (m *AccessTuple) XXX_Unmarshal(b []byte) error {
+func (m *V6AccessTuple) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessTuple.Marshal(b, m, deterministic)
 	} else {
@@ -545,20 +545,20 @@ func (m *AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *AccessTuple) XXX_Merge(src proto.Message) {
+func (m *V6AccessTuple) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessTuple.Merge(m, src)
 }
-func (m *AccessTuple) XXX_Size() int {
+func (m *V6AccessTuple) XXX_Size() int {
 	return m.Size()
 }
-func (m *AccessTuple) XXX_DiscardUnknown() {
+func (m *V6AccessTuple) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessTuple.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_AccessTuple proto.InternalMessageInfo
 
-// TraceConfig holds extra parameters to trace functions.
-type TraceConfig struct {
+// V6TraceConfig holds extra parameters to trace functions.
+type V6TraceConfig struct {
 	// tracer is a custom javascript tracer
 	Tracer string `protobuf:"bytes,1,opt,name=tracer,proto3" json:"tracer,omitempty"`
 	// timeout overrides the default timeout of 5 seconds for JavaScript-based tracing
@@ -575,7 +575,7 @@ type TraceConfig struct {
 	// limit defines the maximum length of output, but zero means unlimited
 	Limit int32 `protobuf:"varint,9,opt,name=limit,proto3" json:"limit,omitempty"`
 	// overrides can be used to execute a trace using future fork rules
-	Overrides *ChainConfig `protobuf:"bytes,10,opt,name=overrides,proto3" json:"overrides,omitempty"`
+	Overrides *V6ChainConfig `protobuf:"bytes,10,opt,name=overrides,proto3" json:"overrides,omitempty"`
 	// enable_memory switches memory capture
 	EnableMemory bool `protobuf:"varint,11,opt,name=enable_memory,json=enableMemory,proto3" json:"enableMemory"`
 	// enable_return_data switches the capture of return data
@@ -584,16 +584,16 @@ type TraceConfig struct {
 	TracerJsonConfig string `protobuf:"bytes,13,opt,name=tracer_json_config,json=tracerJsonConfig,proto3" json:"tracerConfig"`
 }
 
-func (m *TraceConfig) Reset()         { *m = TraceConfig{} }
-func (m *TraceConfig) String() string { return proto.CompactTextString(m) }
-func (*TraceConfig) ProtoMessage()    {}
-func (*TraceConfig) Descriptor() ([]byte, []int) {
+func (m *V6TraceConfig) Reset()         { *m = V6TraceConfig{} }
+func (m *V6TraceConfig) String() string { return proto.CompactTextString(m) }
+func (*V6TraceConfig) ProtoMessage()    {}
+func (*V6TraceConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{7}
 }
-func (m *TraceConfig) XXX_Unmarshal(b []byte) error {
+func (m *V6TraceConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TraceConfig.Marshal(b, m, deterministic)
 	} else {
@@ -605,89 +605,89 @@ func (m *TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *TraceConfig) XXX_Merge(src proto.Message) {
+func (m *V6TraceConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TraceConfig.Merge(m, src)
 }
-func (m *TraceConfig) XXX_Size() int {
+func (m *V6TraceConfig) XXX_Size() int {
 	return m.Size()
 }
-func (m *TraceConfig) XXX_DiscardUnknown() {
+func (m *V6TraceConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_TraceConfig.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TraceConfig proto.InternalMessageInfo
 
-func (m *TraceConfig) GetTracer() string {
+func (m *V6TraceConfig) GetTracer() string {
 	if m != nil {
 		return m.Tracer
 	}
 	return ""
 }
 
-func (m *TraceConfig) GetTimeout() string {
+func (m *V6TraceConfig) GetTimeout() string {
 	if m != nil {
 		return m.Timeout
 	}
 	return ""
 }
 
-func (m *TraceConfig) GetReexec() uint64 {
+func (m *V6TraceConfig) GetReexec() uint64 {
 	if m != nil {
 		return m.Reexec
 	}
 	return 0
 }
 
-func (m *TraceConfig) GetDisableStack() bool {
+func (m *V6TraceConfig) GetDisableStack() bool {
 	if m != nil {
 		return m.DisableStack
 	}
 	return false
 }
 
-func (m *TraceConfig) GetDisableStorage() bool {
+func (m *V6TraceConfig) GetDisableStorage() bool {
 	if m != nil {
 		return m.DisableStorage
 	}
 	return false
 }
 
-func (m *TraceConfig) GetDebug() bool {
+func (m *V6TraceConfig) GetDebug() bool {
 	if m != nil {
 		return m.Debug
 	}
 	return false
 }
 
-func (m *TraceConfig) GetLimit() int32 {
+func (m *V6TraceConfig) GetLimit() int32 {
 	if m != nil {
 		return m.Limit
 	}
 	return 0
 }
 
-func (m *TraceConfig) GetOverrides() *ChainConfig {
+func (m *V6TraceConfig) GetOverrides() *V6ChainConfig {
 	if m != nil {
 		return m.Overrides
 	}
 	return nil
 }
 
-func (m *TraceConfig) GetEnableMemory() bool {
+func (m *V6TraceConfig) GetEnableMemory() bool {
 	if m != nil {
 		return m.EnableMemory
 	}
 	return false
 }
 
-func (m *TraceConfig) GetEnableReturnData() bool {
+func (m *V6TraceConfig) GetEnableReturnData() bool {
 	if m != nil {
 		return m.EnableReturnData
 	}
 	return false
 }
 
-func (m *TraceConfig) GetTracerJsonConfig() string {
+func (m *V6TraceConfig) GetTracerJsonConfig() string {
 	if m != nil {
 		return m.TracerJsonConfig
 	}
@@ -695,14 +695,14 @@ func (m *TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
-	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.Params")
-	proto.RegisterType((*ChainConfig)(nil), "ethermint.evm.v1.ChainConfig")
-	proto.RegisterType((*State)(nil), "ethermint.evm.v1.State")
-	proto.RegisterType((*TransactionLogs)(nil), "ethermint.evm.v1.TransactionLogs")
-	proto.RegisterType((*Log)(nil), "ethermint.evm.v1.Log")
-	proto.RegisterType((*TxResult)(nil), "ethermint.evm.v1.TxResult")
-	proto.RegisterType((*AccessTuple)(nil), "ethermint.evm.v1.AccessTuple")
-	proto.RegisterType((*TraceConfig)(nil), "ethermint.evm.v1.TraceConfig")
+	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.V6Params")
+	proto.RegisterType((*V6ChainConfig)(nil), "ethermint.evm.v1.V6ChainConfig")
+	proto.RegisterType((*V6State)(nil), "ethermint.evm.v1.V6State")
+	proto.RegisterType((*V6TransactionLogs)(nil), "ethermint.evm.v1.V6TransactionLogs")
+	proto.RegisterType((*V6Log)(nil), "ethermint.evm.v1.V6Log")
+	proto.RegisterType((*V6TxResult)(nil), "ethermint.evm.v1.V6TxResult")
+	proto.RegisterType((*V6AccessTuple)(nil), "ethermint.evm.v1.V6AccessTuple")
+	proto.RegisterType((*V6TraceConfig)(nil), "ethermint.evm.v1.V6TraceConfig")
 }
 
 func init() { proto.RegisterFile("ethermint/evm/v1/evm.proto", fileDescriptor_d21ecc92c8c8583e) }
@@ -922,7 +922,7 @@ func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ChainConfig) Marshal() (dAtA []byte, err error) {
+func (m *V6ChainConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -932,12 +932,12 @@ func (m *ChainConfig) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ChainConfig) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6ChainConfig) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1178,7 +1178,7 @@ func (m *ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *State) Marshal() (dAtA []byte, err error) {
+func (m *V6State) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1188,12 +1188,12 @@ func (m *State) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *State) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6State) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1215,7 +1215,7 @@ func (m *State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TransactionLogs) Marshal() (dAtA []byte, err error) {
+func (m *V6TransactionLogs) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1225,12 +1225,12 @@ func (m *TransactionLogs) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TransactionLogs) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TransactionLogs) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1259,7 +1259,7 @@ func (m *TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Log) Marshal() (dAtA []byte, err error) {
+func (m *V6Log) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1269,12 +1269,12 @@ func (m *Log) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Log) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6Log) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1344,7 +1344,7 @@ func (m *Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TxResult) Marshal() (dAtA []byte, err error) {
+func (m *V6TxResult) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1354,12 +1354,12 @@ func (m *TxResult) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TxResult) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TxResult) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1413,7 +1413,7 @@ func (m *TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *AccessTuple) Marshal() (dAtA []byte, err error) {
+func (m *V6AccessTuple) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1423,12 +1423,12 @@ func (m *AccessTuple) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *AccessTuple) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6AccessTuple) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1452,7 +1452,7 @@ func (m *AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TraceConfig) Marshal() (dAtA []byte, err error) {
+func (m *V6TraceConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1462,12 +1462,12 @@ func (m *TraceConfig) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TraceConfig) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TraceConfig) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TraceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TraceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1622,7 +1622,7 @@ func (m *V6Params) Size() (n int) {
 	return n
 }
 
-func (m *ChainConfig) Size() (n int) {
+func (m *V6ChainConfig) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1706,7 +1706,7 @@ func (m *ChainConfig) Size() (n int) {
 	return n
 }
 
-func (m *State) Size() (n int) {
+func (m *V6State) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1723,7 +1723,7 @@ func (m *State) Size() (n int) {
 	return n
 }
 
-func (m *TransactionLogs) Size() (n int) {
+func (m *V6TransactionLogs) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1742,7 +1742,7 @@ func (m *TransactionLogs) Size() (n int) {
 	return n
 }
 
-func (m *Log) Size() (n int) {
+func (m *V6Log) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1785,7 +1785,7 @@ func (m *Log) Size() (n int) {
 	return n
 }
 
-func (m *TxResult) Size() (n int) {
+func (m *V6TxResult) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1814,7 +1814,7 @@ func (m *TxResult) Size() (n int) {
 	return n
 }
 
-func (m *AccessTuple) Size() (n int) {
+func (m *V6AccessTuple) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1833,7 +1833,7 @@ func (m *AccessTuple) Size() (n int) {
 	return n
 }
 
-func (m *TraceConfig) Size() (n int) {
+func (m *V6TraceConfig) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2200,7 +2200,7 @@ func (m *V6Params) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ChainConfig) Unmarshal(dAtA []byte) error {
+func (m *V6ChainConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2914,7 +2914,7 @@ func (m *ChainConfig) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *State) Unmarshal(dAtA []byte) error {
+func (m *V6State) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3028,7 +3028,7 @@ func (m *State) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TransactionLogs) Unmarshal(dAtA []byte) error {
+func (m *V6TransactionLogs) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3118,7 +3118,7 @@ func (m *TransactionLogs) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Logs = append(m.Logs, &Log{})
+			m.Logs = append(m.Logs, &V6Log{})
 			if err := m.Logs[len(m.Logs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3144,7 +3144,7 @@ func (m *TransactionLogs) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Log) Unmarshal(dAtA []byte) error {
+func (m *V6Log) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3433,7 +3433,7 @@ func (m *Log) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TxResult) Unmarshal(dAtA []byte) error {
+func (m *V6TxResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3655,7 +3655,7 @@ func (m *TxResult) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *AccessTuple) Unmarshal(dAtA []byte) error {
+func (m *V6AccessTuple) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3769,7 +3769,7 @@ func (m *AccessTuple) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TraceConfig) Unmarshal(dAtA []byte) error {
+func (m *V6TraceConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3990,7 +3990,7 @@ func (m *TraceConfig) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Overrides == nil {
-				m.Overrides = &ChainConfig{}
+				m.Overrides = &V6ChainConfig{}
 			}
 			if err := m.Overrides.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
