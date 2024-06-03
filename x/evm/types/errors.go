@@ -30,6 +30,8 @@ const (
 	codeErrInvalidAccount
 	codeErrInvalidGasLimit
 	codeErrInactivePrecompile
+	codeErrABIPack
+	codeErrABIUnpack
 )
 
 var ErrPostTxProcessing = errors.New("failed to execute post processing")
@@ -82,6 +84,12 @@ var (
 
 	// ErrInactivePrecompile returns an error if a call is made to an inactive precompile
 	ErrInactivePrecompile = errorsmod.Register(ModuleName, codeErrInactivePrecompile, "precompile not enabled")
+
+	// ErrABIPack returns an error if the contract ABI packing fails
+	ErrABIPack = errorsmod.Register(ModuleName, codeErrABIPack, "contract ABI pack failed")
+
+	// ErrABIUnpack returns an error if the contract ABI unpacking fails
+	ErrABIUnpack = errorsmod.Register(ModuleName, codeErrABIUnpack, "contract ABI unpack failed")
 )
 
 // NewExecErrorWithReason unpacks the revert return bytes and returns a wrapped error
