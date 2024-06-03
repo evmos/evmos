@@ -396,8 +396,8 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			acc, err := sdk.AccAddressFromBech32(s.network.GetValidators()[0].GetOperator())
-			s.Require().Error(err)
+			acc, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().NoError(err)
 			valOperAddr = common.BytesToAddress(acc.Bytes())
 
 			contract := vm.NewContract(vm.AccountRef(valOperAddr), s.precompile, big.NewInt(0), 200000)

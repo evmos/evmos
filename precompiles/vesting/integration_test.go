@@ -30,6 +30,7 @@ import (
 )
 
 var (
+	vestingCaller evmtypes.CompiledContract
 	// contractAddr is the address of the smart contract that calls the vesting extension
 	contractAddr common.Address
 	// failCheck is the default setting to check execution logs for failing transactions
@@ -63,8 +64,13 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 	RunSpecs(t, "Precompile Test Suite")
 }
 
-var _ = Describe("Interacting with the vesting extension", func() {
+var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 	var s *PrecompileTestSuite
+
+	BeforeAll(func() {
+		vestingCaller, err = testdata.LoadVestingCallerContract()
+		Expect(err).ToNot(HaveOccurred(), "error while getting vestingCallerContract: %v", err)
+	})
 
 	BeforeEach(func() {
 		// Setup the test suite
@@ -87,7 +93,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			s.keyring.GetPrivKey(0),
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.VestingCallerContract,
+				Contract: vestingCaller,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "error while deploying the smart contract: %v", err)

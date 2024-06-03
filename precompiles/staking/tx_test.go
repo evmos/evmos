@@ -424,7 +424,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				return []interface{}{
 					description,
 					validatorAddress,
-					math.LegacyNewDecWithPrec(7, 2).BigInt(),
+					math.LegacyNewDecWithPrec(11, 2).BigInt(),
 					minSelfDelegation,
 				}
 			},
@@ -501,8 +501,8 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 		{
 			"success - should not update commission rate",
 			func() []interface{} {
-				// expected commission rate is the previous one (0)
-				commissionRate = math.LegacyZeroDec().BigInt()
+				// expected commission rate is the previous one (5%)
+				commissionRate = math.LegacyNewDecWithPrec(5, 2).BigInt()
 				return []interface{}{
 					description,
 					validatorAddress,
@@ -576,17 +576,17 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			ctx = s.network.GetContext()
 			stDB = s.network.GetStateDB()
 
-			commissionRate = math.LegacyNewDecWithPrec(5, 2).BigInt()
+			commissionRate = math.LegacyNewDecWithPrec(1, 1).BigInt()
 			minSelfDelegation = big.NewInt(11)
 
 			// reset sender
-			valKeys := s.keyring.GetKey(0)
-			acc, err := sdk.AccAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 			s.Require().NoError(err)
-			validatorAddress = common.BytesToAddress(acc.Bytes())
+
+			validatorAddress = common.BytesToAddress(valAddr.Bytes())
 
 			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, validatorAddress, s.precompile, tc.gas)
 
 			bz, err := s.precompile.EditValidator(ctx, validatorAddress, contract, stDB, &method, tc.malleate())
 
@@ -597,7 +597,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				s.Require().NoError(err)
 
 				// query the validator in the staking keeper
-				validator, err := s.network.App.StakingKeeper.Validator(ctx, valKeys.AccAddr.Bytes())
+				validator, err := s.network.App.StakingKeeper.Validator(ctx, valAddr.Bytes())
 				s.Require().NoError(err)
 
 				s.Require().NotNil(validator, "expected validator not to be nil")

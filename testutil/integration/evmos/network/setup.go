@@ -199,7 +199,7 @@ func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int, oper
 	}
 
 	// Default to 5% commission
-	commission := stakingtypes.NewCommission(sdkmath.LegacyNewDecWithPrec(5, 2), sdkmath.LegacyNewDecWithPrec(1, 1), sdkmath.LegacyNewDecWithPrec(5, 2))
+	commission := stakingtypes.NewCommission(sdkmath.LegacyNewDecWithPrec(5, 2), sdkmath.LegacyNewDecWithPrec(2, 1), sdkmath.LegacyNewDecWithPrec(5, 2))
 	validator := stakingtypes.Validator{
 		OperatorAddress:   opAddr,
 		ConsensusPubkey:   pkAny,
