@@ -2,7 +2,6 @@ import base64
 import configparser
 import json
 import os
-import requests
 import socket
 import subprocess
 import sys
@@ -11,6 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import bech32
+import requests
 from dateutil.parser import isoparse
 from dotenv import load_dotenv
 from eth_account import Account
