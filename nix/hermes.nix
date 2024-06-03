@@ -2,24 +2,15 @@
 , lib
 , stdenv
 , darwin
-, rustPlatform
 , symlinkJoin
 , openssl
-, rust-bin
+, platform
 }:
-rustPlatform.buildRustPackage rec {
-  inherit src;
+platform.buildRustPackage rec {
   name = "hermes";
 
-  nativeBuildInputs = [
-    rust-bin.stable.latest.minimal
-  ];
-
-  cargoLock = {
-    lockFile = "${src}/Cargo.lock";
-  };
-  
-  cargoSha256 = "";
+  inherit src;
+  cargoSha256 = "sha256-jqmIBmvY3PXpLFfv6XrnXJ0RmR6amFFMNfgK8qDFHb8=";
   cargoBuildFlags = "--no-default-features --bin hermes";
   buildInputs = lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.Security

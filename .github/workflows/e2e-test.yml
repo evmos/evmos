@@ -50,13 +50,12 @@ jobs:
             "test_fee_history.py"
             "test_grpc_only.py"
             "test_ibc.py"
+            "test_ics20_precompile.py"
             "test_no_abci_resp.py"
-            "test_osmosis_outpost.py"
             "test_precompiles.py"
             "test_priority.py"
             "test_pruned_node.py"
             "test_rollback.py"
-            "test_stride_outpost.py"
             "test_storage_proof.py"
             "test_zero_fee.py"
           )
@@ -101,14 +100,14 @@ jobs:
         with:
           token: ${{ steps.token_check.outputs.token }}        
       - name: Install Nix
-        uses: cachix/install-nix-action@v26
+        uses: cachix/install-nix-action@V27
         with:
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Setup Cachix
-        uses: cachix/cachix-action@v14
+        uses: cachix/cachix-action@v15
         with:
           name: evmosd
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"

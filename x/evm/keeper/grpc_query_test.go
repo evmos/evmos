@@ -6,6 +6,8 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -796,7 +798,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				)
 				suite.Require().NoError(err)
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 
 				sender := keyring.GetAddr(0)
@@ -1412,7 +1414,7 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				// if data is to big, slice the result
+				// if data is too big, slice the result
 				if len(res.Data) > 150 {
 					suite.Require().Equal(tc.traceResponse, string(res.Data[:150]))
 				} else {
@@ -1444,11 +1446,14 @@ func (suite *EvmKeeperTestSuite) TestNonceInQuery() {
 	_, err := deployErc20Contract(keyring.GetKey(0), txFactory)
 	suite.Require().NoError(err)
 
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err, "failed to load erc20 contract")
+
 	// do an EthCall/EstimateGas with nonce 0
 	ctorArgs, err := types.ERC20Contract.ABI.Pack("", senderKey.Addr, big.NewInt(1000))
 	suite.Require().NoError(err)
 
-	data := types.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&types.TransactionArgs{
 		From: &senderKey.Addr,

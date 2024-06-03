@@ -127,6 +127,8 @@ import (
 	"github.com/evmos/evmos/v18/app/post"
 	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
+	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
+	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/ethereum/eip712"
 	"github.com/evmos/evmos/v18/precompiles/common"
 	srvflags "github.com/evmos/evmos/v18/server/flags"
@@ -537,11 +539,9 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 		authAddr,
 	)
-	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
-			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -1231,6 +1231,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v19 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v19.UpgradeName,
+		v19.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.EvmKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1246,8 +1255,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v17.UpgradeName:
-		// revenue module is deprecated in v17
+	case v19.UpgradeName:
+		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
 		}

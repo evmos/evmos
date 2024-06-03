@@ -1816,6 +1816,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
 
+		// stakingCallerContract is the contract instance calling into the staking precompile
+		stakingCallerContract evmtypes.CompiledContract
+
 		// approvalCheck is a configuration for the log checker to see if an approval event was emitted.
 		approvalCheck testutil.LogCheckArgs
 		// execRevertedCheck defines the default log checking arguments which include the
@@ -3876,6 +3879,8 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		s *PrecompileTestSuite
 		// contractAddr is the address of the deployed StakingCaller contract
 		contractAddr common.Address
+		// stakingCallerContract is the contract instance calling into the staking precompile
+		stakingCallerContract evmtypes.CompiledContract
 		// erc20ContractAddr is the address of the deployed ERC20 contract
 		erc20ContractAddr common.Address
 		// erc20Contract is the compiled ERC20 contract
@@ -3897,6 +3902,9 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		s = new(PrecompileTestSuite)
 		s.SetupTest()
 		delegator := s.keyring.GetKey(0)
+
+		stakingCallerContract, err = testdata.LoadStakingCallerContract()
+		Expect(err).To(BeNil(), "error while loading the StakingCaller contract")
 
 		// Deploy StakingCaller contract
 		contractAddr, err = s.factory.DeployContract(

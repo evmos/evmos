@@ -6,8 +6,6 @@ package types
 import (
 	"context"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -39,6 +37,21 @@ type EVMKeeper interface {
 	AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailablePrecompile(addr common.Address) bool
+	CallEVMWithData(
+		ctx sdk.Context,
+		from common.Address,
+		contract *common.Address,
+		data []byte,
+		commit bool,
+	) (*evmtypes.MsgEthereumTxResponse, error)
+	CallEVM(
+		ctx sdk.Context,
+		abi abi.ABI,
+		from, contract common.Address,
+		commit bool,
+		method string,
+		args ...interface{},
+	) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 type (

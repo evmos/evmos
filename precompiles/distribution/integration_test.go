@@ -44,8 +44,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error

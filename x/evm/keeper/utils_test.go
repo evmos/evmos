@@ -30,13 +30,16 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	ctorArgs, err := evmtypes.ERC20Contract.ABI.Pack("", owner, supply)
+	erc20Contract, err := testdata.LoadERC20Contract()
+	require.NoError(t, err, "failed to load contract")
+
+	ctorArgs, err := erc20Contract.ABI.Pack("", owner, supply)
 	require.NoError(t, err)
 
 	addr := suite.keyring.GetAddr(0)
 	nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), addr)
 
-	data := evmtypes.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &addr,
@@ -86,7 +89,10 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	ctx := suite.network.GetContext()
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	transferData, err := evmtypes.ERC20Contract.ABI.Pack("transfer", to, amount)
+	erc20Contract, err := testdata.LoadERC20Contract()
+	require.NoError(t, err, "failed to load contract")
+
+	transferData, err := erc20Contract.ABI.Pack("transfer", to, amount)
 	require.NoError(t, err)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
 	require.NoError(t, err)

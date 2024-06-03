@@ -21,14 +21,12 @@ import (
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetAllAccounts(ctx context.Context) (accounts []sdk.AccountI)
-	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) bool)
-	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
-	SetAccount(ctx context.Context, account sdk.AccountI)
-	RemoveAccount(ctx context.Context, account sdk.AccountI)
-	GetParams(ctx context.Context) (params authtypes.Params)
-	AddressCodec() address.Codec
+	IterateAccounts(ctx sdk.Context, cb func(account authtypes.AccountI) bool)
+	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	SetAccount(ctx sdk.Context, account authtypes.AccountI)
+	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
+	GetParams(ctx sdk.Context) (params authtypes.Params)
+	GetSequence(ctx sdk.Context, account sdk.AccAddress) (uint64, error)
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

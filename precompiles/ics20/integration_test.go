@@ -26,6 +26,7 @@ import (
 	teststypes "github.com/evmos/evmos/v18/types/tests"
 	"github.com/evmos/evmos/v18/utils"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -54,6 +55,9 @@ var (
 
 	// array of allocations with only one allocation for 'aevmos' coin
 	defaultSingleAlloc []cmn.ICS20Allocation
+
+	// interchainSenderContract is the compiled contract calling the interchain functionality
+	interchainSenderContract evmtypes.CompiledContract
 )
 
 var _ = Describe("IBCTransfer Precompile", func() {
@@ -61,6 +65,10 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		s.suiteIBCTesting = true
 		s.SetupTest()
 		s.setupAllocationsForTesting()
+
+		var err error
+		interchainSenderContract, err = contracts.LoadInterchainSenderContract()
+		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
 
 		// set the default call arguments
 		defaultCallArgs = contracts.CallArgs{
@@ -1055,13 +1063,16 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		s.SetupTest()
 		s.setupAllocationsForTesting()
 
+		interchainSenderContract, err = contracts.LoadInterchainSenderContract()
+		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
+
 		contractAddr, err = DeployContract(
 			s.chainA.GetContext(),
 			s.app,
 			s.privKey,
 			gasPrice,
 			s.queryClientEVM,
-			contracts.InterchainSenderContract,
+			interchainSenderContract,
 		)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 
@@ -1076,7 +1087,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		// populate default call args
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: contractAddr,
-			ContractABI:  contracts.InterchainSenderContract.ABI,
+			ContractABI:  interchainSenderContract.ABI,
 			PrivKey:      s.privKey,
 			GasPrice:     gasPrice,
 		}
@@ -1592,7 +1603,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			var out []cmn.ICS20Allocation
-			err = contracts.InterchainSenderContract.ABI.UnpackIntoInterface(&out, "testAllowance", ethRes.Ret)
+			err = interchainSenderContract.ABI.UnpackIntoInterface(&out, "testAllowance", ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the output: %v", err)
 			Expect(out).To(HaveLen(1))
 			Expect(len(out)).To(Equal(len(defaultSingleAlloc)))

@@ -67,7 +67,7 @@ def test_ibc_transfer(ibc):
 
     assert receipt.status == 1
     # check gas used
-    assert receipt.gasUsed == 48184
+    assert receipt.gasUsed == 49307
 
     # check gas estimation is accurate
     assert receipt.gasUsed == gas_estimation

@@ -70,9 +70,14 @@ func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Netwo
 	}
 }
 
-// GetChain returns the TestChain for a given chainID.
+// GetChain returns the TestChain for a given chainID but abstracted to our internal chain interface.
 func (c *IntegrationCoordinator) GetChain(chainID string) ibcchain.Chain {
 	return c.coord.Chains[chainID]
+}
+
+// GetTestChain returns the TestChain for a given chainID.
+func (c *IntegrationCoordinator) GetTestChain(chainID string) *ibctesting.TestChain {
+	return c.coord.GetChain(chainID)
 }
 
 // GetDummyChainsIDs returns the chainIDs for all dummy chains.
