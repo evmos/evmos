@@ -103,6 +103,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
 - (evm) [#2581](https://github.com/evmos/evmos/pull/2581) Fix wrong error message returned for DynamicFee txs.
+- (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
 
 ## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
 
