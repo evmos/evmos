@@ -1809,7 +1809,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 })
 
-var _ = Describe("Calling staking precompile via Solidity", func() {
+var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 	var (
 		// s is the precompile test suite to use for the tests
 		s *PrecompileTestSuite
@@ -1834,6 +1834,11 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// s is the precompile test suite to use for the tests
 	)
 
+	BeforeAll(func() {
+		stakingCallerContract, err = testdata.LoadStakingCallerContract()
+		Expect(err).To(BeNil())
+	})
+
 	BeforeEach(func() {
 		s = new(PrecompileTestSuite)
 		s.SetupTest()
@@ -1843,7 +1848,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegator.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.StakingCallerContract,
+				Contract: stakingCallerContract,
 			},
 		)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
@@ -1863,11 +1868,11 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		txArgs.To = &contractAddr
 		// populate default call args
 		callArgs = factory.CallArgs{
-			ContractABI: testdata.StakingCallerContract.ABI,
+			ContractABI: stakingCallerContract.ABI,
 		}
 		// populate default approval args
 		approveCallArgs = factory.CallArgs{
-			ContractABI: testdata.StakingCallerContract.ABI,
+			ContractABI: stakingCallerContract.ABI,
 			MethodName:  "testApprove",
 		}
 		// populate default log check args
@@ -2880,7 +2885,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			delegator := s.keyring.GetKey(0)
 			undelegateArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testUndelegate",
 				Args:        []interface{}{delegator.Addr, valAddr.String(), big.NewInt(1e18)},
 			}
@@ -3354,7 +3359,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// set up redelegation
 			redelegateArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testRedelegate",
 				Args:        []interface{}{delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1)},
 			}
@@ -3414,7 +3419,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// set up redelegation
 			redelegateArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testRedelegate",
 				Args:        []interface{}{delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1)},
 			}
@@ -3476,7 +3481,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			undelegateArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testUndelegate",
 				Args:        []interface{}{delegator.Addr, valAddr.String(), big.NewInt(1e18)},
 			}
@@ -3546,7 +3551,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegator := s.keyring.GetKey(0)
 
 			cArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testApproveAndThenUndelegate",
 				Args:        []interface{}{contractAddr, big.NewInt(250), big.NewInt(500), valAddr.String()},
 			}
@@ -3574,7 +3579,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegator := s.keyring.GetKey(0)
 
 			cArgs := factory.CallArgs{
-				ContractABI: testdata.StakingCallerContract.ABI,
+				ContractABI: stakingCallerContract.ABI,
 				MethodName:  "testApproveAndThenUndelegate",
 				Args:        []interface{}{contractAddr, big.NewInt(1000), big.NewInt(500), valAddr.String()},
 			}
@@ -3911,7 +3916,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			delegator.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: testdata.StakingCallerContract,
+				Contract: stakingCallerContract,
 			},
 		)
 		Expect(err).To(BeNil(), "error while deploying the StakingCaller contract")
@@ -3958,7 +3963,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 
 		// populate default call args
 		callArgs = factory.CallArgs{
-			ContractABI: testdata.StakingCallerContract.ABI,
+			ContractABI: stakingCallerContract.ABI,
 			MethodName:  "callERC20AndDelegate",
 		}
 

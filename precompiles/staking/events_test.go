@@ -339,6 +339,8 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 
 func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 	var (
+		stDB        *statedb.StateDB
+		ctx         sdk.Context
 		valOperAddr common.Address
 		method      = s.precompile.Methods[staking.EditValidatorMethod]
 		minSelfDel  = big.NewInt(11)
@@ -368,14 +370,14 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 				}
 			},
 			postCheck: func() {
-				s.Require().Equal(len(s.stateDB.Logs()), 1)
-				log := s.stateDB.Logs()[0]
+				s.Require().Equal(len(stDB.Logs()), 1)
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeEditValidator]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
@@ -391,10 +393,15 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			valOperAddr = common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
+
+			acc, err := sdk.AccAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().Error(err)
+			valOperAddr = common.BytesToAddress(acc.Bytes())
 
 			contract := vm.NewContract(vm.AccountRef(valOperAddr), s.precompile, big.NewInt(0), 200000)
-			_, err := s.precompile.EditValidator(s.ctx, valOperAddr, contract, s.stateDB, &method, tc.malleate())
+			_, err = s.precompile.EditValidator(ctx, valOperAddr, contract, stDB, &method, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)

@@ -128,7 +128,6 @@ import (
 	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
-	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/ethereum/eip712"
 	"github.com/evmos/evmos/v18/precompiles/common"
 	srvflags "github.com/evmos/evmos/v18/server/flags"

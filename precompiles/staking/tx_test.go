@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v18/cmd/config"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/staking"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
@@ -310,7 +309,9 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 
 func (s *PrecompileTestSuite) TestEditValidator() {
 	var (
-		validatorAddress  geth.Address
+		stDB              *statedb.StateDB
+		ctx               sdk.Context
+		validatorAddress  common.Address
 		commissionRate    *big.Int
 		minSelfDelegation *big.Int
 		method            = s.precompile.Methods[staking.EditValidatorMethod]
@@ -478,13 +479,13 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.stateDB.Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeEditValidator]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), geth.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
@@ -515,13 +516,13 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.stateDB.Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeEditValidator]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), geth.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
@@ -550,13 +551,13 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				log := s.stateDB.Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeEditValidator]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), geth.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
@@ -572,31 +573,40 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
+
 			commissionRate = math.LegacyNewDecWithPrec(5, 2).BigInt()
 			minSelfDelegation = big.NewInt(11)
 
 			// reset sender
-			validatorAddress = geth.BytesToAddress(s.validators[0].GetOperator().Bytes())
+			valKeys := s.keyring.GetKey(0)
+			acc, err := sdk.AccAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().NoError(err)
+			validatorAddress = common.BytesToAddress(acc.Bytes())
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.EditValidator(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.EditValidator(ctx, validatorAddress, contract, stDB, &method, tc.malleate())
 
-			// query the validator in the staking keeper
-			validator := s.app.StakingKeeper.Validator(s.ctx, validatorAddress.Bytes())
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
 			} else {
 				s.Require().NoError(err)
+
+				// query the validator in the staking keeper
+				validator, err := s.network.App.StakingKeeper.Validator(ctx, valKeys.AccAddr.Bytes())
+				s.Require().NoError(err)
+
 				s.Require().NotNil(validator, "expected validator not to be nil")
 				tc.postCheck(bz)
 
 				isBonded := validator.IsBonded()
 				s.Require().Equal(true, isBonded, "expected validator bonded to be %t; got %t", true, isBonded)
 
-				operator := validator.GetOperator().String()
+				operator := validator.GetOperator()
 				s.Require().Equal(sdk.ValAddress(validatorAddress.Bytes()).String(), operator, "expected validator operator to be %s; got %s", validatorAddress, operator)
 
 				updatedCommRate := validator.GetCommission()

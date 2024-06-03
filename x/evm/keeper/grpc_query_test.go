@@ -596,6 +596,9 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 	// Hardcode recipient address to avoid non determinism in tests
 	hardcodedRecipient := common.HexToAddress("0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101")
 
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err)
+
 	testCases := []struct {
 		msg             string
 		getArgs         func() types.TransactionArgs
@@ -682,13 +685,13 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 		{
 			"contract deployment",
 			func() types.TransactionArgs {
-				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+				ctorArgs, err := erc20Contract.ABI.Pack(
 					"",
 					&hardcodedRecipient,
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				)
 				suite.Require().NoError(err)
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 
 				addr := keyring.GetAddr(0)
@@ -713,7 +716,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				transferData, err := types.ERC20Contract.ABI.Pack(
+				transferData, err := erc20Contract.ABI.Pack(
 					"transfer",
 					hardcodedRecipient,
 					big.NewInt(1000),
@@ -792,7 +795,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 		{
 			"contract deployment w/ enableFeemarket",
 			func() types.TransactionArgs {
-				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+				ctorArgs, err := erc20Contract.ABI.Pack(
 					"",
 					&hardcodedRecipient,
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
@@ -823,7 +826,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				transferData, err := types.ERC20Contract.ABI.Pack(
+				transferData, err := erc20Contract.ABI.Pack(
 					"transfer",
 					hardcodedRecipient,
 					big.NewInt(1000),
@@ -845,14 +848,14 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 			"contract creation but 'create' param disabled",
 			func() types.TransactionArgs {
 				addr := keyring.GetAddr(0)
-				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+				ctorArgs, err := erc20Contract.ABI.Pack(
 					"",
 					&addr,
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				)
 				suite.Require().NoError(err)
 
-				data := types.ERC20Contract.Bin
+				data := erc20Contract.Bin
 				data = append(data, ctorArgs...)
 
 				args := types.TransactionArgs{
@@ -986,6 +989,9 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 
 	// Hardcode recipient address to avoid non determinism in tests
 	hardcodedRecipient := common.HexToAddress("0xC6Fe5D33615a1C52c08018c47E8Bc53646A0E101")
+
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err)
 
 	testCases := []struct {
 		msg             string
@@ -1130,7 +1136,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 					senderKey.Addr,
 					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				}
-				compiledContract := types.ERC20Contract
+				compiledContract := erc20Contract
 				deploymentData := factory.ContractDeploymentData{
 					Contract:        compiledContract,
 					ConstructorArgs: constructorArgs,
@@ -1450,7 +1456,7 @@ func (suite *EvmKeeperTestSuite) TestNonceInQuery() {
 	suite.Require().NoError(err, "failed to load erc20 contract")
 
 	// do an EthCall/EstimateGas with nonce 0
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", senderKey.Addr, big.NewInt(1000))
+	ctorArgs, err := erc20Contract.ABI.Pack("", senderKey.Addr, big.NewInt(1000))
 	suite.Require().NoError(err)
 
 	data := erc20Contract.Bin
@@ -1584,12 +1590,15 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err)
+
 	// Generate common data for requests
 	sender := keyring.GetAddr(0)
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", sender, supply)
+	ctorArgs, err := erc20Contract.ABI.Pack("", sender, supply)
 	suite.Require().NoError(err)
-	data := types.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 
 	testCases := []struct {
@@ -1753,11 +1762,16 @@ func getDefaultTraceBlockRequest(unitNetwork network.Network) types.QueryTraceBl
 }
 
 func deployErc20Contract(from testkeyring.Key, txFactory factory.TxFactory) (common.Address, error) {
+	erc20Contract, err := testdata.LoadERC20Contract()
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	constructorArgs := []interface{}{
 		from.Addr,
 		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 	}
-	compiledContract := types.ERC20Contract
+	compiledContract := erc20Contract
 	contractAddr, err := txFactory.DeployContract(
 		from.Priv,
 		types.EvmTxArgs{}, // Default values
@@ -1782,11 +1796,16 @@ func executeTransferCall(
 	transferParams transferParams,
 	txFactory factory.TxFactory,
 ) (msgEthereumTx *types.MsgEthereumTx, err error) {
+	erc20Contract, err := testdata.LoadERC20Contract()
+	if err != nil {
+		return nil, err
+	}
+
 	transferArgs := types.EvmTxArgs{
 		To: &transferParams.contractAddr,
 	}
 	callArgs := factory.CallArgs{
-		ContractABI: types.ERC20Contract.ABI,
+		ContractABI: erc20Contract.ABI,
 		MethodName:  "transfer",
 		Args:        []interface{}{transferParams.recipientAddr, big.NewInt(1000)},
 	}

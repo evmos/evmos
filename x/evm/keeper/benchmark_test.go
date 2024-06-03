@@ -130,7 +130,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 	require.NoError(b, err)
 
 	DoBenchmark(b, func(suite *KeeperTestSuite, contract common.Address) *types.MsgEthereumTx {
-		input, err := types.ERC20Contract.ABI.Pack("transferFrom", suite.keyring.GetAddr(0), common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(0))
+		input, err := erc20Contract.ABI.Pack("transferFrom", suite.keyring.GetAddr(0), common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(0))
 		require.NoError(b, err)
 		nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{

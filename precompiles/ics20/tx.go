@@ -82,7 +82,11 @@ func (p Precompile) Transfer(
 
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if isCallerSender && msg.Token.Denom == p.stakingKeeper.BondDenom(ctx) {
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if isCallerSender && msg.Token.Denom == bondDenom {
 		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Token.Amount.BigInt())
 	}
 

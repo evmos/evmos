@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/server/config"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/stretchr/testify/require"
@@ -145,7 +146,10 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	ctx := suite.network.GetContext()
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	data := evmtypes.TestMessageCall.Bin
+	testMsgCall, err := testdata.LoadMessageCallContract()
+	require.NoError(t, err)
+
+	data := testMsgCall.Bin
 	addr := suite.keyring.GetAddr(0)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &addr,

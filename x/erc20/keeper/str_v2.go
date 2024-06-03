@@ -4,7 +4,8 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
@@ -43,7 +44,7 @@ func (k Keeper) DeleteSTRv2Address(ctx sdk.Context, address sdk.AccAddress) {
 // and returns them in an array
 func (k Keeper) GetAllSTRV2Address(ctx sdk.Context) []sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixSTRv2Addresses)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixSTRv2Addresses)
 	defer iterator.Close()
 
 	accAddresses := []sdk.AccAddress{}

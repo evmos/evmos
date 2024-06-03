@@ -154,11 +154,11 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			Details:         description.Details,
 		},
 		Commission: stakingtypes.CommissionRates{
-			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
-			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
-			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			Rate:          math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
+			MaxRate:       math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
+			MaxChangeRate: math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
 		},
-		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
+		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
 		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Pubkey:            pubkey,
@@ -194,7 +194,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	// If the value passed in by the user is not DoNotModifyCommissionRate, which is -1, it means that the user wants to modify its value.
 	var commissionRate *math.LegacyDec
 	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
-		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+		cr := math.LegacyNewDecFromBigIntWithPrec(commissionRateBigInt, math.LegacyPrecision)
 		commissionRate = &cr
 	}
 
@@ -220,10 +220,6 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		ValidatorAddress:  sdk.ValAddress(validatorHexAddr.Bytes()).String(),
 		CommissionRate:    commissionRate,
 		MinSelfDelegation: minSelfDelegation,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, validatorHexAddr, nil
