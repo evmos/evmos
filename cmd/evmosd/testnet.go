@@ -450,6 +450,7 @@ func initGenFiles(
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govGenState)
 
 	govGenState.Params.MinDeposit[0].Denom = coinDenom
+	govGenState.Params.ExpeditedMinDeposit[0].Denom = coinDenom
 	appGenState[govtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&govGenState)
 
 	var evmGenState evmtypes.GenesisState

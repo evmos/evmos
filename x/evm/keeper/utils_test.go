@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/server/config"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/stretchr/testify/require"
@@ -30,13 +31,16 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	ctorArgs, err := evmtypes.ERC20Contract.ABI.Pack("", owner, supply)
+	erc20Contract, err := testdata.LoadERC20Contract()
+	require.NoError(t, err, "failed to load contract")
+
+	ctorArgs, err := erc20Contract.ABI.Pack("", owner, supply)
 	require.NoError(t, err)
 
 	addr := suite.keyring.GetAddr(0)
 	nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), addr)
 
-	data := evmtypes.ERC20Contract.Bin
+	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &addr,
@@ -86,7 +90,10 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	ctx := suite.network.GetContext()
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	transferData, err := evmtypes.ERC20Contract.ABI.Pack("transfer", to, amount)
+	erc20Contract, err := testdata.LoadERC20Contract()
+	require.NoError(t, err, "failed to load contract")
+
+	transferData, err := erc20Contract.ABI.Pack("transfer", to, amount)
 	require.NoError(t, err)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
 	require.NoError(t, err)
@@ -139,7 +146,10 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	ctx := suite.network.GetContext()
 	chainID := suite.network.App.EvmKeeper.ChainID()
 
-	data := evmtypes.TestMessageCall.Bin
+	testMsgCall, err := testdata.LoadMessageCallContract()
+	require.NoError(t, err)
+
+	data := testMsgCall.Bin
 	addr := suite.keyring.GetAddr(0)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &addr,

@@ -8,11 +8,13 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v18/cmd/config"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 )
 
@@ -76,7 +78,7 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 	// If the withdrawer address is a hex address, convert it to a bech32 address.
 	if common.IsHexAddress(withdrawerAddress) {
 		var err error
-		withdrawerAddress, err = sdk.Bech32ifyAddressBytes("evmos", common.HexToAddress(withdrawerAddress).Bytes())
+		withdrawerAddress, err = sdk.Bech32ifyAddressBytes(config.Bech32Prefix, common.HexToAddress(withdrawerAddress).Bytes())
 		if err != nil {
 			return nil, common.Address{}, err
 		}

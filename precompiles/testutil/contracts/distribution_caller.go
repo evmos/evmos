@@ -4,27 +4,10 @@
 package contracts
 
 import (
-	_ "embed" // embed compiled smart contract
-	"encoding/json"
-
+	contractutils "github.com/evmos/evmos/v18/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-var (
-	//go:embed DistributionCaller.json
-	DistributionCallerJSON []byte
-
-	// DistributionCallerContract is the compiled contract calling the distribution precompile
-	DistributionCallerContract evmtypes.CompiledContract
-)
-
-func init() {
-	err := json.Unmarshal(DistributionCallerJSON, &DistributionCallerContract)
-	if err != nil {
-		panic(err)
-	}
-
-	if len(DistributionCallerContract.Bin) == 0 {
-		panic("failed to load smart contract that calls distribution precompile")
-	}
+func LoadDistributionCallerContract() (evmtypes.CompiledContract, error) {
+	return contractutils.LoadContractFromJSONFile("DistributionCaller.json")
 }

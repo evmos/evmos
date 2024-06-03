@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/vesting"
-	"github.com/evmos/evmos/v18/precompiles/vesting/testdata"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/utils"
@@ -46,7 +45,7 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 		to = s.precompile.Address()
 	} else {
 		to = contractAddr
-		callArgs.ContractABI = testdata.VestingCallerContract.ABI
+		callArgs.ContractABI = vestingCaller.ABI
 	}
 	txArgs.To = &to
 	return callArgs, txArgs

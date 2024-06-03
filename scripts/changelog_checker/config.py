@@ -72,6 +72,8 @@ def get_allowed_categories() -> List[str]:
         "recovery",
         "incentives",
         "revenue",
+        "osmosis-outpost",
+        "stride-outpost",
     ]
 
     base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -85,11 +87,6 @@ def get_allowed_categories() -> List[str]:
     for precompile in os.listdir(precompile_path):
         if os.path.isdir(os.path.join(precompile_path, precompile)):
             allowed_categories.append(precompile + "-precompile")
-
-    outpost_path = os.path.join(base_path, "precompiles", "outposts")
-    for outpost in os.listdir(outpost_path):
-        if os.path.isdir(os.path.join(outpost_path, outpost)):
-            allowed_categories.append(outpost + "-outpost")
 
     return allowed_categories
 

@@ -35,6 +35,8 @@ type TxFactory interface {
 	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+	// GenerateSignedMsgEthereumTx generates an MsgEthereumTx signed with the provided private key and txArgs.
+	GenerateSignedMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
 
 	// SignMsgEthereumTx signs a MsgEthereumTx with the provided private key.
 	SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error)

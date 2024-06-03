@@ -44,8 +44,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
@@ -77,7 +75,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.ABI.Events,
 		}
-		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0), differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 
@@ -804,6 +801,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	s := new(PrecompileTestSuite)
 
 	var (
+		distrCallerContract evmtypes.CompiledContract
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
 		err          error
@@ -813,6 +811,11 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		execRevertedCheck testutil.LogCheckArgs
 	)
 
+	BeforeAll(func() {
+		distrCallerContract, err = contracts.LoadDistributionCallerContract()
+		Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
+	})
+
 	BeforeEach(func() {
 		s.SetupTest()
 
@@ -820,7 +823,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			s.keyring.GetPrivKey(0),
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract: contracts.DistributionCallerContract,
+				Contract: distrCallerContract,
 			},
 		)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
@@ -835,7 +838,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 		// populate default call args
 		callArgs = factory.CallArgs{
-			ContractABI: contracts.DistributionCallerContract.ABI,
+			ContractABI: distrCallerContract.ABI,
 		}
 
 		// reset tx args each test to avoid keeping custom
@@ -1107,7 +1110,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				s.keyring.GetPrivKey(0),
 				txArgs,
 				factory.CallArgs{
-					ContractABI: contracts.DistributionCallerContract.ABI,
+					ContractABI: distrCallerContract.ABI,
 					MethodName:  "testDelegateFromContract",
 					Args: []interface{}{
 						s.network.GetValidators()[0].OperatorAddress,
@@ -1358,7 +1361,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				s.keyring.GetPrivKey(0),
 				txArgs,
 				factory.CallArgs{
-					ContractABI: contracts.DistributionCallerContract.ABI,
+					ContractABI: distrCallerContract.ABI,
 					MethodName:  "testDelegateFromContract",
 					Args: []interface{}{
 						s.network.GetValidators()[0].OperatorAddress,
@@ -1439,7 +1442,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				s.keyring.GetPrivKey(0),
 				txArgs,
 				factory.CallArgs{
-					ContractABI: contracts.DistributionCallerContract.ABI,
+					ContractABI: distrCallerContract.ABI,
 					MethodName:  "testSetWithdrawAddressFromContract",
 					Args:        []interface{}{differentAddr.String()},
 				},

@@ -21,13 +21,12 @@ import (
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetAllAccounts(ctx context.Context) (accounts []sdk.AccountI)
 	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) bool)
-	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
 	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	SetAccount(ctx context.Context, account sdk.AccountI)
 	RemoveAccount(ctx context.Context, account sdk.AccountI)
 	GetParams(ctx context.Context) (params authtypes.Params)
+	GetSequence(ctx context.Context, account sdk.AccAddress) (uint64, error)
 	AddressCodec() address.Codec
 }
 

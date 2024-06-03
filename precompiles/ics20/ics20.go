@@ -17,6 +17,7 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -28,6 +29,7 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
+	stakingKeeper  stakingkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
 	channelKeeper  channelkeeper.Keeper
 }
@@ -35,6 +37,7 @@ type Precompile struct {
 // NewPrecompile creates a new ICS-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	stakingKeeper stakingkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -59,6 +62,7 @@ func NewPrecompile(
 		},
 		transferKeeper: transferKeeper,
 		channelKeeper:  channelKeeper,
+		stakingKeeper:  stakingKeeper,
 	}, nil
 }
 

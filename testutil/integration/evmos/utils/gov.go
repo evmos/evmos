@@ -68,7 +68,7 @@ func SubmitLegacyProposal(tf factory.TxFactory, network network.Network, propose
 
 // VoteOnProposal is a helper function to vote on a governance proposal given the private key of the voter and
 // the option to vote.
-func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposalID uint64, option govv1.VoteOption) error {
+func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposalID uint64, option govv1.VoteOption) (abcitypes.ExecTxResult, error) {
 	voterAccAddr := sdk.AccAddress(voterPriv.PubKey().Address())
 
 	msgVote := govv1.NewMsgVote(
@@ -78,19 +78,18 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 		"",
 	)
 
-	_, err := tf.ExecuteCosmosTx(voterPriv, commonfactory.CosmosTxArgs{
+	res, err := tf.CommitCosmosTx(voterPriv, commonfactory.CosmosTxArgs{
 		Msgs: []sdk.Msg{msgVote},
 	})
 
-	return err
+	return res, err
 }
 
-// ApproveLegacyProposal is a helper function to vote 'yes'
+// ApproveProposal is a helper function to vote 'yes'
 // for it and wait till it passes.
 func ApproveProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, proposalID uint64) error {
 	// Vote on proposal
-	err := VoteOnProposal(tf, proposerPriv, proposalID, govv1.OptionYes)
-	if err != nil {
+	if _, err := VoteOnProposal(tf, proposerPriv, proposalID, govv1.OptionYes); err != nil {
 		return errorsmod.Wrap(err, "failed to vote on proposal")
 	}
 
@@ -142,7 +141,7 @@ func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
 }
 
 func submitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, txArgs commonfactory.CosmosTxArgs) (uint64, error) {
-	res, err := tf.ExecuteCosmosTx(proposerPriv, txArgs)
+	res, err := tf.CommitCosmosTx(proposerPriv, txArgs)
 	if err != nil {
 		return 0, err
 	}
