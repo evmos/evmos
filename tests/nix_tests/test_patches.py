@@ -12,6 +12,7 @@ from .utils import (
     deploy_contract,
     eth_to_bech32,
     get_fees_from_tx_result,
+    wait_for_cosmos_tx_receipt,
     wait_for_new_blocks,
 )
 
@@ -371,7 +372,8 @@ def test_unvested_token_delegation(evmos_cluster):
     )
     tx = cli.sign_tx_json(tx, address, max_priority_price=0)
     rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
-
+    # get tx receipt to check if tx failed as expected
+    receipt = wait_for_cosmos_tx_receipt(cli, rsp["txhash"])
     # assert tx fails with corresponding error message
-    assert rsp["code"] == 2
-    assert "insufficient vested coins" in rsp["raw_log"]
+    assert receipt["tx_result"]["code"] == 2
+    assert "insufficient vested coins" in receipt["tx_result"]["log"]

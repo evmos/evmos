@@ -17,9 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v17/precompiles/p256"
-	"github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/utils"
+	"github.com/evmos/evmos/v18/precompiles/p256"
+	"github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 var (
@@ -40,8 +40,6 @@ var (
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 		"0x0000000000000000000000000000000000000804", // Bank precompile
-		"0x0000000000000000000000000000000000000900", // Stride outpost
-		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled

@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v17/utils"
+	"github.com/evmos/evmos/v18/utils"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	testutiltx "github.com/evmos/evmos/v17/testutil/tx"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 

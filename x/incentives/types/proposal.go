@@ -8,7 +8,7 @@ import (
 
 	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	evmostypes "github.com/evmos/evmos/v17/types"
+	evmostypes "github.com/evmos/evmos/v18/types"
 )
 
 // constants

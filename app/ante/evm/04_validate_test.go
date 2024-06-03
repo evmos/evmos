@@ -8,9 +8,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/app/ante/evm"
-	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/app/ante/evm"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 type validateMsgParams struct {

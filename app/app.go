@@ -87,8 +87,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
@@ -119,42 +118,46 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v17/client/docs/statik"
+	_ "github.com/evmos/evmos/v18/client/docs/statik"
 
-	"github.com/evmos/evmos/v17/app/ante"
-	ethante "github.com/evmos/evmos/v17/app/ante/evm"
-	"github.com/evmos/evmos/v17/app/post"
-	v17 "github.com/evmos/evmos/v17/app/upgrades/v17"
-	"github.com/evmos/evmos/v17/encoding"
-	"github.com/evmos/evmos/v17/ethereum/eip712"
-	"github.com/evmos/evmos/v17/precompiles/common"
-	srvflags "github.com/evmos/evmos/v17/server/flags"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	"github.com/evmos/evmos/v17/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v17/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v17/x/epochs/types"
-	"github.com/evmos/evmos/v17/x/erc20"
-	erc20client "github.com/evmos/evmos/v17/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v17/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v17/x/erc20/types"
-	"github.com/evmos/evmos/v17/x/evm"
-	evmkeeper "github.com/evmos/evmos/v17/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	"github.com/evmos/evmos/v17/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v17/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
-	"github.com/evmos/evmos/v17/x/incentives"
-	inflation "github.com/evmos/evmos/v17/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v17/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v17/x/inflation/v1/types"
-	"github.com/evmos/evmos/v17/x/vesting"
-	vestingclient "github.com/evmos/evmos/v17/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v17/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v17/x/vesting/types"
+	"github.com/evmos/evmos/v18/app/ante"
+	ethante "github.com/evmos/evmos/v18/app/ante/evm"
+	"github.com/evmos/evmos/v18/app/post"
+	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
+	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
+	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/ethereum/eip712"
+	"github.com/evmos/evmos/v18/precompiles/common"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v18/x/erc20"
+	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/evm"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v18/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	"github.com/evmos/evmos/v18/x/incentives"
+	inflation "github.com/evmos/evmos/v18/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	"github.com/evmos/evmos/v18/x/staking"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	"github.com/evmos/evmos/v18/x/vesting"
+	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v17/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v18/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
@@ -195,7 +198,7 @@ var (
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
@@ -494,11 +497,9 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
-	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
-			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -521,6 +522,12 @@ func NewEvmos(
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.VestingKeeper.Hooks(),
+		),
+	)
+
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
 		),
 	)
 
@@ -613,12 +620,12 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper,
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -1121,6 +1128,23 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v18 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v18.UpgradeName,
+		v18.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v19 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v19.UpgradeName,
+		v19.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.EvmKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1136,8 +1160,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v17.UpgradeName:
-		// revenue module is deprecated in v17
+	case v19.UpgradeName:
+		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
 		}

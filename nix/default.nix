@@ -3,7 +3,10 @@ let
   # use a newer version of nixpkgs to get go_1_22
   # We're not updating this on the whole setup because breaks other stuff
   # but we can import the needed packages from the newer version
-  nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
+  # This is getting a specific commit on main branch to get
+  # go v1.22 and rust v1.77. Using rust >= v1.78 breaks the current
+  # hermes relayer compilation
+  nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/d1c6a5decfd9ad4c84354612d418b2856a57be1d.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
   # the go_1_22 nixpkgs is v1.22.1
   # but we need the v1.22.2.
@@ -19,6 +22,9 @@ let
       sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
     };
   };
+  # get the rustPlatform used to build the hermes relayer
+  # This rustPlatform uses rust v1.77
+  rustPlatform = nixpkgs.pkgs.rustPlatform;
 in
 import sources.nixpkgs {
   overlays = [
@@ -80,7 +86,7 @@ import sources.nixpkgs {
       })
     (import (fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
     (_: pkgs: {
-      hermes = pkgs.callPackage ./hermes.nix { src = sources.hermes; };
+      hermes = pkgs.callPackage ./hermes.nix { src = sources.hermes; platform = rustPlatform; };
     })
     (_: pkgs: { test-env = pkgs.callPackage ./testenv.nix { }; })
   ];

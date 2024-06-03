@@ -8,7 +8,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-// ReadSchedule returns the value of a schedule at readTime.
+// ReadSchedule returns the coins of a schedule at readTime.
 //
 // A "schedule" is an increasing step function of Coins over time. It's
 // specified as an absolute start time and a sequence of relative periods, with

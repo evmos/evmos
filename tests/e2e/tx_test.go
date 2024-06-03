@@ -8,8 +8,8 @@ import (
 	"regexp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v17/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v17/utils"
+	"github.com/evmos/evmos/v18/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 // executeTransactions executes some sample transactions to check they are still working after the upgrade.

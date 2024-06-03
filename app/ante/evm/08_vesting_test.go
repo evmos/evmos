@@ -11,11 +11,11 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v17/app/ante/evm"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v17/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v17/testutil/integration/evmos/network"
-	vestingtypes "github.com/evmos/evmos/v17/x/vesting/types"
+	"github.com/evmos/evmos/v18/app/ante/evm"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 type AccountExpenses = map[string]*evm.EthVestingExpenseTracker

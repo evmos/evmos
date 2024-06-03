@@ -11,12 +11,12 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/contracts"
-	ibctesting "github.com/evmos/evmos/v17/ibc/testing"
-	teststypes "github.com/evmos/evmos/v17/types/tests"
-	"github.com/evmos/evmos/v17/utils"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/contracts"
+	ibctesting "github.com/evmos/evmos/v18/ibc/testing"
+	teststypes "github.com/evmos/evmos/v18/types/tests"
+	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -242,7 +242,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		})
 		It("should convert erc20 ibc voucher to original erc20", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -287,7 +287,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		})
 		It("should convert full available balance of erc20 coin to original erc20 token", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -336,7 +336,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		})
 		It("send native ERC-20 to osmosis, when sending back IBC coins should convert full balance back to erc20 token", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -369,6 +369,67 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			// IBC coin balance should be zero
 			erc20CoinsBalance = s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
+		})
+	})
+	Describe("strv2 bookkeeping - registered uosmo", func() {
+		BeforeEach(func() {
+			erc20params := types.DefaultParams()
+			erc20params.EnableErc20 = true
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
+
+			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
+			senderAcc = sdk.MustAccAddressFromBech32(sender)
+			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+
+			// Register uosmo pair
+			pair, err = s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
+			s.Require().NoError(err)
+		})
+		It("should register receiver address", func() {
+			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
+
+			s.EvmosChain.Coordinator.CommitBlock()
+			// Send coins
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().True(found)
+
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 2, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().True(found)
+		})
+	})
+
+	Describe("strv2 bookkeeping - unregistered uosmo", func() {
+		BeforeEach(func() {
+			erc20params := types.DefaultParams()
+			erc20params.EnableErc20 = true
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
+
+			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
+			senderAcc = sdk.MustAccAddressFromBech32(sender)
+			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
+		})
+		It("should not register receiver address", func() {
+			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
+
+			s.EvmosChain.Coordinator.CommitBlock()
+			// Send coins
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
+			s.Require().False(found)
 		})
 	})
 })
@@ -428,7 +489,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should fail transfer and not convert to IBC", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -503,7 +564,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should transfer available balance", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount*2))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount*2))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -546,7 +607,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should convert and transfer if no ibc balance", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -567,7 +628,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should fail if balance is not enough", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -612,7 +673,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should timeout and reconvert to ERC20", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 
 			// Check Balance

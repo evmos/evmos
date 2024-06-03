@@ -8,7 +8,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/evmos/evmos/v17/precompiles/authorization"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
-	vestingkeeper "github.com/evmos/evmos/v17/x/vesting/keeper"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

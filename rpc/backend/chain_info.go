@@ -15,10 +15,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	rpctypes "github.com/evmos/evmos/v17/rpc/types"
-	"github.com/evmos/evmos/v17/types"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v17/x/feemarket/types"
+	rpctypes "github.com/evmos/evmos/v18/rpc/types"
+	"github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	"github.com/pkg/errors"
 )
 

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	vestingtypes "github.com/evmos/evmos/v17/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 var _ govtypes.GovHooks = Hooks{}

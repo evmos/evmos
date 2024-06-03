@@ -18,15 +18,15 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v17/app"
-	"github.com/evmos/evmos/v17/crypto/hd"
-	"github.com/evmos/evmos/v17/encoding"
-	"github.com/evmos/evmos/v17/indexer"
-	"github.com/evmos/evmos/v17/rpc/backend/mocks"
-	rpctypes "github.com/evmos/evmos/v17/rpc/types"
-	utiltx "github.com/evmos/evmos/v17/testutil/tx"
-	"github.com/evmos/evmos/v17/utils"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/crypto/hd"
+	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v18/indexer"
+	"github.com/evmos/evmos/v18/rpc/backend/mocks"
+	rpctypes "github.com/evmos/evmos/v18/rpc/types"
+	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 type BackendTestSuite struct {
@@ -85,6 +85,7 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.backend = NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, idxer)
 	suite.backend.cfg.JSONRPC.GasCap = 0
 	suite.backend.cfg.JSONRPC.EVMTimeout = 0
+	suite.backend.cfg.JSONRPC.AllowInsecureUnlock = true
 	suite.backend.queryClient.QueryClient = mocks.NewEVMQueryClient(suite.T())
 	suite.backend.clientCtx.Client = mocks.NewClient(suite.T())
 	suite.backend.queryClient.FeeMarket = mocks.NewFeeMarketQueryClient(suite.T())

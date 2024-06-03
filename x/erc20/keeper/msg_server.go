@@ -15,8 +15,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v17/contracts"
-	"github.com/evmos/evmos/v17/x/erc20/types"
+	"github.com/evmos/evmos/v18/contracts"
+	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -133,9 +133,15 @@ func (k Keeper) convertCoinNativeCoin(
 	}
 
 	// Mint tokens and send to receiver
-	_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
+	_, err = k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
+	}
+
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver.Bytes()) {
+		k.SetSTRv2Address(ctx, receiver.Bytes())
 	}
 
 	// Check expected receiver balance after transfer
@@ -213,7 +219,7 @@ func (k Keeper) convertERC20NativeCoin(
 	}
 
 	// Burn escrowed tokens
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "burnCoins", sender, msg.Amount.BigInt())
+	_, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -249,6 +255,12 @@ func (k Keeper) convertERC20NativeCoin(
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
+	}
+
+	// Keep track of interactions for STR v2 migration
+	// TODO: to be removed in 2nd upgrade
+	if !k.HasSTRv2Address(ctx, receiver) {
+		k.SetSTRv2Address(ctx, receiver)
 	}
 
 	defer func() {
@@ -318,7 +330,7 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	res, err := k.CallEVMWithData(ctx, sender, &contract, transferData, true)
+	res, err := k.evmKeeper.CallEVMWithData(ctx, sender, &contract, transferData, true)
 	if err != nil {
 		return nil, err
 	}
@@ -443,7 +455,7 @@ func (k Keeper) convertCoinNativeERC20(
 	}
 
 	// Unescrow Tokens and send to receiver
-	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, msg.Coin.Amount.BigInt())
+	res, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}

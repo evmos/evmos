@@ -40,13 +40,13 @@ import (
 	mintypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v17/crypto/hd"
-	"github.com/evmos/evmos/v17/server/config"
-	srvflags "github.com/evmos/evmos/v17/server/flags"
-	evmostypes "github.com/evmos/evmos/v17/types"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/crypto/hd"
+	"github.com/evmos/evmos/v18/server/config"
+	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmostypes "github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
-	"github.com/evmos/evmos/v17/testutil/network"
+	"github.com/evmos/evmos/v18/testutil/network"
 )
 
 var (

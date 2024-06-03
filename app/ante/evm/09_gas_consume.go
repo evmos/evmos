@@ -10,9 +10,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v17/app/ante/utils"
-	"github.com/evmos/evmos/v17/types"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
+	"github.com/evmos/evmos/v18/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // UpdateComulativeGasWanted updates the cumulative gas wanted

@@ -11,12 +11,12 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v17/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	"github.com/evmos/evmos/v18/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -111,6 +111,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// Staking transactions
 	case CreateValidatorMethod:
 		bz, err = p.CreateValidator(ctx, evm.Origin, contract, stateDB, method, args)
+	case EditValidatorMethod:
+		bz, err = p.EditValidator(ctx, evm.Origin, contract, stateDB, method, args)
 	case DelegateMethod:
 		bz, err = p.Delegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case UndelegateMethod:
@@ -154,6 +156,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //
 // Available staking transactions are:
 //   - CreateValidator
+//   - EditValidator
 //   - Delegate
 //   - Undelegate
 //   - Redelegate
@@ -167,6 +170,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
 	case CreateValidatorMethod,
+		EditValidatorMethod,
 		DelegateMethod,
 		UndelegateMethod,
 		RedelegateMethod,

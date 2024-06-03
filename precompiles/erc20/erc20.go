@@ -7,7 +7,7 @@ import (
 	"embed"
 	"fmt"
 
-	cmn "github.com/evmos/evmos/v17/precompiles/common"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v17/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v17/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
+	auth "github.com/evmos/evmos/v18/precompiles/authorization"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 )
 
 const (
