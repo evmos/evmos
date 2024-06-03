@@ -1,5 +1,3 @@
-import re
-
 import pytest
 from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
 from .network import Evmos
@@ -191,6 +189,7 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     fees = receipt.gasUsed * evmos_gas_price
 
     final_dest_balance = dest_starting_balance
+
     def check_dest_balance():
         nonlocal final_dest_balance
         final_dest_balance = get_balance(
