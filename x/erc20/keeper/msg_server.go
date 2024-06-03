@@ -133,7 +133,7 @@ func (k Keeper) convertCoinNativeCoin(
 	}
 
 	// Mint tokens and send to receiver
-	_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
+	_, err = k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (k Keeper) convertERC20NativeCoin(
 	}
 
 	// Burn escrowed tokens
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "burnCoins", sender, msg.Amount.BigInt())
+	_, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	res, err := k.CallEVMWithData(ctx, sender, &contract, transferData, true)
+	res, err := k.evmKeeper.CallEVMWithData(ctx, sender, &contract, transferData, true)
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +455,7 @@ func (k Keeper) convertCoinNativeERC20(
 	}
 
 	// Unescrow Tokens and send to receiver
-	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, msg.Coin.Amount.BigInt())
+	res, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
