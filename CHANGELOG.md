@@ -112,7 +112,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
-- (security) Merge security advisory GHSA-xgr7-jgq3-mhmc
+- (security) [#2596](https://github.com/evmos/evmos/pull/2596) Merge security advisory GHSA-xgr7-jgq3-mhmc
 
 ## [v18.0.1](https://github.com/evmos/evmos/releases/tag/v18.0.1) - 2024-05-29
 
