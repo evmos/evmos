@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	ackeeper "github.com/evmos/evmos/v18/x/access_control/keeper"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
@@ -28,6 +29,7 @@ type Precompile struct {
 	accountKeeper authkeeper.AccountKeeper
 	bankKeeper    bankkeeper.Keeper
 	evmKeeper     evmkeeper.Keeper
+	acKeeper      ackeeper.Keeper
 }
 
 // NewPrecompile creates a new TokenFactory Precompile instance as a

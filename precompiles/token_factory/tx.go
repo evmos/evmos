@@ -12,8 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	access "github.com/evmos/evmos/v18/precompiles/access_control"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	access "github.com/github.com/evmos/evmos/v18/precompiles/access_control"
 )
 
 const (
