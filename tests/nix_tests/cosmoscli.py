@@ -987,6 +987,20 @@ class CosmosCLI:
             )
         )
 
+    def authz_grants(self, granter: str, grantee: str, msg_type_url: str = ""):
+        return json.loads(
+            self.raw(
+                "query",
+                "authz",
+                "grants",
+                granter,
+                grantee,
+                msg_type_url,
+                output="json",
+                node=self.node_rpc,
+            )
+        )
+
     # ==========================
     #        AUTH Module
     # ==========================

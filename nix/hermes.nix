@@ -10,7 +10,7 @@ platform.buildRustPackage rec {
   name = "hermes";
 
   inherit src;
-  cargoSha256 = "sha256-jqmIBmvY3PXpLFfv6XrnXJ0RmR6amFFMNfgK8qDFHb8=";
+  cargoSha256 = "sha256-4E1FYffh7qu5e09UjYw83eW9uPuKHGfOAaZbLtLCLA0=";
   cargoBuildFlags = "--no-default-features --bin hermes";
   buildInputs = lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.Security
