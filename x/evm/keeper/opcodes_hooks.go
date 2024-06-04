@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/evmos/evmos/v18/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
