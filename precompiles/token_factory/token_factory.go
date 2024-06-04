@@ -1,8 +1,11 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package tokenfactory
 
 import (
 	"bytes"
 	"embed"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -113,8 +116,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - Create2ERC20
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case MethodCreateERC20,
-		MethodCreate2ERC20:
+	case MethodCreateERC20, MethodCreate2ERC20:
 		return true
 	default:
 		return false

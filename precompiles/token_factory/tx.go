@@ -1,3 +1,5 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package tokenfactory
 
 import (
@@ -11,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	//"github.com/github.com/evmos/evmos/v18/precompiles/access"
+	access "github.com/github.com/evmos/evmos/v18/precompiles/access_control"
 )
 
 const (
@@ -80,7 +82,6 @@ func (p Precompile) createERC20(
 	addrHex := address.String()
 	denom := erc20types.CreateDenom(addrHex)
 
-	// TODO: Create Token Pair
 	tokenPair := erc20types.TokenPair{
 		Erc20Address:  addrHex,
 		Denom:         denom,

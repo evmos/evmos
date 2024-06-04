@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.0;
 
 /// @dev The ITokenFactory contract's address.
@@ -9,8 +9,8 @@ ITokenFactory constant TOKEN_FACTORY_CONTRACT = ITokenFactory(TOKEN_FACTORY_PREC
 
 
 /// @author Evmos Team
-/// @title ICS20 Transfer Precompiled Contract
-/// @dev The interface through which solidity contracts will interact with IBC Transfer (ICS20)
+/// @title Token Factory Precompiled Contract
+/// @dev The interface through which solidity contracts mint native tokens in ERC-20 format.
 /// @custom:address 0x0000000000000000000000000000000000000900
 interface ITokenFactory {
 
