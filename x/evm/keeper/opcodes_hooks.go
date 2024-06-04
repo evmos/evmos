@@ -5,17 +5,18 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v18/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 type DefaultOpCodesHooks struct {
-	accessControl PermissionPolicy
+	accessControl types.PermissionPolicy
 	signer        string
 }
 
-func NewDefaultOpCodesHooks(accessControl PermissionPolicy, signer string) vm.OpCodeHooks {
+func NewDefaultOpCodesHooks(accessControl types.PermissionPolicy, signer string) vm.OpCodeHooks {
 	return &DefaultOpCodesHooks{
 		accessControl: accessControl,
 		signer:        signer,

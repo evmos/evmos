@@ -39,12 +39,12 @@ func checkDisabledCreateCall(
 	permissions *evmtypes.AccessControl,
 ) error {
 	to := txData.GetTo()
-	blockCreated := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
+	blockCreate := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
 	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeRestricted
 
 	// return error if contract creation or call are disabled through governance
 	// and the transaction is trying to create a contract or call a contract
-	if blockCreated && to == nil {
+	if blockCreate && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
 	} else if blockCall && to != nil {
 		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to perform a call")

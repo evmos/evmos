@@ -1,12 +1,10 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package keeper
+package types
 
 import (
 	"slices"
-
-	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 type PermissionPolicy interface {
@@ -19,14 +17,14 @@ type PermissionPolicy interface {
 
 // RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of accessControl.
 type RestrictedPermissionPolicy struct {
-	accessControl *types.AccessControl
+	accessControl *AccessControl
 	canCreate     callerFn
 	canCall       callerFn
 }
 
 type callerFn = func(caller string) bool
 
-func NewRestrictedPermissionPolicy(accessControl *types.AccessControl, signer string) RestrictedPermissionPolicy {
+func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer string) RestrictedPermissionPolicy {
 	// generate create function at instantiation for signer address to be check only once
 	// since it remains constant
 	canCreate := getCanCreateFn(accessControl, signer)
@@ -49,15 +47,15 @@ func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 	return p.canCreate(caller)
 }
 
-func getCanCreateFn(accessControl *types.AccessControl, signer string) callerFn {
+func getCanCreateFn(accessControl *AccessControl, signer string) callerFn {
 	addresses := accessControl.Create.AccessControlList
 
 	switch accessControl.Create.AccessType {
-	case types.AccessTypePermissionless:
+	case AccessTypePermissionless:
 		return permissionlessCheckFn(addresses, signer)
-	case types.AccessTypeRestricted:
+	case AccessTypeRestricted:
 		return func(_ string) bool { return false }
-	case types.AccessTypePermissioned:
+	case AccessTypePermissioned:
 		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }
@@ -72,15 +70,15 @@ func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 	return p.canCall(caller)
 }
 
-func getCanCallFn(accessControl *types.AccessControl, signer string) callerFn {
+func getCanCallFn(accessControl *AccessControl, signer string) callerFn {
 	addresses := accessControl.Call.AccessControlList
 
 	switch accessControl.Call.AccessType {
-	case types.AccessTypePermissionless:
+	case AccessTypePermissionless:
 		return permissionlessCheckFn(addresses, signer)
-	case types.AccessTypeRestricted:
+	case AccessTypeRestricted:
 		return func(_ string) bool { return false }
-	case types.AccessTypePermissioned:
+	case AccessTypePermissioned:
 		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }

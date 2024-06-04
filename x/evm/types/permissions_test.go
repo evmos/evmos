@@ -1,13 +1,23 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package keeper_test
+package types_test
 
 import (
+	"testing"
+
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/stretchr/testify/suite"
 )
+
+type UnitTestSuite struct {
+	suite.Suite
+}
+
+func TestPermissionsSuite(t *testing.T) {
+	suite.Run(t, new(UnitTestSuite))
+}
 
 func (suite *UnitTestSuite) TestAccessControl() {
 	keyring := testkeyring.New(2)
@@ -207,7 +217,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			accessControl := tc.getAccessControl()
-			permissionPolicy := keeper.NewRestrictedPermissionPolicy(
+			permissionPolicy := types.NewRestrictedPermissionPolicy(
 				&accessControl,
 				tc.signer,
 			)
