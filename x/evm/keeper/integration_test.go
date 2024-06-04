@@ -285,7 +285,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("Create permission policy is set to nobody", Ordered, func() {
+	When("Create permission policy is set to restricted", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -408,7 +408,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("Call permission policy is set to nobody", Ordered, func() {
+	When("Call permission policy is set to restricted", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -608,7 +608,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("Create permission policy is set to whitelist address", Ordered, func() {
+	When("Create permission policy is set to permissioned", Ordered, func() {
 		allowedSignerIndex := 0
 		invalidSignerIndex := 1
 		BeforeAll(func() {
@@ -750,6 +750,456 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 
 			nonAllowlistedSigner := s.keyring.GetPrivKey(invalidSignerIndex)
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			res, err := s.factory.ExecuteContractCall(nonAllowlistedSigner, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+	})
+
+	When("Create permission policy is set to permissioned", Ordered, func() {
+		allowedSignerIndex := 0
+		invalidSignerIndex := 1
+		BeforeAll(func() {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
+			}
+			err := s.network.UpdateEvmParams(defaultParams)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+		})
+
+		It("performs a transfer transaction with both non whitelisted addresses", func() {
+			signer := s.keyring.GetKey(invalidSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a transfer transaction with whitelisted address", func() {
+			signer := s.keyring.GetKey(allowedSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a contract deployment and a contract call with whitelisted address", func() {
+			signer := s.keyring.GetKey(allowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			contractAddr, err := s.factory.DeployContract(
+				signer.Priv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			txArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			amountToMint := big.NewInt(1e18)
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{s.keyring.GetAddr(1), amountToMint},
+			}
+			res, err := s.factory.ExecuteContractCall(signer.Priv, txArgs, callArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = checkMintTopics(res)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(signer.Priv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
+		})
+
+		It("fails to perform contract deployment with non whitelisted address", func() {
+			signerPriv := s.keyring.GetPrivKey(invalidSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			_, err := s.factory.DeployContract(
+				signerPriv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to deploy contracts"))
+		})
+
+		It("performs contract deployment with whitelist address and contract call with non whitelisted address", func() {
+			whitelistedSigner := s.keyring.GetPrivKey(allowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+
+			var err error // Avoid shadowing
+			contractAddr, err := s.factory.DeployContract(
+				whitelistedSigner,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			nonAllowlistedSigner := s.keyring.GetPrivKey(invalidSignerIndex)
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			res, err := s.factory.ExecuteContractCall(nonAllowlistedSigner, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+	})
+
+	When("Call permission policy is set to permissionless", Ordered, func() {
+		allowedSignerIndex := 0
+		blockedSignerIndex := 1
+
+		BeforeAll(func() {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			err := s.network.UpdateEvmParams(defaultParams)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+		})
+
+		It("fails when performing a transfer transaction with blocked address", func() {
+			signer := s.keyring.GetKey(blockedSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			_, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		})
+
+		It("performs a transfer transaction with valid address", func() {
+			signer := s.keyring.GetKey(allowedSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a contract deployment and fails to perform a contract call with blocked address", func() {
+			signer := s.keyring.GetKey(blockedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			contractAddr, err := s.factory.DeployContract(
+				signer.Priv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			txArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
+			}
+			_, err = s.factory.ExecuteContractCall(signer.Priv, txArgs, callArgs)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		})
+
+		It("performs a contract deployment and performs a contract call with valid address", func() {
+			signerPriv := s.keyring.GetPrivKey(allowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			contractAddr, err := s.factory.DeployContract(
+				signerPriv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			txArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+			amountToMint := big.NewInt(1e18)
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{s.keyring.GetAddr(1), amountToMint},
+			}
+			res, err := s.factory.ExecuteContractCall(signerPriv, txArgs, callArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = checkMintTopics(res)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(signerPriv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
+		})
+	})
+
+	When("Create permission policy is set to permissionless", Ordered, func() {
+		allowedSignerIndex := 0
+		blockedSignerIndex := 1
+
+		BeforeAll(func() {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			err := s.network.UpdateEvmParams(defaultParams)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+		})
+
+		It("performs a transfer transaction with non blocked addresses", func() {
+			signer := s.keyring.GetKey(allowedSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a transfer transaction with blocked address", func() {
+			signer := s.keyring.GetKey(blockedSignerIndex)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiver.Addr,
+				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a contract deployment and a contract call with non blocked address", func() {
+			signer := s.keyring.GetKey(allowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			contractAddr, err := s.factory.DeployContract(
+				signer.Priv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			txArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
+			}
+
+			amountToMint := big.NewInt(1e18)
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "mint",
+				Args:        []interface{}{s.keyring.GetAddr(1), amountToMint},
+			}
+			res, err := s.factory.ExecuteContractCall(signer.Priv, txArgs, callArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = checkMintTopics(res)
+			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(signer.Priv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
+		})
+
+		It("fails to perform contract deployment with blocked address", func() {
+			signerPriv := s.keyring.GetPrivKey(blockedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+			_, err := s.factory.DeployContract(
+				signerPriv,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to deploy contracts"))
+		})
+
+		It("performs contract deployment with non blocked address and contract call with  address", func() {
+			whitelistedSigner := s.keyring.GetPrivKey(allowedSignerIndex)
+			constructorArgs := []interface{}{"coin", "token", uint8(18)}
+			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+
+			var err error // Avoid shadowing
+			contractAddr, err := s.factory.DeployContract(
+				whitelistedSigner,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			Expect(err).To(BeNil())
+			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			nonAllowlistedSigner := s.keyring.GetPrivKey(blockedSignerIndex)
 			totalSupplyTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
 			}
