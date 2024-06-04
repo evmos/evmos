@@ -31,7 +31,7 @@ type Coordinator interface {
 	// GetPath returns the transfer path for the chain ids 'a' and 'b'
 	GetPath(a, b string) *evmosibc.Path
 	// GetChainSenderAcc returns the sender account for the specified chain
-	GetChainSenderAcc(chainID string) sdk.AccountI 
+	GetChainSenderAcc(chainID string) sdk.AccountI
 	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
 	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc sdk.AccountI)
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will

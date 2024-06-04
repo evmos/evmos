@@ -274,7 +274,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		ctx    sdk.Context
 		nw     *network.UnitTestNetwork
 		coord  *coordinator.IntegrationCoordinator
-		keys keyring.Keyring
+		keys   keyring.Keyring
 		path   evmosibc.Path
 		path2  evmosibc.Path
 		paths  []evmosibc.Path

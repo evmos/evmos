@@ -11,10 +11,10 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	evmosibc "github.com/evmos/evmos/v18/ibc/testing"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/ics20"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
-	evmosibc "github.com/evmos/evmos/v18/ibc/testing"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/testutil/integration/ibc/coordinator"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
@@ -28,10 +28,10 @@ var (
 
 func (s *PrecompileTestSuite) TestTransfer() {
 	var (
-		ctx sdk.Context
-		nw  *network.UnitTestNetwork
-		coord *coordinator.IntegrationCoordinator 
-		path *evmosibc.Path
+		ctx    sdk.Context
+		nw     *network.UnitTestNetwork
+		coord  *coordinator.IntegrationCoordinator
+		path   *evmosibc.Path
 		chainA string
 		chainB string
 	)
@@ -124,7 +124,6 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		{
 			"fail - allowance is less than transfer amount",
 			func(sender, _ sdk.AccAddress) []interface{} {
-
 				err := s.NewTransferAuthorization(ctx, nw.App, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
 				s.Require().NoError(err)
 				return []interface{}{
