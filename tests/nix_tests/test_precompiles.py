@@ -66,6 +66,20 @@ def test_ibc_transfer(ibc):
     receipt = send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
 
     assert receipt.status == 1
+
+    # check ibc-transfer event was emitted
+    transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
+    assert transfer_event.address == "0x0000000000000000000000000000000000000802"
+    assert transfer_event.event == "IBCTransfer"
+    assert transfer_event.args.sender == ADDRS["signer2"]
+    # TODO check if we want to keep the keccak256 hash bytes or smth better
+    # assert transfer_event.args.receiver == dst_addr
+    assert transfer_event.args.sourcePort == "transfer"
+    assert transfer_event.args.sourceChannel == "channel-0"
+    assert transfer_event.args.denom == src_denom
+    assert transfer_event.args.amount == amt
+    assert transfer_event.args.memo == ""
+
     # check gas used
     assert receipt.gasUsed == 49307
 

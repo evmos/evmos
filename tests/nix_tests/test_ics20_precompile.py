@@ -89,6 +89,21 @@ def test_approve(ibc, name, args, exp_err, err_contains, exp_spend_limit):
         return
 
     assert tx_receipt.status == 1, f"Failed: {name}"
+
+    # check the IBCTransferAuthorization event was emitted
+    auth_event = pc.events.IBCTransferAuthorization().processReceipt(tx_receipt)[0]
+    assert auth_event.address == "0x0000000000000000000000000000000000000802"
+    assert auth_event.event == "IBCTransferAuthorization"
+    assert auth_event.args.grantee == args[0]
+    assert auth_event.args.granter == ADDRS["signer1"]
+    assert len(auth_event.args.allocations) == 1
+    assert auth_event.args.allocations[0] == (
+        "transfer",
+        "channel-0",
+        [("aevmos", exp_spend_limit)],
+        [],
+    )
+
     # check the authorization was created
     cli = ibc.chains["evmos"].cosmos_cli()
     granter = cli.address("signer1")
@@ -184,6 +199,15 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
         return
 
     assert tx_receipt.status == 1, f"Failed: {name}"
+
+    # check the IBCTransferAuthorization event was emitted
+    auth_event = pc.events.IBCTransferAuthorization().processReceipt(tx_receipt)[0]
+    assert auth_event.address == "0x0000000000000000000000000000000000000802"
+    assert auth_event.event == "IBCTransferAuthorization"
+    assert auth_event.args.grantee == args[0]
+    assert auth_event.args.granter == ADDRS["signer1"]
+    assert len(auth_event.args.allocations) == 0
+
     # check the authorization to the validator was revoked
     cli = ibc.chains["evmos"].cosmos_cli()
     granter = cli.address("signer1")
@@ -353,6 +377,15 @@ def test_increase_allowance(
         return
 
     assert tx_receipt.status == 1, f"Failed: {name}"
+
+    # check the IBCTransferAuthorization event was emitted
+    auth_event = pc.events.IBCTransferAuthorization().processReceipt(tx_receipt)[0]
+    assert auth_event.address == "0x0000000000000000000000000000000000000802"
+    assert auth_event.event == "IBCTransferAuthorization"
+    assert auth_event.args.grantee == args[0]
+    assert auth_event.args.granter == ADDRS["validator"]
+    assert len(auth_event.args.allocations) == 1
+
     # check the authorization was created
     cli = ibc.chains["evmos"].cosmos_cli()
     granter = cli.address("validator")
@@ -530,6 +563,15 @@ def test_decrease_allowance(
         return
 
     assert tx_receipt.status == 1, f"Failed: {name}"
+
+    # check the IBCTransferAuthorization event was emitted
+    auth_event = pc.events.IBCTransferAuthorization().processReceipt(tx_receipt)[0]
+    assert auth_event.address == "0x0000000000000000000000000000000000000802"
+    assert auth_event.event == "IBCTransferAuthorization"
+    assert auth_event.args.grantee == args[0]
+    assert auth_event.args.granter == ADDRS["community"]
+    assert len(auth_event.args.allocations) == 1
+
     # check the authorization was created
     cli = ibc.chains["evmos"].cosmos_cli()
     granter = cli.address("community")
@@ -653,7 +695,7 @@ def test_ibc_transfer_from_contract(ibc):
 
 
 def test_ibc_transfer_from_eoa_through_contract(ibc):
-    """Test ibc transfer from EOA"""
+    """Test ibc transfer from EOA through a Smart Contract call"""
     assert_ready(ibc)
 
     evmos: Evmos = ibc.chains["evmos"]

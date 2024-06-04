@@ -362,7 +362,15 @@ class CosmosCLI:
 
     def balances(self, addr):
         return json.loads(
-            self.raw("query", "bank", "balances", addr, home=self.data_dir)
+            self.raw(
+                "query",
+                "bank",
+                "balances",
+                addr,
+                home=self.data_dir,
+                output="json",
+                node=self.node_rpc,
+            )
         )["balances"]
 
     def balance(self, addr, denom=DEFAULT_DENOM):
