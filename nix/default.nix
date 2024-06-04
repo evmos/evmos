@@ -54,8 +54,8 @@ import sources.nixpkgs {
       osmosisd = pkgs.callPackage ./bin.nix {
         appName = "osmosisd";
         version = "v20.2.1";
-        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v20.2.1/osmosisd-20.2.1-linux-amd64";
-        sha256 = "sha256-TmCocIYcoXgZ+8tJ//mBtXMewRIdfLq0OYfF8E/wmfo=";
+        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-darwin-arm64";
+        sha256 = "sha256-U9D/5Ng1PlHQvlQ+33ZN4DPiTXA9TECCRKFB5jWydig=";
       };
       # Using gaia v11 (includes the PFM) cause after this version the '--min-self-delegation' flag is removed
       # from the 'gentx' cmd. 

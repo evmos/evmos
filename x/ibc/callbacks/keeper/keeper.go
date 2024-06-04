@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/ibc-go/modules/apps/callbacks/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	evmkeeper "github.com/evmos/evmos/v17/x/evm/keeper"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
 var _ types.ContractKeeper = Keeper{}

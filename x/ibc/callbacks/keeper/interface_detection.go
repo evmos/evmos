@@ -6,30 +6,29 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/evmos/v17/server/config"
-	evmtypes "github.com/evmos/evmos/v17/x/evm/types"
+	"github.com/evmos/evmos/v18/server/config"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // NOTE: These selectors were generated using the `functionName.selector` syntax in Solidity.
 // You can read more here in the 'How Interfaces are Identified' section - https://eips.ethereum.org/EIPS/eip-165
 var (
-	OnAckPacketInterfaceID     = [4]byte{0x40, 0xe6, 0xba, 0xfd} // 0x40e6bafd
 	OnSendPacketInterfaceID    = [4]byte{0x1e, 0xe6, 0x8e, 0x81} // 0x1ee68e81
-	OnRecvPacketInterfaceID    = [4]byte{0xeb, 0x8f, 0xcd, 0x41} // 0xeb8fcd41
-	OnTimeoutPacketInterfaceID = [4]byte{0x02, 0x08, 0x72, 0xcd} // 0x020872cd
+	OnAckPacketInterfaceID     = [4]byte{0x50, 0x81, 0x24, 0x4a} // 0x5081244a
+	OnRecvPacketInterfaceID    = [4]byte{0x50, 0x81, 0x24, 0x4a} // 0x5081244a
+	OnTimeoutPacketInterfaceID = [4]byte{0xdd, 0x14, 0xd3, 0xbd} // 0xdd14d3bd
 )
 
 // DetectInterface checks if the contract at the given address supports the given interfaceID.
 // It does this by calling the `supportsInterface` function on the contract.
-func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, packetSenderAddress string, contractHex common.Address) error {
+func (k Keeper) DetectInterface(cachedCtx sdk.Context, interfaceID [4]byte, contractHex common.Address) error {
 	input, err := k.ABI.Pack(SupportsInterfaceQuery, interfaceID)
 	if err != nil {
 		return err
 	}
 
-	packetSender := common.HexToAddress(packetSenderAddress)
+	//packetSender := common.HexToAddress(packetSenderAddress)
 	callArgs := evmtypes.TransactionArgs{
-		From: &packetSender,
 		To:   &contractHex,
 		Data: (*hexutil.Bytes)(&input),
 	}

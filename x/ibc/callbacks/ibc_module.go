@@ -3,7 +3,7 @@ package callbacks
 import (
 	ibccallbacks "github.com/cosmos/ibc-go/modules/apps/callbacks/types"
 	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	"github.com/evmos/evmos/v17/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 )
 
 var _ ibccallbacks.CallbacksCompatibleModule = IBCModule{}

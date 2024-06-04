@@ -44,6 +44,7 @@ def test_ibc_transfer_callback(ibc):
     evmos_cli = evmos.cosmos_cli()
     evmos_addr = ADDRS["signer1"]
     bech_src = eth_to_bech32(evmos_addr)
+    print("the bech_src", bech_src)
 
     gaia_cli = gaia.cosmos_cli()
     gaia_addr = gaia_cli.address("signer2")
@@ -53,5 +54,5 @@ def test_ibc_transfer_callback(ibc):
     )
     assert rsp["code"] == 0
     wait_for_ack(evmos_cli, "Evmos")
-    time.sleep(5)
+    time.sleep(15)
     print("the counter after", eth_contract.functions.counter().call())

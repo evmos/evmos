@@ -2,8 +2,10 @@
 , lib
 , stdenv
 , darwin
+, rustPlatform
 , symlinkJoin
 , openssl
+, rust-bin
 , platform
 }:
 platform.buildRustPackage rec {

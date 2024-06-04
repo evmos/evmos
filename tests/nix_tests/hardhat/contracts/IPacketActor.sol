@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 import "./IERC165.sol";
 
 // The ICS20Data from the FungiblePacketData in the ICS20 standard
-    struct ICS20Data {
-        string denom;
-        uint256 amount;
-        address sender;
-        string receiver;
-        string memo;
-    }
+struct ICS20Data {
+    string denom;
+    uint256 amount;
+    address sender;
+    string receiver;
+    string memo;
+}
 
 // The custom ICS20Packet struct that includes the ICS20Data
 struct ICS20Packet {
@@ -50,14 +50,11 @@ interface IPacketActor is IERC165 {
         address relayer
     ) external returns (bool success);
 
-
     /// @dev onRecvPacket will be called on the IBCActor after the IBC Application
     /// handles the RecvPacket callback if the packet has an IBC Actor as a receiver.
     /// @param packet The IBC packet received.
-    /// @param relayer The relayer address that sent the packet.
     function onRecvPacket(
-        ICS20Packet calldata packet,
-        address relayer
+        ICS20Packet calldata packet
     ) external returns (bool success);
 
     /// @dev onAcknowledgementPacket will be called on the IBC Actor
@@ -81,4 +78,18 @@ interface IPacketActor is IERC165 {
         ICS20Packet calldata packet,
         address relayer
     ) external returns (bool success);
+}
+
+/// @dev The abstract contract that implements the IPacketActor interface and provides a default implementation for supportsInterface
+abstract contract PacketActorBase is IPacketActor {
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return (
+            interfaceId == this.supportsInterface.selector ||
+            interfaceId == this.onSendPacket.selector ||
+            interfaceId == this.onRecvPacket.selector ||
+            interfaceId == this.onAcknowledgementPacket.selector ||
+            interfaceId == this.onTimeoutPacket.selector
+        );
+    }
 }

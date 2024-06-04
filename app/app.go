@@ -93,7 +93,7 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	callbackskeeper "github.com/evmos/evmos/v17/x/ibc/callbacks/keeper"
+	callbackskeeper "github.com/evmos/evmos/v18/x/ibc/callbacks/keeper"
 
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 
