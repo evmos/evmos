@@ -1181,12 +1181,12 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 			},
 			evmtypes.AccessControl{
 				Create: evmtypes.AccessControlType{
-					AccessType:         evmtypes.AccessTypeRestricted,
-					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
+					AccessType:        evmtypes.AccessTypeRestricted,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 				Call: evmtypes.AccessControlType{
-					AccessType:         evmtypes.AccessTypePermissionless,
-					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
+					AccessType:        evmtypes.AccessTypePermissionless,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 			},
 			evmtypes.ErrCreateDisabled,
@@ -1214,12 +1214,12 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 			},
 			evmtypes.AccessControl{
 				Create: evmtypes.AccessControlType{
-					AccessType:         evmtypes.AccessTypePermissionless,
-					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
+					AccessType:        evmtypes.AccessTypePermissionless,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 				Call: evmtypes.AccessControlType{
-					AccessType:         evmtypes.AccessTypeRestricted,
-					AllowlistAddresses: evmtypes.DefaultCreateAllowlistAddresses,
+					AccessType:        evmtypes.AccessTypeRestricted,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
 				},
 			},
 			evmtypes.ErrCallDisabled,

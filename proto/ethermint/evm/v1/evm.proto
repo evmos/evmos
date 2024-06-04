@@ -43,9 +43,12 @@ message AccessControl {
 message AccessControlType {
   // access_type defines which type of permission is required for the operation
   AccessType access_type = 1 [(gogoproto.customname) = "AccessType", (gogoproto.moretags) = "yaml:\"access_type\""];
-  // allowlist_addresses defines which addresses have permissions in case of permissioned access_type
-  repeated string allowlist_addresses = 2
-      [(gogoproto.customname) = "AllowlistAddresses", (gogoproto.moretags) = "yaml:\"allowlist_addresses\""];
+  // allowlist_addresses defines defines different things depending on the AccessType:
+  // - ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation
+  // - ACCESS_TYPE_RESTRICTED: ignored
+  // - ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation
+  repeated string access_control_list = 2
+      [(gogoproto.customname) = "AccessControlList", (gogoproto.moretags) = "yaml:\"access_control_list\""];
 }
 
 // AccessType defines the types of permissions for the operations

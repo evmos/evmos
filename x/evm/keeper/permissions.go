@@ -50,13 +50,14 @@ func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 }
 
 func getCanCreateFn(accessControl *types.AccessControl, signer string) callerFn {
+	addresses := accessControl.Create.AccessControlList
+
 	switch accessControl.Create.AccessType {
 	case types.AccessTypePermissionless:
-		return func(_ string) bool { return true }
+		return permissionlessCheckFn(addresses, signer)
 	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
 	case types.AccessTypePermissioned:
-		addresses := accessControl.Create.AllowlistAddresses
 		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }
@@ -72,18 +73,30 @@ func (p RestrictedPermissionPolicy) CanCall(_, caller, _ string) bool {
 }
 
 func getCanCallFn(accessControl *types.AccessControl, signer string) callerFn {
+	addresses := accessControl.Call.AccessControlList
+
 	switch accessControl.Call.AccessType {
 	case types.AccessTypePermissionless:
-		return func(_ string) bool { return true }
+		return permissionlessCheckFn(addresses, signer)
 	case types.AccessTypeRestricted:
 		return func(_ string) bool { return false }
 	case types.AccessTypePermissioned:
-		addresses := accessControl.Call.AllowlistAddresses
 		return permissionedCheckFn(addresses, signer)
 	}
 	return func(_ string) bool { return false }
 }
 
+// permissionlessCheckFn returns a callerFn that returns true unless the signer or the caller is
+// within the addresses slice.
+func permissionlessCheckFn(addresses []string, signer string) callerFn {
+	isSignerBlocked := !slices.Contains(addresses, signer)
+	return func(caller string) bool {
+		return isSignerBlocked || !slices.Contains(addresses, caller)
+	}
+}
+
+// permissionedCheckFn returns a callerFn that returns true if the signer or caller
+// is within the addresses slice.
 func permissionedCheckFn(addresses []string, signer string) callerFn {
 	isSignerAllowed := slices.Contains(addresses, signer)
 	return func(caller string) bool {

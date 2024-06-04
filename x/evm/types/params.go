@@ -49,12 +49,12 @@ var (
 	DefaultCallAllowlistAddresses   []string
 	DefaultAccessControl            = AccessControl{
 		Create: AccessControlType{
-			AccessType:         AccessTypePermissionless,
-			AllowlistAddresses: DefaultCreateAllowlistAddresses,
+			AccessType:        AccessTypePermissionless,
+			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 		Call: AccessControlType{
-			AccessType:         AccessTypePermissionless,
-			AllowlistAddresses: DefaultCreateAllowlistAddresses,
+			AccessType:        AccessTypePermissionless,
+			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 	}
 )
@@ -206,7 +206,7 @@ func validatePermissionType(i interface{}) error {
 		return err
 	}
 
-	if err := validateAllowlistAddresses(permission.AllowlistAddresses); err != nil {
+	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
 		return err
 	}
 

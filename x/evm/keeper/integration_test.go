@@ -471,15 +471,16 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("Call permission policy is set to whitelist address", Ordered, func() {
+	When("Call permission policy is set to permissioned", Ordered, func() {
 		allowedSignerIndex := 0
 		invalidSignerIndex := 1
+
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
-				AccessType:         evmtypes.AccessTypePermissioned,
-				AllowlistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
@@ -614,8 +615,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
-				AccessType:         evmtypes.AccessTypePermissioned,
-				AllowlistAddresses: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(allowedSignerIndex).String()},
 			}
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
