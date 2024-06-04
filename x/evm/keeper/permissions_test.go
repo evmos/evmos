@@ -47,7 +47,63 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			recipient: keyring.GetAddr(0).String(),
 		},
 		{
-			name: "should not allow call with whitelisted policy and not in whitelist",
+			name: "should not allow call with permissionless policy and signer in AccessControlList",
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Call.AccessType = types.AccessTypePermissionless
+				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
+				return p
+			},
+			canCall:   false,
+			canCreate: true,
+			signer:    keyring.GetAddr(0).String(),
+			caller:    keyring.GetAddr(1).String(),
+			recipient: keyring.GetAddr(1).String(),
+		},
+		{
+			name: "should not allow call with permissionless policy and signer not in AccessControlList",
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Call.AccessType = types.AccessTypePermissionless
+				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
+				return p
+			},
+			canCall:   false,
+			canCreate: true,
+			signer:    keyring.GetAddr(1).String(),
+			caller:    keyring.GetAddr(0).String(),
+			recipient: keyring.GetAddr(1).String(),
+		},
+		{
+			name: "should allow call with permissionless policy while caller nor signer are in AccessControlList",
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Call.AccessType = types.AccessTypePermissionless
+				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
+				return p
+			},
+			canCall:   true,
+			canCreate: true,
+			signer:    keyring.GetAddr(1).String(),
+			caller:    keyring.GetAddr(1).String(),
+			recipient: keyring.GetAddr(1).String(),
+		},
+		{
+			name: "should allow call with permissionless policy and caller not in AccessControlList",
+			getAccessControl: func() types.AccessControl {
+				p := types.DefaultParams().AccessControl
+				p.Call.AccessType = types.AccessTypePermissionless
+				p.Call.AccessControlList = []string{keyring.GetAddr(1).String()}
+				return p
+			},
+			canCall:   false,
+			canCreate: true,
+			signer:    keyring.GetAddr(1).String(),
+			caller:    keyring.GetAddr(0).String(),
+			recipient: keyring.GetAddr(1).String(),
+		},
+		{
+			name: "should not allow call with permissioned policy and not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissioned
@@ -61,7 +117,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			recipient: keyring.GetAddr(0).String(),
 		},
 		{
-			name: "should not allow create with whitelisted policy and not in whitelist",
+			name: "should not allow create with permissioned policy and not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned
@@ -75,7 +131,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			recipient: keyring.GetAddr(0).String(),
 		},
 		{
-			name: "should allow call and create with whitelisted policy and address in whitelist",
+			name: "should allow call and create with permissioned policy and address in AccessControlList",
 			getAccessControl: func() types.AccessControl {
 				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned

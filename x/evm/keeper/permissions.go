@@ -91,7 +91,7 @@ func getCanCallFn(accessControl *types.AccessControl, signer string) callerFn {
 func permissionlessCheckFn(addresses []string, signer string) callerFn {
 	isSignerBlocked := !slices.Contains(addresses, signer)
 	return func(caller string) bool {
-		return isSignerBlocked || !slices.Contains(addresses, caller)
+		return isSignerBlocked && !slices.Contains(addresses, caller)
 	}
 }
 
