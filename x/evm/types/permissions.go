@@ -22,7 +22,6 @@ type RestrictedPermissionPolicy struct {
 	canCall       callerFn
 }
 
-type callerFn = func(caller string) bool
 
 func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer string) RestrictedPermissionPolicy {
 	// generate create function at instantiation for signer address to be check only once
@@ -46,6 +45,8 @@ var _ PermissionPolicy = RestrictedPermissionPolicy{}
 func (p RestrictedPermissionPolicy) CanCreate(_, caller string) bool {
 	return p.canCreate(caller)
 }
+
+type callerFn = func(caller string) bool
 
 func getCanCreateFn(accessControl *AccessControl, signer string) callerFn {
 	addresses := accessControl.Create.AccessControlList
