@@ -1,7 +1,15 @@
+from hashlib import sha256
 import json
 import pytest
 
-from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
+from .ibc_utils import (
+    BASECRO_IBC_DENOM,
+    EVMOS_IBC_DENOM,
+    OSMO_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    prepare_network,
+)
 from .network import Evmos
 from .utils import (
     ADDRS,
@@ -537,7 +545,7 @@ def test_decrease_allowance(
 
     try:
         # signer1 creates authorization for signer2
-        incr_allowance_tx = pc.functions.decreaseAllowance(*args).build_transaction(
+        decr_allowance_tx = pc.functions.decreaseAllowance(*args).build_transaction(
             {
                 "from": ADDRS["community"],
                 "gasPrice": evmos_gas_price,
@@ -545,7 +553,7 @@ def test_decrease_allowance(
             }
         )
         tx_receipt = send_transaction(
-            ibc.chains["evmos"].w3, incr_allowance_tx, KEYS["community"]
+            ibc.chains["evmos"].w3, decr_allowance_tx, KEYS["community"]
         )
     except Exception as err:
         if exp_err is True:
@@ -586,6 +594,95 @@ def test_decrease_allowance(
         res["grants"][0]["authorization"]["value"]["allocations"][0]["spend_limit"]
         == exp_spend_limit
     ), f"Failed: {name}"
+
+
+@pytest.mark.parametrize(
+    "name, args, exp_err, err_contains, exp_res",
+    [
+        (
+            "empty input args",
+            [],
+            True,
+            "improper number of arguments",
+            None,
+        ),
+        (
+            "invalid denom trace",
+            ["invalid_denom_trace"],
+            True,
+            "invalid denom trace",
+            None,
+        ),
+        (
+            "denom trace not found, return empty struct",
+            [OSMO_IBC_DENOM],
+            False,
+            None,
+            ("", ""),
+        ),
+        (
+            "existing denom trace",
+            [BASECRO_IBC_DENOM],
+            False,
+            None,
+            ("transfer/channel-0", "basecro"),
+        ),
+    ],
+)
+def test_denom_trace(ibc, name, args, exp_err, err_contains, exp_res):
+    """Test ibc precompile denom trace query"""
+    assert_ready(ibc)
+
+    # setup: send some funds from chain-main to evmos
+    # to register the denom trace (if not registered already)
+    res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+
+    if len(res["denom_traces"]) == 0:
+        amt = 100
+        src_denom = "basecro"
+        dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
+        src_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
+        rsp = (
+            ibc.chains["chainmain"]
+            .cosmos_cli()
+            .ibc_transfer(
+                src_addr,
+                dst_addr,
+                f"{amt}{src_denom}",
+                "channel-0",
+                1,
+                fees="10000000000basecro",
+            )
+        )
+        assert rsp["code"] == 0, rsp["raw_log"]
+
+        # wait for the ack and registering the denom trace
+        def check_denom_trace_change():
+            res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+            return len(res["denom_traces"]) > 0
+
+        wait_for_fn("denom trace registration", check_denom_trace_change)
+
+    # define the query response outside the try-catch block
+    # to use it for further validations
+    query_res = None
+    try:
+        # make the query call
+        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+        query_res = pc.functions.denomTrace(*args).call()
+    except Exception as err:
+        if exp_err is True:
+            # stringify error in case it is a struct
+            err_msg = json.dumps(err.args[0], separators=(",", ":"))
+            assert err_contains in err_msg
+            # error expected, continue with next test
+            return
+        else:
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
+
+    # check the query response
+    assert query_res == exp_res, f"Failed: {name}"
 
 
 def test_ibc_transfer_from_contract(ibc):

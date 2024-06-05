@@ -928,6 +928,20 @@ class CosmosCLI:
             )
         )
 
+    def denom_traces(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "denom-traces",
+                **(default_kwargs | kwargs),
+            )
+        )
+
     # ==========================
     #        EVM Module
     # ==========================
