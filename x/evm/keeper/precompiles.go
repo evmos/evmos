@@ -6,6 +6,9 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	tokenfactory "github.com/evmos/evmos/v18/precompiles/token_factory"
+	accesscontrolkeeper "github.com/evmos/evmos/v18/x/access_control/keeper"
 	"maps"
 	"sort"
 
@@ -36,7 +39,10 @@ import (
 func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
+	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
+	evmKeeper Keeper,
+	accessControlKeeper accesscontrolkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
 	vestingKeeper any,
 	authzKeeper authzkeeper.Keeper,
@@ -82,6 +88,11 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
+	tokenFactoryPrecompile, err := tokenfactory.NewPrecompile(authzKeeper, accountKeeper, bankKeeper, evmKeeper, transferKeeper, accessControlKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate token factory precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -92,6 +103,7 @@ func AvailablePrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
+	precompiles[tokenFactoryPrecompile.Address()] = tokenFactoryPrecompile
 
 	return precompiles
 }

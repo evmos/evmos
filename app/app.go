@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"io"
 	"net/http"
 	"os"
@@ -93,6 +94,9 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	accesscontrol "github.com/evmos/evmos/v18/x/access_control"
+	accesscontrolkeeper "github.com/evmos/evmos/v18/x/access_control/keeper"
+	accesscontroltypes "github.com/evmos/evmos/v18/x/access_control/types"
 
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 
@@ -295,10 +299,11 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	InflationKeeper inflationkeeper.Keeper
-	Erc20Keeper     erc20keeper.Keeper
-	EpochsKeeper    epochskeeper.Keeper
-	VestingKeeper   vestingkeeper.Keeper
+	InflationKeeper     inflationkeeper.Keeper
+	Erc20Keeper         erc20keeper.Keeper
+	EpochsKeeper        epochskeeper.Keeper
+	VestingKeeper       vestingkeeper.Keeper
+	AccessControlKeeper accesscontrolkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -498,12 +503,19 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
+
+	// Access Control Keeper
+	app.AccessControlKeeper = accesscontrolkeeper.NewKeeper(appCodec, keys[accesscontroltypes.StoreKey])
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
+			app.AccountKeeper,
 			app.BankKeeper,
+			*app.EvmKeeper,
+			app.AccessControlKeeper,
 			app.Erc20Keeper,
 			app.VestingKeeper,
 			app.AuthzKeeper,
@@ -625,6 +637,7 @@ func NewEvmos(
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper),
+		accesscontrol.NewAppModule(app.AccessControlKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

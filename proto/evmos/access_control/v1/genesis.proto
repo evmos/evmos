@@ -1,0 +1,25 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.access_control.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v18/x/access_control/types";
+
+
+// ContractOwner
+message ContractAccount {
+  // the contract
+  string contract = 1;
+  // the account
+  string account = 2;
+}
+
+
+message GenesisState {
+  // Contract accounts
+  repeated ContractAccount contract_owner = 1 [(gogoproto.nullable) = false];
+  // paused contracts
+  repeated string paused_contracts = 2;
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/evmos/evmos/v18/x/access_control/types"
 )
 
+// HasRole returns true if a has a role otherwise false.
 func (k Keeper) HasRole(
 	ctx sdk.Context,
 	contract common.Address,
@@ -19,6 +20,7 @@ func (k Keeper) HasRole(
 	return store.Has(types.KeyRole(contract, role, account))
 }
 
+// GetRoleAdmin returns the admin role hash that controls `role`.
 func (k Keeper) GetRoleAdmin(
 	ctx sdk.Context,
 	contract common.Address,

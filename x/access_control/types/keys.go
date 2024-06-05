@@ -7,7 +7,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-const ModuleName = "access_control"
+const (
+	// ModuleName is the name of the module
+	ModuleName = "access_control"
+	// StoreKey to be used when creating the KVStore
+	StoreKey = ModuleName
+)
 
 var (
 	KeyPrefixRole      = []byte{0x01}

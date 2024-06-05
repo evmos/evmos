@@ -5,6 +5,8 @@ package tokenfactory
 import (
 	"bytes"
 	"embed"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -26,15 +28,24 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	accountKeeper authkeeper.AccountKeeper
-	bankKeeper    bankkeeper.Keeper
-	evmKeeper     evmkeeper.Keeper
-	acKeeper      ackeeper.Keeper
+	authzKeeper    authzkeeper.Keeper
+	accountKeeper  authkeeper.AccountKeeper
+	bankKeeper     bankkeeper.Keeper
+	evmKeeper      evmkeeper.Keeper
+	transferKeeper transferkeeper.Keeper
+	acKeeper       ackeeper.Keeper
 }
 
 // NewPrecompile creates a new TokenFactory Precompile instance as a
 // PrecompiledContract interface.
-func NewPrecompile() (*Precompile, error) {
+func NewPrecompile(
+	authzKeeper authzkeeper.Keeper,
+	accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
+	transferKeeper transferkeeper.Keeper,
+	acKeeper ackeeper.Keeper,
+) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
 		return nil, err
@@ -48,10 +59,16 @@ func NewPrecompile() (*Precompile, error) {
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
+			AuthzKeeper:          authzKeeper,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		accountKeeper:  accountKeeper,
+		bankKeeper:     bankKeeper,
+		evmKeeper:      evmKeeper,
+		transferKeeper: transferKeeper,
+		acKeeper:       acKeeper,
 	}, nil
 }
 

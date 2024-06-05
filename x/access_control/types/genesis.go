@@ -9,24 +9,14 @@ import (
 )
 
 // TODO: define proto type
-type ContractAccount struct {
-	Contract string
-	Account  string
-}
-
 type ContractAccounts struct {
 	Contract string
 	Accounts []string
 }
 
-type GenesisState struct {
-	ContractOwner   []ContractAccount
-	PausedContracts []string
-}
-
 // DefaultGenesisState sets default genesis state.
-func DefaultGenesisState() GenesisState {
-	return GenesisState{
+func DefaultGenesisState() *GenesisState {
+	return &GenesisState{
 		ContractOwner:   []ContractAccount{},
 		PausedContracts: []string{},
 	}
