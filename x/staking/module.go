@@ -4,6 +4,10 @@
 package staking
 
 import (
+	"fmt"
+
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/exported"
@@ -15,10 +19,15 @@ import (
 )
 
 var (
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
+	_ module.HasServices         = AppModule{}
+	_ module.HasInvariants       = AppModule{}
+	_ module.HasABCIGenesis      = AppModule{}
+	_ module.HasABCIEndBlock     = AppModule{}
+
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the staking module.
@@ -30,7 +39,8 @@ type AppModuleBasic struct {
 // the Evmos custom staking module keeper.
 type AppModule struct {
 	*staking.AppModule
-	keeper *keeper.Keeper
+	keeper         *keeper.Keeper
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a wrapper for the staking module.
@@ -43,8 +53,9 @@ func NewAppModule(
 ) AppModule {
 	am := staking.NewAppModule(cdc, k.Keeper, ak, bk, ls)
 	return AppModule{
-		AppModule: &am,
-		keeper:    k,
+		AppModule:      &am,
+		keeper:         k,
+		legacySubspace: ls,
 	}
 }
 
@@ -58,4 +69,17 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// !! NOTE: when upgrading to a new cosmos-sdk version
 	// !! Check if there're store migrations for the staking module
 	// !! if so, you'll need to add them here
+	m := stakingkeeper.NewMigrator(am.keeper.Keeper, am.legacySubspace)
+	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
+	}
+	if err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", types.ModuleName, err))
+	}
+	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 3 to 4: %v", types.ModuleName, err))
+	}
+	if err := cfg.RegisterMigration(types.ModuleName, 4, m.Migrate4to5); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 4 to 5: %v", types.ModuleName, err))
+	}
 }

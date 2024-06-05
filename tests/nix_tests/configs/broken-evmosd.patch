@@ -1,15 +1,15 @@
 diff --git a/app/app.go b/app/app.go
-index 53ce4f1a..aaeb8e76 100644
+index 8f143271..551abb63 100644
 --- a/app/app.go
 +++ b/app/app.go
-@@ -969,6 +969,10 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
+@@ -961,6 +961,10 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
  
  // EndBlocker updates every end block
- func (app *Evmos) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+ func (app *Evmos) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 +	if ctx.BlockHeight()%10 == 0 {
 +		store := ctx.KVStore(app.keys["evm"])
 +		store.Set([]byte("hello"), []byte("world"))
 +	}
- 	return app.mm.EndBlock(ctx, req)
+ 	return app.mm.EndBlock(ctx)
  }
  

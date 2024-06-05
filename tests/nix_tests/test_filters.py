@@ -32,9 +32,9 @@ def evmos_indexer(tmp_path_factory):
 
 @pytest.fixture(
     scope="module",
-    params=["evmos", "geth", "evmos-ws", "enable-indexer", "evmos-rocksdb"],
+    params=["evmos", "geth", "evmos-ws", "enable-indexer"],
 )
-def cluster(request, custom_evmos, evmos_indexer, evmos_rocksdb, geth):
+def cluster(request, custom_evmos, evmos_indexer, geth):
     """
     run on both evmos and geth
     """
@@ -49,8 +49,10 @@ def cluster(request, custom_evmos, evmos_indexer, evmos_rocksdb, geth):
         yield evmos_ws
     elif provider == "enable-indexer":
         yield evmos_indexer
-    elif provider == "evmos-rocksdb":
-        yield evmos_rocksdb
+    # ATM rocksdb build is not supported for sdkv0.50
+    # This is due to cronos dependencies (versionDB, memIAVL)
+    # elif provider == "evmos-rocksdb":
+    #     yield evmos_rocksdb
     else:
         raise NotImplementedError
 

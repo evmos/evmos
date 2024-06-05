@@ -931,7 +931,6 @@ class CosmosCLI:
                 "evm",
                 "raw",
                 raw_tx,
-                "-y",
                 "--generate-only",
                 home=self.data_dir,
                 **kwargs,

@@ -3,7 +3,7 @@ package strv2_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
@@ -33,7 +33,7 @@ const (
 )
 
 // sentWEVMOS is the amount of WEVMOS sent to the WEVMOS contract during testing.
-var sentWEVMOS = sdk.NewInt(1e18)
+var sentWEVMOS = math.NewInt(1e18)
 
 func TestDepositWEVMOS(t *testing.T) {
 	t.Parallel()

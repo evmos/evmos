@@ -10,7 +10,7 @@ from .ibc_utils import (
 from .utils import parse_events_rpc, wait_for_fn
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos"])
 def ibc(request, tmp_path_factory):
     """
     prepare IBC network with an evmos chain

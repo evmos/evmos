@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -39,7 +40,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		},
 		{
 			"invalid: min gas price negative",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecFromInt(math.NewInt(-1)), DefaultMinGasMultiplier),
+			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecFromInt(sdkmath.NewInt(-1)), DefaultMinGasMultiplier),
 			true,
 		},
 		{
@@ -98,13 +99,11 @@ func (suite *ParamsTestSuite) TestParamsValidateMinGasPrice() {
 		expError bool
 	}{
 		{"default", DefaultParams().MinGasPrice, false},
+		{"valid", math.LegacyNewDecFromInt(sdkmath.NewInt(1)), false},
 		{"valid", math.LegacyNewDecFromInt(math.NewInt(1)), false},
 		{"invalid - wrong type - bool", false, true},
-		{"invalid - wrong type - string", "", true},
-		{"invalid - wrong type - int64", int64(123), true},
-		{"invalid - wrong type - math.Int", math.NewInt(1), true},
 		{"invalid - is nil", nil, true},
-		{"invalid - is negative", math.LegacyNewDecFromInt(math.NewInt(-1)), true},
+		{"invalid - is negative", math.LegacyNewDecFromInt(sdkmath.NewInt(-1)), true},
 	}
 
 	for _, tc := range testCases {

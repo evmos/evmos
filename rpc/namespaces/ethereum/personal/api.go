@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v18/crypto/hd"
 	"github.com/evmos/evmos/v18/types"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"

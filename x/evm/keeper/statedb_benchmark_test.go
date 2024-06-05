@@ -15,7 +15,7 @@ import (
 
 func BenchmarkCreateAccountNew(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()
@@ -31,20 +31,20 @@ func BenchmarkCreateAccountNew(b *testing.B) {
 
 func BenchmarkCreateAccountExisting(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.CreateAccount(suite.address)
+		vmdb.CreateAccount(suite.keyring.GetAddr(0))
 	}
 }
 
 func BenchmarkAddBalance(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	amt := big.NewInt(10)
@@ -53,13 +53,13 @@ func BenchmarkAddBalance(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.AddBalance(suite.address, amt)
+		vmdb.AddBalance(suite.keyring.GetAddr(0), amt)
 	}
 }
 
 func BenchmarkSetCode(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	hash := crypto.Keccak256Hash([]byte("code")).Bytes()
@@ -68,13 +68,13 @@ func BenchmarkSetCode(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.SetCode(suite.address, hash)
+		vmdb.SetCode(suite.keyring.GetAddr(0), hash)
 	}
 }
 
 func BenchmarkSetState(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	hash := crypto.Keccak256Hash([]byte("topic")).Bytes()
@@ -83,13 +83,13 @@ func BenchmarkSetState(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.SetCode(suite.address, hash)
+		vmdb.SetCode(suite.keyring.GetAddr(0), hash)
 	}
 }
 
 func BenchmarkAddLog(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	topic := crypto.Keccak256Hash([]byte("topic"))
@@ -101,7 +101,7 @@ func BenchmarkAddLog(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		vmdb.AddLog(&ethtypes.Log{
-			Address:     suite.address,
+			Address:     suite.keyring.GetAddr(0),
 			Topics:      []common.Hash{topic},
 			Data:        []byte("data"),
 			BlockNumber: 1,
@@ -116,7 +116,7 @@ func BenchmarkAddLog(b *testing.B) {
 
 func BenchmarkSnapshot(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()
@@ -136,7 +136,7 @@ func BenchmarkSnapshot(b *testing.B) {
 
 func BenchmarkSubBalance(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	amt := big.NewInt(10)
@@ -145,26 +145,26 @@ func BenchmarkSubBalance(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.SubBalance(suite.address, amt)
+		vmdb.SubBalance(suite.keyring.GetAddr(0), amt)
 	}
 }
 
 func BenchmarkSetNonce(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		vmdb.SetNonce(suite.address, 1)
+		vmdb.SetNonce(suite.keyring.GetAddr(0), 1)
 	}
 }
 
 func BenchmarkAddRefund(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()
@@ -177,7 +177,7 @@ func BenchmarkAddRefund(b *testing.B) {
 
 func BenchmarkSuicide(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	vmdb := suite.StateDB()
 
 	b.ResetTimer()

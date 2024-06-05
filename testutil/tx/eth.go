@@ -3,6 +3,7 @@
 package tx
 
 import (
+	"context"
 	"encoding/json"
 	"math/big"
 
@@ -132,7 +133,7 @@ func CreateEthTx(
 // GasLimit estimates the gas limit for the provided parameters. To achieve
 // this, need to provide the corresponding QueryClient to call the
 // `eth_estimateGas` rpc method. If not provided, returns a default value
-func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
+func GasLimit(ctx context.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
 	// default gas limit (used if no queryClientEvm is provided)
 	gas := uint64(100000000000)
 
@@ -145,8 +146,7 @@ func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, que
 			return gas, err
 		}
 
-		goCtx := sdk.WrapSDKContext(ctx)
-		res, err := queryClientEvm.EstimateGas(goCtx, &evmtypes.EthCallRequest{
+		res, err := queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
 			Args:   args,
 			GasCap: config.DefaultGasCap,
 		})

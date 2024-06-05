@@ -9,7 +9,7 @@ package opendb
 import (
 	"path/filepath"
 
-	dbm "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/server/types"
 )
 

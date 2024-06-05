@@ -18,7 +18,8 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+
 	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"

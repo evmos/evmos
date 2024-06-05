@@ -84,8 +84,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# Set client config
-	evmosd config keyring-backend "$KEYRING" --home "$HOMEDIR"
-	evmosd config chain-id "$CHAINID" --home "$HOMEDIR"
+	evmosd config set client chain-id "$CHAINID" --home "$HOMEDIR"
+	evmosd config set client keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
 	VAL_KEY="mykey"
@@ -116,14 +116,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	# Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 	evmosd init $MONIKER -o --chain-id "$CHAINID" --home "$HOMEDIR"
-
-	# Change parameter token denominations to aevmos
-	jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
-	jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set gas limit in genesis
 	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -173,6 +165,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Change proposal periods to pass within a reasonable time for local testing
 	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
 	sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
+	sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "15s"/g' "$GENESIS"
 
 	# set custom pruning settings
 	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"

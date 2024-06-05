@@ -21,7 +21,7 @@ func (suite *KeeperTestSuite) TestParams() {
 				return types.DefaultParams()
 			},
 			func() interface{} {
-				return suite.app.EvmKeeper.GetParams(suite.ctx)
+				return suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 			},
 			true,
 		},
@@ -29,12 +29,12 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - EvmDenom param is set to \"inj\" and can be retrieved correctly",
 			func() interface{} {
 				params.EvmDenom = "inj"
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return params.EvmDenom
 			},
 			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetEvmDenom()
 			},
 			true,
@@ -43,12 +43,12 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check EnableCreate param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.EnableCreate = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return params.EnableCreate
 			},
 			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetEnableCreate()
 			},
 			true,
@@ -57,12 +57,12 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check EnableCall param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.EnableCall = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return params.EnableCall
 			},
 			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetEnableCall()
 			},
 			true,
@@ -71,12 +71,12 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check AllowUnprotectedTxs param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.AllowUnprotectedTxs = false
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return params.AllowUnprotectedTxs
 			},
 			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetAllowUnprotectedTxs()
 			},
 			true,
@@ -85,12 +85,12 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check ChainConfig param is set to the default value and can be retrieved correctly",
 			func() interface{} {
 				params.ChainConfig = types.DefaultChainConfig()
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return params.ChainConfig
 			},
 			func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetChainConfig()
 			},
 			true,
@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestParams() {
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				}
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err, "expected no error when setting params")
 
 				// NOTE: return sorted slice here because the precompiles should be sorted when setting the params
@@ -112,7 +112,7 @@ func (suite *KeeperTestSuite) TestParams() {
 				}
 			},
 			getFun: func() interface{} {
-				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetActivePrecompiles()
 			},
 			expected: true,

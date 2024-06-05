@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	teststaking "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -26,15 +25,18 @@ import (
 // CreateValidator creates a validator with the provided public key and stake amount
 func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt math.Int) {
 	zeroDec := math.LegacyZeroDec()
-	stakingParams := sk.GetParams(ctx)
-	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams, err := sk.GetParams(ctx)
+	require.NoError(t, err)
+	stakingParams.BondDenom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 	stakingParams.MinCommissionRate = zeroDec
-	err := sk.SetParams(ctx, stakingParams)
+	err = sk.SetParams(ctx, stakingParams)
 	require.NoError(t, err)
 
 	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-	stakingHelper.Denom = sk.BondDenom(ctx)
+	stakingHelper.Denom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 
 	valAddr := sdk.ValAddress(pubKey.Address())
 	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)
@@ -104,7 +106,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		}
 
 		zeroDec := math.LegacyZeroDec()
-		stakingParams := app.StakingKeeper.GetParams(ctx)
+		stakingParams, err := app.StakingKeeper.GetParams(ctx)
+		if err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to get staking params: %s", err.Error())
+		}
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
 		err = app.StakingKeeper.SetParams(ctx, stakingParams)
@@ -122,15 +127,25 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		// end block to bond validator and increase block height
 		// Not using Commit() here because code panics due to invalid block height
-		staking.EndBlocker(ctx, app.StakingKeeper.Keeper)
+		_, err = app.StakingKeeper.EndBlocker(ctx)
+		require.NoError(t, err)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
-		validator := app.StakingKeeper.Validator(ctx, valAddr)
+		validator, err := app.StakingKeeper.Validator(ctx, valAddr)
+		if err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to get validator: %s", err.Error())
+		}
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(math.NewInt(2))))
-		app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards)
+		if err = app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards); err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to allocate tokens to validator: %s", err.Error())
+		}
 	}
 
-	return ctx, nil
+	// Increase block height in ctx for the rewards calculation
+	// NOTE: this will only work for unit tests that use the context
+	// returned by this function
+	currentHeight := ctx.BlockHeight()
+	return ctx.WithBlockHeight(currentHeight + 1), nil
 }
 
 // GetTotalDelegationRewards returns the total delegation rewards that are currently

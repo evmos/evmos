@@ -4,10 +4,11 @@
 package grpc
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v18/testutil/integration/common/network"
 )
@@ -16,7 +17,7 @@ import (
 // the network's modules via gRPC.
 type Handler interface {
 	// Account methods
-	GetAccount(address string) (authtypes.AccountI, error)
+	GetAccount(address string) (sdk.AccountI, error)
 
 	// Authz methods
 	GetAuthorizations(grantee, granter string) ([]authz.Authorization, error)
@@ -28,10 +29,25 @@ type Handler interface {
 
 	// Bank methods
 	GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetSpendableBalance(address sdktypes.AccAddress, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
 	GetAllBalances(address sdktypes.AccAddress) (*banktypes.QueryAllBalancesResponse, error)
+	GetTotalSupply() (*banktypes.QueryTotalSupplyResponse, error)
 
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
+	GetDelegatorDelegations(delegatorAddress string) (*stakingtypes.QueryDelegatorDelegationsResponse, error)
+	GetValidatorDelegations(validatorAddress string) (*stakingtypes.QueryValidatorDelegationsResponse, error)
+	GetRedelegations(delegatorAddress, srcValidator, dstValidator string) (*stakingtypes.QueryRedelegationsResponse, error)
+	GetValidatorUnbondingDelegations(validatorAddress string) (*stakingtypes.QueryValidatorUnbondingDelegationsResponse, error)
+	GetDelegatorUnbondingDelegations(delegatorAddress string) (*stakingtypes.QueryDelegatorUnbondingDelegationsResponse, error)
+
+	// Distribution methods
+	GetDelegationTotalRewards(delegatorAddress string) (*distrtypes.QueryDelegationTotalRewardsResponse, error)
+	GetDelegationRewards(delegatorAddress string, validatorAddress string) (*distrtypes.QueryDelegationRewardsResponse, error)
+	GetDelegatorWithdrawAddr(delegatorAddress string) (*distrtypes.QueryDelegatorWithdrawAddressResponse, error)
+	GetValidatorCommission(validatorAddress string) (*distrtypes.QueryValidatorCommissionResponse, error)
+	GetValidatorOutstandingRewards(validatorAddress string) (*distrtypes.QueryValidatorOutstandingRewardsResponse, error)
+	GetCommunityPool() (*distrtypes.QueryCommunityPoolResponse, error)
 	GetBondedValidators() (*stakingtypes.QueryValidatorsResponse, error)
 }
 

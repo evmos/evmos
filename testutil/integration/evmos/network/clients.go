@@ -5,18 +5,24 @@ package network
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
@@ -42,7 +48,7 @@ func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
 
 func (n *IntegrationNetwork) GetGovClient() govtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	govtypes.RegisterQueryServer(queryHelper, n.app.GovKeeper)
+	govtypes.RegisterQueryServer(queryHelper, govkeeper.NewQueryServer(&n.app.GovKeeper))
 	return govtypes.NewQueryClient(queryHelper)
 }
 
@@ -66,7 +72,7 @@ func (n *IntegrationNetwork) GetInflationClient() infltypes.QueryClient {
 
 func (n *IntegrationNetwork) GetAuthClient() authtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	authtypes.RegisterQueryServer(queryHelper, n.app.AccountKeeper)
+	authtypes.RegisterQueryServer(queryHelper, authkeeper.NewQueryServer(n.app.AccountKeeper))
 	return authtypes.NewQueryClient(queryHelper)
 }
 
@@ -80,4 +86,22 @@ func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper.Keeper})
 	return stakingtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetDistrClient() distrtypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	distrtypes.RegisterQueryServer(queryHelper, distrkeeper.Querier{Keeper: n.app.DistrKeeper})
+	return distrtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetEpochsClient() epochstypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	epochstypes.RegisterQueryServer(queryHelper, n.app.EpochsKeeper)
+	return epochstypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetVestingClient() vestingtypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	vestingtypes.RegisterQueryServer(queryHelper, n.app.VestingKeeper)
+	return vestingtypes.NewQueryClient(queryHelper)
 }

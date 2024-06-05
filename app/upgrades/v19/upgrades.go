@@ -4,9 +4,11 @@
 package v19
 
 import (
+	"context"
+
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
@@ -21,7 +23,8 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	evmKeeper *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 		// revenue module is deprecated
 		logger.Debug("deleting revenue module from version map...")

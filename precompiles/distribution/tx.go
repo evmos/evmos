@@ -48,14 +48,17 @@ func (p Precompile) ClaimRewards(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorAddr
+	isContractDelegator := (contract.CallerAddress == delegatorAddr) && (origin != delegatorAddr)
 	if !isContractDelegator && origin != delegatorAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
-	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	res, err := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	if err != nil {
+		return nil, err
+	}
 	totalCoins := sdk.Coins{}
-	for _, validator := range validators {
+	for _, validator := range res.Validators {
 		// Convert the validator operator address into an ValAddress
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 		if err != nil {
@@ -94,13 +97,13 @@ func (p Precompile) SetWithdrawAddress(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr
+	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	if _, err = msgSrv.SetWithdrawAddress(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.SetWithdrawAddress(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -127,13 +130,13 @@ func (p Precompile) WithdrawDelegatorRewards(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr
+	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawDelegatorReward(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawDelegatorReward(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +176,7 @@ func (p Precompile) WithdrawValidatorCommission(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawValidatorCommission(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawValidatorCommission(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

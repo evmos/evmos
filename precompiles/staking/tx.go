@@ -56,7 +56,11 @@ func (p Precompile) CreateValidator(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, validatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, validatorHexAddr, err := NewMsgCreateValidator(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +82,7 @@ func (p Precompile) CreateValidator(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.CreateValidator(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -140,7 +144,11 @@ func (p Precompile) Delegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgDelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgDelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +198,7 @@ func (p Precompile) Delegate(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.Delegate(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.Delegate(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -225,7 +233,11 @@ func (p Precompile) Undelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgUndelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgUndelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +287,7 @@ func (p Precompile) Undelegate(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	res, err := msgSrv.Undelegate(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.Undelegate(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +318,11 @@ func (p Precompile) Redelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgRedelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgRedelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -356,7 +372,7 @@ func (p Precompile) Redelegate(
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	res, err := msgSrv.BeginRedelegate(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.BeginRedelegate(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +402,11 @@ func (p Precompile) CancelUnbondingDelegation(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -436,7 +456,7 @@ func (p Precompile) CancelUnbondingDelegation(
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.CancelUnbondingDelegation(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.CancelUnbondingDelegation(ctx, msg); err != nil {
 		return nil, err
 	}
 

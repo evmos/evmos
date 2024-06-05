@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	tmtime "github.com/cometbft/cometbft/types/time"
+	cmttime "github.com/cometbft/cometbft/types/time"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -169,7 +169,7 @@ func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
 
 func (suite *VestingAccountTestSuite) TestGetCoinsFunctions() {
 	var va *types.ClawbackVestingAccount
-	now := tmtime.Now()
+	now := time.Now()
 	endTime := now.Add(24 * time.Hour)
 	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	bacc := authtypes.NewBaseAccountWithAddress(addr)
@@ -342,7 +342,7 @@ func (suite *VestingAccountTestSuite) TestGetCoinsFunctions() {
 }
 
 func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
-	now := tmtime.Now()
+	now := cmttime.Now()
 	endTime := now.Add(24 * time.Hour)
 
 	testCases := []struct {
@@ -468,7 +468,7 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 func (suite *VestingAccountTestSuite) TestComputeClawback() {
 	fee := func(x int64) sdk.Coin { return sdk.NewInt64Coin(feeDenom, x) }
 	stake := func(x int64) sdk.Coin { return sdk.NewInt64Coin(stakeDenom, x) }
-	now := tmtime.Now()
+	now := cmttime.Now()
 	lockupPeriods := sdkvesting.Periods{
 		{Length: int64(12 * 3600), Amount: sdk.NewCoins(fee(1000), stake(100))}, // noon
 	}

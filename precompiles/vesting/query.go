@@ -23,7 +23,7 @@ func (p Precompile) Balances(
 		return nil, err
 	}
 
-	response, err := p.vestingKeeper.Balances(sdk.WrapSDKContext(ctx), msg)
+	response, err := p.vestingKeeper.Balances(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

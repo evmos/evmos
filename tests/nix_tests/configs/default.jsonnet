@@ -74,9 +74,6 @@
           },
         },
         gov: {
-          voting_params: {
-            voting_period: '10s',
-          },
           deposit_params: {
             max_deposit_period: '10s',
             min_deposit: [
@@ -94,7 +91,8 @@
               },
             ],
             max_deposit_period: '10s',
-            voting_period: '10s',
+            voting_period: '10s',         
+            expedited_voting_period: '5s',   
           },
         },
         transfer: {

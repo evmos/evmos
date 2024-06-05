@@ -3,9 +3,7 @@
 
 package app
 
-import (
-	"cosmossdk.io/math"
-)
+import "cosmossdk.io/math"
 
 var (
 	// MainnetMinGasPrices defines 20B aevmos (or atevmos) as the minimum gas price value on the fee market module.

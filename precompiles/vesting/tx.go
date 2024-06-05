@@ -50,7 +50,7 @@ func (p Precompile) CreateClawbackVestingAccount(
 		"args", fmt.Sprintf("{ from_address: %s, to_address: %s }", msg.FunderAddress, msg.VestingAddress),
 	)
 
-	_, err = p.vestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (p Precompile) FundVestingAccount(
 		}
 	}
 
-	_, err = p.vestingKeeper.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.FundVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func (p Precompile) Clawback(
 		}
 	}
 
-	response, err := p.vestingKeeper.Clawback(sdk.WrapSDKContext(ctx), msg)
+	response, err := p.vestingKeeper.Clawback(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (p Precompile) UpdateVestingFunder(
 		}
 	}
 
-	_, err = p.vestingKeeper.UpdateVestingFunder(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.UpdateVestingFunder(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (p Precompile) ConvertVestingAccount(
 		"args", fmt.Sprintf("{ vestingAddress: %s }", msg.VestingAddress),
 	)
 
-	_, err = p.vestingKeeper.ConvertVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.ConvertVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

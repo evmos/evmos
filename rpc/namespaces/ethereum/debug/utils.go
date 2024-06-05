@@ -9,7 +9,7 @@ import (
 	"runtime/pprof"
 	"strings"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/server"
 )
 

@@ -8,8 +8,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/contracts"
@@ -259,7 +259,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -304,7 +304,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -504,11 +504,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, math.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
-			denom := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			denom, err := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			s.Require().Error(err)
+
 			fee := sdk.Coins{sdk.NewInt64Coin(denom, ibctesting.DefaultFeeAmt)}
 
 			_, _, err = ibctesting.SignAndDeliver(
-				originChain.T,
+				originChain.TB,
 				originChain.TxConfig,
 				originChain.App.GetBaseApp(),
 				[]sdk.Msg{transferMsg},
@@ -581,7 +583,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -644,11 +646,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
-			denom := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			denom, err := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			s.Require().Error(err)
+
 			fee := sdk.Coins{sdk.NewInt64Coin(denom, ibctesting.DefaultFeeAmt)}
 
 			_, _, err = ibctesting.SignAndDeliver(
-				originChain.T,
+				originChain.TB,
 				originChain.TxConfig,
 				originChain.App.GetBaseApp(),
 				[]sdk.Msg{transferMsg},
@@ -694,11 +698,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
-			denom := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			denom, err := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			s.Require().Error(err)
+
 			fee := sdk.Coins{sdk.NewInt64Coin(denom, ibctesting.DefaultFeeAmt)}
 
 			_, _, err = ibctesting.SignAndDeliver(
-				originChain.T,
+				originChain.TB,
 				originChain.TxConfig,
 				originChain.App.GetBaseApp(),
 				[]sdk.Msg{transferMsg},
@@ -781,7 +787,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			err := msgConvertCoin.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -821,7 +827,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().NoError(err)
 
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -839,11 +845,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
-			denom := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			denom, err := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
+			s.Require().Error(err)
+
 			fee := sdk.Coins{sdk.NewInt64Coin(denom, ibctesting.DefaultFeeAmt)}
 
 			_, _, err = ibctesting.SignAndDeliver(
-				originChain.T,
+				originChain.TB,
 				originChain.TxConfig,
 				originChain.App.GetBaseApp(),
 				[]sdk.Msg{transferMsg},
@@ -907,7 +915,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().NoError(err)
 
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()

@@ -4,8 +4,9 @@
 package keeper
 
 import (
+	addresscodec "cosmossdk.io/core/address"
+	storetypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -20,13 +21,15 @@ type Keeper struct {
 // NewKeeper creates a new staking Keeper wrapper instance.
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	key storetypes.StoreKey,
+	storeService storetypes.KVStoreService,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	authority string,
+	validatorAddressCodec addresscodec.Codec,
+	consensusAddressCodec addresscodec.Codec,
 ) *Keeper {
 	return &Keeper{
-		stakingkeeper.NewKeeper(cdc, key, ak, bk, authority),
+		stakingkeeper.NewKeeper(cdc, storeService, ak, bk, authority, validatorAddressCodec, consensusAddressCodec),
 		ak,
 		bk,
 	}

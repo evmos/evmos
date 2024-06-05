@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/app"
@@ -15,7 +16,7 @@ import (
 func TestUnpackBalancesResponse(t *testing.T) {
 	t.Parallel()
 
-	expAmount, ok := sdk.NewIntFromString("1000000000000000000000")
+	expAmount, ok := math.NewIntFromString("1000000000000000000000")
 	require.True(t, ok, "failed to convert amount to int")
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)

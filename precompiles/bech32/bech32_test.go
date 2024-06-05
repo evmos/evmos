@@ -130,9 +130,12 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - hex to bech32 validator operator (evmosvaloper)",
 			func() *vm.Contract {
+				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
+				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err, "failed to convert string to bytes")
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()),
+					common.BytesToAddress(valAddrBz),
 					config.Bech32PrefixValAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -207,12 +210,16 @@ func (s *PrecompileTestSuite) TestRun() {
 				return contract
 			},
 			func(data []byte) {
+				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
+				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err, "failed to convert string to bytes")
+
 				args, err := s.precompile.Unpack(bech32.Bech32ToHexMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()), addr)
+				s.Require().Equal(common.BytesToAddress(valAddrBz), addr)
 			},
 			true,
 			"",

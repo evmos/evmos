@@ -72,13 +72,16 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		BeforeAll(func() {
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
-
-			err = s.network.NextBlock()
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  defaultParams,
+				},
+			)
 			Expect(err).To(BeNil())
 		})
-
 		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
@@ -287,19 +290,24 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
-			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
+			Expect(res).To(Equal(abcitypes.ExecTxResult{}))
 		})
 	})
 
 	When("EnableCreate param is set to false", Ordered, func() {
 		BeforeAll(func() {
+			// Set params to with EnableCreate = false
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCreate = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
-
-			err = s.network.NextBlock()
+			updatedParams := evmtypes.DefaultParams()
+			updatedParams.EnableCreate = false
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  updatedParams,
+				},
+			)
 			Expect(err).To(BeNil())
 		})
 
@@ -416,13 +424,16 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	When("EnableCall param is set to false", Ordered, func() {
 		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCall = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
-
-			err = s.network.NextBlock()
+			updatedParams := evmtypes.DefaultParams()
+			updatedParams.EnableCall = false
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  updatedParams,
+				},
+			)
 			Expect(err).To(BeNil())
 		})
 

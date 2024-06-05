@@ -17,10 +17,8 @@ IGNORED_FILETYPES: re.Pattern = re.compile(r"(_test|\.pb|\.pb\.gw)\.")
 
 # List of files with a LGPL3 license.
 EXEMPT_FILES: List[str] = [
-    r"x/claims/genesis\.go$",
     r"x/erc20/keeper/proposals\.go$",
     r"x/erc20/types/utils\.go$",
-    r"proto/evmos/claims/v1/genesis\.proto$",
 ]
 
 # List of folders that should be ignored.

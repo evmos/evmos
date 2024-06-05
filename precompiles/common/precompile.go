@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -112,7 +112,7 @@ func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetype
 	return func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
-			case sdk.ErrorOutOfGas:
+			case storetypes.ErrorOutOfGas:
 				// update contract gas
 				usedGas := ctx.GasMeter().GasConsumed() - initialGas
 				_ = contract.UseGas(usedGas)

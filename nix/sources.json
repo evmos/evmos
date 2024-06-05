@@ -44,15 +44,15 @@
         "url": "https://github.com/nix-community/gomod2nix/archive/872b63ddd28f318489c929d25f1f0a3c6039c971.tar.gz"
     },
     "hermes": {
-        "branch": "v1.6.0",
+        "branch": "v1.8.0",
         "description": "Hermes IBC relayer - Formal specifications and Rust implementation",
         "homepage": "",
         "owner": "informalsystems",
         "repo": "hermes",
-        "rev": "1c1cf02988db67507de7d484e1a7f317fe494d6c",
-        "sha256": "08a92qw7mbag51lphxj3515i17qwsqhlam2q0g6fhldhfisa7bya",
+        "rev": "39036d1af7f3828974c16b258cd8885d70ebeaa5",
+        "sha256": "16piirbdgddvws9wbd0hcpwmgsk0plxalwlf9llqaaj3xj3dbl1i",
         "type": "tarball",
-        "url": "https://github.com/informalsystems/hermes/archive/v1.6.0.tar.gz"
+        "url": "https://github.com/informalsystems/hermes/archive/v1.8.0.tar.gz"
     },
     "niv": {
         "branch": "master",

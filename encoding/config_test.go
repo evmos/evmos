@@ -42,7 +42,7 @@ func TestTxEncoding(t *testing.T) {
 	// FIXME: transaction hashing is hardcoded on Tendermint:
 	// See https://github.com/cometbft/cometbft/issues/6539 for reference
 	// txHash := msg.AsTransaction().Hash()
-	// tmTx := tmtypes.Tx(bz)
+	// tmTx := cmttypes.Tx(bz)
 
 	// require.Equal(t, txHash.Bytes(), tmTx.Hash())
 }

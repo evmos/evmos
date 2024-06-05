@@ -5,8 +5,10 @@
     appName,
     binUrl,
     sha256,
+    dontUnpack ? true,
 }:
 stdenv.mkDerivation {
+  inherit dontUnpack;
   # Use this nix file in case you want to add a compiled binary 
   # to the Nix environment
   name = "${appName}-${version}";
@@ -16,9 +18,6 @@ stdenv.mkDerivation {
     url = "${binUrl}";
     sha256 = "${sha256}";
   };
-
-  # Don't attempt to unpack the binary (it's already compiled)
-  dontUnpack = true;
 
   # Install the binary to the Nix environment's bin directory
   installPhase = ''
