@@ -685,14 +685,14 @@ schema = 3
     version = "v0.20.0"
     hash = "sha256-kU+OVJbYktTIn4ZTAdomsOjL069Vj45sdroEMRKaRDI="
   [mod."golang.org/x/text"]
-    version = "v0.15.0"
-    hash = "sha256-pBnj0AEkfkvZf+3bN7h6epCD2kurw59clDP7yWvxKlk="
+    version = "v0.16.0"
+    hash = "sha256-hMTO45upjEuA4sJzGplJT+La2n3oAfHccfYWZuHcH+8="
   [mod."golang.org/x/time"]
     version = "v0.5.0"
     hash = "sha256-W6RgwgdYTO3byIPOFxrP2IpAZdgaGowAaVfYby7AULU="
   [mod."golang.org/x/tools"]
-    version = "v0.21.0"
-    hash = "sha256-TU0gAxUX410AYc/nMxxZiaqXeORih1cXbKh3sxKufVg="
+    version = "v0.21.1-0.20240508182429-e35e4ccd0d2d"
+    hash = "sha256-KfnS+3fREPAWQUBoUedPupQp9yLrugxMmmEoHvyzKNE="
   [mod."google.golang.org/api"]
     version = "v0.169.0"
     hash = "sha256-7+EAvbTTnUutkXpQBbxPSmZTS5P0mrKTiFooMI81w0k="
