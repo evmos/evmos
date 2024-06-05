@@ -19,6 +19,7 @@ from .utils import (
     setup_stride,
     update_evmos_bin,
     update_evmosd_and_setup_stride,
+    wait_for_fn,
     wait_for_port,
 )
 
@@ -250,3 +251,36 @@ def get_balances(chain, addr):
     balance = chain.cosmos_cli().balances(addr)
     print("balance", balance, addr)
     return balance
+
+
+def setup_denom_trace(ibc):
+    """
+    Helper setup function to send some funds from chain-main to evmos
+    to register the denom trace (if not registered already)
+    """
+    res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+    if len(res["denom_traces"]) == 0:
+        amt = 100
+        src_denom = "basecro"
+        dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
+        src_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
+        rsp = (
+            ibc.chains["chainmain"]
+            .cosmos_cli()
+            .ibc_transfer(
+                src_addr,
+                dst_addr,
+                f"{amt}{src_denom}",
+                "channel-0",
+                1,
+                fees="10000000000basecro",
+            )
+        )
+        assert rsp["code"] == 0, rsp["raw_log"]
+
+        # wait for the ack and registering the denom trace
+        def check_denom_trace_change():
+            res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+            return len(res["denom_traces"]) > 0
+
+        wait_for_fn("denom trace registration", check_denom_trace_change)

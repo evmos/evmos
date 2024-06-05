@@ -548,3 +548,13 @@ def debug_trace_tx(evmos, tx_hash: str):
     rsp = requests.post(url, json=params)
     assert rsp.status_code == 200
     return rsp.json()["result"]
+
+
+def check_error(err: Exception, err_contains):
+    if err_contains is not None:
+        # stringify error in case it is an obj
+        err_msg = json.dumps(err.args[0], separators=(",", ":"))
+        assert err_contains in err_msg
+    else:
+        print(f"Unexpected {err=}, {type(err)=}")
+        raise

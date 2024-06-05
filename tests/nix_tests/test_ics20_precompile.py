@@ -9,6 +9,7 @@ from .ibc_utils import (
     assert_ready,
     get_balance,
     prepare_network,
+    setup_denom_trace,
 )
 from .network import Evmos
 from .utils import (
@@ -16,6 +17,7 @@ from .utils import (
     CONTRACTS,
     KEYS,
     MAX_UINT256,
+    check_error,
     debug_trace_tx,
     deploy_contract,
     get_precompile_contract,
@@ -34,6 +36,229 @@ def ibc(request, tmp_path_factory):
     path = tmp_path_factory.mktemp(name)
     network = prepare_network(path, name, [evmos_build, "chainmain"])
     yield from network
+
+
+@pytest.mark.parametrize(
+    "name, args, err_contains, exp_res",
+    [
+        (
+            "empty input args",
+            [],
+            "improper number of arguments",
+            None,
+        ),
+        (
+            "invalid denom trace",
+            ["invalid_denom_trace"],
+            "invalid denom trace",
+            None,
+        ),
+        (
+            "denom trace not found, return empty struct",
+            [OSMO_IBC_DENOM],
+            None,
+            ("", ""),
+        ),
+        (
+            "existing denom trace",
+            [BASECRO_IBC_DENOM],
+            None,
+            ("transfer/channel-0", "basecro"),
+        ),
+    ],
+)
+def test_denom_trace(ibc, name, args, err_contains, exp_res):
+    """Test ibc precompile denom trace query"""
+    assert_ready(ibc)
+
+    # setup: send some funds from chain-main to evmos
+    # to register the denom trace (if not registered already)
+    setup_denom_trace(ibc)
+
+    # define the query response outside the try-catch block
+    # to use it for further validations
+    query_res = None
+    try:
+        # make the query call
+        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+        query_res = pc.functions.denomTrace(*args).call()
+    except Exception as err:
+        check_error(err, err_contains)
+
+    # check the query response
+    assert query_res == exp_res, f"Failed: {name}"
+
+
+@pytest.mark.parametrize(
+    "name, args, err_contains, exp_res",
+    [
+        (
+            "empty input args",
+            [],
+            "improper number of arguments",
+            None,
+        ),
+        (
+            "gets denom traces with pagination",
+            [[b"", 0, 3, True, False]],
+            None,
+            [[("transfer/channel-0", "basecro")], (b"", 1)],
+        ),
+    ],
+)
+def test_denom_traces(ibc, name, args, err_contains, exp_res):
+    """Test ibc precompile denom traces query"""
+    assert_ready(ibc)
+
+    # setup: send some funds from chain-main to evmos
+    # to register the denom trace (if not registered already)
+    setup_denom_trace(ibc)
+
+    # define the query response outside the try-catch block
+    # to use it for further validations
+    query_res = None
+    try:
+        # make the query call
+        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+        query_res = pc.functions.denomTraces(*args).call()
+    except Exception as err:
+        check_error(err, err_contains)
+
+    # check the query response
+    assert query_res == exp_res, f"Failed: {name}"
+
+
+@pytest.mark.parametrize(
+    "name, args, exp_res",
+    [
+        (
+            "trace not found, returns empty string",
+            ["transfer/channel-1/uatom"],
+            (""),
+        ),
+        (
+            "get the hash of a denom trace",
+            ["transfer/channel-0/basecro"],
+            (BASECRO_IBC_DENOM.split("/")[1]),
+        ),
+    ],
+)
+def test_denom_hash(ibc, name, args, exp_res):
+    """Test ibc precompile denom traces query"""
+    assert_ready(ibc)
+
+    # setup: send some funds from chain-main to evmos
+    # to register the denom trace (if not registered already)
+    setup_denom_trace(ibc)
+
+    # define the query response outside the try-catch block
+    # to use it for further validations
+    query_res = None
+
+    # make the query call
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    query_res = pc.functions.denomHash(*args).call()
+
+    # check the query response
+    assert query_res == exp_res, f"Failed: {name}"
+
+
+@pytest.mark.parametrize(
+    "name, auth_args, args, err_contains, exp_res",
+    [
+        (
+            "empty input args",
+            [
+                ADDRS["community"],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], []]],
+            ],
+            [],
+            "improper number of arguments",
+            None,
+        ),
+        (
+            "authorization does not exist - returns empty array",
+            [
+                ADDRS["community"],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], []]],
+            ],
+            [
+                ADDRS["community"],
+                ADDRS["signer1"],
+            ],
+            None,
+            [],
+        ),
+        (
+            "existing authorization with one denom",
+            [
+                ADDRS["community"],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], []]],
+            ],
+            [
+                ADDRS["community"],
+                ADDRS["validator"],
+            ],
+            None,
+            [("transfer", "channel-0", [("aevmos", 1000000000000000000)], [])],
+        ),
+        (
+            "existing authorization with a multiple coin denomination",
+            [
+                ADDRS["community"],
+                [
+                    [
+                        "transfer",
+                        "channel-0",
+                        [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+                        [],
+                    ]
+                ],
+            ],
+            [
+                ADDRS["community"],
+                ADDRS["validator"],
+            ],
+            None,
+            [
+                (
+                    "transfer",
+                    "channel-0",
+                    [("aevmos", 1000000000000000000), ("uatom", 1000000000000000000)],
+                    [],
+                )
+            ],
+        ),
+    ],
+)
+def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
+    """Test precompile increase allowance"""
+    assert_ready(ibc)
+
+    gas_limit = 200_000
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+
+    # setup: create authorization to revoke
+    # validator address creates authorization for the provided auth_args
+    approve_tx = pc.functions.approve(*auth_args).build_transaction(
+        {
+            "from": ADDRS["validator"],
+            "gasPrice": evmos_gas_price,
+            "gas": gas_limit,
+        }
+    )
+    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["validator"])
+    assert tx_receipt.status == 1
+
+    allowance_res = None
+    try:
+        # signer1 creates authorization for signer2
+        allowance_res = pc.functions.allowance(*args).call()
+    except Exception as err:
+        check_error(err, err_contains)
+
+    assert allowance_res == exp_res, f"Failed: {name}"
 
 
 @pytest.mark.parametrize(
@@ -139,7 +364,7 @@ def test_approve(ibc, name, args, exp_err, err_contains, exp_spend_limit):
             "not a correct grantee address",
             ["0xinvalid_addr"],
             True,
-            "invalid grantee address",
+            "invocation failed due to no matching argument types",
         ),
         (
             "authorization does not exist",
@@ -192,12 +417,8 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             ibc.chains["evmos"].w3, revoke_tx, KEYS["signer1"]
         )
     except Exception as err:
-        if exp_err is True:
-            # error expected, continue with next test
-            return
-        else:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
+        check_error(err, err_contains)
+        return
 
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
@@ -235,7 +456,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             ],
             [],
             True,
-            "invalid number of arguments",
+            "improper number of arguments",
             0,
         ),
         (
@@ -370,12 +591,8 @@ def test_increase_allowance(
             ibc.chains["evmos"].w3, incr_allowance_tx, KEYS["validator"]
         )
     except Exception as err:
-        if exp_err is True:
-            # error expected, continue with next test
-            return
-        else:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
+        check_error(err, err_contains)
+        return
 
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
@@ -421,7 +638,7 @@ def test_increase_allowance(
             ],
             [],
             True,
-            "invalid number of arguments",
+            "improper number of arguments",
             0,
         ),
         (
@@ -556,12 +773,8 @@ def test_decrease_allowance(
             ibc.chains["evmos"].w3, decr_allowance_tx, KEYS["community"]
         )
     except Exception as err:
-        if exp_err is True:
-            # error expected, continue with next test
-            return
-        else:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
+        check_error(err, err_contains)
+        return
 
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
@@ -594,95 +807,6 @@ def test_decrease_allowance(
         res["grants"][0]["authorization"]["value"]["allocations"][0]["spend_limit"]
         == exp_spend_limit
     ), f"Failed: {name}"
-
-
-@pytest.mark.parametrize(
-    "name, args, exp_err, err_contains, exp_res",
-    [
-        (
-            "empty input args",
-            [],
-            True,
-            "improper number of arguments",
-            None,
-        ),
-        (
-            "invalid denom trace",
-            ["invalid_denom_trace"],
-            True,
-            "invalid denom trace",
-            None,
-        ),
-        (
-            "denom trace not found, return empty struct",
-            [OSMO_IBC_DENOM],
-            False,
-            None,
-            ("", ""),
-        ),
-        (
-            "existing denom trace",
-            [BASECRO_IBC_DENOM],
-            False,
-            None,
-            ("transfer/channel-0", "basecro"),
-        ),
-    ],
-)
-def test_denom_trace(ibc, name, args, exp_err, err_contains, exp_res):
-    """Test ibc precompile denom trace query"""
-    assert_ready(ibc)
-
-    # setup: send some funds from chain-main to evmos
-    # to register the denom trace (if not registered already)
-    res = ibc.chains["evmos"].cosmos_cli().denom_traces()
-
-    if len(res["denom_traces"]) == 0:
-        amt = 100
-        src_denom = "basecro"
-        dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
-        src_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-        rsp = (
-            ibc.chains["chainmain"]
-            .cosmos_cli()
-            .ibc_transfer(
-                src_addr,
-                dst_addr,
-                f"{amt}{src_denom}",
-                "channel-0",
-                1,
-                fees="10000000000basecro",
-            )
-        )
-        assert rsp["code"] == 0, rsp["raw_log"]
-
-        # wait for the ack and registering the denom trace
-        def check_denom_trace_change():
-            res = ibc.chains["evmos"].cosmos_cli().denom_traces()
-            return len(res["denom_traces"]) > 0
-
-        wait_for_fn("denom trace registration", check_denom_trace_change)
-
-    # define the query response outside the try-catch block
-    # to use it for further validations
-    query_res = None
-    try:
-        # make the query call
-        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-        query_res = pc.functions.denomTrace(*args).call()
-    except Exception as err:
-        if exp_err is True:
-            # stringify error in case it is a struct
-            err_msg = json.dumps(err.args[0], separators=(",", ":"))
-            assert err_contains in err_msg
-            # error expected, continue with next test
-            return
-        else:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
-
-    # check the query response
-    assert query_res == exp_res, f"Failed: {name}"
 
 
 def test_ibc_transfer_from_contract(ibc):
