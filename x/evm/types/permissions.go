@@ -9,6 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// PermissionPolicy is the interface that defines the permission policy for contract creation and calls.
+// It is used to enforce access control policies on EVM operations.
+// The policy is ran BEFORE the respective opcode execution every time they are called.
 type PermissionPolicy interface {
 	// CanCreate checks if the contract creation is allowed.
 	CanCreate(signer, caller common.Address) bool
@@ -18,6 +21,9 @@ type PermissionPolicy interface {
 }
 
 // RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of accessControl.
+// Note that all the properties are private, this enforces the permissions not to be modified
+// anywhere else within the code.
+// For users that require a custom permission policy, they can implement the PermissionPolicy interface.
 type RestrictedPermissionPolicy struct {
 	accessControl *AccessControl
 	canCreate     callerFn
