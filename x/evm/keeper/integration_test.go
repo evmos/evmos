@@ -285,7 +285,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	DescribeTable("Performs transfer and contract call", func(getTestParams func() evmtypes.Params, transferParams, contractCallParams OpcodeTestTable) {
+	DescribeTable("Performs transfer and contract call", func(getTestParams func() evmtypes.Params, transferParams, contractCallParams PermissionsTableTest) {
 		params := getTestParams()
 		err := s.network.UpdateEvmParams(params)
 		Expect(err).To(BeNil())
@@ -386,8 +386,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
 		Entry("transfer and call are successful with CALL permission policy set to permissionless and address not blocked", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -399,10 +399,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
-		Entry("transfer fails with signer blocked and call succeds with signer NOT blocked permission policy set to permissionless", func() evmtypes.Params {
+		Entry("transfer fails with signer blocked and call succeeds with signer NOT blocked permission policy set to permissionless", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -412,8 +412,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 1},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
 		Entry("transfer succeeds with signer NOT blocked and call fails with signer blocked permission policy set to permissionless", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -425,8 +425,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
 		),
 		Entry("transfer and call succeeds with CALL permission policy set to permissioned and signer whitelisted on both", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -438,8 +438,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 1},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
 		),
 		Entry("transfer and call fails with CALL permission policy set to permissioned and signer not whitelisted on both", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -451,12 +451,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
 		),
 	)
 
-	DescribeTable("Performs contract deployment and contract call with AccessControl", func(getTestParams func() evmtypes.Params, createParams, callParams OpcodeTestTable) {
+	DescribeTable("Performs contract deployment and contract call with AccessControl", func(getTestParams func() evmtypes.Params, createParams, callParams PermissionsTableTest) {
 		params := getTestParams()
 		err := s.network.UpdateEvmParams(params)
 		Expect(err).To(BeNil())
@@ -481,10 +481,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err.Error()).To(ContainSubstring("does not have permission to deploy contracts"))
 			// If contract deployment is expected to fail, we can skip the rest of the test
 			return
-		} else {
-			Expect(err).To(BeNil())
-			Expect(contractAddr).ToNot(Equal(common.Address{}))
 		}
+
+		Expect(err).To(BeNil())
+		Expect(contractAddr).ToNot(Equal(common.Address{}))
 
 		err = s.network.NextBlock()
 		Expect(err).To(BeNil())
@@ -517,8 +517,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
 		Entry("Create fails with create permission policy set to permissionless and signer is blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -530,8 +530,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 1},
-			OpcodeTestTable{}, // Call should not be executed
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{}, // Call should not be executed
 		),
 		Entry("Create and call is successful with call permission policy set to permissionless and address not blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
@@ -543,10 +543,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
-		Entry("Create is succesful and call fails with call permission policy set to permissionless and address blocked ", func() evmtypes.Params {
+		Entry("Create is successful and call fails with call permission policy set to permissionless and address blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -556,8 +556,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
 		),
 		Entry("Create fails create permission policy set to restricted", func() evmtypes.Params {
 			// Set params to default values
@@ -567,8 +567,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-			OpcodeTestTable{}, // Call should not be executed
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{}, // Call should not be executed
 		),
 		Entry("Create succeeds and call fails when call permission policy set to restricted", func() evmtypes.Params {
 			// Set params to default values
@@ -578,10 +578,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
 		),
-		Entry("Create and call are succesful with create permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
+		Entry("Create and call are successful with create permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -591,8 +591,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 1},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
 		),
 		Entry("Create fails with create permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
@@ -604,10 +604,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-			OpcodeTestTable{},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{},
 		),
-		Entry("Create and call are succesful with call permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
+		Entry("Create and call are successful with call permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
@@ -617,8 +617,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
 		),
 		Entry("Create succeeds and call fails with call permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
@@ -630,13 +630,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			return defaultParams
 		},
-			OpcodeTestTable{ExpFail: false, SignerIndex: 0},
-			OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
 		),
 	)
 })
 
-type OpcodeTestTable struct {
+type PermissionsTableTest struct {
 	ExpFail     bool
 	SignerIndex int
 }
