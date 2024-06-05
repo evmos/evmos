@@ -6,6 +6,7 @@ package types_test
 import (
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/stretchr/testify/suite"
@@ -27,9 +28,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		getAccessControl func() types.AccessControl
 		canCall          bool
 		canCreate        bool
-		signer           string
-		caller           string
-		recipient        string
+		signer           common.Address
+		caller           common.Address
+		recipient        common.Address
 	}{
 		{
 			name: "should allow call and create with default accessControl",
@@ -38,9 +39,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: true,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(0).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(0),
 		},
 		{
 			name: "should not allow call and create with nobody accessControl",
@@ -52,9 +53,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   false,
 			canCreate: false,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(0).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(0),
 		},
 		{
 			name: "should not allow call with permissionless policy and signer in AccessControlList",
@@ -66,9 +67,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   false,
 			canCreate: true,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(1).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(1),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should not allow call with permissionless policy and signer not in AccessControlList",
@@ -80,9 +81,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   false,
 			canCreate: true,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should allow call with permissionless policy while caller nor signer are in AccessControlList",
@@ -94,9 +95,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: true,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(1).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(1),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should allow call with permissionless policy and caller not in AccessControlList",
@@ -108,9 +109,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   false,
 			canCreate: true,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should not allow create with permissionless policy and signer in AccessControlList",
@@ -122,9 +123,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: false,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(1).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(1),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should not allow create with permissionless policy and signer not in AccessControlList",
@@ -136,9 +137,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: false,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should allow create with permissionless policy while caller nor signer are in AccessControlList",
@@ -150,9 +151,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: true,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(1).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(1),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should allow create with permissionless policy and caller not in AccessControlList",
@@ -164,9 +165,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: false,
-			signer:    keyring.GetAddr(1).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(1).String(),
+			signer:    keyring.GetAddr(1),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(1),
 		},
 		{
 			name: "should not allow call with permissioned policy and not in AccessControlList",
@@ -178,9 +179,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   false,
 			canCreate: true,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(0).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(0),
 		},
 		{
 			name: "should not allow create with permissioned policy and not in AccessControlList",
@@ -192,9 +193,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: false,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(0).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(0),
 		},
 		{
 			name: "should allow call and create with permissioned policy and address in AccessControlList",
@@ -208,9 +209,9 @@ func (suite *UnitTestSuite) TestAccessControl() {
 			},
 			canCall:   true,
 			canCreate: true,
-			signer:    keyring.GetAddr(0).String(),
-			caller:    keyring.GetAddr(0).String(),
-			recipient: keyring.GetAddr(0).String(),
+			signer:    keyring.GetAddr(0),
+			caller:    keyring.GetAddr(0),
+			recipient: keyring.GetAddr(0),
 		},
 	}
 
