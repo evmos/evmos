@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"fmt"
 	"slices"
 	"sort"
 
@@ -26,7 +27,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// NOTE: We need to sort the precompiles in order to enable searching with binary search
 	// in params.IsActivePrecompile.
-	slices.Sort(params.ActivePrecompiles)
+	slices.Sort(params.ActiveStaticPrecompiles)
 
 	if err := params.Validate(); err != nil {
 		return err
@@ -49,23 +50,46 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	return params
 }
 
-// EnablePrecompiles appends the addresses of the given Precompiles to the list
-// of active precompiles.
-func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+// EnableStaticPrecompiles appends the addresses of the given Precompiles to the list
+// of active static precompiles.
+func (k Keeper) EnableStaticPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
 	params := k.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
+	activePrecompiles := params.ActiveStaticPrecompiles
 
-	for _, address := range addresses {
-		activePrecompiles = append(activePrecompiles, address.String())
+	// Append and sort the new precompiles
+	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
+	if err != nil {
+		return err
 	}
 
-	sort.Slice(activePrecompiles, func(i, j int) bool {
-		return activePrecompiles[i] < activePrecompiles[j]
-	})
-
-	params.ActivePrecompiles = activePrecompiles
-
+	params.ActiveStaticPrecompiles = updatedPrecompiles
 	return k.SetParams(ctx, params)
+}
+
+func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
+	// check for duplicates
+	hexAddresses := make([]string, len(addresses))
+	for i := range addresses {
+		addrHex := addresses[i].Hex()
+		if slices.Contains(existingPrecompiles, addrHex) {
+			return nil, fmt.Errorf("precompile already registered: %s", addrHex)
+		}
+		hexAddresses[i] = addrHex
+	}
+
+	exstingLength := len(existingPrecompiles)
+	updatedPrecompiles := make([]string, exstingLength+len(hexAddresses))
+	copy(updatedPrecompiles, existingPrecompiles)
+	copy(updatedPrecompiles[exstingLength:], hexAddresses)
+
+	sortPrecompiles(updatedPrecompiles)
+	return updatedPrecompiles, nil
+}
+
+func sortPrecompiles(precompiles []string) {
+	sort.Slice(precompiles, func(i, j int) bool {
+		return precompiles[i] < precompiles[j]
+	})
 }
 
 // EnableEIPs enables the given EIPs in the EVM parameters.

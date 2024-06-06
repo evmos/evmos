@@ -4,10 +4,9 @@
 package keeper
 
 import (
-	"fmt"
-
 	"github.com/evmos/evmos/v18/x/evm/types"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
@@ -18,28 +17,44 @@ import (
 type DefaultOpCodesHooks struct {
 	accessControl types.PermissionPolicy
 	signer        common.Address
+	keeper        Keeper
+	ctx           sdktypes.Context
+	callHooks     []callHook
+	createHooks   []createHook
 }
 
+type createHook func(ev *vm.EVM, caller common.Address) error
+type callHook func(ev *vm.EVM, caller common.Address, recipient common.Address) error
+
 // NewDefaultOpCodesHooks creates a new DefaultOpCodesHooks instance
-func NewDefaultOpCodesHooks(accessControl types.PermissionPolicy, signer common.Address) vm.OpCodeHooks {
-	return &DefaultOpCodesHooks{
-		accessControl: accessControl,
-		signer:        signer,
-	}
+func NewDefaultOpCodesHooks() *DefaultOpCodesHooks {
+	return &DefaultOpCodesHooks{}
+}
+
+func (h *DefaultOpCodesHooks) AddCallHook(hook callHook) {
+	h.callHooks = append(h.callHooks, hook)
+}
+
+func (h *DefaultOpCodesHooks) AddCreateHook(hook createHook) {
+	h.createHooks = append(h.createHooks, hook)
 }
 
 // CreateHook checks if the caller has permission to deploy contracts
-func (h *DefaultOpCodesHooks) CreateHook(_ *vm.EVM, caller common.Address) error {
-	if h.accessControl.CanCreate(h.signer, caller) {
-		return nil
+func (h *DefaultOpCodesHooks) CreateHook(evm *vm.EVM, caller common.Address) error {
+	for _, hook := range h.createHooks {
+		if err := hook(evm, caller); err != nil {
+			return err
+		}
 	}
-	return fmt.Errorf("caller address %s does not have permission to deploy contracts", h.signer)
+	return nil
 }
 
 // CallHook checks if the caller has permission to perform a call
-func (h *DefaultOpCodesHooks) CallHook(_ *vm.EVM, caller common.Address, recipient common.Address) error {
-	if h.accessControl.CanCall(h.signer, caller, recipient) {
-		return nil
+func (h *DefaultOpCodesHooks) CallHook(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+	for _, hook := range h.callHooks {
+		if err := hook(evm, caller, recipient); err != nil {
+			return err
+		}
 	}
-	return fmt.Errorf("caller address %s does not have permission to perform a call", h.signer)
+	return nil
 }

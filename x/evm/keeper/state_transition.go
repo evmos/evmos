@@ -3,8 +3,8 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
-	"slices"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -60,8 +60,40 @@ func (k *Keeper) NewEVM(
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
 
 	signer := msg.From()
-	AccessControl := types.NewRestrictedPermissionPolicy(&cfg.Params.AccessControl, signer)
-	evmHooks := NewDefaultOpCodesHooks(AccessControl, signer)
+
+	accessControl := types.NewRestrictedPermissionPolicy(&cfg.Params.AccessControl, signer)
+	evmHooks := NewDefaultOpCodesHooks()
+
+	checkCreatePermission := func(ev *vm.EVM, caller common.Address) error {
+		if accessControl.CanCreate(signer, caller) {
+			return nil
+		}
+		return fmt.Errorf("caller address %s does not have permission to deploy contracts", signer)
+	}
+	evmHooks.AddCreateHook(checkCreatePermission)
+
+	checkCallPermission := func(_ *vm.EVM, caller common.Address, recipient common.Address) error {
+		if accessControl.CanCall(signer, caller, recipient) {
+			return nil
+		}
+		return fmt.Errorf("caller address %s does not have permission to perform a call", caller)
+	}
+	evmHooks.AddCallHook(checkCallPermission)
+
+	instantiatePrecompiles := func(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+		// Check if the recipient is a precompile contract and if so, load the precompile instance
+		precompiles, found, err := k.GetPrecompileInstance(ctx, recipient)
+		if err != nil {
+			return err
+		}
+
+		if found {
+			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
+		}
+		return nil
+	}
+	evmHooks.AddCallHook(instantiatePrecompiles)
+
 	return vm.NewEVMWithHooks(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
 
@@ -319,33 +351,6 @@ func (k *Keeper) ApplyMessageWithConfig(
 
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
-
-	// set the custom precompiles to the EVM (if any)
-	if cfg.Params.HasCustomPrecompiles() {
-		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
-
-		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
-		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
-		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
-
-		// Check if the transaction is sent to an inactive precompile
-		//
-		// NOTE: This has to be checked here instead of in the actual evm.Call method
-		// because evm.WithPrecompiles only populates the EVM with the active precompiles,
-		// so there's no telling if the To address is an inactive precompile further down the call stack.
-		toAddr := msg.To()
-		if toAddr != nil &&
-			slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
-			!slices.Contains(activePrecompiles, *toAddr) {
-			return nil, errorsmod.Wrap(types.ErrInactivePrecompile, "failed to call precompile")
-		}
-
-		// NOTE: this only adds active precompiles to the EVM.
-		// This means that evm.Precompile(addr) will return false for inactive precompiles
-		// even though this is actually a reserved address.
-		precompileMap := k.Precompiles(activePrecompiles...)
-		evm.WithPrecompiles(precompileMap, activePrecompiles)
-	}
 
 	leftoverGas := msg.Gas()
 

@@ -47,9 +47,7 @@ func (k Keeper) RegisterCoin(
 	}
 
 	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
-	k.SetTokenPair(ctx, pair)
-	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
-	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+    k.SetToken(ctx, pair)
 
 	return &pair, nil
 }
@@ -75,9 +73,7 @@ func (k Keeper) RegisterERC20(
 	}
 
 	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL)
-	k.SetTokenPair(ctx, pair)
-	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
-	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+    k.SetToken(ctx, pair)
 	return &pair, nil
 }
 
@@ -173,7 +169,6 @@ func (k Keeper) ToggleConversion(
 	}
 
 	pair.Enabled = !pair.Enabled
-
 	k.SetTokenPair(ctx, pair)
 	return pair, nil
 }
