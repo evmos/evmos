@@ -54,15 +54,15 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 		},
 		{
 			name:          "success: transfer with disable call and create",
-			expectedError: nil,
+			expectedError: evmtypes.ErrCallDisabled,
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("transfer", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
-				params.EnableCreate = false
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -94,7 +94,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCreate = false
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -112,7 +112,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -144,7 +144,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCall = false
+				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,
@@ -162,7 +162,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				suite.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
-				params.EnableCreate = false
+				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
 					evmParams: params,

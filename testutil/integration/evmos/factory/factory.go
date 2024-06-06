@@ -168,7 +168,7 @@ func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signi
 func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDeliverTx) error {
 	var txData sdktypes.TxMsgData
 	if !res.IsOK() {
-		return fmt.Errorf("tx failed. Code: %d, Logs: %s", res.Code, res.Log)
+		return fmt.Errorf("tx failed with Code: %d, Logs: %s", res.Code, res.Log)
 	}
 
 	cdc := tf.ec.Codec
@@ -186,7 +186,7 @@ func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDelive
 	}
 
 	if evmRes.Failed() {
-		return fmt.Errorf("tx failed. VmError: %v, Logs: %s", evmRes.VmError, res.GetLog())
+		return fmt.Errorf("tx failed with VmError: %v, Logs: %s", evmRes.VmError, res.GetLog())
 	}
 	return nil
 }

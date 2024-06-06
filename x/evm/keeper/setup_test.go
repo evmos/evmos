@@ -63,6 +63,10 @@ type KeeperTestSuite struct {
 	denom            string
 }
 
+type UnitTestSuite struct {
+	suite.Suite
+}
+
 var s *KeeperTestSuite
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -70,6 +74,10 @@ func TestKeeperTestSuite(t *testing.T) {
 	s.enableFeemarket = false
 	s.enableLondonHF = true
 	suite.Run(t, s)
+
+	// Run UnitTestSuite
+	unitTestSuite := new(UnitTestSuite)
+	suite.Run(t, unitTestSuite)
 
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
