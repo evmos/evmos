@@ -16,7 +16,7 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.47.8
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/gogoproto v1.4.10
+	github.com/cosmos/gogoproto v1.5.0
 	github.com/cosmos/ibc-go/v7 v7.4.0
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240129013154-12efd9b7643f
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240129013154-12efd9b7643f
@@ -231,7 +231,7 @@ require (
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
-	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/oauth2 v0.18.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
