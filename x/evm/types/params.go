@@ -136,7 +136,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateAccessControl(p.AccessControl); err != nil {
+	if err := p.AccessControl.Validate(); err != nil {
 		return err
 	}
 
@@ -183,35 +183,58 @@ func (p Params) IsActivePrecompile(address string) bool {
 	return found
 }
 
-func validateAccessControl(i interface{}) error {
-	permissions, ok := i.(AccessControl)
-	if !ok {
-		return fmt.Errorf("invalid permissions policy type: %T", i)
-	}
-
-	if err := validatePermissionType(permissions.Create); err != nil {
+func (ac AccessControl) Validate() error {
+	if err := ac.Create.Validate(); err != nil {
 		return err
 	}
 
-	return validatePermissionType(permissions.Call)
-}
-
-func validatePermissionType(i interface{}) error {
-	permission, ok := i.(AccessControlType)
-	if !ok {
-		return fmt.Errorf("invalid permission type: %T", i)
-	}
-
-	if err := validateAccessType(permission.AccessType); err != nil {
-		return err
-	}
-
-	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
+	if err := ac.Call.Validate(); err != nil {
 		return err
 	}
 
 	return nil
 }
+
+func (act AccessControlType) Validate() error {
+	if err := validateAccessType(act.AccessType); err != nil {
+		return err
+	}
+
+	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
+		return err
+	}
+	return nil
+}
+
+// func validateAccessControl(i interface{}) error {
+// 	permissions, ok := i.(AccessControl)
+// 	if !ok {
+// 		return fmt.Errorf("invalid permissions policy type: %T", i)
+// 	}
+//
+// 	if err := validatePermissionType(permissions.Create); err != nil {
+// 		return err
+// 	}
+//
+// 	return validatePermissionType(permissions.Call)
+// }
+//
+// func validatePermissionType(i interface{}) error {
+// 	permission, ok := i.(AccessControlType)
+// 	if !ok {
+// 		return fmt.Errorf("invalid permission type: %T", i)
+// 	}
+//
+// 	if err := validateAccessType(permission.AccessType); err != nil {
+// 		return err
+// 	}
+//
+// 	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }
 
 func validateAccessType(i interface{}) error {
 	accessType, ok := i.(AccessType)
