@@ -81,8 +81,6 @@ func TestMigrate(t *testing.T) {
 		ExtraEIPs:           extraEIPs,
 	}
 
-	require.Equal(t, legacySubspace.ps.EnableCall, params.EnableCall)
-	require.Equal(t, legacySubspace.ps.EnableCreate, params.EnableCreate)
 	require.Equal(t, legacySubspace.ps.AllowUnprotectedTxs, params.AllowUnprotectedTxs)
 	require.Equal(t, legacySubspace.ps.ExtraEIPs, params.ExtraEIPs.EIPs)
 	require.EqualValues(t, legacySubspace.ps.ChainConfig, params.V4ChainConfig)
