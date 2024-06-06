@@ -20,6 +20,7 @@ from .utils import (
     check_error,
     debug_trace_tx,
     deploy_contract,
+    eth_to_bech32,
     get_precompile_contract,
     send_transaction,
     wait_for_fn,
@@ -809,108 +810,237 @@ def test_decrease_allowance(
     ), f"Failed: {name}"
 
 
-def test_ibc_transfer_from_contract(ibc):
-    """Test ibc transfer from contract"""
+@pytest.mark.parametrize(
+    "name, auth_coins, args, exp_err, err_contains, transfer_amt, exp_spend_limit",
+    [
+        ("empty input args", None, [], True, "improper number of arguments", 0, None),
+        (
+            "channel does not exist",
+            None,
+            [
+                "transfer",
+                "channel-1",
+                "aevmos",
+                int(1e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",  # signer2 in chain-main
+            ],
+            True,
+            "channel not found",
+            int(1e18),
+            None,
+        ),
+        (
+            "non authorized denom",
+            [["aevmos", int(1e18)]],
+            [
+                "transfer",
+                "channel-0",
+                "uatom",
+                int(1e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
+            ],
+            True,
+            "requested amount is more than spend limit",
+            int(1e18),
+            None,
+        ),
+        (
+            "allowance is less than transfer amount",
+            [["aevmos", int(1e18)]],
+            [
+                "transfer",
+                "channel-0",
+                "aevmos",
+                int(2e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
+            ],
+            True,
+            "requested amount is more than spend limit",
+            int(2e18),
+            None,
+        ),
+        (
+            "transfer 1 Evmos from chainA to chainB and spend the entire allowance",
+            [["aevmos", int(1e18)]],
+            [
+                "transfer",
+                "channel-0",
+                "aevmos",
+                int(1e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
+            ],
+            False,
+            None,
+            int(1e18),
+            None,
+        ),
+        (
+            "transfer 1 Evmos from chainA to chainB and don't change the unlimited spending limit",
+            [["aevmos", MAX_UINT256]],
+            [
+                "transfer",
+                "channel-0",
+                "aevmos",
+                int(1e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
+            ],
+            False,
+            None,
+            int(1e18),
+            json.loads(f"""[{{"denom": "aevmos", "amount": "{MAX_UINT256}"}}]"""),
+        ),
+        (
+            "transfer 1 Evmos from chainA to chainB and only change 1 spend limit",
+            [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+            [
+                "transfer",
+                "channel-0",
+                "aevmos",
+                int(1e18),
+                "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
+            ],
+            False,
+            None,
+            int(1e18),
+            json.loads(f"""[{{"denom": "uatom", "amount": "{int(1e18)}"}}]"""),
+        ),
+    ],
+)
+def test_ibc_transfer_with_authorization(
+    ibc, name, auth_coins, args, exp_err, err_contains, transfer_amt, exp_spend_limit
+):
+    """Test ibc transfer with authorization (using a smart contract)"""
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
-
-    dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    amt = 1000000000000000000
-    src_denom = "aevmos"
-    gas_limit = 200_000
-
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    gas_limit = 200_000
+    src_denom = "aevmos"
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    src_address = ibc.chains["evmos"].cosmos_cli().address("signer2")
+    dst_address = ibc.chains["chainmain"].cosmos_cli().address("signer2")
 
-    src_adr = ibc.chains["evmos"].cosmos_cli().address("signer2")
-
-    # Deployment of contracts and initial checks
+    # test setup:
+    # deploy contract that calls the ics-20 precompile
+    w3 = ibc.chains["evmos"].w3
     eth_contract, tx_receipt = deploy_contract(w3, CONTRACTS["ICS20FromContract"])
     assert tx_receipt.status == 1
 
     counter = eth_contract.functions.counter().call()
     assert counter == 0
 
-    # Approve the contract to spend the src_denom
-    approve_tx = pc.functions.approve(
-        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], []]]
-    ).build_transaction(
-        {
-            "from": ADDRS["signer2"],
-            "gasPrice": evmos_gas_price,
-            "gas": gas_limit,
-        }
-    )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
-    assert tx_receipt.status == 1
-
-    def check_allowance_set():
-        new_allowance = pc.functions.allowance(
-            eth_contract.address, ADDRS["signer2"]
-        ).call()
-        return new_allowance != []
-
-    wait_for_fn("allowance has changed", check_allowance_set)
-
-    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_adr, src_denom)
-    # Deposit into the contract
-    deposit_tx = eth_contract.functions.deposit().build_transaction(
-        {
-            "from": ADDRS["signer2"],
-            "value": amt,
-            "gas": gas_limit,
-            "gasPrice": evmos_gas_price,
-        }
-    )
-    deposit_receipt = send_transaction(
-        ibc.chains["evmos"].w3, deposit_tx, KEYS["signer2"]
-    )
-    assert deposit_receipt.status == 1
-    fees = deposit_receipt.gasUsed * evmos_gas_price
-
-    def check_contract_balance():
-        new_contract_balance = eth_contract.functions.balanceOfContract().call()
-        return new_contract_balance > 0
-
-    wait_for_fn("contract balance change", check_contract_balance)
-
-    # Calling the actual transfer function on the custom contract
-    send_tx = eth_contract.functions.transfer(
-        "transfer", "channel-0", src_denom, amt, dst_addr
-    ).build_transaction(
-        {
-            "from": ADDRS["signer2"],
-            "gasPrice": evmos_gas_price,
-            "gas": gas_limit,
-        }
-    )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
-    assert receipt.status == 1
-    fees += receipt.gasUsed * evmos_gas_price
-
-    final_dest_balance = 0
-
-    def check_dest_balance():
-        nonlocal final_dest_balance
-        final_dest_balance = get_balance(
-            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    # create the authorization for the deployed contract
+    # based on the specific coins for each test case
+    if auth_coins is not None:
+        approve_tx = pc.functions.approve(
+            eth_contract.address, [["transfer", "channel-0", auth_coins, []]]
+        ).build_transaction(
+            {
+                "from": ADDRS["signer2"],
+                "gasPrice": evmos_gas_price,
+                "gas": gas_limit,
+            }
         )
-        return final_dest_balance > 0
+        receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+        assert receipt.status == 1, f"Failed: {name}"
 
-    # check balance of destination
-    wait_for_fn("destination balance change", check_dest_balance)
-    assert final_dest_balance == amt
+        def check_allowance_set():
+            new_allowance = pc.functions.allowance(
+                eth_contract.address, ADDRS["signer2"]
+            ).call()
+            return new_allowance != []
 
-    # check balance of contract
+        wait_for_fn("allowance has changed", check_allowance_set)
+
+    # get the balances previous to the transfer to validate them after the tx
+    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_address, src_denom)
+    dst_balance_prev = get_balance(
+        ibc.chains["chainmain"], dst_address, EVMOS_IBC_DENOM
+    )
+    try:
+        # Calling the actual transfer function on the custom contract
+        transfer_tx = eth_contract.functions.transferFromEOA(*args).build_transaction(
+            {
+                "from": ADDRS["signer2"],
+                "gasPrice": evmos_gas_price,
+                "gas": gas_limit,
+            }
+        )
+        receipt = send_transaction(ibc.chains["evmos"].w3, transfer_tx, KEYS["signer2"])
+    except Exception as err:
+        check_error(err, err_contains)
+        return
+
+    if exp_err:
+        assert receipt.status == 0, f"Failed: {name}"
+        # get the corresponding error message from the trace
+        trace = debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+        # stringify the tx trace to look for the expected error message
+        trace_str = json.dumps(trace, separators=(",", ":"))
+        assert err_contains in trace_str
+        return
+
+    assert receipt.status == 1, debug_trace_tx(
+        ibc.chains["evmos"], receipt.transactionHash.hex()
+    )
+    fees = receipt.gasUsed * evmos_gas_price
+
+    # check ibc-transfer event was emitted
+    transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
+    assert transfer_event.address == "0x0000000000000000000000000000000000000802"
+    assert transfer_event.event == "IBCTransfer"
+    assert transfer_event.args.sender == ADDRS["signer2"]
+    # TODO check if we want to keep the keccak256 hash bytes or smth better
+    # assert transfer_event.args.receiver == dst_addr
+    assert transfer_event.args.sourcePort == "transfer"
+    assert transfer_event.args.sourceChannel == "channel-0"
+    assert transfer_event.args.denom == "aevmos"
+    assert transfer_event.args.amount == transfer_amt
+    assert transfer_event.args.memo == ""
+
+    # check the authorization was updated
+    cli = ibc.chains["evmos"].cosmos_cli()
+    granter = cli.address("signer2")
+    grantee = eth_to_bech32(eth_contract.address)
+    res = cli.authz_grants(granter, grantee)
+
+    if exp_spend_limit is None:
+        assert "grants" not in res
+    else:
+        assert len(res["grants"]) == 1, f"Failed: {name}"
+        assert (
+            res["grants"][0]["authorization"]["type"]
+            == "/ibc.applications.transfer.v1.TransferAuthorization"
+        )
+        assert (
+            res["grants"][0]["authorization"]["value"]["allocations"][0]["spend_limit"]
+            == exp_spend_limit
+        ), f"Failed: {name}"
+
+    # check balances were updated
+    # contract balance should be 0
     final_contract_balance = eth_contract.functions.balanceOfContract().call()
     assert final_contract_balance == 0
 
-    src_amount_evmos = get_balance(ibc.chains["evmos"], src_adr, src_denom)
-    assert src_amount_evmos == src_amount_evmos_prev - amt - fees
+    # signer2 (src) balance should be reduced by the fees paid
+    src_amount_evmos_final = get_balance(ibc.chains["evmos"], src_address, src_denom)
 
-    # check counter of contract
+    assert src_amount_evmos_final == src_amount_evmos_prev - fees - transfer_amt
+
+    # dst_address should have received the IBC coins
+    dst_balance_final = 0
+
+    def check_balance_change():
+        nonlocal dst_balance_final
+        dst_balance_final = get_balance(
+            ibc.chains["chainmain"], dst_address, EVMOS_IBC_DENOM
+        )
+        return dst_balance_final > dst_balance_prev
+
+    wait_for_fn("balance change", check_balance_change)
+
+    assert dst_balance_final - dst_balance_prev == transfer_amt
+
+    # check counter of contract has the corresponding value
     counter_after = eth_contract.functions.counter().call()
     assert counter_after == 0
 
@@ -990,3 +1120,24 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
 
     counter_after = eth_contract.functions.counter().call()
     assert counter_after == 0
+
+
+def revoke_all_grants(cli, w3, granter):
+    """
+    Helper function to revoke all grants
+    """
+    for grantee in ["signer1", "signer2", "community", "validator"]:
+        if grantee == granter:
+            continue
+        res = cli.authz_grants(cli.address(granter), cli.address(grantee))
+        if "grants" not in res or len(res["grants"]) == 0:
+            continue
+        pc = get_precompile_contract(w3, "ICS20I")
+        revoke_tx = pc.functions.revoke(ADDRS[grantee]).build_transaction(
+            {
+                "from": ADDRS[granter],
+                "gasPrice": w3.eth.gas_price,
+                "gas": 200_000,
+            }
+        )
+        send_transaction(w3, revoke_tx, KEYS[granter])

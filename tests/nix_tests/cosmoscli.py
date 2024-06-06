@@ -1009,6 +1009,22 @@ class CosmosCLI:
             )
         )
 
+    def authz_revoke(self, granter: str, grantee: str, msg_type_url: str, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "authz",
+                "revoke",
+                grantee,
+                msg_type_url,
+                "--from",
+                granter,
+                "--generate-only",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
     def authz_grants(self, granter: str, grantee: str, msg_type_url: str = ""):
         return json.loads(
             self.raw(
