@@ -104,28 +104,9 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	factory := testfactory.New(network, handler)
 
 	// NOTE: all precompiles that should NOT be blocked addresses need to go in here
-	precompilesAbleToReceiveFunds := []ethcommon.Address{
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000001"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000002"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000003"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000004"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000005"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000006"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000007"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000008"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000009"),
-	}
-
-	precompilesAbleToReceiveFundsViaEth := []ethcommon.Address{
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000001"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000002"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000003"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000004"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000005"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000006"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000007"),
-		ethcommon.HexToAddress("0x0000000000000000000000000000000000000008"),
-	}
+	//
+	// For now there are no exceptions, so this slice is empty.
+	var precompilesAbleToReceiveFunds []ethcommon.Address
 
 	availablePrecompiles := network.App.EvmKeeper.GetAvailablePrecompileAddrs()
 	for _, precompileAddr := range availablePrecompiles {
@@ -157,7 +138,7 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 
 			require.NoError(t, network.NextBlock(), "failed to advance block")
 
-			if slices.Contains(precompilesAbleToReceiveFundsViaEth, precompileAddr) {
+			if slices.Contains(precompilesAbleToReceiveFunds, precompileAddr) {
 				require.NoError(t, err, "failed to send funds with Eth transaction to precompile %s that should not be blocked", precompileAddr)
 			} else {
 				require.Error(t, err, "was able to send funds with Eth transaction to precompile %s that should be blocked", precompileAddr)

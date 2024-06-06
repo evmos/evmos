@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"io"
 	"net/http"
 	"os"
@@ -958,6 +959,10 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		ics20precompile.PrecompileAddress,
 		vestingprecompile.PrecompileAddress,
 	}
+	for _, addr := range vm.PrecompiledAddressesBerlin {
+		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
+	}
+
 	for _, precompile := range blockedPrecompilesHex {
 		blockedAddrs[sdk.AccAddress(ethcommon.HexToAddress(precompile).Bytes()).String()] = true
 	}
