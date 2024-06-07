@@ -58,6 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
 - (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
+- (app) [#2556](https://github.com/evmos/evmos/pull/2556) Bump IBC-go to v7.5.2 and Cosmos-SDK to v0.47.11.
 
 ### Bug Fixes
 
