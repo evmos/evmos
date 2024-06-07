@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
+
 // PermissionPolicy is the interface that defines the permission policy for contract creation and calls.
 // It is used to enforce access control policies on EVM operations.
 // The policy is ran BEFORE the respective opcode execution every time they are called.
