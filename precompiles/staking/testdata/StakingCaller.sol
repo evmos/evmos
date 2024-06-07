@@ -41,6 +41,7 @@ contract StakingCaller {
     /// @param _descr The initial description
     /// @param _commRates The initial commissionRates
     /// @param _minSelfDel The validator's self declared minimum self delegation
+    /// @param _valAddr The validator's operator address
     /// @param _pubkey The consensus public key of the validator
     /// @param _value The amount of the coin to be self delegated to the validator
     /// @return success Whether or not the create validator was successful
@@ -48,6 +49,7 @@ contract StakingCaller {
         staking.Description calldata _descr,
         staking.CommissionRates calldata _commRates,
         uint256 _minSelfDel,
+        address _valAddr,
         string memory _pubkey,
         uint256 _value
     ) public returns (bool) {
@@ -56,7 +58,7 @@ contract StakingCaller {
                 _descr,
                 _commRates,
                 _minSelfDel,
-                msg.sender,
+                _valAddr,
                 _pubkey,
                 _value
             );
@@ -66,6 +68,7 @@ contract StakingCaller {
     /// method using the msg.sender as the validator's operator address.
     /// @param _descr Description parameter to be updated. Use the string "[do-not-modify]"
     /// as the value of fields that should not be updated.
+    /// @param _valAddr The validator's operator address
     /// @param _commRate CommissionRate parameter to be updated.
     /// Use commissionRate = -1 to keep the current value and not update it.
     /// @param _minSelfDel MinSelfDelegation parameter to be updated.
@@ -73,13 +76,14 @@ contract StakingCaller {
     /// @return success Whether or not edit validator was successful.
     function testEditValidator(
         staking.Description calldata _descr,
+        address _valAddr,
         int256 _commRate,
         int256 _minSelfDel
     ) public returns (bool) {
         return
             staking.STAKING_CONTRACT.editValidator(
                 _descr,
-                msg.sender,
+                _valAddr,
                 _commRate,
                 _minSelfDel
             );

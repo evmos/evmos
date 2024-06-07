@@ -1861,6 +1861,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			defaultEditValArgs contracts.CallArgs
 			valPriv            *ethsecp256k1.PrivKey
 			valAddr            sdk.AccAddress
+			valHexAddr         common.Address
 
 			defaultDescription = staking.Description{
 				Moniker:         "edit node",
@@ -1878,12 +1879,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// create a new validator
 			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
-			hexAddr := common.BytesToAddress(valAddr.Bytes())
+			valHexAddr = common.BytesToAddress(valAddr.Bytes())
 			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 2e18)
 			Expect(err).To(BeNil(), "error while funding account: %v", err)
 
 			description := staking.Description{
-				Moniker:         "new node",
+				Moniker:         "original moniker",
 				Identity:        "",
 				Website:         "",
 				SecurityContact: "",
@@ -1903,7 +1904,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				ContractABI:  s.precompile.ABI,
 				MethodName:   staking.CreateValidatorMethod,
 				PrivKey:      valPriv,
-				Args:         []interface{}{description, commission, minSelfDelegation, hexAddr, pubkeyBase64Str, value},
+				Args:         []interface{}{description, commission, minSelfDelegation, valHexAddr, pubkeyBase64Str, value},
 			}
 
 			logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
@@ -1914,11 +1915,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			s.NextBlock()
 		})
 
-		It("should edit a validator", func() {
+		It("tx from validator operator - should edit a validator", func() {
 			cArgs := defaultEditValArgs.
 				WithPrivKey(valPriv).
 				WithArgs(
-					defaultDescription, defaultCommissionRate, defaultMinSelfDelegation,
+					defaultDescription, valHexAddr,
+					defaultCommissionRate, defaultMinSelfDelegation,
 				)
 
 			logCheckArgs := passCheck.
@@ -1929,7 +1931,25 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
 			Expect(found).To(BeTrue(), "expected validator to be found")
-			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker is updated")
+			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker not to be updated")
+		})
+
+		It("tx from another EOA - should fail", func() {
+			cArgs := defaultEditValArgs.
+				WithPrivKey(s.privKey).
+				WithArgs(
+					defaultDescription, valHexAddr,
+					defaultCommissionRate, defaultMinSelfDelegation,
+				)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()))
+
+			// validator should remain unchanged
+			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
+			Expect(found).To(BeTrue(), "expected validator to be found")
+			Expect(validator.Description.Moniker).To(Equal("original moniker"), "expected validator moniker is updated")
 			Expect(validator.Commission.Rate.BigInt().String()).To(Equal("100000000000000000"), "expected validator commission rate remain unchanged")
 		})
 	})
