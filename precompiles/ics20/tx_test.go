@@ -181,7 +181,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil,nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -320,10 +320,10 @@ func (s *PrecompileTestSuite) TestTransfer() {
 
 					},
 					{
-						SourcePort:    path.EndpointA.ChannelConfig.PortID,
-						SourceChannel: path.EndpointA.ChannelID,
-						SpendLimit:    defaultCoins,
-						AllowList:     nil,
+						SourcePort:        path.EndpointA.ChannelConfig.PortID,
+						SourceChannel:     path.EndpointA.ChannelID,
+						SpendLimit:        defaultCoins,
+						AllowList:         nil,
 						AllowedPacketData: []string{"*"}, // allow any memo string
 					},
 				}
