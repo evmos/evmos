@@ -12,8 +12,8 @@ import (
 // The hooks run before the respective opcode execution every time they are called.
 type OpCodeHooks interface {
 	vm.OpCodeHooks
-	AddCallHook(hooks ...CallHook)
-	AddCreateHook(hooks ...CreateHook)
+	AddCallHooks(hooks ...CallHook)
+	AddCreateHooks(hooks ...CreateHook)
 }
 
 // DefaultOpCodesHooks is the default implementation of OpCodeHooks for EVMOS chain
@@ -37,11 +37,15 @@ func NewDefaultOpCodesHooks() OpCodeHooks {
 	return &DefaultOpCodesHooks{}
 }
 
-func (h *DefaultOpCodesHooks) AddCallHook(hooks ...CallHook) {
+// AddCallHooks adds one or more hooks to the queue to be executed before the CALL opcode.
+// Hooks will be executed in the order they are added.
+func (h *DefaultOpCodesHooks) AddCallHooks(hooks ...CallHook) {
 	h.callHooks = append(h.callHooks, hooks...)
 }
 
-func (h *DefaultOpCodesHooks) AddCreateHook(hooks ...CreateHook) {
+// AddCreateHooks adds one or more hooks to the queue to be executed before the CREATE opcode.
+// Hooks will be executed in the order they are added.
+func (h *DefaultOpCodesHooks) AddCreateHooks(hooks ...CreateHook) {
 	h.createHooks = append(h.createHooks, hooks...)
 }
 
