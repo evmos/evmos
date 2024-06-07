@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v18/utils"
 	"reflect"
 	"testing"
 
@@ -16,6 +17,7 @@ func TestDefaultConfig(t *testing.T) {
 	require.False(t, cfg.JSONRPC.Enable)
 	require.Equal(t, cfg.JSONRPC.Address, DefaultJSONRPCAddress)
 	require.Equal(t, cfg.JSONRPC.WsAddress, DefaultJSONRPCWsAddress)
+	require.Equal(t, cfg.EVM.GasDenom, utils.BaseDenom)
 }
 
 func TestGetConfig(t *testing.T) {

@@ -5,6 +5,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/evmos/evmos/v18/utils"
 	"path"
 	"time"
 
@@ -141,6 +142,10 @@ type EVMConfig struct {
 	Tracer string `mapstructure:"tracer"`
 	// MaxTxGasWanted defines the gas wanted for each eth tx returned in ante handler in check tx mode.
 	MaxTxGasWanted uint64 `mapstructure:"max-tx-gas-wanted"`
+	// GasDenom defines the denomination to be used for gas in the EVM module.
+	// When a hex address is given here, it is assumed to be a valid ERC-20 token address,
+	// which will be used for gas payments.
+	GasDenom string `mapstructure:"gas-denom"`
 }
 
 // JSONRPCConfig defines configuration for the EVM RPC server.
@@ -251,6 +256,7 @@ func DefaultEVMConfig() *EVMConfig {
 	return &EVMConfig{
 		Tracer:         DefaultEVMTracer,
 		MaxTxGasWanted: DefaultMaxTxGasWanted,
+		GasDenom:       utils.BaseDenom,
 	}
 }
 

@@ -22,6 +22,11 @@ tracer = "{{ .EVM.Tracer }}"
 # MaxTxGasWanted defines the gas wanted for each eth tx returned in ante handler in check tx mode.
 max-tx-gas-wanted = {{ .EVM.MaxTxGasWanted }}
 
+# GasDenom defines the denomination to be used for gas in the EVM module.
+# When a hex address is given here, it is assumed to be a valid ERC-20 token address,
+# which will be used for gas payments.
+gas-denom = "{{ .EVM.GasDenom }}"
+
 ###############################################################################
 ###                           JSON RPC Configuration                        ###
 ###############################################################################

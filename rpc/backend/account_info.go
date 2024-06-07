@@ -3,9 +3,12 @@
 package backend
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v18/contracts"
 	"math"
 	"math/big"
+	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -149,23 +152,60 @@ func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.Bloc
 		return nil, err
 	}
 
-	req := &evmtypes.QueryBalanceRequest{
-		Address: address.String(),
-	}
-
+	// This checks if the block at with the given block number can actually be retrieved
 	_, err = b.TendermintBlockByNumber(blockNum)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := b.queryClient.Balance(rpctypes.ContextWithHeight(blockNum.Int64()), req)
-	if err != nil {
-		return nil, err
-	}
+	var val sdkmath.Int
+	if strings.Contains(b.cfg.EVM.GasDenom, "0x") {
+		contractAddr := common.HexToAddress(b.cfg.EVM.GasDenom)
 
-	val, ok := sdkmath.NewIntFromString(res.Balance)
-	if !ok {
-		return nil, errors.New("invalid balance")
+		balanceOfData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("balanceOf", address)
+		if err != nil {
+			return nil, err
+		}
+
+		txData := evmtypes.TransactionArgs{To: &contractAddr, Data: (*hexutil.Bytes)(&balanceOfData)}
+		marshalledData, err := json.Marshal(txData)
+		if err != nil {
+			return nil, err
+		}
+
+		// if gas-denom is an ERC20 token, we need to query the balance using ethCall
+		res, err := b.queryClient.EthCall(rpctypes.ContextWithHeight(blockNum.Int64()), &evmtypes.EthCallRequest{
+			Args:            marshalledData,
+			ChainId:         b.chainID.Int64(),
+			ProposerAddress: nil,
+			GasCap:          2_500_000,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		var balance *big.Int
+		err = contracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(&balance, "balanceOf", res.Ret)
+		if err != nil {
+			return nil, err
+		}
+
+		val = sdkmath.NewIntFromBigInt(balance)
+	} else {
+		req := &evmtypes.QueryBalanceRequest{
+			Address: address.String(),
+		}
+
+		res, err := b.queryClient.Balance(rpctypes.ContextWithHeight(blockNum.Int64()), req)
+		if err != nil {
+			return nil, err
+		}
+
+		var ok bool
+		val, ok = sdkmath.NewIntFromString(res.Balance)
+		if !ok {
+			return nil, errors.New("invalid balance")
+		}
 	}
 
 	// balance can only be negative in case of pruned node
