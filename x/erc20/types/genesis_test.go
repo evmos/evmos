@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,7 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), []types.TokenPair{})
+	newGen := types.NewGenesisState(types.DefaultParams(), types.DefaultTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -40,7 +41,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis",
 			genState: &types.GenesisState{
 				Params:     types.DefaultParams(),
-				TokenPairs: []types.TokenPair{},
+				TokenPairs: types.DefaultTokenPairs,
 			},
 			expPass: true,
 		},
@@ -52,6 +53,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Erc20Address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						Denom:        "usdt",
+						Enabled:      true,
+					},
+					{
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -71,6 +77,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Erc20Address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						Denom:        "usdt",
+						Enabled:      true,
+					},
+					{
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -92,6 +103,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Denom:        "usdt2",
 						Enabled:      true,
 					},
+					{
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
+						Enabled:      true,
+					},
 				},
 			},
 			expPass: false,
@@ -111,12 +127,36 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Denom:        "usdt",
 						Enabled:      true,
 					},
+					{
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
+						Enabled:      true,
+					},
 				},
 			},
 			expPass: false,
 		},
 		{
 			name: "invalid genesis - invalid token pair",
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				TokenPairs: []types.TokenPair{
+					{
+						Erc20Address: "0xinvalidaddress",
+						Denom:        "bad",
+						Enabled:      true,
+					},
+					{
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
+						Enabled:      true,
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
+			name: "invalid genesis - missing wevmos token pair",
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				TokenPairs: []types.TokenPair{
