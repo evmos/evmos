@@ -20,7 +20,7 @@ import (
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
@@ -448,7 +448,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
-			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, types.DefaultEVMDenom)
+			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {
@@ -522,11 +522,11 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
 	cfg, err := suite.app.EvmKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(9000))
 	suite.Require().NoError(err)
-	suite.Require().Equal(types.DefaultParams(), cfg.Params)
+	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(suite.address, cfg.CoinBase)
-	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
+	suite.Require().Equal(evmtypes.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
 }
 
 func (suite *KeeperTestSuite) TestContractDeployment() {
@@ -575,7 +575,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		err             error
 		expectedGasUsed uint64
 		config          *statedb.EVMConfig
-		keeperParams    types.Params
+		keeperParams    evmtypes.Params
 		signer          ethtypes.Signer
 		vmdb            *statedb.StateDB
 		txConfig        statedb.TxConfig
@@ -586,6 +586,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		name     string
 		malleate func()
 		expErr   bool
+		expVMErr bool
 	}{
 		{
 			"message applied ok",
@@ -604,11 +605,16 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 			},
 			false,
+			false,
 		},
 		{
 			"call contract tx with config param EnableCall = false",
 			func() {
-				config.Params.EnableCall = false
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Call: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
 				msg, err = newNativeMessage(
 					vmdb.GetNonce(suite.address),
 					suite.ctx.BlockHeight(),
@@ -622,15 +628,21 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				)
 				suite.Require().NoError(err)
 			},
+			false,
 			true,
 		},
 		{
 			"create contract tx with config param EnableCreate = false",
 			func() {
-				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(1))
+				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
 				suite.Require().NoError(err)
-				config.Params.EnableCreate = false
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
 			},
+			false,
 			true,
 		},
 		{
@@ -654,6 +666,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 			},
 			true,
+			false,
 		},
 	}
 
@@ -680,6 +693,11 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return
 			}
 
+			if tc.expVMErr {
+				suite.Require().NotEmpty(res.VmError)
+				return
+			}
+
 			suite.Require().NoError(err)
 			suite.Require().False(res.Failed())
 			suite.Require().Equal(expectedGasUsed, res.GasUsed)
@@ -697,16 +715,16 @@ func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtype
 	return ethMsg.AsMessage(msgSigner, nil)
 }
 
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
 	contractCreateTx := &ethtypes.AccessListTx{
 		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation,
+		Gas:      params.TxGasContractCreation + 1000, // account for data length
 		To:       nil,
 		Data:     []byte("contract_data"),
 		Nonce:    nonce,
 	}
 	ethTx := ethtypes.NewTx(contractCreateTx)
-	ethMsg := &types.MsgEthereumTx{}
+	ethMsg := &evmtypes.MsgEthereumTx{}
 	err := ethMsg.FromEthereumTx(ethTx)
 	suite.Require().NoError(err)
 	ethMsg.From = suite.address.Hex()

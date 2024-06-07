@@ -4,19 +4,14 @@
 package keeper
 
 import (
-	"encoding/json"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v18/server/config"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	"github.com/evmos/evmos/v18/contracts"
@@ -41,7 +36,7 @@ func (k Keeper) DeployERC20Contract(
 		decimals,
 	)
 	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+		return common.Address{}, errorsmod.Wrapf(evmtypes.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
 	}
 
 	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
@@ -54,7 +49,7 @@ func (k Keeper) DeployERC20Contract(
 	}
 
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
-	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
+	_, err = k.evmKeeper.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
 	if err != nil {
 		return common.Address{}, errorsmod.Wrapf(err, "failed to deploy contract for %s", coinMetadata.Name)
 	}
@@ -76,38 +71,38 @@ func (k Keeper) QueryERC20(
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	// Name
-	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "name")
+	res, err := k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "name")
 	if err != nil {
 		return types.ERC20Data{}, err
 	}
 
 	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			types.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
+			evmtypes.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
 		)
 	}
 
 	// Symbol
-	res, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "symbol")
+	res, err = k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "symbol")
 	if err != nil {
 		return types.ERC20Data{}, err
 	}
 
 	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
+			evmtypes.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
 		)
 	}
 
 	// Decimals
-	res, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "decimals")
+	res, err = k.evmKeeper.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "decimals")
 	if err != nil {
 		return types.ERC20Data{}, err
 	}
 
 	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
+			evmtypes.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
 		)
 	}
 
@@ -120,7 +115,7 @@ func (k Keeper) BalanceOf(
 	abi abi.ABI,
 	contract, account common.Address,
 ) *big.Int {
-	res, err := k.CallEVM(ctx, abi, types.ModuleAddress, contract, false, "balanceOf", account)
+	res, err := k.evmKeeper.CallEVM(ctx, abi, types.ModuleAddress, contract, false, "balanceOf", account)
 	if err != nil {
 		return nil
 	}
@@ -136,90 +131,6 @@ func (k Keeper) BalanceOf(
 	}
 
 	return balance
-}
-
-// CallEVM performs a smart contract method call using given args
-func (k Keeper) CallEVM(
-	ctx sdk.Context,
-	abi abi.ABI,
-	from, contract common.Address,
-	commit bool,
-	method string,
-	args ...interface{},
-) (*evmtypes.MsgEthereumTxResponse, error) {
-	data, err := abi.Pack(method, args...)
-	if err != nil {
-		return nil, errorsmod.Wrap(
-			types.ErrABIPack,
-			errorsmod.Wrap(err, "failed to create transaction data").Error(),
-		)
-	}
-
-	resp, err := k.CallEVMWithData(ctx, from, &contract, data, commit)
-	if err != nil {
-		return nil, errorsmod.Wrapf(err, "contract call failed: method '%s', contract '%s'", method, contract)
-	}
-	return resp, nil
-}
-
-// CallEVMWithData performs a smart contract method call using contract data
-func (k Keeper) CallEVMWithData(
-	ctx sdk.Context,
-	from common.Address,
-	contract *common.Address,
-	data []byte,
-	commit bool,
-) (*evmtypes.MsgEthereumTxResponse, error) {
-	nonce, err := k.accountKeeper.GetSequence(ctx, from.Bytes())
-	if err != nil {
-		return nil, err
-	}
-
-	gasCap := config.DefaultGasCap
-	if commit {
-		args, err := json.Marshal(evmtypes.TransactionArgs{
-			From: &from,
-			To:   contract,
-			Data: (*hexutil.Bytes)(&data),
-		})
-		if err != nil {
-			return nil, errorsmod.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
-		}
-
-		gasRes, err := k.evmKeeper.EstimateGasInternal(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
-			Args:   args,
-			GasCap: config.DefaultGasCap,
-		}, evmtypes.Internal)
-		if err != nil {
-			return nil, err
-		}
-		gasCap = gasRes.Gas
-	}
-
-	msg := ethtypes.NewMessage(
-		from,
-		contract,
-		nonce,
-		big.NewInt(0), // amount
-		gasCap,        // gasLimit
-		big.NewInt(0), // gasFeeCap
-		big.NewInt(0), // gasTipCap
-		big.NewInt(0), // gasPrice
-		data,
-		ethtypes.AccessList{}, // AccessList
-		!commit,               // isFake
-	)
-
-	res, err := k.evmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), commit)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.Failed() {
-		return nil, errorsmod.Wrap(evmtypes.ErrVMExecution, res.VmError)
-	}
-
-	return res, nil
 }
 
 // monitorApprovalEvent returns an error if the given transactions logs include
