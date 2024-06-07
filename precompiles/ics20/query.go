@@ -140,6 +140,7 @@ func (p Precompile) Allowance(
 			SourceChannel: a.SourceChannel,
 			SpendLimit:    spendLimit,
 			AllowList:     a.AllowList,
+			AllowedPacketData: a.AllowedPacketData,
 		}
 	}
 

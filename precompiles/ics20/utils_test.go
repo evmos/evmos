@@ -327,13 +327,14 @@ func (s *PrecompileTestSuite) NewTransferAuthorizationWithAllocations(ctx sdk.Co
 }
 
 // NewTransferAuthorization creates a new transfer authorization for the given grantee and granter and the given coins
-func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *evmosapp.Evmos, grantee, granter common.Address, path *ibctesting.Path, coins sdk.Coins, allowList []string) error {
+func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *evmosapp.Evmos, grantee, granter common.Address, path *ibctesting.Path, coins sdk.Coins, allowList []string, allowedPacketData []string) error {
 	allocations := []transfertypes.Allocation{
 		{
-			SourcePort:    path.EndpointA.ChannelConfig.PortID,
-			SourceChannel: path.EndpointA.ChannelID,
-			SpendLimit:    coins,
-			AllowList:     allowList,
+			SourcePort:        path.EndpointA.ChannelConfig.PortID,
+			SourceChannel:     path.EndpointA.ChannelID,
+			SpendLimit:        coins,
+			AllowList:         allowList,
+			AllowedPacketData: allowedPacketData,
 		},
 	}
 
@@ -494,9 +495,10 @@ func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.Call
 func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 	defaultSingleAlloc = []cmn.ICS20Allocation{
 		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: s.transferPath.EndpointA.ChannelID,
-			SpendLimit:    defaultCmnCoins,
+			SourcePort:        ibctesting.TransferPort,
+			SourceChannel:     s.transferPath.EndpointA.ChannelID,
+			SpendLimit:        defaultCmnCoins,
+			AllowedPacketData: []string{"memo"},
 		},
 	}
 }

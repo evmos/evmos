@@ -296,6 +296,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 					path,
 					defaultCoins,
 					[]string{s.chainB.SenderAccount.GetAddress().String()},
+					[]string{"memo"},
 				)
 				s.Require().NoError(err)
 
@@ -311,6 +312,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourceChannel: path.EndpointA.ChannelID,
 						SpendLimit:    defaultCmnCoins,
 						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					},
 				}
 
@@ -334,6 +336,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourceChannel: p.EndpointA.ChannelID,
 						SpendLimit:    mutliSpendLimit,
 						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					}
 				}
 
@@ -359,6 +362,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 						SourceChannel: p.EndpointA.ChannelID,
 						SpendLimit:    mutliCmnCoins,
 						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					}
 				}
 

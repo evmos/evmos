@@ -27,7 +27,7 @@ func (s *PrecompileTestSuite) TestTransferEvent() {
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, common.BytesToAddress(sender), common.BytesToAddress(sender), path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, common.BytesToAddress(sender), common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -165,7 +165,7 @@ func (s *PrecompileTestSuite) TestRevokeTransferAuthorizationEvent() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.address,
@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.address,
@@ -273,7 +273,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				return []interface{}{
 					s.address,
