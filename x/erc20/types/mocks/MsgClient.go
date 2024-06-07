@@ -96,7 +96,8 @@ func (_m *MsgClient) UpdateParams(ctx context.Context, in *types.MsgUpdateParams
 func NewMsgClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MsgClient {
+},
+) *MsgClient {
 	mock := &MsgClient{}
 	mock.Mock.Test(t)
 
