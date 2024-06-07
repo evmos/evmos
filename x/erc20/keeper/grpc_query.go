@@ -86,3 +86,10 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	params := k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
 }
+
+// Precompiles returns the Precompiles of the erc20 module
+func (k Keeper) Precompiles(c context.Context, _ *types.QueryPrecompilesRequest) (*types.QueryPrecompilesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	precompiles := k.GetPrecompiles(ctx)
+	return &types.QueryPrecompilesResponse{Precompiles: precompiles}, nil
+}

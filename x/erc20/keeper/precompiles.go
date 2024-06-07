@@ -20,9 +20,9 @@ func (k Keeper) GetERC20PrecompileInstance(
 	ctx sdk.Context,
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
-	params := k.GetParams(ctx)
+	precompiles := k.GetPrecompiles(ctx)
 
-	if k.IsAvailableERC20Precompile(&params, address) {
+	if k.IsAvailableERC20Precompile(&precompiles, address) {
 		precompile, err := k.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
 			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
@@ -49,7 +49,63 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
-func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
-	return slices.Contains(params.NativePrecompiles, address.Hex()) ||
-		slices.Contains(params.DynamicPrecompiles, address.Hex())
+func (k Keeper) IsAvailableERC20Precompile(precompiles *types.Precompiles, address common.Address) bool {
+	return slices.Contains(precompiles.Native, address.Hex()) ||
+		slices.Contains(precompiles.Dynamic, address.Hex())
+}
+func (k Keeper) GetPrecompiles(ctx sdk.Context) types.Precompiles {
+	dynamicPrecompiles := k.getDynamicPrecompiles(ctx)
+	nativePrecompiles := k.getNativePrecompiles(ctx)
+	return types.NewPrecompiles(nativePrecompiles, dynamicPrecompiles)
+}
+
+// SetPrecompiles sets the erc20 precompiles.
+func (k Keeper) SetPrecompiles(ctx sdk.Context, precompiles types.Precompiles) error {
+	// sort and keep params equal between different executions
+	slices.Sort(precompiles.Dynamic)
+	slices.Sort(precompiles.Native)
+
+	if err := precompiles.Validate(); err != nil {
+		return err
+	}
+
+	k.setDynamicPrecompiles(ctx, precompiles.Dynamic)
+	k.setNativePrecompiles(ctx, precompiles.Native)
+	return nil
+}
+
+func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := make([]byte, 0, addressLength*len(nativePrecompiles))
+	for _, str := range nativePrecompiles {
+		bz = append(bz, []byte(str)...)
+	}
+	store.Set(types.ParamStoreKeyNativePrecompiles, bz)
+}
+
+func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamStoreKeyNativePrecompiles)
+	for i := 0; i < len(bz); i += addressLength {
+		nativePrecompiles = append(nativePrecompiles, string(bz[i:i+addressLength]))
+	}
+	return nativePrecompiles
+}
+
+func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := make([]byte, 0, addressLength*len(dynamicPrecompiles))
+	for _, str := range dynamicPrecompiles {
+		bz = append(bz, []byte(str)...)
+	}
+	store.Set(types.ParamStoreKeyDynamicPrecompiles, bz)
+}
+
+func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (precompiles []string) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
+	for i := 0; i < len(bz); i += addressLength {
+		precompiles = append(precompiles, string(bz[i:i+addressLength]))
+	}
+	return precompiles
 }

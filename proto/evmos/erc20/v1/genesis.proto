@@ -14,6 +14,8 @@ message GenesisState {
   Params params = 1 [(gogoproto.nullable) = false];
   // token_pairs is a slice of the registered token pairs at genesis
   repeated TokenPair token_pairs = 2 [(gogoproto.nullable) = false];
+  // precompiles are the precompiles that are enabled at genesis
+  Precompiles precompiles = 3 [(gogoproto.nullable) = false];
 }
 
 // Params defines the erc20 module params
@@ -22,10 +24,14 @@ message Params {
   bool enable_erc20 = 1;
   // enable_evm_hook is now depecrated
   reserved 2;
+}
+
+// Precompiles defines enabled precompiles
+message Precompiles {
   // native_precompiles defines the slice of hex addresses of the
   // active precompiles that are used to interact with native staking coins as ERC20s
-  repeated string native_precompiles = 3;
+  repeated string native = 1;
   // dynamic_precompiles defines the slice of hex addresses of the
   // active precompiles that are used to interact with Bank coins as ERC20s
-  repeated string dynamic_precompiles = 4;
+  repeated string dynamic = 2;
 }

@@ -18,10 +18,11 @@ var DefaultTokenPairs = []TokenPair{
 }
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(params Params, pairs []TokenPair) GenesisState {
+func NewGenesisState(params Params, pairs []TokenPair, precompiles Precompiles) GenesisState {
 	return GenesisState{
-		Params:     params,
-		TokenPairs: pairs,
+		Params:      params,
+		TokenPairs:  pairs,
+		Precompiles: precompiles,
 	}
 }
 
@@ -29,8 +30,9 @@ func NewGenesisState(params Params, pairs []TokenPair) GenesisState {
 // default params and chain config values.
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params:     DefaultParams(),
-		TokenPairs: DefaultTokenPairs,
+		Params:      DefaultParams(),
+		TokenPairs:  DefaultTokenPairs,
+		Precompiles: DefaultPrecompiles(),
 	}
 }
 
@@ -62,14 +64,10 @@ func (gs GenesisState) Validate() error {
 		return fmt.Errorf("invalid params on genesis: %w", err)
 	}
 
-	// Check if active precompiles have a corresponding token pair
-	if err := validatePrecompiles(gs.TokenPairs, gs.Params.DynamicPrecompiles); err != nil {
-		return fmt.Errorf("invalid dynamic precompiles on genesis: %w", err)
+	if err := gs.Precompiles.Validate(); err != nil {
+		return fmt.Errorf("invalid precompiles on genesis: %w", err)
 	}
 
-	if err := validatePrecompiles(gs.TokenPairs, gs.Params.NativePrecompiles); err != nil {
-		return fmt.Errorf("invalid native precompiles on genesis: %w", err)
-	}
 	return nil
 }
 

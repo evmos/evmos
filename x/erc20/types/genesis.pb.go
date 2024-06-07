@@ -29,6 +29,8 @@ type GenesisState struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// token_pairs is a slice of the registered token pairs at genesis
 	TokenPairs []TokenPair `protobuf:"bytes,2,rep,name=token_pairs,json=tokenPairs,proto3" json:"token_pairs"`
+	// precompiles are the precompiles that are enabled at genesis
+	Precompiles Precompiles `protobuf:"bytes,3,opt,name=precompiles,proto3" json:"precompiles"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -78,16 +80,17 @@ func (m *GenesisState) GetTokenPairs() []TokenPair {
 	return nil
 }
 
+func (m *GenesisState) GetPrecompiles() Precompiles {
+	if m != nil {
+		return m.Precompiles
+	}
+	return Precompiles{}
+}
+
 // Params defines the erc20 module params
 type Params struct {
 	// enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
 	EnableErc20 bool `protobuf:"varint,1,opt,name=enable_erc20,json=enableErc20,proto3" json:"enable_erc20,omitempty"`
-	// native_precompiles defines the slice of hex addresses of the
-	// active precompiles that are used to interact with native staking coins as ERC20s
-	NativePrecompiles []string `protobuf:"bytes,3,rep,name=native_precompiles,json=nativePrecompiles,proto3" json:"native_precompiles,omitempty"`
-	// dynamic_precompiles defines the slice of hex addresses of the
-	// active precompiles that are used to interact with Bank coins as ERC20s
-	DynamicPrecompiles []string `protobuf:"bytes,4,rep,name=dynamic_precompiles,json=dynamicPrecompiles,proto3" json:"dynamic_precompiles,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -130,16 +133,59 @@ func (m *Params) GetEnableErc20() bool {
 	return false
 }
 
-func (m *Params) GetNativePrecompiles() []string {
+// Precompiles defines enabled precompiles
+type Precompiles struct {
+	// native_precompiles defines the slice of hex addresses of the
+	// active precompiles that are used to interact with native staking coins as ERC20s
+	Native []string `protobuf:"bytes,1,rep,name=native,proto3" json:"native,omitempty"`
+	// dynamic_precompiles defines the slice of hex addresses of the
+	// active precompiles that are used to interact with Bank coins as ERC20s
+	Dynamic []string `protobuf:"bytes,2,rep,name=dynamic,proto3" json:"dynamic,omitempty"`
+}
+
+func (m *Precompiles) Reset()         { *m = Precompiles{} }
+func (m *Precompiles) String() string { return proto.CompactTextString(m) }
+func (*Precompiles) ProtoMessage()    {}
+func (*Precompiles) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2f4674601b0d6987, []int{2}
+}
+func (m *Precompiles) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Precompiles) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Precompiles.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Precompiles) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Precompiles.Merge(m, src)
+}
+func (m *Precompiles) XXX_Size() int {
+	return m.Size()
+}
+func (m *Precompiles) XXX_DiscardUnknown() {
+	xxx_messageInfo_Precompiles.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Precompiles proto.InternalMessageInfo
+
+func (m *Precompiles) GetNative() []string {
 	if m != nil {
-		return m.NativePrecompiles
+		return m.Native
 	}
 	return nil
 }
 
-func (m *Params) GetDynamicPrecompiles() []string {
+func (m *Precompiles) GetDynamic() []string {
 	if m != nil {
-		return m.DynamicPrecompiles
+		return m.Dynamic
 	}
 	return nil
 }
@@ -147,32 +193,34 @@ func (m *Params) GetDynamicPrecompiles() []string {
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "evmos.erc20.v1.GenesisState")
 	proto.RegisterType((*Params)(nil), "evmos.erc20.v1.Params")
+	proto.RegisterType((*Precompiles)(nil), "evmos.erc20.v1.Precompiles")
 }
 
 func init() { proto.RegisterFile("evmos/erc20/v1/genesis.proto", fileDescriptor_2f4674601b0d6987) }
 
 var fileDescriptor_2f4674601b0d6987 = []byte{
-	// 320 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x90, 0x41, 0x4b, 0xc3, 0x30,
-	0x14, 0xc7, 0x9b, 0x75, 0x8c, 0x99, 0x0e, 0xd1, 0x28, 0x32, 0x87, 0xd4, 0xb9, 0x53, 0x2f, 0x36,
-	0x6e, 0x7a, 0xf0, 0x28, 0x03, 0x11, 0x3c, 0x8d, 0xe9, 0xc9, 0xcb, 0xc8, 0xea, 0xa3, 0x06, 0xd7,
-	0x26, 0x24, 0xb1, 0xb8, 0x2f, 0xe0, 0x59, 0xbf, 0xd5, 0x8e, 0x3b, 0x7a, 0x12, 0xd9, 0xbe, 0x88,
-	0x2c, 0xa9, 0xe8, 0x76, 0x29, 0x8f, 0xff, 0xef, 0xf7, 0x7f, 0x0d, 0x0f, 0x1f, 0x41, 0x91, 0x09,
-	0x4d, 0x41, 0x25, 0xbd, 0x33, 0x5a, 0x74, 0x69, 0x0a, 0x39, 0x68, 0xae, 0x63, 0xa9, 0x84, 0x11,
-	0x64, 0xdb, 0xd2, 0xd8, 0xd2, 0xb8, 0xe8, 0xb6, 0x5a, 0x1b, 0xb6, 0x03, 0xd6, 0x6d, 0xed, 0xa7,
-	0x22, 0x15, 0x76, 0xa4, 0xab, 0xc9, 0xa5, 0x9d, 0x37, 0x84, 0x1b, 0x37, 0x6e, 0xe7, 0x9d, 0x61,
-	0x06, 0xc8, 0x05, 0xae, 0x49, 0xa6, 0x58, 0xa6, 0x9b, 0xa8, 0x8d, 0xa2, 0xa0, 0x77, 0x10, 0xaf,
-	0xff, 0x23, 0x1e, 0x58, 0xda, 0xaf, 0xce, 0xbe, 0x8e, 0xbd, 0x61, 0xe9, 0x92, 0x2b, 0x1c, 0x18,
-	0xf1, 0x0c, 0xf9, 0x48, 0x32, 0xae, 0x74, 0xb3, 0xd2, 0xf6, 0xa3, 0xa0, 0x77, 0xb8, 0x59, 0xbd,
-	0x5f, 0x29, 0x03, 0xc6, 0x55, 0xd9, 0xc6, 0xe6, 0x37, 0xd0, 0x9d, 0x0f, 0x84, 0x6b, 0x6e, 0x35,
-	0x39, 0xc1, 0x0d, 0xc8, 0xd9, 0x78, 0x02, 0x23, 0xdb, 0xb4, 0x0f, 0xa9, 0x0f, 0x03, 0x97, 0x5d,
-	0xaf, 0x22, 0x72, 0x8a, 0x49, 0xce, 0x0c, 0x2f, 0x60, 0x24, 0x15, 0x24, 0x22, 0x93, 0x7c, 0x02,
-	0xba, 0xe9, 0xb7, 0xfd, 0x68, 0x6b, 0xb8, 0xeb, 0xc8, 0xe0, 0x0f, 0x10, 0x8a, 0xf7, 0x1e, 0xa7,
-	0x39, 0xcb, 0x78, 0xb2, 0xe6, 0x57, 0xad, 0x4f, 0x4a, 0xf4, 0xaf, 0x70, 0x5b, 0xad, 0x57, 0x76,
-	0xfc, 0x7e, 0x7f, 0xb6, 0x08, 0xd1, 0x7c, 0x11, 0xa2, 0xef, 0x45, 0x88, 0xde, 0x97, 0xa1, 0x37,
-	0x5f, 0x86, 0xde, 0xe7, 0x32, 0xf4, 0x1e, 0xa2, 0x94, 0x9b, 0xa7, 0x97, 0x71, 0x9c, 0x88, 0x8c,
-	0x96, 0x37, 0xb7, 0xdf, 0xa2, 0x7b, 0x49, 0x5f, 0xcb, 0xfb, 0x9b, 0xa9, 0x04, 0x3d, 0xae, 0xd9,
-	0x3b, 0x9f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0xfe, 0xa3, 0xe9, 0x91, 0xc9, 0x01, 0x00, 0x00,
+	// 333 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x51, 0x4f, 0x4b, 0xc3, 0x30,
+	0x14, 0x6f, 0xd6, 0x51, 0xb7, 0x74, 0x88, 0x04, 0x19, 0x75, 0x4a, 0x9d, 0x3b, 0xf5, 0xd4, 0xda,
+	0xe9, 0xc1, 0x9b, 0x32, 0x11, 0xc1, 0xd3, 0xa8, 0x9e, 0xbc, 0x8c, 0xac, 0x3e, 0x6a, 0x70, 0x6d,
+	0x4a, 0x13, 0x8b, 0xfb, 0x16, 0x7e, 0xac, 0x81, 0x97, 0x1d, 0x3d, 0x89, 0x6c, 0x5f, 0x44, 0x96,
+	0x66, 0x38, 0xe7, 0x25, 0xbc, 0xf7, 0xfb, 0xf3, 0x5e, 0x1e, 0x3f, 0x7c, 0x04, 0x65, 0xca, 0x45,
+	0x00, 0x45, 0xdc, 0x3f, 0x0d, 0xca, 0x30, 0x48, 0x20, 0x03, 0xc1, 0x84, 0x9f, 0x17, 0x5c, 0x72,
+	0xb2, 0xab, 0x58, 0x5f, 0xb1, 0x7e, 0x19, 0x76, 0x3a, 0x5b, 0xea, 0x8a, 0x50, 0xda, 0xce, 0x7e,
+	0xc2, 0x13, 0xae, 0xca, 0x60, 0x55, 0x55, 0x68, 0xef, 0x03, 0xe1, 0xd6, 0x6d, 0x35, 0xf3, 0x5e,
+	0x52, 0x09, 0xe4, 0x1c, 0x5b, 0x39, 0x2d, 0x68, 0x2a, 0x1c, 0xd4, 0x45, 0x9e, 0xdd, 0x6f, 0xfb,
+	0x7f, 0x77, 0xf8, 0x43, 0xc5, 0x0e, 0xea, 0xb3, 0xaf, 0x63, 0x23, 0xd2, 0x5a, 0x72, 0x85, 0x6d,
+	0xc9, 0x5f, 0x20, 0x1b, 0xe5, 0x94, 0x15, 0xc2, 0xa9, 0x75, 0x4d, 0xcf, 0xee, 0x1f, 0x6c, 0x5b,
+	0x1f, 0x56, 0x92, 0x21, 0x65, 0x85, 0x76, 0x63, 0xb9, 0x06, 0x04, 0xb9, 0xc6, 0x76, 0x5e, 0x40,
+	0xcc, 0xd3, 0x9c, 0x4d, 0x40, 0x38, 0xa6, 0x5a, 0x7e, 0xf8, 0x6f, 0xf9, 0xaf, 0x44, 0xcf, 0xd8,
+	0x74, 0xf5, 0x42, 0x6c, 0x55, 0xdf, 0x23, 0x27, 0xb8, 0x05, 0x19, 0x1d, 0x4f, 0x60, 0xa4, 0xbc,
+	0xea, 0x98, 0x46, 0x64, 0x57, 0xd8, 0xcd, 0x0a, 0xba, 0xab, 0x37, 0x6a, 0x7b, 0x66, 0xef, 0x12,
+	0xdb, 0x1b, 0x43, 0x49, 0x1b, 0x5b, 0x19, 0x95, 0xac, 0x04, 0x07, 0x75, 0x4d, 0xaf, 0x19, 0xe9,
+	0x8e, 0x38, 0x78, 0xe7, 0x69, 0x9a, 0xd1, 0x94, 0xc5, 0xea, 0xb8, 0x66, 0xb4, 0x6e, 0x07, 0x83,
+	0xd9, 0xc2, 0x45, 0xf3, 0x85, 0x8b, 0xbe, 0x17, 0x2e, 0x7a, 0x5f, 0xba, 0xc6, 0x7c, 0xe9, 0x1a,
+	0x9f, 0x4b, 0xd7, 0x78, 0xf4, 0x12, 0x26, 0x9f, 0x5f, 0xc7, 0x7e, 0xcc, 0xd3, 0x40, 0x07, 0xa3,
+	0xde, 0x32, 0xbc, 0x08, 0xde, 0x74, 0x48, 0x72, 0x9a, 0x83, 0x18, 0x5b, 0x2a, 0x8c, 0xb3, 0x9f,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0x4f, 0x68, 0x5c, 0x36, 0xee, 0x01, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -195,6 +243,16 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size, err := m.Precompiles.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintGenesis(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
 	if len(m.TokenPairs) > 0 {
 		for iNdEx := len(m.TokenPairs) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -242,24 +300,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.DynamicPrecompiles) > 0 {
-		for iNdEx := len(m.DynamicPrecompiles) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.DynamicPrecompiles[iNdEx])
-			copy(dAtA[i:], m.DynamicPrecompiles[iNdEx])
-			i = encodeVarintGenesis(dAtA, i, uint64(len(m.DynamicPrecompiles[iNdEx])))
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if len(m.NativePrecompiles) > 0 {
-		for iNdEx := len(m.NativePrecompiles) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.NativePrecompiles[iNdEx])
-			copy(dAtA[i:], m.NativePrecompiles[iNdEx])
-			i = encodeVarintGenesis(dAtA, i, uint64(len(m.NativePrecompiles[iNdEx])))
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
 	if m.EnableErc20 {
 		i--
 		if m.EnableErc20 {
@@ -269,6 +309,47 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Precompiles) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Precompiles) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Precompiles) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Dynamic) > 0 {
+		for iNdEx := len(m.Dynamic) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Dynamic[iNdEx])
+			copy(dAtA[i:], m.Dynamic[iNdEx])
+			i = encodeVarintGenesis(dAtA, i, uint64(len(m.Dynamic[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Native) > 0 {
+		for iNdEx := len(m.Native) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Native[iNdEx])
+			copy(dAtA[i:], m.Native[iNdEx])
+			i = encodeVarintGenesis(dAtA, i, uint64(len(m.Native[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -298,6 +379,8 @@ func (m *GenesisState) Size() (n int) {
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
+	l = m.Precompiles.Size()
+	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
 
@@ -310,14 +393,23 @@ func (m *Params) Size() (n int) {
 	if m.EnableErc20 {
 		n += 2
 	}
-	if len(m.NativePrecompiles) > 0 {
-		for _, s := range m.NativePrecompiles {
+	return n
+}
+
+func (m *Precompiles) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Native) > 0 {
+		for _, s := range m.Native {
 			l = len(s)
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if len(m.DynamicPrecompiles) > 0 {
-		for _, s := range m.DynamicPrecompiles {
+	if len(m.Dynamic) > 0 {
+		for _, s := range m.Dynamic {
 			l = len(s)
 			n += 1 + l + sovGenesis(uint64(l))
 		}
@@ -427,6 +519,39 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Precompiles", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Precompiles.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGenesis(dAtA[iNdEx:])
@@ -497,9 +622,59 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.EnableErc20 = bool(v != 0)
-		case 3:
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Precompiles) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Precompiles: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Precompiles: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NativePrecompiles", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Native", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -527,11 +702,11 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NativePrecompiles = append(m.NativePrecompiles, string(dAtA[iNdEx:postIndex]))
+			m.Native = append(m.Native, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
-		case 4:
+		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DynamicPrecompiles", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Dynamic", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -559,7 +734,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.DynamicPrecompiles = append(m.DynamicPrecompiles, string(dAtA[iNdEx:postIndex]))
+			m.Dynamic = append(m.Dynamic, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

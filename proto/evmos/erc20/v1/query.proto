@@ -27,6 +27,11 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/erc20/v1/params";
   }
+
+  // Precompiles retrieves the erc20 module params
+  rpc Precompiles(QueryPrecompilesRequest) returns (QueryPrecompilesResponse) {
+    option (google.api.http).get = "/evmos/erc20/v1/precompiles";
+  }
 }
 
 // QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
@@ -67,4 +72,14 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params are the erc20 module parameters
   Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryPrecompilesRequest is the request type for the Query/Params RPC method.
+message QueryPrecompilesRequest {}
+
+// QueryPrecompilesResponse is the response type for the Query/Params RPC
+// method.
+message QueryPrecompilesResponse {
+  // precompiles are the erc20 module parameters
+  Precompiles precompiles = 1 [(gogoproto.nullable) = false];
 }

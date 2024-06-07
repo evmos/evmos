@@ -35,9 +35,9 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active dynamic precompiles.
 func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {
-	// Get the current params and append the new precompiles
-	params := k.GetParams(ctx)
-	activePrecompiles := params.DynamicPrecompiles
+	// Get the current precompiles and append the new precompiles
+	precompiles := k.GetPrecompiles(ctx)
+	activePrecompiles := precompiles.Dynamic
 
 	// Append and sort the new precompiles
 	updatedPrecompiles, err := appendPrecompiles(activePrecompiles, addresses...)
@@ -46,8 +46,8 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	}
 
 	// Update params
-	params.DynamicPrecompiles = updatedPrecompiles
-	return k.SetParams(ctx, params)
+	precompiles.Dynamic = updatedPrecompiles
+	return k.SetPrecompiles(ctx, precompiles)
 }
 
 func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {

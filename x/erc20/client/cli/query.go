@@ -129,3 +129,33 @@ func GetParamsCmd() *cobra.Command {
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
+
+// GetParamsCmd queries erc20 module params
+func GetPrecompilesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "precompiles",
+		Short: "Gets erc20 precompiles",
+		Long:  "Gets erc20 precompiles",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryPrecompilesRequest{}
+
+			res, err := queryClient.Precompiles(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
