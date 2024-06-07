@@ -239,4 +239,6 @@ contract DistributionCaller {
         require(success, "failed staticCall to precompile");
         return data;
     }
+
+    function deposit() public payable {}
 }

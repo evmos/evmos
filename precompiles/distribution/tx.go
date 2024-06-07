@@ -52,7 +52,7 @@ func (p Precompile) ClaimRewards(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorAddr
 	if !isContractDelegator && origin != delegatorAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
 	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
@@ -98,7 +98,7 @@ func (p Precompile) SetWithdrawAddress(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorHexAddr
 	if !isContractDelegator && origin != delegatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -131,7 +131,7 @@ func (p Precompile) WithdrawDelegatorRewards(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorHexAddr
 	if !isContractDelegator && origin != delegatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -171,7 +171,7 @@ func (p Precompile) WithdrawValidatorCommission(
 	// Otherwise check if the origin matches the validator address
 	isContractValidator := contract.CallerAddress == validatorHexAddr
 	if !isContractValidator && origin != validatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), validatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), validatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -205,13 +205,20 @@ func (p Precompile) FundCommunityPool(
 	// Otherwise check if the origin matches the depositor address
 	isContractDepositor := contract.CallerAddress == depositorHexAddr
 	if !isContractDepositor && origin != depositorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), depositorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrSpenderDifferentOrigin, origin.String(), depositorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
 	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
+	}
+
+	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+	if isContractDepositor {
+		bondDenom := p.stakingKeeper.BondDenom(ctx)
+		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Amount.AmountOf(bondDenom).BigInt())
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {
