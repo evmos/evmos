@@ -1,42 +1,46 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package keeper
+package types
 
 import (
-	"github.com/evmos/evmos/v18/x/evm/types"
-
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
+
+// OpCodeHooks extends the geth OpCodeHooks interface to add custom hooks for EVM operations.
+// The hooks run before the respective opcode execution every time they are called.
+type OpCodeHooks interface {
+	vm.OpCodeHooks
+	AddCallHook(hooks ...CallHook)
+	AddCreateHook(hooks ...CreateHook)
+}
 
 // DefaultOpCodesHooks is the default implementation of OpCodeHooks for EVMOS chain
 // The hooks are used to enforce access control policies on EVM operations.
 // They are ran BEFORE the respective opcode execution every time they are called.
 type DefaultOpCodesHooks struct {
-	accessControl types.PermissionPolicy
-	signer        common.Address
-	keeper        Keeper
-	ctx           sdktypes.Context
-	callHooks     []callHook
-	createHooks   []createHook
+	callHooks   []CallHook
+	createHooks []CreateHook
 }
 
-type createHook func(ev *vm.EVM, caller common.Address) error
-type callHook func(ev *vm.EVM, caller common.Address, recipient common.Address) error
+// Make sure we comply with geth's OpCodeHooks interface
+var _ OpCodeHooks = (*DefaultOpCodesHooks)(nil)
+
+type CreateHook func(ev *vm.EVM, caller common.Address) error
+type CallHook func(ev *vm.EVM, caller common.Address, recipient common.Address) error
 
 // NewDefaultOpCodesHooks creates a new DefaultOpCodesHooks instance
-func NewDefaultOpCodesHooks() *DefaultOpCodesHooks {
+func NewDefaultOpCodesHooks() OpCodeHooks {
 	return &DefaultOpCodesHooks{}
 }
 
-func (h *DefaultOpCodesHooks) AddCallHook(hook callHook) {
-	h.callHooks = append(h.callHooks, hook)
+func (h *DefaultOpCodesHooks) AddCallHook(hooks ...CallHook) {
+	h.callHooks = append(h.callHooks, hooks...)
 }
 
-func (h *DefaultOpCodesHooks) AddCreateHook(hook createHook) {
-	h.createHooks = append(h.createHooks, hook)
+func (h *DefaultOpCodesHooks) AddCreateHook(hooks ...CreateHook) {
+	h.createHooks = append(h.createHooks, hooks...)
 }
 
 // CreateHook checks if the caller has permission to deploy contracts

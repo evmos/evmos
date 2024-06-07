@@ -4,9 +4,11 @@
 package types
 
 import (
+	"fmt"
 	"slices"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 // PermissionPolicy is the interface that defines the permission policy for contract creation and calls.
@@ -43,6 +45,24 @@ func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer common.A
 }
 
 var _ PermissionPolicy = RestrictedPermissionPolicy{}
+
+func (p RestrictedPermissionPolicy) GetCallHook(signer common.Address) CallHook {
+	return func(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+		if p.CanCall(signer, caller, recipient) {
+			return nil
+		}
+		return fmt.Errorf("caller address %s does not have permission to perform a call", caller)
+	}
+}
+
+func (p RestrictedPermissionPolicy) GetCreateHook(signer common.Address) CreateHook {
+	return func(evm *vm.EVM, caller common.Address) error {
+		if p.CanCreate(signer, caller) {
+			return nil
+		}
+		return fmt.Errorf("caller address %s does not have permission to deploy contracts", caller)
+	}
+}
 
 // CanCreate implements the PermissionPolicy interface.
 // It allows contract creation if access type is set to everybody.

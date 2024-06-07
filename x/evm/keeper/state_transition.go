@@ -3,7 +3,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
 
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -60,39 +59,17 @@ func (k *Keeper) NewEVM(
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
 
 	signer := msg.From()
-
 	accessControl := types.NewRestrictedPermissionPolicy(&cfg.Params.AccessControl, signer)
-	evmHooks := NewDefaultOpCodesHooks()
 
-	checkCreatePermission := func(ev *vm.EVM, caller common.Address) error {
-		if accessControl.CanCreate(signer, caller) {
-			return nil
-		}
-		return fmt.Errorf("caller address %s does not have permission to deploy contracts", signer)
-	}
-	evmHooks.AddCreateHook(checkCreatePermission)
-
-	checkCallPermission := func(_ *vm.EVM, caller common.Address, recipient common.Address) error {
-		if accessControl.CanCall(signer, caller, recipient) {
-			return nil
-		}
-		return fmt.Errorf("caller address %s does not have permission to perform a call", caller)
-	}
-	evmHooks.AddCallHook(checkCallPermission)
-
-	instantiatePrecompiles := func(evm *vm.EVM, caller common.Address, recipient common.Address) error {
-		// Check if the recipient is a precompile contract and if so, load the precompile instance
-		precompiles, found, err := k.GetPrecompileInstance(ctx, recipient)
-		if err != nil {
-			return err
-		}
-
-		if found {
-			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
-		}
-		return nil
-	}
-	evmHooks.AddCallHook(instantiatePrecompiles)
+	// Set hooks for the EVM opcodes
+	evmHooks := types.NewDefaultOpCodesHooks()
+	evmHooks.AddCreateHook(
+		accessControl.GetCreateHook(signer),
+	)
+	evmHooks.AddCallHook(
+		accessControl.GetCallHook(signer),
+		k.GetPrecompilesCallHook(ctx),
+	)
 
 	return vm.NewEVMWithHooks(evmHooks, blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
 }
