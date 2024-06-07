@@ -345,7 +345,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil,nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
@@ -371,7 +371,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil,nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, mutliSpendLimit)
@@ -465,7 +465,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil,nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().NotNil(transferAuthz)
@@ -520,7 +520,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil,nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, mutliSpendLimit)
