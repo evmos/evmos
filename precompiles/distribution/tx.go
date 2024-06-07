@@ -6,6 +6,7 @@ package distribution
 import (
 	"fmt"
 
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -217,8 +218,7 @@ func (p Precompile) FundCommunityPool(
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if isContractDepositor {
-		bondDenom := p.stakingKeeper.BondDenom(ctx)
-		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Amount.AmountOf(bondDenom).BigInt())
+		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Amount.AmountOf(utils.BaseDenom).BigInt())
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {
