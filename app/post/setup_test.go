@@ -90,7 +90,7 @@ func (s *PostTestSuite) BuildEthTx() sdk.Tx {
 	return tx
 }
 
-// BuildCosmosTxWithSendMsg is an utils function to create an sdk.Tx containing
+// BuildCosmosTxWithNSendMsg is an utils function to create an sdk.Tx containing
 // a single message of type MsgSend from the bank module.
 func (s *PostTestSuite) BuildCosmosTxWithNSendMsg(n int, feeAmount sdk.Coins) sdk.Tx {
 	messages := make([]sdk.Msg, n)
@@ -112,7 +112,7 @@ func (s *PostTestSuite) BuildCosmosTxWithNSendMsg(n int, feeAmount sdk.Coins) sd
 	return s.txBuilder.GetTx()
 }
 
-// MintCoinForFeeCollector allows to mint a specific amount of coins from the bank
+// MintCoinsForFeeCollector allows to mint a specific amount of coins from the bank
 // and to transfer them to the FeeCollector.
 func (s *PostTestSuite) MintCoinsForFeeCollector(amount sdk.Coins) {
 	// Minting tokens for the FeeCollector to simulate fee accrued.

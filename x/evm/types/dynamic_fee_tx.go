@@ -250,7 +250,7 @@ func (tx DynamicFeeTx) Validate() error {
 	if tx.GetChainID() == nil {
 		return errorsmod.Wrap(
 			errortypes.ErrInvalidChainID,
-			"chain ID must be present on AccessList txs",
+			"chain ID must be present on DynamicFee txs",
 		)
 	}
 
