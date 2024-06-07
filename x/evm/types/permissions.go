@@ -47,7 +47,7 @@ func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer common.A
 var _ PermissionPolicy = RestrictedPermissionPolicy{}
 
 func (p RestrictedPermissionPolicy) GetCallHook(signer common.Address) CallHook {
-	return func(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+	return func(_ *vm.EVM, caller, recipient common.Address) error {
 		if p.CanCall(signer, caller, recipient) {
 			return nil
 		}
@@ -56,7 +56,7 @@ func (p RestrictedPermissionPolicy) GetCallHook(signer common.Address) CallHook 
 }
 
 func (p RestrictedPermissionPolicy) GetCreateHook(signer common.Address) CreateHook {
-	return func(evm *vm.EVM, caller common.Address) error {
+	return func(_ *vm.EVM, caller common.Address) error {
 		if p.CanCreate(signer, caller) {
 			return nil
 		}
