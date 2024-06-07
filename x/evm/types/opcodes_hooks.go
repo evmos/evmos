@@ -37,7 +37,7 @@ func NewDefaultOpCodesHooks() OpCodeHooks {
 	return &DefaultOpCodesHooks{}
 }
 
-// AddCreateHooks adds one or more hooks to the queue to be executed before the CALL opcode.
+// AddCallHooks adds one or more hooks to the queue to be executed before the CALL opcode.
 // Hooks will be executed in the order they are added.
 func (h *DefaultOpCodesHooks) AddCallHooks(hooks ...CallHook) {
 	h.callHooks = append(h.callHooks, hooks...)

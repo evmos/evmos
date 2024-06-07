@@ -20,6 +20,13 @@ type PermissionPolicy interface {
 	// CanCall checks if the any type of CALL opcode execution is allowed. This includes
 	// contract calls and transfers.
 	CanCall(signer, caller, recipient common.Address) bool
+
+    // GetCallHook returns a CallHook that checks if the caller is allowed to perform a call.
+    // This is used by the EVM opcode hooks to enforce access control policies.
+    GetCallHook(signer common.Address) CallHook
+    // GetCreateHook returns a CreateHook that checks if the caller is allowed to deploy contracts.
+    // This is used by the EVM opcode hooks to enforce access control policies.
+    GetCreateHook(signer common.Address) CreateHook
 }
 
 // RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of accessControl.
@@ -32,7 +39,7 @@ type RestrictedPermissionPolicy struct {
 	canCall       callerFn
 }
 
-func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer common.Address) RestrictedPermissionPolicy {
+func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer common.Address) PermissionPolicy {
 	// generate create function at instantiation for signer address to be check only once
 	// since it remains constant
 	canCreate := getCanCreateFn(accessControl, signer)
@@ -46,6 +53,7 @@ func NewRestrictedPermissionPolicy(accessControl *AccessControl, signer common.A
 
 var _ PermissionPolicy = RestrictedPermissionPolicy{}
 
+// GetCallHook returns a CallHook that checks if the caller is allowed to perform a call.
 func (p RestrictedPermissionPolicy) GetCallHook(signer common.Address) CallHook {
 	return func(_ *vm.EVM, caller, recipient common.Address) error {
 		if p.CanCall(signer, caller, recipient) {
@@ -55,6 +63,7 @@ func (p RestrictedPermissionPolicy) GetCallHook(signer common.Address) CallHook 
 	}
 }
 
+// GetCreateHook returns a CreateHook that checks if the caller is allowed to deploy contracts.
 func (p RestrictedPermissionPolicy) GetCreateHook(signer common.Address) CreateHook {
 	return func(_ *vm.EVM, caller common.Address) error {
 		if p.CanCreate(signer, caller) {
