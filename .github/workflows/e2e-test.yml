@@ -50,6 +50,7 @@ jobs:
             "test_fee_history.py"
             "test_grpc_only.py"
             "test_ibc.py"
+            "test_ics20_precompile.py"
             "test_no_abci_resp.py"
             "test_precompiles.py"
             "test_priority.py"

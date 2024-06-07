@@ -27,10 +27,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7436
+const expGasConsumed = 7442
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7430
+const expGasConsumedWithFeeMkt = 7436
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -692,7 +692,11 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 					Data: (*hexutil.Bytes)(&data),
 				}
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
@@ -940,13 +944,17 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				suite.Commit()
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
 				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   26540, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
@@ -1323,9 +1331,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	data = append(data, ctorArgs...)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name       string
+		malleate   func()
+		expVMError bool
 	}{
 		{
 			"invalid args",
@@ -1350,7 +1358,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			false,
 		},
 		{
-			"set param EnableCreate = false",
+			"set param AccessControl - no Access",
 			func() {
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &address,
@@ -1361,11 +1369,37 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.EnableCreate = false
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
-			false,
+			true,
+		},
+		{
+			"set param AccessControl = non whitelist",
+			func() {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &address,
+					Data: (*hexutil.Bytes)(&data),
+				})
+
+				suite.Require().NoError(err)
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypePermissioned,
+					},
+				}
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			true,
 		},
 	}
 	for _, tc := range testCases {
@@ -1374,9 +1408,9 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			tc.malleate()
 
 			res, err := suite.queryClient.EthCall(suite.ctx, req)
-			if tc.expPass {
+			if tc.expVMError {
 				suite.Require().NotNil(res)
-				suite.Require().NoError(err)
+				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")
 			} else {
 				suite.Require().Error(err)
 			}
