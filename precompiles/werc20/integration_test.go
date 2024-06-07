@@ -79,7 +79,10 @@ var _ = Describe("WEVMOS Extension -", func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to create wevmos extension")
 		s.precompile = precompile
 
-		err = s.network.App.EvmKeeper.AddEVMExtensions(s.network.GetContext(), precompile)
+		err = s.network.App.Erc20Keeper.EnableDynamicPrecompiles(
+			s.network.GetContext(),
+			precompile.Address(),
+		)
 		Expect(err).ToNot(HaveOccurred(), "failed to add wevmos extension")
 
 		s.tokenDenom = tokenPair.GetDenom()

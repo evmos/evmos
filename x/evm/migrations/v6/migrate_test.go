@@ -37,7 +37,7 @@ func TestMigrate(t *testing.T) {
 		ChainConfig:         chainCfgV5,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   types.AvailableEVMExtensions,
+		ActivePrecompiles:   types.AvailableStaticPrecompiles,
 	}
 
 	// Set the params in the store

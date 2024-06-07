@@ -52,7 +52,7 @@ func TestParamsValidate(t *testing.T) {
 			name: "unsorted precompiles",
 			params: Params{
 				EvmDenom: DefaultEVMDenom,
-				ActivePrecompiles: []string{
+				ActiveStaticPrecompiles: []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				},
@@ -161,46 +161,5 @@ func TestIsLondon(t *testing.T) {
 	for _, tc := range testCases {
 		ethConfig := ethparams.MainnetChainConfig
 		require.Equal(t, IsLondon(ethConfig, tc.height), tc.result)
-	}
-}
-
-func TestIsActivePrecompile(t *testing.T) {
-	t.Parallel()
-
-	precompileAddr := "0x0000000000000000000000000000000000000800"
-
-	testCases := []struct {
-		name      string
-		malleate  func() (Params, string)
-		expActive bool
-	}{
-		{
-			name: "inactive precompile",
-			malleate: func() (Params, string) {
-				return Params{}, precompileAddr
-			},
-			expActive: false,
-		},
-		{
-			name: "active precompile",
-			malleate: func() (Params, string) {
-				return Params{ActivePrecompiles: []string{precompileAddr}}, precompileAddr
-			},
-			expActive: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			require.NotNil(t, tc.malleate, "test case must provide malleate function")
-			params, precompile := tc.malleate()
-
-			active := params.IsActivePrecompile(precompile)
-			require.Equal(t, tc.expActive, active, "expected different active status for precompile: %s", precompile)
-		})
 	}
 }

@@ -86,12 +86,12 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
 			var activePrecompiles []string
-			for _, precompile := range params.ActivePrecompiles {
+			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActivePrecompiles = activePrecompiles
+			params.ActiveStaticPrecompiles = activePrecompiles
 			err := s.app.EvmKeeper.SetParams(s.ctx, params)
 			Expect(err).To(BeNil(), "error while setting params")
 
@@ -1527,12 +1527,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
 			var activePrecompiles []string
-			for _, precompile := range params.ActivePrecompiles {
+			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActivePrecompiles = activePrecompiles
+			params.ActiveStaticPrecompiles = activePrecompiles
 			err := s.app.EvmKeeper.SetParams(s.ctx, params)
 			Expect(err).To(BeNil(), "error while setting params")
 

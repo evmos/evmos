@@ -47,7 +47,7 @@ func (k *Keeper) GetPrecompileInstance(
 }
 
 func (k *Keeper) GetPrecompilesCallHook(ctx sdktypes.Context) types.CallHook {
-	return func(evm *vm.EVM, caller common.Address, recipient common.Address) error {
+	return func(evm *vm.EVM, _ common.Address, recipient common.Address) error {
 		// Check if the recipient is a precompile contract and if so, load the precompile instance
 		precompiles, found, err := k.GetPrecompileInstance(ctx, recipient)
 		if err != nil {
