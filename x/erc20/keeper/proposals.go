@@ -47,7 +47,7 @@ func (k Keeper) RegisterCoin(
 	}
 
 	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
-    k.SetToken(ctx, pair)
+	k.SetToken(ctx, pair)
 
 	return &pair, nil
 }
@@ -73,7 +73,7 @@ func (k Keeper) RegisterERC20(
 	}
 
 	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL)
-    k.SetToken(ctx, pair)
+	k.SetToken(ctx, pair)
 	return &pair, nil
 }
 

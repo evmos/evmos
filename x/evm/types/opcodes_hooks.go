@@ -27,8 +27,10 @@ type DefaultOpCodesHooks struct {
 // Make sure we comply with geth's OpCodeHooks interface
 var _ OpCodeHooks = (*DefaultOpCodesHooks)(nil)
 
-type CreateHook func(ev *vm.EVM, caller common.Address) error
-type CallHook func(ev *vm.EVM, caller common.Address, recipient common.Address) error
+type (
+	CreateHook func(ev *vm.EVM, caller common.Address) error
+	CallHook   func(ev *vm.EVM, caller common.Address, recipient common.Address) error
+)
 
 // NewDefaultOpCodesHooks creates a new DefaultOpCodesHooks instance
 func NewDefaultOpCodesHooks() OpCodeHooks {
