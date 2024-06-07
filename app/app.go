@@ -527,9 +527,7 @@ func NewEvmos(
 	)
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-			app.Erc20Keeper.Hooks(),
-		),
+		evmkeeper.NewMultiEvmHooks(),
 	)
 
 	// Override the ICS20 app module
