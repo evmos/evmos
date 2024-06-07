@@ -25,6 +25,11 @@ func InitGenesis(
 		panic(fmt.Errorf("error setting params %s", err))
 	}
 
+	err = k.SetPrecompiles(ctx, data.Precompiles)
+	if err != nil {
+		panic(fmt.Errorf("error setting precompiles %s", err))
+	}
+
 	// ensure erc20 module account is set on genesis
 	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
 		// NOTE: shouldn't occur
@@ -39,7 +44,8 @@ func InitGenesis(
 // ExportGenesis export module status
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:     k.GetParams(ctx),
-		TokenPairs: k.GetTokenPairs(ctx),
+		Params:      k.GetParams(ctx),
+		Precompiles: k.GetPrecompiles(ctx),
+		TokenPairs:  k.GetTokenPairs(ctx),
 	}
 }

@@ -27,6 +27,7 @@ func GetQueryCmd() *cobra.Command {
 		GetTokenPairsCmd(),
 		GetTokenPairCmd(),
 		GetParamsCmd(),
+		GetPrecompilesCmd(),
 	)
 	return cmd
 }

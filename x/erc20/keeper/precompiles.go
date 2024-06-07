@@ -80,12 +80,12 @@ func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string
 	for _, str := range nativePrecompiles {
 		bz = append(bz, []byte(str)...)
 	}
-	store.Set(types.ParamStoreKeyNativePrecompiles, bz)
+	store.Set(types.PrecompileStoreKeyNative, bz)
 }
 
 func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamStoreKeyNativePrecompiles)
+	bz := store.Get(types.PrecompileStoreKeyNative)
 	for i := 0; i < len(bz); i += addressLength {
 		nativePrecompiles = append(nativePrecompiles, string(bz[i:i+addressLength]))
 	}
@@ -98,12 +98,12 @@ func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []stri
 	for _, str := range dynamicPrecompiles {
 		bz = append(bz, []byte(str)...)
 	}
-	store.Set(types.ParamStoreKeyDynamicPrecompiles, bz)
+	store.Set(types.PrecompileStoreKeyDynamic, bz)
 }
 
 func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (precompiles []string) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
+	bz := store.Get(types.PrecompileStoreKeyDynamic)
 	for i := 0; i < len(bz); i += addressLength {
 		precompiles = append(precompiles, string(bz[i:i+addressLength]))
 	}

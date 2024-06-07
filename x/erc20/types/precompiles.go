@@ -19,8 +19,8 @@ const (
 
 // Precompile store key
 var (
-	ParamStoreKeyDynamicPrecompiles = []byte("DynamicPrecompiles")
-	ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
+	PrecompileStoreKeyDynamic = []byte("Dynamic")
+	PrecompileStoreKeyNative  = []byte("Native")
 )
 
 // Default Values
