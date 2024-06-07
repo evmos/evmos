@@ -21,12 +21,12 @@ type PermissionPolicy interface {
 	// contract calls and transfers.
 	CanCall(signer, caller, recipient common.Address) bool
 
-    // GetCallHook returns a CallHook that checks if the caller is allowed to perform a call.
-    // This is used by the EVM opcode hooks to enforce access control policies.
-    GetCallHook(signer common.Address) CallHook
-    // GetCreateHook returns a CreateHook that checks if the caller is allowed to deploy contracts.
-    // This is used by the EVM opcode hooks to enforce access control policies.
-    GetCreateHook(signer common.Address) CreateHook
+	// GetCallHook returns a CallHook that checks if the caller is allowed to perform a call.
+	// This is used by the EVM opcode hooks to enforce access control policies.
+	GetCallHook(signer common.Address) CallHook
+	// GetCreateHook returns a CreateHook that checks if the caller is allowed to deploy contracts.
+	// This is used by the EVM opcode hooks to enforce access control policies.
+	GetCreateHook(signer common.Address) CreateHook
 }
 
 // RestrictedPermissionPolicy is a permission policy that restricts contract creation and calls based on a set of accessControl.
