@@ -1829,6 +1829,70 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 	})
 
+	Context("create a validator", func() {
+		var (
+			valPriv *ethsecp256k1.PrivKey
+			valAddr sdk.AccAddress
+
+			defaultDescription = staking.Description{
+				Moniker:         "new node",
+				Identity:        "",
+				Website:         "",
+				SecurityContact: "",
+				Details:         "",
+			}
+			defaultCommission = staking.Commission{
+				Rate:          big.NewInt(100000000000000000),
+				MaxRate:       big.NewInt(100000000000000000),
+				MaxChangeRate: big.NewInt(100000000000000000),
+			}
+			defaultMinSelfDelegation = big.NewInt(1)
+			defaultPubkeyBase64Str   = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
+			defaultValue             = big.NewInt(1e8)
+
+			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
+			defaultCreateValidatorArgs contracts.CallArgs
+		)
+
+		BeforeEach(func() {
+			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName("testCreateValidator")
+			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
+			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 1e18)
+			Expect(err).To(BeNil(), "error while funding account: %v", err)
+
+			s.NextBlock()
+		})
+
+		It("tx from validator operator - should create a validator success", func() {
+			cArgs := defaultCreateValidatorArgs.
+				WithPrivKey(s.privKey).
+				WithArgs(defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue)
+
+			logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
+			Expect(found).To(BeTrue(), "expected validator to be found")
+			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker to be 'new node'")
+		})
+
+		It("tx from another EOA - should create a validator fail", func() {
+			cArgs := defaultCreateValidatorArgs.
+				WithPrivKey(valPriv).
+				WithArgs(defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue)
+
+			logCheckArgs := defaultLogCheck.WithErrContains(fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address.String(), common.BytesToAddress(valAddr.Bytes()).String()))
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+
+			_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
+			Expect(found).To(BeFalse(), "expected validator not to be found")
+		})
+	})
+
 	Context("delegating", func() {
 		var (
 			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
