@@ -1,6 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package v6_test
+package v7_test
 
 import (
 	"encoding/json"
@@ -12,8 +12,8 @@ import (
 
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
-	v6 "github.com/evmos/evmos/v18/x/evm/migrations/v6"
-	v5types "github.com/evmos/evmos/v18/x/evm/migrations/v6/types"
+	"github.com/evmos/evmos/v18/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -29,22 +29,23 @@ func TestMigrate(t *testing.T) {
 	chainConfig := types.DefaultChainConfig()
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
-	var chainCfgV5 v5types.V5ChainConfig
-	err = json.Unmarshal(bz, &chainCfgV5)
+	var chainCfgV6 v6types.V6ChainConfig
+	err = json.Unmarshal(bz, &chainCfgV6)
 	require.NoError(t, err)
-	v5Params := v5types.V5Params{
+	v6Params := v6types.V6Params{
 		EvmDenom:            types.DefaultEVMDenom,
-		ChainConfig:         chainCfgV5,
+		ChainConfig:         chainCfgV6,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   types.AvailableEVMExtensions,
+		EVMChannels:         types.DefaultEVMChannels,
 	}
 
 	// Set the params in the store
-	paramsV5Bz := cdc.MustMarshal(&v5Params)
-	kvStore.Set(types.KeyPrefixParams, paramsV5Bz)
+	paramsV6Bz := cdc.MustMarshal(&v6Params)
+	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
 
-	err = v6.MigrateStore(ctx, storeKey, cdc)
+	err = v7.MigrateStore(ctx, storeKey, cdc)
 	require.NoError(t, err)
 
 	paramsBz := kvStore.Get(types.KeyPrefixParams)
@@ -57,4 +58,5 @@ func TestMigrate(t *testing.T) {
 	require.Equal(t, chainConfig, params.ChainConfig)
 	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)
 	require.Equal(t, types.DefaultEVMChannels, params.EVMChannels)
+	require.Equal(t, types.DefaultAccessControl, params.AccessControl)
 }

@@ -378,7 +378,7 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocatio
 // CheckOriginAndSender ensures the correct sender is being used.
 func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender common.Address) (common.Address, error) {
 	if contract.CallerAddress == sender {
-		return origin, nil
+		return sender, nil
 	} else if origin != sender {
 		return common.Address{}, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
