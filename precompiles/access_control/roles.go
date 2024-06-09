@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE
+
 package accesscontrol
 
 import (
@@ -15,10 +16,6 @@ import (
 )
 
 const (
-	EventRoleAdminChanged = "RoleAdminChanged"
-	EventRoleGranted      = "RoleGranted"
-	EventRoleRevoked      = "RoleRevoked"
-
 	MethodHasRole      = "hasRole"
 	MethodGetRoleAdmin = "getRoleAdmin"
 	MethodGrantRole    = "grantRole"
@@ -32,6 +29,7 @@ var (
 	RoleBurner       = crypto.Keccak256Hash([]byte("BURNER_ROLE"))
 )
 
+// HasRole checks if an account has a role.
 func (p Precompile) HasRole(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -49,6 +47,7 @@ func (p Precompile) HasRole(
 	return method.Outputs.Pack(hasRole)
 }
 
+// GetRoleAdmin returns the admin role of a role.
 func (p Precompile) GetRoleAdmin(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -56,16 +55,20 @@ func (p Precompile) GetRoleAdmin(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	role, ok := args[0].(common.Hash)
+	roleArray, ok := args[0].([32]uint8)
 	if !ok {
-		return nil, fmt.Errorf("invalid role argument")
+		return nil, fmt.Errorf(ErrorInvalidRoleArgument)
 	}
+
+	var role common.Hash
+	copy(role[:], roleArray[:])
 
 	roleAdmin := p.AccessControlKeeper.GetRoleAdmin(ctx, p.Address(), role)
 
 	return method.Outputs.Pack(roleAdmin)
 }
 
+// GrantRole grants a role to an account.
 func (p Precompile) GrantRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -91,11 +94,14 @@ func (p Precompile) GrantRole(
 
 	p.AccessControlKeeper.SetRole(ctx, p.Address(), role, account)
 
-	// TODO: emit event
+	if err := p.EmitEventRoleGranted(ctx, stateDB, role, account, contract.CallerAddress); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
 
+// RevokeRole revokes a role from an account.
 func (p Precompile) RevokeRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -121,11 +127,14 @@ func (p Precompile) RevokeRole(
 
 	p.AccessControlKeeper.SetRole(ctx, p.Address(), role, account)
 
-	// TODO: emit event
+	if err := p.EmitEventRoleRevoked(ctx, stateDB, role, account, contract.CallerAddress); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
 
+// RenounceRole renounces a role from an account.
 func (p Precompile) RenounceRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -139,7 +148,7 @@ func (p Precompile) RenounceRole(
 	}
 
 	if account != contract.CallerAddress {
-		return nil, fmt.Errorf("access_control: can only renounce roles for self")
+		return nil, fmt.Errorf(ErrorRenounceRoleDifferentThanCaller)
 	}
 
 	hasRole := p.AccessControlKeeper.HasRole(ctx, p.Address(), role, account)
@@ -149,14 +158,17 @@ func (p Precompile) RenounceRole(
 
 	p.AccessControlKeeper.SetRole(ctx, p.Address(), role, account)
 
-	// TODO: emit event
+	if err := p.EmitEventRoleRevoked(ctx, stateDB, role, account, contract.CallerAddress); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
 
+// onlyRole checks if the sender has the role.
 func (p Precompile) onlyRole(ctx sdk.Context, role common.Hash, sender common.Address) error {
 	if !p.AccessControlKeeper.HasRole(ctx, p.Address(), role, sender) {
-		return fmt.Errorf("access_control: sender does not have the role")
+		return fmt.Errorf(ErrorSenderNoRole)
 	}
 	return nil
 }

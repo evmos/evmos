@@ -21,6 +21,8 @@ const (
 	MethodCreate2ERC20 = "create2ERC20"
 )
 
+// CreateERC20 creates a new Bank coin with an ERC20 precompiled interface with the given parameters
+// It adds the relevant metadata and role permissions to the contract owner
 func (p Precompile) CreateERC20(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -41,9 +43,12 @@ func (p Precompile) CreateERC20(
 
 	address := crypto.CreateAddress(p.Address(), account.GetSequence())
 
-	return p.createERC20(ctx, contract, method, address, name, symbol, decimals, initialSupply, account)
+	return p.createERC20(ctx, contract, stateDB, method, address, name, symbol, decimals, initialSupply, account)
 }
 
+// Create2ERC20 creates a new Bank coin with an ERC20 precompiled interface with the given parameters
+// It adds the relevant metadata and role permissions to the contract owner
+// It uses a salt to deterministically create the address
 func (p Precompile) Create2ERC20(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -65,16 +70,17 @@ func (p Precompile) Create2ERC20(
 	hash := common.Hash{}
 	address := crypto.CreateAddress2(p.Address(), salt, hash.Bytes())
 
-	return p.createERC20(ctx, contract, method, address, name, symbol, decimals, initialSupply, account)
+	return p.createERC20(ctx, contract, stateDB, method, address, name, symbol, decimals, initialSupply, account)
 }
 
+// createERC20 creates a new ERC20 token with the given parameters
 func (p Precompile) createERC20(
 	ctx sdk.Context,
 	contract *vm.Contract,
+	stateDB vm.StateDB,
 	method *abi.Method,
 	address common.Address,
-	name,
-	symbol string,
+	name, symbol string,
 	decimals uint8,
 	initialSupply *big.Int,
 	account authtypes.AccountI,
@@ -89,12 +95,18 @@ func (p Precompile) createERC20(
 		ContractOwner: erc20types.OWNER_EXTERNAL,
 	}
 
+	// Save the token pair in the store
+	p.erc20Keeper.SetTokenPair(ctx, tokenPair)
+	p.erc20Keeper.SetDenomMap(ctx, tokenPair.Denom, tokenPair.GetID())
+	p.erc20Keeper.SetERC20Map(ctx, common.HexToAddress(tokenPair.Erc20Address), tokenPair.GetID())
+
+	// TODO: there needs to be logic here that creates different token factory variants
 	erc20ACPrecompile, err := access.NewPrecompile(tokenPair, p.bankKeeper, p.authzKeeper, p.transferKeeper, p.acKeeper)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := p.evmKeeper.AddEVMExtensions(ctx, erc20ACPrecompile); err != nil {
+	if err := p.evmKeeper.AddDynamicPrecompiles(ctx, erc20ACPrecompile); err != nil {
 		return nil, err
 	}
 
@@ -105,6 +117,8 @@ func (p Precompile) createERC20(
 
 	p.bankKeeper.SetDenomMetaData(ctx, metadata)
 
+	// Set the default roles for the contract owner
+	// TODO: This only needs to be present on the access control token factory variant
 	p.acKeeper.SetRole(ctx, address, access.RoleDefaultAdmin, contract.CallerAddress)
 	p.acKeeper.SetRole(ctx, address, access.RoleMinter, contract.CallerAddress)
 	p.acKeeper.SetRole(ctx, address, access.RoleBurner, contract.CallerAddress)
@@ -118,7 +132,18 @@ func (p Precompile) createERC20(
 			return nil, err
 		}
 
-		// TODO: emit Mint event
+		if err := p.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx,
+			erc20types.ModuleName,
+			contract.CallerAddress.Bytes(),
+			sdk.Coins{{Denom: denom, Amount: math.NewIntFromBigInt(initialSupply)}},
+		); err != nil {
+			return nil, err
+		}
+
+		if err := p.EmitEventMint(ctx, stateDB, contract.CallerAddress, initialSupply); err != nil {
+			return nil, err
+		}
 	}
 
 	nonce := account.GetSequence()
@@ -128,7 +153,9 @@ func (p Precompile) createERC20(
 
 	p.accountKeeper.SetAccount(ctx, account)
 
-	// TODO: emit event ERC20Created
+	if err := p.EmitCreateERC20Event(ctx, stateDB, contract.CallerAddress, address, name, symbol, decimals, initialSupply); err != nil {
+		return nil, err
+	}
 
 	return method.Outputs.Pack(true)
 }

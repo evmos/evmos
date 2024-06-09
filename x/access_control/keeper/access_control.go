@@ -35,6 +35,7 @@ func (k Keeper) GetRoleAdmin(
 	return common.BytesToHash(roleBz)
 }
 
+// SetRole sets a role in the store.
 func (k Keeper) SetRole(
 	ctx sdk.Context,
 	contract common.Address,
@@ -45,6 +46,7 @@ func (k Keeper) SetRole(
 	store.Set(types.KeyRole(contract, role, account), []byte{0x01})
 }
 
+// DeleteRole deletes a role from the store.
 func (k Keeper) DeleteRole(
 	ctx sdk.Context,
 	contract common.Address,

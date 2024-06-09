@@ -1,10 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package accesscontrol
 
 import (
 	"embed"
 	"fmt"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -49,7 +52,8 @@ func GetABI() abi.ABI {
 
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
-	*erc20.Precompile
+	cmn.Precompile
+	ERC20Precompile     *erc20.Precompile
 	TokenPair           erc20types.TokenPair
 	BankKeeper          bankkeeper.Keeper
 	AccessControlKeeper ackeeper.Keeper
@@ -64,17 +68,34 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	acKeeper ackeeper.Keeper,
 ) (*Precompile, error) {
+	newABI, err := cmn.LoadABI(f, abiPath)
+	if err != nil {
+		return nil, err
+	}
+
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Precompile{
-		Precompile:          erc20Precompile,
+		Precompile: cmn.Precompile{
+			ABI:                  newABI,
+			AuthzKeeper:          authzKeeper,
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
+		},
+		ERC20Precompile:     erc20Precompile,
 		TokenPair:           tokenPair,
 		BankKeeper:          bankKeeper,
 		AccessControlKeeper: acKeeper,
 	}, nil
+}
+
+// Address gets the address from the token pair.
+func (p Precompile) Address() common.Address {
+	return p.TokenPair.GetERC20Contract()
 }
 
 // RequiredGas calculates the contract gas used for the
@@ -91,10 +112,15 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	switch method.Name {
+	case MethodHasRole, MethodGetRoleAdmin:
+		return 2100 // Estimated gas for read operations
+	case MethodBurn, MethodMint:
+		return 40000 // Estimated gas for mint and burn operations
 	case MethodGrantRole, MethodRenounceRole, MethodRevokeRole:
-		return 1000 // FIXME: handle this using a precompile module
+		return 30000 // Estimated gas for role operations
+	// Default to ERC-20 precompile
 	default:
-		return p.Precompile.RequiredGas(input)
+		return p.ERC20Precompile.RequiredGas(input)
 	}
 }
 
@@ -126,10 +152,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 func (p Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
-	case MethodGrantRole, MethodRenounceRole, MethodRevokeRole:
+	case MethodBurn, MethodMint, MethodGrantRole, MethodRenounceRole, MethodRevokeRole:
 		return true
 	default:
-		return p.Precompile.IsTransaction(methodName)
+		return p.ERC20Precompile.IsTransaction(methodName)
 	}
 }
 
@@ -142,7 +168,24 @@ func (p Precompile) HandleMethod(
 	args []interface{},
 ) (bz []byte, err error) {
 	switch method.Name {
+	// Role methods
+	case MethodGrantRole:
+		return p.GrantRole(ctx, contract, stateDB, method, args)
+	case MethodRevokeRole:
+		return p.RevokeRole(ctx, contract, stateDB, method, args)
+	case MethodRenounceRole:
+		return p.RenounceRole(ctx, contract, stateDB, method, args)
+	case MethodGetRoleAdmin:
+		return p.GetRoleAdmin(ctx, contract, stateDB, method, args)
+	case MethodHasRole:
+		return p.HasRole(ctx, contract, stateDB, method, args)
+	// Mint and burn methods
+	case MethodMint:
+		return p.Mint(ctx, contract, stateDB, args)
+	case MethodBurn:
+		return p.Burn(ctx, contract, stateDB, args)
+	// Default to ERC-20 precompile
 	default:
-		return p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
+		return p.ERC20Precompile.HandleMethod(ctx, contract, stateDB, method, args)
 	}
 }

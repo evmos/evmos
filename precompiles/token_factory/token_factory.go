@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"embed"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	erc20Keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -16,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	ackeeper "github.com/evmos/evmos/v18/x/access_control/keeper"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -31,7 +31,8 @@ type Precompile struct {
 	authzKeeper    authzkeeper.Keeper
 	accountKeeper  authkeeper.AccountKeeper
 	bankKeeper     bankkeeper.Keeper
-	evmKeeper      evmkeeper.Keeper
+	evmKeeper      EVMKeeper
+	erc20Keeper    erc20Keeper.Keeper
 	transferKeeper transferkeeper.Keeper
 	acKeeper       ackeeper.Keeper
 }
@@ -42,7 +43,8 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	evmKeeper evmkeeper.Keeper,
+	evmKeeper EVMKeeper,
+	erc20Keeper erc20Keeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	acKeeper ackeeper.Keeper,
 ) (*Precompile, error) {
@@ -67,6 +69,7 @@ func NewPrecompile(
 		accountKeeper:  accountKeeper,
 		bankKeeper:     bankKeeper,
 		evmKeeper:      evmKeeper,
+		erc20Keeper:    erc20Keeper,
 		transferKeeper: transferKeeper,
 		acKeeper:       acKeeper,
 	}, nil
@@ -74,7 +77,7 @@ func NewPrecompile(
 
 // Address defines the address of the Token Factory compile contract.
 // address: 0x0000000000000000000000000000000000000900
-// TODO: Update the address to the correct one.
+// TODO: Update the address to the one we decide.
 func (Precompile) Address() common.Address {
 	return common.HexToAddress("0x0000000000000000000000000000000000000900")
 }

@@ -14,6 +14,27 @@ ITokenFactory constant TOKEN_FACTORY_CONTRACT = ITokenFactory(TOKEN_FACTORY_PREC
 /// @custom:address 0x0000000000000000000000000000000000000900
 interface ITokenFactory {
 
+    /// @dev Event emitted when a new ERC20 token is created.
+    /// @param creator The address of the account that created the token.
+    /// @param name The name of the token.
+    /// @param symbol The symbol of the token.
+    /// @param decimals The number of decimals of the token.
+    /// @param initialSupply The initial supply of the token.
+    /// @param tokenAddress The address of the created ERC20 token.
+    event ERC20Created(
+        address indexed creator,
+        string name,
+        string symbol,
+        uint8 decimals,
+        uint256 initialSupply,
+        address tokenAddress
+    );
+
+    // @dev Emitted when `value` tokens are minted to `to`.
+    // @param to The address to which the tokens are minted.
+    // @param value The amount of tokens minted.
+    event Mint(address indexed to, uint256 value);
+
     /// @dev Creates a native Coin and an ERC20 extension for it.
     /// @dev This method creates a token pair with the native coin and an ERC20 extension.
     /// @param name The name of the token.

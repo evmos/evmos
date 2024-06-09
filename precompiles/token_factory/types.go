@@ -52,7 +52,7 @@ func parseERC20Args(args []interface{}) (string, string, uint8, *big.Int, error)
 		return "", "", 0, nil, fmt.Errorf("invalid decimal argument type: %T", args[2])
 	}
 
-	initialSupply, ok := args[4].(*big.Int)
+	initialSupply, ok := args[3].(*big.Int)
 	if !ok {
 		return "", "", 0, nil, fmt.Errorf("invalid initial supply argument type: %T", args[3])
 	}

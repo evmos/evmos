@@ -9,7 +9,8 @@ import (
 
 const (
 	// ModuleName is the name of the module
-	ModuleName = "access_control"
+	// FIXME: Need another name that doesn't start with `access` otherwise there is a collision in KVSTore keys
+	ModuleName = "factory_access_control"
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
 )
