@@ -14,6 +14,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
@@ -69,6 +70,19 @@ func (p Precompile) ClaimRewards(
 		}
 
 		totalCoins = totalCoins.Add(coins...)
+	}
+
+	// rewards go to the withdrawer address
+	// check if it is a contract
+	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorAddr.Bytes()))
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+	if ok {
+		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, totalCoins[0].Amount.BigInt())
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -138,14 +152,21 @@ func (p Precompile) WithdrawDelegatorRewards(
 		return nil, err
 	}
 
-	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
+	// rewards go to the withdrawer address
+	// check if it is a contract
+	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorHexAddr.Bytes()))
+	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if isContractDelegator {
+	if ok {
 		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, res.Amount[0].Amount.BigInt())
+	}
+
+	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
+		return nil, err
 	}
 
 	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
@@ -178,9 +199,45 @@ func (p Precompile) WithdrawValidatorCommission(
 		return nil, err
 	}
 
+	// commissions go to the withdrawer address
+	// check if it is a contract
+	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(validatorHexAddr.Bytes()))
+	if err != nil {
+		return nil, err
+	}
+	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+	if ok {
+		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, res.Amount[0].Amount.BigInt())
+	}
+
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
 		return nil, err
 	}
 
 	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
+}
+
+// isContractWithdrawer is a helper function to check if the withdrawer address of a
+// delegator is a smart contract
+func (p Precompile) isContractWithdrawer(ctx sdk.Context, stateDB vm.StateDB, delegatorAccAddr sdk.AccAddress) (bool, error) {
+	// check if withdrawer address is a contract
+	querier := distributionkeeper.Querier{Keeper: p.distributionKeeper}
+	qRes, err := querier.DelegatorWithdrawAddress(
+		ctx,
+		&distributiontypes.QueryDelegatorWithdrawAddressRequest{
+			DelegatorAddress: delegatorAccAddr.String(),
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	withdrawerAccAddr, err := sdk.AccAddressFromBech32(qRes.WithdrawAddress)
+	if err != nil {
+		return false, err
+	}
+
+	withdrawerHexAddr := common.BytesToAddress(withdrawerAccAddr)
+	return stateDB.GetCodeSize(withdrawerHexAddr) > 0, nil
 }

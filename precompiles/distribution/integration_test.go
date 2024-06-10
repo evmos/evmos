@@ -20,6 +20,7 @@ import (
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -769,6 +770,31 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
+
+		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
+			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
+
+			initialWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(initialWithdrawerBalance.Amount).To(Equal(sdk.ZeroInt()))
+
+			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), withdrawerAddr.Bytes())
+			Expect(err).To(BeNil())
+
+			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(s.validators[0].OperatorAddress)
+
+			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			// withdrawer balance should increase with the rewards amt
+			finalWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(finalWithdrawerBalance.Amount.Equal(rewards)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+
+			// delegator balance (contract) should remain unchanged
+			finalDelegatorBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
+		})
 	})
 
 	Context("withdrawValidatorCommission", func() {
@@ -851,6 +877,31 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expValAmount - fees
 			Expect(finalBalance.Amount).To(Equal(math.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
+		})
+
+		It("should withdraw commission successfully to withdrawer address (contract)", func() {
+			initialWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			Expect(initialWithdrawerBalance.Amount).To(Equal(sdk.ZeroInt()))
+
+			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, s.address.Bytes(), contractAddr.Bytes())
+			Expect(err).To(BeNil())
+
+			withdrawValCommArgs := defaultWithdrawValCommArgs.
+				WithArgs(valAddr.String()).
+				WithGasPrice(gasPrice)
+			logCheckArgs := passCheck.
+				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
+
+			res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawValCommArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			finalWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			Expect(finalWithdrawerBalance.Amount).To(Equal(math.NewInt(expValAmount)), "expected final balance to be equal to initial balance + validator commission")
+
+			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+			fees := gasPrice.Int64() * res.GasUsed
+			expFinal := initialBalance.Amount.Int64() - fees
+			Expect(finalBalance.Amount).To(Equal(math.NewInt(expFinal)), "expected final balance to be equal to initial balance  - fees")
 		})
 	})
 
@@ -938,7 +989,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			}...)
 
 			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}
-
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
 				"testClaimRewards",
@@ -959,9 +1009,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
+			initialWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(initialWithdrawerBalance.Amount).To(Equal(sdk.ZeroInt()))
 
-			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			initialDelegatorBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+
+			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), withdrawerAddr.Bytes())
 			Expect(err).To(BeNil())
 
 			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(contractAddr, uint32(2))
@@ -971,9 +1025,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, claimRewardsArgs, logCheckArgs)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-			// balance should increase
-			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			// withdrawer balance should increase
+			finalWithdrawerBalance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(finalWithdrawerBalance.Equal(expectedBalance)).To(BeTrue(), "expected final withdrawer balance to be greater than initial balance after withdrawing rewards")
+
+			// delegator (contract) balance should remain unchanged
+			finalDelegatorBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			Expect(finalDelegatorBalance.Amount.Equal(initialDelegatorBalance.Amount)).To(BeTrue(), "expected final delegator balance to same as initial balance after withdrawing rewards")
 		})
 	})
 
