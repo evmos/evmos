@@ -16,7 +16,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copy, rmtree
-from typing import List
+from typing import List, Union
 
 # The path to the main level of the Evmos repository.
 REPO_PATH = Path(__file__).parent.parent.parent
@@ -60,7 +60,7 @@ class Contract:
     as well as the path to where the compiled JSON data is stored.
     """
 
-    compiledJSONPath: Path | None
+    compiledJSONPath: Union[Path, None]
     filename: str
     path: Path
     relative_path: Path
@@ -68,7 +68,7 @@ class Contract:
 
 def find_solidity_contracts(
     path: Path,
-    added_contract: str | None = None,
+    added_contract: Union[str, None] = None,
 ) -> List[Contract]:
     """
     Finds all Solidity files in the given Path.
@@ -273,7 +273,7 @@ def is_relative_target(path: Path) -> bool:
     return path == RELATIVE_TARGET
 
 
-def compile_files(repo_path: Path, added_contract: str | None = None):
+def compile_files(repo_path: Path, added_contract: Union[str, None] = None):
     """
     This function compiles the Solidity contracts in the repository
     with Hardhat.
