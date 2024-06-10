@@ -115,11 +115,14 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 // GetStaticPrecompileInstance returns the instance of the given static precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
 	if k.IsAvailableStaticPrecompile(params, address) {
+		// k.Logger(ctx).Info("address precompile: ", address)
+		// fmt.Println("address precompile: ", address)
 		precompile, found := k.precompiles[address]
 		// If the precompile is within params but not found in the precompiles map,
 		// we should return an error
 		if !found {
-			return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
+			panic(fmt.Errorf("precompiled contract not stored in memory: %s", address))
+			// return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
 		}
 		return precompile, true, nil
 	}
