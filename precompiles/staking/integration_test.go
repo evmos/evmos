@@ -429,8 +429,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			defaultEditValidatorArgs = defaultCallArgs.WithMethodName(staking.EditValidatorMethod)
 		})
 
-		Context("validator address is the origin", func() {
-			It("should edit validator success", func() {
+		Context("when origin is equal to validator address", func() {
+			It("should succeed", func() {
 				// create a new validator
 				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
 				hexAddr := common.BytesToAddress(newAddr.Bytes())
@@ -481,8 +481,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 		})
 
-		Context("validator address is not the origin", func() {
-			It("should fail if validator address is not the origin", func() {
+		Context("with origin different than validator address", func() {
+			It("should fail", func() {
 				editValidatorArgs := defaultEditValidatorArgs.WithArgs(
 					defaultDescription, common.BytesToAddress(valAddr.Bytes()), defaultCommissionRate, defaultMinSelfDelegation,
 				)
@@ -1855,7 +1855,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 	})
 
-	Context("edit a validator", func() {
+	Context("to edit a validator", func() {
 		var (
 			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
 			defaultEditValArgs contracts.CallArgs
@@ -1917,7 +1917,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			s.NextBlock()
 		})
 
-		It("tx from validator operator - should edit a validator", func() {
+		It("with tx from validator operator - should edit a validator", func() {
 			cArgs := defaultEditValArgs.
 				WithPrivKey(valPriv).
 				WithArgs(
@@ -1941,7 +1941,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
 		})
 
-		It("tx from another EOA - should fail", func() {
+		It("with tx from another EOA - should fail", func() {
 			cArgs := defaultEditValArgs.
 				WithPrivKey(s.privKey).
 				WithArgs(
