@@ -74,15 +74,16 @@ func (p Precompile) ClaimRewards(
 
 	// rewards go to the withdrawer address
 	// check if it is a contract
-	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorAddr.Bytes()))
+	ok, withdrawerHexAddr, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorAddr.Bytes()))
 	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if ok {
-		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, totalCoins[0].Amount.BigInt())
+	// this happens when the precompile is called from a smart contract
+	if ok && contract.CallerAddress != origin {
+		stateDB.(*statedb.StateDB).AddBalance(withdrawerHexAddr, totalCoins[0].Amount.BigInt())
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -154,15 +155,15 @@ func (p Precompile) WithdrawDelegatorRewards(
 
 	// rewards go to the withdrawer address
 	// check if it is a contract
-	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorHexAddr.Bytes()))
+	ok, withdrawerHexAddr, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(delegatorHexAddr.Bytes()))
 	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if ok {
-		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, res.Amount[0].Amount.BigInt())
+	if ok && contract.CallerAddress != origin {
+		stateDB.(*statedb.StateDB).AddBalance(withdrawerHexAddr, res.Amount[0].Amount.BigInt())
 	}
 
 	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
@@ -201,14 +202,14 @@ func (p Precompile) WithdrawValidatorCommission(
 
 	// commissions go to the withdrawer address
 	// check if it is a contract
-	ok, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(validatorHexAddr.Bytes()))
+	ok, withdrawerHexAddr, err := p.isContractWithdrawer(ctx, stateDB, sdk.AccAddress(validatorHexAddr.Bytes()))
 	if err != nil {
 		return nil, err
 	}
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if ok {
-		stateDB.(*statedb.StateDB).AddBalance(contract.CallerAddress, res.Amount[0].Amount.BigInt())
+	if ok && contract.CallerAddress != origin {
+		stateDB.(*statedb.StateDB).AddBalance(withdrawerHexAddr, res.Amount[0].Amount.BigInt())
 	}
 
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
@@ -219,8 +220,9 @@ func (p Precompile) WithdrawValidatorCommission(
 }
 
 // isContractWithdrawer is a helper function to check if the withdrawer address of a
-// delegator is a smart contract
-func (p Precompile) isContractWithdrawer(ctx sdk.Context, stateDB vm.StateDB, delegatorAccAddr sdk.AccAddress) (bool, error) {
+// delegator is a smart contract. It returns a boolean specifying if the withdrawer
+// is a smart contract, and the corresponding withdrawer hex address
+func (p Precompile) isContractWithdrawer(ctx sdk.Context, stateDB vm.StateDB, delegatorAccAddr sdk.AccAddress) (bool, common.Address, error) {
 	// check if withdrawer address is a contract
 	querier := distributionkeeper.Querier{Keeper: p.distributionKeeper}
 	qRes, err := querier.DelegatorWithdrawAddress(
@@ -230,14 +232,14 @@ func (p Precompile) isContractWithdrawer(ctx sdk.Context, stateDB vm.StateDB, de
 		},
 	)
 	if err != nil {
-		return false, err
+		return false, common.Address{}, err
 	}
 
 	withdrawerAccAddr, err := sdk.AccAddressFromBech32(qRes.WithdrawAddress)
 	if err != nil {
-		return false, err
+		return false, common.Address{}, err
 	}
 
 	withdrawerHexAddr := common.BytesToAddress(withdrawerAccAddr)
-	return stateDB.GetCodeSize(withdrawerHexAddr) > 0, nil
+	return stateDB.GetCodeSize(withdrawerHexAddr) > 0, withdrawerHexAddr, nil
 }
