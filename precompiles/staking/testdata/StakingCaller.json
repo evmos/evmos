@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "StakingCaller",
-  "sourceName": "contracts/evmos/staking/testdata/StakingCaller.sol",
+  "sourceName": "solidity/precompiles/staking/testdata/StakingCaller.sol",
   "abi": [
     {
       "inputs": [
