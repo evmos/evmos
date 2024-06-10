@@ -39,6 +39,7 @@ def get_allowed_categories() -> List[str]:
         "ci",
         "cli",
         "crisis",
+        "contracts",
         "db",
         "deps",
         "docs",
