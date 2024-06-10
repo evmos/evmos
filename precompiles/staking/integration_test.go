@@ -477,7 +477,16 @@ var _ = Describe("Calling staking precompile directly", func() {
 				validator, found := s.app.StakingKeeper.GetValidator(s.ctx, newAddr.Bytes())
 				Expect(found).To(BeTrue(), "expected validator to be found")
 				Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker is updated")
+				// Other fields should not be modified due to the value "[do-not-modify]".
+				Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
+				Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
+				Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
+				Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
+
 				Expect(validator.Commission.Rate.BigInt().String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
+				Expect(validator.Commission.MaxRate.BigInt().String()).To(Equal(commission.MaxRate.String()), "expected validator max commission rate remain unchanged")
+				Expect(validator.Commission.MaxChangeRate.BigInt().String()).To(Equal(commission.MaxChangeRate.String()), "expected validator max change rate remain unchanged")
+				Expect(validator.MinSelfDelegation.String()).To(Equal(minSelfDelegation.String()), "expected validator min self delegation remain unchanged")
 			})
 		})
 
@@ -1873,7 +1882,10 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			defaultCommissionRate    = big.NewInt(staking.DoNotModifyCommissionRate)
 			defaultMinSelfDelegation = big.NewInt(staking.DoNotModifyMinSelfDelegation)
 
+			minSelfDelegation = big.NewInt(1)
+
 			description = staking.Description{}
+			commission  = staking.Commission{}
 		)
 
 		BeforeEach(func() {
@@ -1892,12 +1904,11 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				SecurityContact: "",
 				Details:         "",
 			}
-			commission := staking.Commission{
+			commission = staking.Commission{
 				Rate:          big.NewInt(100000000000000000),
 				MaxRate:       big.NewInt(100000000000000000),
 				MaxChangeRate: big.NewInt(100000000000000000),
 			}
-			minSelfDelegation := big.NewInt(1)
 			pubkeyBase64Str := "UuhHQmkUh2cPBA6Rg4ei0M2B04cVYGNn/F8SAUsYIb4="
 			value := big.NewInt(1e18)
 
@@ -1939,6 +1950,11 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
 			Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
 			Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
+
+			Expect(validator.Commission.Rate.BigInt().String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
+			Expect(validator.Commission.MaxRate.BigInt().String()).To(Equal(commission.MaxRate.String()), "expected validator max commission rate remain unchanged")
+			Expect(validator.Commission.MaxChangeRate.BigInt().String()).To(Equal(commission.MaxChangeRate.String()), "expected validator max change rate remain unchanged")
+			Expect(validator.MinSelfDelegation.String()).To(Equal(minSelfDelegation.String()), "expected validator min self delegation remain unchanged")
 		})
 
 		It("with tx from another EOA - should fail", func() {
