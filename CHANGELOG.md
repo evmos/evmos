@@ -98,6 +98,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
+- (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0)  - 2024-05-31
 
