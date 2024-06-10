@@ -31,6 +31,17 @@ const (
 	BaseDenom = "aevmos"
 )
 
+// EthHexToSDKAddr takes a given Hex string and derives a Cosmos SDK account address
+// from it.
+func EthHexToSDKAddr(hexAddr string) sdk.AccAddress {
+	return EthToSDKAddr(common.HexToAddress(hexAddr))
+}
+
+// EthToSDKAddr converts a given Ethereum style address to an SDK address.
+func EthToSDKAddr(addr common.Address) sdk.AccAddress {
+	return sdk.AccAddress(addr.Bytes())
+}
+
 // IsMainnet returns true if the chain-id has the Evmos mainnet EIP155 chain prefix.
 func IsMainnet(chainID string) bool {
 	return strings.HasPrefix(chainID, MainnetChainID)

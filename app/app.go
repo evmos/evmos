@@ -117,11 +117,11 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v18/client/docs/statik"
+	"github.com/evmos/evmos/v18/utils"
 
 	"github.com/evmos/evmos/v18/app/ante"
 	ethante "github.com/evmos/evmos/v18/app/ante/evm"
@@ -958,7 +958,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	}
 
 	for _, precompile := range blockedPrecompilesHex {
-		blockedAddrs[sdk.AccAddress(ethcommon.HexToAddress(precompile).Bytes()).String()] = true
+		blockedAddrs[utils.EthHexToSDKAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
