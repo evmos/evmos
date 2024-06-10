@@ -1872,6 +1872,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			}
 			defaultCommissionRate    = big.NewInt(staking.DoNotModifyCommissionRate)
 			defaultMinSelfDelegation = big.NewInt(staking.DoNotModifyMinSelfDelegation)
+
+			description = staking.Description{}
 		)
 
 		BeforeEach(func() {
@@ -1883,7 +1885,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 2e18)
 			Expect(err).To(BeNil(), "error while funding account: %v", err)
 
-			description := staking.Description{
+			description = staking.Description{
 				Moniker:         "original moniker",
 				Identity:        "",
 				Website:         "",
@@ -1931,7 +1933,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
 			Expect(found).To(BeTrue(), "expected validator to be found")
-			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker not to be updated")
+			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker to be updated")
+			// Other fields should not be modified due to the value "[do-not-modify]".
+			Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
+			Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
+			Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
+			Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
 		})
 
 		It("tx from another EOA - should fail", func() {
