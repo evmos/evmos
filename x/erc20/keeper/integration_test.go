@@ -1,12 +1,12 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/utils"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -18,6 +18,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v18/utils"
 
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/testutil"
@@ -27,24 +28,10 @@ import (
 var _ = Describe("Performing EVM transactions", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
-
 		params := s.app.Erc20Keeper.GetParams(s.ctx)
 		params.EnableErc20 = true
 		err := s.app.Erc20Keeper.SetParams(s.ctx, params)
 		Expect(err).To(BeNil())
-	})
-
-	// Epoch mechanism for triggering allocation and distribution
-	Context("with the ERC20 module and EVM Hook disabled", func() {
-		BeforeEach(func() {
-			params := s.app.Erc20Keeper.GetParams(s.ctx)
-			params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
-		})
-		It("should be successful", func() {
-			_, err := s.DeployContract("coin", "token", erc20Decimals)
-			Expect(err).To(BeNil())
-		})
 	})
 
 	Context("with the ERC20 module disabled", func() {
@@ -59,7 +46,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		})
 	})
 
-	Context("with the ERC20 module enabled", func() {
+	Context("with the ERC20 module and EVM Hook enabled", func() {
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
 			Expect(err).To(BeNil())
@@ -78,7 +65,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 	moduleAcc := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 	var (
-		pair      types.TokenPair
+		pair      *types.TokenPair
 		coin      sdk.Coin
 		contract  common.Address
 		contract2 common.Address
@@ -186,7 +173,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				contract := s.setupRegisterERC20Pair(contractMinterBurner)
 				id := s.app.Erc20Keeper.GetTokenPairID(s.ctx, contract.String())
-				pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
+				*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
@@ -231,6 +218,7 @@ func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
 	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
+	fmt.Println(err)
 	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }
