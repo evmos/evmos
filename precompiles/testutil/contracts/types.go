@@ -10,7 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 )
 
 // CallArgs is a struct to define all relevant data to call a smart contract.
@@ -72,7 +71,7 @@ func (c CallArgs) WithGasLimit(gasLimit uint64) CallArgs {
 }
 
 // WithPrivKey returns the CallArgs with the given private key.
-func (c CallArgs) WithPrivKey(privKey *ethsecp256k1.PrivKey) CallArgs {
+func (c CallArgs) WithPrivKey(privKey cryptotypes.PrivKey) CallArgs {
 	c.PrivKey = privKey
 	return c
 }
