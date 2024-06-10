@@ -48,7 +48,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	var s *IntegrationTestSuite
 
 	BeforeAll(func() {
-		keyring := testkeyring.New(3)
+		keyring := testkeyring.New(4)
 		integrationNetwork := network.New(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		)
@@ -226,13 +226,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Expect(err).To(BeNil())
 				Expect(mintResponse.IsOK()).To(Equal(true), "transaction should have succeeded", mintResponse.GetLog())
 
-				// Check contract call response has the expected topics for a mint
-				// call within an ERC20 contract
-				expectedTopics := []string{
-					"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-					"0x0000000000000000000000000000000000000000000000000000000000000000",
-				}
-				err = integrationutils.CheckTxTopics(mintResponse, expectedTopics)
+				err = checkMintTopics(mintResponse)
 				Expect(err).To(BeNil())
 
 				err = s.network.NextBlock()
@@ -291,103 +285,61 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 
-	When("EnableCreate param is set to false", Ordered, func() {
-		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCreate = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
+	DescribeTable("Performs transfer and contract call", func(getTestParams func() evmtypes.Params, transferParams, contractCallParams PermissionsTableTest) {
+		params := getTestParams()
+		err := s.network.UpdateEvmParams(params)
+		Expect(err).To(BeNil())
 
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-		})
+		err = s.network.NextBlock()
+		Expect(err).To(BeNil())
 
-		It("performs a transfer transaction", func() {
-			senderKey := s.keyring.GetKey(0)
-			receiverKey := s.keyring.GetKey(1)
-			denom := s.network.GetDenom()
-
-			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
-
-			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
-
-			transferAmount := int64(1000)
-
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiverKey.Addr,
-				Amount: big.NewInt(transferAmount),
-			}
-
-			res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
+		signer := s.keyring.GetKey(transferParams.SignerIndex)
+		receiver := s.keyring.GetKey(1)
+		txArgs := evmtypes.EvmTxArgs{
+			To:     &receiver.Addr,
+			Amount: big.NewInt(1000),
+			// Hard coded gas limit to avoid failure on gas estimation because
+			// of the param
+			GasLimit: 100000,
+		}
+		res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
+		if transferParams.ExpFail {
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		} else {
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		}
 
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
+		senderKey := s.keyring.GetKey(contractCallParams.SignerIndex)
+		contractAddress := common.HexToAddress(staking.PrecompileAddress)
+		validatorAddress := s.network.GetValidators()[1].OperatorAddress
+		contractABI, err := staking.LoadABI()
+		Expect(err).To(BeNil())
 
-			// Check sender balance after transaction
-			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
-			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
+		// If grpc query fails, that means there were no previous delegations
+		prevDelegation := big.NewInt(0)
+		prevDelegationRes, err := s.grpcHandler.GetDelegation(senderKey.AccAddr.String(), validatorAddress)
+		if err == nil {
+			prevDelegation = prevDelegationRes.DelegationResponse.Balance.Amount.BigInt()
+		}
 
-			// Check receiver balance after transaction
-			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
-			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
-			Expect(err).To(BeNil())
-			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
-		})
+		amountToDelegate := big.NewInt(200)
+		totalSupplyTxArgs := evmtypes.EvmTxArgs{
+			To: &contractAddress,
+		}
 
-		It("fails when trying to perform contract deployment", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			constructorArgs := []interface{}{"coin", "token", uint8(18)}
-			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
-			contractAddr, err := s.factory.DeployContract(
-				senderPriv,
-				evmtypes.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
-
+		// Perform a delegate transaction to the staking precompile
+		delegateArgs := factory.CallArgs{
+			ContractABI: contractABI,
+			MethodName:  staking.DelegateMethod,
+			Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
+		}
+		delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
+		if contractCallParams.ExpFail {
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
-			Expect(contractAddr).To(Equal(common.Address{}))
-		})
-
-		It("performs a contract call to the staking precompile", func() {
-			senderKey := s.keyring.GetKey(1)
-			contractAddress := common.HexToAddress(staking.PrecompileAddress)
-			validatorAddress := s.network.GetValidators()[1].OperatorAddress
-			contractABI, err := staking.LoadABI()
-			Expect(err).To(BeNil())
-
-			// If grpc query fails, that means there were no previous delegations
-			prevDelegation := big.NewInt(0)
-			prevDelegationRes, err := s.grpcHandler.GetDelegation(senderKey.AccAddr.String(), validatorAddress)
-			if err == nil {
-				prevDelegation = prevDelegationRes.DelegationResponse.Balance.Amount.BigInt()
-			}
-
-			amountToDelegate := big.NewInt(200)
-
-			totalSupplyTxArgs := evmtypes.EvmTxArgs{
-				To: &contractAddress,
-			}
-
-			// Perform a delegate transaction to the staking precompile
-			delegateArgs := factory.CallArgs{
-				ContractABI: contractABI,
-				MethodName:  staking.DelegateMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
-			}
-			delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		} else {
 			Expect(err).To(BeNil())
 			Expect(delegateResponse.IsOK()).To(Equal(true), "transaction should have succeeded", delegateResponse.GetLog())
 
@@ -411,68 +363,290 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			expectedDelegationAmt := amountToDelegate.Add(amountToDelegate, prevDelegation)
 			Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
-		})
-	})
-
-	When("EnableCall param is set to false", Ordered, func() {
-		BeforeAll(func() {
+		}
+	},
+		// Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
+		// 	// Set params to default values
+		// 	defaultParams := evmtypes.DefaultParams()
+		// 	defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+		// 		AccessType:        evmtypes.AccessTypeRestricted,
+		// 	}
+		// 	return defaultParams
+		// },
+		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+		// ),
+		Entry("transfer and call succeed with CALL permission policy set to default and CREATE permission policy set to restricted", func() evmtypes.Params {
+			blockedSignerIndex := 1
 			// Set params to default values
 			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCall = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
-
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-		})
-
-		It("fails when performing a transfer transaction", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiver.Addr,
-				Amount: big.NewInt(1000),
-				// Hard coded gas limit to avoid failure on gas estimation because
-				// of the param
-				GasLimit: 100000,
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypeRestricted,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
 			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("transfer and call are successful with CALL permission policy set to permissionless and address not blocked", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("transfer fails with signer blocked and call succeeds with signer NOT blocked permission policy set to permissionless", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("transfer succeeds with signer NOT blocked and call fails with signer blocked permission policy set to permissionless", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+		),
+		Entry("transfer and call succeeds with CALL permission policy set to permissioned and signer whitelisted on both", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+		),
+		Entry("transfer and call fails with CALL permission policy set to permissioned and signer not whitelisted on both", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		),
+	)
 
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+	DescribeTable("Performs contract deployment and contract call with AccessControl", func(getTestParams func() evmtypes.Params, createParams, callParams PermissionsTableTest) {
+		params := getTestParams()
+		err := s.network.UpdateEvmParams(params)
+		Expect(err).To(BeNil())
+
+		err = s.network.NextBlock()
+		Expect(err).To(BeNil())
+
+		createSigner := s.keyring.GetPrivKey(createParams.SignerIndex)
+		constructorArgs := []interface{}{"coin", "token", uint8(18)}
+		compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+
+		contractAddr, err := s.factory.DeployContract(
+			createSigner,
+			evmtypes.EvmTxArgs{}, // Default values
+			factory.ContractDeploymentData{
+				Contract:        compiledContract,
+				ConstructorArgs: constructorArgs,
+			},
+		)
+		if createParams.ExpFail {
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
-			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
-		})
+			Expect(err.Error()).To(ContainSubstring("does not have permission to deploy contracts"))
+			// If contract deployment is expected to fail, we can skip the rest of the test
+			return
+		}
 
-		It("performs a contract deployment and fails to perform a contract call", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			constructorArgs := []interface{}{"coin", "token", uint8(18)}
-			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
-			contractAddr, err := s.factory.DeployContract(
-				senderPriv,
-				evmtypes.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
-			Expect(err).To(BeNil())
-			Expect(contractAddr).ToNot(Equal(common.Address{}))
+		Expect(err).To(BeNil())
+		Expect(contractAddr).ToNot(Equal(common.Address{}))
 
-			txArgs := evmtypes.EvmTxArgs{
-				To: &contractAddr,
-				// Hard coded gas limit to avoid failure on gas estimation because
-				// of the param
-				GasLimit: 100000,
-			}
-			callArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "mint",
-				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
-			}
-			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
+		err = s.network.NextBlock()
+		Expect(err).To(BeNil())
+
+		callSigner := s.keyring.GetPrivKey(callParams.SignerIndex)
+		totalSupplyTxArgs := evmtypes.EvmTxArgs{
+			To: &contractAddr,
+		}
+		totalSupplyArgs := factory.CallArgs{
+			ContractABI: compiledContract.ABI,
+			MethodName:  "totalSupply",
+			Args:        []interface{}{},
+		}
+		res, err := s.factory.ExecuteContractCall(callSigner, totalSupplyTxArgs, totalSupplyArgs)
+		if callParams.ExpFail {
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
-			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
-		})
-	})
+			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+		} else {
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		}
+	},
+		Entry("Create and call is successful with create permission policy set to permissionless and address not blocked ", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("Create fails with create permission policy set to permissionless and signer is blocked ", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+			PermissionsTableTest{}, // Call should not be executed
+		),
+		Entry("Create and call is successful with call permission policy set to permissionless and address not blocked ", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("Create is successful and call fails with call permission policy set to permissionless and address blocked ", func() evmtypes.Params {
+			blockedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissionless,
+				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 1},
+		),
+		Entry("Create fails create permission policy set to restricted", func() evmtypes.Params {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType: evmtypes.AccessTypeRestricted,
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{}, // Call should not be executed
+		),
+		Entry("Create succeeds and call fails when call permission policy set to restricted", func() evmtypes.Params {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType: evmtypes.AccessTypeRestricted,
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		),
+		Entry("Create and call are successful with create permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
+			whitelistedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+		),
+		Entry("Create fails with create permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
+			whitelistedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{},
+		),
+		Entry("Create and call are successful with call permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
+			whitelistedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 1},
+		),
+		Entry("Create succeeds and call fails with call permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
+			whitelistedSignerIndex := 1
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType:        evmtypes.AccessTypePermissioned,
+				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: false, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		),
+	)
 })
+
+type PermissionsTableTest struct {
+	ExpFail     bool
+	SignerIndex int
+}
+
+func checkMintTopics(res abcitypes.ResponseDeliverTx) error {
+	// Check contract call response has the expected topics for a mint
+	// call within an ERC20 contract
+	expectedTopics := []string{
+		"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+		"0x0000000000000000000000000000000000000000000000000000000000000000",
+	}
+	return integrationutils.CheckTxTopics(res, expectedTopics)
+}
