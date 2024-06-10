@@ -105,7 +105,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 					s.address, valAddr.String(), big.NewInt(2e18),
 				)
 			// Contract should not be called but the transaction should be successful
-			// This is the expected behavoiur in Ethereum where there is a contract call
+			// This is the expected behavior in Ethereum where there is a contract call
 			// to a non existing contract
 			expectedCheck := defaultLogCheck.
 				WithExpEvents([]string{}...).

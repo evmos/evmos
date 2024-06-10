@@ -103,7 +103,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin(metadata banktypes.Metadata) *ty
 	return pair
 }
 
-func (suite *KeeperTestSuite) TestRegisterERC20() { //nolint:govet // we can copy locks here because it is a test
+func (suite *KeeperTestSuite) TestRegisterERC20() {
 	var (
 		contractAddr common.Address
 		pair         types.TokenPair
