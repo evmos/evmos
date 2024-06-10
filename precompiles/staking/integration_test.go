@@ -421,7 +421,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				MaxChangeRate: big.NewInt(100000000000000000),
 			}
 			defaultMinSelfDelegation = big.NewInt(1)
-			defaultPubkeyBase64Str   = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
+			defaultPubkeyBase64Str   = GenerateBase64PubKey()
 			defaultValue             = big.NewInt(1)
 
 			// defaultCreateValidatorArgs are the default arguments for the createValidator call
@@ -435,8 +435,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName(staking.CreateValidatorMethod)
 		})
 
-		Context("validator address is the origin", func() {
-			It("should create validator success", func() {
+		Context("when validator address is the origin", func() {
+			It("should succeed", func() {
 				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
 					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue,
 				)
@@ -451,8 +451,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 		})
 
-		Context("validator address is not the origin", func() {
-			It("should fail if validator address is not the origin", func() {
+		Context("when validator address is not the origin", func() {
+			It("should fail", func() {
 				differentAddr := testutiltx.GenerateAddress()
 
 				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
@@ -1847,7 +1847,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				MaxChangeRate: big.NewInt(100000000000000000),
 			}
 			defaultMinSelfDelegation = big.NewInt(1)
-			defaultPubkeyBase64Str   = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
+			defaultPubkeyBase64Str   = GenerateBase64PubKey()
 			defaultValue             = big.NewInt(1e8)
 
 			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
