@@ -272,7 +272,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, coinMetadata)
+				pair, err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, coinMetadata.Base)
 				suite.Require().Equal(pair.Denom, denom)
 				suite.Require().NoError(err)
 

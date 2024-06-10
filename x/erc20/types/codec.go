@@ -46,7 +46,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
-		&RegisterCoinProposal{},
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
 	)
