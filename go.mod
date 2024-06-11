@@ -25,7 +25,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/improbable-eng/grpc-web v0.15.0
@@ -50,7 +50,7 @@ require (
 	golang.org/x/text v0.16.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240318140521-94a12d6c2237
 	google.golang.org/grpc v1.64.0
-	google.golang.org/protobuf v1.34.1
+	google.golang.org/protobuf v1.34.2
 	sigs.k8s.io/yaml v1.4.0
 )
 

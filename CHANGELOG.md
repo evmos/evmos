@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
 - (evm) [#2538](https://github.com/evmos/evmos/pull/2538) Add Permissions Policy for permissioned EVM.
 - (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
+- (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
 
 ### Bug Fixes
 
@@ -99,6 +100,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
 - (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
+- (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
@@ -106,6 +108,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (app) [#2373](https://github.com/evmos/evmos/pull/2373) Remove ChainID constraint.
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
+- (tests) [#2575](https://github.com/evmos/evmos/pull/2575) Add integration test for precompile tx `CreateValidator`.
+- (tests) [#2576](https://github.com/evmos/evmos/pull/2576) Add integration test for precompile tx `EditValidator`.
 - (evm) [#2581](https://github.com/evmos/evmos/pull/2581) Fix wrong error message returned for DynamicFee txs.
 
 ### State Machine Breaking
