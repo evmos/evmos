@@ -108,6 +108,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2373](https://github.com/evmos/evmos/pull/2373) Remove ChainID constraint.
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
 - (tests) [#2575](https://github.com/evmos/evmos/pull/2575) Add integration test for precompile tx `CreateValidator`.
+- (tests) [#2576](https://github.com/evmos/evmos/pull/2576) Add integration test for precompile tx `EditValidator`.
 - (evm) [#2581](https://github.com/evmos/evmos/pull/2581) Fix wrong error message returned for DynamicFee txs.
 
 ### State Machine Breaking
