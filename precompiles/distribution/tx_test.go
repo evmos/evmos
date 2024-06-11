@@ -461,8 +461,10 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			},
 			func([]byte) {
 				coins := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
-				exceptAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
-				s.Require().Equal(exceptAmount, coins.AmountOf(utils.BaseDenom).BigInt())
+				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
+				s.Require().Equal(expectedAmount, coins.AmountOf(utils.BaseDenom).BigInt())
+				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(big.NewInt(4e18), userBalance.Amount.BigInt())
 			},
 			20000,
 			false,
