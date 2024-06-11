@@ -24,6 +24,7 @@ from web3.exceptions import TimeExhausted
 
 load_dotenv(Path(__file__).parent.parent.parent / "scripts/.env")
 Account.enable_unaudited_hdwallet_features()
+MAX_UINT256 = 2**256 - 1
 ACCOUNTS = {
     "validator": Account.from_mnemonic(os.getenv("VALIDATOR1_MNEMONIC")),
     "community": Account.from_mnemonic(os.getenv("COMMUNITY_MNEMONIC")),
@@ -547,3 +548,13 @@ def debug_trace_tx(evmos, tx_hash: str):
     rsp = requests.post(url, json=params)
     assert rsp.status_code == 200
     return rsp.json()["result"]
+
+
+def check_error(err: Exception, err_contains):
+    if err_contains is not None:
+        # stringify error in case it is an obj
+        err_msg = json.dumps(err.args[0], separators=(",", ":"))
+        assert err_contains in err_msg
+    else:
+        print(f"Unexpected {err=}, {type(err)=}")
+        raise

@@ -28,6 +28,10 @@ type Coordinator interface {
 	GetChain(chainID string) ibcchain.Chain
 	// GetDummyChainsIDs returns the chainIDs for all dummy chains.
 	GetDummyChainsIDs() []string
+	// GetPath returns the transfer path for the chain ids 'a' and 'b'
+	GetPath(a, b string) *evmosibc.Path
+	// GetChainSenderAcc returns the sender account for the specified chain
+	GetChainSenderAcc(chainID string) sdk.AccountI
 	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
 	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc sdk.AccountI)
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will
@@ -85,6 +89,19 @@ func (c *IntegrationCoordinator) GetDummyChainsIDs() []string {
 	return c.dummyChainsIDs
 }
 
+// GetPath returns the transfer path for the chain ids 'a' and 'b'
+func (c *IntegrationCoordinator) GetPath(a, b string) *evmosibc.Path {
+	chainA := c.coord.GetChain(a)
+	chainB := c.coord.GetChain(b)
+
+	return evmosibc.NewTransferPath(chainA, chainB)
+}
+
+// GetChain returns the TestChain for a given chainID.
+func (c *IntegrationCoordinator) GetChainSenderAcc(chainID string) sdk.AccountI {
+	return c.coord.Chains[chainID].SenderAccount
+}
+
 // IncrementTime iterates through all the TestChain's and increments their current header time
 // by 5 seconds.
 func (c *IntegrationCoordinator) IncrementTime() {
@@ -114,10 +131,7 @@ func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv c
 // fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 // for both chains. The channels created are connected to the ibc-transfer application.
 func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
-	chainA := c.coord.GetChain(a)
-	chainB := c.coord.GetChain(b)
-
-	path := evmosibc.NewTransferPath(chainA, chainB)
+	path := c.GetPath(a, b)
 	evmosibc.SetupPath(c.coord, path)
 
 	return IBCConnection{

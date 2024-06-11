@@ -362,7 +362,15 @@ class CosmosCLI:
 
     def balances(self, addr):
         return json.loads(
-            self.raw("query", "bank", "balances", addr, home=self.data_dir)
+            self.raw(
+                "query",
+                "bank",
+                "balances",
+                addr,
+                home=self.data_dir,
+                output="json",
+                node=self.node_rpc,
+            )
         )["balances"]
 
     def balance(self, addr, denom=DEFAULT_DENOM):
@@ -920,6 +928,20 @@ class CosmosCLI:
             )
         )
 
+    def denom_traces(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "denom-traces",
+                **(default_kwargs | kwargs),
+            )
+        )
+
     # ==========================
     #        EVM Module
     # ==========================
@@ -984,6 +1006,36 @@ class CosmosCLI:
                 grantee,
                 home=self.data_dir,
                 **kwargs,
+            )
+        )
+
+    def authz_revoke(self, granter: str, grantee: str, msg_type_url: str, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "authz",
+                "revoke",
+                grantee,
+                msg_type_url,
+                "--from",
+                granter,
+                "--generate-only",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def authz_grants(self, granter: str, grantee: str, msg_type_url: str = ""):
+        return json.loads(
+            self.raw(
+                "query",
+                "authz",
+                "grants",
+                granter,
+                grantee,
+                msg_type_url,
+                output="json",
+                node=self.node_rpc,
             )
         )
 
