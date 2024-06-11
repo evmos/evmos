@@ -365,7 +365,8 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				)
 				suite.Require().NoError(err)
 
-				suite.app.EvmKeeper.CallEVM(s.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.address, contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
+				_, err = suite.app.EvmKeeper.CallEVM(s.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.address, contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
+				suite.Require().NoError(err)
 
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")
 			},
