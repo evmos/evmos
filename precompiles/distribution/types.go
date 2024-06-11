@@ -45,7 +45,7 @@ type EventClaimRewards struct {
 	Amount           *big.Int
 }
 
-// EventFundCommunityPool defines the event data for the FundCommunity transaction.
+// EventFundCommunityPool defines the event data for the FundCommunityPool transaction.
 type EventFundCommunityPool struct {
 	Depositor common.Address
 	Amount    *big.Int
