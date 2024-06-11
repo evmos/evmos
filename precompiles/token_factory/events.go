@@ -1,24 +1,25 @@
 package tokenfactory
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"math/big"
 )
 
 const (
-	EventCreateERC20 = "ERC20Created"
-	EventMint        = "Mint"
+	EventTypeCreateERC20 = "ERC20Created"
+	EventTypeMint        = "Mint"
 )
 
 // EmitCreateERC20Event emits an event when a new ERC20 token is created
 func (p Precompile) EmitCreateERC20Event(ctx sdk.Context, stateDB vm.StateDB, creator, tokenAddress common.Address, name, symbol string, decimals uint8, initialSupply *big.Int) error {
-	events := p.ABI.Events[EventCreateERC20]
-	topics := make([]common.Hash, 7)
+	events := p.ABI.Events[EventTypeCreateERC20]
+	topics := make([]common.Hash, 2)
 
 	var err error
 	// The first topic is always the signature of the event.
@@ -29,7 +30,7 @@ func (p Precompile) EmitCreateERC20Event(ctx sdk.Context, stateDB vm.StateDB, cr
 		return err
 	}
 
-	arguments := abi.Arguments{events.Inputs[2], events.Inputs[3], events.Inputs[4], events.Inputs[5], events.Inputs[6]}
+	arguments := abi.Arguments{events.Inputs[1], events.Inputs[2], events.Inputs[3], events.Inputs[4], events.Inputs[5]}
 	packed, err := arguments.Pack(name, symbol, decimals, initialSupply, tokenAddress)
 	if err != nil {
 		return err
@@ -48,7 +49,7 @@ func (p Precompile) EmitCreateERC20Event(ctx sdk.Context, stateDB vm.StateDB, cr
 // EmitEventMint creates a new Transfer event emitted on transfer and transferFrom transactions.
 func (p Precompile) EmitEventMint(ctx sdk.Context, stateDB vm.StateDB, to common.Address, amount *big.Int) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventMint]
+	event := p.ABI.Events[EventTypeMint]
 	topics := make([]common.Hash, 2)
 
 	// The first topic is always the signature of the event.

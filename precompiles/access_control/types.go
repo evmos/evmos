@@ -5,6 +5,7 @@ package accesscontrol
 
 import (
 	"fmt"
+	commonerr "github.com/evmos/evmos/v18/precompiles/common"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -13,11 +14,11 @@ import (
 // ParseRoleArgs parses the role arguments.
 func ParseRoleArgs(args []interface{}) (common.Hash, common.Address, error) {
 	if len(args) != 2 {
-		return common.Hash{}, common.Address{}, fmt.Errorf(ErrorInvalidArgumentNumber)
+		return common.Hash{}, common.Address{}, fmt.Errorf(commonerr.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 	roleArray, ok := args[0].([32]uint8)
 	if !ok {
-		return common.Hash{}, common.Address{}, fmt.Errorf(ErrorInvalidRoleArgument)
+		return common.Hash{}, common.Address{}, fmt.Errorf(ErrInvalidRoleArgument)
 	}
 
 	var role common.Hash
@@ -25,7 +26,7 @@ func ParseRoleArgs(args []interface{}) (common.Hash, common.Address, error) {
 
 	account, ok := args[1].(common.Address)
 	if !ok {
-		return common.Hash{}, common.Address{}, fmt.Errorf(ErrorInvalidAccountArgument)
+		return common.Hash{}, common.Address{}, fmt.Errorf(ErrInvalidAccountArgument)
 	}
 
 	return role, account, nil
@@ -33,13 +34,17 @@ func ParseRoleArgs(args []interface{}) (common.Hash, common.Address, error) {
 
 // ParseBurnArgs parses the burn arguments.
 func ParseBurnArgs(args []interface{}) (*big.Int, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf(commonerr.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
 	amount, ok := args[0].(*big.Int)
 	if !ok {
-		return nil, fmt.Errorf(ErrorInvalidAmount)
+		return nil, fmt.Errorf(commonerr.ErrInvalidAmount, amount)
 	}
 
 	if amount.Sign() != 1 {
-		return nil, fmt.Errorf(ErrorBurnAmountNotGreaterThanZero)
+		return nil, fmt.Errorf(ErrBurnAmountNotGreaterThanZero)
 	}
 
 	return amount, nil
@@ -47,22 +52,26 @@ func ParseBurnArgs(args []interface{}) (*big.Int, error) {
 
 // ParseMintArgs parses the mint arguments.
 func ParseMintArgs(args []interface{}) (common.Address, *big.Int, error) {
+	if len(args) != 2 {
+		return common.Address{}, nil, fmt.Errorf(commonerr.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
 	to, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(ErrorInvalidMinterAddress)
+		return common.Address{}, nil, fmt.Errorf(ErrInvalidMinterAddress)
 	}
 
 	if to == (common.Address{}) {
-		return common.Address{}, nil, fmt.Errorf(ErrorMintToZeroAddress)
+		return common.Address{}, nil, fmt.Errorf(ErrMintToZeroAddress)
 	}
 
 	amount, ok := args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(ErrorInvalidAmount)
+		return common.Address{}, nil, fmt.Errorf(commonerr.ErrInvalidAmount, amount)
 	}
 
 	if amount.Sign() != 1 {
-		return common.Address{}, nil, fmt.Errorf(ErrorMintAmountNotGreaterThanZero)
+		return common.Address{}, nil, fmt.Errorf(ErrMintAmountNotGreaterThanZero)
 	}
 
 	return to, amount, nil

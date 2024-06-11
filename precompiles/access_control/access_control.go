@@ -170,15 +170,15 @@ func (p Precompile) HandleMethod(
 	switch method.Name {
 	// Role methods
 	case MethodGrantRole:
-		return p.GrantRole(ctx, contract, stateDB, method, args)
+		return p.GrantRole(ctx, contract, stateDB, args)
 	case MethodRevokeRole:
-		return p.RevokeRole(ctx, contract, stateDB, method, args)
+		return p.RevokeRole(ctx, contract, stateDB, args)
 	case MethodRenounceRole:
-		return p.RenounceRole(ctx, contract, stateDB, method, args)
+		return p.RenounceRole(ctx, contract, stateDB, args)
 	case MethodGetRoleAdmin:
-		return p.GetRoleAdmin(ctx, contract, stateDB, method, args)
+		return p.GetRoleAdmin(ctx, method, args)
 	case MethodHasRole:
-		return p.HasRole(ctx, contract, stateDB, method, args)
+		return p.HasRole(ctx, method, args)
 	// Mint and burn methods
 	case MethodMint:
 		return p.Mint(ctx, contract, stateDB, args)

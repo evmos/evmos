@@ -32,8 +32,6 @@ var (
 // HasRole checks if an account has a role.
 func (p Precompile) HasRole(
 	ctx sdk.Context,
-	_ *vm.Contract,
-	_ vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
@@ -50,20 +48,20 @@ func (p Precompile) HasRole(
 // GetRoleAdmin returns the admin role of a role.
 func (p Precompile) GetRoleAdmin(
 	ctx sdk.Context,
-	_ *vm.Contract,
-	_ vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
 	roleArray, ok := args[0].([32]uint8)
 	if !ok {
-		return nil, fmt.Errorf(ErrorInvalidRoleArgument)
+		return nil, fmt.Errorf(ErrInvalidRoleArgument)
 	}
 
 	var role common.Hash
 	copy(role[:], roleArray[:])
 
 	roleAdmin := p.AccessControlKeeper.GetRoleAdmin(ctx, p.Address(), role)
+
+	fmt.Println(roleAdmin)
 
 	return method.Outputs.Pack(roleAdmin)
 }
@@ -73,7 +71,6 @@ func (p Precompile) GrantRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
-	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
 	role, account, err := ParseRoleArgs(args)
@@ -87,6 +84,7 @@ func (p Precompile) GrantRole(
 		return nil, err
 	}
 
+	// If the user already has the role, return
 	hasRole := p.AccessControlKeeper.HasRole(ctx, p.Address(), role, account)
 	if hasRole {
 		return nil, nil
@@ -106,7 +104,6 @@ func (p Precompile) RevokeRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
-	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
 	role, account, err := ParseRoleArgs(args)
@@ -120,12 +117,13 @@ func (p Precompile) RevokeRole(
 		return nil, err
 	}
 
+	// If the user does not have the role, return
 	hasRole := p.AccessControlKeeper.HasRole(ctx, p.Address(), role, account)
-	if hasRole {
+	if !hasRole {
 		return nil, nil
 	}
 
-	p.AccessControlKeeper.SetRole(ctx, p.Address(), role, account)
+	p.AccessControlKeeper.DeleteRole(ctx, p.Address(), role, account)
 
 	if err := p.EmitEventRoleRevoked(ctx, stateDB, role, account, contract.CallerAddress); err != nil {
 		return nil, err
@@ -139,7 +137,6 @@ func (p Precompile) RenounceRole(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
-	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
 	role, account, err := ParseRoleArgs(args)
@@ -148,15 +145,16 @@ func (p Precompile) RenounceRole(
 	}
 
 	if account != contract.CallerAddress {
-		return nil, fmt.Errorf(ErrorRenounceRoleDifferentThanCaller)
+		return nil, fmt.Errorf(ErrRenounceRoleDifferentThanCaller)
 	}
 
+	// If the user does not have the role, return
 	hasRole := p.AccessControlKeeper.HasRole(ctx, p.Address(), role, account)
-	if hasRole {
+	if !hasRole {
 		return nil, nil
 	}
 
-	p.AccessControlKeeper.SetRole(ctx, p.Address(), role, account)
+	p.AccessControlKeeper.DeleteRole(ctx, p.Address(), role, account)
 
 	if err := p.EmitEventRoleRevoked(ctx, stateDB, role, account, contract.CallerAddress); err != nil {
 		return nil, err
@@ -168,7 +166,7 @@ func (p Precompile) RenounceRole(
 // onlyRole checks if the sender has the role.
 func (p Precompile) onlyRole(ctx sdk.Context, role common.Hash, sender common.Address) error {
 	if !p.AccessControlKeeper.HasRole(ctx, p.Address(), role, sender) {
-		return fmt.Errorf(ErrorSenderNoRole)
+		return fmt.Errorf(ErrSenderNoRole)
 	}
 	return nil
 }

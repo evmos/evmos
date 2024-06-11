@@ -122,10 +122,9 @@ func (p Precompile) createERC20(
 	p.acKeeper.SetRole(ctx, address, access.RoleDefaultAdmin, contract.CallerAddress)
 	p.acKeeper.SetRole(ctx, address, access.RoleMinter, contract.CallerAddress)
 	p.acKeeper.SetRole(ctx, address, access.RoleBurner, contract.CallerAddress)
+	p.acKeeper.SetOwner(ctx, address, contract.CallerAddress)
 
 	// TODO: emit events RoleGranted and RoleAdminChanged
-
-	// TODO: set owner to caller address
 
 	if initialSupply != nil && initialSupply.Sign() > 0 {
 		if err := p.bankKeeper.MintCoins(ctx, erc20types.ModuleName, sdk.Coins{{Denom: denom, Amount: math.NewIntFromBigInt(initialSupply)}}); err != nil {

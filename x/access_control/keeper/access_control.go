@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
@@ -9,7 +10,7 @@ import (
 	"github.com/evmos/evmos/v18/x/access_control/types"
 )
 
-// HasRole returns true if a has a role otherwise false.
+// HasRole returns true if an account has a role otherwise false.
 func (k Keeper) HasRole(
 	ctx sdk.Context,
 	contract common.Address,

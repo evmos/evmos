@@ -8,7 +8,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v18/types"
 )
 
-// TODO: define proto type
 type ContractAccounts struct {
 	Contract string
 	Accounts []string
