@@ -712,8 +712,8 @@ schema = 3
     version = "v1.64.0"
     hash = "sha256-04Noi8lrzr+4ac2BA7KNXUXN/xZL/A2SsEpC2Hern84="
   [mod."google.golang.org/protobuf"]
-    version = "v1.34.1"
-    hash = "sha256-qnHqY6KLZiZDbTVTN6uzF4jedxROYlPCYHoiv6XI0sc="
+    version = "v1.34.2"
+    hash = "sha256-nMTlrDEE2dbpWz50eQMPBQXCyQh4IdjrTIccaU0F3m0="
   [mod."gopkg.in/ini.v1"]
     version = "v1.67.0"
     hash = "sha256-V10ahGNGT+NLRdKUyRg1dos5RxLBXBk1xutcnquc/+4="
