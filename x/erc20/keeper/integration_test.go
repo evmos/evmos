@@ -65,7 +65,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 	moduleAcc := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 	var (
-		pair      *types.TokenPair
+		pair      types.TokenPair
 		coin      sdk.Coin
 		contract  common.Address
 		contract2 common.Address
@@ -173,7 +173,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				contract := s.setupRegisterERC20Pair(contractMinterBurner)
 				id := s.app.Erc20Keeper.GetTokenPairID(s.ctx, contract.String())
-				*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
+				pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
