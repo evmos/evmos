@@ -3,8 +3,9 @@
 package keeper
 
 import (
-	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"math/big"
+
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
