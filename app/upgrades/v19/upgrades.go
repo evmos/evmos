@@ -40,14 +40,15 @@ func CreateUpgradeHandler(
 func RemoveOutpostsFromEvmParams(ctx sdk.Context,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
-	params := evmKeeper.GetParams(ctx)
-	newActivePrecompiles := make([]string, 0)
-	for _, precompile := range params.ActivePrecompiles {
-		if precompile != OsmosisOutpostAddress &&
-			precompile != StrideOutpostAddress {
-			newActivePrecompiles = append(newActivePrecompiles, precompile)
-		}
-	}
-	params.ActivePrecompiles = newActivePrecompiles
-	return evmKeeper.SetParams(ctx, params)
+	//params := evmKeeper.GetParams(ctx)
+	//newActivePrecompiles := make([]string, 0)
+	//for _, precompile := range params.ActivePrecompiles {
+	//	if precompile != OsmosisOutpostAddress &&
+	//		precompile != StrideOutpostAddress {
+	//		newActivePrecompiles = append(newActivePrecompiles, precompile)
+	//	}
+	//}
+	////params.ActivePrecompiles = newActivePrecompiles
+	//return evmKeeper.SetParams(ctx, params)
+	return nil
 }

@@ -434,10 +434,19 @@ func NewEvmos(
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
+	// Access Control Keeper
+	app.AccessControlKeeper = accesscontrolkeeper.NewKeeper(appCodec, keys[accesscontroltypes.StoreKey])
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
+		app.AuthzKeeper, &app.TransferKeeper, app.AccessControlKeeper,
+	)
+
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
-		tracer, app.GetSubspace(evmtypes.ModuleName),
+		tracer, app.GetSubspace(evmtypes.ModuleName), app.Erc20Keeper,
 	)
 
 	app.EvmKeeper = evmKeeper
@@ -490,12 +499,6 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
 	)
 
-	app.Erc20Keeper = erc20keeper.NewKeeper(
-		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper,
-		app.AuthzKeeper, &app.TransferKeeper,
-	)
-
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper: claims IBC middleware
@@ -504,23 +507,21 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
-	// Access Control Keeper
-	app.AccessControlKeeper = accesscontrolkeeper.NewKeeper(appCodec, keys[accesscontroltypes.StoreKey])
-
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
-			*stakingKeeper,
-			app.DistrKeeper,
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.AvailableStaticPrecompiles(
+			"evmos-1",
 			app.AccountKeeper,
-			app.BankKeeper,
-			*app.EvmKeeper,
 			app.AccessControlKeeper,
+			app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
 			app.Erc20Keeper,
 			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
+			app.EvmKeeper,
 		),
 	)
 
@@ -671,6 +672,7 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
+		accesscontroltypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -701,6 +703,7 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
+		accesscontroltypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -737,6 +740,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
+		accesscontroltypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
@@ -1185,4 +1189,5 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
 	}
+
 }

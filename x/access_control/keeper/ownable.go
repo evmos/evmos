@@ -11,6 +11,7 @@ import (
 	"github.com/evmos/evmos/v18/x/access_control/types"
 )
 
+// GetOwner returns the owner of the contract.
 func (k Keeper) GetOwner(ctx sdk.Context, contract common.Address) (common.Address, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixOwner)
 	owner := store.Get(contract.Bytes())
@@ -21,12 +22,13 @@ func (k Keeper) GetOwner(ctx sdk.Context, contract common.Address) (common.Addre
 	return common.BytesToAddress(owner), true
 }
 
+// SetOwner sets the owner of the contract.
 func (k Keeper) SetOwner(ctx sdk.Context, contract common.Address, owner common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixOwner)
 	store.Set(contract.Bytes(), owner.Bytes())
 }
 
-// FIXME: set proto file for the ContractAccount
+// GetOwners returns all the owners of the contracts.
 func (k Keeper) GetOwners(ctx sdk.Context) []types.ContractAccount {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixOwner)

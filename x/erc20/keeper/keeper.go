@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+	accesscontrolkeeper "github.com/evmos/evmos/v18/x/access_control/keeper"
 
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -30,6 +31,7 @@ type Keeper struct {
 	stakingKeeper  types.StakingKeeper
 	authzKeeper    authzkeeper.Keeper
 	transferKeeper *transferkeeper.Keeper
+	accKeeper      accesscontrolkeeper.Keeper
 }
 
 // NewKeeper creates new instances of the erc20 Keeper
@@ -43,6 +45,7 @@ func NewKeeper(
 	sk types.StakingKeeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper *transferkeeper.Keeper,
+	accKeeper accesscontrolkeeper.Keeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
@@ -59,6 +62,7 @@ func NewKeeper(
 		stakingKeeper:  sk,
 		authzKeeper:    authzKeeper,
 		transferKeeper: transferKeeper,
+		accKeeper:      accKeeper,
 	}
 }
 

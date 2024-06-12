@@ -1,10 +1,10 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
 	"math/big"
-	"slices"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -225,6 +225,7 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 			commit()
 			// Since the post-processing can alter the log, we need to update the result
 			res.Logs = types.NewLogsFromEth(receipt.Logs)
+			ctx.EventManager().EmitEvents(tmpCtx.EventManager().Events())
 		}
 	}
 
@@ -236,7 +237,7 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 	if len(receipt.Logs) > 0 {
 		// Update transient block bloom filter
 		k.SetBlockBloomTransient(ctx, receipt.Bloom.Big())
-		k.SetLogSizeTransient(ctx, uint64(txConfig.LogIndex)+uint64(len(logs)))
+		k.SetLogSizeTransient(ctx, uint64(txConfig.LogIndex)+uint64(len(receipt.Logs)))
 	}
 
 	k.SetTxIndexTransient(ctx, uint64(txConfig.TxIndex)+1)
@@ -300,8 +301,7 @@ func (k *Keeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLo
 // # Commit parameter
 //
 // If commit is true, the `StateDB` will be committed, otherwise discarded.
-func (k *Keeper) ApplyMessageWithConfig(
-	ctx sdk.Context,
+func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	msg core.Message,
 	tracer vm.EVMLogger,
 	commit bool,
@@ -323,31 +323,12 @@ func (k *Keeper) ApplyMessageWithConfig(
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
-	// set the custom precompiles to the EVM (if any)
-	if cfg.Params.HasCustomPrecompiles() {
-		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
-
-		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
-		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
-		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
-
-		// Check if the transaction is sent to an inactive precompile
-		//
-		// NOTE: This has to be checked here instead of in the actual evm.Call method
-		// because evm.WithPrecompiles only populates the EVM with the active precompiles,
-		// so there's no telling if the To address is an inactive precompile further down the call stack.
-		toAddr := msg.To()
-		if toAddr != nil &&
-			slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
-			!slices.Contains(activePrecompiles, *toAddr) {
-			return nil, errorsmod.Wrap(types.ErrInactivePrecompile, "failed to call precompile")
-		}
-
-		// NOTE: this only adds active precompiles to the EVM.
-		// This means that evm.Precompile(addr) will return false for inactive precompiles
-		// even though this is actually a reserved address.
-		precompileMap := k.Precompiles(activePrecompiles...)
-		evm.WithPrecompiles(precompileMap, activePrecompiles)
+	// Set the custom precompiles to the EVM if:
+	// 1. there are custom precompiles
+	// 2. the message is a contract call
+	if cfg.Params.HasCustomPrecompiles() && types.IsContractCall(msg) {
+		activePrecompiles, activePrecompilesMap := k.GetActivePrecompilesInstances(ctx, cfg.Params)
+		evm.WithPrecompiles(activePrecompilesMap, activePrecompiles)
 	}
 
 	leftoverGas := msg.Gas()

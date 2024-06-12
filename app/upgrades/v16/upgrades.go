@@ -9,8 +9,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/evmos/evmos/v18/precompiles/bech32"
-	"github.com/evmos/evmos/v18/precompiles/p256"
 	"github.com/evmos/evmos/v18/utils"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
@@ -31,11 +29,11 @@ func CreateUpgradeHandler(
 
 		// enable secp256r1 and bech32 precompile on testnet
 		if utils.IsTestnet(ctx.ChainID()) {
-			p256Address := p256.Precompile{}.Address()
-			bech32Address := bech32.Precompile{}.Address()
-			if err := ek.EnablePrecompiles(ctx, p256Address, bech32Address); err != nil {
-				logger.Error("failed to enable precompiles", "error", err.Error())
-			}
+			//p256Address := p256.Precompile{}.Address()
+			//bech32Address := bech32.Precompile{}.Address()
+			//if err := ek.EnablePrecompiles(ctx, p256Address, bech32Address); err != nil {
+			//	logger.Error("failed to enable precompiles", "error", err.Error())
+			//}
 		}
 
 		// Add Burner role to fee collector
