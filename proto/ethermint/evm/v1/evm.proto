@@ -30,6 +30,9 @@ message Params {
   // active_static_precompiles defines the slice of hex addresses of the precompiled
   // contracts that are active
   repeated string active_static_precompiles = 10;
+  // custom_opcodes defines a map of custom opcode names to their corresponding values
+  map<string, uint64> custom_opcodes = 11 [(gogoproto.customname) = "CustomOpcodes", (gogoproto.moretags) = "yaml:\"custom_opcodes\""];
+
 }
 
 // AccessControl defines the permission policy of the EVM

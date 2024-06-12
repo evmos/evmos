@@ -52,6 +52,15 @@ func (k Keeper) VMConfig(ctx sdk.Context, _ core.Message, cfg *statedb.EVMConfig
 		noBaseFee = k.feeMarketKeeper.GetParams(ctx).NoBaseFee
 	}
 
+	// Get the default JumpTable
+	jumpTable := vm.DefaultJumpTable(cfg.ChainConfig.Rules(big.NewInt(ctx.BlockHeight()), cfg.ChainConfig.MergeNetsplitBlock != nil))
+
+	create := jumpTable[vm.CREATE]
+	create2 := jumpTable[vm.CREATE2]
+	// TODO replace with the actual opcode bytes instead of string?
+	create.UpdateConstantGas(cfg.Params.CustomOpcodes["CREATE"])
+	create2.UpdateConstantGas(cfg.Params.CustomOpcodes["CREATE2"])
+
 	var debug bool
 	if _, ok := tracer.(types.NoOpTracer); !ok {
 		debug = true

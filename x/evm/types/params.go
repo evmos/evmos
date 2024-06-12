@@ -57,6 +57,11 @@ var (
 			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 	}
+	// DefaultCustomOpCodes TODO: We can put whatever we like here
+	DefaultCustomOpCodes = map[string]uint64{
+		"CREATE":  100000,
+		"CREATE2": 100000,
+	}
 )
 
 // NewParams creates a new Params instance
@@ -68,6 +73,7 @@ func NewParams(
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	customOpCodes map[string]uint64,
 ) Params {
 	return Params{
 		EvmDenom:                evmDenom,
@@ -77,6 +83,7 @@ func NewParams(
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
+		CustomOpcodes:           customOpCodes,
 	}
 }
 
@@ -93,6 +100,7 @@ func DefaultParams() Params {
 		ActiveStaticPrecompiles: AvailableStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
+		CustomOpcodes:           DefaultCustomOpCodes,
 	}
 }
 

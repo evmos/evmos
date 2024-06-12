@@ -3,25 +3,28 @@
 package keeper
 
 import (
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"math/big"
-
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/params"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/core"
 
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // GetEthIntrinsicGas returns the intrinsic gas cost for the transaction
-func (k *Keeper) GetEthIntrinsicGas(ctx sdk.Context, msg core.Message, cfg *params.ChainConfig, isContractCreation bool) (uint64, error) {
+func (k *Keeper) GetEthIntrinsicGas(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConfig, isContractCreation bool) (uint64, error) {
 	height := big.NewInt(ctx.BlockHeight())
-	homestead := cfg.IsHomestead(height)
-	istanbul := cfg.IsIstanbul(height)
+	homestead := cfg.ChainConfig.IsHomestead(height)
+	istanbul := cfg.ChainConfig.IsIstanbul(height)
+
+	if isContractCreation && homestead {
+		return cfg.Params.CustomOpcodes["CREATE"], nil // We override geth
+	}
 
 	return core.IntrinsicGas(msg.Data(), msg.AccessList(), isContractCreation, homestead, istanbul)
 }
