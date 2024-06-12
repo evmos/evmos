@@ -469,6 +469,104 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 	})
 
+	Describe("to edit validator", func() {
+		var (
+			defaultDescription = staking.Description{
+				Moniker:         "edit node",
+				Identity:        "[do-not-modify]",
+				Website:         "[do-not-modify]",
+				SecurityContact: "[do-not-modify]",
+				Details:         "[do-not-modify]",
+			}
+			defaultCommissionRate    = big.NewInt(staking.DoNotModifyCommissionRate)
+			defaultMinSelfDelegation = big.NewInt(staking.DoNotModifyMinSelfDelegation)
+
+			// defaultEditValidatorArgs are the default arguments for the editValidator call
+			//
+			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
+			defaultEditValidatorArgs contracts.CallArgs
+		)
+
+		BeforeEach(func() {
+			// populate the default editValidator args
+			defaultEditValidatorArgs = defaultCallArgs.WithMethodName(staking.EditValidatorMethod)
+		})
+
+		Context("when origin is equal to validator address", func() {
+			It("should succeed", func() {
+				// create a new validator
+				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
+				hexAddr := common.BytesToAddress(newAddr.Bytes())
+				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 2e18)
+				Expect(err).To(BeNil(), "error while funding account: %v", err)
+
+				description := staking.Description{
+					Moniker:         "new node",
+					Identity:        "",
+					Website:         "",
+					SecurityContact: "",
+					Details:         "",
+				}
+				commission := staking.Commission{
+					Rate:          big.NewInt(100000000000000000),
+					MaxRate:       big.NewInt(100000000000000000),
+					MaxChangeRate: big.NewInt(100000000000000000),
+				}
+				minSelfDelegation := big.NewInt(1)
+				pubkeyBase64Str := "UuhHQmkUh2cPBA6Rg4ei0M2B04cVYGNn/F8SAUsYIb4="
+				value := big.NewInt(1e18)
+
+				createValidatorArgs := defaultCallArgs.WithMethodName(staking.CreateValidatorMethod).
+					WithPrivKey(newPriv).
+					WithArgs(description, commission, minSelfDelegation, hexAddr, pubkeyBase64Str, value)
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
+
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				s.NextBlock()
+
+				// edit validator
+				editValidatorArgs := defaultEditValidatorArgs.
+					WithPrivKey(newPriv).
+					WithArgs(defaultDescription, hexAddr, defaultCommissionRate, defaultMinSelfDelegation)
+
+				logCheckArgs = passCheck.WithExpEvents(staking.EventTypeEditValidator)
+
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, editValidatorArgs, logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				validator, found := s.app.StakingKeeper.GetValidator(s.ctx, newAddr.Bytes())
+				Expect(found).To(BeTrue(), "expected validator to be found")
+				Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker is updated")
+				// Other fields should not be modified due to the value "[do-not-modify]".
+				Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
+				Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
+				Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
+				Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
+
+				Expect(validator.Commission.Rate.BigInt().String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
+				Expect(validator.Commission.MaxRate.BigInt().String()).To(Equal(commission.MaxRate.String()), "expected validator max commission rate remain unchanged")
+				Expect(validator.Commission.MaxChangeRate.BigInt().String()).To(Equal(commission.MaxChangeRate.String()), "expected validator max change rate remain unchanged")
+				Expect(validator.MinSelfDelegation.String()).To(Equal(minSelfDelegation.String()), "expected validator min self delegation remain unchanged")
+			})
+		})
+
+		Context("with origin different than validator address", func() {
+			It("should fail", func() {
+				editValidatorArgs := defaultEditValidatorArgs.WithArgs(
+					defaultDescription, common.BytesToAddress(valAddr.Bytes()), defaultCommissionRate, defaultMinSelfDelegation,
+				)
+
+				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeEditValidator)
+
+				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, editValidatorArgs, logCheckArgs)
+				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			})
+		})
+	})
+
 	Describe("to delegate", func() {
 		var (
 			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
@@ -1890,6 +1988,119 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
 			Expect(found).To(BeFalse(), "expected validator not to be found")
+		})
+	})
+
+	Context("to edit a validator", func() {
+		var (
+			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
+			defaultEditValArgs contracts.CallArgs
+			valPriv            *ethsecp256k1.PrivKey
+			valAddr            sdk.AccAddress
+			valHexAddr         common.Address
+
+			defaultDescription = staking.Description{
+				Moniker:         "edit node",
+				Identity:        "[do-not-modify]",
+				Website:         "[do-not-modify]",
+				SecurityContact: "[do-not-modify]",
+				Details:         "[do-not-modify]",
+			}
+			defaultCommissionRate    = big.NewInt(staking.DoNotModifyCommissionRate)
+			defaultMinSelfDelegation = big.NewInt(staking.DoNotModifyMinSelfDelegation)
+
+			minSelfDelegation = big.NewInt(1)
+
+			description = staking.Description{}
+			commission  = staking.Commission{}
+		)
+
+		BeforeEach(func() {
+			defaultEditValArgs = defaultCallArgs.WithMethodName("testEditValidator")
+
+			// create a new validator
+			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
+			valHexAddr = common.BytesToAddress(valAddr.Bytes())
+			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 2e18)
+			Expect(err).To(BeNil(), "error while funding account: %v", err)
+
+			description = staking.Description{
+				Moniker:         "original moniker",
+				Identity:        "",
+				Website:         "",
+				SecurityContact: "",
+				Details:         "",
+			}
+			commission = staking.Commission{
+				Rate:          big.NewInt(100000000000000000),
+				MaxRate:       big.NewInt(100000000000000000),
+				MaxChangeRate: big.NewInt(100000000000000000),
+			}
+			pubkeyBase64Str := "UuhHQmkUh2cPBA6Rg4ei0M2B04cVYGNn/F8SAUsYIb4="
+			value := big.NewInt(1e18)
+
+			createValidatorArgs := contracts.CallArgs{
+				ContractAddr: s.precompile.Address(),
+				ContractABI:  s.precompile.ABI,
+				MethodName:   staking.CreateValidatorMethod,
+				PrivKey:      valPriv,
+				Args:         []interface{}{description, commission, minSelfDelegation, valHexAddr, pubkeyBase64Str, value},
+			}
+
+			logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			s.NextBlock()
+		})
+
+		It("with tx from validator operator - should edit a validator", func() {
+			cArgs := defaultEditValArgs.
+				WithPrivKey(valPriv).
+				WithArgs(
+					defaultDescription, valHexAddr,
+					defaultCommissionRate, defaultMinSelfDelegation,
+				)
+
+			logCheckArgs := passCheck.
+				WithExpEvents(staking.EventTypeEditValidator)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
+			Expect(found).To(BeTrue(), "expected validator to be found")
+			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker to be updated")
+			// Other fields should not be modified due to the value "[do-not-modify]".
+			Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
+			Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
+			Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
+			Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
+
+			Expect(validator.Commission.Rate.BigInt().String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
+			Expect(validator.Commission.MaxRate.BigInt().String()).To(Equal(commission.MaxRate.String()), "expected validator max commission rate remain unchanged")
+			Expect(validator.Commission.MaxChangeRate.BigInt().String()).To(Equal(commission.MaxChangeRate.String()), "expected validator max change rate remain unchanged")
+			Expect(validator.MinSelfDelegation.String()).To(Equal(minSelfDelegation.String()), "expected validator min self delegation remain unchanged")
+		})
+
+		It("with tx from another EOA - should fail", func() {
+			cArgs := defaultEditValArgs.
+				WithPrivKey(s.privKey).
+				WithArgs(
+					defaultDescription, valHexAddr,
+					defaultCommissionRate, defaultMinSelfDelegation,
+				)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()))
+
+			// validator should remain unchanged
+			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
+			Expect(found).To(BeTrue(), "expected validator to be found")
+			Expect(validator.Description.Moniker).To(Equal("original moniker"), "expected validator moniker is updated")
+			Expect(validator.Commission.Rate.BigInt().String()).To(Equal("100000000000000000"), "expected validator commission rate remain unchanged")
 		})
 	})
 

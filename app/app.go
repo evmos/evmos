@@ -117,8 +117,11 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v18/client/docs/statik"
+	"github.com/evmos/evmos/v18/utils"
 
 	"github.com/evmos/evmos/v18/app/ante"
 	ethante "github.com/evmos/evmos/v18/app/ante/evm"
@@ -128,7 +131,13 @@ import (
 	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
 	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/ethereum/eip712"
-	"github.com/evmos/evmos/v18/precompiles/common"
+	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
+	bech32precompile "github.com/evmos/evmos/v18/precompiles/bech32"
+	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
+	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
+	p256precompile "github.com/evmos/evmos/v18/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
 	srvflags "github.com/evmos/evmos/v18/server/flags"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/epochs"
@@ -935,8 +944,21 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
-	for _, precompile := range common.DefaultPrecompilesBech32 {
-		blockedAddrs[precompile] = true
+	blockedPrecompilesHex := []string{
+		p256precompile.PrecompileAddress,
+		bech32precompile.PrecompileAddress,
+		bankprecompile.PrecompileAddress,
+		stakingprecompile.PrecompileAddress,
+		distprecompile.PrecompileAddress,
+		ics20precompile.PrecompileAddress,
+		vestingprecompile.PrecompileAddress,
+	}
+	for _, addr := range vm.PrecompiledAddressesBerlin {
+		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
+	}
+
+	for _, precompile := range blockedPrecompilesHex {
+		blockedAddrs[utils.EthHexToSDKAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
