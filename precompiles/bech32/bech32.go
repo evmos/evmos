@@ -62,6 +62,11 @@ func (p Precompile) RequiredGas(_ []byte) uint64 {
 
 // Run executes the precompiled contract bech32 methods defined in the ABI.
 func (p Precompile) Run(_ *vm.EVM, contract *vm.Contract, _ bool) (bz []byte, err error) {
+	// NOTE: This check avoid panicking when trying to decode the method ID
+	if len(contract.Input) < 4 {
+		return nil, vm.ErrExecutionReverted
+	}
+
 	methodID := contract.Input[:4]
 	// NOTE: this function iterates over the method map and returns
 	// the method with the given ID

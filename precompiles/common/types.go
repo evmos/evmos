@@ -21,16 +21,6 @@ var (
 	DefaultExpirationDuration = time.Hour * 24 * 365
 	// DefaultChainID is the standard chain id used for testing purposes
 	DefaultChainID = evmosutils.MainnetChainID + "-1"
-	// DefaultPrecompilesBech32 is the standard bech32 address for the precompiles
-	DefaultPrecompilesBech32 = []string{
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgqjuj7hv", // secp256r1 curve precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqnqcxyd", // bech32 precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqq4xrkxv", // Staking precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqy6vpsfk", // Bank precompile
-	}
 )
 
 // ICS20Allocation defines the spend limit for a particular port and channel.
