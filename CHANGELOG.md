@@ -56,7 +56,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
 - (precompiles) [#2572](https://github.com/evmos/evmos/pull/2572) Add `FundCommunityPool` precompile tx for distribution module.
 - (evm) [#2538](https://github.com/evmos/evmos/pull/2538) Add Permissions Policy for permissioned EVM.
-- (erc20) [#2609] (https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
+- (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
+- (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
 
 ### Bug Fixes
 
@@ -100,15 +101,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
+- (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
 - (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
 
-## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0)  - 2024-05-31
+## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
 ### Improvements
 
 - (app) [#2373](https://github.com/evmos/evmos/pull/2373) Remove ChainID constraint.
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
 - (tests) [#2575](https://github.com/evmos/evmos/pull/2575) Add integration test for precompile tx `CreateValidator`.
+- (tests) [#2576](https://github.com/evmos/evmos/pull/2576) Add integration test for precompile tx `EditValidator`.
 - (evm) [#2581](https://github.com/evmos/evmos/pull/2581) Fix wrong error message returned for DynamicFee txs.
 
 ### State Machine Breaking
@@ -116,11 +119,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
-- (security) [#2596](https://github.com/evmos/evmos/pull/2596) Merge security advisory GHSA-xgr7-jgq3-mhmc
+- (ics20) [#2596](https://github.com/evmos/evmos/pull/2596) Merge security advisory GHSA-xgr7-jgq3-mhmc.
 
 ## [v18.0.1](https://github.com/evmos/evmos/releases/tag/v18.0.1) - 2024-05-29
 
-- (app) [2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade
+### Improvements
+
+- (app) [#2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade.
 
 ## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
 

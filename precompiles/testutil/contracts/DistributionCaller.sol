@@ -5,7 +5,9 @@ import "../../distribution/DistributionI.sol" as distribution;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {
-    int64 public counter;
+    /// counter is used to test the state persistence bug, when EVM and Cosmos state were both
+    /// changed in the same function.
+    uint256 public counter;
 
     function testSetWithdrawAddressFromContract(
         string memory _withdrawAddr
@@ -62,29 +64,12 @@ contract DistributionCaller {
         address _delAddr,
         uint32 _maxRetrieve
     ) public returns (bool success) {
-        return
-            distribution.DISTRIBUTION_CONTRACT.claimRewards(
-                _delAddr,
-                _maxRetrieve
-            );
-    }
-
-    /// @dev testFundCommunityPool defines a method to allow an account to directly
-    /// fund the community pool.
-    /// @param depositor The address of the depositor
-    /// @param amount The amount of coin fund community pool
-    /// @return success Whether the transaction was successful or not
-    function testFundCommunityPool(
-        address depositor,
-        uint256 amount
-    ) public returns (bool success) {
-        counter += 1;
-        success = distribution.DISTRIBUTION_CONTRACT.fundCommunityPool(
-            depositor,
-            amount
+        counter++;
+        success = distribution.DISTRIBUTION_CONTRACT.claimRewards(
+            _delAddr,
+            _maxRetrieve
         );
-        counter -= 1;
-        return success;
+        counter--;
     }
 
     function getValidatorDistributionInfo(
@@ -239,6 +224,4 @@ contract DistributionCaller {
         require(success, "failed staticCall to precompile");
         return data;
     }
-
-    function deposit() public payable {}
 }

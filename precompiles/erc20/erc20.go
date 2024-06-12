@@ -87,7 +87,7 @@ func (p Precompile) Address() common.Address {
 
 // RequiredGas calculates the contract gas used for the
 func (p Precompile) RequiredGas(input []byte) uint64 {
-	// Validate input length
+	// NOTE: This check avoid panicking when trying to decode the method ID
 	if len(input) < 4 {
 		return 0
 	}

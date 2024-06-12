@@ -18,6 +18,9 @@ import (
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
+// PrecompileAddress of the distribution EVM extension in hex format.
+const PrecompileAddress = "0x0000000000000000000000000000000000000801"
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -65,11 +68,16 @@ func NewPrecompile(
 // Address defines the address of the distribution compile contract.
 // address: 0x0000000000000000000000000000000000000801
 func (p Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000801")
+	return common.HexToAddress(PrecompileAddress)
 }
 
 // RequiredGas calculates the precompiled contract's base gas rate.
 func (p Precompile) RequiredGas(input []byte) uint64 {
+	// NOTE: This check avoid panicking when trying to decode the method ID
+	if len(input) < 4 {
+		return 0
+	}
+
 	methodID := input[:4]
 
 	method, err := p.MethodById(methodID)
