@@ -56,7 +56,7 @@ func (k *Keeper) NewEVM(
 	if tracer == nil {
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
-	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
+	vmConfig := k.VMConfig(ctx, cfg, tracer)
 
 	signer := msg.From()
 	accessControl := types.NewRestrictedPermissionPolicy(&cfg.Params.AccessControl, signer)

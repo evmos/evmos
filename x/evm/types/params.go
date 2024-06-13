@@ -57,6 +57,7 @@ var (
 			AccessControlList: DefaultCreateAllowlistAddresses,
 		},
 	}
+	DefaultCustomOpcodes []CustomOpCode
 )
 
 // NewParams creates a new Params instance
@@ -68,6 +69,7 @@ func NewParams(
 	activePrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	customOpcodes []CustomOpCode,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -77,6 +79,7 @@ func NewParams(
 		ActivePrecompiles:   activePrecompiles,
 		EVMChannels:         evmChannels,
 		AccessControl:       accessControl,
+		CustomOpCodes:       customOpcodes,
 	}
 }
 
@@ -93,6 +96,7 @@ func DefaultParams() Params {
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
 		AccessControl:       DefaultAccessControl,
+		CustomOpCodes:       DefaultCustomOpcodes,
 	}
 }
 
@@ -140,6 +144,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := p.ValidateCustomOpcodes(); err != nil {
+		return err
+	}
+
 	return validateChannels(p.EVMChannels)
 }
 
@@ -183,6 +191,15 @@ func (p Params) IsActivePrecompile(address string) bool {
 	return found
 }
 
+func (p Params) ValidateCustomOpcodes() error {
+	for _, opcode := range p.CustomOpCodes {
+		if err := opcode.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (ac AccessControl) Validate() error {
 	if err := ac.Create.Validate(); err != nil {
 		return err
@@ -202,6 +219,14 @@ func (act AccessControlType) Validate() error {
 
 	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (co CustomOpCode) Validate() error {
+	// Check if its a valid opcode and its enabled
+	if _, ok := vm.StringToOpWithFound(co.OpCode.String()); !ok {
+		return fmt.Errorf("invalid opcode address: %s", co.OpCode)
 	}
 	return nil
 }

@@ -28,6 +28,24 @@ message Params {
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
   // access_control defines the permission policy of the EVM
   AccessControl access_control = 9 [(gogoproto.customname) = "AccessControl", (gogoproto.nullable) = false];
+  // CustomOpcodes is the list of opcodes to update
+  repeated CustomOpCode custom_opcodes = 10 [(gogoproto.customname) = "CustomOpCodes", (gogoproto.nullable) = false];
+}
+
+message CustomOpCode {
+  // opcode is the opcode to update
+  OpCode op_code = 1 ;
+  // consume_gas is the amount of gas to consume for the opcode
+  uint64 constant_gas = 2;
+}
+
+enum OpCode {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // CREATE is the opcode for creating a new contract
+  CREATE = 0 [(gogoproto.enumvalue_customname) = "CREATE"];
+  // CREATE2 is the opcode for creating a new contract with a specific hash
+  CREATE2 = 1 [(gogoproto.enumvalue_customname) = "CREATE2"];
 }
 
 // AccessControl defines the permission policy of the EVM
