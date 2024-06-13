@@ -143,7 +143,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 	}
 }
 
-func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
+func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[distribution.ValidatorOutstandingRewardsMethod]
 
@@ -236,7 +236,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 	}
 }
 
-func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
+func (s *PrecompileTestSuite) TestValidatorCommission() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[distribution.ValidatorCommissionMethod]
 

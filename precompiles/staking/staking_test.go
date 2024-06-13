@@ -274,7 +274,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"pass - delegation query",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(delegator, _ testkeyring.Key) []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					delegator.Addr,
@@ -290,7 +290,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"pass - validator query",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(_, _ testkeyring.Key) []byte {
 				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
 
@@ -308,7 +308,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"pass - redelgation query",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(delegator, _ testkeyring.Key) []byte {
 				valAddr1, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
 				s.Require().NoError(err)
 				valAddr2, err := sdk.ValAddressFromBech32(s.network.GetValidators()[1].GetOperator())
@@ -346,7 +346,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"pass - delegation query - read only",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(delegator, _ testkeyring.Key) []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					delegator.Addr,
@@ -362,7 +362,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"pass - unbonding delegation query",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(delegator, _ testkeyring.Key) []byte {
 				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
 				s.Require().NoError(err)
 				// add unbonding delegation to staking keeper
@@ -400,7 +400,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"fail - delegate method - read only",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(delegator, _ testkeyring.Key) []byte {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					delegator.Addr,
@@ -417,7 +417,7 @@ func (s *PrecompileTestSuite) TestRun() {
 		},
 		{
 			"fail - invalid method",
-			func(delegator, grantee testkeyring.Key) []byte {
+			func(_, _ testkeyring.Key) []byte {
 				return []byte("invalid")
 			},
 			1, // use gas > 0 to avoid doing gas estimation

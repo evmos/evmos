@@ -191,7 +191,7 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 		return abci.ExecTxResult{}, err
 	}
 	if len(res.TxResults) != 1 {
-		return abci.ExecTxResult{}, fmt.Errorf("Unexpected transaction results. Expected 1, got: %d", len(res.TxResults))
+		return abci.ExecTxResult{}, fmt.Errorf("unexpected transaction results. Expected 1, got: %d", len(res.TxResults))
 	}
 	txRes := res.TxResults[0]
 	if txRes.Code != 0 {

@@ -6,13 +6,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	. "github.com/onsi/ginkgo/v2"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,6 +16,12 @@ import (
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	fmkttypes "github.com/evmos/evmos/v18/x/feemarket/types"
+
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 )
 
 type txParams struct {
@@ -232,7 +232,6 @@ var _ = Describe("Feemarket", func() {
 				Expect(err).To(BeNil())
 			})
 
-			//nolint
 			Context("during CheckTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := math.NewInt(minGasPrices - 3)
@@ -276,7 +275,6 @@ var _ = Describe("Feemarket", func() {
 				})
 			})
 
-			//nolint
 			Context("during DeliverTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := math.NewInt(minGasPrices - 2)

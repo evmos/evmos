@@ -60,7 +60,7 @@ func WaitToAccrueCommission(n network.Network, gh grpc.Handler, validatorAddr st
 	for commission.AmountOf(n.GetDenom()).LT(expAmt) {
 		commission, err = checkCommissionAfter(n, gh, validatorAddr, lapse)
 		if err != nil {
-			return nil, errorsmod.Wrap(err, "error checking comission")
+			return nil, errorsmod.Wrap(err, "error checking commission")
 		}
 	}
 

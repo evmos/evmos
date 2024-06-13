@@ -113,14 +113,16 @@ func Setup(
 		}
 
 		// Initialize the chain
-		app.InitChain(
+		if _, err := app.InitChain(
 			&abci.RequestInitChain{
 				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			},
-		)
+		); err != nil {
+			panic(err)
+		}
 	}
 
 	return app
@@ -140,7 +142,7 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 	bondAmt := sdk.DefaultPowerReduction
 
 	for _, val := range valSet.Validators {
-		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),

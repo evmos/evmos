@@ -141,7 +141,7 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 // setupDeductFeeDecoratorTestCase instantiates a new DeductFeeDecorator
 // and prepares the accounts with corresponding balance and staking rewards
 // Returns the decorator and the tx arguments to use on the test case
-func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, priv *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (sdk.Context, cosmosante.DeductFeeDecorator, factory.CosmosTxArgs) {
+func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, _ *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (sdk.Context, cosmosante.DeductFeeDecorator, factory.CosmosTxArgs) {
 	suite.SetupTest()
 	nw := suite.GetNetwork()
 	ctx := nw.GetContext()

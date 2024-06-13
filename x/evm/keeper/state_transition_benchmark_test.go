@@ -159,7 +159,7 @@ func newNativeMessage(
 	return m, nil
 }
 
-func BenchmarkApplyTransaction(b *testing.B) {
+func BenchmarkApplyTransaction(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
@@ -188,7 +188,7 @@ func BenchmarkApplyTransaction(b *testing.B) {
 	}
 }
 
-func BenchmarkApplyTransactionWithLegacyTx(b *testing.B) {
+func BenchmarkApplyTransactionWithLegacyTx(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 

@@ -123,7 +123,7 @@ func (p Precompile) EditValidator(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.EditValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.EditValidator(ctx, msg); err != nil {
 		return nil, err
 	}
 

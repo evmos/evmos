@@ -165,7 +165,7 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 	invCheckPeriod := uint(5)
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
-	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
+	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
 	return app.NewEvmos(
 		logger,
@@ -183,7 +183,7 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 
 // createStakingValidator creates a staking validator from the given tm validator and bonded
 func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int, operatorAddr *sdktypes.AccAddress) (stakingtypes.Validator, error) {
-	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
 	if err != nil {
 		return stakingtypes.Validator{}, err
 	}

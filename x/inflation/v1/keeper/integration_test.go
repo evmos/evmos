@@ -89,7 +89,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() { //nolint:dupl // these tests are not duplicates
+			Context("after an epoch ends", func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
@@ -156,7 +156,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				Expect(err).ToNot(HaveOccurred(), "error while setting params")
 			})
 
-			Context("before an epoch ends", func() {
+			Context("before an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
@@ -181,7 +181,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() { //nolint:dupl
+			Context("after an epoch ends", func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
@@ -243,7 +243,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				Expect(err).ToNot(HaveOccurred(), "error while setting params")
 			})
 
-			Context("before an epoch ends", func() {
+			Context("before an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
@@ -267,7 +267,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() { //nolint:dupl
+			Context("after an epoch ends", func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())

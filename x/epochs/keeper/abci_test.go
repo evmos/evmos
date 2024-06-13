@@ -52,7 +52,7 @@ func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
 			malleate: func() {
 				ctx := suite.network.GetContext()
 				ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(time.Second))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 				require.True(t, found)
 			},
@@ -68,11 +68,11 @@ func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
 				ctx := suite.network.GetContext()
 				// Epoch start
 				ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(time.Second))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				// Here we use seconds * 2 because we have to be 1 second more the end of previous
 				// epoch.
 				ctx = ctx.WithBlockHeight(3).WithBlockTime(now.Add(2 * time.Second).Add(month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 				require.True(t, found)
 			},
@@ -87,11 +87,11 @@ func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
 			malleate: func() {
 				ctx := suite.network.GetContext()
 				ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(time.Second))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				ctx = ctx.WithBlockHeight(3).WithBlockTime(now.Add(2 * time.Second).Add(month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				ctx = ctx.WithBlockHeight(4).WithBlockTime(now.Add(time.Second).Add(2 * month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 				require.True(t, found)
 			},
@@ -108,11 +108,11 @@ func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
 			malleate: func() {
 				ctx := suite.network.GetContext()
 				ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(time.Second))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				ctx = ctx.WithBlockHeight(3).WithBlockTime(now.Add(2 * time.Second).Add(month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				ctx = ctx.WithBlockHeight(4).WithBlockTime(now.Add(2 * time.Second).Add(2 * month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 				require.True(t, found)
 			},
@@ -128,16 +128,16 @@ func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
 				ctx := suite.network.GetContext()
 				// First epoch
 				ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(time.Second))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				// Second epoch
 				ctx = ctx.WithBlockHeight(3).WithBlockTime(now.Add(2 * time.Second).Add(month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				// Third epoch
 				ctx = ctx.WithBlockHeight(4).WithBlockTime(now.Add(2 * time.Second).Add(2 * month))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				// Still third epoch
 				ctx = ctx.WithBlockHeight(5).WithBlockTime(now.Add(2 * time.Second).Add(2 * month).Add(day))
-				suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+				require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 				epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 				require.True(t, found)
 			},
@@ -206,7 +206,7 @@ func TestEpochStartingOneMonthAfterInitGenesis(t *testing.T) {
 
 	// After 1 week.
 	ctx = ctx.WithBlockHeight(2).WithBlockTime(now.Add(week))
-	suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+	require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 
 	epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)
 	require.True(t, found)
@@ -217,7 +217,7 @@ func TestEpochStartingOneMonthAfterInitGenesis(t *testing.T) {
 
 	// After 1 month.
 	ctx = ctx.WithBlockHeight(3).WithBlockTime(nowPlusMonth)
-	suite.network.App.EpochsKeeper.BeginBlocker(ctx)
+	require.NoError(t, suite.network.App.EpochsKeeper.BeginBlocker(ctx))
 
 	// epoch started
 	epochInfo, found = suite.network.App.EpochsKeeper.GetEpochInfo(ctx, monthIdentifier)

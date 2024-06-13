@@ -77,7 +77,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().NoError(err)
 				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				s.Require().NoError(s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...)))
 
 				input, err := s.precompile.Pack(
 					distribution.SetWithdrawAddressMethod,
@@ -101,9 +101,9 @@ func (s *PrecompileTestSuite) TestRun() {
 				commAmt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, commAmt)}
 				// set outstanding rewards
-				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission
-				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission}))
 
 				// set distribution module account balance which pays out the rewards
 				coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, commAmt.RoundInt()))

@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) mintAndSendXMPLCoin(ctx sdk.Context, addr sdk.AccA
 }
 
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
-func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) {
+func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) { //nolint:unused
 	coins := sdk.NewCoins(sdk.NewCoin(is.tokenDenom, amount))
 	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, coins)
 	Expect(err).ToNot(HaveOccurred())

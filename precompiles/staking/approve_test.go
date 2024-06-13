@@ -41,7 +41,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(_ *vm.Contract, _, _ testkeyring.Key) []interface{} {
 				return []interface{}{}
 			},
-			func(_, _ testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -55,7 +55,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{"invalid"},
 				}
 			},
-			func(_, _ testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidMsgType, "staking", "invalid"),
@@ -84,7 +84,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
 
@@ -107,7 +107,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, grantee.Addr, granter.Addr)
@@ -130,7 +130,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.RedelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, grantee.Addr, granter.Addr)
@@ -157,7 +157,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(ctx, grantee.AccAddr, granter.AccAddr)
@@ -170,7 +170,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 		{
 			"success - remove MsgDelegate authorization",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
 				res, err := s.precompile.Approve(ctx, granter.Addr, stDB, &method, []interface{}{
 					grantee.Addr, big.NewInt(1), []string{staking.DelegateMsg},
 				})
@@ -187,7 +187,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
@@ -198,16 +198,16 @@ func (s *PrecompileTestSuite) TestApprove() {
 			false,
 			"",
 		},
-		{
+		{ //nolint:dupl
 			"success - MsgDelegate with 1 Evmos as limit amount",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
 					big.NewInt(1e18),
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 		{
 			"success - Authorization should only be created for validators that are not jailed",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
 				var err error
 				// Jail a validator
 				valAddr, err = sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
@@ -262,16 +262,16 @@ func (s *PrecompileTestSuite) TestApprove() {
 			false,
 			"",
 		},
-		{
+		{ //nolint:dupl
 			"success - MsgUndelegate with 1 Evmos as limit amount",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
 					big.NewInt(1e18),
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.UndelegateAuthz, grantee.Addr, granter.Addr)
@@ -286,14 +286,14 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 		{
 			"success - MsgRedelegate with 1 Evmos as limit amount",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
 					big.NewInt(1e18),
 					[]string{staking.RedelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.RedelegateAuthz, grantee.Addr, granter.Addr)
@@ -306,7 +306,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 		{
 			"success - MsgRedelegate, MsgUndelegate and MsgDelegate with 1 Evmos as limit amount",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
 					big.NewInt(1e18),
@@ -317,7 +317,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, data []byte, _ []interface{}) {
 				s.Require().Equal(data, cmn.TrueValue)
 
 				authz, expirationTime := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
@@ -351,7 +351,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
@@ -395,10 +395,10 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 	}{
 		{
 			"fail - empty input args",
-			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, _ testkeyring.Key) []interface{} {
 				return []interface{}{}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -420,14 +420,14 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		// },
 		{
 			"fail - delegate authorization does not exists",
-			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
 					big.NewInt(15000),
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {
 			},
 			200000,
 			true,
@@ -446,7 +446,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {
 			},
 			200000,
 			true,
@@ -454,7 +454,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		},
 		{
 			"fail - decrease allowance amount is greater than the authorization limit",
-			func(contract *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
+			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
 				approveArgs := []interface{}{
 					grantee.Addr,
 					big.NewInt(1e18),
@@ -475,7 +475,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			true,
 			"amount by which the allowance should be decreased is greater than the authorization limit",
@@ -490,7 +490,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, _ []byte, _ []interface{}) {
 				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -502,7 +502,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
 			ctx = s.network.GetContext()
@@ -549,7 +549,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func(_, _ testkeyring.Key) []interface{} {
 				return []interface{}{}
 			},
-			func(_, _ testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
@@ -578,7 +578,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {
 			},
 			200000,
 			true,
@@ -608,7 +608,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {},
+			func(_, _ testkeyring.Key, _ []byte, _ []interface{}) {},
 			200000,
 			false,
 			"",
@@ -623,7 +623,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			func(granter, grantee testkeyring.Key, _ []byte, _ []interface{}) {
 				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
 				s.Require().NotNil(authz)
 				s.Require().Equal(authz.AuthorizationType, staking.DelegateAuthz)
@@ -689,7 +689,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 					[]string{staking.UndelegateMsg},
 				}
 			},
-			postCheck: func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			postCheck: func(granter, grantee testkeyring.Key, _ []byte, _ []interface{}) {
 				// expect authorization to still be there
 				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, createdAuthz, grantee.Addr, granter.Addr)
 				s.Require().NotNil(authz)
@@ -705,7 +705,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 					[]string{staking.DelegateMsg},
 				}
 			},
-			postCheck: func(granter, grantee testkeyring.Key, data []byte, inputArgs []interface{}) {
+			postCheck: func(granter, grantee testkeyring.Key, _ []byte, _ []interface{}) {
 				// expect authorization to be removed
 				authz, _ := CheckAuthorizationWithContext(ctx, s.network.App.AuthzKeeper, createdAuthz, grantee.Addr, granter.Addr)
 				s.Require().Nil(authz, "expected authorization to be removed")

@@ -134,7 +134,7 @@ func genesisStateWithValSet(codec codec.Codec, genesisState evmostypes.GenesisSt
 	bondAmt := sdk.DefaultPowerReduction
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
 		if err != nil {
 			panic(err)
 		}

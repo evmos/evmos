@@ -306,7 +306,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				}
 			})
 
-			It(fmt.Sprintf("should fund the vesting when defining only lockup (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fund the vesting when defining only lockup (%s)", callType.name), func() { //nolint:dupl
 				funder := s.keyring.GetKey(0)
 				vestingKey := s.keyring.GetKey(1)
 
@@ -337,7 +337,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				s.ExpectVestingAccount(vestingKey.Addr, defaultPeriods, instantPeriods)
 			})
 
-			It(fmt.Sprintf("should fund the vesting when defining only vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fund the vesting when defining only vesting (%s)", callType.name), func() { //nolint:dupl
 				funder := s.keyring.GetKey(0)
 				vestingKey := s.keyring.GetKey(1)
 
@@ -368,7 +368,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				s.ExpectVestingAccount(vestingKey.Addr, instantPeriods, defaultPeriods)
 			})
 
-			It(fmt.Sprintf("should fund the vesting when defining both lockup and vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fund the vesting when defining both lockup and vesting (%s)", callType.name), func() { //nolint:dupl
 				funder := s.keyring.GetKey(0)
 				vestingKey := s.keyring.GetKey(1)
 

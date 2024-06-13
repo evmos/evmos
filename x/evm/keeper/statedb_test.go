@@ -618,7 +618,7 @@ func (suite *KeeperTestSuite) TestSnapshot() {
 	}
 }
 
-func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv cryptotypes.PrivKey) authsigning.Tx {
+func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv cryptotypes.PrivKey) authsigning.Tx { //nolint:stylecheck
 	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsEthereumTx{})
 	suite.Require().NoError(err)
 
@@ -801,7 +801,7 @@ func (suite *KeeperTestSuite) TestAddAddressToAccessList() {
 	}
 }
 
-func (suite *KeeperTestSuite) AddSlotToAccessList() {
+func (suite *KeeperTestSuite) TestAddSlotToAccessList() {
 	testCases := []struct {
 		name string
 		addr common.Address

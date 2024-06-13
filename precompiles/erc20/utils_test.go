@@ -352,7 +352,7 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 		_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
 		Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
-		is.network.NextBlock()
+		err = is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 		var balance *big.Int

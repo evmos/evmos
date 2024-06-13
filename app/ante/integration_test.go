@@ -245,7 +245,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			Expect(err).To(BeNil())
 			Expect(rewardsRes.Total).To(BeEmpty())
 
-			// balance should have increased becuase paid the fees with staking rewards
+			// balance should have increased because paid the fees with staking rewards
 			balanceRes, err = s.grpcHandler.GetBalance(addr, utils.BaseDenom)
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount.Sub(prevBalance).IsPositive()).To(BeTrue())

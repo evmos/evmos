@@ -290,7 +290,7 @@ func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxRe
 
 	req := buildFinalizeBlockReq(header, n.valSet.Validators, txBytes)
 
-	// dont include the DecidedLastCommit because we're not commiting the changes
+	// dont include the DecidedLastCommit because we're not committing the changes
 	// here, is just for broadcasting the tx. To persist the changes, use the
 	// NextBlock or NextBlockAfter functions
 	req.DecidedLastCommit = abcitypes.CommitInfo{}

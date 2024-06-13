@@ -32,12 +32,6 @@ import (
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
-// expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 8781
-
-// expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 8775
-
 func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
@@ -369,9 +363,9 @@ func (suite *EvmKeeperTestSuite) TestQueryCode() {
 				addr := keyring.GetAddr(newIndex)
 
 				expCode = []byte("code")
-				stateDbB := unitNetwork.GetStateDB()
-				stateDbB.SetCode(addr, expCode)
-				suite.Require().NoError(stateDbB.Commit())
+				stateDB := unitNetwork.GetStateDB()
+				stateDB.SetCode(addr, expCode)
+				suite.Require().NoError(stateDB.Commit())
 
 				req = &types.QueryCodeRequest{
 					Address: addr.String(),
@@ -1509,10 +1503,10 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 			},
 			func() {
 				feemarketDefault := feemarkettypes.DefaultParams()
-				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
+				suite.Require().NoError(unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault))
 
 				evmDefault := types.DefaultParams()
-				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
+				suite.Require().NoError(unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault))
 			},
 
 			true,
@@ -1524,7 +1518,7 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 			},
 			func() {
 				feemarketDefault := feemarkettypes.DefaultParams()
-				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
+				suite.Require().NoError(unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault))
 
 				evmDefault := types.DefaultParams()
 				maxInt := sdkmath.NewInt(math.MaxInt64)
@@ -1535,7 +1529,7 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 				evmDefault.ChainConfig.MergeNetsplitBlock = &maxInt
 				evmDefault.ChainConfig.ShanghaiBlock = &maxInt
 				evmDefault.ChainConfig.CancunBlock = &maxInt
-				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
+				suite.Require().NoError(unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault))
 			},
 			true,
 		},
@@ -1548,10 +1542,10 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 			func() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				feemarketDefault.NoBaseFee = true
-				unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault)
+				suite.Require().NoError(unitNetwork.App.FeeMarketKeeper.SetParams(unitNetwork.GetContext(), feemarketDefault))
 
 				evmDefault := types.DefaultParams()
-				unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault)
+				suite.Require().NoError(unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), evmDefault))
 			},
 			true,
 		},

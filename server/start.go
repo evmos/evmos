@@ -451,10 +451,8 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		defer grpcSrv.GracefulStop()
 	}
 
-	apiSrv, err := startAPIServer(ctx, svrCtx, clientCtx, g, config.Config, app, grpcSrv, metrics)
-	if err != nil {
-		return err
-	}
+	apiSrv := startAPIServer(ctx, svrCtx, clientCtx, g, config.Config, app, grpcSrv, metrics)
+
 	if apiSrv != nil {
 		defer apiSrv.Close()
 	}
@@ -554,7 +552,7 @@ func startGrpcServer(
 	}
 
 	// if gRPC is enabled, configure gRPC client for gRPC gateway and json-rpc
-	grpcClient, err := grpc.Dial(
+	grpcClient, err := grpc.NewClient(
 		config.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultCallOptions(
@@ -593,9 +591,9 @@ func startAPIServer(
 	app types.Application,
 	grpcSrv *grpc.Server,
 	metrics *telemetry.Metrics,
-) (*api.Server, error) {
+) *api.Server {
 	if !svrCfg.API.Enable {
-		return nil, nil
+		return nil
 	}
 
 	apiSrv := api.New(clientCtx, svrCtx.Logger.With("server", "api"), grpcSrv)
@@ -608,7 +606,7 @@ func startAPIServer(
 	g.Go(func() error {
 		return apiSrv.Start(ctx, svrCfg)
 	})
-	return apiSrv, nil
+	return apiSrv
 }
 
 func startJSONRPCServer(
@@ -683,9 +681,7 @@ func startRosettaServer(
 		return err
 	}
 
-	g.Go(func() error {
-		return rosettaSrv.Start()
-	})
+	g.Go(rosettaSrv.Start)
 	return nil
 }
 

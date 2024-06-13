@@ -87,7 +87,7 @@ func (suite *EvmKeeperTestSuite) TestGetHashFn() {
 			"case 2.2: height lower than current one, invalid hist info header",
 			1,
 			func() sdk.Context {
-				unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, &stakingtypes.HistoricalInfo{})
+				suite.Require().NoError(unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, &stakingtypes.HistoricalInfo{}))
 				return unitNetwork.GetContext().WithBlockHeight(10)
 			},
 			common.Hash{},
@@ -99,7 +99,7 @@ func (suite *EvmKeeperTestSuite) TestGetHashFn() {
 				histInfo := &stakingtypes.HistoricalInfo{
 					Header: header,
 				}
-				unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, histInfo)
+				suite.Require().NoError(unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, histInfo))
 				return unitNetwork.GetContext().WithBlockHeight(10)
 			},
 			common.BytesToHash(hash),
@@ -655,12 +655,8 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			func() types.Params {
-				return types.DefaultParams()
-			},
-			func() feemarkettypes.Params {
-				return feemarkettypes.DefaultParams()
-			},
+			types.DefaultParams,
+			feemarkettypes.DefaultParams,
 			false,
 			params.TxGas,
 		},
@@ -682,9 +678,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				defaultParams.EnableCall = false
 				return defaultParams
 			},
-			func() feemarkettypes.Params {
-				return feemarkettypes.DefaultParams()
-			},
+			feemarkettypes.DefaultParams,
 			true,
 			0,
 		},
@@ -704,9 +698,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				defaultParams.EnableCreate = false
 				return defaultParams
 			},
-			func() feemarkettypes.Params {
-				return feemarkettypes.DefaultParams()
-			},
+			feemarkettypes.DefaultParams,
 			true,
 			0,
 		},
@@ -722,9 +714,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			func() types.Params {
-				return types.DefaultParams()
-			},
+			types.DefaultParams,
 			func() feemarkettypes.Params {
 				paramsRes, err := grpcHandler.GetFeeMarketParams()
 				suite.Require().NoError(err)

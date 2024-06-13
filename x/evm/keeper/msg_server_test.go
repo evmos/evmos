@@ -7,16 +7,13 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	gethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -138,21 +135,4 @@ func (suite *EvmKeeperTestSuite) TestUpdateParams() {
 		err := unitNetwork.NextBlock()
 		suite.Require().NoError(err)
 	}
-}
-
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer gethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
-	contractCreateTx := &gethtypes.AccessListTx{
-		GasPrice: gasPrice,
-		Gas:      gethparams.TxGasContractCreation,
-		To:       nil,
-		Data:     []byte("contract_data"),
-		Nonce:    nonce,
-	}
-	ethTx := gethtypes.NewTx(contractCreateTx)
-	ethMsg := &types.MsgEthereumTx{}
-	err := ethMsg.FromEthereumTx(ethTx)
-	suite.Require().NoError(err)
-	ethMsg.From = suite.keyring.GetAddr(0).Hex()
-	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-	return ethMsg, ethMsg.Sign(signer, krSigner)
 }

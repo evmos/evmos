@@ -275,9 +275,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 				amt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, amt)}
 				// set outstanding rewards
-				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission
-				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission}))
 
 				// fund distr mod to pay for rewards + commission
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt.Mul(math.LegacyNewDec(2)).RoundInt()))
@@ -411,7 +411,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 					uint32(1),
 				}
 			},
-			func(data []byte) {
+			func([]byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewardsAmt))
 			},

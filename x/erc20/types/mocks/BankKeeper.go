@@ -905,3 +905,12 @@ func (mr *MockBankKeeperMockRecorder) WithMintCoinsRestriction(arg0 interface{})
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithMintCoinsRestriction", reflect.TypeOf((*BankKeeper)(nil).WithMintCoinsRestriction), arg0)
 }
+
+// DenomOwnersByQuery mocks base method.
+func (m *BankKeeper) DenomOwnersByQuery(arg0 context.Context, arg1 *types0.QueryDenomOwnersByQueryRequest) (*types0.QueryDenomOwnersByQueryResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DenomOwnersByQuery", arg0, arg1)
+	ret0, _ := ret[0].(*types0.QueryDenomOwnersByQueryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}

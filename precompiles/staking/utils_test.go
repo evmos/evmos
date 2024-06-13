@@ -11,7 +11,6 @@ import (
 	cmnfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -127,7 +126,7 @@ func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.Authoriz
 func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, granter, grantee sdk.AccAddress, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
 	// Get all available validators and filter out jailed validators
 	validators := make([]sdk.ValAddress, 0)
-	s.network.App.StakingKeeper.IterateValidators(
+	err := s.network.App.StakingKeeper.IterateValidators(
 		ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			if validator.IsJailed() {
 				return
@@ -136,6 +135,9 @@ func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, granter, gran
 			return
 		},
 	)
+	if err != nil {
+		return err
+	}
 
 	stakingAuthz, err := stakingtypes.NewStakeAuthorization(validators, nil, authzType, coin)
 	if err != nil {
@@ -408,7 +410,7 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 // setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
 // using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
-func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc keyring.Key) *vestingtypes.ClawbackVestingAccount {
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Key) *vestingtypes.ClawbackVestingAccount {
 	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
 	ctx := s.network.GetContext()
 

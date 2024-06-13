@@ -476,7 +476,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 
-			// get the fee paid and calulate the expFinalBalance
+			// get the fee paid and calculate the expFinalBalance
 			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed))
 			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom).TruncateInt()
 			// expected balance is initial + rewards - fee
@@ -566,7 +566,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(rewards[0].Amount).To(Equal(expRewardAmt.BigInt()))
 		})
 
-		It("should get validator commission - validatorCommission query", func() { //nolint:dupl
+		It("should get validator commission - validatorCommission query", func() {
 			opAddr := s.network.GetValidators()[0].OperatorAddress
 			accruedCommission, err := testutils.WaitToAccrueCommission(
 				s.network,
@@ -1092,7 +1092,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			accruedRewardsAmt math.Int
 		)
 
-		BeforeEach(func() {
+		BeforeEach(func() { //nolint:dupl
 			// send funds to the contract
 			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
@@ -1343,7 +1343,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			accruedRewardsAmt math.Int
 		)
 
-		BeforeEach(func() {
+		BeforeEach(func() { //nolint:dupl
 			// send funds to the contract
 			err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil())
@@ -1642,7 +1642,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 		})
 
-		Context("get validator commission", func() { //nolint:dupl
+		Context("get validator commission", func() {
 			BeforeEach(func() {
 				callArgs.MethodName = "getValidatorCommission"
 				callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}

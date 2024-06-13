@@ -6,13 +6,9 @@ import (
 	"testing"
 	"time"
 
-	//nolint:revive // dot imports are fine for Ginkgo
 	"github.com/ethereum/go-ethereum/common"
-	. "github.com/onsi/ginkgo/v2"
-	"github.com/stretchr/testify/suite"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,6 +35,12 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 	"github.com/evmos/evmos/v18/x/vesting/types"
+
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 )
 
 type KeeperTestSuite struct {
@@ -801,7 +803,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	Context("after first lockup and additional vest", func() {
 		BeforeEach(func() {
 			vestDuration := time.Duration(lockupLength + vestingLength)
-			s.network.NextBlockAfter(vestDuration * time.Second)
+			err := s.network.NextBlockAfter(vestDuration * time.Second)
+			Expect(err).To(BeNil())
 
 			vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
 			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(math.NewInt(lockup+1))))
@@ -862,7 +865,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// Surpass half lockup duration
 			passedLockups := numLockupPeriods / 2
 			twoLockupsDuration := time.Duration(lockupLength * passedLockups)
-			s.network.NextBlockAfter(twoLockupsDuration * time.Second)
+			err := s.network.NextBlockAfter(twoLockupsDuration * time.Second)
+			Expect(err).To(BeNil())
 
 			// Check if some, but not all tokens are vested
 			unvested = clawbackAccount.GetVestingCoins(s.network.GetContext().BlockTime())
@@ -987,7 +991,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		BeforeEach(func() {
 			// Surpass vest duration
 			vestDuration := time.Duration(vestingLength * periodsTotal)
-			s.network.NextBlockAfter(vestDuration * time.Second)
+			err := s.network.NextBlockAfter(vestDuration * time.Second)
+			Expect(err).To(BeNil())
 
 			// Check that all tokens are vested and unlocked
 			unvested = clawbackAccount.GetVestingCoins(s.network.GetContext().BlockTime())
@@ -1163,7 +1168,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	It("should claw back any unvested amount after cliff before unlocking", func() {
 		// Surpass cliff but not lockup duration
 		cliffDuration := time.Duration(cliffLength)
-		s.network.NextBlockAfter(cliffDuration * time.Second)
+		err := s.network.NextBlockAfter(cliffDuration * time.Second)
+		Expect(err).To(BeNil())
 		blockTime := s.network.GetContext().BlockTime()
 
 		// Check that all tokens are locked and some, but not all tokens are vested
@@ -1226,7 +1232,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// A strict `if t < clawbackTime` comparison is used in ComputeClawback
 		// so, we increment the duration with 1 for the free token calculation to match
 		lockupDuration := time.Duration(lockupLength + 1)
-		s.network.NextBlockAfter(lockupDuration * time.Second)
+		err := s.network.NextBlockAfter(lockupDuration * time.Second)
+		Expect(err).To(BeNil())
 
 		// Check if some, but not all tokens are vested and unlocked
 		vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
@@ -1281,8 +1288,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	It("should not claw back any amount after vesting periods end", func() {
 		// Surpass vesting periods
 		vestingDuration := time.Duration(periodsTotal*vestingLength + 1)
-		s.network.NextBlockAfter(vestingDuration * time.Second)
-
+		err := s.network.NextBlockAfter(vestingDuration * time.Second)
+		Expect(err).To(BeNil())
 		// Check if some, but not all tokens are vested and unlocked
 		vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
 		unlocked = clawbackAccount.GetUnlockedCoins(s.network.GetContext().BlockTime())
@@ -1610,9 +1617,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// Perform governance clawback before cliff
 			// via a gov proposal
 			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
-			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
+			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 
 			// All initial vesting amount goes to community pool instead of dest
@@ -1686,16 +1693,16 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// Perform governance clawback
 			// via a gov proposal
 			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
-			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propId, govv1.OptionYes)
+			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propID, govv1.OptionYes)
 			Expect(err).To(BeNil())
 
 			feeCoins, err := testutils.GetFeesFromEvents(voteRes.Events)
 			Expect(err).To(BeNil())
 			feesAmt := feeCoins[0].Amount.TruncateInt()
 
-			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
+			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 
 			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
@@ -1733,7 +1740,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// A strict `if t < clawbackTime` comparison is used in ComputeClawback
 			// so, we increment the duration with 1 for the free token calculation to match
 			lockupDuration := time.Duration(lockupLength + 1)
-			s.network.NextBlockAfter(lockupDuration * time.Second)
+			err := s.network.NextBlockAfter(lockupDuration * time.Second)
+			Expect(err).To(BeNil())
 
 			// Check if some, but not all tokens are vested and unlocked
 			vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
@@ -1753,7 +1761,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			ok, vestedCoin := vested.Find(utils.BaseDenom)
 			Expect(ok).To(BeTrue())
 			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees.MulRaw(2))))
-			err := s.factory.Delegate(
+			err = s.factory.Delegate(
 				vestingAcc.Priv,
 				s.network.GetValidators()[0].OperatorAddress,
 				delCoin,
@@ -1799,8 +1807,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		It("should not claw back any amount after vesting periods end", func() {
 			// Surpass vesting periods
 			vestingDuration := time.Duration(periodsTotal*vestingLength + 1)
-			s.network.NextBlockAfter(vestingDuration * time.Second)
-
+			err := s.network.NextBlockAfter(vestingDuration * time.Second)
+			Expect(err).To(BeNil())
 			// Check if some, but not all tokens are vested and unlocked
 			vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
 			unlocked = clawbackAccount.GetUnlockedCoins(s.network.GetContext().BlockTime())
@@ -1847,12 +1855,12 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform gov clawback
 			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
 
 			// vote with vesting account that made a delegation previously
 			// and we need the vote to make the prop pass
-			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propId, govv1.OptionYes)
+			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propID, govv1.OptionYes)
 			Expect(err).To(BeNil())
 
 			feeCoins, err := testutils.GetFeesFromEvents(voteRes.Events)
@@ -1860,7 +1868,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			feesAmt := feeCoins[0].Amount.TruncateInt()
 
 			Expect(err).To(BeNil())
-			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
+			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 
 			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
@@ -1911,9 +1919,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform gov clawback before cliff - funds should go to new funder (no dest address defined)
 			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propId, err := testutils.SubmitLegacyProposal(s.factory, s.network, newFunder.Priv, govClawbackProposal)
+			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, newFunder.Priv, govClawbackProposal)
 			Expect(err).To(BeNil())
-			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propId)
+			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 			// All initial vesting amount goes to funder
 			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)

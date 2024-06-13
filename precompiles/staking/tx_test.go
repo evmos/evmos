@@ -643,7 +643,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 	}{
 		{
 			"fail - empty input args",
-			func(_, _ testkeyring.Key, operatorAddress string) []interface{} {
+			func(_, _ testkeyring.Key, _ string) []interface{} {
 				return []interface{}{}
 			},
 			200000,
@@ -873,7 +873,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 	}{
 		{
 			"fail - empty input args",
-			func(delegator, grantee testkeyring.Key, operatorAddress string) []interface{} {
+			func(testkeyring.Key, testkeyring.Key, string) []interface{} {
 				return []interface{}{}
 			},
 			func([]byte) {},
@@ -885,7 +885,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		// TODO: check case if authorization does not exist
 		{
 			name: "fail - different origin than delegator",
-			malleate: func(delegator, grantee testkeyring.Key, operatorAddress string) []interface{} {
+			malleate: func(_, _ testkeyring.Key, operatorAddress string) []interface{} {
 				differentAddr := evmosutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
@@ -899,7 +899,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(delegator, grantee testkeyring.Key, operatorAddress string) []interface{} {
+			func(_, _ testkeyring.Key, operatorAddress string) []interface{} {
 				return []interface{}{
 					"",
 					operatorAddress,
@@ -914,7 +914,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		},
 		{
 			"fail - invalid amount",
-			func(delegator, grantee testkeyring.Key, operatorAddress string) []interface{} {
+			func(delegator, _ testkeyring.Key, operatorAddress string) []interface{} {
 				return []interface{}{
 					delegator.Addr,
 					operatorAddress,
@@ -1008,7 +1008,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 	}{
 		{
 			"fail - empty input args",
-			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
+			func(_, _ testkeyring.Key, _, _ string) []interface{} {
 				return []interface{}{}
 			},
 			func([]byte) {},
@@ -1020,7 +1020,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		// TODO: check case if authorization does not exist
 		{
 			name: "fail - different origin than delegator",
-			malleate: func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
+			malleate: func(_, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				differentAddr := evmosutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
@@ -1035,7 +1035,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
+			func(_, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{
 					"",
 					srcOperatorAddr,
@@ -1051,7 +1051,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		},
 		{
 			"fail - invalid amount",
-			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
+			func(delegator, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{
 					delegator.Addr,
 					srcOperatorAddr,
@@ -1067,7 +1067,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		},
 		{
 			"fail - invalid shares amount",
-			func(delegator, grantee testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
+			func(delegator, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
 				return []interface{}{
 					delegator.Addr,
 					srcOperatorAddr,
@@ -1166,7 +1166,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(delegator, _ testkeyring.Key, operatorAddress string) []interface{} {
+			func(_, _ testkeyring.Key, _ string) []interface{} {
 				return []interface{}{}
 			},
 			func([]byte) {},

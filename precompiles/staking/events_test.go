@@ -465,7 +465,7 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
 			ctx = s.network.GetContext()
@@ -538,7 +538,7 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
 			ctx = s.network.GetContext()

@@ -44,7 +44,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
 		s.Require().NoError(err)
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		s.Require().NoError(err)
@@ -106,7 +106,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	)
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
+	_, err = app.InitChain(
 		&abci.RequestInitChain{
 			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
@@ -114,13 +114,17 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	s.Require().NoError(err)
 
 	// create Context
 	s.ctx = app.BaseApp.NewContextLegacy(false, header)
 
 	// commit genesis changes
-	app.Commit()
-	app.BeginBlocker(s.ctx)
+	_, err = app.Commit()
+	s.Require().NoError(err)
+
+	_, err = app.BeginBlocker(s.ctx)
+	s.Require().NoError(err)
 
 	s.app = app
 }

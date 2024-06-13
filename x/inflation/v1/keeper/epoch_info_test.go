@@ -55,7 +55,7 @@ func TestSetGetEpochIdentifier(t *testing.T) {
 	}
 }
 
-func TestSetGetEpochsPerPeriod(t *testing.T) {
+func TestSetGetEpochsPerPeriod(t *testing.T) { //nolint:dupl
 	var (
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
@@ -98,7 +98,7 @@ func TestSetGetEpochsPerPeriod(t *testing.T) {
 	}
 }
 
-func TestSetGetSkippedEpochs(t *testing.T) {
+func TestSetGetSkippedEpochs(t *testing.T) { //nolint:dupl
 	var (
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork

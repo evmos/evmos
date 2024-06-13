@@ -185,9 +185,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 				s.Require().NoError(err)
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecFromInt(amt))}
 				// set outstanding rewards
-				s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission
-				s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission}))
 				// set funds to distr mod to pay for commission
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt))
 				err = s.mintCoinsForDistrMod(ctx, coins)

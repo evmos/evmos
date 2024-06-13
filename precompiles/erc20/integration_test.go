@@ -224,7 +224,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				res, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				is.network.NextBlock()
+				err = is.network.NextBlock()
 				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
@@ -264,7 +264,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				is.network.NextBlock()
+				err = is.network.NextBlock()
 				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
@@ -2274,7 +2274,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					is.ExpectSendAuthzForContract(erc20CallerCall, contractsData, grantee.Addr, erc20CallerContractAddr, authzCoins)
 				})
 
-				DescribeTable("increasing the allowance should increase the spend limit", func(callType CallType) {
+				DescribeTable("increasing the allowance should increase the spend limit", func(callType CallType) { //nolint:dupl
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
 					increaseCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
@@ -2315,7 +2315,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 caller contract", erc20CallerCall),
 				)
 
-				DescribeTable("decreasing the allowance should decrease the spend limit", func(callType CallType) {
+				DescribeTable("decreasing the allowance should decrease the spend limit", func(callType CallType) { //nolint:dupl
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
 					decreaseCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 50)}
