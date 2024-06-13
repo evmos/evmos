@@ -98,11 +98,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should return error if the origin is different than the delegator", func() {
 			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(differentAddr, s.address.String())
 
-			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
+			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.address.String(), differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, withdrawAddrSetCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDelegatorDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
 
 		It("should set withdraw address", func() {
@@ -139,11 +139,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should return error if the origin is different than the delegator", func() {
 			withdrawRewardsArgs := defaultWithdrawRewardsArgs.WithArgs(differentAddr, s.validators[0].OperatorAddress)
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.address.String(), differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDelegatorDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
 
 		It("should withdraw delegation rewards", func() {
@@ -271,11 +271,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(s.validators[0].OperatorAddress)
 			validatorHexAddr := common.BytesToAddress(s.validators[0].GetOperator())
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), validatorHexAddr.String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.address.String(), validatorHexAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, withdrawalCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, validatorHexAddr)), "expected different origin error")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDelegatorDifferentOrigin, s.address, validatorHexAddr)), "expected different origin error")
 		})
 
 		It("should withdraw validator commission", func() {
@@ -323,7 +323,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// initial balance should be the initial amount minus the staked amount used to create the validator, minus fees paid for deploying contract
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(math.NewInt(4997609489499999900)))
+			Expect(initialBalance.Amount).To(Equal(math.NewInt(4997457315624999900)))
 
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
 				WithArgs(valAddr.String()).
@@ -371,11 +371,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should return err if the origin is different than the delegator", func() {
 			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(differentAddr, uint32(1))
 
-			claimRewardsCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
+			claimRewardsCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.address.String(), differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, claimRewardsArgs, claimRewardsCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDelegatorDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
 
 		It("should claim all rewards from all validators", func() {

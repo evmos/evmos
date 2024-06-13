@@ -6,6 +6,7 @@ package distribution
 import (
 	"fmt"
 
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -31,6 +32,8 @@ const (
 	WithdrawValidatorCommissionMethod = "withdrawValidatorCommission"
 	// ClaimRewardsMethod defines the ABI method name for the custom ClaimRewards transaction
 	ClaimRewardsMethod = "claimRewards"
+	// FundCommunityPoolMethod defines the ABI method name for the fundCommunityPool transaction
+	FundCommunityPoolMethod = "fundCommunityPool"
 )
 
 // ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
@@ -51,7 +54,7 @@ func (p Precompile) ClaimRewards(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorAddr
 	if !isContractDelegator && origin != delegatorAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
 	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
@@ -111,7 +114,7 @@ func (p Precompile) SetWithdrawAddress(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorHexAddr
 	if !isContractDelegator && origin != delegatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -144,7 +147,7 @@ func (p Precompile) WithdrawDelegatorRewards(
 	// Otherwise check if the origin matches the delegator address
 	isContractDelegator := contract.CallerAddress == delegatorHexAddr
 	if !isContractDelegator && origin != delegatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -191,7 +194,7 @@ func (p Precompile) WithdrawValidatorCommission(
 	// Otherwise check if the origin matches the validator address
 	isContractValidator := contract.CallerAddress == validatorHexAddr
 	if !isContractValidator && origin != validatorHexAddr {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), validatorHexAddr.String())
+		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), validatorHexAddr.String())
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
@@ -217,6 +220,46 @@ func (p Precompile) WithdrawValidatorCommission(
 	}
 
 	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
+}
+
+// FundCommunityPool directly fund the community pool
+func (p Precompile) FundCommunityPool(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, depositorHexAddr, err := NewMsgFundCommunityPool(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the contract is the depositor, we don't need an origin check
+	// Otherwise check if the origin matches the depositor address
+	isContractDepositor := contract.CallerAddress == depositorHexAddr
+	if !isContractDepositor && origin != depositorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrSpenderDifferentOrigin, origin.String(), depositorHexAddr.String())
+	}
+
+	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
+	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+	if isContractDepositor {
+		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Amount.AmountOf(utils.BaseDenom).BigInt())
+	}
+
+	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
 }
 
 // isContractWithdrawer is a helper function to check if the withdrawer address of a

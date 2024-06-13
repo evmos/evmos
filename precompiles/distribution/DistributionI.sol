@@ -40,10 +40,7 @@ interface DistributionI {
     /// @dev ClaimRewards defines an Event emitted when rewards are claimed
     /// @param delegatorAddress the address of the delegator
     /// @param amount the amount being claimed
-    event ClaimRewards(
-        address indexed delegatorAddress,
-        uint256 amount
-    );
+    event ClaimRewards(address indexed delegatorAddress, uint256 amount);
 
     /// @dev SetWithdrawerAddress defines an Event emitted when a new withdrawer address is being set
     /// @param caller the caller of the transaction
@@ -70,6 +67,12 @@ interface DistributionI {
         string indexed validatorAddress,
         uint256 commission
     );
+
+    /// @dev FundCommunityPool defines an Event emitted when an account
+    /// fund the community pool
+    /// @param depositor the address funding the community pool
+    /// @param amount the amount being sent to the community pool
+    event FundCommunityPool(address indexed depositor, uint256 amount);
 
     /// TRANSACTIONS
 
@@ -108,6 +111,16 @@ interface DistributionI {
         string memory validatorAddress
     ) external returns (Coin[] calldata amount);
 
+    /// @dev fundCommunityPool defines a method to allow an account to directly
+    /// fund the community pool.
+    /// @param depositor The address of the depositor
+    /// @param amount The amount of coin sent to the community pool
+    /// @return success Whether the transaction was successful or not
+    function fundCommunityPool(
+        address depositor,
+        uint256 amount
+    ) external returns (bool success);
+
     /// QUERIES
     /// @dev Queries validator commission and self-delegation rewards for validator.
     /// @param validatorAddress The address of the validator
@@ -115,11 +128,9 @@ interface DistributionI {
     function validatorDistributionInfo(
         string memory validatorAddress
     )
-    external
-    view
-    returns (
-        ValidatorDistributionInfo calldata distributionInfo
-    );
+        external
+        view
+        returns (ValidatorDistributionInfo calldata distributionInfo);
 
     /// @dev Queries the outstanding rewards of a validator address.
     /// @param validatorAddress The address of the validator
@@ -149,12 +160,12 @@ interface DistributionI {
         uint64 endingHeight,
         PageRequest calldata pageRequest
     )
-    external
-    view
-    returns (
-        ValidatorSlashEvent[] calldata slashes,
-        PageResponse calldata pageResponse
-    );
+        external
+        view
+        returns (
+            ValidatorSlashEvent[] calldata slashes,
+            PageResponse calldata pageResponse
+        );
 
     /// @dev Queries the total rewards accrued by a delegation from a specific address to a given validator.
     /// @param delegatorAddress The address of the delegator
@@ -173,12 +184,12 @@ interface DistributionI {
     function delegationTotalRewards(
         address delegatorAddress
     )
-    external
-    view
-    returns (
-        DelegationDelegatorReward[] calldata rewards,
-        DecCoin[] calldata total
-    );
+        external
+        view
+        returns (
+            DelegationDelegatorReward[] calldata rewards,
+            DecCoin[] calldata total
+        );
 
     /// @dev Queries all validators, that a given address has delegated to.
     /// @param delegatorAddress The address of the delegator
@@ -193,5 +204,4 @@ interface DistributionI {
     function delegatorWithdrawAddress(
         address delegatorAddress
     ) external view returns (string memory withdrawAddress);
-
 }

@@ -37,6 +37,11 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 			true,
 		},
 		{
+			distribution.FundCommunityPoolMethod,
+			s.precompile.Methods[distribution.FundCommunityPoolMethod].Name,
+			true,
+		},
+		{
 			distribution.ValidatorDistributionInfoMethod,
 			s.precompile.Methods[distribution.ValidatorDistributionInfoMethod].Name,
 			false,
@@ -142,6 +147,21 @@ func (s *PrecompileTestSuite) TestRun() {
 					distribution.ClaimRewardsMethod,
 					s.address,
 					uint32(2),
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.address, input
+			},
+			readOnly: false,
+			expPass:  true,
+		},
+		{
+			name: "pass - fund community pool transaction",
+			malleate: func() (common.Address, []byte) {
+				input, err := s.precompile.Pack(
+					distribution.FundCommunityPoolMethod,
+					s.address,
+					big.NewInt(1e18),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
