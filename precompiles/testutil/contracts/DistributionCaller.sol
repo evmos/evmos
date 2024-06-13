@@ -5,18 +5,16 @@ import "../../distribution/DistributionI.sol" as distribution;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {
-    /// counter is used to test the state persistence bug, when EVM and Cosmos state were both
-    /// changed in the same function.
-    uint256 public counter;
+    int64 public counter;
 
     function testSetWithdrawAddressFromContract(
         string memory _withdrawAddr
     ) public returns (bool) {
         return
             distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
-                address(this),
-                _withdrawAddr
-            );
+            address(this),
+            _withdrawAddr
+        );
     }
 
     function testWithdrawDelegatorRewardsFromContract(
@@ -24,9 +22,9 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                address(this),
-                _valAddr
-            );
+            address(this),
+            _valAddr
+        );
     }
 
     function testSetWithdrawAddress(
@@ -35,9 +33,9 @@ contract DistributionCaller {
     ) public returns (bool) {
         return
             distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
-                _delAddr,
-                _withdrawAddr
-            );
+            _delAddr,
+            _withdrawAddr
+        );
     }
 
     function testWithdrawDelegatorRewards(
@@ -46,9 +44,9 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function testWithdrawValidatorCommission(
@@ -56,20 +54,37 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawValidatorCommission(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function testClaimRewards(
         address _delAddr,
         uint32 _maxRetrieve
     ) public returns (bool success) {
-        counter++;
-        success = distribution.DISTRIBUTION_CONTRACT.claimRewards(
+        return
+            distribution.DISTRIBUTION_CONTRACT.claimRewards(
             _delAddr,
             _maxRetrieve
         );
-        counter--;
+    }
+
+    /// @dev testFundCommunityPool defines a method to allow an account to directly
+    /// fund the community pool.
+    /// @param depositor The address of the depositor
+    /// @param amount The amount of coin fund community pool
+    /// @return success Whether the transaction was successful or not
+    function testFundCommunityPool(
+        address depositor,
+        uint256 amount
+    ) public returns (bool success) {
+        counter += 1;
+        success = distribution.DISTRIBUTION_CONTRACT.fundCommunityPool(
+            depositor,
+            amount
+        );
+        counter -= 1;
+        return success;
     }
 
     function getValidatorDistributionInfo(
@@ -77,8 +92,8 @@ contract DistributionCaller {
     ) public view returns (distribution.ValidatorDistributionInfo memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorDistributionInfo(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function getValidatorOutstandingRewards(
@@ -86,8 +101,8 @@ contract DistributionCaller {
     ) public view returns (types.DecCoin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorOutstandingRewards(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function getValidatorCommission(
@@ -102,20 +117,20 @@ contract DistributionCaller {
         uint64 _endingHeight,
         types.PageRequest calldata pageRequest
     )
-        public
-        view
-        returns (
-            distribution.ValidatorSlashEvent[] memory,
-            distribution.PageResponse memory
-        )
+    public
+    view
+    returns (
+        distribution.ValidatorSlashEvent[] memory,
+        distribution.PageResponse memory
+    )
     {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorSlashes(
-                _valAddr,
-                _startingHeight,
-                _endingHeight,
-                pageRequest
-            );
+            _valAddr,
+            _startingHeight,
+            _endingHeight,
+            pageRequest
+        );
     }
 
     function getDelegationRewards(
@@ -124,20 +139,20 @@ contract DistributionCaller {
     ) public view returns (types.DecCoin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.delegationRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function getDelegationTotalRewards(
         address _delAddr
     )
-        public
-        view
-        returns (
-            distribution.DelegationDelegatorReward[] memory rewards,
-            types.DecCoin[] memory total
-        )
+    public
+    view
+    returns (
+        distribution.DelegationDelegatorReward[] memory rewards,
+        types.DecCoin[] memory total
+    )
     {
         return
             distribution.DISTRIBUTION_CONTRACT.delegationTotalRewards(_delAddr);
@@ -154,8 +169,8 @@ contract DistributionCaller {
     ) public view returns (string memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.delegatorWithdrawAddress(
-                _delAddr
-            );
+            _delAddr
+        );
     }
 
     // testRevertState allows sender to change the withdraw address
@@ -173,9 +188,9 @@ contract DistributionCaller {
 
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function delegateCallSetWithdrawAddress(
@@ -185,12 +200,12 @@ contract DistributionCaller {
         (bool success, ) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .delegatecall(
-                abi.encodeWithSignature(
-                    "setWithdrawAddress(address,string)",
-                    _delAddr,
-                    _withdrawAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "setWithdrawAddress(address,string)",
+                _delAddr,
+                _withdrawAddr
+            )
+        );
         require(success, "failed delegateCall to precompile");
     }
 
@@ -201,12 +216,12 @@ contract DistributionCaller {
         (bool success, ) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .staticcall(
-                abi.encodeWithSignature(
-                    "setWithdrawAddress(address,string)",
-                    _delAddr,
-                    _withdrawAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "setWithdrawAddress(address,string)",
+                _delAddr,
+                _withdrawAddr
+            )
+        );
         require(success, "failed staticCall to precompile");
     }
 
@@ -216,12 +231,14 @@ contract DistributionCaller {
         (bool success, bytes memory data) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .staticcall(
-                abi.encodeWithSignature(
-                    "delegatorWithdrawAddress(address)",
-                    _delAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "delegatorWithdrawAddress(address)",
+                _delAddr
+            )
+        );
         require(success, "failed staticCall to precompile");
         return data;
     }
+
+    function deposit() public payable {}
 }

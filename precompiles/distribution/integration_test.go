@@ -323,7 +323,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// initial balance should be the initial amount minus the staked amount used to create the validator, minus fees paid for deploying contract
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(math.NewInt(4997609489499999900)))
+			Expect(initialBalance.Amount).To(Equal(math.NewInt(4997457315624999900)))
 
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
 				WithArgs(valAddr.String()).
