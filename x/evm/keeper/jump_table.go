@@ -23,11 +23,11 @@ func (j *JumpTableModifier) GetVMJumpTable() *vm.JumpTable {
 
 func (j *JumpTableModifier) UpdateOpcodesGas(updates []types.CustomOpCode) {
 	for _, update := range updates {
-		j.UpdateOpcodeConstantGas(update.OpCode, update.ConstantGas)
+		j.updateOpcodeConstantGas(update.OpCode, update.ConstantGas)
 	}
 }
 
-func (j *JumpTableModifier) UpdateOpcodeConstantGas(opcode types.OpCode, gas uint64) {
+func (j *JumpTableModifier) updateOpcodeConstantGas(opcode types.OpCode, gas uint64) {
 	// We know this can't fail because opcodes are constraint by enum
 	// and params validation
 	op := vm.StringToOp(opcode.String())
