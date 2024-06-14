@@ -35,7 +35,7 @@ type HandlerOptions struct {
 	SignModeHandler        authsigning.SignModeHandler
 	SigGasConsumer         func(meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	MaxTxGasWanted         uint64
-	TxFeeChecker           anteutils.TxFeeChecker
+	TxFeeChecker           ante.TxFeeChecker
 }
 
 // Validate checks if the keepers are defined
