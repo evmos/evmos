@@ -93,7 +93,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, _ sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -118,7 +118,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, _ sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -143,7 +143,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, common.BytesToAddress(sender), common.BytesToAddress(sender), path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, common.BytesToAddress(sender), common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				// fund another user's account
 				err = evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, differentAddress.Bytes(), amt)
@@ -177,11 +177,40 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			"does not exist",
 		},
 		{
+			"fail - transfer with memo string, but authorization does not allows it",
+			func(sender, receiver sdk.AccAddress) []interface{} {
+				path := NewTransferPath(s.chainA, s.chainB)
+				s.coordinator.Setup(path)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil, nil)
+				s.Require().NoError(err)
+				return []interface{}{
+					path.EndpointA.ChannelConfig.PortID,
+					path.EndpointA.ChannelID,
+					utils.BaseDenom,
+					big.NewInt(1e18),
+					common.BytesToAddress(sender.Bytes()),
+					receiver.String(),
+					s.chainB.GetTimeoutHeight(),
+					uint64(0),
+					"memo",
+				}
+			},
+			func(sender, _ sdk.AccAddress, _ []byte, _ []interface{}) {
+				// Check allowance remains unchanged
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
+				transferAuthz := authz.(*transfertypes.TransferAuthorization)
+				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
+			},
+			200000,
+			true,
+			"memo must be empty because allowed packet data in allocation is empty",
+		},
+		{
 			"pass - transfer 1 Evmos from chainA to chainB and spend the entire allowance",
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -214,7 +243,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, maxUint256Coins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, maxUint256Coins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -248,7 +277,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			func(sender, receiver sdk.AccAddress) []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, mutliSpendLimit, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), path, mutliSpendLimit, nil, []string{"memo"})
 				s.Require().NoError(err)
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
@@ -283,16 +312,19 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.coordinator.Setup(path)
 				allocations := []transfertypes.Allocation{
 					{
-						SourcePort:    "port-01",
-						SourceChannel: "channel-03",
-						SpendLimit:    atomCoins,
-						AllowList:     nil,
+						SourcePort:        "port-01",
+						SourceChannel:     "channel-03",
+						SpendLimit:        atomCoins,
+						AllowList:         nil,
+						AllowedPacketData: []string{"*"}, // allow any memo string
+
 					},
 					{
-						SourcePort:    path.EndpointA.ChannelConfig.PortID,
-						SourceChannel: path.EndpointA.ChannelID,
-						SpendLimit:    defaultCoins,
-						AllowList:     nil,
+						SourcePort:        path.EndpointA.ChannelConfig.PortID,
+						SourceChannel:     path.EndpointA.ChannelID,
+						SpendLimit:        defaultCoins,
+						AllowList:         nil,
+						AllowedPacketData: []string{"*"}, // allow any memo string
 					},
 				}
 				err := s.NewTransferAuthorizationWithAllocations(s.ctx, s.app, callingContractAddr, common.BytesToAddress(sender), allocations)

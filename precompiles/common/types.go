@@ -26,10 +26,11 @@ var (
 // ICS20Allocation defines the spend limit for a particular port and channel.
 // We need this to be able to unpack to big.Int instead of math.Int.
 type ICS20Allocation struct {
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []Coin
-	AllowList     []string
+	SourcePort        string
+	SourceChannel     string
+	SpendLimit        []Coin
+	AllowList         []string
+	AllowedPacketData []string
 }
 
 // Coin defines a struct that stores all needed information about a coin
