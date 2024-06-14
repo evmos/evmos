@@ -6,12 +6,16 @@ package common
 const (
 	// ErrNotRunInEvm is raised when a function is not called inside the EVM.
 	ErrNotRunInEvm = "not run in EVM"
-	// ErrDifferentOrigin is raised when an approval is set but the origin address is not the same as the spender.
-	ErrDifferentOrigin = "tx origin address %s does not match the delegator address %s"
+	// ErrDelegatorDifferentOrigin is raised when an approval is set but the origin address is not the same as the spender.
+	ErrDelegatorDifferentOrigin = "tx origin address %s does not match the delegator address %s"
+	// ErrSpenderDifferentOrigin is raised when the origin address is not the same as the spender.
+	ErrSpenderDifferentOrigin = "tx origin address %s does not match the spender address %s"
 	// ErrInvalidABI is raised when the ABI cannot be parsed.
 	ErrInvalidABI = "invalid ABI: %w"
 	// ErrInvalidAmount is raised when the amount cannot be cast to a big.Int.
 	ErrInvalidAmount = "invalid amount: %v"
+	// ErrInvalidHexAddress is raised when the hex address is not valid.
+	ErrInvalidHexAddress = "invalid hex address address: %s"
 	// ErrInvalidDelegator is raised when the delegator address is not valid.
 	ErrInvalidDelegator = "invalid delegator address: %s"
 	// ErrInvalidValidator is raised when the validator address is not valid.
