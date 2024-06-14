@@ -21,9 +21,10 @@ func (j *JumpTableModifier) GetVMJumpTable() *vm.JumpTable {
 	return j.jt
 }
 
-func (j *JumpTableModifier) UpdateOpcodesGas(updates []types.CustomOpCode) {
+func (j *JumpTableModifier) UpdateCustomOpcodes(updates []types.CustomOpCode) {
 	for _, update := range updates {
 		j.updateOpcodeConstantGas(update.OpCode, update.ConstantGas)
+		// TODO we will have to have handle other opcode updates here
 	}
 }
 

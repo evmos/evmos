@@ -63,7 +63,7 @@ func (k Keeper) VMConfig(ctx sdk.Context, cfg *statedb.EVMConfig, tracer vm.EVML
 		cfg.ChainConfig.MergeNetsplitBlock != nil,
 	)
 	jt := NewJumptTableModifier(rules)
-	jt.UpdateOpcodesGas(cfg.Params.CustomOpCodes)
+	jt.UpdateCustomOpcodes(cfg.Params.CustomOpCodes)
 
 	return vm.Config{
 		Debug:     debug,
