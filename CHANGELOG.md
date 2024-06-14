@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
 - (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
+- (app) [#2556](https://github.com/evmos/evmos/pull/2556) Bump IBC-go to v7.5.2 and Cosmos-SDK to v0.47.11.
 - (evm) [#2373](https://github.com/evmos/evmos/pull/2373) Remove check on hardcoded ChainID identifier.
 - (precompiles) [#2572](https://github.com/evmos/evmos/pull/2572) Add `FundCommunityPool` precompile tx for distribution module.
 - (evm) [#2538](https://github.com/evmos/evmos/pull/2538) Add Permissions Policy for permissioned EVM.
