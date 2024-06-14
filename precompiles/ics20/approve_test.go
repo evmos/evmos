@@ -73,7 +73,7 @@ var defaultAllowanceCases = []allowanceTestCase{
 		func() []interface{} {
 			path := NewTransferPath(s.chainA, s.chainB)
 			s.coordinator.Setup(path)
-			err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, maxUint256Coins, nil)
+			err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, maxUint256Coins, nil, nil)
 			s.Require().NoError(err)
 			return []interface{}{
 				s.address,
@@ -94,7 +94,7 @@ var defaultAllowanceCases = []allowanceTestCase{
 		func() []interface{} {
 			path := NewTransferPath(s.chainA, s.chainB)
 			s.coordinator.Setup(path)
-			err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, maxUint256Coins, nil)
+			err := s.NewTransferAuthorization(s.ctx, s.app, s.address, s.address, path, maxUint256Coins, nil, nil)
 			s.Require().NoError(err)
 			return []interface{}{
 				s.address,
@@ -276,7 +276,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 				s.Require().NotNil(authz)
@@ -323,7 +323,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
 				overflowTestCoins := maxUint256Coins.Sub(sdk.NewInt64Coin(utils.BaseDenom, 1))
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, overflowTestCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, overflowTestCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, overflowTestCoins)
@@ -345,7 +345,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
@@ -371,7 +371,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, mutliSpendLimit)
@@ -465,7 +465,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().NotNil(transferAuthz)
@@ -489,7 +489,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().NotNil(transferAuthz)
@@ -520,7 +520,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			func() []interface{} {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
-				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil)
+				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, mutliSpendLimit, nil, nil)
 				s.Require().NoError(err)
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, mutliSpendLimit)

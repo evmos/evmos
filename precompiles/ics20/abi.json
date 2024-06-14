@@ -96,6 +96,11 @@
 						"internalType": "string[]",
 						"name": "allowList",
 						"type": "string[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "allowedPacketData",
+						"type": "string[]"
 					}
 				],
 				"indexed": false,
@@ -155,6 +160,11 @@
 						"internalType": "string[]",
 						"name": "allowList",
 						"type": "string[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "allowedPacketData",
+						"type": "string[]"
 					}
 				],
 				"internalType": "struct ICS20Allocation[]",
@@ -204,6 +214,11 @@
 					{
 						"internalType": "string[]",
 						"name": "allowList",
+						"type": "string[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "allowedPacketData",
 						"type": "string[]"
 					}
 				],

@@ -296,6 +296,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 					path,
 					defaultCoins,
 					[]string{s.chainB.SenderAccount.GetAddress().String()},
+					[]string{"memo"},
 				)
 				s.Require().NoError(err)
 
@@ -307,10 +308,11 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			func(bz []byte) {
 				expAllocs := []cmn.ICS20Allocation{
 					{
-						SourcePort:    path.EndpointA.ChannelConfig.PortID,
-						SourceChannel: path.EndpointA.ChannelID,
-						SpendLimit:    defaultCmnCoins,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						SourcePort:        path.EndpointA.ChannelConfig.PortID,
+						SourceChannel:     path.EndpointA.ChannelID,
+						SpendLimit:        defaultCmnCoins,
+						AllowList:         []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					},
 				}
 
@@ -330,10 +332,11 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				allocs := make([]types.Allocation, len(paths))
 				for i, p := range paths {
 					allocs[i] = types.Allocation{
-						SourcePort:    p.EndpointA.ChannelConfig.PortID,
-						SourceChannel: p.EndpointA.ChannelID,
-						SpendLimit:    mutliSpendLimit,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						SourcePort:        p.EndpointA.ChannelConfig.PortID,
+						SourceChannel:     p.EndpointA.ChannelID,
+						SpendLimit:        mutliSpendLimit,
+						AllowList:         []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					}
 				}
 
@@ -355,10 +358,11 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				expAllocs := make([]cmn.ICS20Allocation, len(paths))
 				for i, p := range paths {
 					expAllocs[i] = cmn.ICS20Allocation{
-						SourcePort:    p.EndpointA.ChannelConfig.PortID,
-						SourceChannel: p.EndpointA.ChannelID,
-						SpendLimit:    mutliCmnCoins,
-						AllowList:     []string{s.chainB.SenderAccount.GetAddress().String()},
+						SourcePort:        p.EndpointA.ChannelConfig.PortID,
+						SourceChannel:     p.EndpointA.ChannelID,
+						SpendLimit:        mutliCmnCoins,
+						AllowList:         []string{s.chainB.SenderAccount.GetAddress().String()},
+						AllowedPacketData: []string{"memo"},
 					}
 				}
 
