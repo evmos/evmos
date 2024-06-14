@@ -44,6 +44,7 @@ TEST_CONTRACTS = {
     "ICS20FromContract": "ICS20FromContract.sol",
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
+    "DistributionCaller": "evmos/testutil/contracts/DistributionCaller.sol",
     "StakingI": "evmos/staking/StakingI.sol",
     "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v18/utils"
+
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,6 +43,12 @@ type EventWithdrawValidatorRewards struct {
 type EventClaimRewards struct {
 	DelegatorAddress common.Address
 	Amount           *big.Int
+}
+
+// EventFundCommunityPool defines the event data for the FundCommunityPool transaction.
+type EventFundCommunityPool struct {
+	Depositor common.Address
+	Amount    *big.Int
 }
 
 // parseClaimRewardsArgs parses the arguments for the ClaimRewards method.
@@ -143,6 +151,34 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 	}
 
 	return msg, validatorHexAddr, nil
+}
+
+// NewMsgFundCommunityPool creates a new NewMsgFundCommunityPool message.
+func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundCommunityPool, common.Address, error) {
+	if len(args) != 2 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	depositorAddress, ok := args[0].(common.Address)
+	if !ok || depositorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
+	}
+
+	amount, ok := args[1].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[1])
+	}
+
+	msg := &distributiontypes.MsgFundCommunityPool{
+		Depositor: sdk.AccAddress(depositorAddress.Bytes()).String(),
+		Amount:    sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return msg, depositorAddress, nil
 }
 
 // NewValidatorDistributionInfoRequest creates a new QueryValidatorDistributionInfoRequest  instance and does sanity
