@@ -67,7 +67,6 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		s.setupAllocationsForTesting()
 
 		var err error
-		interchainSenderContract, err = contracts.LoadInterchainSenderContract()
 		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
 
 		// set the default call arguments
@@ -94,9 +93,10 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(0), "expected no authorizations before tests")
 			defaultSingleAlloc = []cmn.ICS20Allocation{
 				{
-					SourcePort:    ibctesting.TransferPort,
-					SourceChannel: s.transferPath.EndpointA.ChannelID,
-					SpendLimit:    defaultCmnCoins,
+					SourcePort:        ibctesting.TransferPort,
+					SourceChannel:     s.transferPath.EndpointA.ChannelID,
+					SpendLimit:        defaultCmnCoins,
+					AllowedPacketData: []string{"memo"},
 				},
 			}
 		})
@@ -1042,6 +1042,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(out[0].SourceChannel).To(Equal(defaultSingleAlloc[0].SourceChannel))
 				Expect(out[0].SpendLimit).To(Equal(defaultSingleAlloc[0].SpendLimit))
 				Expect(out[0].AllowList).To(HaveLen(0))
+				Expect(out[0].AllowedPacketData).To(HaveLen(1))
+				Expect(out[0].AllowedPacketData[0]).To(Equal("memo"))
 			})
 		})
 	})
@@ -1331,10 +1333,11 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					// create grant to allow spending the ibc coins
 					args := defaultApproveArgs.WithArgs([]cmn.ICS20Allocation{
 						{
-							SourcePort:    ibctesting.TransferPort,
-							SourceChannel: s.transferPath.EndpointA.ChannelID,
-							SpendLimit:    []cmn.Coin{{Denom: ibcDenom, Amount: amt.BigInt()}},
-							AllowList:     []string{},
+							SourcePort:        ibctesting.TransferPort,
+							SourceChannel:     s.transferPath.EndpointA.ChannelID,
+							SpendLimit:        []cmn.Coin{{Denom: ibcDenom, Amount: amt.BigInt()}},
+							AllowList:         []string{},
+							AllowedPacketData: []string{"memo"},
 						},
 					})
 					s.setTransferApprovalForContract(args)
@@ -1458,10 +1461,11 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					// create grant to allow spending the erc20 tokens
 					args := defaultApproveArgs.WithArgs([]cmn.ICS20Allocation{
 						{
-							SourcePort:    ibctesting.TransferPort,
-							SourceChannel: s.transferPath.EndpointA.ChannelID,
-							SpendLimit:    []cmn.Coin{{Denom: denom, Amount: sentAmount}},
-							AllowList:     []string{},
+							SourcePort:        ibctesting.TransferPort,
+							SourceChannel:     s.transferPath.EndpointA.ChannelID,
+							SpendLimit:        []cmn.Coin{{Denom: denom, Amount: sentAmount}},
+							AllowList:         []string{},
+							AllowedPacketData: []string{"memo"},
 						},
 					})
 					s.setTransferApprovalForContract(args)
@@ -1611,6 +1615,8 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			Expect(out[0].SourceChannel).To(Equal(defaultSingleAlloc[0].SourceChannel))
 			Expect(out[0].SpendLimit).To(Equal(defaultSingleAlloc[0].SpendLimit))
 			Expect(out[0].AllowList).To(HaveLen(0))
+			Expect(out[0].AllowedPacketData).To(HaveLen(1))
+			Expect(out[0].AllowedPacketData[0]).To(Equal("memo"))
 		})
 	})
 })

@@ -51,7 +51,7 @@ def test_ibc_transfer_from_contract(ibc):
 
     # Approve the contract to spend the src_denom
     approve_tx = pc.functions.approve(
-        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], []]]
+        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
     ).build_transaction(
         {
             "from": ADDRS["signer2"],
@@ -156,7 +156,7 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
     # Approve the contract to spend the src_denom
     approve_tx = pc.functions.approve(
-        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], []]]
+        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
     ).build_transaction(
         {
             "from": ADDRS["signer2"],
