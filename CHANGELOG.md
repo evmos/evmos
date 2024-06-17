@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- (ante) [#2619](https://github.com/evmos/evmos/pull/2619) Change anteutils.TxFeeChecker to authante.TxFeeChecker
+
 ## [v18.1.0] - 2024-05-31
 
 ### Improvements
