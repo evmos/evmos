@@ -141,7 +141,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 							s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[i].ContractOwner)
 						}
 					}
-
 				})
 			})
 			Describe("for multiple ERC20 tokens", func() {

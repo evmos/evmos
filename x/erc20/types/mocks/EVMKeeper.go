@@ -228,7 +228,8 @@ func (_m *EVMKeeper) IsAvailableStaticPrecompile(params *evmtypes.Params, addres
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMKeeper {
+},
+) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 
