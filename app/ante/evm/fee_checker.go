@@ -11,11 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-<<<<<<< HEAD
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-=======
-	"github.com/ethereum/go-ethereum/params"
->>>>>>> 39195bf2 (Change anteutils.TxFeeChecker to authante.TxFeeChecker (#2619))
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
