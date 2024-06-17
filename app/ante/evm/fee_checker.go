@@ -109,10 +109,10 @@ func FeeChecker(
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
 // unit of gas is fixed and set by each validator, and the tx priority is computed from the gas price.
-func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
-	feeCoins := feeTx.GetFee()
+func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coins, int64, error) {
+	feeCoins := tx.GetFee()
 	minGasPrices := ctx.MinGasPrices()
-	gas := int64(feeTx.GetGas()) //#nosec G701 -- checked for int overflow on ValidateBasic()
+	gas := int64(tx.GetGas()) //#nosec G701 -- checked for int overflow on ValidateBasic()
 
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
