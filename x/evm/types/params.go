@@ -15,11 +15,11 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	"github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
 var (
