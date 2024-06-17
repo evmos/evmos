@@ -65,7 +65,8 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 		{
 			"Failed to call Evm",
 			func() {
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
 			},
 			int64(0),
 			false,
@@ -73,7 +74,8 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 		{
 			"Incorrect res",
 			func() {
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
 			},
 			int64(0),
 			false,
@@ -83,7 +85,8 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 			func() {
 				balance := make([]uint8, 32)
 				balance[31] = uint8(10)
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: balance}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: balance}, nil).Once()
 			},
 			int64(10),
 			true,
@@ -112,204 +115,6 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestCallEVM() {
-	testCases := []struct {
-		name    string
-		method  string
-		expPass bool
-	}{
-		{
-			"unknown method",
-			"",
-			false,
-		},
-		{
-			"pass",
-			"balanceOf",
-			true,
-		},
-	}
-	for _, tc := range testCases {
-		suite.SetupTest() // reset
-
-		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-		contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-		suite.Require().NoError(err)
-		account := utiltx.GenerateAddress()
-
-		res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
-		if tc.expPass {
-			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
-			suite.Require().NoError(err)
-		} else {
-			suite.Require().Error(err)
-		}
-	}
-}
-
-func (suite *KeeperTestSuite) TestCallEVMWithData() {
-	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	testCases := []struct {
-		name     string
-		from     common.Address
-		malleate func() ([]byte, *common.Address)
-		expPass  bool
-	}{
-		{
-			"unknown method",
-			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				account := utiltx.GenerateAddress()
-				data, _ := erc20.Pack("", account)
-				return data, &contract
-			},
-			false,
-		},
-		{
-			"pass",
-			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				account := utiltx.GenerateAddress()
-				data, _ := erc20.Pack("balanceOf", account)
-				return data, &contract
-			},
-			true,
-		},
-		{
-			"fail empty data",
-			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				return []byte{}, &contract
-			},
-			false,
-		},
-
-		{
-			"fail empty sender",
-			common.Address{},
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				return []byte{}, &contract
-			},
-			false,
-		},
-		{
-			"deploy",
-			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
-				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-				return data, nil
-			},
-			true,
-		},
-		{
-			"fail deploy",
-			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-				params.AccessControl.Create = evmtypes.AccessControlType{
-					AccessType: evmtypes.AccessTypeRestricted,
-				}
-				_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
-				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-				return data, nil
-			},
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
-
-			data, contract := tc.malleate()
-
-			res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
-			if tc.expPass {
-				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
-				suite.Require().NoError(err)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
-}
-
-func (suite *KeeperTestSuite) TestForceFail() {
-	var mockEVMKeeper *erc20mocks.EVMKeeper
-	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	testCases := []struct {
-		name     string
-		malleate func()
-		commit   bool
-		expPass  bool
-	}{
-		{
-			"Force estimate gas error",
-			func() {
-				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced EstimateGas error"))
-			},
-			true,
-			false,
-		},
-		{
-			"Force ApplyMessage error",
-			func() {
-				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
-			},
-			true,
-			false,
-		},
-		{
-			"Force ApplyMessage failed",
-			func() {
-				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "SomeError"}, nil)
-			},
-			true,
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
-			mockEVMKeeper = &erc20mocks.EVMKeeper{}
-			suite.app.Erc20Keeper = keeper.NewKeeper(
-				suite.app.GetKey("erc20"), suite.app.AppCodec(),
-				authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
-				s.app.AuthzKeeper, &s.app.TransferKeeper,
-			)
-
-			tc.malleate()
-
-			contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-			suite.Require().NoError(err)
-			account := utiltx.GenerateAddress()
-			data, _ := erc20.Pack("balanceOf", account)
-
-			res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, types.ModuleAddress, &contract, data, tc.commit)
-			if tc.expPass {
-				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
-				suite.Require().NoError(err)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
-}
-
 func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 	var mockEVMKeeper *erc20mocks.EVMKeeper
 	contract := utiltx.GenerateAddress()
@@ -321,14 +126,16 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 		{
 			"Failed to call Evm",
 			func() {
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
 			},
 			false,
 		},
 		{
 			"Incorrect res",
 			func() {
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
 			},
 			false,
 		},
@@ -337,7 +144,8 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 			func() {
 				ret := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 67, 111, 105, 110, 32, 84, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "Error"}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "Error"}, nil).Once()
 			},
 			false,
 		},
@@ -345,8 +153,10 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 			"incorrect symbol res",
 			func() {
 				ret := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 67, 111, 105, 110, 32, 84, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
 			},
 			false,
 		},
@@ -355,9 +165,12 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 			func() {
 				ret := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 67, 111, 105, 110, 32, 84, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 				retSymbol := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 67, 84, 75, 78, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: retSymbol}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "Error"}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: retSymbol}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "Error"}, nil).Once()
 			},
 			false,
 		},
@@ -366,9 +179,12 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 			func() {
 				ret := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 67, 111, 105, 110, 32, 84, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 				retSymbol := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 67, 84, 75, 78, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: retSymbol}, nil).Once()
-				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: ret}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: retSymbol}, nil).Once()
+				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: []uint8{0, 0}}, nil).Once()
 			},
 			false,
 		},

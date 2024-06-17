@@ -39,6 +39,20 @@ message MsgConvertERC20 {
 // MsgConvertERC20Response returns no fields
 message MsgConvertERC20Response {}
 
+/ MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
+message MsgConvertCoin {
+  // coin is a Cosmos coin whose denomination is registered in a token pair. The coin
+  // amount defines the amount of coins to convert.
+  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false];
+  // receiver is the hex address to receive ERC20 token
+  string receiver = 2;
+  // sender is the cosmos bech32 address from the owner of the given Cosmos coins
+  string sender = 3;
+}
+
+// MsgConvertCoinResponse returns no fields
+message MsgConvertCoinResponse {}
+
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParams {

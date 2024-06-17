@@ -136,7 +136,12 @@ var _ = Describe("ERC20:", Ordered, func() {
 				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
-					s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[1].ContractOwner)
+					for i, tokenPair := range tokenPairs {
+						if tokenPair.Erc20Address == contract.Hex() {
+							s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[i].ContractOwner)
+						}
+					}
+
 				})
 			})
 			Describe("for multiple ERC20 tokens", func() {
@@ -162,7 +167,11 @@ var _ = Describe("ERC20:", Ordered, func() {
 				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(3, len(tokenPairs))
-					s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[2].ContractOwner)
+					for i, tokenPair := range tokenPairs {
+						if tokenPair.Erc20Address == contract2.Hex() {
+							s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[i].ContractOwner)
+						}
+					}
 				})
 			})
 		})
