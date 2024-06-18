@@ -20,8 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmoscore "github.com/evmos/evmos/v18/x/evm/core/core"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
 // NewEVM generates a go-ethereum VM from the provided Message fields and the chain parameters

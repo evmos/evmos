@@ -11,7 +11,6 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
-
 type JSONLogger struct {
 	encoder *json.Encoder
 	cfg     *Config
@@ -36,7 +35,6 @@ func (l *JSONLogger) CaptureFault(pc uint64, op vm.OpCode, gas uint64, cost uint
 	// TODO: Add rData to this interface as well
 	l.CaptureState(pc, op, gas, cost, scope, nil, depth, err)
 }
-
 
 // CaptureState outputs state information on the logger.
 func (l *JSONLogger) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, scope *vm.ScopeContext, rData []byte, depth int, err error) {

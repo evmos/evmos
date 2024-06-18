@@ -28,8 +28,7 @@ type OpCodeHooks interface {
 	CreateHook(evm *EVM, caller common.Address) error
 }
 
-type NoopOpCodeHooks struct {
-}
+type NoopOpCodeHooks struct{}
 
 func (NoopOpCodeHooks) CallHook(evm *EVM, caller common.Address, recipient common.Address) error {
 	return nil
