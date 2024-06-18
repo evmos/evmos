@@ -53,10 +53,12 @@ func ValidEip(eipNum int) bool {
 
 func ActivateableEips() []string {
 	var nums []string
-	for k := range activators {
-		nums = append(nums, fmt.Sprintf("%d", k))
+	if len(activators) > 0 {
+		for k := range activators {
+			nums = append(nums, fmt.Sprintf("%d", k))
+		}
+		sort.Strings(nums)
 	}
-	sort.Strings(nums)
 	return nums
 }
 
