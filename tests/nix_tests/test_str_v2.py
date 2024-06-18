@@ -66,13 +66,13 @@ def test_str_v2_single_hop(ibc):
     wait_for_ack(evmos_cli, "Evmos")
 
     w3 = evmos.w3
-    active_dynamic_precompiles = evmos_cli.evm_params()["params"][
-        "active_dynamic_precompiles"
+    active_dynamic_precompiles = evmos_cli.erc20_params()["params"][
+        "dynamic_precompiles"
     ]
     new_dest_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
     erc_dest_balance = erc20_balance(w3, ATOM_1_ERC20_ADDRESS, evmos_addr)
 
-    assert len(active_dynamic_precompiles) == 2
+    assert len(active_dynamic_precompiles) == 1
     assert old_dst_balance + 5000 == new_dest_balance
     assert old_dst_balance + 5000 == erc_dest_balance
 
@@ -133,15 +133,15 @@ def test_str_v2_multi_hop(ibc):
     wait_for_ack(evmos_cli, "Evmos")
 
     evmos_balance = get_balance(evmos, bech_dst, ATOM_2_IBC_DENOM_MULTI_HOP)
-    active_dynamic_precompiles = evmos_cli.evm_params()["params"][
-        "active_dynamic_precompiles"
+    dynamic_precompiles = evmos_cli.erc20_params()["params"][
+        "dynamic_precompiles"
     ]
     token_pairs = evmos_cli.get_token_pairs()
 
     # Here it's only one from the previous one we've registered in the first test
     assert evmos_old_balance + 50000 == evmos_balance
-    assert active_dynamic_precompiles[1] == ATOM_1_ERC20_ADDRESS
-    assert len(active_dynamic_precompiles) == 2
+    assert len(dynamic_precompiles) == 1
+    assert dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
     assert len(token_pairs) == 2
 
 
