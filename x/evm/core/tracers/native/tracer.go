@@ -40,7 +40,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/eth/tracers"
+	"github.com/evmos/evmos/v18/x/evm/core/tracers"
 )
 
 // init registers itself this packages as a lookup for tracers.
