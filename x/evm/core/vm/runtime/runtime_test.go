@@ -32,8 +32,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v18/x/evm/core/logger"
 	"github.com/evmos/evmos/v18/x/evm/core/tracers"
-	"github.com/evmos/evmos/v18/x/evm/core/tracers/logger"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	// force-load js tracers to trigger registration

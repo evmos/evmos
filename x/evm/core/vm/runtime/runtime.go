@@ -25,6 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v18/x/evm/core/rawdb"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
@@ -96,4 +97,97 @@ func setDefaults(cfg *Config) {
 	if cfg.BaseFee == nil {
 		cfg.BaseFee = big.NewInt(params.InitialBaseFee)
 	}
+}
+
+// Execute executes the code using the input as call data during the execution.
+// It returns the EVM's return value, the new state and an error if it failed.
+//
+// Execute sets up an in-memory, temporary, environment for the execution of
+// the given code. It makes sure that it's restored to its original state afterwards.
+func Execute(code, input []byte, cfg *Config) ([]byte, *state.StateDB, error) {
+	if cfg == nil {
+		cfg = new(Config)
+	}
+	setDefaults(cfg)
+
+	if cfg.State == nil {
+		cfg.State, _ = state.New(common.Hash{}, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+	}
+	var (
+		address = common.BytesToAddress([]byte("contract"))
+		vmenv   = NewEnv(cfg)
+		sender  = vm.AccountRef(cfg.Origin)
+	)
+	if rules := cfg.ChainConfig.Rules(vmenv.Context.BlockNumber, vmenv.Context.Random != nil); rules.IsBerlin {
+		cfg.State.PrepareAccessList(cfg.Origin, &address, vm.DefaultActivePrecompiles(rules), nil)
+	}
+
+	cfg.State.CreateAccount(address)
+	// set the receiver's (the executing contract) code for execution.
+	cfg.State.SetCode(address, code)
+	// Call the code with the given configuration.
+	ret, _, err := vmenv.Call(
+		sender,
+		common.BytesToAddress([]byte("contract")),
+		input,
+		cfg.GasLimit,
+		cfg.Value,
+	)
+
+	return ret, cfg.State, err
+}
+
+// Create executes the code using the EVM create method
+func Create(input []byte, cfg *Config) ([]byte, common.Address, uint64, error) {
+	if cfg == nil {
+		cfg = new(Config)
+	}
+	setDefaults(cfg)
+
+	if cfg.State == nil {
+		cfg.State, _ = state.New(common.Hash{}, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+	}
+	var (
+		vmenv  = NewEnv(cfg)
+		sender = vm.AccountRef(cfg.Origin)
+	)
+	if rules := cfg.ChainConfig.Rules(vmenv.Context.BlockNumber, vmenv.Context.Random != nil); rules.IsBerlin {
+		cfg.State.PrepareAccessList(cfg.Origin, nil, vm.DefaultActivePrecompiles(rules), nil)
+	}
+
+	// Call the code with the given configuration.
+	code, address, leftOverGas, err := vmenv.Create(
+		sender,
+		input,
+		cfg.GasLimit,
+		cfg.Value,
+	)
+	return code, address, leftOverGas, err
+}
+
+// Call executes the code given by the contract's address. It will return the
+// EVM's return value or an error if it failed.
+//
+// Call, unlike Execute, requires a config and also requires the State field to
+// be set.
+func Call(address common.Address, input []byte, cfg *Config) ([]byte, uint64, error) {
+	setDefaults(cfg)
+
+	vmenv := NewEnv(cfg)
+
+	sender := cfg.State.GetOrNewStateObject(cfg.Origin)
+	statedb := cfg.State
+
+	if rules := cfg.ChainConfig.Rules(vmenv.Context.BlockNumber, vmenv.Context.Random != nil); rules.IsBerlin {
+		statedb.PrepareAccessList(cfg.Origin, &address, vm.DefaultActivePrecompiles(rules), nil)
+	}
+	// Call the code with the given configuration.
+	ret, leftOverGas, err := vmenv.Call(
+		sender,
+		address,
+		input,
+		cfg.GasLimit,
+		cfg.Value,
+	)
+	return ret, leftOverGas, err
 }

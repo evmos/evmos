@@ -29,6 +29,18 @@ type lookupFunc func(string, *Context, json.RawMessage) (Tracer, error)
 
 var lookups []lookupFunc
 
+// RegisterLookup registers a method as a lookup for tracers, meaning that
+// users can invoke a named tracer through that lookup. If 'wildcard' is true,
+// then the lookup will be placed last. This is typically meant for interpreted
+// engines (js) which can evaluate dynamic user-supplied code.
+func RegisterLookup(wildcard bool, lookup lookupFunc) {
+	if wildcard {
+		lookups = append(lookups, lookup)
+	} else {
+		lookups = append([]lookupFunc{lookup}, lookups...)
+	}
+}
+
 // registered lookups.
 func New(code string, ctx *Context, cfg json.RawMessage) (Tracer, error) {
 	for _, lookup := range lookups {

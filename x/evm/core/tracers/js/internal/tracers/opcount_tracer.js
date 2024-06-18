@@ -1,4 +1,4 @@
-// Copyright 2015 The go-ethereum Authors
+// Copyright 2017 The go-ethereum Authors
 // This file is part of the go-ethereum library.
 //
 // The go-ethereum library is free software: you can redistribute it and/or modify
@@ -14,29 +14,19 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package runtime
+// opcountTracer is a sample tracer that just counts the number of instructions
+// executed by the EVM before the transaction terminated.
+{
+	// count tracks the number of EVM instructions executed.
+	count: 0,
 
-import (
-	"github.com/evmos/evmos/v18/x/evm/core/core"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-)
+	// step is invoked for every opcode that the VM executes.
+	step: function(log, db) { this.count++ },
 
-func NewEnv(cfg *Config) *vm.EVM {
-	txContext := vm.TxContext{
-		Origin:   cfg.Origin,
-		GasPrice: cfg.GasPrice,
-	}
-	blockContext := vm.BlockContext{
-		CanTransfer: core.CanTransfer,
-		Transfer:    core.Transfer,
-		GetHash:     cfg.GetHashFn,
-		Coinbase:    cfg.Coinbase,
-		BlockNumber: cfg.BlockNumber,
-		Time:        cfg.Time,
-		Difficulty:  cfg.Difficulty,
-		GasLimit:    cfg.GasLimit,
-		BaseFee:     cfg.BaseFee,
-	}
+	// fault is invoked when the actual execution of an opcode fails.
+	fault: function(log, db) { },
 
-	return vm.NewEVM(blockContext, txContext, cfg.State, cfg.ChainConfig, cfg.EVMConfig)
+	// result is invoked when all the opcodes have been iterated over and returns
+	// the final result of the tracing.
+	result: function(ctx, db) { return this.count }
 }
