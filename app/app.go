@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"time"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -117,6 +118,7 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	// unnamed import of statik for swagger UI support
@@ -877,6 +879,65 @@ func (app *Evmos) setPostHandler() {
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+
+	logger := ctx.Logger().With("context", "STRv2 migration")
+	bondDenom := app.StakingKeeper.BondDenom(ctx)
+
+	var wevmosContract common.Address
+	switch {
+	case utils.IsMainnet(ctx.ChainID()):
+		wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
+	case utils.IsTestnet(ctx.ChainID()):
+		wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
+	default:
+		panic("unknown chain id")
+	}
+
+	// Log the token supply for the individual registered token pairs
+	err := v19.LogTokenPairBalances(
+		ctx,
+		logger,
+		app.BankKeeper,
+		app.Erc20Keeper,
+	)
+	if err != nil {
+		logger.Error("failed to log token pair balances (pre)", "error", err)
+	}
+
+	// Run the STR v2 migration logic and then panic to stop the execution
+	logger.Info("running STR v2 migration")
+	start := time.Now()
+
+	// ctx = sdk.UnwrapSDKContext(ctx)
+	err = v19.RunSTRv2Migration(
+		ctx,
+		logger,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.Erc20Keeper,
+		app.EvmKeeper,
+		wevmosContract,
+		bondDenom,
+	)
+	if err != nil {
+		logger.Error("failed to run STR v2 migration", "error", err)
+	}
+
+	logger.Info(fmt.Sprintf("STR v2 migration took %s\n", time.Since(start)))
+
+	err = v19.LogTokenPairBalances(
+		ctx,
+		logger,
+		app.BankKeeper,
+		app.Erc20Keeper,
+	)
+	if err != nil {
+		logger.Error("failed to log token pair balances (post)", "error", err)
+	}
+
+	// We are exciting the binary here because it'll have a consensus error anyways
+	os.Exit(1)
+
 	return app.mm.BeginBlock(ctx, req)
 }
 
