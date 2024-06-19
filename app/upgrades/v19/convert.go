@@ -4,6 +4,8 @@
 package v19
 
 import (
+	"encoding/json"
+	"os"
 	"fmt"
 	"math/big"
 	"time"
@@ -37,6 +39,48 @@ type BalanceResult struct {
 	id           int
 }
 
+
+
+func GetMissingWalletsFromAuthModule(ctx sdk.Context,
+	accountKeeper authkeeper.AccountKeeper,
+) (Addresses []sdk.AccAddress) {
+	xenAccounts:=0
+	missingAccounts:=0
+	wallets := fixes.GetAllMissingWallets()
+
+	filter := GenerateFilter(accountKeeper, ctx)
+
+	for _, wallet := range wallets {
+		ethAddr := common.HexToAddress(wallet)
+		addr := sdk.AccAddress(ethAddr.Bytes())
+
+		if accountKeeper.HasAccount(ctx, addr) {
+			account := accountKeeper.GetAccount(ctx, addr)
+			ethAccount, ok := account.(*evmostypes.EthAccount)
+			if !ok {
+				fmt.Println("Account existed")
+				continue
+			}
+
+			if IsAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
+				fmt.Println("Account existed")
+				continue
+			}
+			xenAccounts++
+		}else{
+			missingAccounts++
+		}
+
+
+		Addresses = append(Addresses, addr)
+	}
+	fmt.Println("xen",xenAccounts)
+	fmt.Println("missingAccounts",missingAccounts)
+
+	return Addresses
+}
+
+
 // executeConversion receives the whole set of adress with erc20 balances
 // it sends the equivalent coin from the escrow address into the holder address
 // it doesnt need to burn the erc20 balance, because the evm storage will be deleted later
@@ -49,7 +93,12 @@ func executeConversion(
 ) error {
 	wevmosAccount := sdk.AccAddress(wrappedEvmosAddr.Bytes())
 	// Go trough every address with an erc20 balance
+	t := 0
 	for _, result := range results {
+		if t% 1_000 == 0{
+			fmt.Println("exec",t)
+		}
+		t++
 		tokenPair := nativeTokenPairs[result.id]
 
 		// The conversion is different for Evmos/WEVMOS and IBC-coins
@@ -92,31 +141,62 @@ func ConvertERC20Coins(
 	timeBegin := time.Now() // control the time of the execution
 	var finalizedResults []BalanceResult
 
-	missingAccounts := fixes.GetMissingWalletsFromAuthModule(ctx, accountKeeper)
+	missingAccounts := GetMissingWalletsFromAuthModule(ctx, accountKeeper)
 	filter := GenerateFilter(accountKeeper, ctx)
 
 	for _, account := range missingAccounts {
 		addBalances(ctx, account, evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
 	}
 
+	i := 0
+	j := 0
 	// should ignore the xen token accounts
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
-		ethAccount, ok := account.(*evmostypes.EthAccount)
-		if !ok {
-			return false
+		i++
+		if i % 100_000 == 0{
+			fmt.Println("processing account", i)
 		}
 
-		if !IsAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
-			return false
+		ethAccount, ok := account.(*evmostypes.EthAccount)
+		if ok {
+			if !IsAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
+				j++
+				if j % 100_000 == 0{
+					fmt.Println("ignoring accounts",j)
+				}
+				return false
+			} 
 		}
 
 		addBalances(ctx, account.GetAddress(), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
 		return false
 	})
 
-	logger.Debug(fmt.Sprint("Finalized results: ", len(finalizedResults)))
+	logger.Info(fmt.Sprint("Finalized results: ", len(finalizedResults)))
+
+	// Save addrs
+	logger.Info("Saving valid addrs to json file")
+	type ValidAddrs struct{
+		Values []string `json:"values"`
+	}
+	addresses := ValidAddrs{Values:[]string{}}
+	for _,v:=range finalizedResults{
+		addresses.Values = append(addresses.Values, v.address.String())
+	}
+	jsonData, _ := json.Marshal(addresses)
+	file, err := os.Create("addresses_valid.json")
+	if err != nil{
+		fmt.Println("error creating json file", err.Error())
+	} else{
+		defer file.Close()
+		_, err := file.Write(jsonData)
+		if err != nil{
+			fmt.Println("error saving json file", err.Error())
+		}
+	}
+
 	// execute the actual conversion.
-	err := executeConversion(ctx, finalizedResults, bankKeeper, wrappedAddr, nativeTokenPairs)
+	err = executeConversion(ctx, finalizedResults, bankKeeper, wrappedAddr, nativeTokenPairs)
 	if err != nil {
 		// panic(err)
 		return err
