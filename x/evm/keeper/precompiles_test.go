@@ -5,8 +5,8 @@ package keeper_test
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 

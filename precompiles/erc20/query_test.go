@@ -12,11 +12,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/app"
 	auth "github.com/evmos/evmos/v18/precompiles/authorization"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
 

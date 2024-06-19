@@ -12,10 +12,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	ethlogger "github.com/ethereum/go-ethereum/eth/tracers/logger"
 	ethparams "github.com/ethereum/go-ethereum/params"
+	ethlogger "github.com/evmos/evmos/v18/x/evm/core/logger"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	"github.com/evmos/evmos/v18/server/config"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
