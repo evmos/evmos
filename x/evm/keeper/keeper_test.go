@@ -152,7 +152,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
-					// ignore non EthAccounts
+					// Ignore e.g. module accounts
 					return false
 				}
 

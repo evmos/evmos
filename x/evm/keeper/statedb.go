@@ -1,19 +1,18 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
-
-	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -24,7 +23,7 @@ var _ statedb.Keeper = &Keeper{}
 // StateDB Keeper implementation
 // ----------------------------------------------------------------------------
 
-// GetAccount returns nil if account is not exist, returns error if it's not `EthAccountI`
+// GetAccount returns nil if account is not exist
 func (k *Keeper) GetAccount(ctx sdk.Context, addr common.Address) *statedb.Account {
 	acct := k.GetAccountWithoutBalance(ctx, addr)
 	if acct == nil {
@@ -45,6 +44,17 @@ func (k *Keeper) GetState(ctx sdk.Context, addr common.Address, key common.Hash)
 	}
 
 	return common.BytesToHash(value)
+}
+
+// GetCodeHash loads the code hash from the database for the given contract address.
+func (k *Keeper) GetCodeHash(ctx sdk.Context, addr common.Address) common.Hash {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
+	bz := store.Get(addr.Bytes())
+	if len(bz) == 0 {
+		return common.BytesToHash(types.EmptyCodeHash)
+	}
+
+	return common.BytesToHash(bz)
 }
 
 // GetCode loads contract code from database, implements `statedb.Keeper` interface.
@@ -119,13 +129,7 @@ func (k *Keeper) SetAccount(ctx sdk.Context, addr common.Address, account stated
 	}
 
 	codeHash := common.BytesToHash(account.CodeHash)
-
-	if ethAcct, ok := acct.(evmostypes.EthAccountI); ok {
-		if err := ethAcct.SetCodeHash(codeHash); err != nil {
-			return err
-		}
-	}
-
+	k.SetCodeHash(ctx, addr, codeHash)
 	k.accountKeeper.SetAccount(ctx, acct)
 
 	if err := k.SetBalance(ctx, addr, account.Balance); err != nil {
@@ -159,7 +163,22 @@ func (k *Keeper) SetState(ctx sdk.Context, addr common.Address, key common.Hash,
 	)
 }
 
+// SetCodeHash sets the code hash for the given contract address and deletes an existing
+// entry if the passed code hash is empty.
+func (k *Keeper) SetCodeHash(ctx sdk.Context, addr common.Address, codeHash common.Hash) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
+	key := addr.Bytes()
+	hashBytes := codeHash.Bytes()
+	if types.BytesAreEmptyCodeHash(hashBytes) {
+		store.Delete(key)
+	} else {
+		store.Set(key, hashBytes)
+	}
+}
+
 // SetCode set contract code, delete if code is empty.
+//
+// TODO: do we still need this separation of the codehash and the code itself if both is stored in the same keeper?
 func (k *Keeper) SetCode(ctx sdk.Context, codeHash, code []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
 
@@ -181,6 +200,7 @@ func (k *Keeper) SetCode(ctx sdk.Context, codeHash, code []byte) {
 // - clear balance
 // - remove code
 // - remove states
+// - remove the code hash
 // - remove auth account
 func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
@@ -189,10 +209,9 @@ func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 		return nil
 	}
 
-	// NOTE: only Ethereum accounts (contracts) can be selfdestructed
-	_, ok := acct.(evmostypes.EthAccountI)
-	if !ok {
-		return errorsmod.Wrapf(types.ErrInvalidAccount, "type %T, address %s", acct, addr)
+	// NOTE: only Ethereum contracts can be self-destructed
+	if !k.IsContract(ctx, addr) {
+		return errors.New("only smart contracts can be self-destructed")
 	}
 
 	// clear balance
@@ -205,6 +224,9 @@ func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 		k.SetState(ctx, addr, key, nil)
 		return true
 	})
+
+	// clear code hash
+	k.SetCodeHash(ctx, addr, common.BytesToHash(types.EmptyCodeHash))
 
 	// remove auth account
 	k.accountKeeper.RemoveAccount(ctx, acct)

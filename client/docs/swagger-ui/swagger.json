@@ -1147,7 +1147,7 @@
     },
     "/evmos/evm/v1/balances/{address}": {
       "get": {
-        "summary": "Balance queries the balance of a the EVM denomination for a single\nEthAccount.",
+        "summary": "Balance queries the balance of a the EVM denomination for a single\naccount.",
         "operationId": "Balance",
         "produces": ["application/json"],
         "responses": {

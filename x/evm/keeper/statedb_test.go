@@ -240,7 +240,7 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 			func(vm.StateDB) {},
 		},
 		{
-			"account not EthAccount type, EmptyCodeHash",
+			"account is not a smart contract",
 			addr,
 			common.BytesToHash(types.EmptyCodeHash),
 			func(vm.StateDB) {},
@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 			false,
 		},
 		{
-			"account not EthAccount type",
+			"account not a smart contract",
 			addr,
 			nil,
 			true,
@@ -442,6 +442,10 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 	suite.Require().Equal(value2, tmp)
 }
 
+func (suite *KeeperTestSuite) TestSetAndGetCodeHash() {
+	suite.SetupTest()
+}
+
 func (suite *KeeperTestSuite) TestSuicide() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
@@ -454,6 +458,10 @@ func (suite *KeeperTestSuite) TestSuicide() {
 	secondAddress := keyring.GetAddr(secondAddressIndex)
 
 	code := []byte("code")
+	codeHashBz := common.BytesToHash(crypto.Keccak256(code))
+	unitNetwork.App.EvmKeeper.SetCodeHash(unitNetwork.GetContext(), firstAddress, codeHashBz)
+	unitNetwork.App.EvmKeeper.SetCodeHash(unitNetwork.GetContext(), secondAddress, codeHashBz)
+
 	db := unitNetwork.GetStateDB()
 	// Add code to account
 	db.SetCode(firstAddress, code)
@@ -960,24 +968,25 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 	supply := big.NewInt(100)
 
 	testCases := []struct {
-		name   string
-		addr   common.Address
-		expErr bool
+		name        string
+		addr        common.Address
+		expPass     bool
+		errContains string
 	}{
 		{
-			"remove address",
-			suite.keyring.GetAddr(0),
-			false,
+			name:        "remove address",
+			addr:        suite.keyring.GetAddr(0),
+			errContains: "only smart contracts can be self-destructed",
 		},
 		{
-			"remove unexistent address - returns nil error",
-			common.HexToAddress("unexistent_address"),
-			false,
+			name:    "remove unexistent address - returns nil error",
+			addr:    common.HexToAddress("unexistent_address"),
+			expPass: true,
 		},
 		{
-			"remove deployed contract",
-			contractAddr,
-			false,
+			name:    "remove deployed contract",
+			addr:    contractAddr,
+			expPass: true,
 		},
 	}
 
@@ -988,10 +997,20 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 
 			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, tc.addr)
-			if tc.expErr {
-				suite.Require().Error(err)
-			} else {
+			if tc.expPass {
 				suite.Require().NoError(err)
+
+				acc := suite.network.App.EvmKeeper.GetAccount(suite.network.GetContext(), tc.addr)
+				suite.Require().Nil(acc, "expected no account to be found after deleting")
+
+				balance := suite.network.App.EvmKeeper.GetBalance(suite.network.GetContext(), tc.addr)
+				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
+			} else {
+				suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
+
+				acc := suite.network.App.EvmKeeper.GetAccount(suite.network.GetContext(), tc.addr)
+				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
+
 				balance := suite.network.App.EvmKeeper.GetBalance(ctx, tc.addr)
 				suite.Require().Equal(new(big.Int), balance)
 			}

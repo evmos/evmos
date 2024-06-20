@@ -14,11 +14,9 @@ import (
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.AccountI)(nil),
-		&EthAccount{},
 	)
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
-		&EthAccount{},
 	)
 	registry.RegisterImplementations(
 		(*tx.TxExtensionOptionI)(nil),

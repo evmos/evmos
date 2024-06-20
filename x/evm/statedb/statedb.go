@@ -447,7 +447,7 @@ func (s *StateDB) Commit() error {
 		obj := s.stateObjects[addr]
 		if obj.suicided {
 			if err := s.keeper.DeleteAccount(s.ctx, obj.Address()); err != nil {
-				return errorsmod.Wrap(err, "failed to delete account")
+				return errorsmod.Wrap(err, fmt.Sprintf("failed to delete account %s", obj.Address()))
 			}
 		} else {
 			if obj.code != nil && obj.dirtyCode {

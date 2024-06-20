@@ -8,20 +8,14 @@ import (
 	"slices"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
-	"github.com/cosmos/gogoproto/proto"
-
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -32,9 +26,11 @@ import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
 	evmostypes "github.com/evmos/evmos/v18/types"
-	evmosutil "github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/utils"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -111,14 +107,10 @@ func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSe
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
-	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
-		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		ethAcc := &evmostypes.EthAccount{
-			BaseAccount: baseAcc,
-			CodeHash:    emptyCodeHash,
-		}
-		genAccounts = append(genAccounts, ethAcc)
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
+			acc, nil, 0, 0),
+		)
 	}
 	return genAccounts
 }
@@ -442,8 +434,8 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 	updatedParams := govGen.Params
 	// set 'aevmos' as deposit denom
 	minDepositAmt := sdkmath.NewInt(1e18)
-	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, minDepositAmt))
-	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, minDepositAmt))
+	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(utils.BaseDenom, minDepositAmt))
+	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(utils.BaseDenom, minDepositAmt))
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState

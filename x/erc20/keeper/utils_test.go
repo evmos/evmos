@@ -61,6 +61,7 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)
+
 	suite.priv = priv
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = utiltx.NewSigner(priv)
