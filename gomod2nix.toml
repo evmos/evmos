@@ -166,8 +166,8 @@ schema = 3
     version = "v0.21.0-alpha.1.0.20230904092046-df3db2d96583"
     hash = "sha256-3Va8Ljq63IXty0oHlRpqfsC6WsMut6TWZ2R+/nYtfTU="
   [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.5.2-0.20240607065443-0f1cf8bf766b"
-    hash = "sha256-SH4ZcEWQ1bNuRBj1Kj3r3kPoWJmeOtmb8b/YVGf1JsY="
+    version = "v7.6.0"
+    hash = "sha256-D8INM5nN/d1oL/jAeua9XVX1Aasuv3ZxhOUF9vWcCls="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
