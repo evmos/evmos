@@ -37,7 +37,7 @@ func TestMsgDelegate(t *testing.T) {
 		errMsg string
 	}{
 		{
-			name: "can delegate from a common EthAccount",
+			name: "can delegate from a common account",
 			setup: func() sdk.Coin {
 				// Send some funds to delegator account
 				err := testutil.FundAccountWithBaseDenom(ctx, nw.App.BankKeeper, delegatorAddr, defaultDelCoin.Amount.Int64())
@@ -156,7 +156,7 @@ func TestMsgCreateValidator(t *testing.T) {
 		errMsg string
 	}{
 		{
-			name: "can create a validator using a common EthAccount",
+			name: "can create a validator using a common account",
 			setup: func() sdk.Coin {
 				// Send some funds to delegator account
 				err := testutil.FundAccountWithBaseDenom(ctx, nw.App.BankKeeper, validatorAddr, defaultDelCoin.Amount.Int64())

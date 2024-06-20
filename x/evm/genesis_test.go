@@ -4,12 +4,10 @@ import (
 	"math/big"
 	"testing"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/evm"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
@@ -83,40 +81,43 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: true,
 		},
-		{
-			name: "invalid account type",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
-				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
-				network.App.AccountKeeper.SetAccount(network.GetContext(), acc)
-			},
-			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				Accounts: []types.GenesisAccount{
-					{
-						Address: address.String(),
-					},
-				},
-			},
-			expPanic: true,
-		},
-		{
-			name: "invalid code hash",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ctx := network.GetContext()
-				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
-				network.App.AccountKeeper.SetAccount(ctx, acc)
-			},
-			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				Accounts: []types.GenesisAccount{
-					{
-						Address: address.String(),
-						Code:    "ffffffff",
-					},
-				},
-			},
-			expPanic: true,
-		},
+		// TODO: similar to the other tests below this can be removed, check below
+		//{
+		//	name: "invalid account type - missing code",
+		//	malleate: func(network *testnetwork.UnitTestNetwork) {
+		//		acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
+		//		network.App.AccountKeeper.SetAccount(network.GetContext(), acc)
+		//	},
+		//	genState: &types.GenesisState{
+		//		Params: types.DefaultParams(),
+		//		Accounts: []types.GenesisAccount{
+		//			{
+		//				Address: address.String(),
+		//			},
+		//		},
+		//	},
+		//	expPanic: true,
+		//},
+		// TODO: similar to the other test below this can be removed because the integrity of code hashes between
+		// account keeper and EVM state is not checked anymore.
+		//{
+		//	name: "invalid code hash",
+		//	malleate: func(network *testnetwork.UnitTestNetwork) {
+		//		ctx := network.GetContext()
+		//		acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+		//		network.App.AccountKeeper.SetAccount(ctx, acc)
+		//	},
+		//	genState: &types.GenesisState{
+		//		Params: types.DefaultParams(),
+		//		Accounts: []types.GenesisAccount{
+		//			{
+		//				Address: address.String(),
+		//				Code:    "ffffffff",
+		//			},
+		//		},
+		//	},
+		//	expPanic: true,
+		//},
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
@@ -135,27 +136,30 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: false,
 		},
-		{
-			name: "ignore empty account code checking with non-empty codehash",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ethAcc := &evmostypes.EthAccount{
-					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
-					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
-				}
-
-				network.App.AccountKeeper.SetAccount(network.GetContext(), ethAcc)
-			},
-			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				Accounts: []types.GenesisAccount{
-					{
-						Address: address.String(),
-						Code:    "",
-					},
-				},
-			},
-			expPanic: false,
-		},
+		//TODO: I think this can be removed because the integrity of the code hash between account keeper
+		//and EVM genesis state is not applicable anymore.
+		//
+		//{
+		//	name: "ignore empty account code checking with non-empty codehash",
+		//	malleate: func(network *testnetwork.UnitTestNetwork) {
+		//		ethAcc := &evmostypes.EthAccount{
+		//			BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
+		//			CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
+		//		}
+		//
+		//		network.App.AccountKeeper.SetAccount(network.GetContext(), ethAcc)
+		//	},
+		//	genState: &types.GenesisState{
+		//		Params: types.DefaultParams(),
+		//		Accounts: []types.GenesisAccount{
+		//			{
+		//				Address: address.String(),
+		//				Code:    "",
+		//			},
+		//		},
+		//	},
+		//	expPanic: false,
+		//},
 	}
 
 	for _, tc := range testCases {

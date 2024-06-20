@@ -16,7 +16,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
@@ -237,7 +236,7 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 			func(vm.StateDB) {},
 		},
 		{
-			"account not EthAccount type, EmptyCodeHash",
+			"account is not a smart contract",
 			addr,
 			common.BytesToHash(types.EmptyCodeHash),
 			func(vm.StateDB) {},
@@ -281,7 +280,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 			false,
 		},
 		{
-			"account not EthAccount type",
+			"account not a smart contract",
 			addr,
 			nil,
 			true,
@@ -442,55 +441,69 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 	suite.Require().Equal(value2, tmp)
 }
 
+func (suite *KeeperTestSuite) TestSetAndGetCodeHash() {
+	suite.SetupTest()
+}
+
 func (suite *KeeperTestSuite) TestSuicide() {
-	code := []byte("code")
+	suite.SetupTest()
+
+	// Generate addresses for testing
+	addr1 := utiltx.GenerateAddress()
+	addr2 := utiltx.GenerateAddress()
+
+	// Set the code in the code storage
+	code := []byte("code1")
+	codeHashBz := common.BytesToHash(crypto.Keccak256(code))
+	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr1, codeHashBz)
+	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr2, codeHashBz)
+
+	// NOTE: we're instantiating the StateDB here to have the context already contain the
 	db := suite.StateDB()
+
 	// Add code to account
-	db.SetCode(suite.address, code)
-	suite.Require().Equal(code, db.GetCode(suite.address))
+	db.SetCode(addr1, code)
+
+	suite.Require().Equal(code, db.GetCode(addr1))
 	// Add state to account
 	for i := 0; i < 5; i++ {
-		db.SetState(suite.address, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+		db.SetState(addr1, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
 	}
 
 	suite.Require().NoError(db.Commit())
 	db = suite.StateDB()
 
-	// Generate 2nd address
-	privkey, _ := ethsecp256k1.GenerateKey()
-	key, err := privkey.ToECDSA()
-	suite.Require().NoError(err)
-	addr2 := crypto.PubkeyToAddress(key.PublicKey)
-
 	// Add code and state to account 2
 	db.SetCode(addr2, code)
 	suite.Require().Equal(code, db.GetCode(addr2))
+
 	for i := 0; i < 5; i++ {
 		db.SetState(addr2, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
 	}
 
 	// Call Suicide
-	suite.Require().Equal(true, db.Suicide(suite.address))
+	suite.Require().Equal(true, db.Suicide(addr1))
 
 	// Check suicided is marked
-	suite.Require().Equal(true, db.HasSuicided(suite.address))
+	suite.Require().Equal(true, db.HasSuicided(addr1))
 
 	// Commit state
 	suite.Require().NoError(db.Commit())
 	db = suite.StateDB()
 
 	// Check code is deleted
-	suite.Require().Nil(db.GetCode(suite.address))
+	suite.Require().Nil(db.GetCode(addr1))
+
 	// Check state is deleted
 	var storage types.Storage
-	suite.app.EvmKeeper.ForEachStorage(suite.ctx, suite.address, func(key, value common.Hash) bool {
+	suite.app.EvmKeeper.ForEachStorage(suite.ctx, addr1, func(key, value common.Hash) bool {
 		storage = append(storage, types.NewState(key, value))
 		return true
 	})
 	suite.Require().Equal(0, len(storage))
 
 	// Check account is deleted
-	suite.Require().Equal(common.Hash{}, db.GetCodeHash(suite.address))
+	suite.Require().Equal(common.Hash{}, db.GetCodeHash(addr1))
 
 	// Check code is still present in addr2 and suicided is false
 	suite.Require().NotNil(db.GetCode(addr2))
@@ -936,41 +949,54 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteAccount() {
+	suite.SetupTest()
+
 	supply := big.NewInt(100)
 	contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
 
 	testCases := []struct {
-		name   string
-		addr   common.Address
-		expErr bool
+		name        string
+		addr        common.Address
+		expPass     bool
+		errContains string
 	}{
 		{
-			"remove address",
-			suite.address,
-			false,
+			name: "remove address",
+			addr: suite.address,
+			// TODO: check if this assumption is correct? It should not be possible to delete an "EthAccount" like that,
+			// only smart contracts?
+			errContains: "only smart contracts can be self-destructed",
 		},
 		{
-			"remove unexistent address - returns nil error",
-			common.HexToAddress("unexistent_address"),
-			false,
+			name:    "remove unexistent address - returns nil error",
+			addr:    common.HexToAddress("unexistent_address"),
+			expPass: true,
 		},
 		{
-			"remove deployed contract",
-			contractAddr,
-			false,
+			name:    "remove deployed contract",
+			addr:    contractAddr,
+			expPass: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+
 			err := suite.app.EvmKeeper.DeleteAccount(suite.ctx, tc.addr)
-			if tc.expErr {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
+			if tc.expPass {
+				suite.Require().NoError(err, "expected deleting account to succeed")
+
+				acc := suite.app.EvmKeeper.GetAccount(suite.ctx, tc.addr)
+				suite.Require().Nil(acc, "expected no account to be found after deleting")
+
 				balance := suite.app.EvmKeeper.GetBalance(suite.ctx, tc.addr)
-				suite.Require().Equal(new(big.Int), balance)
+				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
+			} else {
+				suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
+
+				acc := suite.app.EvmKeeper.GetAccount(suite.ctx, tc.addr)
+				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
 			}
 		})
 	}

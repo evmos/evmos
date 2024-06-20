@@ -232,20 +232,14 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.signer = evmosutiltx.NewSigner(priv)
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
-
-	acc := &evmostypes.EthAccount{
-		BaseAccount: baseAcc,
-		CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-	}
-
 	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
 
 	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
+		Address: baseAcc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
-	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{acc}, balance)
+	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{baseAcc}, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{
@@ -295,8 +289,8 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		NextVals:       valSet,
 		Signers:        signers,
 		SenderPrivKey:  priv,
-		SenderAccount:  acc,
-		SenderAccounts: []ibctesting.SenderAccount{{SenderPrivKey: priv, SenderAccount: acc}},
+		SenderAccount:  baseAcc,
+		SenderAccounts: []ibctesting.SenderAccount{{SenderPrivKey: priv, SenderAccount: baseAcc}},
 	}
 
 	coord.CommitBlock(chain)

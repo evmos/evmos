@@ -1,7 +1,6 @@
 package statedb_test
 
 import (
-	"bytes"
 	"errors"
 	"maps"
 	"math/big"
@@ -10,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 var (
@@ -96,7 +96,7 @@ func (k MockKeeper) DeleteAccount(_ sdk.Context, addr common.Address) error {
 	}
 	old := k.accounts[addr]
 	delete(k.accounts, addr)
-	if !bytes.Equal(old.account.CodeHash, emptyCodeHash) {
+	if !types.BytesAreEmptyCodeHash(old.account.CodeHash) {
 		delete(k.codes, common.BytesToHash(old.account.CodeHash))
 	}
 	return nil

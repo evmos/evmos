@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	// Bech32Prefix defines the Bech32 prefix used for EthAccounts
+	// Bech32Prefix defines the Bech32 prefix used for accounts on the Evmos blockchain
 	Bech32Prefix = "evmos"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
