@@ -179,7 +179,8 @@ func addBalances(
 	evmKeeper evmkeeper.Keeper,
 	wrappedAddr string,
 	nativeTokenPairs []erc20types.TokenPair,
-	balances *[]BalanceResult) {
+	balances *[]BalanceResult,
+) {
 	concatBytes := append(common.LeftPadBytes(account.Bytes(), 32), storeKey...)
 	key := crypto.Keccak256Hash(concatBytes)
 

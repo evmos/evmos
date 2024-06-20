@@ -2,7 +2,6 @@ package fixes
 
 func GetAllMissingWallets() []string {
 	return []string{
-
 		"0xce9ebc509f14cef1a37baaaa0e37da62568fd335",
 		"0x6d5a1bfb13861c8da5732cdd4f3c512e7ac85a95",
 		"0x01f5b36bc7260ac11dfe192c2efc60bdeb5c8b63",
@@ -8369,4 +8368,3 @@ func GetAllMissingWallets() []string {
 		"0x94ea90a94522b583b91746e8e39406a16503fa7b",
 	}
 }
-
