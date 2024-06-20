@@ -9,15 +9,15 @@ import (
 
 var ExtendedActivators = map[int]func(*vm.JumpTable){
 	// EXTERNAL EIPs
-	0000: enable0000,
-	0001: enable0001,
-	0002: enable0002,
+	0o000: enable0000,
+	0o001: enable0001,
+	0o002: enable0002,
 }
 
 var DefaultEnabledEIPs = []int64{
-	0000,
-	0001,
-	0002,
+	0o000,
+	0o001,
+	0o002,
 }
 
 // enable0000 contains the logic to modify the CREATE and CREATE2 opcodes
