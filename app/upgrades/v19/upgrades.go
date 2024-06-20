@@ -87,7 +87,6 @@ func RunSTRv2Migration(
 		logger,
 		accountKeeper,
 		bankKeeper,
-		erc20Keeper,
 		*evmKeeper,
 		wrappedContractAddr,
 		nativeTokenPairs,
@@ -157,8 +156,6 @@ func LogTokenPairBalances(
 		logger.Info(
 			"token pair balances",
 			"token_pair", tokenPair.Denom,
-			//// TODO: add ERC-20 supply by calling EthCall
-			//"erc20 supply", totalSupply,
 			"bank supply", bankSupply.Amount.String(),
 		)
 	}

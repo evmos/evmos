@@ -16,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/evmos/evmos/v18/x/evm/statedb"
-	"github.com/evmos/evmos/v18/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -39,8 +38,8 @@ type EVMKeeper interface {
 	ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailableStaticPrecompile(params *evmtypes.Params, address common.Address) bool
-	CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*types.MsgEthereumTxResponse, error)
-	CallEVMWithData(ctx sdk.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*types.MsgEthereumTxResponse, error)
+	CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error)
+	CallEVMWithData(ctx sdk.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 type (

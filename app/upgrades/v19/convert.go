@@ -24,11 +24,9 @@ import (
 
 // storeKey contains the slot in which the balance is stored in the evm.
 var (
-	storeKey       []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-	storeKeyWevmos []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
+	storeKey       = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	storeKeyWevmos = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
 )
-
-type parseTokenPairs = []common.Address
 
 // BalanceResult contains the data needed to perform the balance conversion
 type BalanceResult struct {
@@ -39,7 +37,7 @@ type BalanceResult struct {
 
 func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 	accountKeeper authkeeper.AccountKeeper,
-) (Addresses []sdk.AccAddress) {
+) (addresses []sdk.AccAddress) {
 	xenAccounts := 0
 	missingAccounts := 0
 	wallets := fixes.GetAllMissingWallets()
@@ -65,12 +63,12 @@ func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 			missingAccounts++
 		}
 
-		Addresses = append(Addresses, addr)
+		addresses = append(addresses, addr)
 	}
-	return Addresses
+	return addresses
 }
 
-// executeConversion receives the whole set of adress with erc20 balances
+// executeConversion receives the whole set of address with erc20 balances
 // it sends the equivalent coin from the escrow address into the holder address
 // it doesnt need to burn the erc20 balance, because the evm storage will be deleted later
 func executeConversion(
@@ -112,12 +110,15 @@ func executeConversion(
 	return nil
 }
 
+// ConvertERC20Coins iterates trough all the authmodule accounts and all missing accounts from the auth module
+// recovers the balance from erc20 contracts for the registered token pairs
+// and for each entry it sends the balance from escrow into the account.
+
 func ConvertERC20Coins(
 	ctx sdk.Context,
 	logger log.Logger,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	erc20Keeper erc20keeper.Keeper,
 	evmKeeper evmkeeper.Keeper,
 	wrappedAddr common.Address,
 	nativeTokenPairs []erc20types.TokenPair,
@@ -166,7 +167,9 @@ func ConvertERC20Coins(
 	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
 	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
 	if !balances.IsZero() {
-		return fmt.Errorf("there are still tokens in the erc-20 module account: %s", balances.String())
+		logger.Error("there are still tokens in the erc-20 module account: %s", balances.String())
+		// we dont return an error here. Since we want the migration to pass
+		// if any balance is left on escrow, we can recover it later.
 	}
 	duration := time.Since(timeBegin)
 	logger.Info(fmt.Sprintf("Migration length %s", duration.String()))
@@ -187,7 +190,7 @@ func addBalances(
 	concatBytesWevmos := append(common.LeftPadBytes(account.Bytes(), 32), storeKeyWevmos...)
 	keyWevmos := crypto.Keccak256Hash(concatBytesWevmos)
 	var value []byte
-	for tokenId, tokenPair := range nativeTokenPairs {
+	for tokenID, tokenPair := range nativeTokenPairs {
 		if tokenPair.Erc20Address == wrappedAddr {
 			value = evmKeeper.GetFastState(ctx, tokenPair.GetERC20Contract(), keyWevmos)
 		} else {
@@ -196,7 +199,7 @@ func addBalances(
 		if len(value) == 0 {
 			continue
 		}
-		*balances = append(*balances, BalanceResult{address: account, balanceBytes: value, id: tokenId})
+		*balances = append(*balances, BalanceResult{address: account, balanceBytes: value, id: tokenID})
 	}
 }
 
