@@ -36,4 +36,4 @@ jobs:
       - run: |
           make build-docker-goleveldb
           make build-docker-pebbledb
-        if: env.GIT_DIFF
+        # if: env.GIT_DIFF
