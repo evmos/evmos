@@ -44,6 +44,10 @@ type operation struct {
 	memorySize memorySizeFunc
 }
 
+func (o *operation) SetConstantGas(gas uint64) {
+	o.constantGas = gas
+}
+
 var (
 	FrontierInstructionSet         = newFrontierInstructionSet()
 	HomesteadInstructionSet        = newHomesteadInstructionSet()

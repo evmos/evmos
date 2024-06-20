@@ -32,10 +32,12 @@ var activators = map[int]func(*JumpTable){
 	2200: enable2200,
 	1884: enable1884,
 	1344: enable1344,
-	// EXTERNAL EIPs
-	0000: enable0000,
-	0001: enable0001,
-	0002: enable0002,
+}
+
+func ExtendActivators(eips map[int]func(*JumpTable)) {
+	for k, v := range eips {
+		activators[k] = v
+	}
 }
 
 // EnableEIP enables the given EIP on the config.
