@@ -10,17 +10,17 @@ import (
 // EvmosActivators defines a map of opcode modifiers associated
 // with a key defining the corresponding EIP.
 var EvmosActivators = map[int]func(*vm.JumpTable){
-	0o0000: enable0000,
-	0o0001: enable0001,
-	0o0002: enable0002,
+	000000: enable0000,
+	000001: enable0001,
+	000002: enable0002,
 }
 
 // DefaultEnabledEvmosEIPs defines the EIP that should be activated
 // by default and will be merged in the x/evm Params.
 var DefaultEnabledEvmosEIPs = []int64{
-	0o0000,
-	0o0001,
-	0o0002,
+	000000,
+	000001,
+	000002,
 }
 
 // enable0000 contains the logic to modify the CREATE and CREATE2 opcodes
