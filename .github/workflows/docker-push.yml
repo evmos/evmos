@@ -2,9 +2,8 @@ name: Push to Docker Hub
 
 on:
   push:
-    branches:
-      - 'Amine/**'
-
+    tags:
+      - 'v*.*.*'
 permissions: read-all
 
 jobs:
@@ -20,7 +19,7 @@ jobs:
       - name: Get Github tag
         id: meta
         run: |
-          echo "tag=v18.1.0-e2etest" >> "$GITHUB_OUTPUT"
+          echo "tag=$(git describe --always --tags --match='v*')" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -42,7 +41,7 @@ jobs:
           push: true
           platforms: linux/amd64, linux/arm64
           build-args: DB_BACKEND=goleveldb
-          tags: tharsishq/evmos:latest-e2etest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
+          tags: tharsishq/evmos:latest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
 
       - name: Build and push pebbledb image
         uses: docker/build-push-action@v6
@@ -51,4 +50,4 @@ jobs:
           push: true
           platforms: linux/amd64, linux/arm64
           build-args: DB_BACKEND=pebbledb
-          tags: tharsishq/evmos:latest-e2etest-pebble, tharsishq/evmos:${{ steps.meta.outputs.tag }}-pebble
+          tags: tharsishq/evmos:latest-pebble, tharsishq/evmos:${{ steps.meta.outputs.tag }}-pebble
