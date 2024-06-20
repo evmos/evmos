@@ -7,17 +7,20 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
-var ExtendedActivators = map[int]func(*vm.JumpTable){
-	// EXTERNAL EIPs
-	0o000: enable0000,
-	0o001: enable0001,
-	0o002: enable0002,
+// EvmosActivators defines a map of opcode modifiers associated
+// with a key defining the corresponding EIP.
+var EvmosActivators = map[int]func(*vm.JumpTable){
+	00000: enable0000,
+	00001: enable0001,
+	00002: enable0002,
 }
 
-var DefaultEnabledEIPs = []int64{
-	0o000,
-	0o001,
-	0o002,
+// DefaultEnabledEvmosEIPs defines the EIP that should be activated
+// by default and will be merged in the x/evm Params.
+var DefaultEnabledEvmosEIPs = []int64{
+	00000,
+	00001,
+	00002,
 }
 
 // enable0000 contains the logic to modify the CREATE and CREATE2 opcodes
