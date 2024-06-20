@@ -3,7 +3,7 @@ name: Push to Docker Hub
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 permissions: read-all
 
 jobs:
