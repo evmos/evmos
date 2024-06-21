@@ -65,7 +65,6 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 	ak.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		ethAcc, ok := account.(*evmostypes.EthAccount)
 		if !ok {
-			// only migrate EthAccounts
 			return false
 		}
 

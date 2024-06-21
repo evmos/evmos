@@ -264,6 +264,7 @@ func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
+	authtypes.ModuleName: genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
 	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
 	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
@@ -319,6 +320,8 @@ func customizeGenesis(
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			panic("no genesis setup function found for module: " + mod)
 		}
 	}
 	return genesisState, err
