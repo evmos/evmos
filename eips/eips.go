@@ -11,17 +11,17 @@ var (
 	// EvmosActivators defines a map of opcode modifiers associated
 	// with a key defining the corresponding EIP.
 	EvmosActivators = map[int]func(*vm.JumpTable){
-		0000: enable0000,
-		0001: enable0001,
-		0002: enable0002,
+		0o000: enable0000,
+		0o001: enable0001,
+		0o002: enable0002,
 	}
 
 	// DefaultEnabledEIPs defines the EIP that should be activated
 	// by default and will be merged in the x/evm Params.
 	DefaultEnabledEIPs = []int64{
-		0000,
-		0001,
-		0002,
+		0o000,
+		0o001,
+		0o002,
 	}
 )
 
