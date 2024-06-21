@@ -33,6 +33,5 @@ jobs:
             go.sum
             *.toml
       - run: |
-          make build-docker-goleveldb
-          make build-docker-pebbledb
+          make build
         if: env.GIT_DIFF
