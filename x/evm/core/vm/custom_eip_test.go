@@ -31,27 +31,27 @@ func TestExtendActivators(t *testing.T) {
 		{
 			"success - single new activator",
 			map[int]func(*JumpTable){
-				0000: func(jt *JumpTable) {},
+				0o000: func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
-				_, ok := activators[0000]
+				_, ok := activators[0o000]
 				require.True(t, ok)
 			},
 		},
 		{
 			"success - multiple new activators",
 			map[int]func(*JumpTable){
-				0001: func(jt *JumpTable) {},
-				0002: func(jt *JumpTable) {},
+				0o001: func(jt *JumpTable) {},
+				0o002: func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
-				_, ok := activators[0000]
+				_, ok := activators[0o000]
 				require.True(t, ok)
-				_, ok = activators[0001]
+				_, ok = activators[0o001]
 				require.True(t, ok)
 			},
 		},
@@ -67,13 +67,13 @@ func TestExtendActivators(t *testing.T) {
 		{
 			"fail - repeated activator with valid activator",
 			map[int]func(*JumpTable){
-				0000: func(jt *JumpTable) {},
-				3855: func(jt *JumpTable) {},
+				0o000: func(jt *JumpTable) {},
+				3855:  func(jt *JumpTable) {},
 			},
 			false,
 			"",
 			func() {
-				_, ok := activators[0000]
+				_, ok := activators[0o000]
 				require.False(t, ok)
 			},
 		},
