@@ -38,7 +38,7 @@ func TestExtendActivators(t *testing.T) {
 			"",
 			func() {
 				eips := GetActivatorsEipNumbers()
-				require.ElementsMatch(t, append(eips_snapshot, 0000), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0o000), eips, "expected eips number to be equal")
 			},
 		},
 		{
@@ -52,7 +52,7 @@ func TestExtendActivators(t *testing.T) {
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
 			},
 		},
 		{
@@ -65,21 +65,21 @@ func TestExtendActivators(t *testing.T) {
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"fail - valid activator is not stored if a repeated is present",
 			map[int]func(*JumpTable){
-				0003: func(jt *JumpTable) {},
-				3855: func(jt *JumpTable) {},
+				0o003: func(jt *JumpTable) {},
+				3855:  func(jt *JumpTable) {},
 			},
 			false,
 			"",
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
 			},
 		},
 	}
