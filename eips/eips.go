@@ -4,13 +4,24 @@ package eips
 
 import (
 	"github.com/ethereum/go-ethereum/params"
+	evmconfig "github.com/evmos/evmos/v18/x/evm/config"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
+
+func init() {
+	err := evmconfig.NewEVMConfigurator().
+		WithExtendedEips(evmosActivators).
+		WithExtendedDefaultExtraEIPs(defaultEnabledEIPs).
+		Apply()
+	if err != nil {
+		panic(err)
+	}
+}
 
 var (
 	// EvmosActivators defines a map of opcode modifiers associated
 	// with a key defining the corresponding EIP.
-	EvmosActivators = map[int]func(*vm.JumpTable){
+	evmosActivators = map[int]func(*vm.JumpTable){
 		0o000: enable0000,
 		0o001: enable0001,
 		0o002: enable0002,
@@ -18,10 +29,10 @@ var (
 
 	// DefaultEnabledEIPs defines the EIP that should be activated
 	// by default and will be merged in the x/evm Params.
-	DefaultEnabledEIPs = []int64{
-		0o000,
-		0o001,
-		0o002,
+	defaultEnabledEIPs = []int64{
+		// 0o000,
+		// 0o001,
+		// 0o002,
 	}
 )
 

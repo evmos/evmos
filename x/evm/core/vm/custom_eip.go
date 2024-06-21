@@ -29,6 +29,16 @@ func ExtendActivators(eips map[int]func(*JumpTable)) error {
 	return nil
 }
 
+func GetActivatorsEipNumbers() []int {
+	keys := make([]int, 0, len(activators))
+	for k := range activators {
+		keys = append(keys, k)
+	}
+
+	sort.Ints(keys)
+	return keys
+}
+
 // SetExecute sets the execution function of the operation.
 func (o *operation) SetExecute(ef executionFunc) {
 	o.execute = ef

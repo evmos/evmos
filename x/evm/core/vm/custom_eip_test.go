@@ -9,11 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMain(m *testing.M) {
-	m.Run()
-}
-
 func TestExtendActivators(t *testing.T) {
+	eips_snapshot := GetActivatorsEipNumbers()
+
 	testCases := []struct {
 		name           string
 		new_activators map[int]func(*JumpTable)
@@ -26,7 +24,10 @@ func TestExtendActivators(t *testing.T) {
 			nil,
 			true,
 			"",
-			func() {},
+			func() {
+				eips := GetActivatorsEipNumbers()
+				require.ElementsMatch(t, eips_snapshot, eips, "expected eips number to be equal")
+			},
 		},
 		{
 			"success - single new activator",
@@ -36,8 +37,8 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-				_, ok := activators[0o000]
-				require.True(t, ok)
+				eips := GetActivatorsEipNumbers()
+				require.ElementsMatch(t, append(eips_snapshot, 0000), eips, "expected eips number to be equal")
 			},
 		},
 		{
@@ -49,32 +50,36 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-				_, ok := activators[0o000]
-				require.True(t, ok)
-				_, ok = activators[0o001]
-				require.True(t, ok)
+				eips := GetActivatorsEipNumbers()
+				// since we are working with a global function, tests are not independent
+				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
 			},
 		},
 		{
-			"fail - only repeated activator",
+			"fail - repeated activator",
 			map[int]func(*JumpTable){
 				3855: func(jt *JumpTable) {},
 			},
 			false,
 			"",
-			func() {},
+			func() {
+				eips := GetActivatorsEipNumbers()
+				// since we are working with a global function, tests are not independent
+				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
+			},
 		},
 		{
-			"fail - repeated activator with valid activator",
+			"fail - valid activator is not stored if a repeated is present",
 			map[int]func(*JumpTable){
-				0o000: func(jt *JumpTable) {},
-				3855:  func(jt *JumpTable) {},
+				0003: func(jt *JumpTable) {},
+				3855: func(jt *JumpTable) {},
 			},
 			false,
 			"",
 			func() {
-				_, ok := activators[0o000]
-				require.False(t, ok)
+				eips := GetActivatorsEipNumbers()
+				// since we are working with a global function, tests are not independent
+				require.ElementsMatch(t, append(eips_snapshot, 0000, 0001, 0002), eips, "expected eips number to be equal")
 			},
 		},
 	}
@@ -87,5 +92,7 @@ func TestExtendActivators(t *testing.T) {
 			require.Error(t, err)
 			require.Contains(t, err.Error(), tc.errContains, "expected different error")
 		}
+
+		tc.postCheck()
 	}
 }

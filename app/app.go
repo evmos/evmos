@@ -117,8 +117,8 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/evmos/evmos/v18/eips"
-	evmconfig "github.com/evmos/evmos/v18/x/evm/config"
+	// eips is imported to activate side effects during init.
+	_ "github.com/evmos/evmos/v18/eips"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support
@@ -178,18 +178,6 @@ import (
 )
 
 func init() {
-	// Provides custom initialization to the x/evm module
-	err := evmconfig.NewEVMConfigurator().
-		WithExtendedEips(eips.EvmosActivators).
-		WithExtendedDefaultExtraEIPs(eips.DefaultEnabledEIPs).
-		Apply()
-	if err != nil {
-		panic(err)
-	}
-
-	// evmconfig.ExtendEips(eips.EvmosActivators)
-	// evmconfig.UpdateDefaultExtraEIPs(eips.DefaultEnabledEIPs)
-
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
