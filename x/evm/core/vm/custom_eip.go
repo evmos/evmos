@@ -4,25 +4,29 @@
 package vm
 
 import (
+	"fmt"
 	"sort"
 )
 
 // ExtendActivators allows to merge the go ethereum activators map
 // with additional activators.
-func ExtendActivators(eips map[int]func(*JumpTable)) {
-	// Sorting key to ensure deterministic execution.
+func ExtendActivators(eips map[int]func(*JumpTable)) error {
+	// Catch early duplicated eip.
 	keys := make([]int, 0, len(eips))
 	for k := range eips {
+		if !ValidEip(k) {
+			return fmt.Errorf("duplicate activation: %d is already present in %s", k, ActivateableEips())
+		}
 		keys = append(keys, k)
 	}
+
+	// Sorting keys to ensure deterministic execution.
 	sort.Ints(keys)
 
-	// If an EIP is already present in the activators type, skip it.
 	for _, k := range keys {
-		if _, exist := activators[k]; !exist {
-			activators[k] = eips[k]
-		}
+		activators[k] = eips[k]
 	}
+	return nil
 }
 
 // SetExecute sets the execution function of the operation.

@@ -178,10 +178,17 @@ import (
 )
 
 func init() {
-	// Provides custom initialization to the x/evm module validated
-	// during genesis initialization.
-	evmconfig.ExtendEips(eips.ExtendedActivators)
-	evmconfig.UpdateDefaultExtraEIPs(eips.DefaultEnabledEIPs)
+	// Provides custom initialization to the x/evm module
+	err := evmconfig.NewEVMConfigurator().
+		WithExtendedEips(eips.EvmosActivators).
+		WithExtendedDefaultExtraEIPs(eips.DefaultEnabledEIPs).
+		Apply()
+	if err != nil {
+		panic(err)
+	}
+
+	// evmconfig.ExtendEips(eips.EvmosActivators)
+	// evmconfig.UpdateDefaultExtraEIPs(eips.DefaultEnabledEIPs)
 
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
