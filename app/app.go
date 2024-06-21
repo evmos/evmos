@@ -406,7 +406,7 @@ func NewEvmos(
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey],
-		authtypes.ProtoBaseAccount, maccPerms,
+		evmostypes.ProtoAccount, maccPerms,
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
 	)
@@ -1157,6 +1157,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.UpgradeName,
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.AccountKeeper,
 			app.EvmKeeper,
 		),
 	)
