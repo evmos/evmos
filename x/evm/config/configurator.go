@@ -17,8 +17,8 @@ import (
 // the EVM before starting the node, and all the validation are left to the InitGenesis of
 // the module.
 type EVMConfigurator struct {
-	extended_eips         map[int]func(*vm.JumpTable)
-	extended_default_eips []int64
+	extendedEIPs        map[int]func(*vm.JumpTable)
+	extendedDefaultEIPs []int64
 }
 
 func NewEVMConfigurator() *EVMConfigurator {
@@ -27,26 +27,26 @@ func NewEVMConfigurator() *EVMConfigurator {
 
 // WithExtendedEips allows to add to the go-ethereum activators map the provided
 // EIP activators.
-func (ec *EVMConfigurator) WithExtendedEips(extended_eips map[int]func(*vm.JumpTable)) *EVMConfigurator {
-	ec.extended_eips = extended_eips
+func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[int]func(*vm.JumpTable)) *EVMConfigurator {
+	ec.extendedEIPs = extendedEIPs
 	return ec
 }
 
 // WithExtendedDefaultExtraEIPs update the x/evm DefaultExtraEIPs params
 // by adding provided EIP numbers.
 func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips []int64) *EVMConfigurator {
-	ec.extended_default_eips = eips
+	ec.extendedDefaultEIPs = eips
 	return ec
 }
 
 // Apply apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Apply() error {
-	err := vm.ExtendActivators(ec.extended_eips)
+	err := vm.ExtendActivators(ec.extendedEIPs)
 	if err != nil {
 		return err
 	}
 
-	for _, eip := range ec.extended_default_eips {
+	for _, eip := range ec.extendedDefaultEIPs {
 		if !slices.Contains(types.DefaultExtraEIPs, eip) {
 			types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 		}
