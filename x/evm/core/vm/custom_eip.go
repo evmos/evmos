@@ -14,7 +14,7 @@ func ExtendActivators(eips map[int]func(*JumpTable)) error {
 	// Catch early duplicated eip.
 	keys := make([]int, 0, len(eips))
 	for k := range eips {
-		if !ValidEip(k) {
+		if ExistsEipActivator(k) {
 			return fmt.Errorf("duplicate activation: %d is already present in %s", k, ActivateableEips())
 		}
 		keys = append(keys, k)

@@ -7,8 +7,6 @@
 package config
 
 import (
-	"fmt"
-
 	"golang.org/x/exp/slices"
 
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
@@ -49,10 +47,9 @@ func (ec *EVMConfigurator) Apply() error {
 	}
 
 	for _, eip := range ec.extended_default_eips {
-		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("duplicate default EIP: %d is already present in %v", eip, types.DefaultExtraEIPs)
+		if !slices.Contains(types.DefaultExtraEIPs, eip) {
+			types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 		}
 	}
-	types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, ec.extended_default_eips...)
 	return nil
 }
