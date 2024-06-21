@@ -89,7 +89,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper, ak types.AccountKeeper) *t
 		}
 
 		codeHash := k.GetCodeHash(ctx, address)
-		// TODO: this is never true (I think)
 		if !types.BytesAreEmptyCodeHash(codeHash.Bytes()) {
 			// only store smart contracts in the EVM genesis state
 			return false
