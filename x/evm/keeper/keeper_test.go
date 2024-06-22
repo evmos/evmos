@@ -4,7 +4,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -122,10 +122,11 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				i := 0
 				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 					defer func() { i++ }()
+
 					var storage evmtypes.Storage
-					ethAccount, ok := account.(evmostypes.EthAccountI)
-					if ok {
-						storage = suite.network.App.EvmKeeper.GetAccountStorage(ctx, ethAccount.EthAddress())
+					hexAddr := utils.SDKAddrToEthAddr(account.GetAddress())
+					if suite.network.App.EvmKeeper.IsContract(ctx, hexAddr) {
+						storage = suite.network.App.EvmKeeper.GetAccountStorage(ctx, hexAddr)
 					}
 					expRes[account.GetAccountNumber()] = len(storage)
 
@@ -150,13 +151,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			expRes := tc.malleate()
 
 			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-				ethAccount, ok := account.(evmostypes.EthAccountI)
-				if !ok {
-					// Ignore e.g. module accounts
-					return false
-				}
-
-				addr := ethAccount.EthAddress()
+				addr := utils.SDKAddrToEthAddr(account.GetAddress())
 				storage := suite.network.App.EvmKeeper.GetAccountStorage(ctx, addr)
 
 				storageEntriesCount := len(storage)
@@ -165,6 +160,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				suite.Require().Equal(expCount, storageEntriesCount)
 				if !tc.expStorage {
 					if storageEntriesCount > 0 {
+						println("Expected no storage entries, but got some")
 						passed = false
 						return true
 					}

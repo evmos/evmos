@@ -10,8 +10,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-
 	"github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
 	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
@@ -22,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -108,16 +105,9 @@ func (is *IntegrationTestSuite) SetupTest() {
 
 	// provide only the address and code hash,
 	// then the setup will determine the account number
-	codeHash := crypto.Keccak256Hash(common.Hex2Bytes(erc20ContractCode)).String()
 	genAccs := []authtypes.GenesisAccount{
-		&evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(is.evmosAddr.Bytes(), nil, 0, 0),
-			CodeHash:    codeHash,
-		},
-		&evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(is.xmplAddr.Bytes(), nil, 0, 0),
-			CodeHash:    codeHash,
-		},
+		authtypes.NewBaseAccount(is.evmosAddr.Bytes(), nil, 0, 0),
+		authtypes.NewBaseAccount(is.xmplAddr.Bytes(), nil, 0, 0),
 	}
 	packedAccs, err := authtypes.PackAccounts(genAccs)
 	Expect(err).ToNot(HaveOccurred())
