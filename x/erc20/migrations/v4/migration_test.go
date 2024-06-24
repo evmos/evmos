@@ -71,6 +71,6 @@ func TestMigrate(t *testing.T) {
 	}
 
 	params := types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
-	var defaultParams = types.DefaultParams()
+	defaultParams := types.DefaultParams()
 	require.Equal(t, params, defaultParams)
 }
