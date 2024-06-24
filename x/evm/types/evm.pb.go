@@ -219,7 +219,7 @@ func (m *AccessControl) GetCall() AccessControlType {
 type AccessControlType struct {
 	// access_type defines which type of permission is required for the operation
 	AccessType AccessType `protobuf:"varint,1,opt,name=access_type,json=accessType,proto3,enum=ethermint.evm.v1.AccessType" json:"access_type,omitempty" yaml:"access_type"`
-	// allowlist_addresses defines defines different things depending on the AccessType:
+	// access_control_list defines defines different things depending on the AccessType:
 	// - ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation
 	// - ACCESS_TYPE_RESTRICTED: ignored
 	// - ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation

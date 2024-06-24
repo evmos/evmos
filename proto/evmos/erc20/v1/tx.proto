@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "evmos/erc20/v1/genesis.proto";
@@ -39,7 +40,7 @@ message MsgConvertERC20 {
 // MsgConvertERC20Response returns no fields
 message MsgConvertERC20Response {}
 
-/ MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
+// MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
 message MsgConvertCoin {
   // coin is a Cosmos coin whose denomination is registered in a token pair. The coin
   // amount defines the amount of coins to convert.
