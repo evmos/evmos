@@ -4,6 +4,8 @@
 package v19
 
 import (
+	"slices"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -94,15 +96,16 @@ func RunSTRv2Migration(
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 
-	if err := RegisterERC20Extensions(ctx, erc20Keeper, evmKeeper); err != nil {
+	if err := registerERC20Extensions(ctx, wrappedContractAddr, erc20Keeper, evmKeeper); err != nil {
 		return errorsmod.Wrap(err, "failed to register ERC-20 extensions")
 	}
 
 	return nil
 }
 
-// RegisterERC20Extensions registers the ERC20 precompiles with the EVM.
-func RegisterERC20Extensions(ctx sdk.Context,
+// registerERC20Extensions registers the ERC20 precompiles with the EVM.
+func registerERC20Extensions(ctx sdk.Context,
+	wrappedContractAddr common.Address,
 	erc20Keeper erc20keeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
@@ -118,12 +121,14 @@ func RegisterERC20Extensions(ctx sdk.Context,
 		}
 
 		address := tokenPair.GetERC20Contract()
-		// Add to existing EVM extensions
-		err = erc20Keeper.EnableDynamicPrecompiles(ctx, address)
+		if !slices.Equal(address.Bytes(), wrappedContractAddr.Bytes()) {
+			// Add to existing EVM extensions - except wrappedEvmos which is on NativePrecompiles
+			err = erc20Keeper.EnableDynamicPrecompiles(ctx, address)
+		}
+
 		if err != nil {
 			return true
 		}
-
 		// try selfdestruct ERC20 contract
 
 		// NOTE(@fedekunze): From now on, the contract address will map to a precompile instead
@@ -142,8 +147,8 @@ func RegisterERC20Extensions(ctx sdk.Context,
 	return err
 }
 
-// LogTokenPairBalances logs the total balances of each token pair.
-func LogTokenPairBalances(
+// logTokenPairBalances logs the total balances of each token pair.
+func logTokenPairBalances(
 	ctx sdk.Context,
 	logger log.Logger,
 	bankKeeper bankkeeper.Keeper,

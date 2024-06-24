@@ -42,7 +42,7 @@ func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 	missingAccounts := 0
 	wallets := fixes.GetAllMissingWallets()
 
-	filter := GenerateFilter(accountKeeper, ctx)
+	filter := generateFilter(accountKeeper, ctx)
 
 	for _, wallet := range wallets {
 		ethAddr := common.HexToAddress(wallet)
@@ -55,7 +55,7 @@ func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 				continue
 			}
 
-			if IsAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
+			if isAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
 				continue
 			}
 			xenAccounts++
@@ -113,7 +113,6 @@ func executeConversion(
 // ConvertERC20Coins iterates trough all the authmodule accounts and all missing accounts from the auth module
 // recovers the balance from erc20 contracts for the registered token pairs
 // and for each entry it sends the balance from escrow into the account.
-
 func ConvertERC20Coins(
 	ctx sdk.Context,
 	logger log.Logger,
@@ -127,7 +126,7 @@ func ConvertERC20Coins(
 	var finalizedResults []BalanceResult
 
 	missingAccounts := GetMissingWalletsFromAuthModule(ctx, accountKeeper)
-	filter := GenerateFilter(accountKeeper, ctx)
+	filter := generateFilter(accountKeeper, ctx)
 
 	for _, account := range missingAccounts {
 		addBalances(ctx, account, evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
@@ -143,7 +142,7 @@ func ConvertERC20Coins(
 
 		ethAccount, ok := account.(*evmostypes.EthAccount)
 		if ok {
-			if !IsAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
+			if !isAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
 				return false
 			}
 		}
