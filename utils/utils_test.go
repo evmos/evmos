@@ -238,11 +238,11 @@ func TestAddressConversion(t *testing.T) {
 	bech32 := "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky"
 
 	hexAddr := common.HexToAddress(hex)
-	require.Equal(t, bech32, EthToSDKAddr(hexAddr).String())
-	require.Equal(t, bech32, EthHexToSDKAddr(hex).String())
+	require.Equal(t, bech32, EthToCosmosAddr(hexAddr).String())
+	require.Equal(t, bech32, EthHexToCosmosAddr(hex).String())
 
 	accAddr := sdk.MustAccAddressFromBech32(bech32)
-	require.Equal(t, hex, SDKAddrToEthAddr(accAddr).Hex())
+	require.Equal(t, hex, CosmosToEthAddr(accAddr).Hex())
 
 	gotAddr, err := Bech32ToHexAddr(bech32)
 	require.NoError(t, err)

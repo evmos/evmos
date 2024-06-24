@@ -66,7 +66,7 @@ var (
 	erc20Addr = common.HexToAddress(erc20ContractHex)
 
 	// smartContractAddress is the bech32 address of the Ethereum smart contract account that is set in genesis.
-	smartContractAddress = utils.EthToSDKAddr(erc20Addr).String()
+	smartContractAddress = utils.EthToCosmosAddr(erc20Addr).String()
 )
 
 // createGenesisWithERC20 creates a genesis state that contains the state containing an EthAccount that is a smart contract.
@@ -137,7 +137,7 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 	require.NoError(t, network.NextBlock(), "failed to advance block")
 
 	// Check the contract is an EthAccount before migration
-	erc20AddrAsBech32 := utils.EthToSDKAddr(erc20Addr)
+	erc20AddrAsBech32 := utils.EthToCosmosAddr(erc20Addr)
 	acc := network.App.AccountKeeper.GetAccount(network.GetContext(), erc20AddrAsBech32)
 	require.NotNil(t, acc, "account not found")
 	require.IsType(t, &evmostypes.EthAccount{}, acc, "expected account to be an EthAccount")

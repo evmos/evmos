@@ -61,6 +61,8 @@ func RemoveOutpostsFromEvmParams(ctx sdk.Context,
 }
 
 // MigrateEthAccountsToBaseAccounts is used to store the code hash of the associated
+// smart contracts in the dedicated store in the EVM module and convert the former
+// EthAccounts to standard Cosmos SDK accounts.
 func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper, ek *evmkeeper.Keeper) {
 	ak.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		ethAcc, ok := account.(*evmostypes.EthAccount)
@@ -68,7 +70,7 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 			return false
 		}
 
-		hexAddr := utils.SDKAddrToEthAddr(ethAcc.GetAddress())
+		hexAddr := utils.CosmosToEthAddr(ethAcc.GetAddress())
 		ek.SetCodeHash(ctx, hexAddr, common.HexToHash(ethAcc.CodeHash))
 
 		// Set the base account in the account keeper instead of the EthAccount

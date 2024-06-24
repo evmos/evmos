@@ -406,7 +406,7 @@ func NewEvmos(
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey],
-		evmostypes.ProtoAccount, maccPerms,
+		authtypes.ProtoBaseAccount, maccPerms,
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
 	)
@@ -959,7 +959,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	}
 
 	for _, precompile := range blockedPrecompilesHex {
-		blockedAddrs[utils.EthHexToSDKAddr(precompile).String()] = true
+		blockedAddrs[utils.EthHexToCosmosAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs

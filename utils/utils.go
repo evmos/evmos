@@ -31,14 +31,14 @@ const (
 	BaseDenom = "aevmos"
 )
 
-// EthHexToSDKAddr takes a given Hex string and derives a Cosmos SDK account address
+// EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
 // from it.
-func EthHexToSDKAddr(hexAddr string) sdk.AccAddress {
-	return EthToSDKAddr(common.HexToAddress(hexAddr))
+func EthHexToCosmosAddr(hexAddr string) sdk.AccAddress {
+	return EthToCosmosAddr(common.HexToAddress(hexAddr))
 }
 
-// EthToSDKAddr converts a given Ethereum style address to an SDK address.
-func EthToSDKAddr(addr common.Address) sdk.AccAddress {
+// EthToCosmosAddr converts a given Ethereum style address to an SDK address.
+func EthToCosmosAddr(addr common.Address) sdk.AccAddress {
 	return sdk.AccAddress(addr.Bytes())
 }
 
@@ -50,12 +50,12 @@ func Bech32ToHexAddr(bech32Addr string) (common.Address, error) {
 		return common.Address{}, errorsmod.Wrapf(err, "failed to convert bech32 string to address")
 	}
 
-	return SDKAddrToEthAddr(accAddr), nil
+	return CosmosToEthAddr(accAddr), nil
 }
 
-// SDKAddrToEthAddr converts a given SDK account address to
+// CosmosToEthAddr converts a given SDK account address to
 // an Ethereum address.
-func SDKAddrToEthAddr(accAddr sdk.AccAddress) common.Address {
+func CosmosToEthAddr(accAddr sdk.AccAddress) common.Address {
 	return common.BytesToAddress(accAddr.Bytes())
 }
 

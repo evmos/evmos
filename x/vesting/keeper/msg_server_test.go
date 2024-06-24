@@ -237,7 +237,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 				)
 				suite.Require().NoError(err, "failed to deploy example contract")
 
-				return utils.EthToSDKAddr(contractAddr)
+				return utils.EthToCosmosAddr(contractAddr)
 			},
 			funder:      funderAddr,
 			expPass:     false,
