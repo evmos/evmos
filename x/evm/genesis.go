@@ -40,7 +40,7 @@ func InitGenesis(
 		address := common.HexToAddress(account.Address)
 		accAddress := sdk.AccAddress(address.Bytes())
 
-		// check that the EVM balance the matches the account balance
+		// check that the account is actually found in the account keeper
 		acc := accountKeeper.GetAccount(ctx, accAddress)
 		if acc == nil {
 			panic(fmt.Errorf("account not found for address %s", account.Address))
@@ -49,20 +49,6 @@ func InitGenesis(
 		code := common.Hex2Bytes(account.Code)
 		codeHash := crypto.Keccak256Hash(code)
 
-		// TODO: I think this can be removed now that the EVM state is detached from the account keeper state
-		// This basically was cross-checking that both are in sync.
-		//
-		// // we ignore the empty Code hash checking, see ethermint PR#1234
-		// if len(account.Code) != 0 && !bytes.Equal(ethAcct.GetCodeHash().Bytes(), codeHash.Bytes()) {
-		// 	s := "the evm state code doesn't match with the codehash\n"
-		// 	panic(fmt.Sprintf("%s account: %s , evm state codehash: %v, ethAccount codehash: %v, evm state code: %s\n",
-		// 		s, account.Address, codeHash, ethAcct.GetCodeHash(), account.Code))
-		// }
-
-		// TODO: Do we need to add the code hash to the genesis accounts too?
-		//
-		// TODO: what is the significance of the code hash? Why do both need to be stored and not just
-		// the code related to the account?
 		k.SetCodeHash(ctx, address, codeHash)
 		k.SetCode(ctx, codeHash.Bytes(), code)
 
@@ -89,7 +75,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper, ak types.AccountKeeper) *t
 		}
 
 		codeHash := k.GetCodeHash(ctx, address)
-		if !types.BytesAreEmptyCodeHash(codeHash.Bytes()) {
+		if types.BytesAreEmptyCodeHash(codeHash.Bytes()) {
 			// only store smart contracts in the EVM genesis state
 			return false
 		}

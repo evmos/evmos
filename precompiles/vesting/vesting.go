@@ -22,6 +22,8 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 )
 
+const PrecompileAddress = "0x0000000000000000000000000000000000000803"
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -79,7 +81,7 @@ func NewPrecompile(
 // Address defines the address of the staking compile contract.
 // address: 0x0000000000000000000000000000000000000803
 func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000803")
+	return common.HexToAddress(PrecompileAddress)
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.

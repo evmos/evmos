@@ -124,7 +124,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 					defer func() { i++ }()
 
 					var storage evmtypes.Storage
-					hexAddr := utils.SDKAddrToEthAddr(account.GetAddress())
+					hexAddr := utils.CosmosToEthAddr(account.GetAddress())
 					if suite.network.App.EvmKeeper.IsContract(ctx, hexAddr) {
 						storage = suite.network.App.EvmKeeper.GetAccountStorage(ctx, hexAddr)
 					}
@@ -151,7 +151,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			expRes := tc.malleate()
 
 			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-				addr := utils.SDKAddrToEthAddr(account.GetAddress())
+				addr := utils.CosmosToEthAddr(account.GetAddress())
 				storage := suite.network.App.EvmKeeper.GetAccountStorage(ctx, addr)
 
 				storageEntriesCount := len(storage)

@@ -254,7 +254,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				)
 				require.NoError(t, err, "failed to deploy example contract")
 
-				return utils.EthToSDKAddr(contractAddr)
+				return utils.EthToCosmosAddr(contractAddr)
 			},
 			funder:      funderAddr,
 			expPass:     false,

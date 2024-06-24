@@ -6,7 +6,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/x/evm"
@@ -18,6 +21,8 @@ import (
 type GenesisTestSuite struct {
 	keyring testkeyring.Keyring
 	network *testnetwork.UnitTestNetwork
+	handler testhandler.Handler
+	factory testfactory.TxFactory
 }
 
 func SetupTest() *GenesisTestSuite {
@@ -25,9 +30,14 @@ func SetupTest() *GenesisTestSuite {
 	network := testnetwork.NewUnitTestNetwork(
 		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
+	handler := testhandler.NewIntegrationHandler(network)
+	factory := testfactory.New(network, handler)
+
 	return &GenesisTestSuite{
 		keyring: keyring,
 		network: network,
+		handler: handler,
+		factory: factory,
 	}
 }
 
@@ -37,10 +47,7 @@ func TestInitGenesis(t *testing.T) {
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
-	var (
-		vmdb *statedb.StateDB
-		ctx  sdk.Context
-	)
+	var vmdb *statedb.StateDB
 
 	testCases := []struct {
 		name     string
@@ -85,47 +92,10 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: true,
 		},
-		// TODO: similar to the other tests below this can be removed, check below
-		//{
-		//	name: "invalid account type",
-		//	malleate: func(network *testnetwork.UnitTestNetwork) {
-		//		acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
-		//		accNum := network.App.AccountKeeper.NextAccountNumber(ctx)
-		//		acc.AccountNumber = accNum
-		//		network.App.AccountKeeper.SetAccount(ctx, acc)
-		//	},
-		//	genState: &types.GenesisState{
-		//		Params: types.DefaultParams(),
-		//		Accounts: []types.GenesisAccount{
-		//			{
-		//				Address: address.String(),
-		//			},
-		//		},
-		//	},
-		//	expPanic: true,
-		//},
-		// TODO: similar to the other test below this can be removed because the integrity of code hashes between
-		// account keeper and EVM state is not checked anymore.
-		//{
-		//	name: "invalid code hash",
-		//	malleate: func(network *testnetwork.UnitTestNetwork) {
-		//		acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
-		//		network.App.AccountKeeper.SetAccount(ctx, acc)
-		//	},
-		//	genState: &types.GenesisState{
-		//		Params: types.DefaultParams(),
-		//		Accounts: []types.GenesisAccount{
-		//			{
-		//				Address: address.String(),
-		//				Code:    "ffffffff",
-		//			},
-		//		},
-		//	},
-		//	expPanic: true,
-		//},
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
+				ctx := network.GetContext()
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
@@ -140,37 +110,12 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: false,
 		},
-		//TODO: I think this can be removed because the integrity of the code hash between account keeper
-		//and EVM genesis state is not applicable anymore.
-		//
-		//{
-		//	name: "ignore empty account code checking with non-empty codehash",
-		//	malleate: func(network *testnetwork.UnitTestNetwork) {
-		//		ethAcc := &evmostypes.EthAccount{
-		//			BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
-		//			CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
-		//		}
-		//		accNum := network.App.AccountKeeper.NextAccountNumber(ctx)
-		//		ethAcc.AccountNumber = accNum
-		//		network.App.AccountKeeper.SetAccount(ctx, ethAcc)
-		//	},
-		//	genState: &types.GenesisState{
-		//		Params: types.DefaultParams(),
-		//		Accounts: []types.GenesisAccount{
-		//			{
-		//				Address: address.String(),
-		//				Code:    "",
-		//			},
-		//		},
-		//	},
-		//	expPanic: false,
-		//},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ts := SetupTest()
-			ctx = ts.network.GetContext()
+			ctx := ts.network.GetContext()
 
 			vmdb = statedb.New(
 				ctx,
@@ -203,4 +148,40 @@ func TestInitGenesis(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestExportGenesis(t *testing.T) {
+	ts := SetupTest()
+
+	contractAddr, err := ts.factory.DeployContract(
+		ts.keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"TestToken", "TTK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
+
+	contractAddr2, err := ts.factory.DeployContract(
+		ts.keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"AnotherToken", "ATK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
+
+	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EvmKeeper, ts.network.App.AccountKeeper)
+	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
+
+	genAddresses := make([]string, 0, len(genState.Accounts))
+	for _, acc := range genState.Accounts {
+		genAddresses = append(genAddresses, acc.Address)
+	}
+	require.Contains(t, genAddresses, contractAddr.Hex(), "expected contract 1 address in exported genesis")
+	require.Contains(t, genAddresses, contractAddr2.Hex(), "expected contract 2 address in exported genesis")
 }

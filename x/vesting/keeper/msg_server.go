@@ -61,7 +61,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 	}
 
 	// Check for contract account (code hash is not empty)
-	if ek.IsContract(ctx, utils.SDKAddrToEthAddr(acc.GetAddress())) {
+	if ek.IsContract(ctx, utils.CosmosToEthAddr(acc.GetAddress())) {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
 			"account %s is a contract account and cannot be converted in a clawback vesting account", msg.VestingAddress,
 		)
