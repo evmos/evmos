@@ -8,11 +8,9 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -61,25 +59,9 @@ func InitGenesis(
 }
 
 // ExportGenesis exports genesis state of the EVM module
-func ExportGenesis(ctx sdk.Context, k *keeper.Keeper, ak types.AccountKeeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	var ethGenAccounts []types.GenesisAccount
-	ak.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-		acc, ok := account.(*authtypes.BaseAccount)
-		if !ok {
-			return false
-		}
-
-		address, err := utils.Bech32ToHexAddr(acc.Address)
-		if err != nil {
-			return false
-		}
-
-		codeHash := k.GetCodeHash(ctx, address)
-		if types.BytesAreEmptyCodeHash(codeHash.Bytes()) {
-			// only store smart contracts in the EVM genesis state
-			return false
-		}
-
+	k.IterateContracts(ctx, func(address common.Address, codeHash common.Hash) (stop bool) {
 		storage := k.GetAccountStorage(ctx, address)
 
 		genAccount := types.GenesisAccount{
