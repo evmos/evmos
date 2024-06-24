@@ -1016,10 +1016,8 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 		errContains string
 	}{
 		{
-			name: "remove address",
-			addr: suite.address,
-			// TODO: check if this assumption is correct? It should not be possible to delete an "EthAccount" like that,
-			// only smart contracts?
+			name:        "remove address",
+			addr:        suite.address,
 			errContains: "only smart contracts can be self-destructed",
 		},
 		{

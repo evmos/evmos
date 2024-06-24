@@ -197,8 +197,6 @@ func (k *Keeper) SetCodeHash(ctx sdk.Context, addr common.Address, codeHash comm
 }
 
 // SetCode set contract code, delete if code is empty.
-//
-// TODO: do we still need this separation of the codehash and the code itself if both is stored in the same keeper?
 func (k *Keeper) SetCode(ctx sdk.Context, codeHash, code []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
 
