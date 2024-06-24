@@ -42,7 +42,7 @@ func TestExtendedEips(t *testing.T) {
 			"success - new default extra eips without duplication added",
 			func() *config.EVMConfigurator {
 				extendedEIPs := map[int]func(*vm.JumpTable){
-					0o000: func(jt *vm.JumpTable) {},
+					0o000: func(_ *vm.JumpTable) {},
 				}
 				ec := config.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
 				return ec
