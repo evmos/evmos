@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"

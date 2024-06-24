@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -17,11 +18,15 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v18/contracts"
+	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *KeeperTestSuite) TestCreateAccount() {
@@ -352,6 +357,54 @@ func (suite *KeeperTestSuite) TestKeeperSetCode() {
 	}
 }
 
+func TestIterateContracts(t *testing.T) {
+	keyring := testkeyring.New(1)
+	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	handler := testhandler.NewIntegrationHandler(network)
+	factory := testfactory.New(network, handler)
+
+	contractAddr, err := factory.DeployContract(
+		keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"TestToken", "TTK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, network.NextBlock(), "failed to advance block")
+
+	contractAddr2, err := factory.DeployContract(
+		keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"AnotherToken", "ATK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, network.NextBlock(), "failed to advance block")
+
+	var (
+		foundAddrs  []common.Address
+		foundHashes []common.Hash
+	)
+
+	network.App.EvmKeeper.IterateContracts(network.GetContext(), func(addr common.Address, codeHash common.Hash) bool {
+		foundAddrs = append(foundAddrs, addr)
+		foundHashes = append(foundHashes, codeHash)
+		return false
+	})
+
+	require.Len(t, foundAddrs, 2, "expected 2 contracts to be found when iterating")
+	require.Contains(t, foundAddrs, contractAddr, "expected contract 1 to be found when iterating")
+	require.Contains(t, foundAddrs, contractAddr2, "expected contract 2 to be found when iterating")
+	require.Equal(t, foundHashes[0], foundHashes[1], "expected both contracts to have the same code hash")
+	require.NotEqual(t, types.EmptyCodeHash, foundHashes[0], "expected store code hash not to be the keccak256 of empty code")
+}
+
 func (suite *KeeperTestSuite) TestRefund() {
 	testCases := []struct {
 		name      string
@@ -448,8 +501,8 @@ func (suite *KeeperTestSuite) TestSetAndGetCodeHash() {
 
 func (suite *KeeperTestSuite) TestSuicide() {
 	keyring := testkeyring.New(1)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	unitNetwork := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
 	firstAddressIndex := keyring.AddKey()
