@@ -7,6 +7,8 @@
 package config
 
 import (
+	"fmt"
+
 	"golang.org/x/exp/slices"
 
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
@@ -41,14 +43,15 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips []int64) *EVMConfig
 
 // Apply apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Apply() error {
-	err := vm.ExtendActivators(ec.extendedEIPs)
-	if err != nil {
+	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
 		return err
 	}
 
 	for _, eip := range ec.extendedDefaultEIPs {
 		if !slices.Contains(types.DefaultExtraEIPs, eip) {
 			types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
+		} else {
+			return fmt.Errorf("EIP %d is already present in the default list: %v", eip, types.DefaultExtraEIPs)
 		}
 	}
 	return nil

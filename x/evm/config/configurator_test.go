@@ -68,10 +68,27 @@ func TestExtendedEips(t *testing.T) {
 func TestExtendedDefaultExtraEips(t *testing.T) {
 	defaultExtraEIPsSnapshot := types.DefaultExtraEIPs
 	testCases := []struct {
-		name      string
-		malleate  func() *config.EVMConfigurator
-		postCheck func()
+		name        string
+		malleate    func() *config.EVMConfigurator
+		postCheck   func()
+		expPass     bool
+		errContains string
 	}{
+		{
+			"fail - duplicate default EIP entiries",
+			func() *config.EVMConfigurator {
+				extraDefaultEIPs := []int64{1_000}
+				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, 1_000)
+				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
+				return ec
+			},
+			func() {
+				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, 1_000), types.DefaultExtraEIPs)
+				types.DefaultExtraEIPs = defaultExtraEIPsSnapshot
+			},
+			false,
+			"EIP 1000 is already present",
+		},
 		{
 			"success - empty default extra eip",
 			func() *config.EVMConfigurator {
@@ -82,28 +99,22 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			func() {
 				require.ElementsMatch(t, defaultExtraEIPsSnapshot, types.DefaultExtraEIPs)
 			},
+			true,
+			"",
 		},
 		{
 			"success - extra default eip added",
 			func() *config.EVMConfigurator {
-				extraDefaultEIPs := []int64{1000}
+				extraDefaultEIPs := []int64{1_001}
 				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
 				return ec
 			},
 			func() {
-				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, 1000), types.DefaultExtraEIPs)
+				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, 1_001), types.DefaultExtraEIPs)
+				types.DefaultExtraEIPs = defaultExtraEIPsSnapshot
 			},
-		},
-		{
-			"success - extra default eip added removing duplicates",
-			func() *config.EVMConfigurator {
-				extraDefaultEIPs := []int64{1000, 1001}
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
-				return ec
-			},
-			func() {
-				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, 1000, 1001), types.DefaultExtraEIPs)
-			},
+			true,
+			"",
 		},
 	}
 
@@ -111,7 +122,12 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		ec := tc.malleate()
 		err := ec.Apply()
 
-		require.NoError(t, err)
+		if tc.expPass {
+			require.NoError(t, err)
+		} else {
+			require.Error(t, err)
+			require.Contains(t, err.Error(), tc.errContains, "expected different error")
+		}
 
 		tc.postCheck()
 	}
