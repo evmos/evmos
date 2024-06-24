@@ -58,6 +58,25 @@ func (k *Keeper) GetCodeHash(ctx sdk.Context, addr common.Address) common.Hash {
 	return common.BytesToHash(bz)
 }
 
+// IterateContracts iterates over all smart contract addresses in the EVM keeper and
+// performs a callback function.
+//
+// The iteration is stopped when the callback function returns true.
+func (k Keeper) IterateContracts(ctx sdk.Context, cb func(addr common.Address, codeHash common.Hash) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixCodeHash)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		addr := common.BytesToAddress(iterator.Key())
+		codeHash := common.BytesToHash(iterator.Value())
+
+		if cb(addr, codeHash) {
+			break
+		}
+	}
+}
+
 // GetCode loads contract code from database, implements `statedb.Keeper` interface.
 func (k *Keeper) GetCode(ctx sdk.Context, codeHash common.Hash) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
