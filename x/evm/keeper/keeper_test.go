@@ -121,8 +121,6 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 
 			i := 0
 			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
-				println("account message: ", account.String())
-				fmt.Printf("type of account: %T\n", account)
 				acc, ok := account.(*authtypes.BaseAccount)
 				if !ok {
 					// Ignore e.g. module accounts

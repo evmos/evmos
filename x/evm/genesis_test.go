@@ -174,7 +174,7 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, err, "failed to deploy contract")
 	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
 
-	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EvmKeeper, ts.network.App.AccountKeeper)
+	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EvmKeeper)
 	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
 
 	genAddresses := make([]string, 0, len(genState.Accounts))
