@@ -4,6 +4,7 @@
 package network
 
 import (
+	"fmt"
 	"math/big"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -29,27 +30,47 @@ type Config struct {
 
 type CustomGenesisState map[string]interface{}
 
-// DefaultConfig returns the default configuration for a chain.
-func DefaultConfig() Config {
+// NewConfig returns a new configuration based on the given
+// settings.
+func NewConfig(
+	chainID string,
+	denom string,
+	nValidators int,
+) Config {
+	EIP155ChainID, err := evmostypes.ParseChainID(chainID)
+	if err != nil {
+		panic(fmt.Sprintf("invalid chainID while setting up integration test config: %s", err))
+	}
+
+	// TODO: check if this is actually necessary?
 	account, _ := testtx.NewAccAddressAndKey()
+
 	return Config{
-		chainID:            utils.MainnetChainID + "-1",
-		eip155ChainID:      big.NewInt(9001),
-		amountOfValidators: 3,
-		// No funded accounts besides the validators by default
-		preFundedAccounts: []sdktypes.AccAddress{account},
-		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
+		chainID:            chainID,
+		eip155ChainID:      EIP155ChainID,
+		amountOfValidators: nValidators,
+		preFundedAccounts:  []sdktypes.AccAddress{account},
 		balances:           nil,
-		denom:              utils.BaseDenom,
+		denom:              denom,
 		customGenesisState: nil,
 	}
 }
 
-// getGenAccountsAndBalances takes the network configuration and returns the used
+// DefaultConfig returns the default configuration for a chain.
+func DefaultConfig() Config {
+	nVals := 3
+	return NewConfig(
+		utils.MainnetChainID+"-1",
+		utils.BaseDenom,
+		nVals,
+	)
+}
+
+// GetGenAccountsAndBalances takes the network configuration and returns the used
 // genesis accounts and balances.
 //
 // NOTE: If the balances are set, the pre-funded accounts are ignored.
-func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
+func GetGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
 	if len(cfg.balances) > 0 {
 		balances = cfg.balances
 		accounts := getAccAddrsFromBalances(balances)
@@ -114,4 +135,39 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 	return func(cfg *Config) {
 		cfg.customGenesisState = customGenesis
 	}
+}
+
+// GetChainID returns the chainID field of the config.
+func (cfg Config) GetChainID() string {
+	return cfg.chainID
+}
+
+// GetEIP155ChainID returns the EIP-155 chainID number.
+func (cfg Config) GetEIP155ChainID() *big.Int {
+	return cfg.eip155ChainID
+}
+
+// GetAmountOfValidators returns the amount of validators field of the config.
+func (cfg Config) GetAmountOfValidators() int {
+	return cfg.amountOfValidators
+}
+
+// GetPreFundedAccounts returns the pre-funded accounts field of the config.
+func (cfg Config) GetPreFundedAccounts() []sdktypes.AccAddress {
+	return cfg.preFundedAccounts
+}
+
+// GetBalances returns the balances field of the config.
+func (cfg Config) GetBalances() []banktypes.Balance {
+	return cfg.balances
+}
+
+// GetDenom returns the denom field of the config.
+func (cfg Config) GetDenom() string {
+	return cfg.denom
+}
+
+// GetCustomGenesisState returns the custom genesis state field of the config.
+func (cfg Config) GetCustomGenesisState() CustomGenesisState {
+	return cfg.customGenesisState
 }

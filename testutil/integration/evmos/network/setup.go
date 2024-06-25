@@ -37,9 +37,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-// createValidatorSetAndSigners creates validator set with the amount of validators specified
+// CreateValidatorSetAndSigners creates validator set with the amount of validators specified
 // with the default power of 1.
-func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
+func CreateValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
 	// Create validator set
 	tmValidators := make([]*tmtypes.Validator, 0, numberOfValidators)
 	signers := make(map[string]tmtypes.PrivValidator, numberOfValidators)
@@ -339,8 +339,8 @@ func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.C
 	return totalSupply
 }
 
-// addBondedModuleAccountToFundedBalances adds bonded amount to bonded pool module account and include it on funded accounts
-func addBondedModuleAccountToFundedBalances(
+// AddBondedModuleAccountToFundedBalances adds bonded amount to bonded pool module account and include it on funded accounts
+func AddBondedModuleAccountToFundedBalances(
 	fundedAccountsBalances []banktypes.Balance,
 	totalBonded sdktypes.Coin,
 ) []banktypes.Balance {
