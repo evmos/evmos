@@ -29,7 +29,7 @@ func NewEmptyAccount() *Account {
 
 // IsContract returns if the account contains contract code.
 func (acct Account) IsContract() bool {
-	return !types.BytesAreEmptyCodeHash(acct.CodeHash)
+	return !types.IsEmptyCodeHash(acct.CodeHash)
 }
 
 // Storage represents in-memory cache/buffer of contract storage.
@@ -93,7 +93,7 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 func (s *stateObject) empty() bool {
 	return s.account.Nonce == 0 &&
 		s.account.Balance.Sign() == 0 &&
-		types.BytesAreEmptyCodeHash(s.account.CodeHash)
+		types.IsEmptyCodeHash(s.account.CodeHash)
 }
 
 func (s *stateObject) markSuicided() {
@@ -146,7 +146,7 @@ func (s *stateObject) Code() []byte {
 		return s.code
 	}
 
-	if types.BytesAreEmptyCodeHash(s.CodeHash()) {
+	if types.IsEmptyCodeHash(s.CodeHash()) {
 		return nil
 	}
 

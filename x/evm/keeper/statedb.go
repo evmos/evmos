@@ -189,7 +189,7 @@ func (k *Keeper) SetCodeHash(ctx sdk.Context, addr common.Address, codeHash comm
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
 	key := addr.Bytes()
 	hashBytes := codeHash.Bytes()
-	if types.BytesAreEmptyCodeHash(hashBytes) {
+	if types.IsEmptyCodeHash(hashBytes) {
 		store.Delete(key)
 	} else {
 		store.Set(key, hashBytes)

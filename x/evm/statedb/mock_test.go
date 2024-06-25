@@ -96,7 +96,7 @@ func (k MockKeeper) DeleteAccount(_ sdk.Context, addr common.Address) error {
 	}
 	old := k.accounts[addr]
 	delete(k.accounts, addr)
-	if !types.BytesAreEmptyCodeHash(old.account.CodeHash) {
+	if !types.IsEmptyCodeHash(old.account.CodeHash) {
 		delete(k.codes, common.BytesToHash(old.account.CodeHash))
 	}
 	return nil

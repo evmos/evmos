@@ -27,8 +27,8 @@ var (
 	EmptyCodeHash = crypto.Keccak256(nil)
 )
 
-// BytesAreEmptyCodeHash checks if the given byte slice represents an empty code hash.
-func BytesAreEmptyCodeHash(bz []byte) bool {
+// IsEmptyCodeHash checks if the given byte slice represents an empty code hash.
+func IsEmptyCodeHash(bz []byte) bool {
 	return bytes.Equal(bz, EmptyCodeHash)
 }
 
