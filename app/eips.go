@@ -1,39 +1,11 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package eips
+
+package app
 
 import (
 	"github.com/ethereum/go-ethereum/params"
-	evmconfig "github.com/evmos/evmos/v18/x/evm/config"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
-)
-
-func init() {
-	err := evmconfig.NewEVMConfigurator().
-		WithExtendedEips(evmosActivators).
-		WithExtendedDefaultExtraEIPs(defaultEnabledEIPs).
-		Apply()
-	if err != nil {
-		panic(err)
-	}
-}
-
-var (
-	// EvmosActivators defines a map of opcode modifiers associated
-	// with a key defining the corresponding EIP.
-	evmosActivators = map[int]func(*vm.JumpTable){
-		0o000: enable0000,
-		0o001: enable0001,
-		0o002: enable0002,
-	}
-
-	// DefaultEnabledEIPs defines the EIP that should be activated
-	// by default and will be merged in the x/evm Params.
-	defaultEnabledEIPs = []int64{
-		// 0o000,
-		// 0o001,
-		// 0o002,
-	}
 )
 
 // enable0000 contains the logic to modify the CREATE and CREATE2 opcodes

@@ -14,7 +14,7 @@ import (
 )
 
 func TestEVMConfigurator(t *testing.T) {
-	err := config.NewEVMConfigurator().Apply()
+	err := config.NewEVMConfigurator().Configure()
 
 	require.NoError(t, err)
 }
@@ -54,7 +54,7 @@ func TestExtendedEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
-		err := ec.Apply()
+		err := ec.Configure()
 
 		if tc.expPass {
 			require.NoError(t, err)
@@ -77,9 +77,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		{
 			"fail - duplicate default EIP entiries",
 			func() *config.EVMConfigurator {
-				extraDefaultEIPs := []int64{1_000}
+				extendedDefaultExtraEIPs := []int64{1_000}
 				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, 1_000)
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
+				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -92,8 +92,8 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		{
 			"success - empty default extra eip",
 			func() *config.EVMConfigurator {
-				var extraDefaultEIPs []int64
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
+				var extendedDefaultExtraEIPs []int64
+				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -105,8 +105,8 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		{
 			"success - extra default eip added",
 			func() *config.EVMConfigurator {
-				extraDefaultEIPs := []int64{1_001}
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extraDefaultEIPs)
+				extendedDefaultExtraEIPs := []int64{1_001}
+				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -120,7 +120,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
-		err := ec.Apply()
+		err := ec.Configure()
 
 		if tc.expPass {
 			require.NoError(t, err)

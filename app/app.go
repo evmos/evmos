@@ -117,8 +117,6 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	// eips is imported to activate side effects during init.
-	_ "github.com/evmos/evmos/v18/eips"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support

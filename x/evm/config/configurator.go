@@ -15,14 +15,15 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
-// EvmConfigurator allows to extend x/evm module configurations. The configurator modifies
-// the EVM before starting the node, and all the validation are left to the InitGenesis of
-// the module.
+// EVMConfigurator allows to extend x/evm module configurations. The configurator modifies
+// the EVM before starting the node. This means that all init genesis validations will be
+// applied to each change.
 type EVMConfigurator struct {
-	extendedEIPs        map[int]func(*vm.JumpTable)
-	extendedDefaultEIPs []int64
+	extendedEIPs             map[int]func(*vm.JumpTable)
+	extendedDefaultExtraEIPs []int64
 }
 
+// NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
 func NewEVMConfigurator() *EVMConfigurator {
 	return &EVMConfigurator{}
 }
@@ -36,18 +37,18 @@ func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[int]func(*vm.JumpTa
 
 // WithExtendedDefaultExtraEIPs update the x/evm DefaultExtraEIPs params
 // by adding provided EIP numbers.
-func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips []int64) *EVMConfigurator {
-	ec.extendedDefaultEIPs = eips
+func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...int64) *EVMConfigurator {
+	ec.extendedDefaultExtraEIPs = eips
 	return ec
 }
 
-// Apply apply the changes to the virtual machine configuration.
-func (ec *EVMConfigurator) Apply() error {
+// Configure apply the changes to the virtual machine configuration.
+func (ec *EVMConfigurator) Configure() error {
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
 		return err
 	}
 
-	for _, eip := range ec.extendedDefaultEIPs {
+	for _, eip := range ec.extendedDefaultExtraEIPs {
 		if !slices.Contains(types.DefaultExtraEIPs, eip) {
 			types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 		} else {
