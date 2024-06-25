@@ -13,7 +13,6 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-
 	evmante "github.com/evmos/evmos/v18/app/ante/evm"
 	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -61,6 +60,7 @@ func (options HandlerOptions) Validate() error {
 	if options.EvmKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
 	}
+
 	if options.SigGasConsumer == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")
 	}

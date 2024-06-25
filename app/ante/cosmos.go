@@ -8,6 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	democracyante "github.com/cosmos/interchain-security/v4/app/consumer-democracy/ante"
+	"github.com/evmos/evmos/v18/app"
 	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v18/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -21,6 +23,8 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
+		// democracy ante handler
+		democracyante.NewForbiddenProposalsDecorator(app.IsProposalWhitelisted, app.IsModuleWhiteList),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
