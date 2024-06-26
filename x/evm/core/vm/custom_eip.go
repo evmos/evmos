@@ -6,6 +6,8 @@ package vm
 import (
 	"fmt"
 	"sort"
+
+	"golang.org/x/exp/maps"
 )
 
 // ExtendActivators allows to merge the go ethereum activators map
@@ -30,10 +32,7 @@ func ExtendActivators(eips map[int]func(*JumpTable)) error {
 }
 
 func GetActivatorsEipNumbers() []int {
-	keys := make([]int, 0, len(activators))
-	for k := range activators {
-		keys = append(keys, k)
-	}
+	keys := maps.Keys(activators)
 
 	sort.Ints(keys)
 	return keys
