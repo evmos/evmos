@@ -225,7 +225,7 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // TODO: refactor
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
-	is.network.App.Erc20Keeper.SetTokenPair(is.network.GetContext(), tokenPair)
+	is.network.App.Erc20Keeper.SetToken(is.network.GetContext(), tokenPair)
 
 	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up %q erc20 precompile", tokenPair.Denom)
@@ -248,7 +248,10 @@ func setupERC20PrecompileForTokenPair(
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 	}
 
-	err = unitNetwork.App.EvmKeeper.AddEVMExtensions(unitNetwork.GetContext(), precompile)
+	err = unitNetwork.App.Erc20Keeper.EnableDynamicPrecompiles(
+		unitNetwork.GetContext(),
+		precompile.Address(),
+	)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
 	}

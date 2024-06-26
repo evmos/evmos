@@ -42,12 +42,12 @@ func RemoveOutpostsFromEvmParams(ctx sdk.Context,
 ) error {
 	params := evmKeeper.GetParams(ctx)
 	newActivePrecompiles := make([]string, 0)
-	for _, precompile := range params.ActivePrecompiles {
+	for _, precompile := range params.ActiveStaticPrecompiles {
 		if precompile != OsmosisOutpostAddress &&
 			precompile != StrideOutpostAddress {
 			newActivePrecompiles = append(newActivePrecompiles, precompile)
 		}
 	}
-	params.ActivePrecompiles = newActivePrecompiles
+	params.ActiveStaticPrecompiles = newActivePrecompiles
 	return evmKeeper.SetParams(ctx, params)
 }

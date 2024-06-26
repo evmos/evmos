@@ -53,7 +53,7 @@ func MigrateStore(
 		CancunBlock:         paramsV5.ChainConfig.CancunBlock,
 	}
 	params.AllowUnprotectedTxs = paramsV5.AllowUnprotectedTxs
-	params.ActivePrecompiles = paramsV5.ActivePrecompiles
+	params.ActiveStaticPrecompiles = paramsV5.ActivePrecompiles
 	params.EVMChannels = types.DefaultEVMChannels
 
 	// DefaultEVMChannels are for Evmos mainnet

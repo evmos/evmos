@@ -26,6 +26,8 @@ from .utils import (
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
 # uosmo IBC representation on the Evmos chain.
 OSMO_IBC_DENOM = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
+# uatom from cosmoshub-1 IBC representation on the Evmos chain and on Cosmos Hub 2 chain.
+ATOM_IBC_DENOM = "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
 
 RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
@@ -55,8 +57,13 @@ IBC_CHAINS_META = {
         "bin": "osmosisd",
         "denom": "uosmo",
     },
-    "gaia": {
+    "cosmoshub-1": {
         "chain_name": "cosmoshub-1",
+        "bin": "gaiad",
+        "denom": "uatom",
+    },
+    "cosmoshub-2": {
+        "chain_name": "cosmoshub-2",
         "bin": "gaiad",
         "denom": "uatom",
     },

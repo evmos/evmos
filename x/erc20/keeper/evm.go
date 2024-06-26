@@ -36,7 +36,7 @@ func (k Keeper) DeployERC20Contract(
 		decimals,
 	)
 	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(evmtypes.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
 	}
 
 	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
@@ -78,7 +78,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
 		)
 	}
 
@@ -90,7 +90,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
 		)
 	}
 
@@ -102,7 +102,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
 		)
 	}
 

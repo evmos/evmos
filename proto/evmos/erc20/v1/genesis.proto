@@ -20,7 +20,12 @@ message GenesisState {
 message Params {
   // enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
   bool enable_erc20 = 1;
-  // enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
-  // Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address.
-  bool enable_evm_hook = 2 [(gogoproto.customname) = "EnableEVMHook"];
+  // enable_evm_hook is now depecrated
+  reserved 2;
+  // native_precompiles defines the slice of hex addresses of the
+  // active precompiles that are used to interact with native staking coins as ERC20s
+  repeated string native_precompiles = 3;
+  // dynamic_precompiles defines the slice of hex addresses of the
+  // active precompiles that are used to interact with Bank coins as ERC20s
+  repeated string dynamic_precompiles = 4;
 }

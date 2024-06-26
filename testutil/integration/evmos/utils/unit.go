@@ -57,7 +57,7 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
 
-	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), evmosMetadata)
+	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), evmosMetadata.Base)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}
@@ -121,7 +121,7 @@ func RegisterIBCERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), ibcMetadata)
+	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), ibcMetadata.Base)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}

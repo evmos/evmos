@@ -8,7 +8,7 @@ import "./IERC20Metadata.sol";
  * @title ERC20 Metadata Allowance Interface
  * @dev Interface for the optional metadata and allowance functions from the ERC20 standard.
  */
-interface IERC20MetadataAllowance is IERC20Metadata {	
+interface IERC20MetadataAllowance is IERC20Metadata {
     /** @dev Atomically increases the allowance granted to spender by the caller.
       * This is an alternative to approve that can be used as a mitigation for problems described in
       * IERC20.approve.

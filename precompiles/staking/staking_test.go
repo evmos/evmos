@@ -449,12 +449,10 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.ctx, msg, cfg, nil, s.stateDB,
 			)
 
-			params := s.app.EvmKeeper.GetParams(s.ctx)
-			activePrecompiles := params.GetActivePrecompilesAddrs()
-			precompileMap := s.app.EvmKeeper.Precompiles(activePrecompiles...)
-			err = vm.ValidatePrecompiles(precompileMap, activePrecompiles)
-			s.Require().NoError(err, "invalid precompiles", activePrecompiles)
-			evm.WithPrecompiles(precompileMap, activePrecompiles)
+			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
+			s.Require().NoError(err, "failed to instantiate precompile")
+			s.Require().True(found, "not found precompile")
+			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
 
 			// Run precompiled contract
 			bz, err := s.precompile.Run(evm, contract, tc.readOnly)

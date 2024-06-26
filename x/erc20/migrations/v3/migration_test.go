@@ -54,7 +54,7 @@ func TestMigrate(t *testing.T) {
 	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
 
 	// Get all the new parameters from the store
-	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
+	enableEvmHook := store.Has(v3types.ParamStoreKeyEnableEVMHook)
 	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
 
 	params := v3types.NewParams(enableErc20, enableEvmHook)

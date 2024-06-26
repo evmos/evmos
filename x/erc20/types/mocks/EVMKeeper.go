@@ -26,31 +26,6 @@ type EVMKeeper struct {
 	mock.Mock
 }
 
-// AddEVMExtensions provides a mock function with given fields: ctx, precompiles
-func (_m *EVMKeeper) AddEVMExtensions(ctx types.Context, precompiles ...vm.PrecompiledContract) error {
-	_va := make([]interface{}, len(precompiles))
-	for _i := range precompiles {
-		_va[_i] = precompiles[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for AddEVMExtensions")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(types.Context, ...vm.PrecompiledContract) error); ok {
-		r0 = rf(ctx, precompiles...)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // ApplyMessage provides a mock function with given fields: ctx, msg, tracer, commit
 func (_m *EVMKeeper) ApplyMessage(ctx types.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error) {
 	ret := _m.Called(ctx, msg, tracer, commit)
@@ -230,17 +205,17 @@ func (_m *EVMKeeper) GetParams(ctx types.Context) evmtypes.Params {
 	return r0
 }
 
-// IsAvailablePrecompile provides a mock function with given fields: addr
-func (_m *EVMKeeper) IsAvailablePrecompile(addr common.Address) bool {
-	ret := _m.Called(addr)
+// IsAvailableStaticPrecompile provides a mock function with given fields: params, address
+func (_m *EVMKeeper) IsAvailableStaticPrecompile(params *evmtypes.Params, address common.Address) bool {
+	ret := _m.Called(params, address)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsAvailablePrecompile")
+		panic("no return value specified for IsAvailableStaticPrecompile")
 	}
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(common.Address) bool); ok {
-		r0 = rf(addr)
+	if rf, ok := ret.Get(0).(func(*evmtypes.Params, common.Address) bool); ok {
+		r0 = rf(params, address)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
