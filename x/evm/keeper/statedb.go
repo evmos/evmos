@@ -5,11 +5,9 @@ package keeper
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -138,18 +136,20 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 // SetAccount updates nonce/balance/codeHash together.
 func (k *Keeper) SetAccount(ctx sdk.Context, addr common.Address, account statedb.Account) error {
 	// update account
-	cosmosAddr := sdk.AccAddress(addr.Bytes())
-	acct := k.accountKeeper.GetAccount(ctx, cosmosAddr)
+	acct := k.accountKeeper.GetAccount(ctx, addr.Bytes())
 	if acct == nil {
-		acct = k.accountKeeper.NewAccountWithAddress(ctx, cosmosAddr)
+		acct = k.accountKeeper.NewAccountWithAddress(ctx, addr.Bytes())
 	}
 
 	if err := acct.SetSequence(account.Nonce); err != nil {
 		return err
 	}
 
-	codeHash := common.BytesToHash(account.CodeHash)
-	k.SetCodeHash(ctx, addr, codeHash)
+	if types.IsEmptyCodeHash(account.CodeHash) {
+		k.DeleteCodeHash(ctx, addr)
+	} else {
+		k.SetCodeHash(ctx, addr.Bytes(), account.CodeHash)
+	}
 	k.accountKeeper.SetAccount(ctx, acct)
 
 	if err := k.SetBalance(ctx, addr, account.Balance); err != nil {
@@ -160,56 +160,80 @@ func (k *Keeper) SetAccount(ctx sdk.Context, addr common.Address, account stated
 		"account updated",
 		"ethereum-address", addr.Hex(),
 		"nonce", account.Nonce,
-		"codeHash", codeHash.Hex(),
+		"codeHash", common.BytesToHash(account.CodeHash).Hex(),
 		"balance", account.Balance,
 	)
 	return nil
 }
 
-// SetState update contract storage, delete if value is empty.
+// SetState update contract storage.
 func (k *Keeper) SetState(ctx sdk.Context, addr common.Address, key common.Hash, value []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(addr))
-	action := "updated"
-	if len(value) == 0 {
-		store.Delete(key.Bytes())
-		action = "deleted"
-	} else {
-		store.Set(key.Bytes(), value)
-	}
+	store.Set(key.Bytes(), value)
+
 	k.Logger(ctx).Debug(
-		fmt.Sprintf("state %s", action),
+		"state updated",
 		"ethereum-address", addr.Hex(),
 		"key", key.Hex(),
 	)
 }
 
-// SetCodeHash sets the code hash for the given contract address and deletes an existing
-// entry if the passed code hash is empty.
-func (k *Keeper) SetCodeHash(ctx sdk.Context, addr common.Address, codeHash common.Hash) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
-	key := addr.Bytes()
-	hashBytes := codeHash.Bytes()
-	if types.IsEmptyCodeHash(hashBytes) {
-		store.Delete(key)
-	} else {
-		store.Set(key, hashBytes)
-	}
+// DeleteState deletes the entry for the given key in the contract storage
+// at the defined contract address.
+func (k *Keeper) DeleteState(ctx sdk.Context, addr common.Address, key common.Hash) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(addr))
+	store.Delete(key.Bytes())
+
+	k.Logger(ctx).Debug(
+		"state deleted",
+		"ethereum-address", addr.Hex(),
+		"key", key.Hex(),
+	)
 }
 
-// SetCode set contract code, delete if code is empty.
+// SetCodeHash sets the code hash for the given contract address.
+func (k *Keeper) SetCodeHash(ctx sdk.Context, addrBytes, hashBytes []byte) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
+	store.Set(addrBytes, hashBytes)
+
+	k.Logger(ctx).Debug(
+		"code hash updated",
+		"address", common.BytesToAddress(addrBytes).Hex(),
+		"code hash", common.BytesToHash(hashBytes).Hex(),
+	)
+}
+
+// DeleteCodeHash deletes the code hash for the given contract address from the store.
+func (k *Keeper) DeleteCodeHash(ctx sdk.Context, addr common.Address) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCodeHash)
+	store.Delete(addr.Bytes())
+
+	k.Logger(ctx).Debug(
+		"code hash deleted",
+		"address", addr.Hex(),
+	)
+}
+
+// SetCode sets the given contract code bytes for the corresponding code hash bytes key
+// in the code store.
 func (k *Keeper) SetCode(ctx sdk.Context, codeHash, code []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
+	store.Set(codeHash, code)
 
-	// store or delete code
-	action := "updated"
-	if len(code) == 0 {
-		store.Delete(codeHash)
-		action = "deleted"
-	} else {
-		store.Set(codeHash, code)
-	}
 	k.Logger(ctx).Debug(
-		fmt.Sprintf("code %s", action),
+		"code updated",
+		"code-hash", common.BytesToHash(codeHash).Hex(),
+	)
+}
+
+// DeleteCode deletes the contract code for the given code hash bytes in
+// the corresponding store.
+func (k *Keeper) DeleteCode(ctx sdk.Context, codeHash []byte) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
+	store.Delete(codeHash)
+
+	k.Logger(ctx).Debug(
+		"code deleted",
 		"code-hash", common.BytesToHash(codeHash).Hex(),
 	)
 }
@@ -239,12 +263,12 @@ func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 
 	// clear storage
 	k.ForEachStorage(ctx, addr, func(key, _ common.Hash) bool {
-		k.SetState(ctx, addr, key, nil)
+		k.DeleteState(ctx, addr, key)
 		return true
 	})
 
 	// clear code hash
-	k.SetCodeHash(ctx, addr, common.BytesToHash(types.EmptyCodeHash))
+	k.DeleteCodeHash(ctx, addr)
 
 	// remove auth account
 	k.accountKeeper.RemoveAccount(ctx, acct)

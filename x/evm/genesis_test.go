@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
@@ -52,6 +53,7 @@ func TestInitGenesis(t *testing.T) {
 		name     string
 		malleate func(*testnetwork.UnitTestNetwork)
 		genState *types.GenesisState
+		code     common.Hash
 		expPanic bool
 	}{
 		{
@@ -109,6 +111,24 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: false,
 		},
+		{
+			name: "valid account with code",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
+				ctx := network.GetContext()
+				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+				network.App.AccountKeeper.SetAccount(ctx, acc)
+			},
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Accounts: []types.GenesisAccount{
+					{
+						Address: address.String(),
+						Code:    "1234",
+					},
+				},
+			},
+			expPanic: false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -144,6 +164,43 @@ func TestInitGenesis(t *testing.T) {
 						*tc.genState,
 					)
 				})
+
+				// If the initialization has not panicked we're checking the state
+				for _, account := range tc.genState.Accounts {
+					acc := ts.network.App.AccountKeeper.GetAccount(ctx, common.HexToAddress(account.Address).Bytes())
+					require.NotNil(t, acc, "account not found in account keeper")
+
+					expHash := crypto.Keccak256Hash(common.Hex2Bytes(account.Code))
+					if account.Code == "" {
+						expHash = common.BytesToHash(types.EmptyCodeHash)
+					}
+
+					require.Equal(t,
+						expHash.String(),
+						ts.network.App.EvmKeeper.GetCodeHash(
+							ts.network.GetContext(),
+							common.HexToAddress(account.Address),
+						).String(),
+						"code hash mismatch",
+					)
+
+					require.Equal(t,
+						account.Code,
+						common.Bytes2Hex(
+							ts.network.App.EvmKeeper.GetCode(
+								ts.network.GetContext(),
+								expHash,
+							),
+						),
+						"code mismatch",
+					)
+
+					for _, storage := range account.Storage {
+						key := common.HexToHash(storage.Key)
+						value := common.HexToHash(storage.Value)
+						require.Equal(t, value, vmdb.GetState(common.HexToAddress(account.Address), key), "storage mismatch")
+					}
+				}
 			}
 		})
 	}

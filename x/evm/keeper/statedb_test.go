@@ -324,7 +324,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestKeeperSetCode() {
+func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
 	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
 	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
@@ -348,7 +348,11 @@ func (suite *KeeperTestSuite) TestKeeperSetCode() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.app.EvmKeeper.SetCode(suite.ctx, tc.codeHash, tc.code)
+			if len(tc.code) == 0 {
+				suite.app.EvmKeeper.DeleteCode(suite.ctx, tc.codeHash)
+			} else {
+				suite.app.EvmKeeper.SetCode(suite.ctx, tc.codeHash, tc.code)
+			}
 			key := suite.app.GetKey(types.StoreKey)
 			store := prefix.NewStore(suite.ctx.KVStore(key), types.KeyPrefixCode)
 			code := store.Get(tc.codeHash)
@@ -509,9 +513,9 @@ func (suite *KeeperTestSuite) TestSuicide() {
 
 	// Set the code in the code storage
 	code := []byte("code1")
-	codeHashBz := common.BytesToHash(crypto.Keccak256(code))
-	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr1, codeHashBz)
-	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr2, codeHashBz)
+	codeHashBz := crypto.Keccak256(code)
+	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr1.Bytes(), codeHashBz)
+	suite.app.EvmKeeper.SetCodeHash(s.ctx, addr2.Bytes(), codeHashBz)
 
 	// NOTE: we're instantiating the StateDB here to have the context already contain the
 	db := suite.StateDB()

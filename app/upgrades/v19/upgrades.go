@@ -11,8 +11,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 const (
@@ -70,8 +70,11 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 			return false
 		}
 
-		hexAddr := utils.CosmosToEthAddr(ethAcc.GetAddress())
-		ek.SetCodeHash(ctx, hexAddr, common.HexToHash(ethAcc.CodeHash))
+		// NOTE: we only need to add store entries for smart contracts
+		codeHashBytes := common.HexToHash(ethAcc.CodeHash).Bytes()
+		if !evmtypes.IsEmptyCodeHash(codeHashBytes) {
+			ek.SetCodeHash(ctx, ethAcc.EthAddress().Bytes(), codeHashBytes)
+		}
 
 		// Set the base account in the account keeper instead of the EthAccount
 		ak.SetAccount(ctx, ethAcc.BaseAccount)

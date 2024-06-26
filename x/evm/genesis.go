@@ -44,10 +44,15 @@ func InitGenesis(
 		}
 
 		code := common.Hex2Bytes(account.Code)
-		codeHash := crypto.Keccak256Hash(code)
+		codeHash := crypto.Keccak256Hash(code).Bytes()
 
-		k.SetCodeHash(ctx, address, codeHash)
-		k.SetCode(ctx, codeHash.Bytes(), code)
+		if !types.IsEmptyCodeHash(codeHash) {
+			k.SetCodeHash(ctx, address.Bytes(), codeHash)
+		}
+
+		if len(code) != 0 {
+			k.SetCode(ctx, codeHash, code)
+		}
 
 		for _, storage := range account.Storage {
 			k.SetState(ctx, address, common.HexToHash(storage.Key), common.HexToHash(storage.Value).Bytes())
