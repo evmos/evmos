@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
 - (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
 - (app) [#2631](https://github.com/evmos/evmos/pull/2631) Bump IBC-go to v7.6.0 and Cosmos-SDK to v0.47.12.
+- (distribution-precompile) [#2643](https://github.com/evmos/evmos/pull/2643) Improve efficiency of reward claiming with distribution precompile.
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
 
 ### Bug Fixes
