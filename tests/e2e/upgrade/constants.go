@@ -8,7 +8,9 @@ const (
 	defaultChainID = "evmos_9000-1"
 
 	// LocalVersionTag defines the docker image ImageTag when building locally
-	LocalVersionTag = "latest"
+	//
+	// NOTE: For upgrade tests we're using the PebbleDB build
+	LocalVersionTag = "latest-pebble"
 
 	// tharsisRepo is the docker hub repository that contains the Evmos images pulled during tests
 	tharsisRepo = "tharsishq/evmos"
