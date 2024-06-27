@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
 - (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
 - (app) [#2631](https://github.com/evmos/evmos/pull/2631) Bump IBC-go to v7.6.0 and Cosmos-SDK to v0.47.12.
+- (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
 
 ### Bug Fixes
 
@@ -109,7 +110,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#2635](https://github.com/evmos/evmos/pull/2635) Add function to get ERC-20 balance to integration utils.
 - (ci) [#2630](https://github.com/evmos/evmos/pull/2630) Add PebbleDB image to docker-push workflow.
 - (ci) [#2639](https://github.com/evmos/evmos/pull/2639) Ignore Swagger JSON in CheckOV linter.
-- (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
