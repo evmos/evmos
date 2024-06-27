@@ -3,12 +3,12 @@ package keeper_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -69,11 +69,10 @@ func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
 	suite.Run(t, s)
 
-	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
+	RunSpecs(t, "ERC20 Keeper Integration Tests Suite")
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
+	suite.DoSetupTest()
 }
