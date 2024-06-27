@@ -355,6 +355,22 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"invalid type for maxRetrieve: expected uint32",
 		},
 		{
+			"pass - withdraw from validators with maxRetrieve higher than number of validators",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(10),
+				}
+			},
+			func([]byte) {
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
+			},
+			20000,
+			false,
+			"",
+		},
+		{
 			"fail - too many retrieved results",
 			func() []interface{} {
 				return []interface{}{
@@ -365,7 +381,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			func([]byte) {},
 			200000,
 			true,
-			"maxRetrieve parameter exceeds the number of validator",
+			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
 		},
 		{
 			"success - withdraw from all validators - 2",

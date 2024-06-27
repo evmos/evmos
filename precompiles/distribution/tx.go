@@ -50,8 +50,9 @@ func (p Precompile) ClaimRewards(
 		return nil, err
 	}
 
-	if maxRetrieve > p.stakingKeeper.MaxValidators(ctx) {
-		return nil, fmt.Errorf("maxRetrieve parameter exceeds the number of validators")
+	maxVals := p.stakingKeeper.MaxValidators(ctx)
+	if maxRetrieve > maxVals {
+		return nil, fmt.Errorf("maxRetrieve (%d) parameter exceeds the maximum number of validators (%d)", maxRetrieve, maxVals)
 	}
 
 	// If the contract is the delegator, we don't need an origin check
