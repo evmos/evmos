@@ -355,6 +355,19 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"invalid type for maxRetrieve: expected uint32",
 		},
 		{
+			"fail - too many retrieved results",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(32_000_000),
+				}
+			},
+			func([]byte) {},
+			200000,
+			true,
+			"maxRetrieve parameter exceeds the number of validator",
+		},
+		{
 			"success - withdraw from all validators - 2",
 			func() []interface{} {
 				return []interface{}{
