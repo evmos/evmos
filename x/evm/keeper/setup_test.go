@@ -5,13 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/evmos/v18/utils"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/simapp"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -34,7 +27,7 @@ import (
 	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/testutil"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	"github.com/stretchr/testify/require"
@@ -78,10 +71,6 @@ func TestKeeperTestSuite(t *testing.T) {
 	// Run UnitTestSuite
 	unitTestSuite := new(UnitTestSuite)
 	suite.Run(t, unitTestSuite)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
@@ -183,11 +172,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClient = evmtypes.NewQueryClient(queryHelper)
 
-	acc := &evmostypes.EthAccount{
-		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
-	}
-
+	acc := authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0)
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	valAddr := sdk.ValAddress(suite.address.Bytes())
