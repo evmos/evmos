@@ -350,7 +350,7 @@ test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 test-e2e:
 	@if [ -z "$(TARGET_VERSION)" ]; then \
 		echo "Building docker image from local codebase"; \
-		make build-docker; \
+		make build-docker-pebbledb; \
 	fi
 	@mkdir -p ./build
 	@rm -rf build/.evmosd
