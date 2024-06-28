@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // AccountKeeper defines the expected interface contract the vesting module
@@ -25,6 +26,12 @@ type AccountKeeper interface {
 type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	BlockedAddr(addr sdk.AccAddress) bool
+}
+
+// EVMKeeper defines the expected interface contract the vesting requires
+// for checking if a given account is a smart contract.
+type EVMKeeper interface {
+	IsContract(ctx sdk.Context, addr common.Address) bool
 }
 
 // StakingKeeper defines the expected interface contract the vesting module

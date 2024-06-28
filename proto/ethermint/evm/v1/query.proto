@@ -31,7 +31,7 @@ service Query {
   }
 
   // Balance queries the balance of a the EVM denomination for a single
-  // EthAccount.
+  // account.
   rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
     option (google.api.http).get = "/evmos/evm/v1/balances/{address}";
   }

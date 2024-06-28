@@ -15,14 +15,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
 	evmosapp "github.com/evmos/evmos/v18/app"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -149,17 +147,12 @@ func (s *VestingTestSuite) DoSetupTest() {
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
-	acc := &evmostypes.EthAccount{
-		BaseAccount: baseAcc,
-		CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-	}
-
 	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
 
 	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
+		Address: baseAcc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
-	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
+	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
 }

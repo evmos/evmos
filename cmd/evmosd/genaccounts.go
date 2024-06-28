@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,9 +21,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	"github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	evmoskr "github.com/evmos/evmos/v18/crypto/keyring"
 
@@ -107,7 +103,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			clawback, _ := cmd.Flags().GetBool(vestingcli.FlagClawback)
 
-			// Create ClawbackvestingAccount, sdk.VestingAccount or EthAccount
+			// Create ClawbackvestingAccount or standard Evmos account
 			switch {
 			case clawback:
 				// ClawbackvestingAccount requires clawback, lockup, vesting, and funder
@@ -205,10 +201,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				)
 
 			default:
-				genAccount = &types.EthAccount{
-					BaseAccount: baseAccount,
-					CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-				}
+				genAccount = baseAccount
 			}
 
 			if err := genAccount.Validate(); err != nil {

@@ -447,15 +447,21 @@ func (s *StateDB) Commit() error {
 		obj := s.stateObjects[addr]
 		if obj.suicided {
 			if err := s.keeper.DeleteAccount(s.ctx, obj.Address()); err != nil {
-				return errorsmod.Wrap(err, "failed to delete account")
+				return errorsmod.Wrap(err, fmt.Sprintf("failed to delete account %s", obj.Address()))
 			}
 		} else {
 			if obj.code != nil && obj.dirtyCode {
-				s.keeper.SetCode(s.ctx, obj.CodeHash(), obj.code)
+				if len(obj.code) == 0 {
+					s.keeper.DeleteCode(s.ctx, obj.CodeHash())
+				} else {
+					s.keeper.SetCode(s.ctx, obj.CodeHash(), obj.code)
+				}
 			}
+
 			if err := s.keeper.SetAccount(s.ctx, obj.Address(), obj.account); err != nil {
 				return errorsmod.Wrap(err, "failed to set account")
 			}
+
 			for _, key := range obj.dirtyStorage.SortedKeys() {
 				dirtyValue := obj.dirtyStorage[key]
 				originValue := obj.originStorage[key]
@@ -465,7 +471,13 @@ func (s *StateDB) Commit() error {
 					(!ok && dirtyValue == originValue) {
 					continue
 				}
-				s.keeper.SetState(s.ctx, obj.Address(), key, dirtyValue.Bytes())
+
+				dirtyBytes := dirtyValue.Bytes()
+				if len(dirtyBytes) == 0 {
+					s.keeper.DeleteState(s.ctx, obj.Address(), key)
+				} else {
+					s.keeper.SetState(s.ctx, obj.Address(), key, dirtyValue.Bytes())
+				}
 
 				// Update the pendingStorage cache to the new value.
 				// This is specially needed for precompiles calls where

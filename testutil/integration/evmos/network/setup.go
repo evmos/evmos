@@ -28,8 +28,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
@@ -60,14 +58,10 @@ func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
-	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
-		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		ethAcc := &evmostypes.EthAccount{
-			BaseAccount: baseAcc,
-			CodeHash:    emptyCodeHash,
-		}
-		genAccounts = append(genAccounts, ethAcc)
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
+			acc, nil, 0, 0),
+		)
 	}
 	return genAccounts
 }
@@ -270,6 +264,7 @@ func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
+	authtypes.ModuleName: genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
 	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
 	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
@@ -325,6 +320,8 @@ func customizeGenesis(
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			panic("no genesis setup function found for module: " + mod)
 		}
 	}
 	return genesisState, err
