@@ -290,7 +290,7 @@ func validateEIPs(i interface{}) error {
 	uniqueEIPs := make(map[int64]struct{})
 
 	for _, eip := range eips {
-		if !vm.ValidEip(int(eip)) {
+		if !vm.ExistsEipActivator(int(eip)) {
 			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
