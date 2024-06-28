@@ -2,12 +2,8 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package config
 
-import (
-	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
-)
-
-// EVMConfigTemplate defines the configuration template for the EVM RPC configuration.
-const EVMConfigTemplate = `
+// DefaultEVMConfigTemplate defines the configuration template for the EVM RPC configuration.
+const DefaultEVMConfigTemplate = `
 ###############################################################################
 ###                             EVM Configuration                           ###
 ###############################################################################
@@ -101,7 +97,3 @@ certificate-path = "{{ .TLS.CertificatePath }}"
 # Key path defines the key.pem file path for the TLS configuration.
 key-path = "{{ .TLS.KeyPath }}"
 `
-
-// DefaultEvmosConfigTemplate defines the configuration template for the full Evmos chain configuration
-// which contains the EVM RPC configuration plus the MemIAVL configuration.
-const DefaultEvmosConfigTemplate = EVMConfigTemplate + memiavlcfg.DefaultConfigTemplate
