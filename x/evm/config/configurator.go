@@ -52,7 +52,7 @@ func (ec *EVMConfigurator) Configure() error {
 		if slices.Contains(types.DefaultExtraEIPs, eip) {
 			return fmt.Errorf("EIP %d is already present in the default list: %v", eip, types.DefaultExtraEIPs)
 		}
-		
+
 		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 	}
 	return nil
