@@ -223,7 +223,9 @@ func AppConfig(denom string) (string, interface{}) {
 		customAppConfig.Config.MinGasPrices = "0" + denom
 	}
 
-	customAppTemplate := config.DefaultConfigTemplate + DefaultConfigTemplate
+	customAppTemplate := config.DefaultConfigTemplate +
+		DefaultEVMConfigTemplate +
+		memiavlcfg.DefaultConfigTemplate
 
 	return customAppTemplate, *customAppConfig
 }
