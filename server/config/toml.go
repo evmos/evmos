@@ -6,8 +6,8 @@ import (
 	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
-// DefaultConfigTemplate defines the configuration template for the EVM RPC configuration
-const DefaultConfigTemplate = `
+// EVMConfigTemplate defines the configuration template for the EVM RPC configuration.
+const EVMConfigTemplate = `
 ###############################################################################
 ###                             EVM Configuration                           ###
 ###############################################################################
@@ -100,4 +100,8 @@ certificate-path = "{{ .TLS.CertificatePath }}"
 
 # Key path defines the key.pem file path for the TLS configuration.
 key-path = "{{ .TLS.KeyPath }}"
-` + memiavlcfg.DefaultConfigTemplate
+`
+
+// DefaultEvmosConfigTemplate defines the configuration template for the full Evmos chain configuration
+// which contains the EVM RPC configuration plus the MemIAVL configuration.
+const DefaultEvmosConfigTemplate = EVMConfigTemplate + memiavlcfg.DefaultConfigTemplate

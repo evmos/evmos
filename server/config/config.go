@@ -223,7 +223,7 @@ func AppConfig(denom string) (string, interface{}) {
 		customAppConfig.Config.MinGasPrices = "0" + denom
 	}
 
-	customAppTemplate := config.DefaultConfigTemplate + DefaultConfigTemplate
+	customAppTemplate := config.DefaultConfigTemplate + DefaultEvmosConfigTemplate
 
 	return customAppTemplate, *customAppConfig
 }
