@@ -49,11 +49,11 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
-		if !slices.Contains(types.DefaultExtraEIPs, eip) {
-			types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
-		} else {
+		if slices.Contains(types.DefaultExtraEIPs, eip) {
 			return fmt.Errorf("EIP %d is already present in the default list: %v", eip, types.DefaultExtraEIPs)
 		}
+		
+		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 	}
 	return nil
 }
