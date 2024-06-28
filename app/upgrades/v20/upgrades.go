@@ -48,7 +48,7 @@ func CreateUpgradeHandler(
 
 		consumerGenesis.PreCCV = true
 		consumerGenesis.Params.ConsumerRedistributionFraction = "0.75" // 25% of the rewards go towards the Hub
-		consumerGenesis.Params.SoftOptOutThreshold = "0.05"
+		//consumerGenesis.Params.SoftOptOutThreshold = "0.05"
 		consumerGenesis.Params.RewardDenoms = []string{utils.BaseDenom, "uatom"} // Allow Evmos and ATOM rewards
 		consumerKeeper.InitGenesis(ctx, &consumerGenesis)
 		consumerKeeper.SetDistributionTransmissionChannel(ctx, "channel-3") // The Cosmos hub channel
