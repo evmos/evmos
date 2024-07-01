@@ -8,8 +8,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// CheckGlobalFee is used to validate the provided fee value against the
-// required global fee.
+// CheckGlobalFee validates the provided fee value against the required global fee.
 //
 // For dynamic transactions, GetFee() uses the GasFeeCap value, which
 // is the maximum gas price that the signer can pay. In practice, the

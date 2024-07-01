@@ -69,7 +69,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
 
-				// Make tx cost is negative. This has to be a big value because
+				// Make tx cost negative. This has to be a big value because
 				// it has to be bigger than the fee for the full cost to be negative
 				invalidAmount := big.NewInt(-1e18)
 				txArgs.Amount = invalidAmount
