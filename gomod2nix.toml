@@ -132,8 +132,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.37.5"
-    hash = "sha256-l/63NGQFsrG31uLsOolr6z6yMU8fKSbLA//E17mAMsI="
+    version = "v0.37.7"
+    hash = "sha256-OkJ+yDDF7eO5FBadn/9yGpxEqX6V/331/1NzikitOiA="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.12.0"
     hash = "sha256-mfeUD8+V+xUzEhSOLgQQP0GFDWt7ch/TeBw9gnTJuHk="
@@ -214,8 +214,8 @@ schema = 3
     version = "v1.4.1-0.20201116162257-a2a8dda75c91"
     hash = "sha256-VNNMZIc7NkDg3DVLnqeJNM/KZqkkaZu2/HTLBL8X2xE="
   [mod."github.com/docker/cli"]
-    version = "v20.10.24+incompatible"
-    hash = "sha256-5bvtx8SXoCnSN/M/Eb8TE0ctW8o0jH7mB2zF1JRx3Eg="
+    version = "v23.0.1+incompatible"
+    hash = "sha256-ckbEh+7rLRonJly6uP/iokLdvxhaSs/wrq2vB7CFOHU="
   [mod."github.com/docker/docker"]
     version = "v24.0.9+incompatible"
     hash = "sha256-JZToreP7NNxIoPLTsA6NTIFlYCGHi1Kty4uzuA253Xw="
@@ -366,8 +366,8 @@ schema = 3
     version = "v0.5.2"
     hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
   [mod."github.com/hashicorp/go-getter"]
-    version = "v1.7.4"
-    hash = "sha256-GtJSwcS1WXLn9lFAuTRCseIQBXJOElAywEhTtYrsfbE="
+    version = "v1.7.5"
+    hash = "sha256-oXUvMoee8GT69MA0E2JHxYm1Q2q8BtmwlfxFshDKXmI="
   [mod."github.com/hashicorp/go-immutable-radix"]
     version = "v1.3.1"
     hash = "sha256-65+A2HiVfS/GV9G+6/TkXXjzXhI/V98e6RlJWjxy+mg="
@@ -380,6 +380,9 @@ schema = 3
   [mod."github.com/hashicorp/golang-lru"]
     version = "v0.5.5-0.20210104140557-80c98217689d"
     hash = "sha256-w5utLMR7p5pF9xX+mI3N9NyfQ8ixNXNTgfXDu8fudmc="
+  [mod."github.com/hashicorp/golang-lru/v2"]
+    version = "v2.0.7"
+    hash = "sha256-t1bcXLgrQNOYUVyYEZ0knxcXpsTk4IuJZDjKvyJX75g="
   [mod."github.com/hashicorp/hcl"]
     version = "v1.0.0"
     hash = "sha256-xsRCmYyBfglMxeWUvTZqkaRLSW+V2FvNodEDjTGg1WA="
@@ -519,8 +522,8 @@ schema = 3
     version = "v0.44.0"
     hash = "sha256-8n3gSWKDSJtGfOQgxsiCGyTnUjb5hvSxJi/hPcrE5Oo="
   [mod."github.com/prometheus/procfs"]
-    version = "v0.11.0"
-    hash = "sha256-dfbKDyKmL+BNGVuvEZmw1CiGBiwqUADxJKkIi1Sbv1Y="
+    version = "v0.12.0"
+    hash = "sha256-Y4ZZmxIpVCO67zN3pGwSk2TcI88zvmGJkgwq9DRTwFw="
   [mod."github.com/prometheus/tsdb"]
     version = "v0.10.0"
     hash = "sha256-5BAv1Y4X9HvncfxTV5dIGVubwlCpEl5Y50OnL6QNffI="
@@ -666,12 +669,9 @@ schema = 3
   [mod."go.opentelemetry.io/otel/trace"]
     version = "v1.24.0"
     hash = "sha256-FHP0hg+i7+wxCsM0u/5hQcgvvr3D+lq8o/7E/HkaW4s="
-  [mod."go.uber.org/atomic"]
-    version = "v1.10.0"
-    hash = "sha256-E6UEDc1eh/cLUFd+J86cDesQ0B8wEv/DdaAVKb+x2t8="
   [mod."go.uber.org/multierr"]
-    version = "v1.9.0"
-    hash = "sha256-tlDRooh/V4HDhZohsUrxot/Y6uVInVBtRWCZbj/tPds="
+    version = "v1.10.0"
+    hash = "sha256-GepuppwpqpOGSNKi6GtGoO01TFxUQWfKZmE0B3M/HQA="
   [mod."golang.org/x/crypto"]
     version = "v0.24.0"
     hash = "sha256-wpxJApwSmmn9meVdpFdOU0gzeJbIXcKuFfYUUVogSss="
