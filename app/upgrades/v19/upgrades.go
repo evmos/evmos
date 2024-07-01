@@ -146,24 +146,3 @@ func registerERC20Extensions(ctx sdk.Context,
 
 	return err
 }
-
-// logTokenPairBalances logs the total balances of each token pair.
-func logTokenPairBalances(
-	ctx sdk.Context,
-	logger log.Logger,
-	bankKeeper bankkeeper.Keeper,
-	erc20Keeper erc20keeper.Keeper,
-) error {
-	tokenPairs := erc20Keeper.GetTokenPairs(ctx)
-	for _, tokenPair := range tokenPairs {
-		bankSupply := bankKeeper.GetSupply(ctx, tokenPair.Denom)
-
-		logger.Info(
-			"token pair balances",
-			"token_pair", tokenPair.Denom,
-			"bank supply", bankSupply.Amount.String(),
-		)
-	}
-
-	return nil
-}

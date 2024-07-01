@@ -20,11 +20,13 @@ var isTrue = []byte{0x01}
 func MigrateStore(
 	ctx sdk.Context,
 	storeKey storetypes.StoreKey,
-	legacySubspace types.Subspace,
 ) error {
 	store := ctx.KVStore(storeKey)
 
 	store.Delete(v3types.ParamStoreKeyEnableEVMHook)
+
+	store.Get(v3types.ParamStoreKeyEnableErc20)
+	store.Set(types.ParamStoreKeyEnableErc20, isTrue)
 
 	params := types.DefaultParams()
 	bz := make([]byte, 0, AddressLength*len(params.NativePrecompiles))

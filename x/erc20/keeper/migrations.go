@@ -32,5 +32,5 @@ func (m Migrator) Migrate2to3(ctx sdk.Context) error {
 }
 
 func (m Migrator) Migrate3to4(ctx sdk.Context) error {
-	return v4.MigrateStore(ctx, m.keeper.storeKey, m.legacySubspace)
+	return v4.MigrateStore(ctx, m.keeper.storeKey)
 }
