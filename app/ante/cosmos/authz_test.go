@@ -19,7 +19,7 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	testutil "github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/testutil"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )

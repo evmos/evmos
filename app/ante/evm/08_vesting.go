@@ -31,8 +31,9 @@ type EthVestingExpenseTracker struct {
 	Spendable *big.Int
 }
 
-// NOTE: Can't delete the legacy decorator yet because vesting module's tests would have to be refactored
 // NewEthVestingTransactionDecorator returns a new EthVestingTransactionDecorator.
+//
+// NOTE: Can't delete the legacy decorator yet because vesting module's tests would have to be refactored
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,

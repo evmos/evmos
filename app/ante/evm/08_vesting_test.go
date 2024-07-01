@@ -87,7 +87,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 			},
 		},
 		{
-			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total + previosExpenses should fail",
+			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total + previousExpenses should fail",
 			expectedError: vestingtypes.ErrInsufficientUnlockedCoins,
 			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()
