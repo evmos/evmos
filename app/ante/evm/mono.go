@@ -262,7 +262,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		gasWanted := UpdateComulativeGasWanted(
+		gasWanted := UpdateCumulativeGasWanted(
 			ctx,
 			txData.GetGas(),
 			md.maxGasWanted,
