@@ -75,8 +75,7 @@ def test_find_solidity_files(setup_example_contracts_files):
     )
 
     assert found_solidity_contracts[4].filename == "Contract3"
-    assert found_solidity_contracts[4].relative_path == Path(
-        HARDHAT_PROJECT_DIR)
+    assert found_solidity_contracts[4].relative_path == Path(HARDHAT_PROJECT_DIR)
     assert found_solidity_contracts[4].compiledJSONPath == Path(
         tmp_path / HARDHAT_PROJECT_DIR / "Contract3.json"
     )
@@ -102,7 +101,7 @@ def test_copy_to_contracts_directory(
     )
 
 
-@ pytest.fixture
+@pytest.fixture
 def setup_contracts_directory(tmp_path):
     """
     This fixture creates a dummy hardhat project from the testdata folder.
@@ -131,16 +130,13 @@ def test_compile_contracts_in_dir(setup_contracts_directory):
 
 
 def test_is_ignored_folder():
-    assert is_ignored_folder(
-        f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}") is False
+    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}") is False
     assert (
-        is_ignored_folder(
-            f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles")
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles")
         is True
     )
     assert (
-        is_ignored_folder(
-            f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example")
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example")
         is True
     )
     assert is_ignored_folder("abc/node_modules/precompiles") is True
