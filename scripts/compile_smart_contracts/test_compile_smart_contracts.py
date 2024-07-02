@@ -33,13 +33,17 @@ def setup_example_contracts_files(tmp_path):
     (tmp_path / "precompiles" / "Contract4.sol").touch()
     (tmp_path / "precompiles" / "Contract4.json").touch()
 
+    (tmp_path / "precompiles" / "staking").mkdir(parents=True)
+    (tmp_path / "precompiles" / "staking" / "StakingI.sol").touch()
+    (tmp_path / "precompiles" / "staking" / "abi.json").touch()
+
     return tmp_path
 
 
 def test_find_solidity_files(setup_example_contracts_files):
     tmp_path = setup_example_contracts_files
     found_solidity_contracts = find_solidity_contracts(tmp_path)
-    assert len(found_solidity_contracts) == 4
+    assert len(found_solidity_contracts) == 5
 
     assert found_solidity_contracts[0].filename == "Contract2"
     assert found_solidity_contracts[0].path == tmp_path / "Contract2.sol"
@@ -62,9 +66,17 @@ def test_find_solidity_files(setup_example_contracts_files):
         tmp_path / "precompiles" / "Contract4.json"
     )
 
-    assert found_solidity_contracts[3].filename == "Contract3"
-    assert found_solidity_contracts[3].relative_path == Path(HARDHAT_PROJECT_DIR)
+    assert found_solidity_contracts[3].filename == "StakingI"
+    assert found_solidity_contracts[3].path == Path(
+        tmp_path / "precompiles" / "staking" / "StakingI.sol"
+    )
     assert found_solidity_contracts[3].compiledJSONPath == Path(
+        tmp_path / "precompiles" / "staking" / "abi.json"
+    )
+
+    assert found_solidity_contracts[4].filename == "Contract3"
+    assert found_solidity_contracts[4].relative_path == Path(HARDHAT_PROJECT_DIR)
+    assert found_solidity_contracts[4].compiledJSONPath == Path(
         tmp_path / HARDHAT_PROJECT_DIR / "Contract3.json"
     )
 

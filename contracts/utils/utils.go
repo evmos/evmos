@@ -73,6 +73,38 @@ func loadCompiledBytesFromJSONFile(jsonFile string) ([]byte, error) {
 // ConvertHardhatBytesToCompiledContract is a helper method to convert the embedded bytes from a
 // Hardhat JSON file into an instance of the CompiledContract type.
 func ConvertHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
+	compiledContract, err := convertHardhatBzToCompiledContract(bz)
+	if err != nil {
+		return evmtypes.CompiledContract{}, err
+	}
+
+	if len(compiledContract.Bin) == 0 {
+		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
+	}
+
+	return compiledContract, nil
+}
+
+// ConvertPrecompileHardhatBytesToCompiledContract is a helper method to convert the embedded bytes from a
+// Hardhat JSON file into an instance of the CompiledContract type.
+//
+// NOTE: The precompile implementations have to special property that the binary data is empty.
+func ConvertPrecompileHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
+	compiledContract, err := convertHardhatBzToCompiledContract(bz)
+	if err != nil {
+		return evmtypes.CompiledContract{}, err
+	}
+
+	if len(compiledContract.Bin) != 0 {
+		return evmtypes.CompiledContract{}, errors.New("expected binary data to be empty for precompile contract")
+	}
+
+	return compiledContract, nil
+}
+
+// convertHardhatBzToCompiledContract is a helper method to convert the embedded bytes from a
+// Hardhat JSON file into an instance of the CompiledContract type.
+func convertHardhatBzToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
 	var hardhatContract evmtypes.HardhatCompiledContract
 	err := json.Unmarshal(bz, &hardhatContract)
 	if err != nil {
@@ -84,8 +116,8 @@ func ConvertHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract
 		return evmtypes.CompiledContract{}, err
 	}
 
-	if len(compiledContract.Bin) == 0 {
-		return evmtypes.CompiledContract{}, errors.New("got empty binary data for contract")
+	if len(compiledContract.ABI.Methods) == 0 {
+		return evmtypes.CompiledContract{}, errors.New("got empty array of methods for ABI")
 	}
 
 	return compiledContract, nil

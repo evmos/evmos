@@ -1,45 +1,54 @@
-[
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "bech32Address",
-        "type": "string"
-      }
-    ],
-    "name": "bech32ToHex",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "prefix",
-        "type": "string"
-      }
-    ],
-    "name": "hexToBech32",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "bech32Address",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-]
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Bech32I",
+  "sourceName": "solidity/precompiles/bech32/Bech32I.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "bech32Address",
+          "type": "string"
+        }
+      ],
+      "name": "bech32ToHex",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "prefix",
+          "type": "string"
+        }
+      ],
+      "name": "hexToBech32",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "bech32Address",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

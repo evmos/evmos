@@ -4,14 +4,12 @@
 package ics20
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
@@ -45,12 +43,7 @@ func NewPrecompile(
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	newAbi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}

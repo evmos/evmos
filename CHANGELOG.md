@@ -113,6 +113,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2639](https://github.com/evmos/evmos/pull/2639) Ignore Swagger JSON in CheckOV linter.
 - (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
 - (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
+- (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 

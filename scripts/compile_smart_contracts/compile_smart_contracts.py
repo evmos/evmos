@@ -95,6 +95,10 @@ def find_solidity_contracts(
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
+
+                # NOTE: In the precompile implementations the interfaces
+                # are usually called `abi.json`.
+                potential_abi_json_path = Path(root) / "abi.json"
                 potential_json_path = Path(root) / f"{filename}.json"
 
                 if (
@@ -105,6 +109,8 @@ def find_solidity_contracts(
                     compiledJSONPath = potential_json_path
                 elif os.path.exists(potential_json_path):
                     compiledJSONPath = potential_json_path
+                elif os.path.exists(potential_abi_json_path):
+                    compiledJSONPath = potential_abi_json_path
                 elif not os.path.exists(potential_json_path):
                     compiledJSONPath = None
                 else:
