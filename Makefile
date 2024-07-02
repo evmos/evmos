@@ -556,9 +556,9 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-# Clean up the contracts directory, install the necessary dependencies
-# and then compile the solidity contracts found in the Evmos repository.
-contracts-all: contracts-clean contracts-compile
+# Install the necessary dependencies, compile the solidity contracts found in the
+# Evmos repository and then clean up the contracts data.
+contracts-all: contracts-compile contracts-clean
 
 # Clean smart contract compilation artifacts, dependencies and cache files
 contracts-clean:
