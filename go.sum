@@ -352,8 +352,8 @@ github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:
 github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE/e/2PUdi/liOCUjSTXgM1o87ZssimdTWN964YiIeI=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0 h1:jpVIwLcPoOeCR6o1tU+Xv7r5bMONNbHU7MuEHboiFuA=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0/go.mod h1:eq7W2TMRH22GTW0N0beDnN931DW0/WOI1R2sdHNHG4c=
-github.com/cometbft/cometbft v0.37.7 h1:pwC0PNfGcbKbAKyK/sWm+LwuiYmT00C3bF2nEnnjJ/k=
-github.com/cometbft/cometbft v0.37.7/go.mod h1:gFGCFXNGDci6tMLemANPGTfU+j4+oH63PjeLe0iIjJk=
+github.com/cometbft/cometbft v0.37.8 h1:/LLlJd+XilMSGjBGWBGQ1EvLVU//9C5SADWEwvV8cRM=
+github.com/cometbft/cometbft v0.37.8/go.mod h1:gFGCFXNGDci6tMLemANPGTfU+j4+oH63PjeLe0iIjJk=
 github.com/cometbft/cometbft-db v0.12.0 h1:v77/z0VyfSU7k682IzZeZPFZrQAKiQwkqGN0QzAjMi0=
 github.com/cometbft/cometbft-db v0.12.0/go.mod h1:aX2NbCrjNVd2ZajYxt1BsiFf/Z+TQ2MN0VxdicheYuw=
 github.com/confio/ics23/go v0.9.0 h1:cWs+wdbS2KRPZezoaaj+qBleXgUk5WOQFMP3CQFGTr4=
