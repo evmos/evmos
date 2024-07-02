@@ -1,0 +1,35 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.auctions;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+
+
+option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
+
+
+// Msg defines the auctions Msg service.
+service Msg {
+
+  // Bid defines a method for placing a bid for an auction
+  rpc Bid(MsgBid) returns (MsgBidResponse);
+
+}
+
+// Bid is a message for placing a bid on an auction
+message MsgBid {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // amount of tokens in EVMOS to bid
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  // the round of the auction to bid on
+  uint64 round = 3;
+}
+
+message MsgBidResponse {}
+
