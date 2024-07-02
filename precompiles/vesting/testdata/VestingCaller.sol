@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "../../common/Types.sol";
-import "../Vesting.sol" as vesting;
+import "../VestingI.sol" as vesting;
 
 /// @title VestingCaller
 /// @author Evmos Core Team
