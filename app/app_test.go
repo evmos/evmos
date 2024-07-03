@@ -20,7 +20,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
-	"github.com/ethereum/go-ethereum/common"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
@@ -110,9 +109,9 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	var precompilesAbleToReceiveFunds []ethcommon.Address
 
 	hexAvailablePrecompiles := network.App.EvmKeeper.GetParams(network.GetContext()).ActiveStaticPrecompiles
-	availablePrecompiles := make([]common.Address, len(hexAvailablePrecompiles))
+	availablePrecompiles := make([]ethcommon.Address, len(hexAvailablePrecompiles))
 	for i, precompile := range hexAvailablePrecompiles {
-		availablePrecompiles[i] = common.HexToAddress(precompile)
+		availablePrecompiles[i] = ethcommon.HexToAddress(precompile)
 	}
 	for _, precompileAddr := range availablePrecompiles {
 		t.Run(fmt.Sprintf("Cosmos Tx to %s\n", precompileAddr), func(t *testing.T) {

@@ -47,6 +47,13 @@ func (k *Keeper) GetState(ctx sdk.Context, addr common.Address, key common.Hash)
 	return common.BytesToHash(value)
 }
 
+// GetFastState loads contract state from database, implements `statedb.Keeper` interface.
+func (k *Keeper) GetFastState(ctx sdk.Context, addr common.Address, key common.Hash) []byte {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(addr))
+
+	return store.Get(key.Bytes())
+}
+
 // GetCode loads contract code from database, implements `statedb.Keeper` interface.
 func (k *Keeper) GetCode(ctx sdk.Context, codeHash common.Hash) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
