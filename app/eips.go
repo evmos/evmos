@@ -8,6 +8,8 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
+// TODO: 2 as global
+
 // enable0000 contains the logic to modify the CREATE and CREATE2 opcodes
 // constant gas value.
 // TODO: define the multiplier.

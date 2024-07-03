@@ -21,6 +21,7 @@ import (
 type EVMConfigurator struct {
 	extendedEIPs             map[int]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []int64
+	sealed                   bool
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -44,6 +45,12 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...int64) *EVMConfi
 
 // Configure apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Configure() error {
+	// If Configure method has been already used in the object, return
+	// an error to avoid overriding configuration.
+	if ec.sealed {
+		return fmt.Errorf("EVMConfigurator has been sealed and cannot be modified")
+	}
+
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
 		return err
 	}
@@ -55,5 +62,10 @@ func (ec *EVMConfigurator) Configure() error {
 
 		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
 	}
+
+	// After applying modifier the configurator is sealed. This way, it is not possible
+	// to call the configure method twice.
+	ec.sealed = true
+
 	return nil
 }

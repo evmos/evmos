@@ -14,9 +14,13 @@ import (
 )
 
 func TestEVMConfigurator(t *testing.T) {
-	err := config.NewEVMConfigurator().Configure()
-
+	evmConfigurator := config.NewEVMConfigurator()
+	err := evmConfigurator.Configure()
 	require.NoError(t, err)
+
+	err = evmConfigurator.Configure()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "has been sealed", "expected different error")
 }
 
 func TestExtendedEips(t *testing.T) {

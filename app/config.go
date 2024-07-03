@@ -31,6 +31,8 @@ var (
 
 	// DefaultEnabledEIPs defines the EIP that should be activated
 	// by default and will be merged in the x/evm Params.
+	//
+	// FIX: enable the default.
 	defaultEnabledEIPs = []int64{
 		// 0o000,
 		// 0o001,
