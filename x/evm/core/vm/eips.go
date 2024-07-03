@@ -46,7 +46,10 @@ func EnableEIP(eipNum int, jt *JumpTable) error {
 	return nil
 }
 
-func ValidEip(eipNum int) bool {
+// ExistsEipActivator return true if the given EIP
+// number is associated with an activator function.
+// Return false otherwise.
+func ExistsEipActivator(eipNum int) bool {
 	_, ok := activators[eipNum]
 	return ok
 }
