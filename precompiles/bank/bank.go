@@ -56,7 +56,7 @@ func NewPrecompile(
 
 	// NOTE: we set an empty gas configuration to avoid extra gas costs
 	// during the run execution
-	return &Precompile{
+	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			KvGasConfig:          storetypes.GasConfig{},
@@ -64,13 +64,10 @@ func NewPrecompile(
 		},
 		bankKeeper:  bankKeeper,
 		erc20Keeper: erc20Keeper,
-	}, nil
-}
-
-// Address defines the address of the bank compile contract.
-// address: 0x0000000000000000000000000000000000000804
-func (Precompile) Address() common.Address {
-	return common.HexToAddress(PrecompileAddress)
+	}
+	// SetAddress defines the address of the bank compile contract.
+	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	return p, nil
 }
 
 // RequiredGas calculates the precompiled contract's base gas rate.
@@ -104,7 +101,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract bank query methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -112,10 +109,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
-	if err := stateDB.Commit(); err != nil {
-		return nil, err
-	}
 
 	switch method.Name {
 	// Bank queries
@@ -137,6 +130,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	if !contract.UseGas(cost) {
 		return nil, vm.ErrOutOfGas
+	}
+
+	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+		return nil, err
 	}
 
 	return bz, nil

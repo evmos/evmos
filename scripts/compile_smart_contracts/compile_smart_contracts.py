@@ -60,7 +60,7 @@ class Contract:
     as well as the path to where the compiled JSON data is stored.
     """
 
-    compiledJSONPath: Union[Path, None]
+    compiled_json_path: Union[Path, None]
     filename: str
     path: Path
     relative_path: Path
@@ -95,6 +95,10 @@ def find_solidity_contracts(
 
             if re.search(r"(?!\.dbg)\.sol$", file):
                 filename = os.path.splitext(file)[0]
+
+                # NOTE: In the precompile implementations the interfaces
+                # are usually called `abi.json`.
+                potential_abi_json_path = Path(root) / "abi.json"
                 potential_json_path = Path(root) / f"{filename}.json"
 
                 if (
@@ -105,6 +109,8 @@ def find_solidity_contracts(
                     compiledJSONPath = potential_json_path
                 elif os.path.exists(potential_json_path):
                     compiledJSONPath = potential_json_path
+                elif os.path.exists(potential_abi_json_path):
+                    compiledJSONPath = potential_abi_json_path
                 elif not os.path.exists(potential_json_path):
                     compiledJSONPath = None
                 else:
@@ -117,7 +123,7 @@ def find_solidity_contracts(
                         filename=filename,
                         path=Path(os.path.join(root, file)),
                         relative_path=relative_path,
-                        compiledJSONPath=compiledJSONPath,
+                        compiled_json_path=compiledJSONPath,
                     )
                 )
 
@@ -132,7 +138,7 @@ def is_ignored_folder(path: str) -> bool:
     Check if the folder is in the list of ignored folders.
     """
 
-    return any([re.search(folder, path) for folder in IGNORED_FOLDERS])
+    return any(re.search(folder, path) for folder in IGNORED_FOLDERS)
 
 
 def copy_to_contracts_directory(target_dir: Path, contracts: List[Contract]) -> bool:
@@ -171,7 +177,7 @@ def is_evmos_repo(path: Path) -> bool:
     if "go.mod" not in contents:
         return False
 
-    with open(path / "go.mod", "r") as go_mod:
+    with open(path / "go.mod", "r", encoding="utf-8") as go_mod:
         while True:
             line = go_mod.readline()
             if not line:
@@ -219,7 +225,7 @@ def copy_compiled_contracts_back_to_source(
     """
 
     for contract in contracts:
-        if contract.compiledJSONPath is None:
+        if contract.compiled_json_path is None:
             continue
 
         if is_relative_target(contract.relative_path):
@@ -236,7 +242,7 @@ def copy_compiled_contracts_back_to_source(
             print(f"-> did not find compiled JSON file for {contract.filename}")
             continue
 
-        copy(compiled_path, contract.compiledJSONPath)
+        copy(compiled_path, contract.compiled_json_path)
 
 
 def clean_up_hardhat_project(hardhat_dir: Path):
@@ -279,7 +285,7 @@ def compile_files(repo_path: Path, added_contract: Union[str, None] = None):
     with Hardhat.
     """
 
-    found_contracts = find_solidity_contracts(REPO_PATH, added_contract=added_contract)
+    found_contracts = find_solidity_contracts(repo_path, added_contract=added_contract)
 
     if not copy_to_contracts_directory(CONTRACTS_TARGET, found_contracts):
         raise ValueError("Failed to copy contracts to target directory.")

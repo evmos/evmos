@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
@@ -51,7 +51,7 @@ const (
 func (p Precompile) CreateValidator(
 	ctx sdk.Context,
 	origin common.Address,
-	_ *vm.Contract,
+	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -71,6 +71,13 @@ func (p Precompile) CreateValidator(
 		"value", msg.Value.Amount.String(),
 	)
 
+	// ATM there's no authorization type for the MsgCreateValidator
+	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
+	// so, for the time being, we won't allow calls from smart contracts
+	if contract.CallerAddress != origin {
+		return nil, fmt.Errorf(ErrCannotCallFromContract)
+	}
+
 	// we only allow the tx signer "origin" to create their own validator.
 	if origin != validatorHexAddr {
 		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), validatorHexAddr.String())
@@ -81,6 +88,9 @@ func (p Precompile) CreateValidator(
 	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
+
+	// Here we don't add journal entries here because calls from
+	// smart contracts are not supported at the moment for this method.
 
 	// Emit the event for the create validator transaction
 	if err = p.EmitCreateValidatorEvent(ctx, stateDB, msg, validatorHexAddr); err != nil {
@@ -94,7 +104,7 @@ func (p Precompile) CreateValidator(
 func (p Precompile) EditValidator(
 	ctx sdk.Context,
 	origin common.Address,
-	_ *vm.Contract,
+	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -111,6 +121,13 @@ func (p Precompile) EditValidator(
 		"commission_rate", msg.CommissionRate,
 		"min_self_delegation", msg.MinSelfDelegation,
 	)
+
+	// ATM there's no authorization type for the MsgCreateValidator
+	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
+	// so, for the time being, we won't allow calls from smart contracts
+	if contract.CallerAddress != origin {
+		return nil, fmt.Errorf(ErrCannotCallFromContract)
+	}
 
 	// we only allow the tx signer "origin" to edit their own validator.
 	if origin != validatorHexAddr {
@@ -132,7 +149,7 @@ func (p Precompile) EditValidator(
 }
 
 // Delegate performs a delegation of coins from a delegator to a validator.
-func (p Precompile) Delegate(
+func (p *Precompile) Delegate(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,
@@ -206,10 +223,14 @@ func (p Precompile) Delegate(
 		return nil, err
 	}
 
-	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if isCallerDelegator {
-		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Amount.Amount.BigInt())
+	if !isCallerOrigin {
+		// get the delegator address from the message
+		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+		delHexAddr := common.BytesToAddress(delAccAddr)
+		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
+		// when calling the precompile from a smart contract
+		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, msg.Amount.Amount.BigInt(), cmn.Sub))
 	}
 
 	return method.Outputs.Pack(true)

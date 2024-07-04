@@ -32,8 +32,8 @@ func ValidateMsg(
 	)
 }
 
-// checkDisabledCreateCall checks if the transaction is a contract creation or call
-// and it is disabled through governance
+// checkDisabledCreateCall checks if the transaction is a contract creation or call,
+// and if those actions are disabled through governance.
 func checkDisabledCreateCall(
 	txData evmtypes.TxData,
 	permissions *evmtypes.AccessControl,
@@ -52,7 +52,9 @@ func checkDisabledCreateCall(
 	return nil
 }
 
-// FIXME: this shouldn't be required if the tx was an Ethereum transaction type
+// ValidateTx validates an Ethereum specific transaction type and returns an error if invalid.
+//
+// FIXME: this shouldn't be required if the tx was an Ethereum transaction type.
 func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	err := tx.ValidateBasic()
 	// ErrNoSignatures is fine with eth tx

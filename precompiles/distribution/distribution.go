@@ -4,14 +4,12 @@
 package distribution
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -42,17 +40,12 @@ func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
+	newAbi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading the distribution ABI %s", err)
 	}
 
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
-	if err != nil {
-		return nil, fmt.Errorf(cmn.ErrInvalidABI, err)
-	}
-
-	return &Precompile{
+	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
 			AuthzKeeper:          authzKeeper,
@@ -62,13 +55,11 @@ func NewPrecompile(
 		},
 		stakingKeeper:      stakingKeeper,
 		distributionKeeper: distributionKeeper,
-	}, nil
-}
-
-// Address defines the address of the distribution compile contract.
-// address: 0x0000000000000000000000000000000000000801
-func (p Precompile) Address() common.Address {
-	return common.HexToAddress(PrecompileAddress)
+	}
+	// SetAddress defines the address of the distribution compile contract.
+	// address: 0x0000000000000000000000000000000000000801
+	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	return p, nil
 }
 
 // RequiredGas calculates the precompiled contract's base gas rate.
@@ -91,7 +82,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract distribution methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +90,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
-	if err := stateDB.Commit(); err != nil {
-		return nil, err
-	}
 
 	switch method.Name {
 	// Custom transactions
@@ -144,6 +131,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	if !contract.UseGas(cost) {
 		return nil, vm.ErrOutOfGas
+	}
+
+	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+		return nil, err
 	}
 
 	return bz, nil

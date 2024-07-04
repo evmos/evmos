@@ -36,7 +36,6 @@ import (
 	evm "github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	"github.com/stretchr/testify/require"
 )
 
 func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {
@@ -58,17 +57,18 @@ func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort,
 	)
 }
 
-func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+func (suite *KeeperTestSuite) DoSetupTest() {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
-	require.NoError(t, err)
+	suite.Require().NoError(err)
+
 	suite.priv = priv
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = utiltx.NewSigner(priv)
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 	suite.consAddress = consAddress
 
@@ -93,22 +93,22 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = utils.BaseDenom
 	err = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
 	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	require.NoError(t, err)
+	suite.Require().NoError(err)
 
 	// fund signer acc to pay for tx fees
 	amt := sdkmath.NewInt(int64(math.Pow10(18) * 2))

@@ -4,24 +4,21 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v18/utils"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
@@ -62,17 +59,21 @@ var _ = Describe("ERC20:", Ordered, func() {
 	addrBz := privKey.PubKey().Address().Bytes()
 	accAddr := sdk.AccAddress(addrBz)
 	addr := common.BytesToAddress(addrBz)
-	moduleAcc := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 	var (
 		pair      types.TokenPair
 		coin      sdk.Coin
 		contract  common.Address
 		contract2 common.Address
+
+		// moduleAcc is the address of the ERC-20 module account
+		moduleAcc sdk.AccAddress
 	)
 
 	BeforeEach(func() {
 		s.SetupTest()
+
+		moduleAcc = s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 		govParams := s.app.GovKeeper.GetParams(s.ctx)
 		govParams.Quorum = "0.0000000001"
@@ -91,10 +92,11 @@ var _ = Describe("ERC20:", Ordered, func() {
 					sdk.NewCoin(metadataCoin.Base, math.NewInt(1)),
 				)
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
-				s.Require().NoError(err)
+				Expect(err).To(BeNil())
 				s.Commit()
 			})
 		})
+
 		Context("with deployed contracts", func() {
 			BeforeEach(func() {
 				var err error
@@ -112,6 +114,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				s.Require().NoError(err)
 				s.Commit()
 			})
+
 			Describe("for a single ERC20 token", func() {
 				BeforeEach(func() {
 					// register with sufficient deposit
@@ -133,6 +136,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
 					s.Commit()
 				})
+
 				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
@@ -143,6 +147,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					}
 				})
 			})
+
 			Describe("for multiple ERC20 tokens", func() {
 				BeforeEach(func() {
 					// register with sufficient deposit
@@ -163,6 +168,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
 					s.Commit()
 				})
+
 				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(3, len(tokenPairs))
