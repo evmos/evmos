@@ -3,21 +3,24 @@
 
 package types
 
-import "time"
+import (
+	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"time"
+)
 
 var (
 	WeeklyDuration  = time.Hour * 24 * 7
 	AuctionDuration = time.Hour * 24 * 4
 )
 
-// DefaultGenesisState sets default fee market genesis state.
+// DefaultGenesisState sets default auctions genesis state.
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: Params{
 			EnableAuction: true,
 		},
-		AuctionStartEpoch: EpochInfo{
-			Identifier:              "weekly_auction_start",
+		AuctionEpoch: EpochInfo{
+			Identifier:              epochstypes.WeekEpochID,
 			StartTime:               time.Now(),
 			Duration:                time.Hour * 24 * 7,
 			CurrentEpoch:            0,
@@ -25,23 +28,18 @@ func DefaultGenesisState() *GenesisState {
 			EpochCountingStarted:    true,
 			CurrentEpochStartHeight: 0,
 		},
-		AuctionEndEpoch: EpochInfo{
-			Identifier:              "weekly_auction_end",
-			StartTime:               time.Now().Add(time.Hour * 24 * 3),
-			Duration:                time.Hour * 24 * 7,
-			CurrentEpoch:            0,
-			CurrentEpochStartTime:   time.Now().Add(time.Hour * 24 * 3),
-			EpochCountingStarted:    true,
-			CurrentEpochStartHeight: 0,
-		},
 	}
 }
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(params Params, auctionStartEpoch, auctionEndEpoch EpochInfo) *GenesisState {
+func NewGenesisState(params Params, auctionEpoch EpochInfo) *GenesisState {
 	return &GenesisState{
-		Params:            params,
-		AuctionStartEpoch: auctionStartEpoch,
-		AuctionEndEpoch:   auctionEndEpoch,
+		Params:       params,
+		AuctionEpoch: auctionEpoch,
 	}
+}
+
+// Validate performs basic genesis state validation returning an error upon any failure.
+func (gs GenesisState) Validate() error {
+	return nil
 }

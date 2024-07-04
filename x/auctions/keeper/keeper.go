@@ -6,21 +6,25 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Keeper of the inflation store
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	storeKey  storetypes.StoreKey
+	cdc       codec.BinaryCodec
+	authority sdk.AccAddress
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	authority sdk.AccAddress,
 ) Keeper {
 	return Keeper{
-		storeKey: storeKey,
-		cdc:      cdc,
+		storeKey:  storeKey,
+		cdc:       cdc,
+		authority: authority,
 	}
 }

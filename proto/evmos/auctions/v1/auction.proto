@@ -1,0 +1,16 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.auctions.v1;
+
+
+option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
+
+
+message Bid {
+
+}
+
+message Auction {
+
+}

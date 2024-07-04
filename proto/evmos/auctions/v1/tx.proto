@@ -1,13 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.auctions;
+package evmos.auctions.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
-
+import "evmos/auctions/v1/genesis.proto";
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
@@ -18,7 +18,24 @@ service Msg {
   // Bid defines a method for placing a bid for an auction
   rpc Bid(MsgBid) returns (MsgBidResponse);
 
+  // UpdateParams defines a method for updating the auction parameters
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
 }
+
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/inflation parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
 
 // Bid is a message for placing a bid on an auction
 message MsgBid {
@@ -27,9 +44,8 @@ message MsgBid {
   string sender = 1;
   // amount of tokens in EVMOS to bid
   cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
-  // the round of the auction to bid on
-  uint64 round = 3;
 }
+
 
 message MsgBidResponse {}
 

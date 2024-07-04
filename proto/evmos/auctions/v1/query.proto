@@ -1,0 +1,24 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.auctions.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
+
+
+
+service Query {
+  rpc AuctionTokens(QueryAuctionTokensRequest) returns (QueryAuctionTokensResponse) {
+    option (google.api.http).get = "/evmos/auctions/tokens";
+  }
+}
+
+
+message QueryAuctionTokensRequest {
+}
+
+message QueryAuctionTokensResponse {
+}

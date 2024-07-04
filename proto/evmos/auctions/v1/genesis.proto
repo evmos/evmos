@@ -14,11 +14,8 @@ message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // epochs is a slice of EpochInfo that defines the auction start time
-  EpochInfo auction_start_epoch = 2 [(gogoproto.nullable) = false];
-
-  // epochs is a slice of EpochInfo that defines the auction end time
-  EpochInfo auction_end_epoch = 3 [(gogoproto.nullable) = false];
+  // auction_epoch is the auction epoch
+  EpochInfo auction_epoch = 2 [(gogoproto.nullable) = false];
 }
 
 // EpochInfo defines the message interface containing the relevant info about an epoch.

@@ -14,4 +14,18 @@ const (
 	RouterKey = ModuleName
 )
 
-const ()
+// prefix bytes for the inflation persistent store
+const (
+	prefixPeriod = iota + 1
+	prefixEpochIdentifier
+	prefixEpochsPerPeriod
+	prefixSkippedEpochs
+)
+
+// KVStore key prefixes
+var (
+	KeyPrefixPeriod          = []byte{prefixPeriod}
+	KeyPrefixEpochIdentifier = []byte{prefixEpochIdentifier}
+	KeyPrefixEpochsPerPeriod = []byte{prefixEpochsPerPeriod}
+	KeyPrefixSkippedEpochs   = []byte{prefixSkippedEpochs}
+)
