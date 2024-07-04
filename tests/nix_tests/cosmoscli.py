@@ -869,6 +869,24 @@ class CosmosCLI:
             )
         )
 
+    def escrow_address(self, channel, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return (
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "escrow-address",
+                "transfer",
+                channel,
+                **(default_kwargs | kwargs),
+            )
+            .decode()
+            .strip()
+        )
+
     def register_counterparty_payee(
         self, port_id, channel_id, relayer, counterparty_payee, **kwargs
     ):

@@ -185,7 +185,6 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 
 	if !res.Failed() {
 		commit()
-		ctx.EventManager().EmitEvents(tmpCtx.EventManager().Events())
 	}
 
 	// refund gas in order to match the Ethereum gas consumption instead of the default SDK one.

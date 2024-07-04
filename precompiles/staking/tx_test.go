@@ -37,15 +37,17 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		validatorAddress  = s.address
 		pubkey            = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 		value             = big.NewInt(1205000000000000000)
+		diffAddr, _       = evmosutiltx.NewAddrKey()
 	)
 
 	testCases := []struct {
-		name        string
-		malleate    func() []interface{}
-		gas         uint64
-		postCheck   func(data []byte)
-		expError    bool
-		errContains string
+		name          string
+		malleate      func() []interface{}
+		gas           uint64
+		callerAddress *geth.Address
+		postCheck     func(data []byte)
+		expError      bool
+		errContains   string
 	}{
 		{
 			"fail - empty input args",
@@ -53,6 +55,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				return []interface{}{}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 6, 0),
@@ -71,6 +74,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"is not the same as delegator address",
@@ -88,6 +92,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid description",
@@ -105,6 +110,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid commission",
@@ -122,6 +128,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid amount",
@@ -139,6 +146,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid validator address",
@@ -156,6 +164,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid type for",
@@ -173,6 +182,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"illegal base64 data",
@@ -190,6 +200,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"consensus pubkey len is invalid",
@@ -207,9 +218,28 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid amount",
+		},
+		{
+			"fail - cannot be called from address != than validator address",
+			func() []interface{} {
+				return []interface{}{
+					description,
+					commission,
+					minSelfDelegation,
+					validatorAddress,
+					pubkey,
+					value,
+				}
+			},
+			200000,
+			&diffAddr,
+			func([]byte) {},
+			true,
+			"this method can only be called directly to the precompile",
 		},
 		{
 			"success",
@@ -224,6 +254,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				}
 			},
 			200000,
+			nil,
 			func(data []byte) {
 				success, err := s.precompile.Unpack(staking.CreateValidatorMethod, data)
 				s.Require().NoError(err)
@@ -258,6 +289,9 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			if tc.callerAddress != nil {
+				contract.CallerAddress = *tc.callerAddress
+			}
 
 			bz, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
@@ -315,12 +349,13 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 	)
 
 	testCases := []struct {
-		name        string
-		malleate    func() []interface{}
-		gas         uint64
-		postCheck   func(data []byte)
-		expError    bool
-		errContains string
+		name          string
+		malleate      func() []interface{}
+		gas           uint64
+		callerAddress *geth.Address
+		postCheck     func(data []byte)
+		expError      bool
+		errContains   string
 	}{
 		{
 			"fail - empty input args",
@@ -328,6 +363,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				return []interface{}{}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
@@ -344,6 +380,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"is not the same as validator operator address",
@@ -359,6 +396,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid description",
@@ -374,6 +412,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid type for commissionRate",
@@ -389,6 +428,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid type for minSelfDelegation",
@@ -404,6 +444,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"invalid validator address",
@@ -419,6 +460,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"commission cannot be changed more than max change rate",
@@ -434,6 +476,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"commission rate must be between 0 and 1 (inclusive)",
@@ -449,9 +492,26 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func([]byte) {},
 			true,
 			"minimum self delegation must be a positive integer",
+		},
+		{
+			"fail - calling precompile from a different address than validator (smart contract call)",
+			func() []interface{} {
+				return []interface{}{
+					description,
+					validatorAddress,
+					commissionRate,
+					minSelfDelegation,
+				}
+			},
+			200000,
+			&s.address,
+			func([]byte) {},
+			true,
+			"this method can only be called directly to the precompile",
 		},
 		{
 			"success",
@@ -464,6 +524,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func(data []byte) {
 				success, err := s.precompile.Unpack(staking.EditValidatorMethod, data)
 				s.Require().NoError(err)
@@ -501,6 +562,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func(data []byte) { //nolint:dupl
 				success, err := s.precompile.Unpack(staking.EditValidatorMethod, data)
 				s.Require().NoError(err)
@@ -536,6 +598,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+			nil,
 			func(data []byte) { //nolint:dupl
 				success, err := s.precompile.Unpack(staking.EditValidatorMethod, data)
 				s.Require().NoError(err)
@@ -570,7 +633,10 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			validatorAddress = geth.BytesToAddress(s.validators[0].GetOperator().Bytes())
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
+			if tc.callerAddress != nil {
+				contract.CallerAddress = *tc.callerAddress
+			}
 
 			bz, err := s.precompile.EditValidator(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate())
 

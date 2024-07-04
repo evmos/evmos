@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -1051,8 +1052,13 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 var _ = Describe("Calling ICS20 precompile from another contract", func() {
 	var (
+
+		// interchainSenderCallerContract is the compiled contract calling the interchain functionality
+		interchainSenderCallerContract evmtypes.CompiledContract
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr common.Address
+		// senderCallerContractAddr is the address of the InterchainSenderCaller smart contract that will be deployed
+		senderCallerContractAddr common.Address
 		// execRevertedCheck defines the default log checking arguments which includes the
 		// standard revert message.
 		execRevertedCheck testutil.LogCheckArgs
@@ -1065,6 +1071,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		s.SetupTest()
 		s.setupAllocationsForTesting()
 
+		// Deploy InterchainSender contract
 		interchainSenderContract, err = contracts.LoadInterchainSenderContract()
 		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
 
@@ -1081,8 +1088,30 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		// NextBlock the smart contract
 		s.chainA.NextBlock()
 
-		// check contract was correctly deployed
+		// Deploy InterchainSenderCaller contract
+		interchainSenderCallerContract, err = contracts.LoadInterchainSenderCallerContract()
+		Expect(err).To(BeNil(), "error while loading the interchain sender contract: %v", err)
+
+		senderCallerContractAddr, err = DeployContract(
+			s.chainA.GetContext(),
+			s.app,
+			s.privKey,
+			gasPrice,
+			s.queryClientEVM,
+			interchainSenderCallerContract,
+			contractAddr,
+		)
+		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+
+		// NextBlock the smart contract
+		s.chainA.NextBlock()
+
+		// check contracts were correctly deployed
 		cAcc := s.app.EvmKeeper.GetAccount(s.chainA.GetContext(), contractAddr)
+		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
+		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
+
+		cAcc = s.app.EvmKeeper.GetAccount(s.chainA.GetContext(), senderCallerContractAddr)
 		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 
@@ -1264,6 +1293,81 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(defaultCoins.AmountOf(s.bondDenom)).Sub(fees)))
+				})
+
+				Context("Calling the InterchainSender caller contract", func() {
+					It("should perform 2 transfers and revert 2 transfers", func() {
+						// setup approval to send transfer without memo
+						alloc := defaultSingleAlloc
+						alloc[0].AllowedPacketData = []string{""}
+						appArgs := defaultApproveArgs.WithArgs(alloc)
+						s.setTransferApprovalForContract(appArgs)
+						// Send some funds to the InterchainSender
+						// to perform internal transfers
+						initialContractBal := math.NewInt(1e18)
+						err := evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, contractAddr.Bytes(), initialContractBal.Int64())
+						Expect(err).To(BeNil(), "error while funding account")
+
+						// get initial balances
+						initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+
+						// use half of the allowance when calling the fn
+						// because in total we'll try to send (2 * amt)
+						// with 4 IBC transfers (2 will succeed & 2 will revert)
+						amt := defaultCmnCoins[0].ToSDKType().Amount.QuoRaw(2)
+						args := contracts.CallArgs{
+							PrivKey:      s.privKey,
+							ContractAddr: senderCallerContractAddr,
+							ContractABI:  interchainSenderCallerContract.ABI,
+							MethodName:   "transfersWithRevert",
+							GasPrice:     gasPrice,
+							Args: []interface{}{
+								s.address,
+								s.transferPath.EndpointA.ChannelConfig.PortID,
+								s.transferPath.EndpointA.ChannelID,
+								s.bondDenom,
+								amt.BigInt(),
+								s.chainB.SenderAccount.GetAddress().String(), // receiver
+							},
+						}
+
+						logCheckArgs := passCheck.WithExpEvents([]string{ics20.EventTypeIBCTransfer, ics20.EventTypeIBCTransfer}...)
+
+						res, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, logCheckArgs)
+						Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+						Expect(res.IsOK()).To(BeTrue())
+						fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
+						// the response should have two IBC transfer cosmos events (required for the relayer)
+						expIBCPackets := 2
+						ibcTransferCount := 0
+						sendPacketCount := 0
+						for _, event := range res.Events {
+							if event.Type == transfertypes.EventTypeTransfer {
+								ibcTransferCount++
+							}
+							if event.Type == channeltypes.EventTypeSendPacket {
+								sendPacketCount++
+							}
+						}
+						Expect(ibcTransferCount).To(Equal(expIBCPackets))
+						Expect(sendPacketCount).To(Equal(expIBCPackets))
+
+						// Check that 2 packages were created
+						pkgs := s.app.IBCKeeper.ChannelKeeper.GetAllPacketCommitments(s.chainA.GetContext())
+						Expect(pkgs).To(HaveLen(expIBCPackets))
+
+						// check that the escrow amount corresponds to the 2 transfers
+						coinsEscrowed := s.app.TransferKeeper.GetTotalEscrowForDenom(s.chainA.GetContext(), s.bondDenom)
+						Expect(coinsEscrowed.Amount).To(Equal(amt))
+
+						amtTransferredFromContract := math.NewInt(45)
+						finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+						Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(amt).Sub(fees).Add(amtTransferredFromContract)))
+
+						contractFinalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), contractAddr.Bytes(), s.bondDenom)
+						Expect(contractFinalBalance.Amount).To(Equal(initialContractBal.Sub(amtTransferredFromContract)))
+					})
 				})
 			})
 		})

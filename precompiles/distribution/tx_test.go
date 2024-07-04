@@ -447,7 +447,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 }
 
 func (s *PrecompileTestSuite) TestFundCommunityPool() {
-	method := s.precompile.Methods[distribution.ClaimRewardsMethod]
+	method := s.precompile.Methods[distribution.FundCommunityPoolMethod]
 
 	testCases := []struct {
 		name        string

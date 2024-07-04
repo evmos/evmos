@@ -42,6 +42,8 @@ TEST_CONTRACTS = {
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
     "ICS20FromContract": "ICS20FromContract.sol",
+    "InterchainSender": "evmos/testutil/contracts/InterchainSender.sol",
+    "InterchainSenderCaller": "evmos/testutil/contracts/InterchainSenderCaller.sol",
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "DistributionCaller": "evmos/testutil/contracts/DistributionCaller.sol",

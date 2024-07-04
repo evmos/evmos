@@ -22,16 +22,16 @@ const (
 	EventTypeWithdrawDelegatorRewards = "WithdrawDelegatorRewards"
 	// EventTypeWithdrawValidatorCommission defines the event type for the distribution WithdrawValidatorCommissionMethod transaction.
 	EventTypeWithdrawValidatorCommission = "WithdrawValidatorCommission"
-	// EventTypeClaimRewards defines the event type for the distribution ClaimRewardsMethod transaction.
-	EventTypeClaimRewards = "ClaimRewards"
 	// EventTypeFundCommunityPool defines the event type for the distribution FundCommunityPoolMethod transaction.
 	EventTypeFundCommunityPool = "FundCommunityPool"
+	// EventTypeClaimRewards defines the event type for the distribution ClaimRewardsMethod transaction.
+	EventTypeClaimRewards = "ClaimRewards"
 )
 
 // EmitClaimRewardsEvent creates a new event emitted on a ClaimRewards transaction.
 func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, delegatorAddress common.Address, totalCoins sdk.Coins) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeClaimRewards]
+	event := p.Events[EventTypeClaimRewards]
 	topics := make([]common.Hash, 2)
 
 	// The first topic is always the signature of the event.

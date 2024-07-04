@@ -181,9 +181,9 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 	s.precompile = precompile
 
-	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
-	inflCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(3000000000000000000)))
+	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5_000_000_000_000_000_000)))
+	inflCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2_000_000_000_000_000_000)))
+	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(3_000_000_000_000_000_000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, inflCoins)

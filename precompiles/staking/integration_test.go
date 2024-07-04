@@ -15,6 +15,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -1628,10 +1629,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 var _ = Describe("Calling staking precompile via Solidity", func() {
 	var (
 		// contractAddr is the address of the smart contract that will be deployed
-		contractAddr common.Address
+		contractAddr    common.Address
+		contractTwoAddr common.Address
+		stkReverterAddr common.Address
 
 		// stakingCallerContract is the contract instance calling into the staking precompile
-		stakingCallerContract evmtypes.CompiledContract
+		stakingCallerContract    evmtypes.CompiledContract
+		stakingCallerTwoContract evmtypes.CompiledContract
+		stakingReverterContract  evmtypes.CompiledContract
 
 		// approvalCheck is a configuration for the log checker to see if an approval event was emitted.
 		approvalCheck testutil.LogCheckArgs
@@ -1645,6 +1650,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		nonExistingAddr = testutiltx.GenerateAddress()
 		// nonExistingVal is a validator address that does not exist in the state of the test suite
 		nonExistingVal = sdk.ValAddress(nonExistingAddr.Bytes())
+
+		testContractInitialBalance = math.NewInt(100)
 	)
 
 	BeforeEach(func() {
@@ -1655,10 +1662,34 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		contractAddr, err = s.DeployContract(stakingCallerContract)
 		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+		s.NextBlock()
+
+		// Deploy StakingCallerTwo contract
+		stakingCallerTwoContract, err = testdata.LoadStakingCallerTwoContract()
+		Expect(err).To(BeNil(), "error while loading the StakingCallerTwo contract")
+
+		contractTwoAddr, err = s.DeployContract(stakingCallerTwoContract)
+		Expect(err).To(BeNil(), "error while deploying the StakingCallerTwo contract")
+		s.NextBlock()
+
+		// Deploy StakingReverter contract
+		stakingReverterContract, err = contracts.LoadStakingReverterContract()
+		Expect(err).To(BeNil(), "error while loading the StakingReverter contract")
+
+		stkReverterAddr, err = s.DeployContract(stakingReverterContract)
+		Expect(err).To(BeNil(), "error while deploying the StakingReverter contract")
+		s.NextBlock()
+
+		// send some funds to the StakingCallerTwo & StakingReverter contracts to transfer to the
+		// delegator during the tx
+		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, contractTwoAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
+
+		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, stkReverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
+
 		valAddr = s.validators[0].GetOperator()
 		valAddr2 = s.validators[1].GetOperator()
-
-		s.NextBlock()
 
 		// check contract was correctly deployed
 		cAcc := s.app.EvmKeeper.GetAccount(s.ctx, contractAddr)
@@ -1961,19 +1992,16 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			s.NextBlock()
 		})
 
-		It("tx from validator operator - should create a validator success", func() {
+		It("tx from validator operator - should NOT create a validator", func() {
 			cArgs := defaultCreateValidatorArgs.
 				WithPrivKey(s.privKey).
 				WithArgs(defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue)
 
-			logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
+			Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
-			Expect(found).To(BeTrue(), "expected validator to be found")
-			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker to be 'new node'")
+			_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
+			Expect(found).To(BeFalse(), "expected validator NOT to be found")
 		})
 
 		It("tx from another EOA - should create a validator fail", func() {
@@ -2055,7 +2083,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			s.NextBlock()
 		})
 
-		It("with tx from validator operator - should edit a validator", func() {
+		It("with tx from validator operator - should NOT edit a validator", func() {
 			cArgs := defaultEditValArgs.
 				WithPrivKey(valPriv).
 				WithArgs(
@@ -2063,25 +2091,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					defaultCommissionRate, defaultMinSelfDelegation,
 				)
 
-			logCheckArgs := passCheck.
-				WithExpEvents(staking.EventTypeEditValidator)
-
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
+			Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
 
 			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
 			Expect(found).To(BeTrue(), "expected validator to be found")
-			Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker to be updated")
-			// Other fields should not be modified due to the value "[do-not-modify]".
-			Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
-			Expect(validator.Description.Website).To(Equal(description.Website), "expected validator website not to be updated")
-			Expect(validator.Description.SecurityContact).To(Equal(description.SecurityContact), "expected validator security contact not to be updated")
-			Expect(validator.Description.Details).To(Equal(description.Details), "expected validator details not to be updated")
-
-			Expect(validator.Commission.Rate.BigInt().String()).To(Equal(commission.Rate.String()), "expected validator commission rate remain unchanged")
-			Expect(validator.Commission.MaxRate.BigInt().String()).To(Equal(commission.MaxRate.String()), "expected validator max commission rate remain unchanged")
-			Expect(validator.Commission.MaxChangeRate.BigInt().String()).To(Equal(commission.MaxChangeRate.String()), "expected validator max change rate remain unchanged")
-			Expect(validator.MinSelfDelegation.String()).To(Equal(minSelfDelegation.String()), "expected validator min self delegation remain unchanged")
+			Expect(validator.Description.Moniker).NotTo(Equal(defaultDescription.Moniker), "expected validator moniker NOT to be updated")
 		})
 
 		It("with tx from another EOA - should fail", func() {
@@ -2168,6 +2183,192 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 			})
 
+			Context("Calling the precompile from the StakingReverter contract", func() {
+				var (
+					txSenderInitialBal     sdk.Coin
+					contractInitialBalance sdk.Coin
+					gasPrice               = math.NewInt(1e9)
+					delAmt                 = math.NewInt(1e18)
+				)
+
+				BeforeEach(func() {
+					// set approval for the StakingReverter contract
+					s.SetupApproval(s.privKey, stkReverterAddr, delAmt.BigInt(), []string{staking.DelegateMsg})
+
+					txSenderInitialBal = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					contractInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+				})
+
+				It("should revert the changes and NOT delegate - successfull tx", func() {
+					callArgs := contracts.CallArgs{
+						ContractAddr: stkReverterAddr,
+						ContractABI:  stakingReverterContract.ABI,
+						PrivKey:      s.privKey,
+						MethodName:   "run",
+						Args: []interface{}{
+							big.NewInt(5), s.validators[0].GetOperator().String(),
+						},
+						GasPrice: gasPrice.BigInt(),
+					}
+
+					// Tx should be successful, but no state changes happened
+					res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, callArgs, passCheck)
+					Expect(err).To(BeNil())
+					fees := gasPrice.MulRaw(res.GasUsed)
+
+					// contract balance should remain unchanged
+					contractFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
+
+					// No delegation should be created
+					_, found := s.app.StakingKeeper.GetDelegation(s.ctx, stkReverterAddr.Bytes(), s.validators[0].GetOperator())
+					Expect(found).To(BeFalse(), "expected NO delegation to be found")
+
+					// Only fees deducted on tx sender
+					txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					Expect(txSenderFinalBal.Amount).To(Equal(txSenderInitialBal.Amount.Sub(fees)))
+				})
+
+				It("should revert the changes and NOT delegate - failed tx - max precompile calls reached", func() {
+					callArgs := contracts.CallArgs{
+						ContractAddr: stkReverterAddr,
+						ContractABI:  stakingReverterContract.ABI,
+						PrivKey:      s.privKey,
+						MethodName:   "run",
+						Args: []interface{}{
+							big.NewInt(7), s.validators[0].GetOperator().String(),
+						},
+						GasPrice: gasPrice.BigInt(),
+					}
+
+					// Tx should fail due to MaxPrecompileCalls
+					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, callArgs, execRevertedCheck)
+					Expect(err).NotTo(BeNil())
+
+					// contract balance should remain unchanged
+					contractFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
+
+					// No delegation should be created
+					_, found := s.app.StakingKeeper.GetDelegation(s.ctx, stkReverterAddr.Bytes(), s.validators[0].GetOperator())
+					Expect(found).To(BeFalse(), "expected NO delegation to be found")
+				})
+			})
+
+			Context("Table-driven tests for Delegate method", func() {
+				// testCase is a struct used for cases of contracts calls that have some operation
+				// performed before and/or after the precompile call
+				type testCase struct {
+					before bool
+					after  bool
+				}
+
+				var (
+					args                           contracts.CallArgs
+					delegatorInitialBal            sdk.Coin
+					contractInitialBalance         sdk.Coin
+					bondedTokensPoolInitialBalance sdk.Coin
+					delAmt                         = math.NewInt(1e18)
+					gasPrice                       = math.NewInt(1e9)
+					bondedTokensPoolAccAddr        = authtypes.NewModuleAddress("bonded_tokens_pool")
+				)
+
+				BeforeEach(func() {
+					// set authorization for contract
+					callCArgs := contracts.CallArgs{
+						ContractAddr: contractTwoAddr,
+						ContractABI:  stakingCallerTwoContract.ABI,
+						PrivKey:      s.privKey,
+						MethodName:   "testApprove",
+						Args: []interface{}{
+							contractTwoAddr, []string{staking.DelegateMsg}, delAmt.BigInt(),
+						},
+					}
+
+					s.SetupApprovalWithContractCalls(callCArgs)
+
+					args = callCArgs.
+						WithMethodName("testDelegateWithCounterAndTransfer").
+						WithGasPrice(gasPrice.BigInt())
+
+					delegatorInitialBal = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					contractInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
+					bondedTokensPoolInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+				})
+
+				DescribeTable("should delegate and update balances accordingly", func(tc testCase) {
+					cArgs := args.
+						WithArgs(
+							s.address, valAddr.String(), delAmt.BigInt(), tc.before, tc.after,
+						)
+
+					// This is the amount of tokens transferred from the contract to the delegator
+					// during the contract call
+					transferToDelAmt := math.ZeroInt()
+					for _, transferred := range []bool{tc.before, tc.after} {
+						if transferred {
+							transferToDelAmt = transferToDelAmt.AddRaw(15)
+						}
+					}
+
+					logCheckArgs := passCheck.
+						WithExpEvents(staking.EventTypeDelegate)
+
+					res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					fees := gasPrice.MulRaw(res.GasUsed)
+
+					// check the contract's balance was deducted to fund the vesting account
+					contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
+					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount.Sub(transferToDelAmt)))
+
+					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+					Expect(found).To(BeTrue(), "expected delegation to be found")
+					expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
+					Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
+
+					delegatorFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					Expect(delegatorFinalBal.Amount).To(Equal(delegatorInitialBal.Amount.Sub(fees).Sub(delAmt).Add(transferToDelAmt)))
+
+					// check the bondedTokenPool is updated with the delegated tokens
+					bondedTokensPoolFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount.Add(delAmt)))
+				},
+					Entry("contract tx with transfer to delegator before and after precompile call ", testCase{
+						before: true,
+						after:  true,
+					}),
+					Entry("contract tx with transfer to delegator before precompile call ", testCase{
+						before: true,
+						after:  false,
+					}),
+					Entry("contract tx with transfer to delegator after precompile call ", testCase{
+						before: false,
+						after:  true,
+					}),
+				)
+
+				It("should NOT delegate and update balances accordingly - internal transfer to tokens pool", func() {
+					cArgs := args.
+						WithMethodName("testDelegateWithTransfer").
+						WithArgs(
+							common.BytesToAddress(bondedTokensPoolAccAddr),
+							s.address, valAddr.String(), delAmt.BigInt(), true, true,
+						)
+
+					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
+					Expect(err).NotTo(BeNil())
+
+					// contract balance should remain unchanged
+					contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
+					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount))
+
+					// check the bondedTokenPool should remain unchanged
+					bondedTokensPoolFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount))
+				})
+			})
+
 			It("should not delegate when exceeding the allowance", func() {
 				cArgs := defaultDelegateArgs.WithArgs(
 					s.address, valAddr.String(), big.NewInt(2e18),
@@ -2226,6 +2427,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(delegation.GetShares()).To(Equal(math.LegacyNewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
 			})
 		})
+
 		Describe("delegation from a vesting account", func() {
 			var (
 				funder          common.Address
@@ -2633,7 +2835,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			defaultCancelUnbondingArgs contracts.CallArgs
 
 			// expCreationHeight is the expected creation height of the unbonding delegation
-			expCreationHeight = int64(4)
+			expCreationHeight = int64(6)
 		)
 
 		BeforeEach(func() {
@@ -2666,14 +2868,14 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected delegator address to be %s", s.address)
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
+			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(s.ctx.BlockHeight()-1), "expected different creation height")
 			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("without approval set", func() {
 			It("should not cancel unbonding delegations", func() {
 				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
@@ -2716,7 +2918,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				s.SetupApprovalWithContractCalls(approvalArgs)
 
 				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
@@ -2728,7 +2930,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not cancel unbonding any delegations when unbonding delegation does not exist", func() {
 				cancelArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.address, nonExistingVal.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cancelArgs, execRevertedCheck)
@@ -2747,7 +2949,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				cancelUnbondArgs := defaultCancelUnbondingArgs.
 					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight))
+					WithArgs(s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()))
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cancelUnbondArgs, execRevertedCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
@@ -3152,7 +3354,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected delegator address to be %s", s.address)
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(int64(4)), "expected different creation height")
+			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(s.ctx.BlockHeight()), "expected different creation height")
 			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 

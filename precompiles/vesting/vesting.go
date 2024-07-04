@@ -65,7 +65,7 @@ func NewPrecompile(
 		return nil, fmt.Errorf("error loading the staking ABI %s", err)
 	}
 
-	return &Precompile{
+	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
 			AuthzKeeper:          authzKeeper,
@@ -74,18 +74,15 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		vestingKeeper: vestingKeeper,
-	}, nil
-}
-
-// Address defines the address of the staking compile contract.
-// address: 0x0000000000000000000000000000000000000803
-func (Precompile) Address() common.Address {
-	return common.HexToAddress(PrecompileAddress)
+	}
+	// SetAddress defines the address of the bank compile contract.
+	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	return p, nil
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -93,10 +90,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
-	if err := stateDB.Commit(); err != nil {
-		return nil, err
-	}
 
 	switch method.Name {
 	// Approval transaction
@@ -126,6 +119,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	if !contract.UseGas(cost) {
 		return nil, vm.ErrOutOfGas
+	}
+
+	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+		return nil, err
 	}
 
 	return bz, nil

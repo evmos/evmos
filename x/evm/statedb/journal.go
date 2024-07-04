@@ -22,6 +22,8 @@ import (
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // JournalEntry is a modification entry in the state change journal that can be
@@ -137,7 +139,42 @@ type (
 		address *common.Address
 		slot    *common.Hash
 	}
+	precompileCallChange struct {
+		multiStore sdk.CacheMultiStore
+		events     sdk.Events
+	}
 )
+
+var (
+	_ JournalEntry = createObjectChange{}
+	_ JournalEntry = resetObjectChange{}
+	_ JournalEntry = suicideChange{}
+	_ JournalEntry = balanceChange{}
+	_ JournalEntry = nonceChange{}
+	_ JournalEntry = storageChange{}
+	_ JournalEntry = codeChange{}
+	_ JournalEntry = refundChange{}
+	_ JournalEntry = addLogChange{}
+	_ JournalEntry = accessListAddAccountChange{}
+	_ JournalEntry = accessListAddSlotChange{}
+	_ JournalEntry = precompileCallChange{}
+)
+
+func (pc precompileCallChange) Revert(s *StateDB) {
+	// rollback multi store from cache ctx to the previous
+	// state stored in the snapshot
+	s.cacheCtx = s.cacheCtx.WithMultiStore(pc.multiStore)
+	s.writeCache = func() {
+		// rollback the events to the ones snapshot
+		// on the snapshot
+		s.ctx.EventManager().EmitEvents(pc.events)
+		pc.multiStore.Write()
+	}
+}
+
+func (pc precompileCallChange) Dirtied() *common.Address {
+	return nil
+}
 
 func (ch createObjectChange) Revert(s *StateDB) {
 	delete(s.stateObjects, *ch.account)

@@ -9,11 +9,15 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
+
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 const (
@@ -23,7 +27,7 @@ const (
 )
 
 // Transfer implements the ICS20 transfer transactions.
-func (p Precompile) Transfer(
+func (p *Precompile) Transfer(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,
@@ -65,6 +69,21 @@ func (p Precompile) Transfer(
 		return nil, err
 	}
 
+	if contract.CallerAddress != origin && msg.Token.Denom == utils.BaseDenom {
+		// escrow address is also changed on this tx, and it is not a module account
+		// so we need to account for this on the UpdateDirties
+		escrowAccAddress := transfertypes.GetEscrowAddress(msg.SourcePort, msg.SourceChannel)
+		escrowHexAddr := common.BytesToAddress(escrowAccAddress)
+		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
+		// when calling the precompile from another smart contract.
+		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
+		amt := msg.Token.Amount.BigInt()
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(sender, amt, cmn.Sub),
+			cmn.NewBalanceChangeEntry(escrowHexAddr, amt, cmn.Add),
+		)
+	}
+
 	if err = EmitIBCTransferEvent(
 		ctx,
 		stateDB,
@@ -78,12 +97,6 @@ func (p Precompile) Transfer(
 		msg.Memo,
 	); err != nil {
 		return nil, err
-	}
-
-	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if isCallerSender && msg.Token.Denom == p.stakingKeeper.BondDenom(ctx) {
-		stateDB.(*statedb.StateDB).SubBalance(contract.CallerAddress, msg.Token.Amount.BigInt())
 	}
 
 	return method.Outputs.Pack(res.Sequence)
