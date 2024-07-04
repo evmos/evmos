@@ -47,6 +47,7 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 
 	// Update params
 	params.DynamicPrecompiles = updatedPrecompiles
+	k.Logger(ctx).Info("Added new precompiles", "addresses", addresses)
 	return k.SetParams(ctx, params)
 }
 

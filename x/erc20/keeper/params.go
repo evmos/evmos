@@ -22,7 +22,6 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
 }
 
-// TODO - DO NOT LET ME MERGE THIS. THIS REQUIRES A MIGRATION OF THE STORE
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// and keep params equal between different executions

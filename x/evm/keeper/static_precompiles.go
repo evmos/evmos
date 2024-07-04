@@ -121,8 +121,7 @@ func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address commo
 		// If the precompile is within params but not found in the precompiles map,
 		// we should return an error
 		if !found {
-			panic(fmt.Errorf("precompiled contract not stored in memory: %s", address))
-			// return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
+			return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
 		}
 		return precompile, true, nil
 	}
