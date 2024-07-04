@@ -3,6 +3,7 @@
 package evm
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 
@@ -136,6 +137,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, err
 	}
 
+	fmt.Println("Got global min gas price:", decUtils.GlobalMinGasPrice.String())
+	fmt.Println("Got mempool min gas price:", decUtils.MempoolMinGasPrice.String())
+	fmt.Println("Got tx fee:", decUtils.TxFee.String())
+	fmt.Println("Got baseFee:", decUtils.BaseFee.String())
+
 	// Use the lowest priority of all the messages as the final one.
 	for i, msg := range tx.GetMsgs() {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
@@ -148,6 +154,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
+		fmt.Println("------------------\nmsg %d", i)
+		fmt.Println("Got feeAmt:", feeAmt.String())
+		fmt.Println("Got gas:", gas)
+
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
@@ -157,6 +167,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 3. min gas price (global min fee)
 		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
+			fmt.Println("tx type is dynamic fee")
 			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
