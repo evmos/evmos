@@ -231,7 +231,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to fund a clawback vesting account", func() {
-
 		for _, callType := range callTypes {
 			callType := callType
 
@@ -957,7 +956,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to claw back from a vesting account", func() {
-		var expClawbackAmt = math.NewInt(1000)
+		expClawbackAmt := math.NewInt(1000)
 
 		BeforeEach(func() {
 			s.CreateTestClawbackVestingAccount(s.address, toAddr)
