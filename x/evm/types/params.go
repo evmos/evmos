@@ -27,10 +27,6 @@ var (
 	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
-	// DefaultEnableCreate enables contract creation (i.e true)
-	DefaultEnableCreate = true
-	// DefaultEnableCall enables contract calls (i.e true)
-	DefaultEnableCall = true
 	// AvailableEVMExtensions defines the default active precompiles
 	AvailableEVMExtensions = []string{
 		p256.PrecompileAddress,                       // P256 precompile
@@ -49,28 +45,38 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
+	DefaultCreateAllowlistAddresses []string
+	DefaultCallAllowlistAddresses   []string
+	DefaultAccessControl            = AccessControl{
+		Create: AccessControlType{
+			AccessType:        AccessTypePermissionless,
+			AccessControlList: DefaultCreateAllowlistAddresses,
+		},
+		Call: AccessControlType{
+			AccessType:        AccessTypePermissionless,
+			AccessControlList: DefaultCreateAllowlistAddresses,
+		},
+	}
 )
 
 // NewParams creates a new Params instance
 func NewParams(
 	evmDenom string,
-	allowUnprotectedTxs,
-	enableCreate,
-	enableCall bool,
+	allowUnprotectedTxs bool,
 	config ChainConfig,
 	extraEIPs []int64,
 	activePrecompiles,
 	evmChannels []string,
+	accessControl AccessControl,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
 		AllowUnprotectedTxs: allowUnprotectedTxs,
-		EnableCreate:        enableCreate,
-		EnableCall:          enableCall,
 		ExtraEIPs:           extraEIPs,
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
 		EVMChannels:         evmChannels,
+		AccessControl:       accessControl,
 	}
 }
 
@@ -81,13 +87,12 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EvmDenom:            DefaultEVMDenom,
-		EnableCreate:        DefaultEnableCreate,
-		EnableCall:          DefaultEnableCall,
 		ChainConfig:         DefaultChainConfig(),
 		ExtraEIPs:           DefaultExtraEIPs,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
+		AccessControl:       DefaultAccessControl,
 	}
 }
 
@@ -119,14 +124,6 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateBool(p.EnableCall); err != nil {
-		return err
-	}
-
-	if err := validateBool(p.EnableCreate); err != nil {
-		return err
-	}
-
 	if err := validateBool(p.AllowUnprotectedTxs); err != nil {
 		return err
 	}
@@ -136,6 +133,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
+		return err
+	}
+
+	if err := p.AccessControl.Validate(); err != nil {
 		return err
 	}
 
@@ -180,6 +181,87 @@ func (p Params) IsActivePrecompile(address string) bool {
 	})
 
 	return found
+}
+
+func (ac AccessControl) Validate() error {
+	if err := ac.Create.Validate(); err != nil {
+		return err
+	}
+
+	if err := ac.Call.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (act AccessControlType) Validate() error {
+	if err := validateAccessType(act.AccessType); err != nil {
+		return err
+	}
+
+	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
+		return err
+	}
+	return nil
+}
+
+// func validateAccessControl(i interface{}) error {
+// 	permissions, ok := i.(AccessControl)
+// 	if !ok {
+// 		return fmt.Errorf("invalid permissions policy type: %T", i)
+// 	}
+//
+// 	if err := validatePermissionType(permissions.Create); err != nil {
+// 		return err
+// 	}
+//
+// 	return validatePermissionType(permissions.Call)
+// }
+//
+// func validatePermissionType(i interface{}) error {
+// 	permission, ok := i.(AccessControlType)
+// 	if !ok {
+// 		return fmt.Errorf("invalid permission type: %T", i)
+// 	}
+//
+// 	if err := validateAccessType(permission.AccessType); err != nil {
+// 		return err
+// 	}
+//
+// 	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }
+
+func validateAccessType(i interface{}) error {
+	accessType, ok := i.(AccessType)
+	if !ok {
+		return fmt.Errorf("invalid access type type: %T", i)
+	}
+
+	switch accessType {
+	case AccessTypePermissionless, AccessTypeRestricted, AccessTypePermissioned:
+		return nil
+	default:
+		return fmt.Errorf("invalid access type: %s", accessType)
+	}
+}
+
+func validateAllowlistAddresses(i interface{}) error {
+	addresses, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid whitelist addresses type: %T", i)
+	}
+
+	for _, address := range addresses {
+		if err := types.ValidateAddress(address); err != nil {
+			return fmt.Errorf("invalid whitelist address: %s", address)
+		}
+	}
+	return nil
 }
 
 func validateEVMDenom(i interface{}) error {

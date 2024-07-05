@@ -40,30 +40,38 @@ func (suite *KeeperTestSuite) TestParams() {
 			true,
 		},
 		{
-			"success - Check EnableCreate param is set to false and can be retrieved correctly",
+			"success - Check Access Control Create param is set to restricted and can be retrieved correctly",
 			func() interface{} {
-				params.EnableCreate = false
-				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err := suite.network.App.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
-				return params.EnableCreate
+				return types.AccessTypeRestricted
 			},
 			func() interface{} {
-				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetEnableCreate()
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.ctx)
+				return evmParams.GetAccessControl().Create.AccessType
 			},
 			true,
 		},
 		{
-			"success - Check EnableCall param is set to false and can be retrieved correctly",
+			"success - Check Access control param is set to restricted and can be retrieved correctly",
 			func() interface{} {
-				params.EnableCall = false
-				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				params.AccessControl = types.AccessControl{
+					Call: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err := suite.network.App.EvmKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
-				return params.EnableCall
+				return types.AccessTypeRestricted
 			},
 			func() interface{} {
-				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetEnableCall()
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.ctx)
+				return evmParams.GetAccessControl().Call.AccessType
 			},
 			true,
 		},

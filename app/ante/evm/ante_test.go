@@ -1104,11 +1104,10 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	}
 
 	testCases := []struct {
-		name         string
-		txFn         func() sdk.Tx
-		enableCall   bool
-		enableCreate bool
-		expErr       error
+		name        string
+		txFn        func() sdk.Tx
+		permissions evmtypes.AccessControl
+		expErr      error
 	}{
 		{
 			"fail - Contract Creation Disabled",
@@ -1117,7 +1116,16 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				suite.Require().NoError(err)
 				return tx
 			},
-			true, false,
+			evmtypes.AccessControl{
+				Create: evmtypes.AccessControlType{
+					AccessType:        evmtypes.AccessTypeRestricted,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
+				},
+				Call: evmtypes.AccessControlType{
+					AccessType:        evmtypes.AccessTypePermissionless,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
+				},
+			},
 			evmtypes.ErrCreateDisabled,
 		},
 		{
@@ -1127,7 +1135,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				suite.Require().NoError(err)
 				return tx
 			},
-			true, true,
+			evmtypes.DefaultAccessControl,
 			nil,
 		},
 		{
@@ -1137,7 +1145,16 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				suite.Require().NoError(err)
 				return tx
 			},
-			false, true,
+			evmtypes.AccessControl{
+				Create: evmtypes.AccessControlType{
+					AccessType:        evmtypes.AccessTypePermissionless,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
+				},
+				Call: evmtypes.AccessControlType{
+					AccessType:        evmtypes.AccessTypeRestricted,
+					AccessControlList: evmtypes.DefaultCreateAllowlistAddresses,
+				},
+			},
 			evmtypes.ErrCallDisabled,
 		},
 		{
@@ -1147,17 +1164,16 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 				suite.Require().NoError(err)
 				return tx
 			},
-			true, true,
+			evmtypes.DefaultAccessControl,
 			nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.WithEvmParamsOptions(func(params *evmtypes.Params) {
-				params.EnableCall = tc.enableCall
-				params.EnableCreate = tc.enableCreate
-			})
+			suite.evmParamsOption = func(params *evmtypes.Params) {
+				params.AccessControl = tc.permissions
+			}
 			suite.SetupTest() // reset
 
 			ctx := suite.GetNetwork().GetContext()

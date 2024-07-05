@@ -67,8 +67,6 @@ func TestMigrate(t *testing.T) {
 
 	// test that the params have been migrated correctly
 	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
-	require.True(t, params.EnableCreate)
-	require.True(t, params.EnableCall)
 	require.True(t, params.AllowUnprotectedTxs)
 	require.Equal(t, chainConfig, params.ChainConfig)
 	require.Equal(t, extraEIPs.EIPs, params.ExtraEIPs)

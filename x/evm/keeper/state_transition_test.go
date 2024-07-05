@@ -569,6 +569,10 @@ func (suite *EvmKeeperTestSuite) TestEVMConfig() {
 	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.DefaultParams(), cfg.Params)
+	// london hardfork is enabled by default
+	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
+	suite.Require().Equal(suite.address, cfg.CoinBase)
+	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
 
 	validators := unitNetwork.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
@@ -658,47 +662,46 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 			types.DefaultParams,
 			feemarkettypes.DefaultParams,
 			false,
-			params.TxGas,
+			false,
 		},
 		{
-			"fail - call contract tx with config param EnableCall = false",
-			func() core.Message {
-				sender := keyring.GetKey(0)
-				recipient := keyring.GetAddr(1)
-				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
-					To:     &recipient,
-					Amount: big.NewInt(100),
-					Input:  []byte("contract_data"),
-				})
+			"call contract tx with config param EnableCall = false",
+			func() {
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Call: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
+				msg, err = newNativeMessage(
+					vmdb.GetNonce(suite.address),
+					suite.ctx.BlockHeight(),
+					suite.address,
+					chainCfg,
+					suite.signer,
+					signer,
+					ethtypes.AccessListTxType,
+					nil,
+					nil,
+				)
 				suite.Require().NoError(err)
 				return msg
 			},
-			func() types.Params {
-				defaultParams := types.DefaultParams()
-				defaultParams.EnableCall = false
-				return defaultParams
-			},
-			feemarkettypes.DefaultParams,
+			false,
 			true,
 			0,
 		},
 		{
-			"fail - create contract tx with config param EnableCreate = false",
-			func() core.Message {
-				sender := keyring.GetKey(0)
-				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
-					Amount: big.NewInt(100),
-					Input:  []byte("contract_data"),
-				})
+			"create contract tx with config param EnableCreate = false",
+			func() {
+				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
 				suite.Require().NoError(err)
-				return msg
+				config.Params.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
 			},
-			func() types.Params {
-				defaultParams := types.DefaultParams()
-				defaultParams.EnableCreate = false
-				return defaultParams
-			},
-			feemarkettypes.DefaultParams,
+			false,
 			true,
 			0,
 		},
@@ -723,7 +726,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				return params
 			},
 			true,
-			0,
+			false,
 		},
 	}
 
@@ -774,9 +777,41 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 			}
 
 			err = unitNetwork.NextBlock()
+			if tc.expVMErr {
+				suite.Require().NotEmpty(res.VmError)
+				return
+			}
+
 			suite.Require().NoError(err)
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
+	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
+	if err != nil {
+		return nil, err
+	}
+
+	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(suite.ctx.BlockHeight()))
+	return ethMsg.AsMessage(msgSigner, nil)
+}
+
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
+	contractCreateTx := &ethtypes.AccessListTx{
+		GasPrice: gasPrice,
+		Gas:      params.TxGasContractCreation + 1000, // account for data length
+		To:       nil,
+		Data:     []byte("contract_data"),
+		Nonce:    nonce,
+	}
+	ethTx := ethtypes.NewTx(contractCreateTx)
+	ethMsg := &evmtypes.MsgEthereumTx{}
+	err := ethMsg.FromEthereumTx(ethTx)
+	suite.Require().NoError(err)
+	ethMsg.From = suite.address.Hex()
+
+	return ethMsg, ethMsg.Sign(signer, suite.signer)
 }
 
 func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {
@@ -784,7 +819,6 @@ func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-
 	address := sdk.ConsAddress(keyring.GetAddr(0).Bytes())
 	proposerAddress := sdk.ConsAddress(unitNetwork.GetContext().BlockHeader().ProposerAddress)
 	testCases := []struct {

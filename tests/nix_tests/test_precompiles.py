@@ -81,7 +81,7 @@ def test_ibc_transfer(ibc):
     assert transfer_event.args.memo == ""
 
     # check gas used
-    assert receipt.gasUsed == 49307
+    assert receipt.gasUsed == 48184
 
     # check gas estimation is accurate
     assert receipt.gasUsed == gas_estimation

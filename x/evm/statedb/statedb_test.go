@@ -198,10 +198,12 @@ func (suite *StateDBTestSuite) TestState() {
 		{"set empty value", func(db *statedb.StateDB) {
 			db.SetState(address, key1, common.Hash{})
 		}, statedb.Storage{}},
-		{"noop state change", func(db *statedb.StateDB) {
+		{"set state even if same as original value (due to possible reverts within precompile calls)", func(db *statedb.StateDB) {
 			db.SetState(address, key1, value1)
 			db.SetState(address, key1, common.Hash{})
-		}, statedb.Storage{}},
+		}, statedb.Storage{
+			key1: common.Hash{},
+		}},
 		{"set state", func(db *statedb.StateDB) {
 			// check empty initial state
 			suite.Require().Equal(common.Hash{}, db.GetState(address, key1))

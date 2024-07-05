@@ -30,8 +30,6 @@ func MigrateStore(
 	cdc.MustUnmarshal(paramsV5Bz, &paramsV5)
 
 	params.EvmDenom = paramsV5.EvmDenom
-	params.EnableCreate = paramsV5.EnableCreate
-	params.EnableCall = paramsV5.EnableCall
 	params.ExtraEIPs = paramsV5.ExtraEIPs
 	params.ChainConfig = types.ChainConfig{
 		HomesteadBlock:      paramsV5.ChainConfig.HomesteadBlock,

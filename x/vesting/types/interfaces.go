@@ -31,6 +31,12 @@ type BankKeeper interface {
 	BlockedAddr(addr sdk.AccAddress) bool
 }
 
+// EVMKeeper defines the expected interface contract the vesting requires
+// for checking if a given account is a smart contract.
+type EVMKeeper interface {
+	IsContract(ctx sdk.Context, addr common.Address) bool
+}
+
 // StakingKeeper defines the expected interface contract the vesting module
 // requires for finding and changing the delegated tokens, used in clawback.
 type StakingKeeper interface {

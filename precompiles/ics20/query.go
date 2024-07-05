@@ -136,10 +136,11 @@ func (p Precompile) Allowance(
 		}
 
 		allocs[i] = cmn.ICS20Allocation{
-			SourcePort:    a.SourcePort,
-			SourceChannel: a.SourceChannel,
-			SpendLimit:    spendLimit,
-			AllowList:     a.AllowList,
+			SourcePort:        a.SourcePort,
+			SourceChannel:     a.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         a.AllowList,
+			AllowedPacketData: a.AllowedPacketData,
 		}
 	}
 

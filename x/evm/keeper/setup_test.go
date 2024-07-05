@@ -36,6 +36,10 @@ type KeeperTestSuite struct {
 	mintFeeCollector bool
 }
 
+type UnitTestSuite struct {
+	suite.Suite
+}
+
 var s *KeeperTestSuite
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -44,9 +48,9 @@ func TestKeeperTestSuite(t *testing.T) {
 	s.enableLondonHF = true
 	suite.Run(t, s)
 
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
+	// Run UnitTestSuite
+	unitTestSuite := new(UnitTestSuite)
+	suite.Run(t, unitTestSuite)
 }
 
 func (s *KeeperTestSuite) SetupTest() {

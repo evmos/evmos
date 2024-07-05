@@ -25,7 +25,7 @@ import (
 )
 
 // consensusVersion defines the current x/evm module consensus version.
-const consensusVersion = 6
+const consensusVersion = 7
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -134,6 +134,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 5, m.Migrate5to6); err != nil {
 		panic(err)
 	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 6, m.Migrate6to7); err != nil {
+		panic(err)
+	}
 }
 
 // BeginBlock returns the begin block for the evm module.
@@ -161,7 +165,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := ExportGenesis(ctx, am.keeper, am.ak)
+	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
 }
 

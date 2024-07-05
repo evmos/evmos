@@ -58,7 +58,6 @@ import (
 	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/server/config"
 	evmostypes "github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // package-wide network lock to only allow one test network at a time
@@ -418,10 +417,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 
 		genFiles = append(genFiles, cmtCfg.GenesisFile())
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: balances.Sort()})
-		genAccounts = append(genAccounts, &evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
-			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-		})
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 		commission, err := math.LegacyNewDecFromStr("0.5")
 		if err != nil {

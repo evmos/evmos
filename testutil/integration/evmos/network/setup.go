@@ -111,14 +111,10 @@ func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSe
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
-	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
-		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		ethAcc := &evmostypes.EthAccount{
-			BaseAccount: baseAcc,
-			CodeHash:    emptyCodeHash,
-		}
-		genAccounts = append(genAccounts, ethAcc)
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
+			acc, nil, 0, 0),
+		)
 	}
 	return genAccounts
 }
@@ -473,6 +469,8 @@ func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesis
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			panic("no genesis setup function found for module: " + mod)
 		}
 	}
 	return genesisState, err

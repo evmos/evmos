@@ -403,8 +403,12 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )["pool"][0]
-        return float(coin["amount"])
+        )
+        if "pool" not in coin:
+            return 0
+        if len(coin["pool"]) == 0:
+            return 0
+        return float(coin["pool"][0]["amount"])
 
     def distribution_reward(self, delegator_addr):
         coin = json.loads(
@@ -871,6 +875,24 @@ class CosmosCLI:
                 packet_timeout_timestamp=0,
                 fees=fees,
             )
+        )
+
+    def escrow_address(self, channel, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return (
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "escrow-address",
+                "transfer",
+                channel,
+                **(default_kwargs | kwargs),
+            )
+            .decode()
+            .strip()
         )
 
     def register_counterparty_payee(

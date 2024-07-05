@@ -306,10 +306,9 @@ func initTestnetFiles(
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
-		genAccounts = append(genAccounts, &evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
-			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-		})
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
+			addr, nil, 0, 0),
+		)
 
 		valTokens := sdk.TokensFromConsensusPower(100, evmostypes.PowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(

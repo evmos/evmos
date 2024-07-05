@@ -34,8 +34,6 @@ func TestMigrate(t *testing.T) {
 	require.NoError(t, err)
 	v5Params := v5types.V5Params{
 		EvmDenom:            types.DefaultEVMDenom,
-		EnableCreate:        types.DefaultEnableCreate,
-		EnableCall:          types.DefaultEnableCall,
 		ChainConfig:         chainCfgV5,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
@@ -55,8 +53,6 @@ func TestMigrate(t *testing.T) {
 
 	// test that the params have been migrated correctly
 	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
-	require.True(t, params.EnableCreate)
-	require.True(t, params.EnableCall)
 	require.False(t, params.AllowUnprotectedTxs)
 	require.Equal(t, chainConfig, params.ChainConfig)
 	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)

@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -17,11 +18,15 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v18/contracts"
+	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *KeeperTestSuite) TestCreateAccount() {
@@ -240,7 +245,7 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 			func(vm.StateDB) {},
 		},
 		{
-			"account not EthAccount type, EmptyCodeHash",
+			"account is not a smart contract",
 			addr,
 			common.BytesToHash(types.EmptyCodeHash),
 			func(vm.StateDB) {},
@@ -285,7 +290,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 			false,
 		},
 		{
-			"account not EthAccount type",
+			"account not a smart contract",
 			addr,
 			nil,
 			true,
@@ -322,7 +327,11 @@ func (suite *KeeperTestSuite) TestSetCode() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestKeeperSetCode() {
+func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
+	addr := utiltx.GenerateAddress()
+	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
+	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
+
 	testCases := []struct {
 		name     string
 		codeHash []byte
@@ -342,14 +351,67 @@ func (suite *KeeperTestSuite) TestKeeperSetCode() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.network.App.EvmKeeper.SetCode(suite.network.GetContext(), tc.codeHash, tc.code)
+			ctx := suite.network.GetContext()
+			if len(tc.code) == 0 {
+				suite.network.App.EvmKeeper.DeleteCode(ctx, tc.codeHash)
+			} else {
+				suite.network.App.EvmKeeper.SetCode(ctx, tc.codeHash, tc.code)
+			}
 			key := suite.network.App.GetKey(types.StoreKey)
-			store := prefix.NewStore(suite.network.GetContext().KVStore(key), types.KeyPrefixCode)
+			store := prefix.NewStore(ctx.KVStore(key), types.KeyPrefixCode)
 			code := store.Get(tc.codeHash)
 
 			suite.Require().Equal(tc.code, code)
 		})
 	}
+}
+
+func TestIterateContracts(t *testing.T) {
+	keyring := testkeyring.New(1)
+	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	handler := testhandler.NewIntegrationHandler(network)
+	factory := testfactory.New(network, handler)
+
+	contractAddr, err := factory.DeployContract(
+		keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"TestToken", "TTK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, network.NextBlock(), "failed to advance block")
+
+	contractAddr2, err := factory.DeployContract(
+		keyring.GetPrivKey(0),
+		types.EvmTxArgs{},
+		testfactory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{"AnotherToken", "ATK", uint8(18)},
+		},
+	)
+	require.NoError(t, err, "failed to deploy contract")
+	require.NoError(t, network.NextBlock(), "failed to advance block")
+
+	var (
+		foundAddrs  []common.Address
+		foundHashes []common.Hash
+	)
+
+	network.App.EvmKeeper.IterateContracts(network.GetContext(), func(addr common.Address, codeHash common.Hash) bool {
+		foundAddrs = append(foundAddrs, addr)
+		foundHashes = append(foundHashes, codeHash)
+		return false
+	})
+
+	require.Len(t, foundAddrs, 2, "expected 2 contracts to be found when iterating")
+	require.Contains(t, foundAddrs, contractAddr, "expected contract 1 to be found when iterating")
+	require.Contains(t, foundAddrs, contractAddr2, "expected contract 2 to be found when iterating")
+	require.Equal(t, foundHashes[0], foundHashes[1], "expected both contracts to have the same code hash")
+	require.NotEqual(t, types.EmptyCodeHash, foundHashes[0], "expected store code hash not to be the keccak256 of empty code")
 }
 
 func (suite *KeeperTestSuite) TestRefund() {
@@ -440,6 +502,10 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 	vmdb = suite.StateDB()
 	tmp = vmdb.GetCommittedState(suite.keyring.GetAddr(0), key)
 	suite.Require().Equal(value2, tmp)
+}
+
+func (suite *KeeperTestSuite) TestSetAndGetCodeHash() {
+	suite.SetupTest()
 }
 
 func (suite *KeeperTestSuite) TestSuicide() {
@@ -960,24 +1026,25 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 	supply := big.NewInt(100)
 
 	testCases := []struct {
-		name   string
-		addr   common.Address
-		expErr bool
+		name        string
+		addr        common.Address
+		expPass     bool
+		errContains string
 	}{
 		{
-			"remove address",
-			suite.keyring.GetAddr(0),
-			false,
+			name:        "remove address",
+			addr:        suite.keyring.GetAddr(0),
+			errContains: "only smart contracts can be self-destructed",
 		},
 		{
-			"remove unexistent address - returns nil error",
-			common.HexToAddress("unexistent_address"),
-			false,
+			name:    "remove unexistent address - returns nil error",
+			addr:    common.HexToAddress("unexistent_address"),
+			expPass: true,
 		},
 		{
-			"remove deployed contract",
-			contractAddr,
-			false,
+			name:    "remove deployed contract",
+			addr:    contractAddr,
+			expPass: true,
 		},
 	}
 
@@ -988,12 +1055,19 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 
 			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, tc.addr)
-			if tc.expErr {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
+			if tc.expPass {
+				suite.Require().NoError(err, "expected deleting account to succeed")
+
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				suite.Require().Nil(acc, "expected no account to be found after deleting")
+
 				balance := suite.network.App.EvmKeeper.GetBalance(ctx, tc.addr)
-				suite.Require().Equal(new(big.Int), balance)
+				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
+			} else {
+				suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
+
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
 			}
 		})
 	}

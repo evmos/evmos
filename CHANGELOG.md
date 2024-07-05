@@ -49,16 +49,25 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2355](https://github.com/evmos/evmos/pull/2355) Bump Cosmos-SDK to v0.47.8-evmos.
 - (revenue) [#2379](https://github.com/evmos/evmos/pull/2379) Remove `x/revenue` module.
 - (evm) [#2380](https://github.com/evmos/evmos/pull/2380) Remove EVM hooks from app and EVM module.
-- (evm) [#2501](https://github.com/evmos/evmos/pull/2501) Revert deletion of EVM hooks (#2380).
-- (erc20) [#2502](https://github.com/evmos/evmos/pull/2502) Revert deletion of EVM hooks (#2154) (#2442).
 - (erc20) [#2508](https://github.com/evmos/evmos/pull/2508) Add bookkeping logic in preparation for STRV2 upgrade.
 - (precompiles) [#2529](https://github.com/evmos/evmos/pull/2529) Remove Outposts precompiles.
 - (upgrade) [#2533](https://github.com/evmos/evmos/pull/2533) Add upgrade handler for v19.
 - (staking) [#2051](https://github.com/evmos/evmos/pull/2051) Implement the `EditValidator` function for staking precompiled contract.
+- (app) [#2556](https://github.com/evmos/evmos/pull/2556) Bump IBC-go to v7.5.2 and Cosmos-SDK to v0.47.11.
+- (precompiles) [#2572](https://github.com/evmos/evmos/pull/2572) Add `FundCommunityPool` precompile tx for distribution module.
+- (evm) [#2538](https://github.com/evmos/evmos/pull/2538) Add Permissions Policy for permissioned EVM.
+- (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
+- (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
+- (app) [#2631](https://github.com/evmos/evmos/pull/2631) Bump IBC-go to v7.6.0 and Cosmos-SDK to v0.47.12.
+- (distribution-precompile) [#2643](https://github.com/evmos/evmos/pull/2643) Improve efficiency of reward claiming with distribution precompile.
+- (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
+- (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496) Refactor precompiles to use journal entries.
+- (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf) Update vesting precompile authorization checks.
 
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
+- (tests) [#2642](https://github.com/evmos/evmos/pull/2642) Fix Dockerfile by bumping dependency and fix E2E tests by adjusting used Docker image.
 
 ### Improvements
 
@@ -98,13 +107,24 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc) [#2504](https://github.com/evmos/evmos/pull/2504) Refactor repeated unpacking of IBC packet data.
 - (make) [#2487](https://github.com/evmos/evmos/pull/2487) Improve make command to compile all smart contracts in repository.
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
+- (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
+- (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
+- (ante) [#2619](https://github.com/evmos/evmos/pull/2619) Change anteutils.TxFeeChecker to authante.TxFeeChecker.
+- (tests) [#2635](https://github.com/evmos/evmos/pull/2635) Add function to get ERC-20 balance to integration utils.
+- (ci) [#2630](https://github.com/evmos/evmos/pull/2630) Add PebbleDB image to docker-push workflow.
+- (ci) [#2639](https://github.com/evmos/evmos/pull/2639) Ignore Swagger JSON in CheckOV linter.
+- (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
+- (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
+- (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
 
-## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0)  - 2024-05-31
+## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
 ### Improvements
 
 - (app) [#2373](https://github.com/evmos/evmos/pull/2373) Remove ChainID constraint.
 - (rpc) [#2375](https://github.com/evmos/evmos/pull/2375) Add support for allow-insecure-unlock.
+- (tests) [#2575](https://github.com/evmos/evmos/pull/2575) Add integration test for precompile tx `CreateValidator`.
+- (tests) [#2576](https://github.com/evmos/evmos/pull/2576) Add integration test for precompile tx `EditValidator`.
 - (evm) [#2581](https://github.com/evmos/evmos/pull/2581) Fix wrong error message returned for DynamicFee txs.
 
 ### State Machine Breaking
@@ -112,11 +132,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2559](https://github.com/evmos/evmos/pull/2559) Fix duplicate event emitting of cached events.
 - (precompiles) [#2550](https://github.com/evmos/evmos/pull/2550) Update secp256r1 curve precompile bech32 address to its corresponding value.
 - (vesting) [#2507](https://github.com/evmos/evmos/pull/2507) Consider locked-up vested delegated coins in `LockedCoins` calculation.
-- (security) [#2596](https://github.com/evmos/evmos/pull/2596) Merge security advisory GHSA-xgr7-jgq3-mhmc
+- (ics20) [#2596](https://github.com/evmos/evmos/pull/2596) Merge security advisory GHSA-xgr7-jgq3-mhmc.
 
 ## [v18.0.1](https://github.com/evmos/evmos/releases/tag/v18.0.1) - 2024-05-29
 
-- (app) [2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade
+### Improvements
+
+- (app) [#2589](https://github.com/evmos/evmos/pull/2589) Schedule v18.1 upgrade.
 
 ## [v18.0.0](https://github.com/evmos/evmos/releases/tag/v18.0.0) - 2024-04-22
 

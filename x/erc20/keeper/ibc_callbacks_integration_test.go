@@ -371,67 +371,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
 		})
 	})
-	Describe("strv2 bookkeeping - registered uosmo", func() {
-		BeforeEach(func() {
-			erc20params := types.DefaultParams()
-			erc20params.EnableErc20 = true
-			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
-			s.Require().NoError(err)
-
-			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-			senderAcc = sdk.MustAccAddressFromBech32(sender)
-			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
-
-			// Register uosmo pair
-			pair, err = s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
-			s.Require().NoError(err)
-		})
-		It("should register receiver address", func() {
-			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
-			s.Require().False(found)
-
-			s.EvmosChain.Coordinator.CommitBlock()
-			// Send coins
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
-			s.EvmosChain.Coordinator.CommitBlock()
-
-			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
-			s.Require().True(found)
-
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 2, "")
-			s.EvmosChain.Coordinator.CommitBlock()
-
-			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
-			s.Require().True(found)
-		})
-	})
-
-	Describe("strv2 bookkeeping - unregistered uosmo", func() {
-		BeforeEach(func() {
-			erc20params := types.DefaultParams()
-			erc20params.EnableErc20 = true
-			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
-			s.Require().NoError(err)
-
-			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-			senderAcc = sdk.MustAccAddressFromBech32(sender)
-			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
-		})
-		It("should not register receiver address", func() {
-			found := s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
-			s.Require().False(found)
-
-			s.EvmosChain.Coordinator.CommitBlock()
-			// Send coins
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
-			s.EvmosChain.Coordinator.CommitBlock()
-
-			found = s.app.Erc20Keeper.HasSTRv2Address(s.EvmosChain.GetContext(), receiverAcc)
-			s.Require().False(found)
-		})
-	})
 })
 
 var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {

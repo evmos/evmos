@@ -4,7 +4,6 @@
 package vesting
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
@@ -15,12 +14,14 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 )
+
+// PrecompileAddress of the vesting EVM extension in hex format.
+const PrecompileAddress = "0x0000000000000000000000000000000000000803"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -37,6 +38,11 @@ type Precompile struct {
 
 // RequiredGas returns the required bare minimum gas to execute the precompile.
 func (p Precompile) RequiredGas(input []byte) uint64 {
+	// NOTE: This check avoid panicking when trying to decode the method ID
+	if len(input) < 4 {
+		return 0
+	}
+
 	methodID := input[:4]
 
 	method, err := p.MethodById(methodID)
@@ -54,17 +60,12 @@ func NewPrecompile(
 	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
+	newAbi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading the staking ABI %s", err)
 	}
 
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
-	if err != nil {
-		return nil, fmt.Errorf(cmn.ErrInvalidABI, err)
-	}
-
-	return &Precompile{
+	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
 			AuthzKeeper:          authzKeeper,
@@ -73,18 +74,15 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		vestingKeeper: vestingKeeper,
-	}, nil
-}
-
-// Address defines the address of the staking compile contract.
-// address: 0x0000000000000000000000000000000000000803
-func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000803")
+	}
+	// SetAddress defines the address of the bank compile contract.
+	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	return p, nil
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -92,10 +90,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
-	if err := stateDB.Commit(); err != nil {
-		return nil, err
-	}
 
 	switch method.Name {
 	// Approval transaction
@@ -125,6 +119,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	if !contract.UseGas(cost) {
 		return nil, vm.ErrOutOfGas
+	}
+
+	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+		return nil, err
 	}
 
 	return bz, nil

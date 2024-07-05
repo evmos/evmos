@@ -321,9 +321,11 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 		}
 
 		allocations[i] = transfertypes.Allocation{
-			SourcePort:    a.SourcePort,
-			SourceChannel: a.SourceChannel,
-			SpendLimit:    spendLimit,
+			SourcePort:        a.SourcePort,
+			SourceChannel:     a.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         a.AllowList,
+			AllowedPacketData: a.AllowedPacketData,
 		}
 	}
 
@@ -365,10 +367,11 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocatio
 		}
 
 		allocations[i] = cmn.ICS20Allocation{
-			SourcePort:    allocation.SourcePort,
-			SourceChannel: allocation.SourceChannel,
-			SpendLimit:    spendLimit,
-			AllowList:     allocation.AllowList,
+			SourcePort:        allocation.SourcePort,
+			SourceChannel:     allocation.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         allocation.AllowList,
+			AllowedPacketData: allocation.AllowedPacketData,
 		}
 	}
 

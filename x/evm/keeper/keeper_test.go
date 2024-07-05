@@ -1,10 +1,12 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmostypes "github.com/evmos/evmos/v18/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -90,55 +92,20 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	var ctx sdk.Context
 	testCases := []struct {
-		name       string
-		malleate   func() map[uint64]int
-		expStorage bool
+		name     string
+		malleate func() common.Address
 	}{
 		{
-			"Only one account that's not a contract (no storage)",
-			func() map[uint64]int {
-				expRes := make(map[uint64]int)
-				i := 0
-				// NOTE: here we're removing all accounts except for one
-				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-					defer func() { i++ }()
-					if i == 0 {
-						expRes[account.GetAccountNumber()] = 0
-						return false
-					}
-					suite.network.App.AccountKeeper.RemoveAccount(ctx, account)
-					return false
-				})
-				return expRes
-			},
-			false,
+			name:     "Only accounts that are not a contract (no storage)",
+			malleate: nil,
 		},
 		{
-			"Two accounts - one contract (with storage), one wallet",
-			func() map[uint64]int {
-				expRes := make(map[uint64]int)
+			name: "One contract (with storage) and other EOAs",
+			malleate: func() common.Address {
 				supply := big.NewInt(100)
-				suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
-				i := 0
-				suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-					defer func() { i++ }()
-					var storage evmtypes.Storage
-					ethAccount, ok := account.(evmostypes.EthAccountI)
-					if ok {
-						storage = suite.network.App.EvmKeeper.GetAccountStorage(ctx, ethAccount.EthAddress())
-					}
-					expRes[account.GetAccountNumber()] = len(storage)
-
-					if i == 0 || len(storage) > 0 {
-						return false
-					}
-
-					suite.network.App.AccountKeeper.RemoveAccount(ctx, account)
-					return false
-				})
-				return expRes
+				contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
+				return contractAddr
 			},
-			true,
 		},
 	}
 
@@ -146,33 +113,42 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 		suite.Run(tc.name, func() {
 			var passed bool
 			suite.SetupTest()
-			ctx = suite.network.GetContext()
-			expRes := tc.malleate()
 
-			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-				ethAccount, ok := account.(evmostypes.EthAccountI)
+			var contractAddr common.Address
+			if tc.malleate != nil {
+				contractAddr = tc.malleate()
+			}
+
+			i := 0
+			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
+				acc, ok := account.(*authtypes.BaseAccount)
 				if !ok {
-					// ignore non EthAccounts
+					// Ignore e.g. module accounts
 					return false
 				}
 
-				addr := ethAccount.EthAddress()
-				storage := suite.network.App.EvmKeeper.GetAccountStorage(ctx, addr)
+				address, err := utils.Bech32ToHexAddr(acc.Address)
+				if err != nil {
+					// NOTE: we panic in the test to see any potential problems
+					// instead of skipping to the next account
+					panic(fmt.Sprintf("failed to convert %s to hex address", err))
+				}
 
-				storageEntriesCount := len(storage)
-				expCount, ok := expRes[account.GetAccountNumber()]
-				suite.Require().True(ok)
-				suite.Require().Equal(expCount, storageEntriesCount)
-				if !tc.expStorage {
-					if storageEntriesCount > 0 {
-						passed = false
-						return true
-					}
-					passed = true
+				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, address)
+
+				if address == contractAddr {
+					suite.Require().NotEqual(0, len(storage),
+						"expected account %d to have non-zero amount of storage slots, got %d",
+						i, len(storage),
+					)
+				} else {
+					suite.Require().Len(storage, 0,
+						"expected account %d to have %d storage slots, got %d",
+						i, 0, len(storage),
+					)
 				}
-				if tc.expStorage && storageEntriesCount > 0 {
-					passed = true
-				}
+
+				i++
 				return false
 			})
 			suite.Require().True(passed)

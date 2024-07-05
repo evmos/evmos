@@ -28,36 +28,33 @@ func ValidateMsg(
 
 	return checkDisabledCreateCall(
 		txData,
-		evmParams.EnableCreate,
-		evmParams.EnableCall,
+		&evmParams.AccessControl,
 	)
 }
 
-// checkDisabledCreateCall checks if the transaction is a contract creation or call
-// and it is disabled through governance
+// checkDisabledCreateCall checks if the transaction is a contract creation or call,
+// and if those actions are disabled through governance.
 func checkDisabledCreateCall(
 	txData evmtypes.TxData,
-	enableCreate,
-	enableCall bool,
+	permissions *evmtypes.AccessControl,
 ) error {
 	to := txData.GetTo()
-	data := txData.GetData()
-	// If its not a contract creation or contract call this check is irrelevant
-	if data == nil {
-		return nil
-	}
+	blockCreate := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
+	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeRestricted
 
 	// return error if contract creation or call are disabled through governance
 	// and the transaction is trying to create a contract or call a contract
-	if !enableCreate && to == nil {
+	if blockCreate && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
-	} else if !enableCall && to != nil {
-		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to call contract")
+	} else if blockCall && to != nil {
+		return errorsmod.Wrap(evmtypes.ErrCallDisabled, "failed to perform a call")
 	}
 	return nil
 }
 
-// FIXME: this shouldn't be required if the tx was an Ethereum transaction type
+// ValidateTx validates an Ethereum specific transaction type and returns an error if invalid.
+//
+// FIXME: this shouldn't be required if the tx was an Ethereum transaction type.
 func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	if t, ok := tx.(sdktypes.HasValidateBasic); ok {
 		err := t.ValidateBasic()

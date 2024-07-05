@@ -41,7 +41,7 @@ func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context,
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected GasTx", tx)
 	}
 
-	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
+	// We need to set up an empty gas config so that the gas is consistent with Ethereum.
 	newCtx := evmante.BuildEvmExecutionCtx(ctx).
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.

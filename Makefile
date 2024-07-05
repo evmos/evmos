@@ -26,7 +26,7 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
-ROCKSDB_VERSION ?= "9.1.1"
+ROCKSDB_VERSION ?= "9.2.1"
 # Deps
 DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep 'github.com/evmos/cosmos-sdk' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_IBC_GO_VERSION := $(shell cat go.sum | grep 'github.com/cosmos/ibc-go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
@@ -163,7 +163,7 @@ build-reproducible: go.sum
 	$(DOCKER) cp -a latest-build:/home/builder/artifacts/ $(CURDIR)/
 
 
-build-docker:
+build-docker-goleveldb:
 	# TODO replace with kaniko
 	DOCKER_BUILDKIT=1 $(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_ARGS} .
 	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
@@ -176,6 +176,15 @@ build-docker:
 	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
 	chmod +x ./build/evmosd
 
+build-docker-pebbledb:
+	DOCKER_BUILDKIT=1 $(DOCKER) build --build-arg DB_BACKEND=pebbledb -t ${DOCKER_IMAGE}:${DOCKER_TAG}-pebble ${DOCKER_ARGS} .
+	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG}-pebble ${DOCKER_IMAGE}:latest-pebble
+	mkdir -p ./build/.evmosd
+	echo '#!/usr/bin/env bash' > ./build/evmosd
+	echo "IMAGE_NAME=${DOCKER_IMAGE}:${COMMIT_HASH}" >> ./build/evmosd
+	echo 'SCRIPT_PATH=$$(cd $$(dirname $$0) && pwd -P)' >> ./build/evmosd
+	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
+	chmod +x ./build/evmosd
 
 build-rocksdb:
 	# Make sure to run this command with root permission
@@ -184,9 +193,11 @@ build-rocksdb:
 	CGO_LDFLAGS="-L/usr/lib -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
 	COSMOS_BUILD_OPTIONS=rocksdb $(MAKE) build
 
-push-docker: build-docker
-	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
-	$(DOCKER) push ${DOCKER_IMAGE}:latest
+push-docker: build-docker-goleveldb build-docker-pebbledb
+    $(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
+    $(DOCKER) push ${DOCKER_IMAGE}:latest
+    $(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}-pebble
+    $(DOCKER) push ${DOCKER_IMAGE}:latest-pebble
 
 $(MOCKS_DIR):
 	mkdir -p $(MOCKS_DIR)
@@ -339,7 +350,7 @@ test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 test-e2e:
 	@if [ -z "$(TARGET_VERSION)" ]; then \
 		echo "Building docker image from local codebase"; \
-		make build-docker; \
+		make build-docker-pebbledb; \
 	fi
 	@mkdir -p ./build
 	@rm -rf build/.evmosd
@@ -545,9 +556,9 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-# Clean up the contracts directory, install the necessary dependencies
-# and then compile the solidity contracts found in the Evmos repository.
-contracts-all: contracts-clean contracts-compile
+# Install the necessary dependencies, compile the solidity contracts found in the
+# Evmos repository and then clean up the contracts data.
+contracts-all: contracts-compile contracts-clean
 
 # Clean smart contract compilation artifacts, dependencies and cache files
 contracts-clean:
