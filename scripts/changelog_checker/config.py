@@ -140,9 +140,11 @@ KNOWN_EXCEPTIONS = [
     "- (vesting) Fix vesting bug.",
     "- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456"
     + ") Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13",
-    "- (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496)"
+    "- (precompiles) [GHSA-68fc-7mhg-6f6c]"
+    + "(https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496)"
     + " Refactor precompiles to use journal entries.",
-    "- (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf)"
+    "- (vesting-precompile) [GHSA-q6hg-6m9x-5g9c]"
+    + "(https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf)"
     + " Update vesting precompile authorization checks.",
 ]
 
