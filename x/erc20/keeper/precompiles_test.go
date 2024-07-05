@@ -57,5 +57,4 @@ func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
 			suite.Require().Equal(found, tc.expected)
 		})
 	}
-
 }
