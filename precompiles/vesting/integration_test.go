@@ -231,7 +231,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to fund a clawback vesting account", func() {
-
 		for _, callType := range callTypes {
 			callType := callType
 
@@ -606,7 +605,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				)
 			})
 
-			It(fmt.Sprintf("should fund the vesting account from a smart contract when defining only vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fund the vesting account from a smart contract when defining only vesting (%s)", callType.name), func() { //nolint:dupl
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
@@ -679,7 +678,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				s.ExpectVestingAccount(toAddr, defaultPeriods, defaultPeriods)
 			})
 
-			It(fmt.Sprintf("should fund the vesting account from a smart contract when defining both lockup and vesting  (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fund the vesting account from a smart contract when defining both lockup and vesting  (%s)", callType.name), func() { //nolint:dupl
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
@@ -957,7 +956,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to claw back from a vesting account", func() {
-		var expClawbackAmt = math.NewInt(1000)
+		expClawbackAmt := math.NewInt(1000)
 
 		BeforeEach(func() {
 			s.CreateTestClawbackVestingAccount(s.address, toAddr)
@@ -1168,7 +1167,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 					Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
-					// check the contract's (destination) intial balance. Should be 0
+					// check the contract's (destination) initial balance. Should be 0
 					contractInitialBal := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
 					Expect(contractInitialBal.Amount).To(Equal(sdk.ZeroInt()))
 
@@ -1210,7 +1209,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					Expect(contractFinalBal.Amount).To(Equal(math.NewInt(1000)), "expected receiver to show different balance after clawback")
 				})
 
-				It(fmt.Sprintf("clawback with revert after precompile call but before changing contract state - should NOT claw back and revert all balances to initial values (%s)", callType.name), func() {
+				It(fmt.Sprintf("clawback with revert after precompile call but before changing contract state - should NOT claw back and revert all balances to initial values (%s)", callType.name), func() { //nolint:dupl
 					if callType.directCall {
 						Skip("this should only be run for smart contract calls")
 					}
@@ -1235,7 +1234,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					Expect(balanceReceiver.Amount).To(Equal(math.ZeroInt()))
 				})
 
-				It(fmt.Sprintf("clawback with revert after precompile after changing contract state - should NOT claw back and revert all balances to initial values (%s)", callType.name), func() {
+				It(fmt.Sprintf("clawback with revert after precompile after changing contract state - should NOT claw back and revert all balances to initial values (%s)", callType.name), func() { //nolint:dupl
 					if callType.directCall {
 						Skip("this should only be run for smart contract calls")
 					}
@@ -1270,7 +1269,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 					Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
-					// check the contract's (destination) intial balance. Should be 0
+					// check the contract's (destination) initial balance. Should be 0
 					destContractInitialBal := s.app.BankKeeper.GetBalance(s.ctx, destContractAddr.Bytes(), s.bondDenom)
 					Expect(destContractInitialBal.Amount).To(Equal(sdk.ZeroInt()))
 
@@ -1324,7 +1323,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 					Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
-					// check the contract's (destination) intial balance. Should be 0
+					// check the contract's (destination) initial balance. Should be 0
 					destContractInitialBal := s.app.BankKeeper.GetBalance(s.ctx, destContractAddr.Bytes(), s.bondDenom)
 					Expect(destContractInitialBal.Amount).To(Equal(sdk.ZeroInt()))
 

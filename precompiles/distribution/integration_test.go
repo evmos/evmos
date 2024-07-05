@@ -639,7 +639,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 	// testCase is a struct used for cases of contracts calls that have some operation
 	// performed before and/or after the precompile call
 	type testCase struct {
-		delegator  *common.Address
 		withdrawer *common.Address
 		before     bool
 		after      bool
@@ -1283,7 +1282,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 					valInitialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 
-					// get the pending comission to claim
+					// get the pending commission to claim
 					valAccAddr := sdk.ValAddress(s.address.Bytes())
 					qr := distrkeeper.Querier{Keeper: s.app.DistrKeeper}
 					qRes, err := qr.ValidatorCommission(s.ctx, &distrtypes.QueryValidatorCommissionRequest{ValidatorAddress: valAccAddr.String()})
