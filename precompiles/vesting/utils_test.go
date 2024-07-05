@@ -18,6 +18,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v18/app"
@@ -236,8 +237,8 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 	createArgs := []interface{}{s.address, toAddr, uint64(time.Now().Unix()), lockupPeriods, vestingPeriods}
-	//nolint
 	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method)
+	s.Require().NoError(err)
 	_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msg)
 	s.Require().NoError(err)
 	vestingAcc, err := s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: sdk.AccAddress(toAddr.Bytes()).String()})
@@ -249,8 +250,8 @@ func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 // CreateTestClawbackVestingAccount creates a vesting account that can clawback
 func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(funder, vestingAddr common.Address) {
 	msgArgs := []interface{}{funder, vestingAddr, false}
-	//nolint
 	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
+	s.Require().NoError(err)
 	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 	s.Require().NoError(err)
 	_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
@@ -311,4 +312,24 @@ func (s *PrecompileTestSuite) NextBlock() {
 	var err error
 	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, nil)
 	Expect(err).To(BeNil(), "failed to commit block")
+}
+
+// mergeEventMaps is a helper function to merge events maps from different contracts.
+// If duplicates events are present, map2 override map1 values.
+func mergeEventMaps(map1, map2 map[string]abi.Event) map[string]abi.Event {
+	// Create a new map to hold the merged result
+	mergedMap := make(map[string]abi.Event)
+
+	// Copy all key-value pairs from map1 to mergedMap
+	for k, v := range map1 {
+		mergedMap[k] = v
+	}
+
+	// Copy all key-value pairs from map2 to mergedMap
+	// If there are duplicate keys, values from map2 will overwrite those from map1
+	for k, v := range map2 {
+		mergedMap[k] = v
+	}
+
+	return mergedMap
 }

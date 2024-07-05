@@ -28,7 +28,7 @@ contract FlashLoan {
         uint256 balancePre = token.balanceOf(address(this));
         bool success = token.transferFrom(msg.sender, address(this), _amount);
         require(success, "Failed to transfer tokens for flash loan");
-        assert(
+        require(
             token.balanceOf(address(this)) == balancePre + _amount,
             "Flash loan failed"
         );
@@ -44,7 +44,7 @@ contract FlashLoan {
         // Transfer tokens back to end the flash loan
         balancePre = token.balanceOf(address(this));
         token.transfer(msg.sender, _amount);
-        assert(
+        require(
             token.balanceOf(address(this)) == balancePre - _amount,
             "Flash loan repayment failed"
         );
@@ -69,7 +69,7 @@ contract FlashLoan {
         uint256 balancePre = token.balanceOf(address(this));
         bool success = token.transferFrom(msg.sender, address(this), _amount);
         require(success, "Failed to transfer tokens for flash loan");
-        assert(
+        require(
             token.balanceOf(address(this)) == balancePre + _amount,
             "Flash loan failed"
         );
