@@ -127,13 +127,15 @@ ALLOWED_CHANGE_TYPES = {
 }
 
 # A list of pull requests that are allowed to be mentioned multiple times in the changelog.
-# Usually, this only applies to bug fixes that were patched on two versions (e.g. v12.1.6 and v13.0.0).
+# Usually, this only applies to bug fixes that were patched
+# on two versions (e.g. v12.1.6 and v13.0.0).
 ALLOWED_DUPLICATES = [
     1370,
     1635,
 ]
 
-# A list of known exceptions to the formattiing. This usually applies to PRs that e.g. merged contents from
+# A list of known exceptions to the formattiing.
+# This usually applies to PRs that e.g. merged contents from
 # a security advisory.
 KNOWN_EXCEPTIONS = [
     "- (vesting) Refactor vesting flow.",
