@@ -237,7 +237,7 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
 	createArgs := []interface{}{s.address, toAddr, uint64(time.Now().Unix()), lockupPeriods, vestingPeriods}
-	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method)
+	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method) //nolint:dogsled
 	s.Require().NoError(err)
 	_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msg)
 	s.Require().NoError(err)
