@@ -127,19 +127,28 @@ ALLOWED_CHANGE_TYPES = {
 }
 
 # A list of pull requests that are allowed to be mentioned multiple times in the changelog.
-# Usually, this only applies to bug fixes that were patched on two versions (e.g. v12.1.6 and v13.0.0).
+# Usually, this only applies to bug fixes that were patched
+# on two versions (e.g. v12.1.6 and v13.0.0).
 ALLOWED_DUPLICATES = [
     1370,
     1635,
 ]
 
-# A list of known exceptions to the formattiing. This usually applies to PRs that e.g. merged contents from
+# A list of known exceptions to the formattiing.
+# This usually applies to PRs that e.g. merged contents from
 # a security advisory.
 KNOWN_EXCEPTIONS = [
     "- (vesting) Refactor vesting flow.",
     "- (vesting) Fix vesting bug.",
-    "- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456"
+    "- (vesting) [GHSA-2q3r-p2m3-898g]"
+    + "(https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456"
     + ") Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13",
+    "- (precompiles) [GHSA-68fc-7mhg-6f6c]"
+    + "(https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496)"
+    + " Refactor precompiles to use journal entries.",
+    "- (vesting-precompile) [GHSA-q6hg-6m9x-5g9c]"
+    + "(https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf)"
+    + " Update vesting precompile authorization checks.",
 ]
 
 # The legacy major version at which to stop the checking.

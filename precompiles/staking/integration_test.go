@@ -2199,7 +2199,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					contractInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
 				})
 
-				It("should revert the changes and NOT delegate - successfull tx", func() {
+				It("should revert the changes and NOT delegate - successful tx", func() {
 					callArgs := contracts.CallArgs{
 						ContractAddr: stkReverterAddr,
 						ContractABI:  stakingReverterContract.ABI,
