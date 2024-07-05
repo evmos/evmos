@@ -54,6 +54,7 @@ func (k Keeper) setERC20Enabled(ctx sdk.Context, enable bool) {
 	store.Delete(types.ParamStoreKeyEnableErc20)
 }
 
+// setDynamicPrecompiles sets the DynamicPrecompiles param in the store
 func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := make([]byte, 0, addressLength*len(dynamicPrecompiles))
@@ -63,6 +64,7 @@ func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []stri
 	store.Set(types.ParamStoreKeyDynamicPrecompiles, bz)
 }
 
+// getDynamicPrecompiles returns the DynamicPrecompiles param from the store
 func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
@@ -72,6 +74,7 @@ func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []str
 	return dynamicPrecompiles
 }
 
+// setNativePrecompiles sets the NativePrecompiles param in the store
 func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := make([]byte, 0, addressLength*len(nativePrecompiles))
@@ -81,6 +84,7 @@ func (k Keeper) setNativePrecompiles(ctx sdk.Context, nativePrecompiles []string
 	store.Set(types.ParamStoreKeyNativePrecompiles, bz)
 }
 
+// getNativePrecompiles returns the NativePrecompiles param from the store
 func (k Keeper) getNativePrecompiles(ctx sdk.Context) (nativePrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamStoreKeyNativePrecompiles)

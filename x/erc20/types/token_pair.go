@@ -16,7 +16,7 @@ import (
 //
 // It derives the ERC-20 address from the hex suffix of the IBC denomination
 // (e.g. ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992).
-func NewTokenPairSTRv2(denom string, contractOwner Owner) (TokenPair, error) {
+func NewTokenPairSTRv2(denom string) (TokenPair, error) {
 	address, err := utils.GetIBCDenomAddress(denom)
 	if err != nil {
 		return TokenPair{}, err
@@ -25,7 +25,7 @@ func NewTokenPairSTRv2(denom string, contractOwner Owner) (TokenPair, error) {
 		Erc20Address:  address.String(),
 		Denom:         denom,
 		Enabled:       true,
-		ContractOwner: contractOwner,
+		ContractOwner: OWNER_MODULE,
 	}, nil
 }
 

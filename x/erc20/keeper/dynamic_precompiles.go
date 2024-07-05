@@ -20,7 +20,7 @@ import (
 //
 // CONTRACT: This must ONLY be called if there is no existing token pair for the given denom.
 func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.TokenPair, error) {
-	pair, err := k.CreateNewTokenPair(ctx, denom, types.OWNER_MODULE)
+	pair, err := k.CreateNewTokenPair(ctx, denom)
 	if err != nil {
 		return nil, err
 	}

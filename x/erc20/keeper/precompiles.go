@@ -15,7 +15,7 @@ import (
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
-// GetDynamicPrecompileInstance returns the dynamic precompile instance for the given address.
+// GetERC20PrecompileInstance returns the precompile instance for the given address.
 func (k Keeper) GetERC20PrecompileInstance(
 	ctx sdk.Context,
 	address common.Address,

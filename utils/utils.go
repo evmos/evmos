@@ -152,7 +152,7 @@ func GetIBCDenomAddress(denom string) (common.Address, error) {
 	}
 
 	if len(denom) < 5 || strings.TrimSpace(denom[4:]) == "" {
-		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s does not a valid IBC voucher hash", denom)
+		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s is not a valid IBC voucher hash", denom)
 	}
 
 	// Get the address from the hash of the ICS20's DenomTrace Path
