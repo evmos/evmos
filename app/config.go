@@ -4,6 +4,7 @@
 package app
 
 import (
+	"github.com/evmos/evmos/v18/app/eips"
 	evmconfig "github.com/evmos/evmos/v18/x/evm/config"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
@@ -24,9 +25,9 @@ var (
 	// EvmosActivators defines a map of opcode modifiers associated
 	// with a key defining the corresponding EIP.
 	evmosActivators = map[int]func(*vm.JumpTable){
-		0o000: enable0000,
-		0o001: enable0001,
-		0o002: enable0002,
+		0o000: eips.Enable0000,
+		0o001: eips.Enable0001,
+		0o002: eips.Enable0002,
 	}
 
 	// DefaultEnabledEIPs defines the EIP that should be activated
