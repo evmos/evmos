@@ -536,6 +536,7 @@ func NewEvmos(
 		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			app.InflationKeeper.Hooks(),
+			app.AuctionsKeeper.Hooks(),
 		),
 	)
 

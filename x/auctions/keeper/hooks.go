@@ -4,20 +4,34 @@
 package keeper
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 )
 
-// BeforeEpochStart noop, We don't need to do anything here
-func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
-}
-
-// AfterEpochEnd mints and allocates coins at the end of each epoch end
-func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
+// BeforeEpochStart starts a new auction at the beginning of the epoch
+func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return
 	}
+
+	fmt.Println("AUCTIONS: epoch start", epochIdentifier, epochNumber)
+	// TODO: Start new auction
+}
+
+// AfterEpochEnd ends the current auction and distributes the rewards to the winner
+func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
+	// End auction and distribute rewards
+	fmt.Println("AUCTIONS: epoch end", epochIdentifier, epochNumber)
+	params := k.GetParams(ctx)
+	if !params.EnableAuction {
+		return
+	}
+
+	currentRound := k.GetRound(ctx)
+	nextRound := currentRound + 1
+	k.SetRound(ctx, nextRound)
 }
 
 // Hooks wrapper struct for incentives keeper
@@ -27,12 +41,11 @@ type Hooks struct {
 
 var _ epochstypes.EpochHooks = Hooks{}
 
-// Return the wrapper struct
+// Hooks Return the wrapper struct
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-// epochs hooks
 func (h Hooks) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	h.k.BeforeEpochStart(ctx, epochIdentifier, epochNumber)
 }
