@@ -43,6 +43,11 @@ func (o *operation) GetConstantGas() uint64 {
 	return o.constantGas
 }
 
+// SetExecute sets the execution function of the operation.
+func (o *operation) SetExecute(ef executionFunc) {
+	o.execute = ef
+}
+
 // SetConstantGas changes the constant gas of the operation.
 func (o *operation) SetConstantGas(gas uint64) {
 	o.constantGas = gas
