@@ -97,7 +97,7 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 	It("should enable the new EIP", func() {
 		eips.Multiplier = eipMultiplier
-		newEIP := 0000
+		newEIP := 0o000
 
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
@@ -214,7 +214,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 	})
 	It("should enable the new EIP", func() {
 		eips.Multiplier = eipMultiplier
-		newEIP := 0001
+		newEIP := 0o001
 
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
@@ -326,7 +326,7 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 
 	It("should enable the new EIP", func() {
 		eips.SstoreConstantGas = constantGas
-		newEIP := 0002
+		newEIP := 0o002
 
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
