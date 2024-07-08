@@ -38,9 +38,9 @@ func GetActivatorsEipNumbers() []int {
 	return keys
 }
 
-// SetExecute sets the execution function of the operation.
-func (o *operation) SetExecute(ef executionFunc) {
-	o.execute = ef
+// GetConstantGas return the constant gas used by the operation.
+func (o *operation) GetConstantGas() uint64 {
+	return o.constantGas
 }
 
 // SetConstantGas changes the constant gas of the operation.
