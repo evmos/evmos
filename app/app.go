@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	v20 "github.com/evmos/evmos/v18/app/upgrades/v20"
 	"io"
 	"net/http"
 	"os"
@@ -838,7 +839,7 @@ func NewEvmos(
 	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
-	app.setupUpgradeHandlers()
+	app.setupUpgradeHandlers(appOpts)
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -1186,7 +1187,7 @@ func initParamsKeeper(
 	return paramsKeeper
 }
 
-func (app *Evmos) setupUpgradeHandlers() {
+func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 	// v17 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v17.UpgradeName,
@@ -1209,6 +1210,20 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.EvmKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v20.UpgradeName,
+		v20.CreateUpgradeHandler(
+			app.mm,
+			app.configurator,
+			app.appCodec,
+			appOpts,
+			*app.IBCKeeper,
+			&app.ConsumerKeeper,
+			app.StakingKeeper,
+			*app.EvmKeeper,
 		),
 	)
 

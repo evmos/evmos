@@ -13,6 +13,7 @@ import (
 	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 	"github.com/evmos/evmos/v18/utils"
+	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/spf13/cast"
 
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
@@ -27,6 +28,7 @@ func CreateUpgradeHandler(
 	ibcKeeper ibckeeper.Keeper,
 	consumerKeeper *ccvconsumerkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -35,6 +37,10 @@ func CreateUpgradeHandler(
 		fromVM := make(map[string]uint64)
 
 		ibcKeeper.ConnectionKeeper.SetParams(ctx, ibcKeeper.ConnectionKeeper.GetParams(ctx))
+
+		// Evm params change
+		evmParams := evmKeeper.GetParams(ctx)
+		evmParams.EvmDenom = "" // The EVM denom will now be the IBC voucher for ATOM
 
 		nodeHome := cast.ToString(appOpts.Get(flags.FlagHome))
 		consumerUpgradeGenFile := nodeHome + "/config/ccv.json"
