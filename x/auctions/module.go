@@ -54,10 +54,14 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers a legacy amino codec
-func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
 
 // RegisterInterfaces registers the module's interface types
-func (AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {}
+func (AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
+}
 
 // DefaultGenesis returns the auctions module's default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
@@ -86,7 +90,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns the auctions module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns the auctions module's root query command.

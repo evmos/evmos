@@ -22,6 +22,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	auctionstypes "github.com/evmos/evmos/v18/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -53,6 +54,7 @@ func StoreKeys() (
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey,
 		epochstypes.StoreKey, vestingtypes.StoreKey,
+		auctionstypes.StoreKey,
 	}
 
 	keys := sdk.NewKVStoreKeys(storeKeys...)

@@ -5,6 +5,9 @@ package evmos.auctions.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "evmos/auctions/v1/genesis.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
@@ -12,7 +15,11 @@ option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
 service Query {
   rpc AuctionTokens(QueryAuctionTokensRequest) returns (QueryAuctionTokensResponse) {
-    option (google.api.http).get = "/evmos/auctions/tokens";
+    option (google.api.http).get = "/evmos/auctions/v1/tokens";
+  }
+  // Params retrieves the erc20 module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/auctions/v1/params";
   }
 }
 
@@ -21,4 +28,17 @@ message QueryAuctionTokensRequest {
 }
 
 message QueryAuctionTokensResponse {
+  // amount describes the amount put on auction
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message QueryParamsRequest {
+}
+
+message QueryParamsResponse {
+  // params defines all the paramaters of the module
+  Params params = 1;
 }

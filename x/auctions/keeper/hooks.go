@@ -13,18 +13,19 @@ import (
 
 // BeforeEpochStart starts a new auction at the beginning of the epoch
 func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
+	fmt.Println("AUCTIONS: epoch start", epochIdentifier, epochNumber)
 	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return
 	}
 
-	fmt.Println("AUCTIONS: epoch start", epochIdentifier, epochNumber)
 	// TODO: Start new auction
 }
 
 // AfterEpochEnd ends the current auction and distributes the rewards to the winner
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	// If it's not the weekly epoch, no-op
+	fmt.Println("AUCTIONS epoch end", epochIdentifier, epochNumber)
 	if epochIdentifier != epochstypes.WeekEpochID {
 		return
 	}

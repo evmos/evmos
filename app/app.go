@@ -251,10 +251,15 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
-		auctionstypes.ModuleName:       {authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		auctionstypes.ModuleName:       {authtypes.Burner},
+	}
+
+	// allowed to receive funds
+	allowedToReceive = map[string]bool{
+		auctionstypes.ModuleName: true,
 	}
 )
 
@@ -958,7 +963,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	sort.Strings(accs)
 
 	for _, acc := range accs {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedToReceive[acc]
 	}
 
 	blockedPrecompilesHex := []string{
