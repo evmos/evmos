@@ -1,4 +1,4 @@
-# Evmos custom EIPs
+# Evmos Custom EIPs
 
 This document explain how **evmOS** allows chain built on top of it to define custom EIPs to modify the behavior of EVM opcodes.
 
@@ -217,8 +217,37 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 }
 ```
 
-
 As we can see, a new `JumpTable` is created if it is not received from previous evm executions in the same transaction. After that,
 the function iterate over the `ExtraEips` defined in the configuration. Then, it is checked if the EIP is associated with an activator. If yes, 
 the activator function is execute, otherwise an error is returned and the EIP is removed from the  VM configuration. At this point, all the
 opcodes are ready to be executed.
+
+## How to Use It
+
+In previous sections has been described required structures and files to use the EVM configurator to enable custom EIPs.
+In this the general procedure is taken into considerations. Two different scenarios are described:
+
+- New chain.
+
+- Running chain.
+
+### New Chain
+
+For a new chain starting from block genesis, the procedure described in the sections above is enough. To summarize it:
+
+- Create the eip file with custom activators.
+
+- Create the config file with custom activators, default EIPs, and the configurator.
+
+After starting the chain, the genesis validation will perform all the required checks and the chain will be ready using the
+new custom EIPs.
+
+
+### Running Chain
+
+The proper approach to include and enable new EIPs, with the current state of the development, is via coordinate chain upgrade. During the chain
+upgrade it is important to define the custom activators since they are not stored in the chain. To enable them there are two possibilities:
+
+- Write a migration to add the new enabled EIPsm during the upgrade.
+
+- After the upgrade, create a governance proposal to modify the `x/evm` params.
