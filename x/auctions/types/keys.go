@@ -18,10 +18,12 @@ const (
 const (
 	prefixAuctionRound = iota + 1
 	prefixBid
+	prefixEpochIdentifier
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixAuctionRound = []byte{prefixAuctionRound}
-	KeyPrefixBid          = []byte{prefixBid}
+	KeyPrefixAuctionRound    = []byte{prefixAuctionRound}
+	KeyPrefixBid             = []byte{prefixBid}
+	KeyPrefixEpochIdentifier = []byte{prefixEpochIdentifier}
 )

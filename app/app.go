@@ -251,7 +251,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
-		auctionstypes.ModuleName:       nil,
+		auctionstypes.ModuleName:       {authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
@@ -497,6 +497,7 @@ func NewEvmos(
 
 	app.AuctionsKeeper = auctionskeeper.NewKeeper(
 		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
 	)
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
