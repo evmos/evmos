@@ -83,8 +83,8 @@ All these components will be described in the following sections.
 
 ### Opcode & EIP Activators
 
-Activators is the name provided by [Go-ethereum](https://geth.ethereum.org/) to the definition of the structure grouping all
-possible non-default EIPs:
+Activators is the name provided by [Go-ethereum](https://geth.ethereum.org/) to the definition of the structure
+grouping all possible non-default EIPs:
 
 ```go
 var activators = map[int]func(*JumpTable){
@@ -128,7 +128,6 @@ evmosEnabledEIPs = []int64{
 ```
 
 In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `0o000`
-
 
 ### EVM Configurator
 
@@ -174,6 +173,7 @@ if err != nil {
     panic(err)
 }
 ```
+
 ## Custom EIPs Deep Dive
 
 When the chain receives an EVM transaction, it is handled by the `MsgServer` of the `x/evm` within the method
@@ -246,7 +246,6 @@ For a new chain starting from block genesis, the procedure described in the sect
 
 After starting the chain, the genesis validation will perform all the required checks and the chain will be ready using
 the new custom EIPs.
-
 
 ### Running Chain
 
