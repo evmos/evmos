@@ -15,8 +15,8 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-// UpdateComulativeGasWanted updates the cumulative gas wanted
-func UpdateComulativeGasWanted(
+// UpdateCumulativeGasWanted updates the cumulative gas wanted
+func UpdateCumulativeGasWanted(
 	ctx sdktypes.Context,
 	msgGasWanted uint64,
 	maxTxGasWanted uint64,
@@ -101,7 +101,7 @@ func deductFees(
 	return nil
 }
 
-// GetMsgPriority returns the priority of a Eth Tx capped by the minimum priority
+// GetMsgPriority returns the priority of an Eth Tx capped by the minimum priority
 func GetMsgPriority(
 	txData evmtypes.TxData,
 	minPriority int64,

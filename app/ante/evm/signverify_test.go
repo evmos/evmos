@@ -26,13 +26,13 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	err := signedTx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	uprotectedEthTxParams := &evmtypes.EvmTxArgs{
+	unprotectedEthTxParams := &evmtypes.EvmTxArgs{
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	unprotectedTx := evmtypes.NewTx(uprotectedEthTxParams)
+	unprotectedTx := evmtypes.NewTx(unprotectedEthTxParams)
 	unprotectedTx.From = addr.Hex()
 	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)

@@ -7,11 +7,10 @@ import (
 	"math/big"
 	"sort"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v18/x/evm/types"
 )
-
-var emptyCodeHash = crypto.Keccak256(nil)
 
 // Account is the Ethereum consensus representation of accounts.
 // These objects are stored in the storage of auth module.
@@ -25,13 +24,13 @@ type Account struct {
 func NewEmptyAccount() *Account {
 	return &Account{
 		Balance:  new(big.Int),
-		CodeHash: emptyCodeHash,
+		CodeHash: types.EmptyCodeHash,
 	}
 }
 
 // IsContract returns if the account contains contract code.
 func (acct Account) IsContract() bool {
-	return !bytes.Equal(acct.CodeHash, emptyCodeHash)
+	return !types.IsEmptyCodeHash(acct.CodeHash)
 }
 
 // Storage represents in-memory cache/buffer of contract storage.
@@ -49,7 +48,7 @@ func (s Storage) SortedKeys() []common.Hash {
 	return keys
 }
 
-// stateObject is the state of an acount
+// stateObject is the state of an account
 type stateObject struct {
 	db *StateDB
 
@@ -59,10 +58,6 @@ type stateObject struct {
 	// state storage
 	originStorage Storage
 	dirtyStorage  Storage
-
-	// transientStorage is an in memory storage of the latest committed entries in the current transaction execution.
-	// It is only used when multiple commits are made within the same transaction execution.
-	transientStorage Storage
 
 	address common.Address
 
@@ -76,22 +71,25 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 	if account.Balance == nil {
 		account.Balance = new(big.Int)
 	}
+
 	if account.CodeHash == nil {
-		account.CodeHash = emptyCodeHash
+		account.CodeHash = types.EmptyCodeHash
 	}
+
 	return &stateObject{
-		db:               db,
-		address:          address,
-		account:          account,
-		originStorage:    make(Storage),
-		dirtyStorage:     make(Storage),
-		transientStorage: make(Storage),
+		db:            db,
+		address:       address,
+		account:       account,
+		originStorage: make(Storage),
+		dirtyStorage:  make(Storage),
 	}
 }
 
 // empty returns whether the account is considered empty.
 func (s *stateObject) empty() bool {
-	return s.account.Nonce == 0 && s.account.Balance.Sign() == 0 && bytes.Equal(s.account.CodeHash, emptyCodeHash)
+	return s.account.Nonce == 0 &&
+		s.account.Balance.Sign() == 0 &&
+		types.IsEmptyCodeHash(s.account.CodeHash)
 }
 
 func (s *stateObject) markSuicided() {
@@ -125,6 +123,16 @@ func (s *stateObject) SetBalance(amount *big.Int) {
 	s.setBalance(amount)
 }
 
+// AddPrecompileFn appends to the journal an entry
+// with a snapshot of the multi-store and events
+// previous to the precompile call
+func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events) {
+	s.db.journal.append(precompileCallChange{
+		multiStore: cms,
+		events:     events,
+	})
+}
+
 func (s *stateObject) setBalance(amount *big.Int) {
 	s.account.Balance = amount
 }
@@ -143,11 +151,14 @@ func (s *stateObject) Code() []byte {
 	if s.code != nil {
 		return s.code
 	}
-	if bytes.Equal(s.CodeHash(), emptyCodeHash) {
+
+	if types.IsEmptyCodeHash(s.CodeHash()) {
 		return nil
 	}
+
 	code := s.db.keeper.GetCode(s.db.ctx, common.BytesToHash(s.CodeHash()))
 	s.code = code
+
 	return code
 }
 
