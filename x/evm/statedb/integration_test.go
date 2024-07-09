@@ -11,11 +11,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
 	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
+	testcontracts "github.com/evmos/evmos/v18/precompiles/testutil/contracts"
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/x/evm/statedb/testdata"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo
@@ -29,8 +29,13 @@ func TestNestedEVMExtensionCall(t *testing.T) {
 	RunSpecs(t, "Nested EVM Extension Call Test Suite")
 }
 
-// NOTE: This must ONLY be added to the main repository once the vulnerability has been patched!
-//
+type testCase struct {
+	method                  string
+	expDelegation           bool
+	expSenderERC20Balance   *big.Int
+	expContractERC20Balance *big.Int
+}
+
 // This test is a demonstration of the flash loan exploit that was reported.
 // This happens when interacting with EVM extensions in smart contract methods,
 // where a resulting state change has the same value as the original state value.
@@ -75,21 +80,21 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		stakingPrecompile, err = stakingprecompile.NewPrecompile(network.App.StakingKeeper, network.App.AuthzKeeper)
 		Expect(err).ToNot(HaveOccurred(), "failed to create staking precompile")
 
+		// Load the flash loan contract from the compiled JSON data.
+		flashLoanContract, err = testcontracts.LoadFlashLoanContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load flash loan contract")
+	})
+
+	BeforeEach(func() {
 		valsRes, err := handler.GetBondedValidators()
 		Expect(err).ToNot(HaveOccurred(), "failed to get bonded validators")
 
 		validatorToDelegateTo = valsRes.Validators[0].OperatorAddress
-		res, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
+		qRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
-		delegatedAmountPre = res.DelegationResponse.Balance.Amount
+		delegatedAmountPre = qRes.DelegationResponse.Balance.Amount
 
-		// Load the flash loan contract from the compiled JSON data
-		flashLoanContract, err = testdata.LoadFlashLoanContract()
-		Expect(err).ToNot(HaveOccurred(), "failed to load flash loan contract")
-	})
-
-	It("should deploy an ERC-20 token contract", func() {
-		var err error
+		// Deploy an ERC-20 token contract.
 		erc20Addr, err = factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{},
@@ -99,11 +104,9 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
-	})
 
-	It("should mint some tokens", func() {
-		// Mint some tokens to the deployer
-		_, err := factory.ExecuteContractCall(
+		// Mint some tokens to the deployer.
+		_, err = factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &erc20Addr},
 			testfactory.CallArgs{
@@ -116,7 +119,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
 
-		// Check the balance of the deployer
+		// Check the balance of the deployer on the ERC20 contract.
 		res, err := factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &erc20Addr},
@@ -131,7 +134,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")
 
 		unpacked, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack(
 			"balanceOf",
@@ -142,10 +145,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		balance, ok := unpacked[0].(*big.Int)
 		Expect(ok).To(BeTrue(), "failed to convert balance to big.Int")
 		Expect(balance.String()).To(Equal(mintAmount.String()), "balance is not correct")
-	})
 
-	It("should deploy the flash loan contract", func() {
-		var err error
+		// Deploy the flash loan contract.
 		flashLoanAddr, err = factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{},
@@ -154,10 +155,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
-	})
 
-	It("should approve the flash loan contract to spend tokens", func() {
-		_, err := factory.ExecuteContractCall(
+		// Approve the flash loan contract to spend tokens. This is required because
+		// the contract will get funds from the caller to perform actions.
+		_, err = factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &erc20Addr},
 			testfactory.CallArgs{
@@ -170,8 +171,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
 
-		// Check the allowance
-		res, err := factory.ExecuteContractCall(
+		// Check the allowance.
+		res, err = factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &erc20Addr},
 			testfactory.CallArgs{
@@ -184,24 +185,24 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
 
-		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
+		Expect(err).ToNot(HaveOccurred(), "failed to decode allowance tx response")
 
-		unpacked, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack(
+		unpacked, err = contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack(
 			"allowance",
 			ethRes.Ret,
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to unpack allowance")
 
-		allowance, ok := unpacked[0].(*big.Int)
+		var allowance *big.Int
+		allowance, ok = unpacked[0].(*big.Int)
 		Expect(ok).To(BeTrue(), "failed to convert allowance to big.Int")
 		Expect(allowance.String()).To(Equal(mintAmount.String()), "allowance is not correct")
-	})
 
-	It("should approve the flash loan contract to delegate tokens on behalf of user", func() {
+		// Approve the flash loan contract to delegate tokens on behalf of user.
 		precompileAddr := stakingPrecompile.Address()
 
-		_, err := factory.ExecuteContractCall(
+		_, err = factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &precompileAddr},
 			testfactory.CallArgs{
@@ -214,8 +215,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
 
-		// Check the allowance
-		res, err := factory.ExecuteContractCall(
+		// Check the allowance.
+		res, err = factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &precompileAddr},
 			testfactory.CallArgs{
@@ -228,22 +229,24 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
 
-		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
+		Expect(err).ToNot(HaveOccurred(), "failed to decode allowance tx response")
 
-		var allowance *big.Int
-		err = stakingPrecompile.ABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
+		err = stakingPrecompile.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
 		Expect(err).ToNot(HaveOccurred(), "failed to unpack allowance")
 	})
 
-	It("should execute the flash loan contract", func() {
-		// Execute the flash loan contract
+	DescribeTable("call the flashLoan contract", func(tc testCase) {
 		_, err := factory.ExecuteContractCall(
 			deployer.Priv,
-			evmtypes.EvmTxArgs{To: &flashLoanAddr},
+			evmtypes.EvmTxArgs{
+				To:       &flashLoanAddr,
+				GasPrice: big.NewInt(900_000_000),
+				GasLimit: 400_000,
+			},
 			testfactory.CallArgs{
 				ContractABI: flashLoanContract.ABI,
-				MethodName:  "flashLoan",
+				MethodName:  tc.method,
 				Args: []interface{}{
 					erc20Addr,
 					validatorToDelegateTo,
@@ -252,19 +255,20 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to execute flash loan")
-	})
 
-	It("should show the delegation", func() {
 		delRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
-		Expect(delRes.DelegationResponse.Balance.Amount.String()).To(Equal(
-			delegatedAmountPre.Add(math.NewIntFromBigInt(delegateAmount)).String()),
-			"delegated amount is not correct",
-		)
-	})
+		delAmtPost := delRes.DelegationResponse.Balance.Amount
+		if tc.expDelegation {
+			Expect(delAmtPost).To(Equal(
+				delegatedAmountPre.Add(math.NewIntFromBigInt(delegateAmount))),
+				"delegated amount is not correct",
+			)
+		} else {
+			Expect(delAmtPost).To(Equal(delegatedAmountPre))
+		}
 
-	It("should have returned the funds from the flash loan", func() {
-		// Check the balance of the deployer
+		// Check the ERC20 token balance of the deployer.
 		res, err := factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{To: &erc20Addr},
@@ -279,7 +283,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")
 
 		unpacked, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack(
 			"balanceOf",
@@ -289,6 +293,46 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 
 		balance, ok := unpacked[0].(*big.Int)
 		Expect(ok).To(BeTrue(), "failed to convert balance to big.Int")
-		Expect(balance.String()).To(Equal(mintAmount.String()), "balance is not correct")
-	})
+		Expect(balance.String()).To(Equal(tc.expSenderERC20Balance.String()), "balance is not correct")
+
+		// Check FlashLoan smart contract ERC20 token balance.
+		res, err = factory.ExecuteContractCall(
+			deployer.Priv,
+			evmtypes.EvmTxArgs{To: &erc20Addr},
+			testfactory.CallArgs{
+				ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				MethodName:  "balanceOf",
+				Args: []interface{}{
+					flashLoanAddr,
+				},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+
+		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
+		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")
+
+		unpacked, err = contracts.ERC20MinterBurnerDecimalsContract.ABI.Unpack(
+			"balanceOf",
+			ethRes.Ret,
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to unpack balance")
+
+		balance, ok = unpacked[0].(*big.Int)
+		Expect(ok).To(BeTrue(), "failed to convert balance to big.Int")
+		Expect(balance.String()).To(Equal(tc.expContractERC20Balance.String()), "balance is not correct")
+	},
+		Entry("flasLoan method & expect delegation", testCase{
+			method:                  "flashLoan",
+			expDelegation:           true,
+			expSenderERC20Balance:   mintAmount,
+			expContractERC20Balance: big.NewInt(0),
+		}),
+		Entry("flashLoanWithRevert method - delegation reverted", testCase{
+			method:                  "flashLoanWithRevert",
+			expDelegation:           false,
+			expSenderERC20Balance:   delegateAmount,
+			expContractERC20Balance: delegateAmount,
+		}),
+	)
 })

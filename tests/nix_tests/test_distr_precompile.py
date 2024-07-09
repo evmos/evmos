@@ -123,7 +123,9 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     # check that community pool balance increased
     funds_sent_amt = args[1]
     community_final_balance = evmos_cluster.cosmos_cli().distribution_community()
-    assert community_final_balance >= community_prev_balance + funds_sent_amt, f"Failed: {name}"
+    assert (
+        community_final_balance >= community_prev_balance + funds_sent_amt
+    ), f"Failed: {name}"
 
     # signer2 balance should remain unchanged
     signer2_final_balance = get_balance(
