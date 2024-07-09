@@ -20,6 +20,7 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(
+		NewDepositCmd(),
 		NewBidCmd(),
 	)
 	return txCmd
@@ -45,6 +46,42 @@ func NewBidCmd() *cobra.Command {
 			sender := cliCtx.GetFromAddress()
 
 			msg := &types.MsgBid{
+				Amount: coin,
+				Sender: sender.String(),
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewDepositCmd returns a CLI command handler for converting a Cosmos coin
+func NewDepositCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit COIN",
+		Short: "Deposit Coin for the next auction",
+		Args:  cobra.RangeArgs(1, 1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			coin, err := sdk.ParseCoinNormalized(args[0])
+			if err != nil {
+				return err
+			}
+
+			sender := cliCtx.GetFromAddress()
+
+			msg := &types.MsgDepositCoin{
 				Amount: coin,
 				Sender: sender.String(),
 			}

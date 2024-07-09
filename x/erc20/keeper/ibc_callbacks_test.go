@@ -477,7 +477,6 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 
 	receiverPk := secp256k1.GenPrivKey()
 	receiver := sdk.AccAddress(receiverPk.PubKey().Address())
-	fmt.Println(receiver)
 	testCases := []struct {
 		name     string
 		malleate func()

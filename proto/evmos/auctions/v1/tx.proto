@@ -21,11 +21,15 @@ service Msg {
     option (google.api.http).get = "/evmos/auctions/v1/bid";
   }
 
+  // DepositCoins defines a method for depositing coins to an auction
+  rpc DepositCoin(MsgDepositCoin) returns (MsgDepositCoinResponse){
+    option (google.api.http).get = "/evmos/auctions/v1/deposit_coin";
+  }
+
   // UpdateParams defines a method for updating the auction parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/update_params";
   }
-
 }
 
 message MsgUpdateParams {
@@ -53,4 +57,18 @@ message MsgBid {
 
 
 message MsgBidResponse {}
+
+
+// DepositCoins is a message for depositing coins to an auction
+message MsgDepositCoin {
+  // sender is the address of the account that is depositing coins
+  option (cosmos.msg.v1.signer) = "sender";
+  string sender = 1;
+
+  // amount to deposit into the auction
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgDepositCoinResponse {}
+
 

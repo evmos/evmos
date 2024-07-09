@@ -10,18 +10,14 @@ import (
 	"github.com/evmos/evmos/v18/x/auctions/types"
 )
 
-func InitGenesis(
-	ctx sdk.Context, k keeper.Keeper, data types.GenesisState,
-) {
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 }
 
-func ExportGenesis(
-	ctx sdk.Context, k keeper.Keeper,
-) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
 	}

@@ -3,19 +3,35 @@ package keeper
 import (
 	"context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/auctions/types"
 )
 
 var _ types.QueryServer = Keeper{}
 
-// AuctionTokens returns the current module account assets that are being auctioned.
-func (k Keeper) AuctionTokens(c context.Context, _ *types.QueryAuctionTokensRequest) (*types.QueryAuctionTokensResponse, error) {
+// AuctionInfo returns the current auction information
+func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
 	moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
-	return &types.QueryAuctionTokensResponse{Amount: coins}, nil
+	// Filter out the coin with the specified denomination
+	filteredCoins := sdk.Coins{}
+	for _, coin := range coins {
+		if coin.Denom != utils.BaseDenom {
+			filteredCoins = append(filteredCoins, coin)
+		}
+	}
+
+	currentRound := k.GetRound(ctx)
+	highestBid := k.GetHighestBid(ctx)
+	return &types.QueryCurrentAuctionInfoResponse{
+		Tokens:        filteredCoins,
+		CurrentRound:  currentRound,
+		HighestBid:    highestBid.Amount,
+		BidderAddress: highestBid.Sender,
+	}, nil
 }
 
 // Params returns params of the auctions module.

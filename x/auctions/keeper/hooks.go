@@ -4,28 +4,20 @@
 package keeper
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
 // BeforeEpochStart starts a new auction at the beginning of the epoch
-func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
-	fmt.Println("AUCTIONS: epoch start", epochIdentifier, epochNumber)
-	params := k.GetParams(ctx)
-	if !params.EnableAuction {
-		return
-	}
-
-	// TODO: Start new auction
+func (k Keeper) BeforeEpochStart(ctx sdk.Context, _ string, _ int64) {
+	// no-op
 }
 
 // AfterEpochEnd ends the current auction and distributes the rewards to the winner
-func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
+func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
 	// If it's not the weekly epoch, no-op
-	fmt.Println("AUCTIONS epoch end", epochIdentifier, epochNumber)
 	if epochIdentifier != epochstypes.WeekEpochID {
 		return
 	}
@@ -49,17 +41,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
 		remainingCoins := sdk.NewCoins()
-		var evmosCoin sdk.Coin
 		for _, coin := range coins {
-			if coin.Denom == utils.BaseDenom {
-				evmosCoin = coin
-			} else {
+			if coin.Denom != utils.BaseDenom {
 				remainingCoins = remainingCoins.Add(coin)
 			}
 		}
 
 		// Burn the Evmos Coins from the module account
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(evmosCoin)); err != nil {
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.Amount)); err != nil {
 			return
 		}
 

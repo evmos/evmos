@@ -12,9 +12,10 @@ import (
 
 var (
 	amino = codec.NewLegacyAmino()
-	// ModuleCdc references the global vesting  module codec. Note, the codec should
+	// ModuleCdc references the global evm module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding.
 	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
+
 	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
 	AminoCdc = codec.NewAminoCodec(amino)
 )
@@ -22,11 +23,13 @@ var (
 const (
 	// Amino names
 	bid          = "evmos/auctions/v1/MsgBid"
+	deposit      = "evmos/auctions/v1/MsgDepositCoin"
 	updateParams = "evmos/auctions/v1/MsgUpdateParams"
 )
 
 func init() {
 	RegisterLegacyAminoCodec(amino)
+	amino.Seal()
 }
 
 // RegisterInterfaces registers the Msgs interfaces and types for the module
@@ -34,6 +37,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgBid{},
+		&MsgDepositCoin{},
 		&MsgUpdateParams{},
 	)
 
@@ -47,5 +51,5 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgBid{}, bid, nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
-
+	cdc.RegisterConcrete(&MsgDepositCoin{}, deposit, nil)
 }

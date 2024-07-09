@@ -18,18 +18,18 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetAuctionTokensCmd(),
+		GetAuctionInfo(),
 		GetParamsCmd(),
 	)
 	return cmd
 }
 
-// GetAuctionTokensCmd queries the current module account assets
-func GetAuctionTokensCmd() *cobra.Command {
+// GetAuctionInfo queries the current auction information
+func GetAuctionInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tokens",
-		Short: "Get current auction tokens",
-		Long:  "Get current auction module account tokens.",
+		Use:   "info",
+		Short: "Get current auction info",
+		Long:  "Get current auction information.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -39,7 +39,7 @@ func GetAuctionTokensCmd() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.AuctionTokens(cmd.Context(), &types.QueryAuctionTokensRequest{})
+			res, err := queryClient.AuctionInfo(cmd.Context(), &types.QueryCurrentAuctionInfoRequest{})
 			if err != nil {
 				return err
 			}

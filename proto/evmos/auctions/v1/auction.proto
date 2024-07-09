@@ -20,6 +20,16 @@ message Bid {
   ];
 }
 
-message Auction {
 
+message Deposit {
+  string sender = 1 [
+    (gogoproto.jsontag) = "sender",
+    (gogoproto.moretags) = "yaml:\"sender\""
+  ];
+
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
 }
+

@@ -13,11 +13,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-var _ types.MsgServer = &Keeper{}
+var (
+	_ types.MsgServer = &Keeper{}
+)
 
 // Bid defines a method for placing a bid on an auction
 func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResponse, error) {
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.GetParams(ctx)
@@ -39,15 +40,39 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 		return nil, errors.Wrap(err, "deposit failed")
 	}
 
-	if err := k.refundLastBid(ctx); err != nil {
-		return nil, errors.Wrap(err, "refund failed")
+	// If there is a last bid, refund it
+	if !lastBid.Amount.IsZero() {
+		if err := k.refundLastBid(ctx); err != nil {
+			return nil, errors.Wrap(err, "refund failed")
+		}
 	}
-
 	k.SetHighestBid(ctx, bid.Sender, bid.Amount)
 
 	// TODO: emit events
 
 	return &types.MsgBidResponse{}, nil
+}
+
+// DepositCoin defines a method for depositing coins into the auction module
+func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin) (*types.MsgDepositCoinResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := k.GetParams(ctx)
+	if !params.EnableAuction {
+		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
+	}
+
+	senderAddr, err := sdk.AccAddressFromBech32(deposit.Sender)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(deposit.Amount)); err != nil {
+		return nil, errors.Wrap(err, "deposit failed")
+	}
+
+	// TODO: Emit Events
+
+	return &types.MsgDepositCoinResponse{}, nil
 }
 
 // UpdateParams defines a method for updating inflation params
