@@ -84,6 +84,12 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		// in the Nonce.
 		senderPriv2 = k.GetPrivKey(0)
 		senderAddr2 = k.GetAddr(0)
+
+		// Set extra EIPs to empty to allow testing a single modifier.
+		defaultParams := evmtypes.DefaultParams()
+		defaultParams.ExtraEIPs = []int64{}
+		err = in.UpdateEvmParams(defaultParams)
+		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
 	It("should deploy the contract before enabling the EIP", func() {
@@ -99,12 +105,13 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		eips.Multiplier = eipMultiplier
 		newEIP := 0o000
 
-		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(defaultParams)
+		qRes, err := gh.GetEvmParams()
+		Expect(err).To(BeNil(), "failed during query to evm params")
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
-		qRes, err := gh.GetEvmParams()
+		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0000 in evm params")
 	})
@@ -162,6 +169,12 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		tf = factory.New(in, gh)
 
 		senderPriv = k.GetPrivKey(0)
+
+		// Set extra EIPs to empty to allow testing a single modifier.
+		defaultParams := evmtypes.DefaultParams()
+		defaultParams.ExtraEIPs = []int64{}
+		err = in.UpdateEvmParams(defaultParams)
+		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
 	It("should deploy the contract before enabling the EIP", func() {
@@ -216,12 +229,13 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		eips.Multiplier = eipMultiplier
 		newEIP := 0o001
 
-		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(defaultParams)
+		qRes, err := gh.GetEvmParams()
+		Expect(err).To(BeNil(), "failed during query to evm params")
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
-		qRes, err := gh.GetEvmParams()
+		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0001 in evm params")
 	})
@@ -285,7 +299,6 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		senderAddr2 common.Address
 		gasUsedPre  int64
 	)
-
 	// Constant gas used to modify the opcodes associated with EIP 0002.
 	constantGas := uint64(500)
 
@@ -312,6 +325,12 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		// in the Nonce.
 		senderPriv2 = k.GetPrivKey(0)
 		senderAddr2 = k.GetAddr(0)
+
+		// Set extra EIPs to empty to allow testing a single modifier.
+		defaultParams := evmtypes.DefaultParams()
+		defaultParams.ExtraEIPs = []int64{}
+		err = in.UpdateEvmParams(defaultParams)
+		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
 	It("should deploy the contract before enabling the EIP", func() {
@@ -328,12 +347,13 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		eips.SstoreConstantGas = constantGas
 		newEIP := 0o002
 
-		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = append(defaultParams.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(defaultParams)
+		qRes, err := gh.GetEvmParams()
+		Expect(err).To(BeNil(), "failed during query to evm params")
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
-		qRes, err := gh.GetEvmParams()
+		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0002 in evm params")
 	})
