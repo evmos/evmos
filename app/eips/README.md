@@ -21,6 +21,7 @@ func(jt *vm.JumpTable) {}
 where `vm` is the package `"github.com/evmos/evmos/v18/x/evm/core/vm"`. 
 
 Custom EIPs are used to modify the behavior of opcodes, which are described by the `operation` structure:
+
 ```go
 type operation struct {
 	// execute is the operation function
@@ -52,10 +53,10 @@ With the **evmOS** framework, it is possible to modify any of the fields defined
 
 - `SetMemorySize`: the memory size required by the `operation`.
 
-
 An example for an EIP which modifies the constant gas used for the `CREATE` opcode is reported below:
 
 ```go
+// Enable a custom EIP-0000
 func Enable0000(jt *vm.JumpTable) {
 	jt[vm.CREATE].SetConstantGas(1)
 }
@@ -63,7 +64,7 @@ func Enable0000(jt *vm.JumpTable) {
 
 In the same folder should also be defined tests and contracts used to verify the EIPs logic.
 
-## Activate custom EIPs
+## Activate Custom EIPs
 
 The activation of custom EIPs should be done inside the `config.go` file defined in the `./app/` folder. This file has the role
 of the single source for modify the EVM implementation which is defined in the [`x/evm/`](https://github.com/evmos/evmos/tree/main/x/evm) folder
@@ -77,7 +78,7 @@ In this file, 3 main components should be defined:
 
 All these components will be described in the following sections.
 
-### Activators
+### Opcode & EIP Activators
 
 Activators is the name provided by [Go-ethereum](https://geth.ethereum.org/) to the definition of the structure grouping all 
 possible non-default EIPs:
@@ -95,6 +96,7 @@ where the key is the EIP number in the octal representation, and the value is th
 In **evmOS**, custom activators should be defined in a structure with the same data type, like in the example below:
 
 ```go
+// Activate custom EIPs: 0000, 0001, 0002, etc
 evmosActivators = map[int]func(*vm.JumpTable){
     0o000: eips.Enable0000,
     0o001: eips.Enable0001,
@@ -105,9 +107,9 @@ evmosActivators = map[int]func(*vm.JumpTable){
 It should be noted that the value of each key in the example is the modifier defined in the `eips` package in the example provided 
 at the of the [Custom EIPs](#custom-eips) section.
 
-### Default enabled EIPs
+### Default EIPs
 
-Custom EIPs defined in the activators map are not enabled by default. This type is only used to define the list of custom functionalities
+Custom EIPs defined in the `activators` map are not enabled by default. This type is only used to define the list of custom functionalities
 that can be activated. To specify which custom EIP activate, we should modify the **evmOS** `x/evm` module params. The parameter
 orchestrating enabled custom EIPs is the `DefaultExtraEIPs` and **evmOS** provide an easy and safe way to customize it.
 
@@ -123,9 +125,10 @@ evmosEnabledEIPs = []int64{
 In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `0o000`
 
 
-### EVM configurator
+### EVM Configurator
 
 The EVM configuration is the type used to modify the EVM configuration before starting a node. The type is defined as:
+
 ```go
 type EVMConfigurator struct {
 	extendedEIPs             map[int]func(*vm.JumpTable)
@@ -134,7 +137,7 @@ type EVMConfigurator struct {
 }
 ```
 
-Currently, only $2$ customizations are possible:
+Currently, only 2 customizations are possible:
 
 - `WithExtendedEips`: extended the default available EIPs.
 
@@ -166,7 +169,7 @@ if err != nil {
     panic(err)
 }
 ```
-## How it works
+## Custom EIPs Deep Dive
 
 When the chain receives an EVM transaction, it is handled by the `MsgServer` of the `x/evm` within the method `EthereumTx`. The method
 then calls `ApplyTransaction` where the EVM configuration is created:
