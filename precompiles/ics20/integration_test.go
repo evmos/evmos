@@ -14,7 +14,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	evmoscontracts "github.com/evmos/evmos/v18/contracts"
 	evmostesting "github.com/evmos/evmos/v18/ibc/testing"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
@@ -27,6 +26,7 @@ import (
 	teststypes "github.com/evmos/evmos/v18/types/tests"
 	"github.com/evmos/evmos/v18/utils"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
