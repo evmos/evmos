@@ -117,7 +117,7 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v18/client/docs/statik"
@@ -171,8 +171,8 @@ import (
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
-	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+	_ "github.com/evmos/evmos/v18/x/evm/core/tracers/js"
+	_ "github.com/evmos/evmos/v18/x/evm/core/tracers/native"
 )
 
 func init() {

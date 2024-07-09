@@ -27,6 +27,7 @@ EXEMPT_FILES: List[str] = [
 # List of folders that should be ignored.
 IGNORED_FOLDERS: List[str] = [
     r"tests/solidity/node_modules",
+    r"x/evm/core",
 ]
 
 LGPL3_LICENSE = [
