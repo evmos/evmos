@@ -109,6 +109,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
 - (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
 - (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
+- (evm) [#2663](https://github.com/evmos/evmos/pull/2663) Port Geth `core/vm` into Evmos `x/evm`.
 - (ante) [#2619](https://github.com/evmos/evmos/pull/2619) Change anteutils.TxFeeChecker to authante.TxFeeChecker.
 - (tests) [#2635](https://github.com/evmos/evmos/pull/2635) Add function to get ERC-20 balance to integration utils.
 - (ci) [#2630](https://github.com/evmos/evmos/pull/2630) Add PebbleDB image to docker-push workflow.
