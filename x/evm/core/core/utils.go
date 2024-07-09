@@ -4,44 +4,9 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
-
-// NewEVMBlockContext creates a new context for use in the EVM.
-func NewEVMBlockContext(header *types.Header, chain core.ChainContext, author *common.Address) vm.BlockContext {
-	var (
-		beneficiary common.Address
-		baseFee     *big.Int
-		random      *common.Hash
-	)
-
-	// If we don't have an explicit author (i.e. not mining), extract from the header
-	if author == nil {
-		beneficiary, _ = chain.Engine().Author(header) // Ignore error, we're past header validation
-	} else {
-		beneficiary = *author
-	}
-	if header.BaseFee != nil {
-		baseFee = new(big.Int).Set(header.BaseFee)
-	}
-	if header.Difficulty.Cmp(common.Big0) == 0 {
-		random = &header.MixDigest
-	}
-	return vm.BlockContext{
-		CanTransfer: CanTransfer,
-		Transfer:    Transfer,
-		GetHash:     core.GetHashFn(header, chain),
-		Coinbase:    beneficiary,
-		BlockNumber: new(big.Int).Set(header.Number),
-		Time:        new(big.Int).SetUint64(header.Time),
-		Difficulty:  new(big.Int).Set(header.Difficulty),
-		BaseFee:     baseFee,
-		GasLimit:    header.GasLimit,
-		Random:      random,
-	}
-}
 
 // CanTransfer checks whether there are enough funds in the address' account to make a transfer.
 // This does not take the necessary gas in to account to make the transfer valid.
