@@ -65,8 +65,7 @@ func (tp TokenPair) IsNativeCoin() bool {
 	return tp.ContractOwner == OWNER_MODULE
 }
 
-// IsNativeERC20 returns true if the owner of the ERC20 contract not the
-// erc20 module account
+// IsNativeERC20 returns true if the owner of the ERC20 contract is an EOA.
 func (tp TokenPair) IsNativeERC20() bool {
 	return tp.ContractOwner == OWNER_EXTERNAL
 }
