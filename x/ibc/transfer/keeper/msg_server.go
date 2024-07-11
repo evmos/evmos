@@ -69,6 +69,9 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	// update the msg denom to the token pair denom
 	msg.Token.Denom = pair.Denom
 
+	if !pair.IsNativeERC20() {
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
 	balance := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
 	if balance.Amount.GTE(msg.Token.Amount) {
@@ -87,21 +90,19 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	}
 
 	// Only convert if the pair is a native ERC20
-	if pair.IsNativeERC20() {
-		// only convert the remaining difference
-		difference := msg.Token.Amount.Sub(balance.Amount)
+	// only convert the remaining difference
+	difference := msg.Token.Amount.Sub(balance.Amount)
 
-		msgConvertERC20 := erc20types.NewMsgConvertERC20(
-			difference,
-			sender,
-			pair.GetERC20Contract(),
-			common.BytesToAddress(sender.Bytes()),
-		)
+	msgConvertERC20 := erc20types.NewMsgConvertERC20(
+		difference,
+		sender,
+		pair.GetERC20Contract(),
+		common.BytesToAddress(sender.Bytes()),
+	)
 
-		// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-		if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
-			return nil, err
-		}
+	// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
+	if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
+		return nil, err
 	}
 
 	defer func() {

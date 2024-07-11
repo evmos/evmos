@@ -206,36 +206,6 @@ func (act AccessControlType) Validate() error {
 	return nil
 }
 
-// func validateAccessControl(i interface{}) error {
-// 	permissions, ok := i.(AccessControl)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permissions policy type: %T", i)
-// 	}
-//
-// 	if err := validatePermissionType(permissions.Create); err != nil {
-// 		return err
-// 	}
-//
-// 	return validatePermissionType(permissions.Call)
-// }
-//
-// func validatePermissionType(i interface{}) error {
-// 	permission, ok := i.(AccessControlType)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permission type: %T", i)
-// 	}
-//
-// 	if err := validateAccessType(permission.AccessType); err != nil {
-// 		return err
-// 	}
-//
-// 	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
-
 func validateAccessType(i interface{}) error {
 	accessType, ok := i.(AccessType)
 	if !ok {
