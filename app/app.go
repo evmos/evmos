@@ -441,7 +441,7 @@ func NewEvmos(
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
-		// Temporary solution to solve keeper interdependency while new precompile module
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
 		// is being developed.
 		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
