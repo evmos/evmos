@@ -28,7 +28,9 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-// AvailableStaticPrecompiles returns the list of all available precompiled contracts.
+const bech32PrecompileBaseGas = 6_000
+
+// AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailableStaticPrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
@@ -46,7 +48,7 @@ func AvailableStaticPrecompiles(
 	// secp256r1 precompile as per EIP-7212
 	p256Precompile := &p256.Precompile{}
 
-	bech32Precompile, err := bech32.NewPrecompile(6000)
+	bech32Precompile, err := bech32.NewPrecompile(bech32PrecompileBaseGas)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
 	}
@@ -92,13 +94,13 @@ func AvailableStaticPrecompiles(
 	// Stateful precompiles
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
-	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	return precompiles
 }
 
-// WithStaticPrecompiles sets the available precompiled contracts.
+// WithStaticPrecompiles sets the available static precompiled contracts.
 func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.PrecompiledContract) *Keeper {
 	if k.precompiles != nil {
 		panic("available precompiles map already set")

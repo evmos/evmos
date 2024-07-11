@@ -15,7 +15,8 @@ type Precompiles struct {
 	Addresses []common.Address
 }
 
-// GetPrecompileInstance returns the address and instance of the static or dynamic precompile associated with the given address, or return nil if not found.
+// GetPrecompileInstance returns the address and instance of the static or dynamic precompile associated with the
+// given address, or return nil if not found.
 func (k *Keeper) GetPrecompileInstance(
 	ctx sdktypes.Context,
 	address common.Address,
@@ -46,6 +47,8 @@ func (k *Keeper) GetPrecompileInstance(
 	}, found, nil
 }
 
+// GetPrecompilesCallHook returns a closure that can be used to instantiate the EVM with a specific
+// precompile instance.
 func (k *Keeper) GetPrecompilesCallHook(ctx sdktypes.Context) types.CallHook {
 	return func(evm *vm.EVM, _ common.Address, recipient common.Address) error {
 		// Check if the recipient is a precompile contract and if so, load the precompile instance
