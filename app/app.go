@@ -512,7 +512,7 @@ func NewEvmos(
 
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithStaticPrecompiles(
-		evmkeeper.AvailableStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,

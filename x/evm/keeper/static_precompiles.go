@@ -32,7 +32,7 @@ const bech32PrecompileBaseGas = 6_000
 
 // AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
-func AvailableStaticPrecompiles(
+func NewAvailableStaticPrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -117,13 +117,11 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 // GetStaticPrecompileInstance returns the instance of the given static precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
 	if k.IsAvailableStaticPrecompile(params, address) {
-		// k.Logger(ctx).Info("address precompile: ", address)
-		// fmt.Println("address precompile: ", address)
 		precompile, found := k.precompiles[address]
-		// If the precompile is within params but not found in the precompiles map,
-		// we should return an error
+		// If the precompile is within params but not found in the precompiles map it means we have memory
+		// corruption.
 		if !found {
-			return nil, false, fmt.Errorf("precompiled contract not stored in memory: %s", address)
+			panic(fmt.Errorf("precompiled contract not stored in memory: %s", address))
 		}
 		return precompile, true, nil
 	}
@@ -132,6 +130,7 @@ func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address commo
 
 // IsAvailablePrecompile returns true if the given static precompile address is contained in the
 // EVM keeper's available precompiles map.
+// This function assumes that the Berlin precompiles cannot be disabled.
 func (k Keeper) IsAvailableStaticPrecompile(params *types.Params, address common.Address) bool {
 	return slices.Contains(params.ActiveStaticPrecompiles, address.String()) ||
 		slices.Contains(vm.PrecompiledAddressesBerlin, address)

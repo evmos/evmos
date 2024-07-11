@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"slices"
-	"sort"
-	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,8 +25,8 @@ var (
 	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
-	// AvailableStaticPrecompiles defines the default active precompiles
-	AvailableStaticPrecompiles = []string{
+	// DefaultStaticPrecompiles defines the default active precompiles
+	DefaultStaticPrecompiles = []string{
 		p256.PrecompileAddress,                       // P256 precompile
 		"0x0000000000000000000000000000000000000400", // Bech32 precompile
 		"0x0000000000000000000000000000000000000800", // Staking precompile
@@ -81,16 +79,13 @@ func NewParams(
 }
 
 // DefaultParams returns default evm parameters
-// ExtraEIPs is empty to prevent overriding the latest hard fork instruction set
-// ActiveStaticPrecompiles is empty to prevent overriding the default precompiles
-// from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
 		EvmDenom:                DefaultEVMDenom,
 		ChainConfig:             DefaultChainConfig(),
 		ExtraEIPs:               DefaultExtraEIPs,
 		AllowUnprotectedTxs:     DefaultAllowUnprotectedTxs,
-		ActiveStaticPrecompiles: AvailableStaticPrecompiles,
+		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
 	}
@@ -152,13 +147,8 @@ func (p Params) EIPs() []int {
 	return eips
 }
 
-// HasCustomPrecompiles returns true if the ActiveStaticPrecompiles slice is not empty.
-func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActiveStaticPrecompiles) > 0
-}
-
-// GetActiveStaticPrecompilesAddrs is a util function which returns the Active Static 
-// Precompile addresses.
+// GetActiveStaticPrecompilesAddrs is a util function that the Active Precompiles
+// as a slice of addresses.
 func (p Params) GetActiveStaticPrecompilesAddrs() []common.Address {
 	precompiles := make([]common.Address, len(p.ActiveStaticPrecompiles))
 	for i, precompile := range p.ActiveStaticPrecompiles {
@@ -171,16 +161,6 @@ func (p Params) GetActiveStaticPrecompilesAddrs() []common.Address {
 // EVM channels
 func (p Params) IsEVMChannel(channel string) bool {
 	return slices.Contains(p.EVMChannels, channel)
-}
-
-// IsActivePrecompile returns true if the given precompile address is
-// registered as an active precompile.
-func (p Params) IsActivePrecompile(address string) bool {
-	_, found := sort.Find(len(p.ActiveStaticPrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActiveStaticPrecompiles[i])
-	})
-
-	return found
 }
 
 func (ac AccessControl) Validate() error {

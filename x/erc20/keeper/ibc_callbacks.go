@@ -58,7 +58,6 @@ func (k Keeper) OnRecvPacket(
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
-	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(data)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
