@@ -92,9 +92,8 @@ func ValidatePrecompiles(i interface{}) error {
 		}
 	}
 
-	// NOTE: Check that the precompiles are sorted. This is required for the
-	// precompiles to be found correctly when using the IsActivePrecompile method,
-	// because of the use of sort.Find.
+	// NOTE: Check that the precompiles are sorted. This is required
+	// to ensure determinism
 	if !slices.IsSorted(precompiles) {
 		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
 	}

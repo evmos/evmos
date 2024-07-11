@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/contracts"
 	auth "github.com/evmos/evmos/v18/precompiles/authorization"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
@@ -192,6 +193,25 @@ var _ = Describe("ERC20 Extension -", func() {
 	})
 
 	Context("basic functionality -", func() {
+		When("sending tokens to contract", func() {
+			It("it should return error", func() {
+				sender := is.keyring.GetKey(0)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+
+				// Fund account with some tokens
+				is.fundWithTokens(directCall, contractsData, sender.Addr, fundCoins)
+
+				// Taking custom args from the table entry
+				txArgs := evmtypes.EvmTxArgs{}
+				txArgs.Amount = big.NewInt(int64(1000))
+				precompileAddress := is.precompile.Address()
+
+				txArgs.To = &precompileAddress
+				_, err := is.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()), "precompile should not accept transfers")
+			},
+			)
+		})
 		When("transferring tokens", func() {
 			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsedLowerBound int64, expGasUsedUpperBound int64) {
 				sender := is.keyring.GetKey(0)

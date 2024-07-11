@@ -48,6 +48,7 @@ func CreateUpgradeHandler(
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
 
 		// Leave modules as-is to avoid running InitGenesis.
+		// TODO: store migrations need to be ran before STRV2 migration
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }

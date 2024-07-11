@@ -14,6 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/utils"
 )
 
 const (
@@ -105,6 +107,12 @@ func (p Precompile) transfer(
 		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
 		return nil, err
+	}
+
+	// TODO: where should we get this
+	if p.tokenPair.Denom == utils.BaseDenom {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
