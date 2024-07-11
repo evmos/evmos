@@ -85,9 +85,7 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 		// The denomination used to send the coins is either the native denom or the hash of the path
 		// if the denomination is not native.
 		denomTrace := transfertypes.ParseDenomTrace(unprefixedDenom)
-		if denomTrace.Path != "" {
-			denom = denomTrace.IBCDenom()
-		}
+		denom = denomTrace.IBCDenom()
 
 		return sdk.Coin{
 			Denom:  denom,

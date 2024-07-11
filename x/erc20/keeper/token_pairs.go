@@ -58,8 +58,8 @@ func (k Keeper) IterateTokenPairs(ctx sdk.Context, cb func(tokenPair types.Token
 	}
 }
 
-// GetTokenPairID returns the pair id from either of the registered tokens.
-// Hex address or Denom can be used as token argument.
+// GetTokenPairID returns the pair id for the specified token. Hex address or Denom can be used as token argument.
+// If the token is not registered empty bytes are returned.
 func (k Keeper) GetTokenPairID(ctx sdk.Context, token string) []byte {
 	if common.IsHexAddress(token) {
 		addr := common.HexToAddress(token)
