@@ -157,8 +157,8 @@ func (p Params) HasCustomPrecompiles() bool {
 	return len(p.ActiveStaticPrecompiles) > 0
 }
 
-// GetActiveStaticPrecompilesAddrs is a util function that the Active Precompiles
-// as a slice of addresses.
+// GetActiveStaticPrecompilesAddrs is a util function which returns the Active Static 
+// Precompile addresses.
 func (p Params) GetActiveStaticPrecompilesAddrs() []common.Address {
 	precompiles := make([]common.Address, len(p.ActiveStaticPrecompiles))
 	for i, precompile := range p.ActiveStaticPrecompiles {
