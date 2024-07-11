@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v18/utils"
 )
 
-// NewTokenPairSTRv2 creates a new TokenPair in the context of the
+// NewTokenPairSTRv2 creates a new TokenPair instance in the context of the
 // Single Token Representation v2.
 //
 // It derives the ERC-20 address from the hex suffix of the IBC denomination

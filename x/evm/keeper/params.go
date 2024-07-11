@@ -9,6 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -82,14 +83,8 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 	copy(updatedPrecompiles, existingPrecompiles)
 	copy(updatedPrecompiles[exstingLength:], hexAddresses)
 
-	sortPrecompiles(updatedPrecompiles)
+	utils.SortSlice(updatedPrecompiles)
 	return updatedPrecompiles, nil
-}
-
-func sortPrecompiles(precompiles []string) {
-	sort.Slice(precompiles, func(i, j int) bool {
-		return precompiles[i] < precompiles[j]
-	})
 }
 
 // EnableEIPs enables the given EIPs in the EVM parameters.

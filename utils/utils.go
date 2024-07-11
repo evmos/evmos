@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -18,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"golang.org/x/exp/constraints"
 )
 
 const (
@@ -185,4 +187,11 @@ func ComputeIBCDenom(
 	denom string,
 ) string {
 	return ComputeIBCDenomTrace(portID, channelID, denom).IBCDenom()
+}
+
+// SortSlice sorts a slice of any ordered type.
+func SortSlice[T constraints.Ordered](slice []T) {
+	sort.Slice(slice, func(i, j int) bool {
+		return slice[i] < slice[j]
+	})
 }

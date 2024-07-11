@@ -6,10 +6,10 @@ package keeper
 import (
 	"fmt"
 	"slices"
-	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
@@ -51,6 +51,8 @@ func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Ad
 	return k.SetParams(ctx, params)
 }
 
+// appendPrecompiles append addresses to the existingPrecompiles and sort the resulting slice.
+// The function returns an error is the two sets are overlapping.
 func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address) ([]string, error) {
 	// check for duplicates
 	hexAddresses := make([]string, len(addresses))
@@ -67,12 +69,6 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 	copy(updatedPrecompiles, existingPrecompiles)
 	copy(updatedPrecompiles[exstingLength:], hexAddresses)
 
-	sortPrecompiles(updatedPrecompiles)
+	utils.SortSlice(updatedPrecompiles)
 	return updatedPrecompiles, nil
-}
-
-func sortPrecompiles(precompiles []string) {
-	sort.Slice(precompiles, func(i, j int) bool {
-		return precompiles[i] < precompiles[j]
-	})
 }
