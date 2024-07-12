@@ -4,6 +4,10 @@
 package v19
 
 import (
+	"fmt"
+	"slices"
+
+	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -19,6 +23,8 @@ const (
 	StrideOutpostAddress  = "0x0000000000000000000000000000000000000900"
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
+
+var newExtraEIPs = []int64{0000, 0001, 0002}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
@@ -36,9 +42,18 @@ func CreateUpgradeHandler(
 		ctxCache, writeFn := ctx.CacheContext()
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
 			writeFn()
+		} else {
+			logger.Debug("Error removing outposts.")
 		}
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
+
+		ctxCache, writeFn = ctx.CacheContext()
+		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Debug("Error setting new extra EIPs.")
+		}
 
 		// Leave modules as-is to avoid running InitGenesis.
 		return mm.RunMigrations(ctx, configurator, vm)
@@ -81,4 +96,20 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 
 		return false
 	})
+}
+
+func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) error {
+	params := ek.GetParams(ctx)
+	extraEIPs := params.ExtraEIPs
+
+	for _, eip := range newExtraEIPs {
+		if slices.Contains(extraEIPs, eip) {
+			logger.Debug(fmt.Sprintf("Skipping EIP %d because duplicate", eip))
+		} else {
+			extraEIPs = append(extraEIPs, eip)
+		}
+	}
+
+	params.ExtraEIPs = extraEIPs
+	return ek.SetParams(ctx, params)
 }

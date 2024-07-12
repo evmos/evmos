@@ -1,14 +1,16 @@
 package v19_test
 
 import (
+	"fmt"
 	"testing"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"golang.org/x/exp/slices"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v18/app/upgrades/v19"
+	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v18/types"
@@ -162,4 +164,61 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 		network.App.EvmKeeper.GetCode(network.GetContext(), codeHash),
 		"expected different code",
 	)
+}
+
+func TestEnableCustomEIPs(t *testing.T) {
+	upgradeEIPs := []int64{0000, 0001, 0002}
+
+	testCases := []struct {
+		name       string
+		activeEIPs []int64
+		expError   bool
+		expEIPsNum int
+	}{
+		{
+			name:       "repeated EIP - skip",
+			activeEIPs: []int64{0000},
+			expError:   false,
+			expEIPsNum: 3,
+		},
+		{
+			name:       "all new EIP",
+			activeEIPs: []int64{3855},
+			expError:   false,
+			expEIPsNum: 4,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			network := testnetwork.NewUnitTestNetwork()
+
+			require.NoError(t, network.NextBlock(), "failed to advance block")
+
+			oldParams := network.App.EvmKeeper.GetParams(network.GetContext())
+			oldParams.ExtraEIPs = tc.activeEIPs
+			network.UpdateEvmParams(oldParams)
+			fmt.Println("EIPs: ", oldParams.ExtraEIPs)
+
+			logger := network.GetContext().Logger()
+			err := v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
+			if tc.expError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			params := network.App.EvmKeeper.GetParams(network.GetContext())
+			fmt.Println("EIPs: ", params.ExtraEIPs)
+			require.Equal(t, tc.expEIPsNum, len(params.ExtraEIPs))
+
+			found := true
+			for _, eip := range upgradeEIPs {
+				if !slices.Contains(params.ExtraEIPs, eip) {
+					found = false
+				}
+			}
+			require.True(t, found)
+		})
+	}
 }
