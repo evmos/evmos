@@ -364,43 +364,48 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 		})
 		// @RAMA
-		// When("calling reverter contract", func() {
-		// 	Context("in a direct call to the token contract", func() {
-		// 		DescribeTable("it should transfer tokens from another account with a sufficient approval set", func(before bool, after bool) {
-		// 			sender := is.keyring.GetKey(0)
-		// 			receiver := is.keyring.GetAddr(1)
+		When("calling reverter contract", func() {
+			Context("in a direct call to the token contract", func() {
+				DescribeTable("it should transfer tokens from another account with a sufficient approval set", func(before bool, after bool) {
+					sender := is.keyring.GetKey(0)
+					receiver := is.keyring.GetAddr(1)
 
-		// 			denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
 
-		// 			cArgs := defaultCallArgs.
-		// 				WithPrivKey(sender.Priv).
-		// 				WithMethodName("transferWithRevert").
-		// 				WithArgs(
-		// 					receiver,
-		// 					big.NewInt(100), before, after,
-		// 				)
+					cArgs := defaultCallArgs.
+						WithPrivKey(sender.Priv).
+						WithMethodName("transferWithRevert").
+						WithArgs(
+							receiver,
+							big.NewInt(100),
+							before,
+							after,
+						).WithGasLimit(4991202).
+						WithAmount(big.NewInt(100))
 
-		// 			_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+					if before || after {
+						_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+						Expect(err).NotTo(BeNil())
+						// contract balance should remain unchanged
+						denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+						Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
+					} else {
+						transferCheck := passCheck.WithExpEvents(
+							erc20.EventTypeTransfer,
+						)
+						_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+						Expect(err).To(BeNil())
+						denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+						Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
+					}
 
-		// 			Expect(err).NotTo(BeNil())
-
-		// 			if before || after {
-		// 				// contract balance should remain unchanged
-		// 				denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-		// 				Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
-		// 			} else {
-		// 				denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-		// 				Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
-
-		// 			}
-
-		// 		},
-		// 			Entry("no revert", false, false),
-		// 			Entry("revert before", true, false),
-		// 			Entry("revert after", false, true),
-		// 		)
-		// 	})
-		// })
+				},
+					Entry("no revert", false, false),
+					Entry("revert before", true, false),
+					Entry("revert after", false, true),
+				)
+			})
+		})
 
 		When("transferring tokens from another account", func() {
 			Context("in a direct call to the token contract", func() {

@@ -20,7 +20,7 @@ contract ERC20TestCaller {
         uint256 amount,
         bool before,
         bool aft
-    ) public returns (bool) {
+    ) public payable returns (bool) {
         counter++;
         
         bool res = token.transfer(to, amount);
