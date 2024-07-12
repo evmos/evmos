@@ -16,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
+	contractutils "github.com/evmos/evmos/v18/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
@@ -84,6 +85,10 @@ func TestIntegrationSuite(t *testing.T) {
 	RunSpecs(t, "ERC20 Extension Suite")
 }
 
+var (
+	defaultCallArgs contractutils.CallArgs
+)
+
 var _ = Describe("ERC20 Extension -", func() {
 	var (
 		// contractsData holds the addresses and ABIs for the different
@@ -91,6 +96,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		contractsData ContractsData
 
 		allowanceCallerContract evmtypes.CompiledContract
+		revertCallerContract    evmtypes.CompiledContract
 		erc20MinterV5Contract   evmtypes.CompiledContract
 
 		execRevertedCheck testutil.LogCheckArgs
@@ -107,6 +113,9 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		erc20MinterV5Contract, err = testdata.LoadERC20MinterV5Contract()
 		Expect(err).ToNot(HaveOccurred(), "failed to load ERC20 minter contract")
+
+		revertCallerContract, err = testdata.LoadERC20TestCaller()
+		Expect(err).ToNot(HaveOccurred(), "failed to load ERC20 allowance caller contract")
 
 		sender := is.keyring.GetKey(0)
 		contractAddr, err := is.factory.DeployContract(
@@ -188,6 +197,26 @@ var _ = Describe("ERC20 Extension -", func() {
 		execRevertedCheck = failCheck.WithErrContains("execution reverted")
 		passCheck = failCheck.WithExpPass(true)
 
+		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
+		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
+
+		revertContractAddr, err := is.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: revertCallerContract,
+				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
+				// to make calls to the correct ERC20 precompile.
+				ConstructorArgs: []interface{}{common.HexToAddress(erc20Params.NativePrecompiles[0])},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy reverter contract")
+		defaultCallArgs = contractutils.CallArgs{
+			ContractAddr: revertContractAddr,
+			ContractABI:  revertCallerContract.ABI,
+			PrivKey:      sender.Priv,
+		}
+
 		err = is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
 	})
@@ -196,7 +225,9 @@ var _ = Describe("ERC20 Extension -", func() {
 		When("sending tokens to contract", func() {
 			It("it should return error", func() {
 				sender := is.keyring.GetKey(0)
+				// receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+				//transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 				// Fund account with some tokens
 				is.fundWithTokens(directCall, contractsData, sender.Addr, fundCoins)
@@ -205,8 +236,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs := evmtypes.EvmTxArgs{}
 				txArgs.Amount = big.NewInt(int64(1000))
 				precompileAddress := is.precompile.Address()
-
 				txArgs.To = &precompileAddress
+
 				_, err := is.factory.ExecuteEthTx(sender.Priv, txArgs)
 				Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()), "precompile should not accept transfers")
 			},
@@ -332,6 +363,44 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
+		// @RAMA
+		// When("calling reverter contract", func() {
+		// 	Context("in a direct call to the token contract", func() {
+		// 		DescribeTable("it should transfer tokens from another account with a sufficient approval set", func(before bool, after bool) {
+		// 			sender := is.keyring.GetKey(0)
+		// 			receiver := is.keyring.GetAddr(1)
+
+		// 			denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+
+		// 			cArgs := defaultCallArgs.
+		// 				WithPrivKey(sender.Priv).
+		// 				WithMethodName("transferWithRevert").
+		// 				WithArgs(
+		// 					receiver,
+		// 					big.NewInt(100), before, after,
+		// 				)
+
+		// 			_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+
+		// 			Expect(err).NotTo(BeNil())
+
+		// 			if before || after {
+		// 				// contract balance should remain unchanged
+		// 				denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+		// 				Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
+		// 			} else {
+		// 				denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+		// 				Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
+
+		// 			}
+
+		// 		},
+		// 			Entry("no revert", false, false),
+		// 			Entry("revert before", true, false),
+		// 			Entry("revert after", false, true),
+		// 		)
+		// 	})
+		// })
 
 		When("transferring tokens from another account", func() {
 			Context("in a direct call to the token contract", func() {
