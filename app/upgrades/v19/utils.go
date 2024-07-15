@@ -3,10 +3,13 @@ package v19
 import (
 	"slices"
 
+	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v18/types"
+	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 )
 
 var ignoredAddresses = []string{
@@ -58,4 +61,27 @@ func isAccountValid(addr string, code common.Hash, filter []common.Hash) bool {
 	}
 	// filter addresses
 	return !slices.Contains(ignoredAddresses, addr)
+}
+
+// LogTokenPairBalances logs the total balances of each token pair.
+func LogTokenPairBalances(
+	ctx sdk.Context,
+	logger log.Logger,
+	bankKeeper bankkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
+) error {
+	tokenPairs := erc20Keeper.GetTokenPairs(ctx)
+	for _, tokenPair := range tokenPairs {
+		bankSupply := bankKeeper.GetSupply(ctx, tokenPair.Denom)
+
+		logger.Info(
+			"token pair balances",
+			"token_pair", tokenPair.Denom,
+			//// TODO: add ERC-20 supply by calling EthCall
+			//"erc20 supply", totalSupply,
+			"bank supply", bankSupply.Amount.String(),
+		)
+	}
+
+	return nil
 }
