@@ -6,17 +6,22 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
+	newTokenHexAddr := "0x205CF44075E77A3543abC690437F3b2819bc450a"
+	nonExistendTokenHexAddr := "0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963"
+	newTokenDenom := "test"
 	params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-	tokePair := types.NewTokenPair(common.HexToAddress("0x205CF44075E77A3543abC690437F3b2819bc450a"), "test", types.OWNER_MODULE)
-	suite.app.Erc20Keeper.SetToken(suite.ctx, tokePair)
+	tokenPair := types.NewTokenPair(common.HexToAddress(newTokenHexAddr), newTokenDenom, types.OWNER_MODULE)
+	suite.app.Erc20Keeper.SetToken(suite.ctx, tokenPair)
 	tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 	suite.Require().True(len(tokenPairs) > 1)
 
 	testCases := []struct {
-		name       string
-		paramsFun  func()
-		precompile common.Address
-		expected   bool
+		name          string
+		paramsFun     func()
+		precompile    common.Address
+		expectedFound bool
+		expectedError bool
+		err           string
 	}{
 		{
 			"fail - precompile not on params",
@@ -25,18 +30,22 @@ func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
 				err := suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
-			common.HexToAddress("0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963"),
+			common.HexToAddress(nonExistendTokenHexAddr),
 			false,
+			false,
+			"",
 		},
 		{
-			"fail - precompile on params, but token pair doesnt exist",
+			"fail - precompile on params, but token pair doesn't exist",
 			func() {
-				params.NativePrecompiles = []string{"0x205CF44075E77A3543abC690437F3b2819bc450a", "0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963"}
+				params.NativePrecompiles = []string{newTokenHexAddr, nonExistendTokenHexAddr}
 				err := suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
-			common.HexToAddress("0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963"),
+			common.HexToAddress(nonExistendTokenHexAddr),
 			false,
+			true,
+			"precompiled contract not initialized",
 		},
 		{
 			"success - precompile on params, and token pair exist",
@@ -47,14 +56,19 @@ func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
 			},
 			common.HexToAddress(tokenPairs[0].Erc20Address),
 			true,
+			false,
+			"",
 		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			tc.paramsFun()
 
-			_, found, _ := suite.app.Erc20Keeper.GetERC20PrecompileInstance(suite.ctx, tc.precompile)
-			suite.Require().Equal(found, tc.expected)
+			_, found, err := suite.app.Erc20Keeper.GetERC20PrecompileInstance(suite.ctx, tc.precompile)
+			suite.Require().Equal(found, tc.expectedFound)
+			if tc.expectedError {
+				suite.Require().ErrorContains(err, tc.err)
+			}
 		})
 	}
 }
