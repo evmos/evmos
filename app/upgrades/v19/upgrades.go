@@ -104,7 +104,7 @@ func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) 
 
 	for _, eip := range newExtraEIPs {
 		if slices.Contains(extraEIPs, eip) {
-			logger.Debug(fmt.Sprintf("Skipping EIP %d because duplicate", eip))
+			logger.Debug(fmt.Sprintf("skipping EIP %d because duplicate", eip))
 		} else {
 			extraEIPs = append(extraEIPs, eip)
 		}
