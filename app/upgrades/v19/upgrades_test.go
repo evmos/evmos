@@ -167,7 +167,7 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 }
 
 func TestEnableCustomEIPs(t *testing.T) {
-	upgradeEIPs := []int64{0000, 0001, 0002}
+	upgradeEIPs := []int64{0o000, 0o001, 0o002}
 
 	testCases := []struct {
 		name       string
@@ -177,7 +177,7 @@ func TestEnableCustomEIPs(t *testing.T) {
 	}{
 		{
 			name:       "repeated EIP - skip",
-			activeEIPs: []int64{0000},
+			activeEIPs: []int64{0o000},
 			expError:   false,
 			expEIPsNum: 3,
 		},
