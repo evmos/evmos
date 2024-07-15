@@ -4,7 +4,6 @@
 package v19
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -43,7 +42,7 @@ func CreateUpgradeHandler(
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug(fmt.Sprintf("error removing outposts: %s", err))
+			logger.Error("error removing outposts", "error", err)
 		}
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
@@ -52,7 +51,7 @@ func CreateUpgradeHandler(
 		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug(fmt.Sprintf("error setting new extra EIPs: %s", err))
+			logger.Error("error setting new extra EIPs", "error", err)
 		}
 
 		// Leave modules as-is to avoid running InitGenesis.
@@ -104,7 +103,7 @@ func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) 
 
 	for _, eip := range newExtraEIPs {
 		if slices.Contains(extraEIPs, eip) {
-			logger.Debug(fmt.Sprintf("skipping EIP %d because duplicate", eip))
+			logger.Debug("skipping duplicate EIP", "eip", eip)
 		} else {
 			extraEIPs = append(extraEIPs, eip)
 		}
