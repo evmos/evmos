@@ -11,14 +11,15 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

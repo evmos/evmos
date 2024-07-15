@@ -121,6 +121,9 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v18/client/docs/statik"
 
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"github.com/evmos/evmos/v18/app/ante"
 	ethante "github.com/evmos/evmos/v18/app/ante/evm"
 	"github.com/evmos/evmos/v18/app/post"
@@ -158,14 +161,12 @@ import (
 	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 	"github.com/evmos/evmos/v18/x/incentives"
-	inflation "github.com/evmos/evmos/v18/x/inflation/v1"
+	"github.com/evmos/evmos/v18/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	revenue "github.com/evmos/evmos/v18/x/revenue/v1"
+	"github.com/evmos/evmos/v18/x/revenue/v1"
 	revenuekeeper "github.com/evmos/evmos/v18/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v18/x/revenue/v1/types"
-	"github.com/evmos/evmos/v18/x/staking"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	"github.com/evmos/evmos/v18/x/vesting"
 	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"

@@ -21,11 +21,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"golang.org/x/exp/slices"
+
 	evmosapp "github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
@@ -40,9 +43,7 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
-	"golang.org/x/exp/slices"
 )
 
 // stipend to pay EVM tx fees

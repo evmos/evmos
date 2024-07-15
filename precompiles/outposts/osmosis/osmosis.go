@@ -10,6 +10,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -19,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 const (
