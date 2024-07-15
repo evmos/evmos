@@ -24,14 +24,46 @@ contract ERC20TestCaller {
         counter++;
         
         bool res = token.transfer(to, amount);
+
         if (before) {
             require(false, "revert here");
         }
+
         counter--;
         
         if (aft) {
             require(false, "revert here");
         }
         return res;
+    }
+
+    function testTransferAndSend(
+        address payable _source,
+        uint256 amount_to_transfer,
+        uint256 amount_to_send,
+        uint256 amount_to_send_after,
+        bool _before,
+        bool _after
+    ) public payable returns (bool) {
+        (bool sent, ) = _source.call{value: amount_to_send}("");
+        require(sent, "Failed to send Ether to delegator");
+        
+        if (_before) {
+            counter++;
+            require(false, "revert here");
+        }
+        
+        bool res = token.transfer(_source, amount_to_transfer);
+        require(res, "Failed to send Ether to delegator");
+
+        if (_after) {
+            counter++;
+            require(false, "revert here");
+        }
+
+        (sent, ) = _source.call{value: amount_to_send_after}("");
+        require(sent, "Failed to send Ether to delegator");
+
+        return sent;
     }
 }

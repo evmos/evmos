@@ -225,9 +225,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		When("sending tokens to contract", func() {
 			It("it should return error", func() {
 				sender := is.keyring.GetKey(0)
-				// receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
-				//transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 				// Fund account with some tokens
 				is.fundWithTokens(directCall, contractsData, sender.Addr, fundCoins)
@@ -363,10 +361,37 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
-		// @RAMA
 		When("calling reverter contract", func() {
-			Context("in a direct call to the token contract", func() {
-				DescribeTable("it should transfer tokens from another account with a sufficient approval set", func(before bool, after bool) {
+			Context("in a direct call to the WEVMOS contract", func() {
+				It("should transfer tokens", func() {
+					sender := is.keyring.GetKey(0)
+					receiver := is.keyring.GetAddr(1)
+
+					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+
+					cArgs := defaultCallArgs.
+						WithPrivKey(sender.Priv).
+						WithMethodName("transferWithRevert").
+						WithArgs(
+							receiver,
+							big.NewInt(100),
+							false,
+							false,
+						).WithGasLimit(4991202).
+						WithAmount(big.NewInt(100))
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+					)
+					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					Expect(err).To(BeNil())
+					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
+
+					//TODO CHECK SENDER BALANCE
+				},
+				)
+				DescribeTable("it should revert token transfer from the WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 
@@ -383,28 +408,83 @@ var _ = Describe("ERC20 Extension -", func() {
 						).WithGasLimit(4991202).
 						WithAmount(big.NewInt(100))
 
-					if before || after {
-						_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
-						Expect(err).NotTo(BeNil())
-						// contract balance should remain unchanged
-						denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-						Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
-					} else {
-						transferCheck := passCheck.WithExpEvents(
-							erc20.EventTypeTransfer,
-						)
-						_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
-						Expect(err).To(BeNil())
-						denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-						Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
-					}
+					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+					Expect(err).NotTo(BeNil())
+					// contract balance should remain unchanged
+					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
+
+					//TODO CHECK SENDER BALANCE
 
 				},
-					Entry("no revert", false, false),
+					Entry("revert before", true, false),
+					Entry("revert after", false, true),
+				)
+				It("it should send token transfer and send from WEVMOS contract", func() {
+					sender := is.keyring.GetKey(0)
+					receiver := is.keyring.GetAddr(1)
+
+					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+
+					cArgs := defaultCallArgs.
+						WithPrivKey(sender.Priv).
+						WithMethodName("testTransferAndSend").
+						WithArgs(
+							receiver,
+							big.NewInt(100),
+							big.NewInt(100),
+							big.NewInt(150),
+							false,
+							false,
+						).WithGasLimit(4991202).
+						WithAmount(big.NewInt(350))
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+					)
+					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					Expect(err).To(BeNil())
+					// contract balance should remain unchanged
+					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(350))))
+
+					//TODO CHECK SENDER BALANCE
+
+				},
+				)
+				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
+					sender := is.keyring.GetKey(0)
+					receiver := is.keyring.GetAddr(1)
+
+					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+
+					cArgs := defaultCallArgs.
+						WithPrivKey(sender.Priv).
+						WithMethodName("testTransferAndSend").
+						WithArgs(
+							receiver,
+							big.NewInt(100),
+							big.NewInt(100),
+							big.NewInt(100),
+							before,
+							after,
+						).WithGasLimit(4991202).
+						WithAmount(big.NewInt(300))
+
+					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+					Expect(err).NotTo(BeNil())
+					// contract balance should remain unchanged
+					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
+
+					//TODO CHECK SENDER BALANCE
+
+				},
 					Entry("revert before", true, false),
 					Entry("revert after", false, true),
 				)
 			})
+
 		})
 
 		When("transferring tokens from another account", func() {
