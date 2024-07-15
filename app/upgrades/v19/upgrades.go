@@ -52,7 +52,7 @@ func CreateUpgradeHandler(
 		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug("Error setting new extra EIPs.")
+			logger.Debug("error setting new extra EIPs")
 		}
 
 		// Leave modules as-is to avoid running InitGenesis.
