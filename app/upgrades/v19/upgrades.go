@@ -43,7 +43,7 @@ func CreateUpgradeHandler(
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug("error removing outposts")
+			logger.Debug(fmt.Sprintf("error removing outposts: %s", err))
 		}
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
@@ -52,7 +52,7 @@ func CreateUpgradeHandler(
 		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug("error setting new extra EIPs")
+			logger.Debug(fmt.Sprintf("error setting new extra EIPs: %s", err))
 		}
 
 		// Leave modules as-is to avoid running InitGenesis.
