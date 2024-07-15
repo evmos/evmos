@@ -87,6 +87,9 @@ func TestIntegrationSuite(t *testing.T) {
 
 var (
 	defaultCallArgs contractutils.CallArgs
+	wevmosAddress   common.Address
+	gasLimit        uint64
+	gasPrice        *big.Int
 )
 
 var _ = Describe("ERC20 Extension -", func() {
@@ -200,6 +203,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
 
+		wevmosAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
 		revertContractAddr, err := is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
@@ -211,10 +215,15 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy reverter contract")
+
+		gasLimit = uint64(4991202)
+		gasPrice = big.NewInt(765625001)
 		defaultCallArgs = contractutils.CallArgs{
 			ContractAddr: revertContractAddr,
 			ContractABI:  revertCallerContract.ABI,
 			PrivKey:      sender.Priv,
+			GasLimit:     gasLimit,
+			GasPrice:     gasPrice,
 		}
 
 		err = is.network.NextBlock()
@@ -366,55 +375,67 @@ var _ = Describe("ERC20 Extension -", func() {
 				It("should transfer tokens", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-
+					amountToSend := big.NewInt(100)
 					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 
 					cArgs := defaultCallArgs.
 						WithPrivKey(sender.Priv).
 						WithMethodName("transferWithRevert").
 						WithArgs(
 							receiver,
-							big.NewInt(100),
+							amountToSend,
 							false,
 							false,
-						).WithGasLimit(4991202).
-						WithAmount(big.NewInt(100))
+						).
+						WithAmount(amountToSend)
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
 					)
-					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
 					Expect(err).To(BeNil())
 					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(100))))
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					//TODO CHECK SENDER BALANCE
+					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), wevmosAddress.Bytes(), is.bondDenom)
+					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
+
+					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + amountToSend.Int64()))
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
+
 				},
 				)
 				DescribeTable("it should revert token transfer from the WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-
+					amountToSend := big.NewInt(100)
 					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 
 					cArgs := defaultCallArgs.
 						WithPrivKey(sender.Priv).
 						WithMethodName("transferWithRevert").
 						WithArgs(
 							receiver,
-							big.NewInt(100),
+							amountToSend,
 							before,
 							after,
-						).WithGasLimit(4991202).
-						WithAmount(big.NewInt(100))
+						).
+						WithAmount(amountToSend)
 
-					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
 					Expect(err).NotTo(BeNil())
 					// contract balance should remain unchanged
 					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					//TODO CHECK SENDER BALANCE
+					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), wevmosAddress.Bytes(), is.bondDenom)
+					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
+
+					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
 
 				},
 					Entry("revert before", true, false),
@@ -423,8 +444,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				It("it should send token transfer and send from WEVMOS contract", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-
+					totalToSend := int64(350)
 					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 
 					cArgs := defaultCallArgs.
 						WithPrivKey(sender.Priv).
@@ -436,27 +458,32 @@ var _ = Describe("ERC20 Extension -", func() {
 							big.NewInt(150),
 							false,
 							false,
-						).WithGasLimit(4991202).
-						WithAmount(big.NewInt(350))
+						).
+						WithAmount(big.NewInt(totalToSend))
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
 					)
-					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
 					Expect(err).To(BeNil())
 					// contract balance should remain unchanged
 					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(350))))
+					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(totalToSend))))
 
-					//TODO CHECK SENDER BALANCE
+					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), wevmosAddress.Bytes(), is.bondDenom)
+					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
+
+					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + totalToSend))
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
 
 				},
 				)
 				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-
 					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 
 					cArgs := defaultCallArgs.
 						WithPrivKey(sender.Priv).
@@ -468,16 +495,20 @@ var _ = Describe("ERC20 Extension -", func() {
 							big.NewInt(100),
 							before,
 							after,
-						).WithGasLimit(4991202).
+						).
 						WithAmount(big.NewInt(300))
 
-					_, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
+					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
 					Expect(err).NotTo(BeNil())
 					// contract balance should remain unchanged
 					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					//TODO CHECK SENDER BALANCE
+					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), wevmosAddress.Bytes(), is.bondDenom)
+					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
+
+					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
 
 				},
 					Entry("revert before", true, false),
