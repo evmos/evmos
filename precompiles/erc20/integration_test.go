@@ -404,7 +404,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + amountToSend.Int64()))
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
-
 				},
 				)
 				DescribeTable("it should revert token transfer from the WEVMOS contract", func(before bool, after bool) {
@@ -436,7 +435,6 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
-
 				},
 					Entry("revert before", true, false),
 					Entry("revert after", false, true),
@@ -476,7 +474,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + totalToSend))
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
-
 				},
 				)
 				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
@@ -509,13 +506,11 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
-
 				},
 					Entry("revert before", true, false),
 					Entry("revert after", false, true),
 				)
 			})
-
 		})
 
 		When("transferring tokens from another account", func() {
