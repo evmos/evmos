@@ -38,6 +38,25 @@ func GetActivatorsEipNumbers() []int {
 	return keys
 }
 
+// NewOperation returns an instance of a new EVM operation.
+func NewOperation(
+	execute executionFunc,
+	constantGas uint64,
+	dynamicGas gasFunc,
+	minStack int,
+	maxStack int,
+	memorySize memorySizeFunc,
+) *operation {
+	return &operation{
+		execute:     execute,
+		constantGas: constantGas,
+		dynamicGas:  dynamicGas,
+		minStack:    minStack,
+		maxStack:    maxStack,
+		memorySize:  memorySize,
+	}
+}
+
 // GetConstantGas return the constant gas used by the operation.
 func (o *operation) GetConstantGas() uint64 {
 	return o.constantGas
