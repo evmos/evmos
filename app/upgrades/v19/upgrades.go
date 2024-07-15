@@ -43,7 +43,7 @@ func CreateUpgradeHandler(
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
 			writeFn()
 		} else {
-			logger.Debug("Error removing outposts.")
+			logger.Debug("error removing outposts")
 		}
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
