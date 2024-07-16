@@ -6,7 +6,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"golang.org/x/exp/slices"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
@@ -193,16 +192,16 @@ func TestEnableCustomEIPs(t *testing.T) {
 
 			oldParams := network.App.EvmKeeper.GetParams(network.GetContext())
 			oldParams.ExtraEIPs = tc.activeEIPs
-			require.NoError(t, network.UpdateEvmParams(oldParams), "failed to update EVM params")
+			err := network.UpdateEvmParams(oldParams)
+			require.NoError(t, err, "failed to update EVM params")
 
 			logger := network.GetContext().Logger()
-			err := v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
+			err = v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
 			require.NoError(t, err)
 
 			params := network.App.EvmKeeper.GetParams(network.GetContext())
 			require.Equal(t, tc.expEIPsNum, len(params.ExtraEIPs))
 
-			found := true
 			require.Subset(t, params.ExtraEIPs, upgradeEIPs, "expected all new EIPs to be present")
 		})
 	}
