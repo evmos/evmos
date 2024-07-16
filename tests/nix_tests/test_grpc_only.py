@@ -9,15 +9,8 @@ import requests
 from pystarport import ports
 
 from .network import Evmos, create_snapshots_dir, setup_custom_evmos
-from .utils import (
-    CONTRACTS,
-    decode_bech32,
-    deploy_contract,
-    memiavl_config,
-    supervisorctl,
-    wait_for_block,
-    wait_for_port,
-)
+from .utils import (CONTRACTS, decode_bech32, deploy_contract, memiavl_config,
+                    supervisorctl, wait_for_block, wait_for_port)
 
 
 @pytest.fixture(scope="module")

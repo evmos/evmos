@@ -5,22 +5,11 @@ from typing import Any, Dict, List, NamedTuple
 
 from pystarport import ports
 
-from .network import (
-    CosmosChain,
-    Hermes,
-    build_patched_evmosd,
-    create_snapshots_dir,
-    setup_custom_evmos,
-)
-from .utils import (
-    ADDRS,
-    eth_to_bech32,
-    memiavl_config,
-    setup_stride,
-    update_evmos_bin,
-    update_evmosd_and_setup_stride,
-    wait_for_port,
-)
+from .network import (CosmosChain, Hermes, build_patched_evmosd,
+                      create_snapshots_dir, setup_custom_evmos)
+from .utils import (ADDRS, eth_to_bech32, memiavl_config, setup_stride,
+                    update_evmos_bin, update_evmosd_and_setup_stride,
+                    wait_for_port)
 
 # aevmos IBC representation on another chain connected via channel-0.
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"

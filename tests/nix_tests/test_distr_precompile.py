@@ -1,16 +1,10 @@
 import json
+
 import pytest
 
 from .ibc_utils import get_balance
-from .utils import (
-    ADDRS,
-    CONTRACTS,
-    KEYS,
-    debug_trace_tx,
-    deploy_contract,
-    send_transaction,
-    wait_for_fn,
-)
+from .utils import (ADDRS, CONTRACTS, KEYS, debug_trace_tx, deploy_contract,
+                    send_transaction, wait_for_fn)
 
 
 # fund from EOA (msg.sender)

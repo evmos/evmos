@@ -1,23 +1,12 @@
 from web3 import Web3
 
-from .expected_constants import (
-    EXPECTED_ACCOUNT_PROOF,
-    EXPECTED_FEE_HISTORY,
-    EXPECTED_GET_PROOF,
-    EXPECTED_GET_STORAGE_AT,
-    EXPECTED_GET_TRANSACTION,
-    EXPECTED_GET_TRANSACTION_RECEIPT,
-    EXPECTED_STORAGE_PROOF,
-)
-from .utils import (
-    ADDRS,
-    CONTRACTS,
-    KEYS,
-    deploy_contract,
-    send_transaction,
-    w3_wait_for_block,
-    w3_wait_for_new_blocks,
-)
+from .expected_constants import (EXPECTED_ACCOUNT_PROOF, EXPECTED_FEE_HISTORY,
+                                 EXPECTED_GET_PROOF, EXPECTED_GET_STORAGE_AT,
+                                 EXPECTED_GET_TRANSACTION,
+                                 EXPECTED_GET_TRANSACTION_RECEIPT,
+                                 EXPECTED_STORAGE_PROOF)
+from .utils import (ADDRS, CONTRACTS, KEYS, deploy_contract, send_transaction,
+                    w3_wait_for_block, w3_wait_for_new_blocks)
 
 
 def test_block(evmos_cluster, geth):
