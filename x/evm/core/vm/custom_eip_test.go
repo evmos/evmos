@@ -13,11 +13,11 @@ func TestExtendActivators(t *testing.T) {
 	eips_snapshot := GetActivatorsEipNumbers()
 
 	testCases := []struct {
-		name           string
-		new_activators map[int]func(*JumpTable)
-		expPass        bool
-		errContains    string
-		postCheck      func()
+		name          string
+		newActivators map[int]func(*JumpTable)
+		expPass       bool
+		errContains   string
+		postCheck     func()
 	}{
 		{
 			"success - nil new activators",
@@ -85,7 +85,7 @@ func TestExtendActivators(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := ExtendActivators(tc.new_activators)
+		err := ExtendActivators(tc.newActivators)
 		if tc.expPass {
 			require.NoError(t, err)
 		} else {
@@ -94,5 +94,99 @@ func TestExtendActivators(t *testing.T) {
 		}
 
 		tc.postCheck()
+	}
+}
+
+func TestAddOperation(t *testing.T) {
+	// Functions used to create an operation.
+	customExecute := func(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+		// no - op
+		return nil, nil
+	}
+	customDynamicGas := func(evm *EVM, contract *Contract, stack *Stack, mem *Memory, memorySize uint64) (uint64, error) {
+		// no-op
+		return 0, nil
+	}
+	customMemorySize := func(stack *Stack) (uint64, bool) {
+		// no-op
+		return 0, false
+	}
+
+	const (
+		EXISTENT OpCode = STOP
+		NEW      OpCode = 0xf
+	)
+
+	testCases := []struct {
+		name        string
+		opName      string
+		opNumber    OpCode
+		expPass     bool
+		errContains string
+		postCheck   func()
+	}{
+		{
+			"fail - operation with same number already exists",
+			"TEST",
+			EXISTENT,
+			false,
+			"already exists",
+			func() {
+				name := EXISTENT.String()
+				require.Equal(t, "STOP", name)
+			},
+		},
+		{
+			"fail - operation with same name already exists",
+			"CREATE",
+			NEW,
+			false,
+			"already exists",
+			func() {
+				name := NEW.String()
+				require.Contains(t, name, "not defined")
+			},
+		},
+		{
+			"fail - operation with same name of STOP",
+			"STOP",
+			NEW,
+			false,
+			"already exists",
+			func() {
+				name := NEW.String()
+				require.Contains(t, name, "not defined")
+			},
+		},
+		{
+			"pass - new operation added to the list",
+			"TEST",
+			NEW,
+			true,
+			"",
+			func() {
+				name := NEW.String()
+				require.Equal(t, "TEST", name)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			opInfo := OpCodeInfo{
+				Number: tc.opNumber,
+				Name:   tc.opName,
+			}
+			_, err := ExtendOperations(opInfo, customExecute, 0, customDynamicGas, 0, 0, customMemorySize)
+
+			if tc.expPass {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+
+			tc.postCheck()
+		})
 	}
 }

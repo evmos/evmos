@@ -6,9 +6,16 @@ package vm
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"golang.org/x/exp/maps"
 )
+
+// OpCodeInfo contains information required to identify an EVM operation.
+type OpCodeInfo struct {
+	Number OpCode
+	Name   string
+}
 
 // ExtendActivators allows to merge the go ethereum activators map
 // with additional activators.
@@ -31,6 +38,30 @@ func ExtendActivators(eips map[int]func(*JumpTable)) error {
 	return nil
 }
 
+// ExtendOperations returns an instance of the new operation and register it in the list
+// of available ones.
+// Return an error if an operation with the same name is already present.
+// This function is used to prevent the overwrite of an already existent operation.
+func ExtendOperations(
+	opInfo OpCodeInfo,
+	execute executionFunc,
+	constantGas uint64,
+	dynamicGas gasFunc,
+	minStack int,
+	maxStack int,
+	memorySize memorySizeFunc,
+) (*operation, error) {
+	opName := strings.ToUpper(strings.TrimSpace(opInfo.Name))
+	if err := extendOpCodeStringLists(opInfo.Number, opName); err != nil {
+		return nil, err
+	}
+
+	operation := newOperation(execute, constantGas, dynamicGas, minStack, maxStack, memorySize)
+
+	return operation, nil
+}
+
+// GetActivatorsEipNumers return the keys of available activators in a sorted order.
 func GetActivatorsEipNumbers() []int {
 	keys := maps.Keys(activators)
 
@@ -38,8 +69,8 @@ func GetActivatorsEipNumbers() []int {
 	return keys
 }
 
-// NewOperation returns an instance of a new EVM operation.
-func NewOperation(
+// newOperation returns an instance of a new EVM operation.
+func newOperation(
 	execute executionFunc,
 	constantGas uint64,
 	dynamicGas gasFunc,
@@ -90,4 +121,25 @@ func (o *operation) SetMaxStack(maxStack int) {
 // SetMemorySize sets the memory size function for the operation.
 func (o *operation) SetMemorySize(msf memorySizeFunc) {
 	o.memorySize = msf
+}
+
+// extendOpCodeStringLists updates the lists mapping opcode number to the name
+// and viceversa. Return an error if the key is already set.
+//
+// ASSUMPTION: no opcode is registered as an empty string.
+func extendOpCodeStringLists(newOpCode OpCode, newOpName string) error {
+	opName := opCodeToString[newOpCode]
+	if opName != "" {
+		return fmt.Errorf("opcode %d already exists: %s", newOpCode, opName)
+	}
+	opNumber := stringToOp[newOpName]
+	// We need to check against the STOP opcode name because we have to discriminate
+	// between 0x00 of this opcode and the default value of an empty key.
+	stopName := opCodeToString[STOP]
+	if opNumber != 0x00 || newOpName == stopName {
+		return fmt.Errorf("opcode with name %s already exists", newOpName)
+	}
+	opCodeToString[newOpCode] = newOpName
+	stringToOp[newOpName] = newOpCode
+	return nil
 }
