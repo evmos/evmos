@@ -32,10 +32,7 @@ func InitGenesis(
 	}
 
 	for _, pair := range data.TokenPairs {
-		id := pair.GetID()
-		k.SetTokenPair(ctx, pair)
-		k.SetDenomMap(ctx, pair.Denom, id)
-		k.SetERC20Map(ctx, pair.GetERC20Contract(), id)
+		k.SetToken(ctx, pair)
 	}
 }
 

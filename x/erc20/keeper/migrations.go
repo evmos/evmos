@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	v3 "github.com/evmos/evmos/v18/x/erc20/migrations/v3"
+	v4 "github.com/evmos/evmos/v18/x/erc20/migrations/v4"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
@@ -28,4 +29,8 @@ func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
 
 func (m Migrator) Migrate2to3(ctx sdk.Context) error {
 	return v3.MigrateStore(ctx, m.keeper.storeKey, m.legacySubspace)
+}
+
+func (m Migrator) Migrate3to4(ctx sdk.Context) error {
+	return v4.MigrateStore(ctx, m.keeper.storeKey)
 }

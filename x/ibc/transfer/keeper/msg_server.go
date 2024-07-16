@@ -20,8 +20,8 @@ import (
 
 var _ types.MsgServer = Keeper{}
 
-// Transfer defines a gRPC msg server method for MsgTransfer.
-// This implementation overrides the default ICS20 transfer's by converting
+// Transfer defines a gRPC msg server method for the MsgTransfer message.
+// This implementation overrides the default ICS20 transfer by converting
 // the ERC20 tokens to their Cosmos representation if the token pair has been
 // registered through governance.
 // If user doesn't have enough balance of coin, it will attempt to convert
@@ -29,17 +29,16 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// use a zero gas config to avoid extra costs for the relayers
+	// Temporarily save the KV and transient KV gas config. To avoid extra costs for relayers
+	// these two gas config are replaced with empty one and should be restored before exiting this function.
 	kvGasCfg := ctx.KVGasConfig()
 	transientKVGasCfg := ctx.TransientKVGasConfig()
-
-	// use a zero gas config to avoid extra costs for the relayers
 	ctx = ctx.
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	defer func() {
-		// return the KV gas config to initial values
+		// Return the KV gas config to initial values
 		ctx = ctx.
 			WithKVGasConfig(kvGasCfg).
 			WithTransientKVGasConfig(transientKVGasCfg)
@@ -70,6 +69,9 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	// update the msg denom to the token pair denom
 	msg.Token.Denom = pair.Denom
 
+	if !pair.IsNativeERC20() {
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
 	balance := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
 	if balance.Amount.GTE(msg.Token.Amount) {
@@ -87,6 +89,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
+	// Only convert if the pair is a native ERC20
 	// only convert the remaining difference
 	difference := msg.Token.Amount.Sub(balance.Amount)
 

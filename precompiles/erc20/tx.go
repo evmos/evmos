@@ -13,6 +13,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
@@ -30,7 +32,7 @@ var SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
 
 // Transfer executes a direct transfer from the caller address to the
 // destination address.
-func (p Precompile) Transfer(
+func (p *Precompile) Transfer(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
@@ -48,7 +50,7 @@ func (p Precompile) Transfer(
 
 // TransferFrom executes a transfer on behalf of the specified from address in
 // the call data to the destination address.
-func (p Precompile) TransferFrom(
+func (p *Precompile) TransferFrom(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
@@ -66,7 +68,7 @@ func (p Precompile) TransferFrom(
 // transfer is a common function that handles transfers for the ERC-20 Transfer
 // and TransferFrom methods. It executes a bank Send message if the spender is
 // the sender of the transfer, otherwise it executes an authorization.
-func (p Precompile) transfer(
+func (p *Precompile) transfer(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
@@ -105,6 +107,12 @@ func (p Precompile) transfer(
 		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
 		return nil, err
+	}
+
+	// TODO: where should we get this
+	if p.tokenPair.Denom == utils.BaseDenom {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
