@@ -425,7 +425,7 @@ format:
 .PHONY: format
 
 
-format-python: format-black format-isort
+format-python: format-isort format-black
 
 format-black:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black
