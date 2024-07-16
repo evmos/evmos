@@ -992,7 +992,6 @@ class CosmosCLI:
             )
         )
 
-
     # ==========================
     #       FEEMARKET Module
     # ==========================
@@ -1380,7 +1379,6 @@ class CosmosCLI:
                 **kwargs,
             )
         )
-
 
     def token_factory_create_denom(
         self,
