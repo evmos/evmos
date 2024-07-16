@@ -66,4 +66,24 @@ contract ERC20TestCaller {
 
         return sent;
     }
+
+    function transfersWithTry(
+        address payable receiver,
+        uint256 amount_to_transfer,
+        uint256 amount_to_fail
+    ) public payable {
+        counter++;
+        bool res = token.transfer(receiver, amount_to_transfer);
+        require(res, "fail to transfer");
+        try
+            ERC20TestCaller(address(this))
+                .transferWithRevert(
+                    receiver,                    
+                    amount_to_fail,
+                    true, 
+                    true
+                )
+        {} catch {}
+        counter++;
+    }
 }
