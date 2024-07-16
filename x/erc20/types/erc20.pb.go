@@ -5,18 +5,21 @@ package types
 
 import (
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/x/bank/types"
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	types "github.com/cosmos/cosmos-sdk/x/bank/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -32,7 +35,7 @@ const (
 	OWNER_UNSPECIFIED Owner = 0
 	// OWNER_MODULE - erc20 is owned by the erc20 module account.
 	OWNER_MODULE Owner = 1
-	// OWNER_EXTERNAL - erc20 is owned by an external account.
+	// OWNER_EXTERNAL - erc20 is owned by an external owned account.
 	OWNER_EXTERNAL Owner = 2
 )
 
@@ -65,7 +68,7 @@ type TokenPair struct {
 	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 	// enabled defines the token mapping enable status
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
+	// contract_owner is an enum specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
 	ContractOwner Owner `protobuf:"varint,4,opt,name=contract_owner,json=contractOwner,proto3,enum=evmos.erc20.v1.Owner" json:"contract_owner,omitempty"`
 }
 
@@ -75,9 +78,11 @@ func (*TokenPair) ProtoMessage()    {}
 func (*TokenPair) Descriptor() ([]byte, []int) {
 	return fileDescriptor_668d5dc537f45142, []int{0}
 }
+
 func (m *TokenPair) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *TokenPair) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TokenPair.Marshal(b, m, deterministic)
@@ -90,12 +95,15 @@ func (m *TokenPair) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *TokenPair) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TokenPair.Merge(m, src)
 }
+
 func (m *TokenPair) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *TokenPair) XXX_DiscardUnknown() {
 	xxx_messageInfo_TokenPair.DiscardUnknown(m)
 }
@@ -148,9 +156,11 @@ func (*RegisterCoinProposal) ProtoMessage()    {}
 func (*RegisterCoinProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_668d5dc537f45142, []int{1}
 }
+
 func (m *RegisterCoinProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *RegisterCoinProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_RegisterCoinProposal.Marshal(b, m, deterministic)
@@ -163,12 +173,15 @@ func (m *RegisterCoinProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
+
 func (m *RegisterCoinProposal) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_RegisterCoinProposal.Merge(m, src)
 }
+
 func (m *RegisterCoinProposal) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *RegisterCoinProposal) XXX_DiscardUnknown() {
 	xxx_messageInfo_RegisterCoinProposal.DiscardUnknown(m)
 }
@@ -210,9 +223,11 @@ func (*ProposalMetadata) ProtoMessage()    {}
 func (*ProposalMetadata) Descriptor() ([]byte, []int) {
 	return fileDescriptor_668d5dc537f45142, []int{2}
 }
+
 func (m *ProposalMetadata) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ProposalMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ProposalMetadata.Marshal(b, m, deterministic)
@@ -225,12 +240,15 @@ func (m *ProposalMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
+
 func (m *ProposalMetadata) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ProposalMetadata.Merge(m, src)
 }
+
 func (m *ProposalMetadata) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ProposalMetadata) XXX_DiscardUnknown() {
 	xxx_messageInfo_ProposalMetadata.DiscardUnknown(m)
 }
@@ -261,9 +279,11 @@ func (*RegisterERC20Proposal) ProtoMessage()    {}
 func (*RegisterERC20Proposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_668d5dc537f45142, []int{3}
 }
+
 func (m *RegisterERC20Proposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *RegisterERC20Proposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_RegisterERC20Proposal.Marshal(b, m, deterministic)
@@ -276,12 +296,15 @@ func (m *RegisterERC20Proposal) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
+
 func (m *RegisterERC20Proposal) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_RegisterERC20Proposal.Merge(m, src)
 }
+
 func (m *RegisterERC20Proposal) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *RegisterERC20Proposal) XXX_DiscardUnknown() {
 	xxx_messageInfo_RegisterERC20Proposal.DiscardUnknown(m)
 }
@@ -327,9 +350,11 @@ func (*ToggleTokenConversionProposal) ProtoMessage()    {}
 func (*ToggleTokenConversionProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_668d5dc537f45142, []int{4}
 }
+
 func (m *ToggleTokenConversionProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ToggleTokenConversionProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ToggleTokenConversionProposal.Marshal(b, m, deterministic)
@@ -342,12 +367,15 @@ func (m *ToggleTokenConversionProposal) XXX_Marshal(b []byte, deterministic bool
 		return b[:n], nil
 	}
 }
+
 func (m *ToggleTokenConversionProposal) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ToggleTokenConversionProposal.Merge(m, src)
 }
+
 func (m *ToggleTokenConversionProposal) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ToggleTokenConversionProposal) XXX_DiscardUnknown() {
 	xxx_messageInfo_ToggleTokenConversionProposal.DiscardUnknown(m)
 }
@@ -455,6 +483,7 @@ func (this *TokenPair) Equal(that interface{}) bool {
 	}
 	return true
 }
+
 func (this *ToggleTokenConversionProposal) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -485,6 +514,7 @@ func (this *ToggleTokenConversionProposal) Equal(that interface{}) bool {
 	}
 	return true
 }
+
 func (m *TokenPair) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -726,6 +756,7 @@ func encodeVarintErc20(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *TokenPair) Size() (n int) {
 	if m == nil {
 		return 0
@@ -834,9 +865,11 @@ func (m *ToggleTokenConversionProposal) Size() (n int) {
 func sovErc20(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozErc20(x uint64) (n int) {
 	return sovErc20(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *TokenPair) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -990,6 +1023,7 @@ func (m *TokenPair) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *RegisterCoinProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1138,6 +1172,7 @@ func (m *RegisterCoinProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *ProposalMetadata) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1222,6 +1257,7 @@ func (m *ProposalMetadata) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *RegisterERC20Proposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1368,6 +1404,7 @@ func (m *RegisterERC20Proposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *ToggleTokenConversionProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1514,6 +1551,7 @@ func (m *ToggleTokenConversionProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipErc20(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

@@ -156,3 +156,43 @@ func (suite *TokenPairTestSuite) TestIsNativeERC20() {
 		}
 	}
 }
+
+func (suite *TokenPairTestSuite) TestNewTokenPairSTRv2() {
+	testCases := []struct {
+		name          string
+		denom         string
+		expectPass    bool
+		expectedError string
+		expectedPair  types.TokenPair
+	}{
+		{
+			name:          "fail to register token pair - invalid denom (not ibc)",
+			denom:         "testcoin",
+			expectPass:    false,
+			expectedError: "does not have 'ibc/' prefix",
+		},
+		{
+			name:       "register token pair - ibc denom",
+			denom:      "ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992",
+			expectPass: true,
+			expectedPair: types.TokenPair{
+				Denom:         "ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992",
+				Erc20Address:  "0x631654CCF0BBC788b3b7F0a10200508e37c70992",
+				Enabled:       true,
+				ContractOwner: types.OWNER_MODULE,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tokenPair, err := types.NewTokenPairSTRv2(tc.denom)
+		if tc.expectPass {
+			suite.Require().NoError(err)
+			suite.Require().Equal(tokenPair, tc.expectedPair)
+		} else {
+			suite.Require().Error(err)
+			suite.Require().ErrorContains(err, tc.expectedError)
+		}
+
+	}
+}

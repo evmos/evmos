@@ -83,18 +83,21 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("when the precompile is not enabled in the EVM params", func() {
-		It("should return an error", func() {
+		It("should succeed but not perform delegation", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
 			var activePrecompiles []string
-			for _, precompile := range params.ActivePrecompiles {
+			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActivePrecompiles = activePrecompiles
+			params.ActiveStaticPrecompiles = activePrecompiles
 			err := s.app.EvmKeeper.SetParams(s.ctx, params)
 			Expect(err).To(BeNil(), "error while setting params")
+
+			// get the delegation that is available prior to the test
+			prevDelegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 
 			// try to call the precompile
 			delegateArgs := defaultCallArgs.
@@ -102,13 +105,23 @@ var _ = Describe("Calling staking precompile directly", func() {
 				WithArgs(
 					s.address, valAddr.String(), big.NewInt(2e18),
 				)
+			// Contract should not be called but the transaction should be successful
+			// This is the expected behavior in Ethereum where there is a contract call
+			// to a non existing contract
+			expectedCheck := defaultLogCheck.
+				WithExpEvents([]string{}...).
+				WithExpPass(true)
 
-			failCheck := defaultLogCheck.
-				WithErrContains("precompile not enabled")
+			_, _, err = contracts.CallContractAndCheckLogs(
+				s.ctx,
+				s.app,
+				delegateArgs,
+				expectedCheck,
+			)
+			Expect(err).To(BeNil(), "unexpected error while calling the precompile")
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
-			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+			postDelegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			Expect(postDelegation).To(Equal(prevDelegation), "expected delegation to not change")
 		})
 	})
 
@@ -1719,12 +1732,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
 			var activePrecompiles []string
-			for _, precompile := range params.ActivePrecompiles {
+			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActivePrecompiles = activePrecompiles
+			params.ActiveStaticPrecompiles = activePrecompiles
 			err := s.app.EvmKeeper.SetParams(s.ctx, params)
 			Expect(err).To(BeNil(), "error while setting params")
 

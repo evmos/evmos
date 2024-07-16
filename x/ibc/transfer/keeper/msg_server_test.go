@@ -237,12 +237,13 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		},
 
 		// STRV2
+		// native coin - perform normal ibc transfer
 		{
-			"no-op - pair not registered",
+			"no-op - fail transfer",
 			func() *types.MsgTransfer {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 
-				denom := "test"
+				denom := "ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992"
 				coinMetadata := banktypes.Metadata{
 					Name:        "Generic IBC name",
 					Symbol:      "IBC",
@@ -263,16 +264,8 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				}
 
 				coin := sdk.NewCoin(denom, math.NewInt(10))
-				coins := sdk.NewCoins(coin)
 
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, coins)
-				suite.Require().NoError(err)
-
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, coins)
-				suite.Require().NoError(err)
-				suite.Commit()
-
-				pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, coinMetadata)
+				pair, err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, coinMetadata.Base)
 				suite.Require().Equal(pair.Denom, denom)
 				suite.Require().NoError(err)
 
@@ -280,7 +273,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				return transferMsg
 			},
-			true,
+			false,
 		},
 	}
 	for _, tc := range testCases {
