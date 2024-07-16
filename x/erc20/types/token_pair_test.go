@@ -159,15 +159,17 @@ func (suite *TokenPairTestSuite) TestIsNativeERC20() {
 
 func (suite *TokenPairTestSuite) TestNewTokenPairSTRv2() {
 	testCases := []struct {
-		name         string
-		denom        string
-		expectPass   bool
-		expectedPair types.TokenPair
+		name          string
+		denom         string
+		expectPass    bool
+		expectedError string
+		expectedPair  types.TokenPair
 	}{
 		{
-			name:       "fail to register token pair - invalid denom (not ibc)",
-			denom:      "testcoin",
-			expectPass: false,
+			name:          "fail to register token pair - invalid denom (not ibc)",
+			denom:         "testcoin",
+			expectPass:    false,
+			expectedError: "does not have 'ibc/' prefix",
 		},
 		{
 			name:       "register token pair - ibc denom",
@@ -189,6 +191,7 @@ func (suite *TokenPairTestSuite) TestNewTokenPairSTRv2() {
 			suite.Require().Equal(tokenPair, tc.expectedPair)
 		} else {
 			suite.Require().Error(err)
+			suite.Require().ErrorContains(err, tc.expectedError)
 		}
 
 	}

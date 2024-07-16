@@ -330,3 +330,39 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 		require.Equal(t, tc.expDec, dec)
 	}
 }
+
+func TestIsBaseDenomFromSourceChain(t *testing.T) {
+	tests := []struct {
+		name     string
+		denom    string
+		expected bool
+	}{
+		{
+			name:     "one hop",
+			denom:    "transfer/channel-0/uatom",
+			expected: false,
+		},
+		{
+			name:     "no hop with factory prefix",
+			denom:    "factory/owner/uatom",
+			expected: false,
+		},
+		{
+			name:     "multi hop",
+			denom:    "transfer/channel-0/transfer/channel-1/uatom",
+			expected: false,
+		},
+		{
+			name:     "no hop",
+			denom:    "uatom",
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsBaseDenomFromSourceChain(tt.denom)
+			require.Equal(t, tt.expected, result)
+		})
+	}
+}

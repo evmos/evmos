@@ -78,10 +78,10 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 		hexAddresses[i] = addrHex
 	}
 
-	exstingLength := len(existingPrecompiles)
-	updatedPrecompiles := make([]string, exstingLength+len(hexAddresses))
+	existingLength := len(existingPrecompiles)
+	updatedPrecompiles := make([]string, existingLength+len(hexAddresses))
 	copy(updatedPrecompiles, existingPrecompiles)
-	copy(updatedPrecompiles[exstingLength:], hexAddresses)
+	copy(updatedPrecompiles[existingLength:], hexAddresses)
 
 	utils.SortSlice(updatedPrecompiles)
 	return updatedPrecompiles, nil

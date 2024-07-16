@@ -124,7 +124,6 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 // the denom string of the `FungibleTokenPacketData` of a received packet.
 // If the coin denom starts with `factory/` then it is a token factory coin, and we should not convert it
 // NOTE: Check https://docs.osmosis.zone/osmosis-core/modules/tokenfactory/ for more information
-
 func IsBaseDenomFromSourceChain(rawDenom string) bool {
 	// Parse the raw denomination to get its DenomTrace
 	denomTrace := transfertypes.ParseDenomTrace(rawDenom)

@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -229,10 +228,8 @@ func submitRegisterERC20Proposal(ctx sdk.Context, appEvmos *app.Evmos, pk *ethse
 
 func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
 	addrBz := pk.PubKey().Address().Bytes()
-
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
 	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
-	fmt.Println(err)
 	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }

@@ -59,15 +59,15 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 	for i := range addresses {
 		addrHex := addresses[i].Hex()
 		if slices.Contains(existingPrecompiles, addrHex) {
-			return nil, fmt.Errorf("precompile already registered: %s", addrHex)
+			return nil, fmt.Errorf("attempted to register a duplicate precompile address: %s", addrHex)
 		}
 		hexAddresses[i] = addrHex
 	}
 
-	exstingLength := len(existingPrecompiles)
-	updatedPrecompiles := make([]string, exstingLength+len(hexAddresses))
+	existingLength := len(existingPrecompiles)
+	updatedPrecompiles := make([]string, existingLength+len(hexAddresses))
 	copy(updatedPrecompiles, existingPrecompiles)
-	copy(updatedPrecompiles[exstingLength:], hexAddresses)
+	copy(updatedPrecompiles[existingLength:], hexAddresses)
 
 	utils.SortSlice(updatedPrecompiles)
 	return updatedPrecompiles, nil

@@ -68,6 +68,7 @@ func (k Keeper) setDynamicPrecompiles(ctx sdk.Context, dynamicPrecompiles []stri
 func (k Keeper) getDynamicPrecompiles(ctx sdk.Context) (dynamicPrecompiles []string) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamStoreKeyDynamicPrecompiles)
+
 	for i := 0; i < len(bz); i += addressLength {
 		dynamicPrecompiles = append(dynamicPrecompiles, string(bz[i:i+addressLength]))
 	}
