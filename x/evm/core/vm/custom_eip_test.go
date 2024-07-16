@@ -32,27 +32,27 @@ func TestExtendActivators(t *testing.T) {
 		{
 			"success - single new activator",
 			map[int]func(*JumpTable){
-				0o000: func(jt *JumpTable) {},
+				0: func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
 				eips := GetActivatorsEipNumbers()
-				require.ElementsMatch(t, append(eips_snapshot, 0o000), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0), eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"success - multiple new activators",
 			map[int]func(*JumpTable){
-				0o001: func(jt *JumpTable) {},
-				0o002: func(jt *JumpTable) {},
+				1: func(jt *JumpTable) {},
+				2: func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
 		},
 		{
@@ -65,21 +65,21 @@ func TestExtendActivators(t *testing.T) {
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"fail - valid activator is not stored if a repeated is present",
 			map[int]func(*JumpTable){
-				0o003: func(jt *JumpTable) {},
-				3855:  func(jt *JumpTable) {},
+				3:    func(jt *JumpTable) {},
+				3855: func(jt *JumpTable) {},
 			},
 			false,
 			"",
 			func() {
 				eips := GetActivatorsEipNumbers()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
 		},
 	}

@@ -1,7 +1,6 @@
 package v19_test
 
 import (
-	"fmt"
 	"testing"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -167,24 +166,21 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 }
 
 func TestEnableCustomEIPs(t *testing.T) {
-	upgradeEIPs := []int64{0o000, 0o001, 0o002}
+	upgradeEIPs := []int64{0, 1, 2}
 
 	testCases := []struct {
 		name       string
 		activeEIPs []int64
-		expError   bool
 		expEIPsNum int
 	}{
 		{
 			name:       "repeated EIP - skip",
-			activeEIPs: []int64{0o000},
-			expError:   false,
+			activeEIPs: []int64{0},
 			expEIPsNum: 3,
 		},
 		{
 			name:       "all new EIP",
 			activeEIPs: []int64{3855},
-			expError:   false,
 			expEIPsNum: 4,
 		},
 	}
@@ -198,18 +194,12 @@ func TestEnableCustomEIPs(t *testing.T) {
 			oldParams := network.App.EvmKeeper.GetParams(network.GetContext())
 			oldParams.ExtraEIPs = tc.activeEIPs
 			require.NoError(t, network.UpdateEvmParams(oldParams), "failed to update EVM params")
-			fmt.Println("EIPs: ", oldParams.ExtraEIPs)
 
 			logger := network.GetContext().Logger()
 			err := v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
-			if tc.expError {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-			}
+			require.NoError(t, err)
 
 			params := network.App.EvmKeeper.GetParams(network.GetContext())
-			fmt.Println("EIPs: ", params.ExtraEIPs)
 			require.Equal(t, tc.expEIPsNum, len(params.ExtraEIPs))
 
 			found := true
