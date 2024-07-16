@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"math/big"
 	"strings"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -185,4 +186,20 @@ func ComputeIBCDenom(
 	denom string,
 ) string {
 	return ComputeIBCDenomTrace(portID, channelID, denom).IBCDenom()
+}
+
+func ScaleDownTo6Decimals(balance18Decimals *big.Int) *big.Int {
+	scaledDown := new(big.Int).Div(balance18Decimals, big.NewInt(1e12))
+	// If scaled down by 12 decimals directly it sometimes results in 0 then
+	// we need to scale it up by 6 decimals and then scale down by 12
+	if scaledDown.Cmp(big.NewInt(0)) == 0 {
+		adjustmentFactor := new(big.Int).Mul(balance18Decimals, big.NewInt(1e6))
+		scaledDown := adjustmentFactor.Div(adjustmentFactor, big.NewInt(1e12))
+		return scaledDown
+	}
+	return scaledDown
+}
+
+func ConvertTo6Decimals(balance18Decimals *big.Int) *big.Int {
+	return new(big.Int).Mul(balance18Decimals, big.NewInt(1e12))
 }

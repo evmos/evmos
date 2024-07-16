@@ -3,6 +3,7 @@
 package evm
 
 import (
+	"github.com/evmos/evmos/v18/utils"
 	"math"
 	"math/big"
 
@@ -145,7 +146,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		feeAmt := txData.Fee()
 		gas := txData.GetGas()
-		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
+		fee := sdkmath.LegacyNewDecFromBigInt(utils.ScaleDownTo6Decimals(feeAmt))
+		//fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
 		// 2. mempool inclusion fee
@@ -158,7 +160,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// 3. min gas price (global min fee)
 		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
 			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
-			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
+			scaledDownFee := utils.ScaleDownTo6Decimals(feeAmt)
+			fee = sdkmath.LegacyNewDecFromBigInt(scaledDownFee)
 		}
 
 		if err := CheckGlobalFee(fee, decUtils.GlobalMinGasPrice, gasLimit); err != nil {

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/evmos/evmos/v18/utils"
 	"math/big"
 	"time"
 
@@ -57,7 +58,7 @@ func (k Keeper) Account(c context.Context, req *types.QueryAccountRequest) (*typ
 	acct := k.GetAccountOrEmpty(ctx, addr)
 
 	return &types.QueryAccountResponse{
-		Balance:  acct.Balance.String(),
+		Balance:  utils.ConvertTo6Decimals(acct.Balance).String(),
 		CodeHash: common.BytesToHash(acct.CodeHash).Hex(),
 		Nonce:    acct.Nonce,
 	}, nil
@@ -145,7 +146,7 @@ func (k Keeper) Balance(c context.Context, req *types.QueryBalanceRequest) (*typ
 	balanceInt := k.GetBalance(ctx, common.HexToAddress(req.Address))
 
 	return &types.QueryBalanceResponse{
-		Balance: balanceInt.String(),
+		Balance: utils.ConvertTo6Decimals(balanceInt).String(),
 	}, nil
 }
 
@@ -277,7 +278,11 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if req.GasCap < ethparams.TxGas {
+	fmt.Println("gas cap for estimate", req.GasCap)
+	// TODO: This probably needs to change
+	NewTxGas := uint64(10000)
+	if req.GasCap < NewTxGas {
+		fmt.Println("gas cap cannot be lower")
 		return nil, status.Errorf(codes.InvalidArgument, "gas cap cannot be lower than %d", ethparams.TxGas)
 	}
 
@@ -289,13 +294,13 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 
 	// Binary search the gas requirement, as it may be higher than the amount used
 	var (
-		lo     = ethparams.TxGas - 1
+		lo     = NewTxGas - 1
 		hi     uint64
 		gasCap uint64
 	)
 
 	// Determine the highest gas limit can be used during the estimation.
-	if args.Gas != nil && uint64(*args.Gas) >= ethparams.TxGas {
+	if args.Gas != nil && uint64(*args.Gas) >= NewTxGas {
 		hi = uint64(*args.Gas)
 	} else {
 		// Query block gas limit
@@ -352,6 +357,8 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 			msg.IsFake(),
 		)
 
+		fmt.Println("msg stuff", msg.GasPrice(), msg.GasFeeCap(), msg.GasTipCap())
+
 		tmpCtx := ctx
 		if fromType == types.RPC {
 			tmpCtx, _ = ctx.CacheContext()
@@ -376,6 +383,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 		}
 		// pass false to not commit StateDB
 		rsp, err = k.ApplyMessageWithConfig(tmpCtx, msg, nil, false, cfg, txConfig)
+		//fmt.Println("apply message err", err)
 		if err != nil {
 			if errors.Is(err, core.ErrIntrinsicGas) {
 				return true, nil, nil // Special case, raise gas limit

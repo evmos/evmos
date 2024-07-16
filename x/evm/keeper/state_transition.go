@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 	"slices"
 
@@ -167,11 +168,14 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 	// thus restricted to be used only inside `ApplyMessage`.
 	tmpCtx, commit := ctx.CacheContext()
 
+	fmt.Println("THE MESSAGE GAS VALUES", msg.Gas(), msg.GasPrice(), msg.GasFeeCap(), msg.GasFeeCap())
 	// pass true to commit the StateDB
 	res, err := k.ApplyMessageWithConfig(tmpCtx, msg, nil, true, cfg, txConfig)
+	fmt.Println("APPLY WITH CONFIG", res, res.Failed(), err)
 	if err != nil {
 		// when a transaction contains multiple msg, as long as one of the msg fails
 		// all gas will be deducted. so is not msg.Gas()
+		fmt.Println("error inside here", err)
 		k.ResetGasMeterAndConsumeGas(tmpCtx, tmpCtx.GasMeter().Limit())
 		return nil, errorsmod.Wrap(err, "failed to apply ethereum core message")
 	}
@@ -188,8 +192,11 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		commit()
 	}
 
+	fmt.Println("gas used", res.GasUsed, "gas in msg", msg.Gas())
+
 	// refund gas in order to match the Ethereum gas consumption instead of the default SDK one.
 	if err = k.RefundGas(ctx, msg, msg.Gas()-res.GasUsed, cfg.Params.EvmDenom); err != nil {
+		fmt.Println("refund gas err", err)
 		return nil, errorsmod.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
 	}
 
@@ -202,6 +209,7 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 	k.SetTxIndexTransient(ctx, uint64(txConfig.TxIndex)+1)
 
 	totalGasUsed, err := k.AddTransientGasUsed(ctx, res.GasUsed)
+	fmt.Println("transient gas", totalGasUsed, err)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to add transient gas used")
 	}
@@ -319,12 +327,14 @@ func (k *Keeper) ApplyMessageWithConfig(
 	isLondon := cfg.ChainConfig.IsLondon(evm.Context.BlockNumber)
 
 	intrinsicGas, err := k.GetEthIntrinsicGas(ctx, msg, cfg.ChainConfig, contractCreation)
+	intrinsicGas = intrinsicGas * 1e6 / 1e12
 	if err != nil {
 		// should have already been checked on Ante Handler
 		return nil, errorsmod.Wrap(err, "intrinsic gas failed")
 	}
 
 	// Should check again even if it is checked on Ante Handler, because eth_call don't go through Ante Handler.
+	//fmt.Println("leftoverGas", leftoverGas, "intrinsic gas", intrinsicGas)
 	if leftoverGas < intrinsicGas {
 		// eth_estimateGas will check for this exact error
 		return nil, errorsmod.Wrap(core.ErrIntrinsicGas, "apply message")

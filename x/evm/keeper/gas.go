@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"github.com/evmos/evmos/v18/utils"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -33,7 +34,8 @@ func (k *Keeper) GetEthIntrinsicGas(ctx sdk.Context, msg core.Message, cfg *para
 func (k *Keeper) RefundGas(ctx sdk.Context, msg core.Message, leftoverGas uint64, denom string) error {
 	// Return EVM tokens for remaining gas, exchanged at the original rate.
 	remaining := new(big.Int).Mul(new(big.Int).SetUint64(leftoverGas), msg.GasPrice())
-
+	remaining = utils.ScaleDownTo6Decimals(remaining)
+	//fmt.Println("the remaining", remaining)
 	switch remaining.Sign() {
 	case -1:
 		// negative refund errors

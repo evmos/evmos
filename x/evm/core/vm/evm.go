@@ -4,6 +4,7 @@
 package vm
 
 import (
+	"github.com/evmos/evmos/v18/utils"
 	"math/big"
 	"sync/atomic"
 	"time"
@@ -180,6 +181,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		return nil, gas, err
 	}
 
+	value = utils.ScaleDownTo6Decimals(value)
 	// Fail if we're trying to execute above the call depth limit
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth

@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"fmt"
 	"hash"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -203,7 +204,9 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			var dynamicCost uint64
 			dynamicCost, err = operation.dynamicGas(in.evm, contract, stack, mem, memorySize)
 			cost += dynamicCost // for tracing
+			//fmt.Println("error here in dynamic gas", err)
 			if err != nil || !contract.UseGas(dynamicCost) {
+				fmt.Println("out of gas here here here")
 				return nil, ErrOutOfGas
 			}
 			// Do tracing before memory expansion

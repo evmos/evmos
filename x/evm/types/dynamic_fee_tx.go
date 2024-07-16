@@ -3,6 +3,7 @@
 package types
 
 import (
+	"github.com/evmos/evmos/v18/utils"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -259,7 +260,7 @@ func (tx DynamicFeeTx) Validate() error {
 
 // Fee returns gasprice * gaslimit.
 func (tx DynamicFeeTx) Fee() *big.Int {
-	return fee(tx.GetGasFeeCap(), tx.GasLimit)
+	return utils.ScaleDownTo6Decimals(fee(tx.GetGasFeeCap(), tx.GasLimit))
 }
 
 // Cost returns amount + gasprice * gaslimit.
@@ -274,7 +275,7 @@ func (tx *DynamicFeeTx) EffectiveGasPrice(baseFee *big.Int) *big.Int {
 
 // EffectiveFee returns effective_gasprice * gaslimit.
 func (tx DynamicFeeTx) EffectiveFee(baseFee *big.Int) *big.Int {
-	return fee(tx.EffectiveGasPrice(baseFee), tx.GasLimit)
+	return utils.ScaleDownTo6Decimals(fee(tx.EffectiveGasPrice(baseFee), tx.GasLimit))
 }
 
 // EffectiveCost returns amount + effective_gasprice * gaslimit.
