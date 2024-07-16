@@ -17,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	"github.com/evmos/evmos/v18/x/erc20/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -120,10 +119,10 @@ func registerERC20Extensions(ctx sdk.Context,
 	params := erc20Keeper.GetParams(ctx)
 
 	var err error
-	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
+	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
-		if tokenPair.ContractOwner != types.OWNER_MODULE ||
+		if tokenPair.ContractOwner != erc20types.OWNER_MODULE ||
 			erc20Keeper.IsAvailableERC20Precompile(&params, tokenPair.GetERC20Contract()) {
 			return false
 		}
