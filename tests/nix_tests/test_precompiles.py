@@ -2,11 +2,17 @@ import re
 
 import pytest
 
-from .ibc_utils import (EVMOS_IBC_DENOM, assert_ready, get_balance,
-                        prepare_network)
+from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
 from .network import Evmos
-from .utils import (ADDRS, CONTRACTS, KEYS, deploy_contract,
-                    get_precompile_contract, send_transaction, wait_for_fn)
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    KEYS,
+    deploy_contract,
+    get_precompile_contract,
+    send_transaction,
+    wait_for_fn,
+)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])

@@ -7,8 +7,14 @@ from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import (ADDRS, CONTRACTS, KEYS, deploy_contract, sign_transaction,
-                    w3_wait_for_new_blocks)
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    KEYS,
+    deploy_contract,
+    sign_transaction,
+    w3_wait_for_new_blocks,
+)
 
 
 @pytest.fixture(scope="module")

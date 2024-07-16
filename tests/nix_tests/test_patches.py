@@ -3,9 +3,18 @@ import tempfile
 
 from web3 import Web3
 
-from .utils import (ACCOUNTS, ADDRS, CONTRACTS, DEFAULT_DENOM, decode_bech32,
-                    deploy_contract, eth_to_bech32, get_fees_from_tx_result,
-                    wait_for_cosmos_tx_receipt, wait_for_new_blocks)
+from .utils import (
+    ACCOUNTS,
+    ADDRS,
+    CONTRACTS,
+    DEFAULT_DENOM,
+    decode_bech32,
+    deploy_contract,
+    eth_to_bech32,
+    get_fees_from_tx_result,
+    wait_for_cosmos_tx_receipt,
+    wait_for_new_blocks,
+)
 
 
 def test_send_funds_to_distr_mod(evmos_cluster):
