@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/precompiles/distribution"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 

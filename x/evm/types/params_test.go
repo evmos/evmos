@@ -44,9 +44,9 @@ func TestParamsValidate(t *testing.T) {
 			name: "invalid eip",
 			params: Params{
 				EvmDenom:  DefaultEVMDenom,
-				ExtraEIPs: []int64{1},
+				ExtraEIPs: []int64{10000},
 			},
-			errContains: "EIP 1 is not activateable, valid EIPs are",
+			errContains: "EIP 10000 is not activateable, valid EIPs are",
 		},
 		{
 			name: "unsorted precompiles",

@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/contracts"
 	auth "github.com/evmos/evmos/v18/precompiles/authorization"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
@@ -24,6 +23,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
