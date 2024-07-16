@@ -428,7 +428,7 @@ format:
 format-python: format-isort format-black
 
 format-black:
-	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black
+	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black --line-length 100
 
 format-isort:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
