@@ -18,6 +18,7 @@ import (
 	evmostypes "github.com/evmos/evmos/v18/types"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	"github.com/evmos/evmos/v18/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -82,7 +83,7 @@ func RunSTRv2Migration(
 ) error {
 	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
 	// the dynamic EVM extensions (which is relying on the registered token pairs).
-	pair := types.NewTokenPair(wrappedContractAddr, nativeDenom, types.OWNER_MODULE)
+	pair := erc20types.NewTokenPair(wrappedContractAddr, nativeDenom, erc20types.OWNER_MODULE)
 	erc20Keeper.SetToken(ctx, pair)
 
 	// Filter all token pairs for the ones that are for Cosmos native coins.
