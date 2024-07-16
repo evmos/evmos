@@ -440,7 +440,9 @@ disable=raw-checker-failed,
         missing-module-docstring,
         missing-function-docstring,
         too-few-public-methods,
+        too-many-public-methods,
         too-many-arguments,
+        too-many-lines,
         too-many-locals,
         too-many-branches,
         too-many-statements,
@@ -449,6 +451,7 @@ disable=raw-checker-failed,
         redefined-outer-name,
         use-implicit-booleaness-not-comparison,
         import-error,
+        use-dict-literal,
         fixme
 
 # Enable the message, report, category or checker with the given id(s). You can
