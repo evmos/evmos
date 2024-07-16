@@ -240,7 +240,8 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
             True,
         ),
         (
-            "IBC transfer with internal transfer to the escrow addr before and after the precompile call",
+            "IBC transfer with internal transfer to the escrow addr "
+            + "before and after the precompile call",
             ADDRS["signer2"],
             "ESCROW_ADDR",
             True,
@@ -394,10 +395,12 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
 
 
 @pytest.mark.parametrize(
-    "name, src_addr, ibc_transfer_amt, transfer_before, transfer_between, transfer_after, err_contains",
+    "name, src_addr, ibc_transfer_amt, transfer_before, "
+    + "transfer_between, transfer_after, err_contains",
     [
         (
-            "Two IBC transfers with internal transfer before, between and after the precompile call",
+            "Two IBC transfers with internal transfer before, "
+            + "between and after the precompile call",
             ADDRS["signer2"],
             int(1e18),
             True,
@@ -433,7 +436,8 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
             None,
         ),
         (
-            "Two IBC transfers with internal transfer before and between, and second IBC transfer fails",
+            "Two IBC transfers with internal transfer before and between, "
+            + "and second IBC transfer fails",
             ADDRS["signer2"],
             int(35000e18),
             True,

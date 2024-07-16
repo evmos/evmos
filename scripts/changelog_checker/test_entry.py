@@ -32,7 +32,7 @@ class TestEntry:
     def test_pass_includes_link(self):
         example = (
             "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) "
-            + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) " 
+            + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
             + "(`PUSH0` opcode) during upgrade."
         )
         entry = Entry(example)
@@ -40,7 +40,7 @@ class TestEntry:
         assert entry.link == "https://github.com/evmos/evmos/pull/1851"
         assert entry.description == (
             "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
-            +"(`PUSH0` opcode) during upgrade."
+            + "(`PUSH0` opcode) during upgrade."
         )
         assert not entry.problems
         assert ok is True
@@ -76,8 +76,8 @@ class TestEntry:
         assert entry.parse() is False
         assert entry.fixed == malformed_example
         assert entry.problems == [
-            'Malformed entry: '
-            +'"- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"'
+            "Malformed entry: "
+            + '"- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"'
         ]
 
 
@@ -132,8 +132,8 @@ class TestCheckDescription:
         fixed, problems = check_description("add `ClaimRewards` custom transaction.")
         assert fixed == "Add `ClaimRewards` custom transaction."
         assert problems == [
-            'PR description should start with capital letter: '
-            +'"add `ClaimRewards` custom transaction."'
+            "PR description should start with capital letter: "
+            + '"add `ClaimRewards` custom transaction."'
         ]
 
     def test_end_with_dot(self):
