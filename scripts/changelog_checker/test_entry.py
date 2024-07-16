@@ -1,8 +1,8 @@
 import re
 
-from entry import (ALLOWED_SPELLINGS, Entry, check_category,  # type: ignore
-                   check_description, check_link, check_spelling,
-                   check_whitespace, get_match)
+from entry import check_category  # type: ignore
+from entry import (ALLOWED_SPELLINGS, Entry, check_description, check_link,
+                   check_spelling, check_whitespace, get_match)
 
 
 class TestEntry:
