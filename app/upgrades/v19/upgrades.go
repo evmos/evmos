@@ -13,13 +13,16 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v18/utils"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 )
 
 const (
@@ -32,6 +35,9 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ak authkeeper.AccountKeeper,
+	bk bankkeeper.Keeper,
+	sk stakingkeeper.Keeper,
+	erc20k erc20keeper.Keeper,
 	ek *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -47,9 +53,31 @@ func CreateUpgradeHandler(
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
 
-		// Leave modules as-is to avoid running InitGenesis.
-		// TODO: store migrations need to be ran before STRV2 migration
-		return mm.RunMigrations(ctx, configurator, vm)
+		// run module migrations first.
+		// so we wont override erc20 params when running strv2 migration,
+		migrationRes, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return migrationRes, err
+		}
+
+		bondDenom := sk.BondDenom(ctx)
+
+		var wevmosContract common.Address
+		switch {
+		case utils.IsMainnet(ctx.ChainID()):
+			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
+		case utils.IsTestnet(ctx.ChainID()):
+			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
+		default:
+			panic("unknown chain id")
+		}
+
+		ctxCache, writeFn = ctx.CacheContext()
+		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
+			writeFn()
+		}
+
+		return migrationRes, err
 	}
 }
 
