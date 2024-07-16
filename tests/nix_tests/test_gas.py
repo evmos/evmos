@@ -1,14 +1,7 @@
 import json
 
-from .utils import (
-    ADDRS,
-    CONTRACTS,
-    KEYS,
-    build_deploy_contract_tx,
-    deploy_contract,
-    send_transaction,
-    w3_wait_for_new_blocks,
-)
+from .utils import (ADDRS, CONTRACTS, KEYS, build_deploy_contract_tx,
+                    deploy_contract, send_transaction, w3_wait_for_new_blocks)
 
 
 def test_gas_eth_tx(geth, evmos_cluster):

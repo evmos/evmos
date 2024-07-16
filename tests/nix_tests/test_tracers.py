@@ -1,19 +1,10 @@
 from web3 import Web3
 
-from .expected_constants import (
-    EXPECTED_CALLTRACERS,
-    EXPECTED_CONTRACT_CREATE_TRACER,
-    EXPECTED_STRUCT_TRACER,
-)
-from .utils import (
-    ADDRS,
-    CONTRACTS,
-    KEYS,
-    compare_fields,
-    deploy_contract,
-    send_transaction,
-    w3_wait_for_new_blocks,
-)
+from .expected_constants import (EXPECTED_CALLTRACERS,
+                                 EXPECTED_CONTRACT_CREATE_TRACER,
+                                 EXPECTED_STRUCT_TRACER)
+from .utils import (ADDRS, CONTRACTS, KEYS, compare_fields, deploy_contract,
+                    send_transaction, w3_wait_for_new_blocks)
 
 
 def test_tracers(cluster):

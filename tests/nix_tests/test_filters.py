@@ -6,14 +6,9 @@ from hexbytes import HexBytes
 from web3 import Web3
 
 from .network import setup_custom_evmos, setup_evmos
-from .utils import (
-    ADDRS,
-    CONTRACTS,
-    deploy_contract,
-    send_successful_transaction,
-    send_transaction,
-    w3_wait_for_new_blocks,
-)
+from .utils import (ADDRS, CONTRACTS, deploy_contract,
+                    send_successful_transaction, send_transaction,
+                    w3_wait_for_new_blocks)
 
 
 @pytest.fixture(scope="module")
