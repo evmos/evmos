@@ -166,7 +166,7 @@ func ConvertERC20Coins(
 	erc20ModuleAccountAddress := authtypes.NewModuleAddress(erc20types.ModuleName)
 	balances := bankKeeper.GetAllBalances(ctx, erc20ModuleAccountAddress)
 	if !balances.IsZero() {
-		logger.Error("there are still tokens in the erc-20 module account: %s", balances.String())
+		logger.Info(fmt.Sprintf("there are still tokens in the erc-20 module account: %s", balances.String()))
 		// we dont return an error here. Since we want the migration to pass
 		// if any balance is left on escrow, we can recover it later.
 	}
