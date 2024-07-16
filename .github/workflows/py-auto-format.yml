@@ -6,7 +6,7 @@ on:
 permissions: read-all
 
 jobs:
-  format-go-code:
+  format-python-code:
     runs-on: ubuntu-latest
 
     permissions:
