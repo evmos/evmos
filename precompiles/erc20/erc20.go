@@ -170,7 +170,7 @@ func (Precompile) IsTransaction(methodName string) bool {
 }
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
-func (p Precompile) HandleMethod(
+func (p *Precompile) HandleMethod(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,

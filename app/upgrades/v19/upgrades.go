@@ -19,7 +19,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	"github.com/evmos/evmos/v18/x/erc20/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -111,7 +110,7 @@ func RunSTRv2Migration(
 ) error {
 	// NOTE: it's necessary to register the WEVMOS token as a native token pair before adding
 	// the dynamic EVM extensions (which is relying on the registered token pairs).
-	pair := types.NewTokenPair(wrappedContractAddr, nativeDenom, types.OWNER_MODULE)
+	pair := erc20types.NewTokenPair(wrappedContractAddr, nativeDenom, erc20types.OWNER_MODULE)
 	erc20Keeper.SetToken(ctx, pair)
 
 	// Filter all token pairs for the ones that are for Cosmos native coins.
@@ -148,10 +147,10 @@ func registerERC20Extensions(ctx sdk.Context,
 	params := erc20Keeper.GetParams(ctx)
 
 	var err error
-	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
+	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
-		if tokenPair.ContractOwner != types.OWNER_MODULE ||
+		if tokenPair.ContractOwner != erc20types.OWNER_MODULE ||
 			erc20Keeper.IsAvailableERC20Precompile(&params, tokenPair.GetERC20Contract()) {
 			return false
 		}

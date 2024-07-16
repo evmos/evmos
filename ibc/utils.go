@@ -80,12 +80,10 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 		unprefixedDenom := rawDenom[len(voucherPrefix):]
 
 		// coin denomination used in sending from the escrow address
-		denom := unprefixedDenom
-
 		// The denomination used to send the coins is either the native denom or the hash of the path
 		// if the denomination is not native.
 		denomTrace := transfertypes.ParseDenomTrace(unprefixedDenom)
-		denom = denomTrace.IBCDenom()
+		denom := denomTrace.IBCDenom()
 
 		return sdk.Coin{
 			Denom:  denom,
