@@ -84,7 +84,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 
 	res, err = evmosutil.DeliverEthTx(app, args.PrivKey, msg)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error during deliver tx: %s", err)
+		return res, nil, fmt.Errorf("error during deliver tx: %s", err)
 	}
 	if !res.IsOK() {
 		return res, nil, fmt.Errorf("error during deliver tx: %v", res.Log)
@@ -103,7 +103,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 func CallContractAndCheckLogs(ctx sdk.Context, app *evmosapp.Evmos, cArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abci.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
 	res, ethRes, err := Call(ctx, app, cArgs)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, err
+		return res, nil, err
 	}
 
 	logCheckArgs.Res = res

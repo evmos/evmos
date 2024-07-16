@@ -12,7 +12,7 @@ import (
 
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/x/evm/migrations/v7"
+	v7 "github.com/evmos/evmos/v18/x/evm/migrations/v7"
 	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -37,7 +37,7 @@ func TestMigrate(t *testing.T) {
 		ChainConfig:         chainCfgV6,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   types.AvailableEVMExtensions,
+		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 		EVMChannels:         types.DefaultEVMChannels,
 	}
 

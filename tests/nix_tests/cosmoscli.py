@@ -975,6 +975,25 @@ class CosmosCLI:
         )
 
     # ==========================
+    #        ERC20 Module
+    # ==========================
+
+    def erc20_params(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "erc20",
+                "params",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+
+    # ==========================
     #       FEEMARKET Module
     # ==========================
 
@@ -1350,6 +1369,65 @@ class CosmosCLI:
                 "create-pool",
                 "-y",
                 pool_file=pool_file_path,
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+
+    def token_factory_create_denom(
+        self,
+        denom,
+        from_,
+        **kwargs,
+    ):
+        """
+        Create Osmosis token factory denom.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "create-denom",
+                denom,
+                "-y",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def token_factory_mint_denom(
+        self,
+        from_,
+        amount,
+        denom,
+        **kwargs,
+    ):
+        """
+        Mint Osmosis token factory denom with a given amount.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "mint",
+                f"{amount}{denom}",
+                from_,
+                "-y",
                 from_=from_,
                 home=self.data_dir,
                 node=self.node_rpc,
