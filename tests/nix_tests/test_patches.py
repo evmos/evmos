@@ -56,8 +56,7 @@ def test_send_funds_to_distr_mod(evmos_cluster):
 
     assert receipt["tx_result"]["code"] == 4
     assert (
-        f"{receiver} is not allowed to receive funds: unauthorized"
-        in receipt["tx_result"]["log"]
+        f"{receiver} is not allowed to receive funds: unauthorized" in receipt["tx_result"]["log"]
     )
     fees = get_fees_from_tx_result(receipt["tx_result"])
 
@@ -140,9 +139,7 @@ def test_authz_nested_msg(evmos_cluster):
         rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
 
         assert rsp["code"] == 4, rsp["raw_log"]
-        assert (
-            "found disabled msg type: /ethermint.evm.v1.MsgEthereumTx" in rsp["raw_log"]
-        )
+        assert "found disabled msg type: /ethermint.evm.v1.MsgEthereumTx" in rsp["raw_log"]
 
 
 def test_create_invalid_vesting_acc(evmos_cluster):

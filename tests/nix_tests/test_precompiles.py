@@ -78,9 +78,7 @@ def test_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(
-            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
-        )
+        new_dst_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
@@ -231,9 +229,7 @@ def test_staking_via_sc(ibc):
     # create grant - need to specify gas otherwise will fail with out of gas
     approve_tx = contract.functions.testApprove(
         receipt.contractAddress, ["/cosmos.staking.v1beta1.MsgDelegate"], amt
-    ).build_transaction(
-        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 60000}
-    )
+    ).build_transaction({"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 60000})
 
     gas_estimation = evmos.w3.eth.estimate_gas(approve_tx)
     receipt = send_transaction(w3, approve_tx, KEYS["signer1"])
@@ -250,9 +246,7 @@ def test_staking_via_sc(ibc):
     # delegate - need to specify gas otherwise will fail with out of gas
     delegate_tx = contract.functions.testDelegate(
         ADDRS["signer1"], validator_addr, amt
-    ).build_transaction(
-        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 180000}
-    )
+    ).build_transaction({"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 180000})
     gas_estimation = evmos.w3.eth.estimate_gas(delegate_tx)
     receipt = send_transaction(w3, delegate_tx, KEYS["signer1"])
 

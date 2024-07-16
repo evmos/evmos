@@ -7,9 +7,7 @@ class TestGetAllowedCategories:
         assert (
             "app" in allowed_categories
         ), "expected pre-configured value to be in allowed categories"
-        assert (
-            "evm" in allowed_categories
-        ), "expected module to be in allowed categories"
+        assert "evm" in allowed_categories, "expected module to be in allowed categories"
         assert (
             "osmosis-outpost" in allowed_categories
         ), "expected outpost to be in allowed categories"

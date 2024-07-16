@@ -41,9 +41,7 @@ class Evmos:
     def w3(self, i=0):
         if self._w3 is None:
             if self._use_websockets:
-                self._w3 = web3.Web3(
-                    web3.providers.WebsocketProvider(self.w3_ws_endpoint)
-                )
+                self._w3 = web3.Web3(web3.providers.WebsocketProvider(self.w3_ws_endpoint))
             else:
                 self._w3 = web3.Web3(web3.providers.HTTPProvider(self.w3_http_endpoint))
         return self._w3
@@ -59,9 +57,7 @@ class Evmos:
         self._use_websockets = use
 
     def cosmos_cli(self, i=0):
-        return CosmosCLI(
-            self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
-        )
+        return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary)
 
     def node_home(self, i=0):
         return self.base_dir / f"node{i}"
@@ -172,9 +168,7 @@ def setup_geth(path, base_port):
             proc.wait()
 
 
-def setup_custom_evmos(
-    path, base_port, config, post_init=None, chain_binary=None, wait_port=True
-):
+def setup_custom_evmos(path, base_port, config, post_init=None, chain_binary=None, wait_port=True):
     cmd = [
         "pystarport",
         "init",
@@ -198,9 +192,7 @@ def setup_custom_evmos(
         if wait_port:
             wait_for_port(ports.evmrpc_port(base_port))
             wait_for_port(ports.evmrpc_ws_port(base_port))
-        yield Evmos(
-            path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
-        )
+        yield Evmos(path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY)
     finally:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
         proc.wait()

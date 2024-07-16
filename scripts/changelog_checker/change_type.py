@@ -42,9 +42,7 @@ class ChangeType:
 
         self.type = match.group("type")
 
-        type_found, fixed_type, spelling_problems = check_spelling(
-            self.type, ALLOWED_CHANGE_TYPES
-        )
+        type_found, fixed_type, spelling_problems = check_spelling(self.type, ALLOWED_CHANGE_TYPES)
         if not type_found:
             problems.append(f'"{self.type}" is not a valid change type')
         if spelling_problems:
