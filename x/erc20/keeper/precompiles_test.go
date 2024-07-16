@@ -2,7 +2,7 @@ package keeper_test
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {

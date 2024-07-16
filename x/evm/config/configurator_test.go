@@ -6,11 +6,11 @@ package config_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v18/x/evm/config"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/config"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func TestEVMConfigurator(t *testing.T) {

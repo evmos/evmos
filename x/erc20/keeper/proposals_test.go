@@ -7,10 +7,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/x/erc20/keeper"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v18/x/erc20/types/mocks"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/x/erc20/keeper"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	erc20mocks "github.com/evmos/evmos/v19/x/erc20/types/mocks"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/mock"
 )
 

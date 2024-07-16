@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/evmos/evmos/v18/testutil/integration/common/network"
+	"github.com/evmos/evmos/v19/testutil/integration/common/network"
 )
 
 // getIBCChains returns a map of TestChain's for the given network interface.
