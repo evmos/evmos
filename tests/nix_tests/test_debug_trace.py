@@ -1,7 +1,12 @@
 import requests
 from pystarport import ports
 
-from .utils import derive_new_account, send_transaction, sign_transaction, wait_for_new_blocks
+from .utils import (
+    derive_new_account,
+    send_transaction,
+    sign_transaction,
+    wait_for_new_blocks,
+)
 
 
 def test_trace_blk(evmos_cluster):

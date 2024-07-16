@@ -68,7 +68,9 @@ class Release:
         if self.version == UNRELEASED_VERSION:
             return False
 
-        version_match = re.match(r"^v(?P<major>\d+)\.(\d+)\.(\d+)(-rc\d+)?$", self.version)
+        version_match = re.match(
+            r"^v(?P<major>\d+)\.(\d+)\.(\d+)(-rc\d+)?$", self.version
+        )
         if not version_match:
             raise ValueError(
                 f'Invalid release version in line "{self.line}" '
@@ -104,7 +106,8 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
 
     if version not in link:
         problems.append(
-            f'Release header version "{version}" ' + f'does not match version in link "{link}"'
+            f'Release header version "{version}" '
+            + f'does not match version in link "{link}"'
         )
 
     return fixed, problems

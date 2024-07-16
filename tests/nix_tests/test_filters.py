@@ -155,7 +155,9 @@ def test_event_log_filter_by_contract(cluster):
     assert flt.get_all_entries() == []  # GetFilterLogs
 
     # with tx
-    tx = contract.functions.setGreeting("world").build_transaction({"from": ADDRS["validator"]})
+    tx = contract.functions.setGreeting("world").build_transaction(
+        {"from": ADDRS["validator"]}
+    )
     tx_receipt = send_transaction(w3, tx)
     assert tx_receipt.status == 1
 
@@ -192,7 +194,9 @@ def test_event_log_filter_by_address(cluster):
     assert flt.get_all_entries() == []  # GetFilterLogs
 
     # with tx
-    tx = contract.functions.setGreeting("world").build_transaction({"from": ADDRS["validator"]})
+    tx = contract.functions.setGreeting("world").build_transaction(
+        {"from": ADDRS["validator"]}
+    )
     receipt = send_transaction(w3, tx)
     assert receipt.status == 1
 
@@ -295,9 +299,9 @@ def test_event_log_filter_by_topic(cluster):
                 # validate deploy was successful
                 assert contract.caller.name() == "TestERC20"
                 # create tx that emits event
-                tx = contract.functions.transfer(ADDRS["community"], 10).build_transaction(
-                    {"from": ADDRS["validator"]}
-                )
+                tx = contract.functions.transfer(
+                    ADDRS["community"], 10
+                ).build_transaction({"from": ADDRS["validator"]})
 
             receipt = send_transaction(w3, tx)
             assert receipt.status == 1
@@ -353,7 +357,9 @@ def test_multiple_filters(cluster):
         },
         {
             "params": {
-                "topics": [[topic.hex(), another_topic.hex()]],  # 'with any topic' condition
+                "topics": [
+                    [topic.hex(), another_topic.hex()]
+                ],  # 'with any topic' condition
             },
             "exp_len": 1,
         },
@@ -510,7 +516,9 @@ def test_register_filters_before_contract_deploy(cluster):
         },
         {
             "params": {
-                "topics": [[topic.hex(), another_topic.hex()]],  # 'with any topic' condition
+                "topics": [
+                    [topic.hex(), another_topic.hex()]
+                ],  # 'with any topic' condition
             },
             "exp_len": 1,
         },

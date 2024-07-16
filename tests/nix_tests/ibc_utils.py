@@ -208,7 +208,9 @@ def prepare_network(
 
 def assert_ready(ibc):
     # wait for hermes
-    output = subprocess.getoutput(f"curl -s -X GET 'http://127.0.0.1:{ibc.hermes.port}/state' | jq")
+    output = subprocess.getoutput(
+        f"curl -s -X GET 'http://127.0.0.1:{ibc.hermes.port}/state' | jq"
+    )
     assert json.loads(output)["status"] == "success"
 
 

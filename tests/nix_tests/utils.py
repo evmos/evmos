@@ -72,7 +72,12 @@ def wasm_binaries_path(filename):
 
 
 def contract_path(name, filename):
-    return Path(__file__).parent / "hardhat/artifacts/contracts/" / filename / (name + ".json")
+    return (
+        Path(__file__).parent
+        / "hardhat/artifacts/contracts/"
+        / filename
+        / (name + ".json")
+    )
 
 
 WASM_CONTRACTS = {
@@ -81,7 +86,9 @@ WASM_CONTRACTS = {
 
 
 CONTRACTS = {
-    **{name: contract_path(name, filename) for name, filename in TEST_CONTRACTS.items()},
+    **{
+        name: contract_path(name, filename) for name, filename in TEST_CONTRACTS.items()
+    },
 }
 
 
@@ -451,7 +458,9 @@ def get_event_attribute_value(events, _type, attribute):
                 if attr["key"] == attribute:
                     return attr["value"]
 
-    raise AttributeError(f"could not find attribute {attribute} in event logs: {events}")
+    raise AttributeError(
+        f"could not find attribute {attribute} in event logs: {events}"
+    )
 
 
 def update_node_cmd(path, cmd, i):

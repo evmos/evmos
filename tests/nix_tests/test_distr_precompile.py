@@ -50,7 +50,9 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     gas_price = evmos_cluster.w3.eth.gas_price
 
     # Deployment of distr precompile caller and initial checks
-    eth_contract, tx_receipt = deploy_contract(evmos_cluster.w3, CONTRACTS["DistributionCaller"])
+    eth_contract, tx_receipt = deploy_contract(
+        evmos_cluster.w3, CONTRACTS["DistributionCaller"]
+    )
     assert tx_receipt.status == 1
 
     counter = eth_contract.functions.counter().call()
@@ -66,11 +68,15 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
                 "gasPrice": gas_price,
             }
         )
-        deposit_receipt = send_transaction(evmos_cluster.w3, deposit_tx, KEYS["signer1"])
+        deposit_receipt = send_transaction(
+            evmos_cluster.w3, deposit_tx, KEYS["signer1"]
+        )
         assert deposit_receipt.status == 1, f"Failed: {name}"
 
         def check_contract_balance():
-            new_contract_balance = evmos_cluster.w3.eth.get_balance(eth_contract.address)
+            new_contract_balance = evmos_cluster.w3.eth.get_balance(
+                eth_contract.address
+            )
             return new_contract_balance > 0
 
         wait_for_fn("contract balance change", check_contract_balance)
@@ -118,7 +124,9 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     # check that community pool balance increased
     funds_sent_amt = args[1]
     community_final_balance = evmos_cluster.cosmos_cli().distribution_community()
-    assert community_final_balance >= community_prev_balance + funds_sent_amt, f"Failed: {name}"
+    assert (
+        community_final_balance >= community_prev_balance + funds_sent_amt
+    ), f"Failed: {name}"
 
     # signer2 balance should remain unchanged
     signer2_final_balance = get_balance(
@@ -138,4 +146,6 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
         return
 
     # signer1 account sent the funds to the community pool
-    assert signer1_final_balance == signer1_prev_balance - funds_sent_amt - fees, f"Failed: {name}"
+    assert (
+        signer1_final_balance == signer1_prev_balance - funds_sent_amt - fees
+    ), f"Failed: {name}"

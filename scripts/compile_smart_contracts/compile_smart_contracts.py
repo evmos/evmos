@@ -101,7 +101,10 @@ def find_solidity_contracts(
                 potential_abi_json_path = Path(root) / "abi.json"
                 potential_json_path = Path(root) / f"{filename}.json"
 
-                if added_contract is not None and added_contract in f"{Path(root) / file}":
+                if (
+                    added_contract is not None
+                    and added_contract in f"{Path(root) / file}"
+                ):
                     found_added_contract = True
                     compiled_json_path = potential_json_path
                 elif os.path.exists(potential_json_path):
@@ -230,7 +233,9 @@ def copy_compiled_contracts_back_to_source(
         else:
             dir_with_json = compiled_dir / contract.relative_path
 
-        compiled_path = dir_with_json / f"{contract.filename}.sol" / f"{contract.filename}.json"
+        compiled_path = (
+            dir_with_json / f"{contract.filename}.sol" / f"{contract.filename}.json"
+        )
 
         if not os.path.exists(compiled_path):
             print(f"Path: {compiled_path}")

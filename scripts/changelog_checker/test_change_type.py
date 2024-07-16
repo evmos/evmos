@@ -18,7 +18,9 @@ class TestChangeType:
         change_type = ChangeType("### BugFixes")
         assert change_type.parse() is False
         assert change_type.type == "BugFixes"
-        assert change_type.problems == ['"Bug Fixes" should be used instead of "BugFixes"']
+        assert change_type.problems == [
+            '"Bug Fixes" should be used instead of "BugFixes"'
+        ]
 
     def test_invalid_type(self):
         change_type = ChangeType("### Invalid Type")

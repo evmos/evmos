@@ -53,10 +53,14 @@ def test_find_solidity_files(setup_example_contracts_files):
     assert found_solidity_contracts[1].filename == "Contract1"
     assert found_solidity_contracts[1].path == tmp_path / "Contract1.sol"
     assert found_solidity_contracts[1].relative_path == Path(".")
-    assert found_solidity_contracts[1].compiled_json_path == Path(tmp_path / "Contract1.json")
+    assert found_solidity_contracts[1].compiled_json_path == Path(
+        tmp_path / "Contract1.json"
+    )
 
     assert found_solidity_contracts[2].filename == "Contract4"
-    assert found_solidity_contracts[2].path == Path(tmp_path / "precompiles" / "Contract4.sol")
+    assert found_solidity_contracts[2].path == Path(
+        tmp_path / "precompiles" / "Contract4.sol"
+    )
     assert found_solidity_contracts[2].relative_path == Path("precompiles")
     assert found_solidity_contracts[2].compiled_json_path == Path(
         tmp_path / "precompiles" / "Contract4.json"
@@ -82,7 +86,9 @@ def test_copy_to_contracts_directory(
 ):
     target = tmp_path
     wd = Path(os.getcwd())
-    assert is_evmos_repo(wd), "This test should be executed from the top level of the Evmos repo"
+    assert is_evmos_repo(
+        wd
+    ), "This test should be executed from the top level of the Evmos repo"
     contracts = find_solidity_contracts(wd)
 
     assert os.listdir(target) == []
@@ -90,7 +96,9 @@ def test_copy_to_contracts_directory(
 
     dir_contents_post = os.listdir(target)
     assert len(dir_contents_post) > 0
-    assert os.path.exists(target / "precompiles" / "staking" / "testdata" / "StakingCaller.sol")
+    assert os.path.exists(
+        target / "precompiles" / "staking" / "testdata" / "StakingCaller.sol"
+    )
 
 
 @pytest.fixture
@@ -113,14 +121,24 @@ def test_compile_contracts_in_dir(setup_contracts_directory):
 
     compile_contracts_in_dir(target_dir)
     assert os.path.exists(
-        hardhat_dir / "artifacts" / SOLIDITY_SOURCE / "SimpleContract.sol" / "SimpleContract.json"
+        hardhat_dir
+        / "artifacts"
+        / SOLIDITY_SOURCE
+        / "SimpleContract.sol"
+        / "SimpleContract.json"
     )
 
 
 def test_is_ignored_folder():
     assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}") is False
-    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles") is True
-    assert is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example") is True
+    assert (
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/precompiles")
+        is True
+    )
+    assert (
+        is_ignored_folder(f"abc/{HARDHAT_PROJECT_DIR}/{SOLIDITY_SOURCE}/01_example")
+        is True
+    )
     assert is_ignored_folder("abc/node_modules/precompiles") is True
     assert is_ignored_folder("abc/tests/solidity/precompiles") is True
     assert is_ignored_folder("abc/nix_tests/precompiles") is True
