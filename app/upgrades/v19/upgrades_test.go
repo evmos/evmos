@@ -213,12 +213,7 @@ func TestEnableCustomEIPs(t *testing.T) {
 			require.Equal(t, tc.expEIPsNum, len(params.ExtraEIPs))
 
 			found := true
-			for _, eip := range upgradeEIPs {
-				if !slices.Contains(params.ExtraEIPs, eip) {
-					found = false
-				}
-			}
-			require.True(t, found)
+			require.Subset(t, params.ExtraEIPs, upgradeEIPs, "expected all new EIPs to be present")
 		})
 	}
 }
