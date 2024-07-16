@@ -51,7 +51,10 @@ def effective_gas_price(tx, base_fee):
 def tx_priority(tx, base_fee):
     if "maxFeePerGas" in tx:
         # dynamic fee tx
-        return min(tx["maxPriorityFeePerGas"], tx["maxFeePerGas"] - base_fee) // PRIORITY_REDUCTION
+        return (
+            min(tx["maxPriorityFeePerGas"], tx["maxFeePerGas"] - base_fee)
+            // PRIORITY_REDUCTION
+        )
     else:
         # legacy tx
         return (tx["gasPrice"] - base_fee) // PRIORITY_REDUCTION
@@ -103,8 +106,10 @@ def test_priority(evmos_cluster):
                     {
                         "address": "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
                         "storageKeys": (
-                            "0x00000000000000000000000000000000000000000000000000000000" "00000003",
-                            "0x00000000000000000000000000000000000000000000000000000000" "00000007",
+                            "0x00000000000000000000000000000000000000000000000000000000"
+                            "00000003",
+                            "0x00000000000000000000000000000000000000000000000000000000"
+                            "00000007",
                         ),
                     }
                 ],
@@ -191,7 +196,9 @@ def test_native_tx_priority(evmos_cluster):
             generate_only=True,
         )
         txs.append(
-            cli.sign_tx_json(tx, tc["from"], max_priority_price=tc.get("max_priority_price"))
+            cli.sign_tx_json(
+                tx, tc["from"], max_priority_price=tc.get("max_priority_price")
+            )
         )
         gas_price = int(tc["gas_prices"].removesuffix("aevmos"))
         expect_priorities.append(

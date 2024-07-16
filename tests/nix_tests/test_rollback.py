@@ -4,7 +4,13 @@ import pytest
 from pystarport import ports
 
 from .network import build_patched_evmosd, setup_custom_evmos
-from .utils import supervisorctl, update_evmos_bin, update_node_cmd, wait_for_block, wait_for_port
+from .utils import (
+    supervisorctl,
+    update_evmos_bin,
+    update_node_cmd,
+    wait_for_block,
+    wait_for_port,
+)
 
 
 @pytest.fixture(scope="module")

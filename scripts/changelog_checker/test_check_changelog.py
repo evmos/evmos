@@ -37,7 +37,9 @@ class TestParseChangelog:
                     1687: {"description": "Bump Evmos version to v14."},
                 },
                 "API Breaking": {
-                    2015: {"description": "Rename `inflation` module to `inflation/v1`."},
+                    2015: {
+                        "description": "Rename `inflation` module to `inflation/v1`."
+                    },
                     2078: {"description": "Deprecate legacy EIP-712 ante handler."},
                     1851: {
                         "description": "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
@@ -64,7 +66,9 @@ class TestParseChangelog:
             },
             "v15.0.0": {
                 "API Breaking": {
-                    1862: {"description": "Add Authorization Grants to the Vesting extension."},
+                    1862: {
+                        "description": "Add Authorization Grants to the Vesting extension."
+                    },
                     555: {"description": "`v4.0.0` upgrade logic."},
                 },
             },

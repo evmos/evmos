@@ -7,7 +7,14 @@ from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import ADDRS, CONTRACTS, KEYS, deploy_contract, sign_transaction, w3_wait_for_new_blocks
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    KEYS,
+    deploy_contract,
+    sign_transaction,
+    w3_wait_for_new_blocks,
+)
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +84,9 @@ def test_pruned_node(pruned_cluster):
     expect_log = {
         "address": erc20.address,
         "topics": [
-            HexBytes(abi.event_signature_to_log_topic("Transfer(address,address,uint256)")),
+            HexBytes(
+                abi.event_signature_to_log_topic("Transfer(address,address,uint256)")
+            ),
             HexBytes(b"\x00" * 12 + HexBytes(ADDRS["validator"])),
             HexBytes(b"\x00" * 12 + HexBytes(ADDRS["community"])),
         ],
@@ -101,11 +110,14 @@ def test_pruned_node(pruned_cluster):
     assert (
         "Version has either been pruned, or is for a future block height"
         in pruned_res["error"]["message"]
-        or "fail to seek snapshot: target version is pruned" in pruned_res["error"]["message"]
+        or "fail to seek snapshot: target version is pruned"
+        in pruned_res["error"]["message"]
     )
 
     with pytest.raises(Exception):
-        erc20.caller(block_identifier=tx_receipt.blockNumber).balanceOf(ADDRS["validator"])
+        erc20.caller(block_identifier=tx_receipt.blockNumber).balanceOf(
+            ADDRS["validator"]
+        )
 
     # check block bloom
     block = w3.eth.get_block(tx_receipt.blockNumber)
@@ -118,7 +130,9 @@ def test_pruned_node(pruned_cluster):
         assert topic in bloom
 
     tx1 = w3.eth.get_transaction(txhash)
-    tx2 = w3.eth.get_transaction_by_block(tx_receipt.blockNumber, tx_receipt.transactionIndex)
+    tx2 = w3.eth.get_transaction_by_block(
+        tx_receipt.blockNumber, tx_receipt.transactionIndex
+    )
     exp_tx = AttributeDict(
         {
             "from": "0x57f96e6B86CdeFdB3d412547816a82E3E0EbF9D2",
@@ -147,7 +161,10 @@ def test_pruned_node(pruned_cluster):
             "toBlock": tx_receipt.blockNumber,
         }
     )[0]
-    assert "address" in logs and logs["address"] == "0x68542BD12B41F5D51D6282Ec7D91D7d0D78E4503"
+    assert (
+        "address" in logs
+        and logs["address"] == "0x68542BD12B41F5D51D6282Ec7D91D7d0D78E4503"
+    )
     assert "topics" in logs and len(logs["topics"]) == 3
     assert logs["topics"][0] == HexBytes(
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"

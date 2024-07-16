@@ -67,7 +67,9 @@ class Entry:
         ]
 
         if self.backslash:
-            problems.append("There should be no backslash in front of the # in the PR link")
+            problems.append(
+                "There should be no backslash in front of the # in the PR link"
+            )
 
         ws_problems = check_whitespace(self.whitespaces)
         if ws_problems:
@@ -107,13 +109,17 @@ def check_whitespace(whitespaces: List[str]) -> List[str]:
         )
 
     if whitespaces[1] != " ":
-        problems.append("There should be exactly one space between the category and PR link")
+        problems.append(
+            "There should be exactly one space between the category and PR link"
+        )
 
     if whitespaces[2] != "":
         problems.append("There should be no whitespace inside of the markdown link")
 
     if whitespaces[3] != " ":
-        problems.append("There should be exactly one space between the PR link and the description")
+        problems.append(
+            "There should be exactly one space between the PR link and the description"
+        )
 
     return problems
 
@@ -175,7 +181,9 @@ def check_description(description: str) -> Tuple[str, List[str]]:
 
     if re.search(r"\w", description[0]) and not description[0].isupper():
         fixed = description[0].upper() + description[1:]
-        problems.append(f'PR description should start with capital letter: "{description}"')
+        problems.append(
+            f'PR description should start with capital letter: "{description}"'
+        )
 
     if description[-1] != ".":
         problems.append(f'PR description should end with a dot: "{description}"')
@@ -226,7 +234,9 @@ def get_match(pattern: re.Pattern, text: str) -> str:
     :return: the first match of the pattern in the text
     """
 
-    codeblocks_pattern = re.compile(r"`[^`]*(" + pattern.pattern + r")[^`]*`", pattern.flags)
+    codeblocks_pattern = re.compile(
+        r"`[^`]*(" + pattern.pattern + r")[^`]*`", pattern.flags
+    )
     match = codeblocks_pattern.search(text)
     if match:
         return ""

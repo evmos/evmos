@@ -60,7 +60,9 @@ def test_basic(cluster):
     for tc in [latest, earliest]:
         res = []
         with ThreadPoolExecutor(len(tc["blocks"])) as exec:
-            tasks = [exec.submit(call, method, [size, b, percentiles]) for b in tc["blocks"]]
+            tasks = [
+                exec.submit(call, method, [size, b, percentiles]) for b in tc["blocks"]
+            ]
             res = [future.result()["result"][field] for future in as_completed(tasks)]
         assert len(res) == len(tc["blocks"])
         assert res[0] == res[1]

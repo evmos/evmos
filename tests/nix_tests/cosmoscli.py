@@ -31,7 +31,9 @@ class CosmosCLI:
         cmd,
     ):
         self.data_dir = data_dir
-        self._genesis = json.loads((self.data_dir / "config" / "genesis.json").read_text())
+        self._genesis = json.loads(
+            (self.data_dir / "config" / "genesis.json").read_text()
+        )
         self.chain_id = self._genesis["chain_id"]
         self.node_rpc = node_rpc
         self.raw = ChainCommand(cmd)
@@ -302,7 +304,9 @@ class CosmosCLI:
             )
         )
 
-    def combine_batch_multisig_tx(self, tx_file, multi_name, signer1_file, signer2_file):
+    def combine_batch_multisig_tx(
+        self, tx_file, multi_name, signer1_file, signer2_file
+    ):
         r = self.raw(
             "tx",
             "multisign-batch",
@@ -320,7 +324,9 @@ class CosmosCLI:
     def broadcast_tx(self, tx_file, **kwargs):
         kwargs.setdefault("broadcast_mode", "sync")
         kwargs.setdefault("output", "json")
-        return json.loads(self.raw("tx", "broadcast", tx_file, node=self.node_rpc, **kwargs))
+        return json.loads(
+            self.raw("tx", "broadcast", tx_file, node=self.node_rpc, **kwargs)
+        )
 
     def broadcast_tx_json(self, tx, **kwargs):
         with tempfile.NamedTemporaryFile("w") as fp:
@@ -333,7 +339,9 @@ class CosmosCLI:
     # ==========================
 
     def total_supply(self):
-        return json.loads(self.raw("query", "bank", "total", output="json", node=self.node_rpc))
+        return json.loads(
+            self.raw("query", "bank", "total", output="json", node=self.node_rpc)
+        )
 
     def transfer(self, from_, to, coins, generate_only=False, **kwargs):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
@@ -353,9 +361,9 @@ class CosmosCLI:
         )
 
     def balances(self, addr):
-        return json.loads(self.raw("query", "bank", "balances", addr, home=self.data_dir))[
-            "balances"
-        ]
+        return json.loads(
+            self.raw("query", "bank", "balances", addr, home=self.data_dir)
+        )["balances"]
 
     def balance(self, addr, denom=DEFAULT_DENOM):
         denoms = {coin["denom"]: int(coin["amount"]) for coin in self.balances(addr)}
@@ -460,17 +468,21 @@ class CosmosCLI:
 
     def validators(self):
         return json.loads(
-            self.raw("query", "staking", "validators", output="json", node=self.node_rpc)
+            self.raw(
+                "query", "staking", "validators", output="json", node=self.node_rpc
+            )
         )["validators"]
 
     def staking_params(self):
-        return json.loads(self.raw("query", "staking", "params", output="json", node=self.node_rpc))
+        return json.loads(
+            self.raw("query", "staking", "params", output="json", node=self.node_rpc)
+        )
 
     def staking_pool(self, bonded=True):
         return int(
-            json.loads(self.raw("query", "staking", "pool", output="json", node=self.node_rpc))[
-                "bonded_tokens" if bonded else "not_bonded_tokens"
-            ]
+            json.loads(
+                self.raw("query", "staking", "pool", output="json", node=self.node_rpc)
+            )["bonded_tokens" if bonded else "not_bonded_tokens"]
         )
 
     def get_delegated_amount(self, which_addr):
@@ -488,7 +500,9 @@ class CosmosCLI:
         )
 
     def delegate_amount(self, to_addr, amount, from_addr, **kwargs):
-        kwargs.setdefault("gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}")
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",
@@ -523,7 +537,9 @@ class CosmosCLI:
         )
 
     # to_validator_addr: crocncl1...  ,  from_from_validator_addraddr: crocl1...
-    def redelegate_amount(self, to_validator_addr, from_validator_addr, amount, from_addr):
+    def redelegate_amount(
+        self, to_validator_addr, from_validator_addr, amount, from_addr
+    ):
         return json.loads(
             self.raw(
                 "tx",
@@ -1000,7 +1016,9 @@ class CosmosCLI:
 
     def account(self, addr):
         return json.loads(
-            self.raw("query", "auth", "account", addr, output="json", node=self.node_rpc)
+            self.raw(
+                "query", "auth", "account", addr, output="json", node=self.node_rpc
+            )
         )
 
     def query_module_accounts(self, **kwargs):
@@ -1033,7 +1051,9 @@ class CosmosCLI:
         return res
 
     def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
-        kwargs.setdefault("gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}")
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",
@@ -1052,7 +1072,9 @@ class CosmosCLI:
     def fund_vesting_acc(
         self, address: str, funder: str, lockup_file: str, vesting_file: str, **kwargs
     ):
-        kwargs.setdefault("gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}")
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",
@@ -1075,7 +1097,9 @@ class CosmosCLI:
     #       ERC20 Module
     # ==========================
     def convert_coin(self, coin: str, account: str, **kwargs):
-        kwargs.setdefault("gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}")
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",

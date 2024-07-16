@@ -32,7 +32,9 @@ def test_tracers(cluster):
         ["failed", "gas", "returnValue", "structLogs"],
     )
 
-    tx_res = eth_rpc.make_request("debug_traceTransaction", [tx_hash, {"tracer": "callTracer"}])
+    tx_res = eth_rpc.make_request(
+        "debug_traceTransaction", [tx_hash, {"tracer": "callTracer"}]
+    )
 
     fields = ["to", "from", "gas", "gasUsed", "input", "output", "type", "value"]
     compare_fields(tx_res["result"], EXPECTED_CALLTRACERS, fields)
@@ -59,7 +61,9 @@ def test_tracers(cluster):
 
     w3_wait_for_new_blocks(w3, 1)
 
-    tx_res = eth_rpc.make_request("debug_traceTransaction", [tx_hash, {"tracer": "callTracer"}])
+    tx_res = eth_rpc.make_request(
+        "debug_traceTransaction", [tx_hash, {"tracer": "callTracer"}]
+    )
 
     tx_res["result"]["to"] = EXPECTED_CONTRACT_CREATE_TRACER["to"]
     compare_fields(tx_res["result"], EXPECTED_CONTRACT_CREATE_TRACER, fields)

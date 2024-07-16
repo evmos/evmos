@@ -48,7 +48,9 @@ class TestEntry:
         example = r"- (evm) [\#1851](https://github.com/evmos/evmos/pull/1851) Test."
         entry = Entry(example)
         ok = entry.parse()
-        assert entry.problems == ["There should be no backslash in front of the # in the PR link"]
+        assert entry.problems == [
+            "There should be no backslash in front of the # in the PR link"
+        ]
         assert ok is False
         assert entry.fixed == example.replace(r"\#", "#")
 
@@ -65,7 +67,9 @@ class TestEntry:
         ]
 
     def test_malformed_entry(self):
-        malformed_example = "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"
+        malformed_example = (
+            "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"
+        )
         entry = Entry(malformed_example)
         assert entry.parse() is False
         assert entry.fixed == malformed_example
@@ -136,7 +140,9 @@ class TestCheckDescription:
         ]
 
     def test_start_with_codeblock(self):
-        fixed, problems = check_description("```\nAdd `ClaimRewards` custom transaction.")
+        fixed, problems = check_description(
+            "```\nAdd `ClaimRewards` custom transaction."
+        )
         assert fixed == "```\nAdd `ClaimRewards` custom transaction."
         assert problems == []
 
@@ -172,7 +178,9 @@ class TestCheckSpelling:
         assert problems == ['"API" should be used instead of "APi"']
 
     def test_multiple_problems(self):
-        found, fixed, problems = check_spelling("Fix Stride Outpost and AbI.", ALLOWED_SPELLINGS)
+        found, fixed, problems = check_spelling(
+            "Fix Stride Outpost and AbI.", ALLOWED_SPELLINGS
+        )
         assert found is True
         assert fixed == "Fix Stride outpost and ABI."
         assert problems == [
@@ -193,7 +201,9 @@ class TestCheckSpelling:
         assert problems == []
 
     def test_erc_20(self):
-        found, fixed, problems = check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS)
+        found, fixed, problems = check_spelling(
+            "Add ERC20 contract.", ALLOWED_SPELLINGS
+        )
         assert found is True
         assert fixed == "Add ERC-20 contract."
         assert problems == ['"ERC-20" should be used instead of "ERC20"']

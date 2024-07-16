@@ -33,9 +33,13 @@ def get_blocks(evmos_rpc_ws, geth, with_transactions):
     w3: Web3 = evmos_rpc_ws.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
-    make_same_rpc_calls(eth_rpc, geth_rpc, "eth_getBlockByNumber", ["0x0", with_transactions])
+    make_same_rpc_calls(
+        eth_rpc, geth_rpc, "eth_getBlockByNumber", ["0x0", with_transactions]
+    )
 
-    make_same_rpc_calls(eth_rpc, geth_rpc, "eth_getBlockByNumber", ["0x2710", with_transactions])
+    make_same_rpc_calls(
+        eth_rpc, geth_rpc, "eth_getBlockByNumber", ["0x2710", with_transactions]
+    )
 
     evmos_blk = w3.eth.get_block(1)
     # Get existing block, no transactions
@@ -63,7 +67,9 @@ def get_blocks(evmos_rpc_ws, geth, with_transactions):
     )
 
     # Bad call
-    make_same_rpc_calls(eth_rpc, geth_rpc, "eth_getBlockByHash", ["0", with_transactions])
+    make_same_rpc_calls(
+        eth_rpc, geth_rpc, "eth_getBlockByHash", ["0", with_transactions]
+    )
 
 
 def test_accounts(evmos_cluster, geth):
@@ -208,7 +214,9 @@ def test_get_proof(evmos_cluster, geth):
         )
     res = send_tnx(w3)
 
-    proof = (eth_rpc.make_request(method, [validator, ["0x0"], hex(res["blockNumber"])]))["result"]
+    proof = (
+        eth_rpc.make_request(method, [validator, ["0x0"], hex(res["blockNumber"])])
+    )["result"]
     compare_types(proof, EXPECTED_GET_PROOF["result"])
     assert proof["accountProof"], EXPECTED_ACCOUNT_PROOF
     assert proof["storageProof"][0]["proof"], EXPECTED_STORAGE_PROOF
@@ -240,16 +248,22 @@ def test_get_block_transaction_count(evmos_cluster, geth):
     w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
-    make_same_rpc_calls(eth_rpc, geth_rpc, "eth_getBlockTransactionCountByNumber", ["0x0"])
+    make_same_rpc_calls(
+        eth_rpc, geth_rpc, "eth_getBlockTransactionCountByNumber", ["0x0"]
+    )
 
-    make_same_rpc_calls(eth_rpc, geth_rpc, "eth_getBlockTransactionCountByNumber", ["0x1000"])
+    make_same_rpc_calls(
+        eth_rpc, geth_rpc, "eth_getBlockTransactionCountByNumber", ["0x1000"]
+    )
 
     tx_hash = send_and_get_hash(w3)
 
     tx_res = eth_rpc.make_request("eth_getTransactionByHash", [tx_hash])
     block_number = tx_res["result"]["blockNumber"]
     block_hash = tx_res["result"]["blockHash"]
-    block_res = eth_rpc.make_request("eth_getBlockTransactionCountByNumber", [block_number])
+    block_res = eth_rpc.make_request(
+        "eth_getBlockTransactionCountByNumber", [block_number]
+    )
 
     expected = {"id": 1, "jsonrpc": "2.0", "result": "0x1"}
     compare_types(block_res, expected)

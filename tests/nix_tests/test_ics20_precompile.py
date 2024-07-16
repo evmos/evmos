@@ -70,7 +70,9 @@ def test_ibc_transfer_from_contract(ibc):
     assert tx_receipt.status == 1
 
     def check_allowance_set():
-        new_allowance = pc.functions.allowance(eth_contract.address, ADDRS["signer2"]).call()
+        new_allowance = pc.functions.allowance(
+            eth_contract.address, ADDRS["signer2"]
+        ).call()
         return new_allowance != []
 
     wait_for_fn("allowance has changed", check_allowance_set)
@@ -85,7 +87,9 @@ def test_ibc_transfer_from_contract(ibc):
             "gasPrice": evmos_gas_price,
         }
     )
-    deposit_receipt = send_transaction(ibc.chains["evmos"].w3, deposit_tx, KEYS["signer2"])
+    deposit_receipt = send_transaction(
+        ibc.chains["evmos"].w3, deposit_tx, KEYS["signer2"]
+    )
     assert deposit_receipt.status == 1
     fees = deposit_receipt.gasUsed * evmos_gas_price
 
@@ -113,7 +117,9 @@ def test_ibc_transfer_from_contract(ibc):
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return final_dest_balance > 0
 
     # check balance of destination
@@ -169,17 +175,23 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     assert tx_receipt.status == 1
 
     def check_allowance_set():
-        new_allowance = pc.functions.allowance(eth_contract.address, ADDRS["signer2"]).call()
+        new_allowance = pc.functions.allowance(
+            eth_contract.address, ADDRS["signer2"]
+        ).call()
         return new_allowance != []
 
     wait_for_fn("allowance has changed", check_allowance_set)
 
     src_starting_balance = get_balance(ibc.chains["evmos"], src_adr, "aevmos")
-    dest_starting_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+    dest_starting_balance = get_balance(
+        ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    )
     # Calling the actual transfer function on the custom contract
     send_tx = eth_contract.functions.transferFromEOA(
         "transfer", "channel-0", src_denom, amt, dst_addr
-    ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit})
+    ).build_transaction(
+        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+    )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1
     fees = receipt.gasUsed * evmos_gas_price
@@ -188,7 +200,9 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return final_dest_balance > dest_starting_balance
 
     wait_for_fn("destination balance change", check_dest_balance)
@@ -287,8 +301,12 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     other_addr_bech32 = eth_to_bech32(other_addr)
 
     src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
-    dest_starting_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
-    other_addr_initial_balance = get_balance(ibc.chains["evmos"], other_addr_bech32, src_denom)
+    dest_starting_balance = get_balance(
+        ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    )
+    other_addr_initial_balance = get_balance(
+        ibc.chains["evmos"], other_addr_bech32, src_denom
+    )
     escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
@@ -302,7 +320,9 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
         dst_addr,
         transfer_before,
         transfer_after,
-    ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit})
+    ).build_transaction(
+        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+    )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1, f"Failed {name}"
     fees = receipt.gasUsed * evmos_gas_price
@@ -311,7 +331,9 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return final_dest_balance > dest_starting_balance
 
     wait_for_fn("destination balance change", check_dest_balance)
@@ -335,14 +357,19 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     if other_addr == src_addr:
         exp_src_final_bal += exp_amt_tranferred_internally
     elif other_addr == decode_bech32(escrow_bech32):
-        other_addr_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+        other_addr_final_balance = get_balance(
+            ibc.chains["evmos"], escrow_bech32, src_denom
+        )
         # check the escrow account escrowed the coins successfully
         # and received the transferred tokens during the contract call
         exp_escrow_final_bal += exp_amt_tranferred_internally
     else:
-        other_addr_final_balance = get_balance(ibc.chains["evmos"], other_addr_bech32, src_denom)
+        other_addr_final_balance = get_balance(
+            ibc.chains["evmos"], other_addr_bech32, src_denom
+        )
         assert (
-            other_addr_final_balance == other_addr_initial_balance + exp_amt_tranferred_internally
+            other_addr_final_balance
+            == other_addr_initial_balance + exp_amt_tranferred_internally
         )
 
     # check final balance for source address (tx signer)
@@ -350,9 +377,12 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     assert src_final_amount_evmos == exp_src_final_bal, f"Failed {name}"
 
     # Check contracts final state (balance & counter)
-    contract_final_balance = get_balance(ibc.chains["evmos"], contract_bech32, src_denom)
+    contract_final_balance = get_balance(
+        ibc.chains["evmos"], contract_bech32, src_denom
+    )
     assert (
-        contract_final_balance == initial_contract_balance - exp_amt_tranferred_internally
+        contract_final_balance
+        == initial_contract_balance - exp_amt_tranferred_internally
     ), f"Failed {name}"
 
     counter_after = eth_contract.functions.counter().call()
@@ -452,7 +482,9 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
     # get starting balances to check after the tx
     src_starting_balance = get_balance(evmos, src_bech32, "aevmos")
-    dest_starting_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+    dest_starting_balance = get_balance(
+        ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    )
     escrow_initial_balance = get_balance(evmos, escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
@@ -466,7 +498,9 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
         transfer_before,
         transfer_between,
         transfer_after,
-    ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit})
+    ).build_transaction(
+        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+    )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
 
     escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
@@ -482,7 +516,9 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
         # check balances where reverted accordingly
         # Check contracts final state (balance & counter)
-        contract_final_balance = get_balance(ibc.chains["evmos"], contract_bech32, src_denom)
+        contract_final_balance = get_balance(
+            ibc.chains["evmos"], contract_bech32, src_denom
+        )
         assert contract_final_balance == initial_contract_balance, f"Failed {name}"
         counter_after = eth_contract.functions.counter().call()
         assert counter_after == 0, f"Failed {name}"
@@ -497,7 +533,9 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
         # check balance on destination chain
         # wait a couple of blocks to check on the other chain
         wait_for_new_blocks(ibc.chains["chainmain"].cosmos_cli(), 5)
-        dest_final_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        dest_final_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         assert dest_final_balance == dest_starting_balance
 
         # escrow account balance should be same as initial balance
@@ -505,14 +543,18 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
         return
 
-    assert receipt.status == 1, debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+    assert receipt.status == 1, debug_trace_tx(
+        ibc.chains["evmos"], receipt.transactionHash.hex()
+    )
     fees = receipt.gasUsed * evmos_gas_price
 
     final_dest_balance = dest_starting_balance
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return final_dest_balance > dest_starting_balance
 
     wait_for_fn("destination balance change", check_dest_balance)
@@ -538,9 +580,12 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
     assert src_final_amount_evmos == exp_src_final_bal, f"Failed {name}"
 
     # Check contracts final state (balance & counter)
-    contract_final_balance = get_balance(ibc.chains["evmos"], contract_bech32, src_denom)
+    contract_final_balance = get_balance(
+        ibc.chains["evmos"], contract_bech32, src_denom
+    )
     assert (
-        contract_final_balance == initial_contract_balance - exp_amt_tranferred_internally
+        contract_final_balance
+        == initial_contract_balance - exp_amt_tranferred_internally
     ), f"Failed {name}"
 
     counter_after = eth_contract.functions.counter().call()
@@ -584,11 +629,15 @@ def test_multi_ibc_transfers_with_revert(ibc):
     assert counter == 0
 
     src_bech32 = eth_to_bech32(src_addr)
-    interchain_sender_contract_bech32 = eth_to_bech32(interchain_sender_contract.address)
+    interchain_sender_contract_bech32 = eth_to_bech32(
+        interchain_sender_contract.address
+    )
 
     # get starting balances to check after the tx
     src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
-    dest_starting_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+    dest_starting_balance = get_balance(
+        ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    )
     escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
@@ -599,19 +648,25 @@ def test_multi_ibc_transfers_with_revert(ibc):
         src_denom,
         ibc_transfer_amt,
         dst_addr,
-    ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit})
+    ).build_transaction(
+        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+    )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
 
     escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
 
-    assert receipt.status == 1, debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+    assert receipt.status == 1, debug_trace_tx(
+        ibc.chains["evmos"], receipt.transactionHash.hex()
+    )
     fees = receipt.gasUsed * evmos_gas_price
 
     final_dest_balance = dest_starting_balance
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return final_dest_balance > dest_starting_balance
 
     wait_for_fn("destination balance change", check_dest_balance)
@@ -638,7 +693,10 @@ def test_multi_ibc_transfers_with_revert(ibc):
     contract_final_balance = get_balance(
         ibc.chains["evmos"], interchain_sender_contract_bech32, src_denom
     )
-    assert contract_final_balance == initial_contract_balance - exp_amt_tranferred_internally
+    assert (
+        contract_final_balance
+        == initial_contract_balance - exp_amt_tranferred_internally
+    )
 
     counter_after = interchain_sender_contract.functions.counter().call()
     assert counter_after == exp_interchain_sender_counter_after
@@ -685,11 +743,15 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     assert counter == 0
 
     src_bech32 = eth_to_bech32(src_addr)
-    interchain_sender_contract_bech32 = eth_to_bech32(interchain_sender_contract.address)
+    interchain_sender_contract_bech32 = eth_to_bech32(
+        interchain_sender_contract.address
+    )
 
     # get starting balances to check after the tx
     src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
-    dest_starting_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+    dest_starting_balance = get_balance(
+        ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+    )
     escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
@@ -700,7 +762,9 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
         src_denom,
         ibc_transfer_amt,
         dst_addr,
-    ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit})
+    ).build_transaction(
+        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+    )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
 
     escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
@@ -708,7 +772,9 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     # tx should be successfull, but all transfers should be reverted
     # only the contract's state should've changed (counter)
     exp_caller_contract_final_counter = 2
-    assert receipt.status == 1, debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+    assert receipt.status == 1, debug_trace_tx(
+        ibc.chains["evmos"], receipt.transactionHash.hex()
+    )
     fees = receipt.gasUsed * evmos_gas_price
 
     final_dest_balance = dest_starting_balance
@@ -719,7 +785,9 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
         nonlocal tries
         nonlocal final_dest_balance
         tries += 1
-        final_dest_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         if tries == 7:
             return True
         return final_dest_balance > dest_starting_balance
@@ -754,7 +822,9 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     assert counter_after == exp_caller_contract_final_counter
 
 
-def setup_interchain_sender_contract(evmos, src_acc, transfer_amt, initial_contract_balance):
+def setup_interchain_sender_contract(
+    evmos, src_acc, transfer_amt, initial_contract_balance
+):
     """
     Helper function to setup the InterchainSender contract
     used in tests. It deploys the contract, creates an authorization
@@ -789,7 +859,9 @@ def setup_interchain_sender_contract(evmos, src_acc, transfer_amt, initial_contr
     assert tx_receipt.status == 1
 
     def check_allowance_set():
-        new_allowance = pc.functions.allowance(eth_contract.address, src_acc.address).call()
+        new_allowance = pc.functions.allowance(
+            eth_contract.address, src_acc.address
+        ).call()
         return new_allowance != []
 
     wait_for_fn("allowance has changed", check_allowance_set)

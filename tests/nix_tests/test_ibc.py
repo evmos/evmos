@@ -1,6 +1,12 @@
 import pytest
 
-from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, hermes_transfer, prepare_network
+from .ibc_utils import (
+    EVMOS_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    hermes_transfer,
+    prepare_network,
+)
 from .utils import parse_events_rpc, wait_for_fn
 
 
@@ -82,7 +88,9 @@ def test_evmos_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        new_dst_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
