@@ -17,6 +17,12 @@ type OpCodeInfo struct {
 	Name   string
 }
 
+// Operation is an utility struct that wraps the private type
+// operation.
+type Operation struct {
+	Op *operation
+}
+
 // ExtendActivators allows to merge the go ethereum activators map
 // with additional activators.
 func ExtendActivators(eips map[int]func(*JumpTable)) error {
@@ -50,15 +56,16 @@ func ExtendOperations(
 	minStack int,
 	maxStack int,
 	memorySize memorySizeFunc,
-) (*operation, error) {
+) (*Operation, error) {
 	opName := strings.ToUpper(strings.TrimSpace(opInfo.Name))
 	if err := extendOpCodeStringLists(opInfo.Number, opName); err != nil {
 		return nil, err
 	}
 
 	operation := newOperation(execute, constantGas, dynamicGas, minStack, maxStack, memorySize)
+	op := &Operation{operation}
 
-	return operation, nil
+	return op, nil
 }
 
 // GetActivatorsEipNumers return the keys of available activators in a sorted order.
