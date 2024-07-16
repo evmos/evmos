@@ -424,6 +424,15 @@ format:
 
 .PHONY: format
 
+
+format-python: format-black format-isort
+
+format-black:
+	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black
+
+format-isort:
+	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
+
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
