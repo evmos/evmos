@@ -13,10 +13,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	ethlogger "github.com/ethereum/go-ethereum/eth/tracers/logger"
 	ethparams "github.com/ethereum/go-ethereum/params"
+	ethlogger "github.com/evmos/evmos/v18/x/evm/core/logger"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v18/server/config"
@@ -1641,10 +1641,12 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 			"set param AccessControl - no Access",
 			func() {
 				args, err := json.Marshal(&types.TransactionArgs{
-					From: &sender,
+					From: &address,
 					Data: (*hexutil.Bytes)(&data),
 				})
+
 				suite.Require().NoError(err)
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.AccessControl = types.AccessControl{

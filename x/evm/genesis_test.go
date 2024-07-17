@@ -116,13 +116,8 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "valid account with code",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ethAcc := &evmostypes.EthAccount{
-					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
-					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
-				}
-				accNum := network.App.AccountKeeper.NextAccountNumber(ctx)
-				ethAcc.AccountNumber = accNum
-				network.App.AccountKeeper.SetAccount(ctx, ethAcc)
+				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
+				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),

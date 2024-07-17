@@ -106,13 +106,13 @@ def find_solidity_contracts(
                     and added_contract in f"{Path(root) / file}"
                 ):
                     found_added_contract = True
-                    compiledJSONPath = potential_json_path
+                    compiled_json_path = potential_json_path
                 elif os.path.exists(potential_json_path):
-                    compiledJSONPath = potential_json_path
+                    compiled_json_path = potential_json_path
                 elif os.path.exists(potential_abi_json_path):
-                    compiledJSONPath = potential_abi_json_path
+                    compiled_json_path = potential_abi_json_path
                 elif not os.path.exists(potential_json_path):
-                    compiledJSONPath = None
+                    compiled_json_path = None
                 else:
                     raise ValueError(
                         f"Unexpected behavior for '{Path(root) / file}'.",
@@ -123,7 +123,7 @@ def find_solidity_contracts(
                         filename=filename,
                         path=Path(os.path.join(root, file)),
                         relative_path=relative_path,
-                        compiled_json_path=compiledJSONPath,
+                        compiled_json_path=compiled_json_path,
                     )
                 )
 

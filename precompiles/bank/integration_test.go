@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -134,6 +135,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	customGen[banktypes.ModuleName] = bankGen
 
 	keyring := keyring.New(2)
+	genesis := testutils.CreateGenesisWithTokenPairs(keyring)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{is.tokenDenom}),
@@ -154,6 +156,15 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.keyring = keyring
 	is.network = integrationNetwork
 
+	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
+	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
+	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
+	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
+
+	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
+	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
+	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
+	is.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 	is.precompile = is.setupBankPrecompile()
 }
 

@@ -445,6 +445,12 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 	return genesisState
 }
 
+func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+	erc20Gen := erc20types.DefaultGenesisState()
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	return genesisState
+}
+
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) evmostypes.GenesisState {
@@ -455,6 +461,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ev
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
+	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
@@ -470,7 +477,7 @@ func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesis
 				return genesisState, err
 			}
 		} else {
-			panic("no genesis setup function found for module: " + mod)
+			panic(fmt.Sprintf("module %s not found in genesis setup functions", mod))
 		}
 	}
 	return genesisState, err

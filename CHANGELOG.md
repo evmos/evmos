@@ -63,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
 - (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496) Refactor precompiles to use journal entries.
 - (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf) Update vesting precompile authorization checks.
+- (erc20) [#2607](https://github.com/evmos/evmos/pull/2607) Implement Single Token Representation v2.
 
 ### Bug Fixes
 
@@ -109,6 +110,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
 - (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
 - (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
+- (evm) [#2663](https://github.com/evmos/evmos/pull/2663) Port Geth `core/vm` into Evmos `x/evm`.
 - (ante) [#2619](https://github.com/evmos/evmos/pull/2619) Change anteutils.TxFeeChecker to authante.TxFeeChecker.
 - (tests) [#2635](https://github.com/evmos/evmos/pull/2635) Add function to get ERC-20 balance to integration utils.
 - (ci) [#2630](https://github.com/evmos/evmos/pull/2630) Add PebbleDB image to docker-push workflow.

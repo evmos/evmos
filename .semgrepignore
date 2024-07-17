@@ -31,3 +31,6 @@ tests/
 
 # Documentation
 client/docs/
+
+# GETH code
+x/evm/core/

@@ -10,7 +10,7 @@ import (
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -170,7 +170,7 @@ func (Precompile) IsTransaction(methodName string) bool {
 }
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
-func (p Precompile) HandleMethod(
+func (p *Precompile) HandleMethod(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,

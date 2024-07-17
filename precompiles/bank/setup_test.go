@@ -4,12 +4,15 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -42,8 +45,10 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.tokenDenom = xmplDenom
 
 	keyring := testkeyring.New(2)
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(genesis),
 		network.WithOtherDenoms([]string{s.tokenDenom}),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
@@ -61,16 +66,24 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.keyring = keyring
 	s.network = unitNetwork
 
-	// Register EVMOS
-	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(ctx, evmosMetadata)
-	s.Require().NoError(err, "failed to register coin")
-
+	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
+	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
+	s.Require().True(found)
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
-	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(ctx, xmplMetadata)
-	s.Require().NoError(err, "failed to register coin")
+	s.evmosAddr = tokenPair.GetERC20Contract()
 
+	// Mint and register a second coin for testing purposes
+	// TODO check if this is needed. Should be covered with the network.WithOtherDenoms()
+	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	s.Require().NoError(err)
+
+	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
+	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
+	s.Require().True(found)
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
+
+	s.xmplAddr = tokenPair.GetERC20Contract()
 
 	s.precompile = s.setupBankPrecompile()
 	return ctx

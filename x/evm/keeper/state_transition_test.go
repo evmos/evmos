@@ -29,6 +29,7 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 func (suite *EvmKeeperTestSuite) TestGetHashFn() {
@@ -568,7 +569,7 @@ func (suite *EvmKeeperTestSuite) TestEVMConfig() {
 		eip155ChainID,
 	)
 	suite.Require().NoError(err)
-	suite.Require().Equal(types.DefaultParams(), cfg.Params)
+	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(suite.address, cfg.CoinBase)
@@ -661,6 +662,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			types.DefaultParams,
 			feemarkettypes.DefaultParams,
+			false,
 			false,
 			false,
 		},
@@ -777,6 +779,11 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 			}
 
 			err = unitNetwork.NextBlock()
+			if tc.expVMErr {
+				suite.Require().NotEmpty(res.VmError)
+				return
+			}
+
 			if tc.expVMErr {
 				suite.Require().NotEmpty(res.VmError)
 				return

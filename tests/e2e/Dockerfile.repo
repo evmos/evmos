@@ -1,4 +1,4 @@
-FROM golang:1.22.3-bullseye AS build-env
+FROM golang:1.23rc1-bullseye AS build-env
 
 # checkov:skip=CKV_DOCKER_3:No need to create a user, this is only used on tests
 ARG BRANCH_NAME
@@ -13,7 +13,7 @@ RUN git checkout ${BRANCH_NAME}
 
 RUN make build
 
-FROM golang:1.22.3-bullseye
+FROM golang:1.23rc1-bullseye
 
 # checkov:skip=CKV_DOCKER_5:No problem if it is cached because targets specific version
 RUN apt-get update \ 

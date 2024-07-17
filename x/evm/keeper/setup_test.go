@@ -40,6 +40,10 @@ type UnitTestSuite struct {
 	suite.Suite
 }
 
+type UnitTestSuite struct {
+	suite.Suite
+}
+
 var s *KeeperTestSuite
 
 func TestKeeperTestSuite(t *testing.T) {

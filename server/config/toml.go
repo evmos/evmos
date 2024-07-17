@@ -7,8 +7,8 @@ package config
 // 	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 // )
 
-// DefaultConfigTemplate defines the configuration template for the EVM RPC configuration
-const DefaultConfigTemplate = `
+// DefaultEVMConfigTemplate defines the configuration template for the EVM RPC configuration
+const DefaultEVMConfigTemplate = `
 ###############################################################################
 ###                             EVM Configuration                           ###
 ###############################################################################

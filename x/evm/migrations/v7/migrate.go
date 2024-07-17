@@ -3,8 +3,8 @@
 package v7
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 
@@ -52,7 +52,7 @@ func MigrateStore(
 		CancunBlock:         paramsV6.ChainConfig.CancunBlock,
 	}
 	params.AllowUnprotectedTxs = paramsV6.AllowUnprotectedTxs
-	params.ActivePrecompiles = paramsV6.ActivePrecompiles
+	params.ActiveStaticPrecompiles = paramsV6.ActivePrecompiles
 	params.EVMChannels = paramsV6.EVMChannels
 
 	// set the default access control configuration
