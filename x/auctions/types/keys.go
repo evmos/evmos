@@ -12,6 +12,9 @@ const (
 
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
+
+	// AuctionCollectorName the name of the asset auction collector module account
+	AuctionCollectorName = "auction_collector"
 )
 
 // prefix bytes for the inflation persistent store

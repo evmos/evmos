@@ -244,22 +244,24 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     {authtypes.Burner},
-		distrtypes.ModuleName:          nil,
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		icatypes.ModuleName:            nil,
-		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		inflationtypes.ModuleName:      {authtypes.Minter},
-		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		auctionstypes.ModuleName:       {authtypes.Burner},
+		authtypes.FeeCollectorName:         {authtypes.Burner},
+		distrtypes.ModuleName:              nil,
+		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                {authtypes.Burner},
+		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:                nil,
+		evmtypes.ModuleName:                {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		inflationtypes.ModuleName:          {authtypes.Minter},
+		erc20types.ModuleName:              {authtypes.Minter, authtypes.Burner},
+		auctionstypes.ModuleName:           {authtypes.Burner},
+		auctionstypes.AuctionCollectorName: nil,
 	}
 
 	// allowed to receive funds
 	allowedToReceive = map[string]bool{
-		auctionstypes.ModuleName: true,
+		auctionstypes.ModuleName:           true,
+		auctionstypes.AuctionCollectorName: true,
 	}
 )
 

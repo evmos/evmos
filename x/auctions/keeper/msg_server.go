@@ -66,7 +66,7 @@ func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin
 		return nil, errors.Wrap(err, "invalid sender address")
 	}
 
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(deposit.Amount)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.AuctionCollectorName, sdk.NewCoins(deposit.Amount)); err != nil {
 		return nil, errors.Wrap(err, "deposit failed")
 	}
 

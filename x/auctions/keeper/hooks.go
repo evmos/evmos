@@ -66,6 +66,12 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	nextRound := currentRound + 1
 	k.SetRound(ctx, nextRound)
 
+	// Send the entire balance from the Auctions Collector module account to the current Auctions account
+	accumulatedCoins := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.AuctionCollectorName))
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.AuctionCollectorName, types.ModuleName, accumulatedCoins); err != nil {
+		return
+	}
+
 	// TODO: Emit some events here
 
 }
