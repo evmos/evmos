@@ -1,4 +1,5 @@
 import json
+
 import pytest
 
 from .ibc_utils import (
@@ -394,7 +395,8 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
     # setup: create authorization to revoke
     # signer1 creates authorization for validator address
     approve_tx = pc.functions.approve(
-        ADDRS["validator"], [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [], []]]
+        ADDRS["validator"],
+        [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [], []]],
     ).build_transaction(
         {
             "from": ADDRS["signer1"],
@@ -1253,12 +1255,16 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     exp_amt_tranferred_internally = (
         30
         if transfer_after and transfer_before
-        else 0 if not transfer_after and not transfer_before else 15
+        else 0
+        if not transfer_after and not transfer_before
+        else 15
     )
     exp_counter_after = (
         2
         if transfer_after and transfer_before
-        else 0 if not transfer_after and not transfer_before else 1
+        else 0
+        if not transfer_after and not transfer_before
+        else 1
     )
 
     exp_src_final_bal = src_starting_balance - amt - fees

@@ -134,14 +134,13 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// try to call the precompile
 			callArgs.MethodName = staking.DelegateMethod
 			callArgs.Args = []interface{}{delegator.Addr, valAddr.String(), big.NewInt(2e18)}
-			
+
 			// Contract should not be called but the transaction should be successful
 			// This is the expected behavior in Ethereum where there is a contract call
 			// to a non existing contract
 			expectedCheck := defaultLogCheck.
 				WithExpEvents([]string{}...).
 				WithExpPass(true)
-
 
 			_, _, err = s.factory.CallContractAndCheckLogs(
 				delegator.Priv,
@@ -2572,7 +2571,6 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 		})
 	})
 
-
 	Context("to edit a validator", func() {
 		var (
 			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
@@ -2733,7 +2731,6 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(found).To(BeFalse(), "expected validator not to be found")
 		})
 	})
-
 
 	Context("delegating", func() {
 		// prevDelegation is the delegation that is available prior to the test (an initial delegation is

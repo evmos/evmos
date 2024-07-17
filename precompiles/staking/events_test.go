@@ -14,8 +14,8 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/staking"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {

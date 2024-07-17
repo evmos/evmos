@@ -27,9 +27,9 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 func (suite *EvmKeeperTestSuite) TestGetHashFn() {

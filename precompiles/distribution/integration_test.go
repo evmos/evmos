@@ -995,7 +995,6 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		after      bool
 	}
 
-
 	var (
 		distrCallerContract evmtypes.CompiledContract
 		// contractAddr is the address of the smart contract that will be deployed

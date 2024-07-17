@@ -17,10 +17,11 @@ from eth_account import Account
 from hexbytes import HexBytes
 from pystarport import ports
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
-from .http_rpc import comet_status
 from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
+
+from .http_rpc import comet_status
 
 load_dotenv(Path(__file__).parent.parent.parent / "scripts/.env")
 Account.enable_unaudited_hdwallet_features()
@@ -561,6 +562,7 @@ def check_error(err: Exception, err_contains):
     else:
         print(f"Unexpected {err=}, {type(err)=}")
         raise
+
 
 def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
     info = json.loads(CONTRACTS["IERC20"].read_text())

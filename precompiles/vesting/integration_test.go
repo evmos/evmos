@@ -1123,7 +1123,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		var (
 			clawbackReceiver   common.Address
 			funder, vestingKey testkeyring.Key
-			expClawbackAmt = math.NewInt(1000)
+			expClawbackAmt     = math.NewInt(1000)
 		)
 
 		BeforeEach(func() {
@@ -1573,7 +1573,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 
 				It(fmt.Sprintf("should claw back from the vesting when sending as the funder with the caller smart contract as destination for the clawed back funds (%s)", callType.name), func() {
 					// FIXME add here the corresponding args
-					
+
 					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, execRevertedCheck)
 					Expect(err).To(HaveOccurred())
 

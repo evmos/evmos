@@ -16,8 +16,8 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/staking"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestCreateValidator() {
