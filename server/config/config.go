@@ -258,8 +258,8 @@ func AppConfig(denom string) (string, interface{}) {
 	}
 
 	customAppTemplate := config.DefaultConfigTemplate +
-		DefaultEVMConfigTemplate +
-		memiavlcfg.DefaultConfigTemplate
+		DefaultEVMConfigTemplate //+
+		// memiavlcfg.DefaultConfigTemplate
 
 	return customAppTemplate, *customAppConfig
 }

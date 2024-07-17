@@ -3,6 +3,7 @@ package bank_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
@@ -75,7 +76,7 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 
 	// Mint and register a second coin for testing purposes
 	// TODO check if this is needed. Should be covered with the network.WithOtherDenoms()
-	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
 	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)

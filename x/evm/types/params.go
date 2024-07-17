@@ -218,29 +218,6 @@ func validateAllowlistAddresses(i interface{}) error {
 	return nil
 }
 
-func (ac AccessControl) Validate() error {
-	if err := ac.Create.Validate(); err != nil {
-		return err
-	}
-
-	if err := ac.Call.Validate(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (act AccessControlType) Validate() error {
-	if err := validateAccessType(act.AccessType); err != nil {
-		return err
-	}
-
-	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
-		return err
-	}
-	return nil
-}
-
 // func validateAccessControl(i interface{}) error {
 // 	permissions, ok := i.(AccessControl)
 // 	if !ok {
@@ -270,34 +247,6 @@ func (act AccessControlType) Validate() error {
 //
 // 	return nil
 // }
-
-func validateAccessType(i interface{}) error {
-	accessType, ok := i.(AccessType)
-	if !ok {
-		return fmt.Errorf("invalid access type type: %T", i)
-	}
-
-	switch accessType {
-	case AccessTypePermissionless, AccessTypeRestricted, AccessTypePermissioned:
-		return nil
-	default:
-		return fmt.Errorf("invalid access type: %s", accessType)
-	}
-}
-
-func validateAllowlistAddresses(i interface{}) error {
-	addresses, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid whitelist addresses type: %T", i)
-	}
-
-	for _, address := range addresses {
-		if err := types.ValidateAddress(address); err != nil {
-			return fmt.Errorf("invalid whitelist address: %s", address)
-		}
-	}
-	return nil
-}
 
 func validateEVMDenom(i interface{}) error {
 	denom, ok := i.(string)

@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 
 	"cosmossdk.io/math"
-	"github.com/ethereum/go-ethereum/common"
 
 	cmtconfig "github.com/cometbft/cometbft/config"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"

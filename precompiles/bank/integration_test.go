@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -135,7 +134,9 @@ func (is *IntegrationTestSuite) SetupTest() {
 	customGen[banktypes.ModuleName] = bankGen
 
 	keyring := keyring.New(2)
+	// TODO fixme
 	genesis := testutils.CreateGenesisWithTokenPairs(keyring)
+
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{is.tokenDenom}),

@@ -592,7 +592,8 @@ func NewEvmos(
 		bApp.MsgServiceRouter(),
 		authAddr,
 	)
-	app.ICAHostKeeper.WithQueryRouter(bApp.GRPCQueryRouter())
+	// TODO uncomment this when bumping IBC-go to v8.3.x
+	// app.ICAHostKeeper.WithQueryRouter(bApp.GRPCQueryRouter())
 
 	// create host IBC module
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)

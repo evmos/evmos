@@ -8,11 +8,10 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -62,8 +61,10 @@ func CreateUpgradeHandler(
 			return migrationRes, err
 		}
 
-		bondDenom := sk.BondDenom(ctx)
-
+		bondDenom, err := sk.BondDenom(ctx)
+		if err != nil {
+			return migrationRes, err
+		}
 		var wevmosContract common.Address
 		switch {
 		case utils.IsMainnet(ctx.ChainID()):
@@ -188,7 +189,7 @@ func registerERC20Extensions(ctx sdk.Context,
 // smart contracts in the dedicated store in the EVM module and convert the former
 // EthAccounts to standard Cosmos SDK accounts.
 func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper, ek *evmkeeper.Keeper) {
-	ak.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+	ak.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
 		ethAcc, ok := account.(*evmostypes.EthAccount)
 		if !ok {
 			return false

@@ -8,7 +8,8 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -90,7 +91,7 @@ func executeConversion(
 			continue
 		}
 		// Create the coin
-		coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(balance)}}
+		coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(balance)}}
 
 		// If its Wevmos
 		if tokenPair.Erc20Address == wrappedEvmosAddr.Hex() {
@@ -134,7 +135,7 @@ func ConvertERC20Coins(
 
 	i := 0
 	// should ignore the xen token accounts
-	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+	accountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
 		i++
 		if i%100_000 == 0 {
 			logger.Info(fmt.Sprintf("Processing account: %d", i))

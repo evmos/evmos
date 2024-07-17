@@ -162,10 +162,6 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 		Amount:    sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, depositorAddress, nil
 }
 

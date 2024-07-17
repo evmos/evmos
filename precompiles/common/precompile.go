@@ -51,7 +51,7 @@ func NewBalanceChangeEntry(acc common.Address, amt *big.Int, op Operation) balan
 // This is needed to allow us to revert the changes
 // during the EVM execution
 type snapshot struct {
-	MultiStore sdk.CacheMultiStore
+	MultiStore storetypes.CacheMultiStore
 	Events     sdk.Events
 }
 
