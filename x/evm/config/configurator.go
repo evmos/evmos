@@ -20,7 +20,7 @@ import (
 // applied to each change.
 type EVMConfigurator struct {
 	extendedEIPs             map[string]func(*vm.JumpTable)
-	extendedDefaultExtraEIPs []int64
+	extendedDefaultExtraEIPs []string
 	sealed                   bool
 }
 
@@ -38,7 +38,7 @@ func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[string]func(*vm.Jum
 
 // WithExtendedDefaultExtraEIPs update the x/evm DefaultExtraEIPs params
 // by adding provided EIP numbers.
-func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...int64) *EVMConfigurator {
+func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConfigurator {
 	ec.extendedDefaultExtraEIPs = eips
 	return ec
 }
@@ -57,7 +57,7 @@ func (ec *EVMConfigurator) Configure() error {
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
 		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("EIP %d is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+			return fmt.Errorf("EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
 		}
 
 		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)

@@ -39,7 +39,7 @@ var (
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
-	DefaultExtraEIPs   = []int64{3855}
+	DefaultExtraEIPs   = []string{"ethereum_3855"}
 	DefaultEVMChannels = []string{
 		"channel-10", // Injective
 		"channel-31", // Cronos
@@ -64,7 +64,7 @@ func NewParams(
 	evmDenom string,
 	allowUnprotectedTxs bool,
 	config ChainConfig,
-	extraEIPs []int64,
+	extraEIPs []string,
 	activePrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
@@ -143,12 +143,10 @@ func (p Params) Validate() error {
 	return validateChannels(p.EVMChannels)
 }
 
-// EIPs returns the ExtraEIPS as a int slice
-func (p Params) EIPs() []int {
-	eips := make([]int, len(p.ExtraEIPs))
-	for i, eip := range p.ExtraEIPs {
-		eips[i] = int(eip)
-	}
+// EIPs returns the ExtraEIPS as a slice.
+func (p Params) EIPs() []string {
+	eips := make([]string, len(p.ExtraEIPs))
+	copy(eips, p.ExtraEIPs)
 	return eips
 }
 
@@ -282,20 +280,20 @@ func validateBool(i interface{}) error {
 }
 
 func validateEIPs(i interface{}) error {
-	eips, ok := i.([]int64)
+	eips, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
 	}
 
-	uniqueEIPs := make(map[int64]struct{})
+	uniqueEIPs := make(map[string]struct{})
 
 	for _, eip := range eips {
-		if !vm.ExistsEipActivator(int(eip)) {
-			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
+		if !vm.ExistsEipActivator(eip) {
+			return fmt.Errorf("EIP %s is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
-			return fmt.Errorf("found duplicate EIP: %d", eip)
+			return fmt.Errorf("found duplicate EIP: %s", eip)
 		}
 		uniqueEIPs[eip] = struct{}{}
 	}

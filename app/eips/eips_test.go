@@ -87,7 +87,7 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
+		defaultParams.ExtraEIPs = []string{}
 		err = in.UpdateEvmParams(defaultParams)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
@@ -103,17 +103,17 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 	It("should enable the new EIP", func() {
 		eips.Multiplier = eipMultiplier
-		newEIP := 0
+		newEIP := "evmos_0"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newEIP)
 		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0000 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newEIP), "expected to have eip 0000 in evm params")
 	})
 
 	It("should change CREATE opcode constant gas after enabling EIP", func() {
@@ -172,7 +172,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
+		defaultParams.ExtraEIPs = []string{}
 		err = in.UpdateEvmParams(defaultParams)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
@@ -227,17 +227,17 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 	})
 	It("should enable the new EIP", func() {
 		eips.Multiplier = eipMultiplier
-		newEIP := 1
+		newEIP := "evmos_1"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newEIP)
 		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0001 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newEIP), "expected to have eip 0001 in evm params")
 	})
 	It("should change CALL opcode constant gas after enabling EIP", func() {
 		// Constant gas cost used before enabling the new EIP.
@@ -328,7 +328,7 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
+		defaultParams.ExtraEIPs = []string{}
 		err = in.UpdateEvmParams(defaultParams)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
@@ -345,17 +345,17 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 
 	It("should enable the new EIP", func() {
 		eips.SstoreConstantGas = constantGas
-		newEIP := 2
+		newEIP := "evmos_2"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newEIP)
 		err = in.UpdateEvmParams(qRes.Params)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0002 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newEIP), "expected to have eip 0002 in evm params")
 	})
 
 	It("should change SSTORE opcode constant gas after enabling EIP", func() {

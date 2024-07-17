@@ -165,21 +165,21 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 }
 
 func TestEnableCustomEIPs(t *testing.T) {
-	upgradeEIPs := []int64{0, 1, 2}
+	upgradeEIPs := []string{"evmos_0", "evmos_1", "evmos_2"}
 
 	testCases := []struct {
 		name       string
-		activeEIPs []int64
+		activeEIPs []string
 		expEIPsNum int
 	}{
 		{
 			name:       "repeated EIP - skip",
-			activeEIPs: []int64{0},
+			activeEIPs: []string{"evmos_0"},
 			expEIPsNum: 3,
 		},
 		{
 			name:       "all new EIP",
-			activeEIPs: []int64{3855},
+			activeEIPs: []string{"ethereum_3855"},
 			expEIPsNum: 4,
 		},
 	}

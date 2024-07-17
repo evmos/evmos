@@ -23,7 +23,7 @@ const (
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
-var newExtraEIPs = []int64{0, 1, 2}
+var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
