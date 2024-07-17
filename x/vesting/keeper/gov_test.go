@@ -2,7 +2,7 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 )
 
 func (suite *KeeperTestSuite) TestGovClawbackStore() {

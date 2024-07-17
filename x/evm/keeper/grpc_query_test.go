@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,13 +14,13 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	ethlogger "github.com/evmos/evmos/v18/x/evm/core/logger"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	ethlogger "github.com/evmos/evmos/v19/x/evm/core/logger"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
-	"github.com/evmos/evmos/v18/server/config"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/server/config"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // Not valid Ethereum address
