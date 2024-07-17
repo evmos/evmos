@@ -19,7 +19,7 @@ import (
 // the EVM before starting the node. This means that all init genesis validations will be
 // applied to each change.
 type EVMConfigurator struct {
-	extendedEIPs             map[int]func(*vm.JumpTable)
+	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []int64
 	sealed                   bool
 }
@@ -31,7 +31,7 @@ func NewEVMConfigurator() *EVMConfigurator {
 
 // WithExtendedEips allows to add to the go-ethereum activators map the provided
 // EIP activators.
-func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[int]func(*vm.JumpTable)) *EVMConfigurator {
+func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[string]func(*vm.JumpTable)) *EVMConfigurator {
 	ec.extendedEIPs = extendedEIPs
 	return ec
 }

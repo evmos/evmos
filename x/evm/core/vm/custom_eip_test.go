@@ -10,7 +10,7 @@ import (
 )
 
 func TestExtendActivators(t *testing.T) {
-	eips_snapshot := GetActivatorsEipNumbers()
+	eips_snapshot := GetActivatorsEipNames()
 
 	testCases := []struct {
 		name           string
@@ -25,7 +25,7 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-				eips := GetActivatorsEipNumbers()
+				eips := GetActivatorsEipNames()
 				require.ElementsMatch(t, eips_snapshot, eips, "expected eips number to be equal")
 			},
 		},
@@ -37,7 +37,7 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-				eips := GetActivatorsEipNumbers()
+				eips := GetActivatorsEipNames()
 				require.ElementsMatch(t, append(eips_snapshot, 0), eips, "expected eips number to be equal")
 			},
 		},
@@ -50,7 +50,7 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-				eips := GetActivatorsEipNumbers()
+				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
@@ -63,7 +63,7 @@ func TestExtendActivators(t *testing.T) {
 			false,
 			"",
 			func() {
-				eips := GetActivatorsEipNumbers()
+				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
@@ -77,7 +77,7 @@ func TestExtendActivators(t *testing.T) {
 			false,
 			"",
 			func() {
-				eips := GetActivatorsEipNumbers()
+				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, 0, 1, 2), eips, "expected eips number to be equal")
 			},
