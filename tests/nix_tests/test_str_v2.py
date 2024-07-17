@@ -133,9 +133,7 @@ def test_str_v2_multi_hop(ibc):
     wait_for_ack(evmos_cli, "Evmos")
 
     evmos_balance = get_balance(evmos, bech_dst, ATOM_2_IBC_DENOM_MULTI_HOP)
-    dynamic_precompiles = evmos_cli.erc20_params()["params"][
-        "dynamic_precompiles"
-    ]
+    dynamic_precompiles = evmos_cli.erc20_params()["params"]["dynamic_precompiles"]
     token_pairs = evmos_cli.get_token_pairs()
 
     # Here it's only one from the previous one we've registered in the first test
