@@ -1,9 +1,9 @@
 import re
 
-from entry import (  # type: ignore
+from entry import check_category  # type: ignore
+from entry import (
     ALLOWED_SPELLINGS,
     Entry,
-    check_category,
     check_description,
     check_link,
     check_spelling,
@@ -25,22 +25,24 @@ class TestEntry:
     def test_pass(self):
         entry = Entry(self.example)
         ok = entry.parse()
-        assert entry.problems == []
+        assert not entry.problems
         assert ok is True
         assert entry.fixed == self.example
 
     def test_pass_includes_link(self):
         example = (
             "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) "
-            + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+            + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
+            + "(`PUSH0` opcode) during upgrade."
         )
         entry = Entry(example)
         ok = entry.parse()
         assert entry.link == "https://github.com/evmos/evmos/pull/1851"
         assert entry.description == (
-            "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+            "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
+            + "(`PUSH0` opcode) during upgrade."
         )
-        assert entry.problems == []
+        assert not entry.problems
         assert ok is True
         assert entry.fixed == example
 
@@ -74,7 +76,8 @@ class TestEntry:
         assert entry.parse() is False
         assert entry.fixed == malformed_example
         assert entry.problems == [
-            'Malformed entry: "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"'
+            "Malformed entry: "
+            + '"- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"'
         ]
 
 
@@ -82,7 +85,7 @@ class TestCheckCategory:
     def test_pass(self):
         fixed, problems = check_category("evm")
         assert fixed == "evm"
-        assert problems == []
+        assert not problems
 
     def test_invalid_category(self):
         fixed, problems = check_category("invalid")
@@ -101,7 +104,7 @@ class TestCheckLink:
     def test_pass(self):
         fixed, problems = check_link(self.example, 1949)
         assert fixed == self.example
-        assert problems == []
+        assert not problems
 
     def test_wrong_base_url(self):
         fixed, problems = check_link("https://github.com/evmds/evmos/pull/1949", 1949)
@@ -123,13 +126,14 @@ class TestCheckDescription:
         example = "Add `ClaimRewards` custom transaction."
         fixed, problems = check_description(example)
         assert fixed == example
-        assert problems == []
+        assert not problems
 
     def test_start_with_lowercase(self):
         fixed, problems = check_description("add `ClaimRewards` custom transaction.")
         assert fixed == "Add `ClaimRewards` custom transaction."
         assert problems == [
-            'PR description should start with capital letter: "add `ClaimRewards` custom transaction."'
+            "PR description should start with capital letter: "
+            + '"add `ClaimRewards` custom transaction."'
         ]
 
     def test_end_with_dot(self):
@@ -144,7 +148,7 @@ class TestCheckDescription:
             "```\nAdd `ClaimRewards` custom transaction."
         )
         assert fixed == "```\nAdd `ClaimRewards` custom transaction."
-        assert problems == []
+        assert not problems
 
 
 class TestCheckWhitespace:
@@ -169,7 +173,7 @@ class TestCheckSpelling:
         found, fixed, problems = check_spelling("Fix API.", ALLOWED_SPELLINGS)
         assert found is True
         assert fixed == "Fix API."
-        assert problems == []
+        assert not problems
 
     def test_spelling(self):
         found, fixed, problems = check_spelling("Fix APi.", ALLOWED_SPELLINGS)
@@ -192,13 +196,13 @@ class TestCheckSpelling:
         found, fixed, problems = check_spelling("Fix `in evm code`.", ALLOWED_SPELLINGS)
         assert found is False
         assert fixed == "Fix `in evm code`."
-        assert problems == []
+        assert not problems
 
     def test_fail_in_word(self):
         found, fixed, problems = check_spelling("FixAbI in word.", ALLOWED_SPELLINGS)
         assert found is False
         assert fixed == "FixAbI in word."
-        assert problems == []
+        assert not problems
 
     def test_erc_20(self):
         found, fixed, problems = check_spelling(
