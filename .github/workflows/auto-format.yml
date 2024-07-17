@@ -26,3 +26,23 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: run make format
+
+  format-python-code:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.E2E_PAT }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'           
+      - run: pip install black isort
+      - run: make format-python
+      # Commit formatted files if necessary
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: run make format-python          
