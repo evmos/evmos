@@ -9,6 +9,7 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/types"
 
 	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
+	v7types "github.com/evmos/evmos/v18/x/evm/migrations/v8/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 6 to
@@ -20,7 +21,7 @@ func MigrateStore(
 ) error {
 	var (
 		paramsV6 v6types.V6Params
-		params   types.Params
+		params   v7types.V7Params
 	)
 
 	store := ctx.KVStore(storeKey)
@@ -30,7 +31,7 @@ func MigrateStore(
 
 	params.EvmDenom = paramsV6.EvmDenom
 	params.ExtraEIPs = paramsV6.ExtraEIPs
-	params.ChainConfig = types.ChainConfig{
+	params.ChainConfig = v7types.V7ChainConfig{
 		HomesteadBlock:      paramsV6.ChainConfig.HomesteadBlock,
 		DAOForkBlock:        paramsV6.ChainConfig.DAOForkBlock,
 		DAOForkSupport:      paramsV6.ChainConfig.DAOForkSupport,
@@ -56,7 +57,7 @@ func MigrateStore(
 	params.EVMChannels = paramsV6.EVMChannels
 
 	// set the default access control configuration
-	params.AccessControl = types.DefaultAccessControl
+	params.AccessControl = v7types.DefaultAccessControl
 
 	if err := params.Validate(); err != nil {
 		return err

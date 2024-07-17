@@ -8,6 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	v4types "github.com/evmos/evmos/v18/x/evm/migrations/v4/types"
+	// In v8 we changed the type of ExtraEIPs from []int to []string.
+	v7types "github.com/evmos/evmos/v18/x/evm/migrations/v8/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
@@ -20,7 +22,7 @@ func MigrateStore(
 	legacySubspace types.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
-	var params types.Params
+	var params v7types.V7Params
 
 	legacySubspace.GetParamSetIfExists(ctx, &params)
 

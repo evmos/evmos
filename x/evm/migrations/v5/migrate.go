@@ -9,6 +9,7 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/types"
 
 	v5types "github.com/evmos/evmos/v18/x/evm/migrations/v5/types"
+	v7types "github.com/evmos/evmos/v18/x/evm/migrations/v8/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 4 to
@@ -22,8 +23,8 @@ func MigrateStore(
 ) error {
 	var (
 		extraEIPs   v5types.V5ExtraEIPs
-		chainConfig types.ChainConfig
-		params      types.Params
+		chainConfig v7types.V7ChainConfig
+		params      v7types.V7Params
 	)
 
 	store := ctx.KVStore(storeKey)
