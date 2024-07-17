@@ -75,6 +75,7 @@ def get_allowed_categories() -> List[str]:
         "revenue",
         "osmosis-outpost",
         "stride-outpost",
+        "werc20-precompile",
     ]
 
     base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
