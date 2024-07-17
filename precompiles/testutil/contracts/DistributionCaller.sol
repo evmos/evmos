@@ -224,35 +224,6 @@ contract DistributionCaller {
         }
     }
 
-    /// @dev testFundCommunityPoolWithTransfer defines a method to allow an account to directly
-    /// fund the community pool and performs a transfer to the deposit.
-    /// @param depositor The address of the depositor
-    /// @param amount The amount of coin fund community pool
-    /// @param _before Boolean to specify if funds should be transferred to delegator before the precompile call
-    /// @param _after Boolean to specify if funds should be transferred to delegator after the precompile call
-    function testFundCommunityPoolWithTransfer(
-        address payable depositor,
-        uint256 amount,
-        bool _before,
-        bool _after
-    ) public {
-        if (_before) {
-            counter++;
-            (bool sent, ) = depositor.call{value: 15}("");
-            require(sent, "Failed to send Ether to delegator");
-        }
-        bool success = distribution.DISTRIBUTION_CONTRACT.fundCommunityPool(
-            depositor,
-            amount
-        );
-        require(success);
-        if (_after) {
-            counter++;
-            (bool sent, ) = depositor.call{value: 15}("");
-            require(sent, "Failed to send Ether to delegator");
-        }
-    }
-
     /// @dev This function calls the staking precompile's delegate method.
     /// @param _validatorAddr The validator address to delegate to.
     /// @param _amount The amount to delegate.
@@ -267,9 +238,12 @@ contract DistributionCaller {
             delegateMethod
         );
         require(success, "Failed to approve staking methods");
-        staking.STAKING_CONTRACT.delegate(address(this), _validatorAddr, _amount);
+        staking.STAKING_CONTRACT.delegate(
+            address(this),
+            _validatorAddr,
+            _amount
+        );
     }
-
 
     function getValidatorDistributionInfo(
         string memory _valAddr
