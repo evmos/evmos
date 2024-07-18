@@ -152,8 +152,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.38.9"
-    hash = "sha256-EgSWZ8vQXekZpvUC7m5cFH3t+EO/G5CUEeOLuoh5S0k="
+    version = "v0.38.10"
+    hash = "sha256-zd/vD0uUgawzuuzuNweRK4HctzWmCb3tnLUFmaOT4OE="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.9.1"
     hash = "sha256-ftRdle5ok2aCyqT3u5rYY0jKB8WT8uDus26Pw4Mo1go="
@@ -453,9 +453,6 @@ schema = 3
   [mod."github.com/lib/pq"]
     version = "v1.10.7"
     hash = "sha256-YPUv1VBZNFVUjFxQKdYd0Djje6KYYE99Hz6FnTfrmMw="
-  [mod."github.com/libp2p/go-buffer-pool"]
-    version = "v0.1.0"
-    hash = "sha256-wQqGTtRWsfR9n0O/SXHVgECebbnNmHddxJIbG63OJBQ="
   [mod."github.com/linxGnu/grocksdb"]
     version = "v1.9.2"
     hash = "sha256-ThXtaXx6LvRIFW4xLHsMrVWdsN2qobLPA0InLmlADOM="
