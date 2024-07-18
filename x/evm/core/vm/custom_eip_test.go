@@ -9,6 +9,57 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestValidEIPName(t *testing.T) {
+	testCases := []struct {
+		name        string
+		eipName     string
+		expPass     bool
+		errContains string
+	}{
+		{
+			"fail - invalid number",
+			"os_OS",
+			false,
+			"eip number should be convertible to int",
+		},
+		{
+			"fail - invalid structure, only chain name",
+			"os",
+			false,
+			"eip name does not conform to stucture 'chainName_Number'",
+		},
+		{
+			"fail - invalid structure, only number",
+			"0000",
+			false,
+			"eip name does not conform to stucture 'chainName_Number'",
+		},
+		{
+			"fail - invalid structure, only delimiter",
+			"_",
+			false,
+			"eip number should be convertible to int",
+		},
+		{
+			"success - valid eip name",
+			"os_0000",
+			true,
+			"",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ValidateEIPName(tc.eipName)
+			if tc.expPass {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
 func TestExtendActivators(t *testing.T) {
 	eips_snapshot := GetActivatorsEipNames()
 

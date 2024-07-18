@@ -19,6 +19,8 @@ package vm
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
@@ -43,6 +45,19 @@ func EnableEIP(eipName string, jt *JumpTable) error {
 		return fmt.Errorf("undefined eip %s", eipName)
 	}
 	enablerFn(jt)
+	return nil
+}
+
+// ValidateEIPName checks if an EIP name is valid or not. The allowed
+// name structure is a string that can be represented as "chainName" + "_" + "int".
+func ValidateEIPName(eipName string) error {
+	eipSplit := strings.Split(eipName, "_")
+	if len(eipSplit) != 2 {
+		return fmt.Errorf("eip name does not conform to stucture 'chainName_Number'")
+	}
+	if _, err := strconv.Atoi(eipSplit[1]); err != nil {
+		return fmt.Errorf("eip number should be convertible to int")
+	}
 	return nil
 }
 

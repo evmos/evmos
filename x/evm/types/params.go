@@ -292,10 +292,15 @@ func validateEIPs(i interface{}) error {
 			return fmt.Errorf("EIP %s is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
+		if err := vm.ValidateEIPName(eip); err != nil {
+			return fmt.Errorf("EIP %s name is not valid", eip)
+		}
+
 		if _, ok := uniqueEIPs[eip]; ok {
 			return fmt.Errorf("found duplicate EIP: %s", eip)
 		}
 		uniqueEIPs[eip] = struct{}{}
+
 	}
 
 	return nil
