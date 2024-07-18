@@ -39,8 +39,9 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-EEFK43Cr0g0ndhQhkIKher0FqV3mvkmE9z0sP7uVSHg="
   [mod."cosmossdk.io/store"]
-    version = "v1.1.0"
-    hash = "sha256-CMV+5pn1BP5ixj9pICPlbIQ9Ezy6uP7mwG7SSTXkb3k="
+    version = "v0.0.0-20240718141609-414cbd051fbe"
+    hash = "sha256-BS6PxKsD2MQ1rUwoUGzcxkpw2n3oeQl+JIub3uY/kH8="
+    replaced = "github.com/evmos/cosmos-sdk/store"
   [mod."cosmossdk.io/tools/confix"]
     version = "v0.1.0"
     hash = "sha256-PvIYbcjsATI+gP0+efJZjlGhaClx4SNfadlVY3Ok9TE="
@@ -169,8 +170,8 @@ schema = 3
     version = "v1.0.0-beta.5"
     hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
   [mod."github.com/cosmos/cosmos-sdk"]
-    version = "v0.50.7-evmos"
-    hash = "sha256-c0eMlC8EKdkYMx/yVBEOWhDrbM5E5BR61NoMDH2gSXg="
+    version = "v0.50.8-evmos"
+    hash = "sha256-ka9dSI8fLE/kLIM/zp4lltkzK+5LnjwWgFddbbLX7XY="
     replaced = "github.com/evmos/cosmos-sdk"
   [mod."github.com/cosmos/go-bip39"]
     version = "v1.0.0"
