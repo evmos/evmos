@@ -13,7 +13,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.

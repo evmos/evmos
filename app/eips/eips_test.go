@@ -10,14 +10,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/app/eips"
-	"github.com/evmos/evmos/v18/app/eips/testdata"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/app/eips"
+	"github.com/evmos/evmos/v19/app/eips/testdata"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/params"
 

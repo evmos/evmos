@@ -13,7 +13,7 @@ import (
 	sdkstakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 // msgServer is a wrapper around the Cosmos SDK message server.

@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
@@ -14,8 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {

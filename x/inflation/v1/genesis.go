@@ -6,8 +6,8 @@ package inflation
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v18/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 )
 
 // InitGenesis import module genesis
