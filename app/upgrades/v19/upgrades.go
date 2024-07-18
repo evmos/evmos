@@ -48,13 +48,6 @@ func CreateUpgradeHandler(
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
 
-		ctxCache, writeFn := ctx.CacheContext()
-		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
-			writeFn()
-		} else {
-			logger.Error("error removing outposts", "error", err)
-		}
-
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
 
 		// run module migrations first.
@@ -62,6 +55,13 @@ func CreateUpgradeHandler(
 		migrationRes, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return migrationRes, err
+		}
+
+		ctxCache, writeFn := ctx.CacheContext()
+		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Error("error removing outposts", "error", err)
 		}
 
 		bondDenom := sk.BondDenom(ctx)
