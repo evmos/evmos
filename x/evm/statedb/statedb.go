@@ -526,14 +526,14 @@ func (s *StateDB) commitWithCtx(ctx sdk.Context) error {
 	for _, addr := range s.journal.sortedDirties() {
 		obj := s.stateObjects[addr]
 		if obj.suicided {
-			if err := s.keeper.DeleteAccount(s.ctx, obj.Address()); err != nil {
+			if err := s.keeper.DeleteAccount(ctx, obj.Address()); err != nil {
 				return errorsmod.Wrap(err, "failed to delete account")
 			}
 		} else {
 			if obj.code != nil && obj.dirtyCode {
-				s.keeper.SetCode(s.ctx, obj.CodeHash(), obj.code)
+				s.keeper.SetCode(ctx, obj.CodeHash(), obj.code)
 			}
-			if err := s.keeper.SetAccount(s.ctx, obj.Address(), obj.account); err != nil {
+			if err := s.keeper.SetAccount(ctx, obj.Address(), obj.account); err != nil {
 				return errorsmod.Wrap(err, "failed to set account")
 			}
 			for _, key := range obj.dirtyStorage.SortedKeys() {
