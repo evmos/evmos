@@ -8,7 +8,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
 
@@ -445,7 +444,7 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 	return genesisState
 }
 
-func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
 	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState

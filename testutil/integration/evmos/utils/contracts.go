@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 

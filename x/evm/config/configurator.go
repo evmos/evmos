@@ -8,8 +8,7 @@ package config
 
 import (
 	"fmt"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	"github.com/evmos/evmos/v18/x/evm/types"

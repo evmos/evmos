@@ -6,6 +6,7 @@ package keeper
 import (
 	"fmt"
 	"slices"
+	"maps"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -25,7 +26,6 @@ import (
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
-	"golang.org/x/exp/maps"
 )
 
 const bech32PrecompileBaseGas = 6_000
