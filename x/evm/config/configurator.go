@@ -48,7 +48,7 @@ func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
 	if ec.sealed {
-		return fmt.Errorf("EVMConfigurator has been sealed and cannot be modified")
+		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
@@ -57,7 +57,11 @@ func (ec *EVMConfigurator) Configure() error {
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
 		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+		}
+
+		if err := vm.ValidateEIPName(eip); err != nil {
+			return fmt.Errorf("error configuring EVMConfigurator: %s", err)
 		}
 
 		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)

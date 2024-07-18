@@ -26,13 +26,13 @@ func TestValidEIPName(t *testing.T) {
 			"fail - invalid structure, only chain name",
 			"os",
 			false,
-			"eip name does not conform to stucture 'chainName_Number'",
+			"eip name does not conform to structure 'chainName_Number'",
 		},
 		{
 			"fail - invalid structure, only number",
 			"0000",
 			false,
-			"eip name does not conform to stucture 'chainName_Number'",
+			"eip name does not conform to structure 'chainName_Number'",
 		},
 		{
 			"fail - invalid structure, only delimiter",

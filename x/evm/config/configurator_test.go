@@ -20,7 +20,7 @@ func TestEVMConfigurator(t *testing.T) {
 
 	err = evmConfigurator.Configure()
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "has been sealed", "expected different error")
+	require.Contains(t, err.Error(), "sealed", "expected different error")
 }
 
 func TestExtendedEips(t *testing.T) {
@@ -79,19 +79,33 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		errContains string
 	}{
 		{
-			"fail - duplicate default EIP entiries",
+			"fail - invalid eip name",
 			func() *config.EVMConfigurator {
-				extendedDefaultExtraEIPs := []string{"os_1000"}
-				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, "os_1_000")
+				extendedDefaultExtraEIPs := []string{"os_1_000"}
 				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
-				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, "os_1_000"), types.DefaultExtraEIPs)
+				require.ElementsMatch(t, defaultExtraEIPsSnapshot, types.DefaultExtraEIPs)
 				types.DefaultExtraEIPs = defaultExtraEIPsSnapshot
 			},
 			false,
-			"EIP 1000 is already present",
+			"eip name does not conform to structure",
+		},
+		{
+			"fail - duplicate default EIP entiries",
+			func() *config.EVMConfigurator {
+				extendedDefaultExtraEIPs := []string{"os_1000"}
+				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, "os_1000")
+				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				return ec
+			},
+			func() {
+				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, "os_1000"), types.DefaultExtraEIPs)
+				types.DefaultExtraEIPs = defaultExtraEIPsSnapshot
+			},
+			false,
+			"EIP os_1000 is already present",
 		},
 		{
 			"success - empty default extra eip",
@@ -109,12 +123,12 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		{
 			"success - extra default eip added",
 			func() *config.EVMConfigurator {
-				extendedDefaultExtraEIPs := []string{"os_1_001"}
+				extendedDefaultExtraEIPs := []string{"os_1001"}
 				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
-				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, "os_1_001"), types.DefaultExtraEIPs)
+				require.ElementsMatch(t, append(defaultExtraEIPsSnapshot, "os_1001"), types.DefaultExtraEIPs)
 				types.DefaultExtraEIPs = defaultExtraEIPsSnapshot
 			},
 			true,
@@ -123,16 +137,18 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		ec := tc.malleate()
-		err := ec.Configure()
+		t.Run(tc.name, func(t *testing.T) {
+			ec := tc.malleate()
+			err := ec.Configure()
 
-		if tc.expPass {
-			require.NoError(t, err)
-		} else {
-			require.Error(t, err)
-			require.Contains(t, err.Error(), tc.errContains, "expected different error")
-		}
+			if tc.expPass {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
 
-		tc.postCheck()
+			tc.postCheck()
+		})
 	}
 }

@@ -55,7 +55,7 @@ func MigrateStore(
 		CancunBlock:         paramsV7.ChainConfig.CancunBlock,
 	}
 	params.AllowUnprotectedTxs = paramsV7.AllowUnprotectedTxs
-	params.ActivePrecompiles = paramsV7.ActivePrecompiles
+	params.ActiveStaticPrecompiles = paramsV7.ActivePrecompiles
 	params.EVMChannels = paramsV7.EVMChannels
 
 	create := types.AccessControlType{
