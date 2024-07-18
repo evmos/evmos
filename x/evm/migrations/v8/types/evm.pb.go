@@ -40,20 +40,20 @@ const (
 	AccessTypePermissioned V7AccessType = 2
 )
 
-var AccessType_name = map[int32]string{
+var V7AccessType_name = map[int32]string{
 	0: "ACCESS_TYPE_PERMISSIONLESS",
 	1: "ACCESS_TYPE_RESTRICTED",
 	2: "ACCESS_TYPE_PERMISSIONED",
 }
 
-var AccessType_value = map[string]int32{
+var V7AccessType_value = map[string]int32{
 	"ACCESS_TYPE_PERMISSIONLESS": 0,
 	"ACCESS_TYPE_RESTRICTED":     1,
 	"ACCESS_TYPE_PERMISSIONED":   2,
 }
 
 func (x V7AccessType) String() string {
-	return proto.EnumName(AccessType_name, int32(x))
+	return proto.EnumName(V7AccessType_name, int32(x))
 }
 
 func (V7AccessType) EnumDescriptor() ([]byte, []int) {
@@ -886,17 +886,17 @@ func (m *V7TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
-	proto.RegisterEnum("ethermint.evm.v1.AccessType", AccessType_name, AccessType_value)
-	proto.RegisterType((*V7Params)(nil), "ethermint.evm.v1.Params")
-	proto.RegisterType((*V7AccessControl)(nil), "ethermint.evm.v1.AccessControl")
-	proto.RegisterType((*V7AccessControlType)(nil), "ethermint.evm.v1.AccessControlType")
-	proto.RegisterType((*V7ChainConfig)(nil), "ethermint.evm.v1.ChainConfig")
-	proto.RegisterType((*V7State)(nil), "ethermint.evm.v1.State")
-	proto.RegisterType((*V7TransactionLogs)(nil), "ethermint.evm.v1.TransactionLogs")
-	proto.RegisterType((*V7Log)(nil), "ethermint.evm.v1.Log")
-	proto.RegisterType((*V7TxResult)(nil), "ethermint.evm.v1.TxResult")
-	proto.RegisterType((*V7AccessTuple)(nil), "ethermint.evm.v1.AccessTuple")
-	proto.RegisterType((*V7TraceConfig)(nil), "ethermint.evm.v1.TraceConfig")
+	proto.RegisterEnum("ethermint.evm.v1.V7AccessType", V7AccessType_name, V7AccessType_value)
+	proto.RegisterType((*V7Params)(nil), "ethermint.evm.v1.V7Params")
+	proto.RegisterType((*V7AccessControl)(nil), "ethermint.evm.v1.V7AccessControl")
+	proto.RegisterType((*V7AccessControlType)(nil), "ethermint.evm.v1.V7AccessControlType")
+	proto.RegisterType((*V7ChainConfig)(nil), "ethermint.evm.v1.V7ChainConfig")
+	proto.RegisterType((*V7State)(nil), "ethermint.evm.v1.V7State")
+	proto.RegisterType((*V7TransactionLogs)(nil), "ethermint.evm.v1.V7TransactionLogs")
+	proto.RegisterType((*V7Log)(nil), "ethermint.evm.v1.V7Log")
+	proto.RegisterType((*V7TxResult)(nil), "ethermint.evm.v1.V7TxResult")
+	proto.RegisterType((*V7AccessTuple)(nil), "ethermint.evm.v1.V7AccessTuple")
+	proto.RegisterType((*V7TraceConfig)(nil), "ethermint.evm.v1.V7TraceConfig")
 }
 
 func init() { proto.RegisterFile("ethermint/evm/v1/evm.proto", fileDescriptor_d21ecc92c8c8583e) }
