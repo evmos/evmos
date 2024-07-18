@@ -288,6 +288,10 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 
 //nolint:dupl
 func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+	)
 	testCases := []struct {
 		name      string
 		coins     sdk.Coins
@@ -297,17 +301,17 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 			"success - the correct event is emitted",
 			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
-				log := s.stateDB.Logs()[0]
+				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[distribution.EventTypeFundCommunityPool]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				var fundCommunityPoolEvent distribution.EventFundCommunityPool
 				err := cmn.UnpackLog(s.precompile.ABI, &fundCommunityPoolEvent, distribution.EventTypeFundCommunityPool, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), fundCommunityPoolEvent.Depositor)
+				s.Require().Equal(s.keyring.GetAddr(0), fundCommunityPoolEvent.Depositor)
 				s.Require().Equal(big.NewInt(1e18), fundCommunityPoolEvent.Amount)
 			},
 		},
@@ -316,46 +320,10 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
-			err := s.precompile.EmitFundCommunityPoolEvent(s.ctx, s.stateDB, s.address, tc.coins)
-			s.Require().NoError(err)
-			tc.postCheck()
-		})
-	}
-}
-
-//nolint:dupl
-func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
-	testCases := []struct {
-		name      string
-		coins     sdk.Coins
-		postCheck func()
-	}{
-		{
-			"success - the correct event is emitted",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
-			func() {
-				log := s.stateDB.Logs()[0]
-				s.Require().Equal(log.Address, s.precompile.Address())
-				// Check event signature matches the one emitted
-				event := s.precompile.ABI.Events[distribution.EventTypeFundCommunityPool]
-				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
-
-				var fundCommunityPoolEvent distribution.EventFundCommunityPool
-				err := cmn.UnpackLog(s.precompile.ABI, &fundCommunityPoolEvent, distribution.EventTypeFundCommunityPool, *log)
-				s.Require().NoError(err)
-				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), fundCommunityPoolEvent.Depositor)
-				s.Require().Equal(big.NewInt(1e18), fundCommunityPoolEvent.Amount)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-
-			err := s.precompile.EmitFundCommunityPoolEvent(s.ctx, s.stateDB, s.address, tc.coins)
+			err := s.precompile.EmitFundCommunityPoolEvent(ctx, stDB, s.keyring.GetAddr(0), tc.coins)
 			s.Require().NoError(err)
 			tc.postCheck()
 		})
