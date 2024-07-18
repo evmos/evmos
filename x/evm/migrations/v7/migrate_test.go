@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package v8_test
+package v7_test
 
 import (
 	"encoding/json"
@@ -13,8 +13,8 @@ import (
 
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
-	v8 "github.com/evmos/evmos/v19/x/evm/migrations/v8"
-	v7types "github.com/evmos/evmos/v19/x/evm/migrations/v8/types"
+	v7 "github.com/evmos/evmos/v19/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
@@ -24,30 +24,30 @@ func TestMigrate(t *testing.T) {
 
 	// Initialize the store
 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_key")
+	tKey := sdk.NewTransientStoreKey("transient_storekey")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)
 
 	chainConfig := types.DefaultChainConfig()
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
-	var chainCfgV7 v7types.V7ChainConfig
-	err = json.Unmarshal(bz, &chainCfgV7)
+	var chainCfgV6 v6types.V6ChainConfig
+	err = json.Unmarshal(bz, &chainCfgV6)
 	require.NoError(t, err)
 
 	// Create a pre migration environment with default params.
-	paramsV7 := v7types.V7Params{
+	paramsV6 := v6types.V6Params{
 		EvmDenom:            types.DefaultEVMDenom,
-		ChainConfig:         chainCfgV7,
-		ExtraEIPs:           v7types.DefaultExtraEIPs,
+		ChainConfig:         chainCfgV6,
+		ExtraEIPs:           v6types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 		EVMChannels:         types.DefaultEVMChannels,
 	}
-	paramsV7Bz := cdc.MustMarshal(&paramsV7)
-	kvStore.Set(types.KeyPrefixParams, paramsV7Bz)
+	paramsV6Bz := cdc.MustMarshal(&paramsV6)
+	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
 
-	err = v8.MigrateStore(ctx, storeKey, cdc)
+	err = v7.MigrateStore(ctx, storeKey, cdc)
 	require.NoError(t, err)
 
 	paramsBz := kvStore.Get(types.KeyPrefixParams)
@@ -56,7 +56,7 @@ func TestMigrate(t *testing.T) {
 
 	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
 	require.False(t, params.AllowUnprotectedTxs)
-	require.Equal(t, types.DefaultChainConfig(), params.ChainConfig)
+	require.Equal(t, chainConfig, params.ChainConfig)
 	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)
 	require.Equal(t, types.DefaultEVMChannels, params.EVMChannels)
 	require.Equal(t, types.DefaultAccessControl, params.AccessControl)

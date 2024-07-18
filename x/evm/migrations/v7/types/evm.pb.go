@@ -28,47 +28,47 @@ var (
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// V7AccessType defines the types of permissions for the operations
-type V7AccessType int32
+// V6AccessType defines the types of permissions for the operations
+type V6AccessType int32
 
 const (
 	// ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone
-	AccessTypePermissionless V7AccessType = 0
+	AccessTypePermissionless V6AccessType = 0
 	// ACCESS_TYPE_RESTRICTED restrict the operation to anyone
-	AccessTypeRestricted V7AccessType = 1
+	AccessTypeRestricted V6AccessType = 1
 	// ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses
-	AccessTypePermissioned V7AccessType = 2
+	AccessTypePermissioned V6AccessType = 2
 )
 
-var V7AccessType_name = map[int32]string{
+var V6AccessType_name = map[int32]string{
 	0: "ACCESS_TYPE_PERMISSIONLESS",
 	1: "ACCESS_TYPE_RESTRICTED",
 	2: "ACCESS_TYPE_PERMISSIONED",
 }
 
-var V7AccessType_value = map[string]int32{
+var V6AccessType_value = map[string]int32{
 	"ACCESS_TYPE_PERMISSIONLESS": 0,
 	"ACCESS_TYPE_RESTRICTED":     1,
 	"ACCESS_TYPE_PERMISSIONED":   2,
 }
 
-func (x V7AccessType) String() string {
-	return proto.EnumName(V7AccessType_name, int32(x))
+func (x V6AccessType) String() string {
+	return proto.EnumName(V6AccessType_name, int32(x))
 }
 
-func (V7AccessType) EnumDescriptor() ([]byte, []int) {
+func (V6AccessType) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{0}
 }
 
-// V7Params defines the EVM module parameters
-type V7Params struct {
+// V6Params defines the EVM module parameters
+type V6Params struct {
 	// evm_denom represents the token denomination used to run the EVM state
 	// transitions.
 	EvmDenom string `protobuf:"bytes,1,opt,name=evm_denom,json=evmDenom,proto3" json:"evm_denom,omitempty" yaml:"evm_denom"`
 	// extra_eips defines the additional EIPs for the vm.Config
 	ExtraEIPs []int64 `protobuf:"varint,4,rep,packed,name=extra_eips,json=extraEips,proto3" json:"extra_eips,omitempty" yaml:"extra_eips"`
 	// chain_config defines the EVM chain configuration parameters
-	ChainConfig V7ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config" yaml:"chain_config"`
+	ChainConfig V6ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config" yaml:"chain_config"`
 	// allow_unprotected_txs defines if replay-protected (i.e non EIP155
 	// signed) transactions can be executed on the state machine.
 	AllowUnprotectedTxs bool `protobuf:"varint,6,opt,name=allow_unprotected_txs,json=allowUnprotectedTxs,proto3" json:"allow_unprotected_txs,omitempty"`
@@ -78,21 +78,21 @@ type V7Params struct {
 	// evm_channels is the list of channel identifiers from EVM compatible chains
 	EVMChannels []string `protobuf:"bytes,8,rep,name=evm_channels,json=evmChannels,proto3" json:"evm_channels,omitempty"`
 	// access_control defines the permission policy of the EVM
-	AccessControl V7AccessControl `protobuf:"bytes,9,opt,name=access_control,json=accessControl,proto3" json:"access_control"`
+	AccessControl V6AccessControl `protobuf:"bytes,9,opt,name=access_control,json=accessControl,proto3" json:"access_control"`
 }
 
-func (m *V7Params) Reset()         { *m = V7Params{} }
-func (m *V7Params) String() string { return proto.CompactTextString(m) }
-func (*V7Params) ProtoMessage()    {}
-func (*V7Params) Descriptor() ([]byte, []int) {
+func (m *V6Params) Reset()         { *m = V6Params{} }
+func (m *V6Params) String() string { return proto.CompactTextString(m) }
+func (*V6Params) ProtoMessage()    {}
+func (*V6Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{0}
 }
 
-func (m *V7Params) XXX_Unmarshal(b []byte) error {
+func (m *V6Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
 	} else {
@@ -105,90 +105,90 @@ func (m *V7Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	}
 }
 
-func (m *V7Params) XXX_Merge(src proto.Message) {
+func (m *V6Params) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Params.Merge(m, src)
 }
 
-func (m *V7Params) XXX_Size() int {
+func (m *V6Params) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7Params) XXX_DiscardUnknown() {
+func (m *V6Params) XXX_DiscardUnknown() {
 	xxx_messageInfo_Params.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *V7Params) GetEvmDenom() string {
+func (m *V6Params) GetEvmDenom() string {
 	if m != nil {
 		return m.EvmDenom
 	}
 	return ""
 }
 
-func (m *V7Params) GetExtraEIPs() []int64 {
+func (m *V6Params) GetExtraEIPs() []int64 {
 	if m != nil {
 		return m.ExtraEIPs
 	}
 	return nil
 }
 
-func (m *V7Params) GetChainConfig() V7ChainConfig {
+func (m *V6Params) GetChainConfig() V6ChainConfig {
 	if m != nil {
 		return m.ChainConfig
 	}
-	return V7ChainConfig{}
+	return V6ChainConfig{}
 }
 
-func (m *V7Params) GetAllowUnprotectedTxs() bool {
+func (m *V6Params) GetAllowUnprotectedTxs() bool {
 	if m != nil {
 		return m.AllowUnprotectedTxs
 	}
 	return false
 }
 
-func (m *V7Params) GetActivePrecompiles() []string {
+func (m *V6Params) GetActivePrecompiles() []string {
 	if m != nil {
 		return m.ActivePrecompiles
 	}
 	return nil
 }
 
-func (m *V7Params) GetEVMChannels() []string {
+func (m *V6Params) GetEVMChannels() []string {
 	if m != nil {
 		return m.EVMChannels
 	}
 	return nil
 }
 
-func (m *V7Params) GetAccessControl() V7AccessControl {
+func (m *V6Params) GetAccessControl() V6AccessControl {
 	if m != nil {
 		return m.AccessControl
 	}
-	return V7AccessControl{}
+	return V6AccessControl{}
 }
 
-// V7AccessControl defines the permission policy of the EVM
+// V6AccessControl defines the permission policy of the EVM
 // for creating and calling contracts
-type V7AccessControl struct {
+type V6AccessControl struct {
 	// create defines the permission policy for creating contracts
-	Create V7AccessControlType `protobuf:"bytes,1,opt,name=create,proto3" json:"create"`
+	Create V6AccessControlType `protobuf:"bytes,1,opt,name=create,proto3" json:"create"`
 	// call defines the permission policy for calling contracts
-	Call V7AccessControlType `protobuf:"bytes,2,opt,name=call,proto3" json:"call"`
+	Call V6AccessControlType `protobuf:"bytes,2,opt,name=call,proto3" json:"call"`
 }
 
-func (m *V7AccessControl) Reset()         { *m = V7AccessControl{} }
-func (m *V7AccessControl) String() string { return proto.CompactTextString(m) }
-func (*V7AccessControl) ProtoMessage()    {}
-func (*V7AccessControl) Descriptor() ([]byte, []int) {
+func (m *V6AccessControl) Reset()         { *m = V6AccessControl{} }
+func (m *V6AccessControl) String() string { return proto.CompactTextString(m) }
+func (*V6AccessControl) ProtoMessage()    {}
+func (*V6AccessControl) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{1}
 }
 
-func (m *V7AccessControl) XXX_Unmarshal(b []byte) error {
+func (m *V6AccessControl) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessControl.Marshal(b, m, deterministic)
 	} else {
@@ -201,38 +201,38 @@ func (m *V7AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 	}
 }
 
-func (m *V7AccessControl) XXX_Merge(src proto.Message) {
+func (m *V6AccessControl) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessControl.Merge(m, src)
 }
 
-func (m *V7AccessControl) XXX_Size() int {
+func (m *V6AccessControl) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7AccessControl) XXX_DiscardUnknown() {
+func (m *V6AccessControl) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessControl.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_AccessControl proto.InternalMessageInfo
 
-func (m *V7AccessControl) GetCreate() V7AccessControlType {
+func (m *V6AccessControl) GetCreate() V6AccessControlType {
 	if m != nil {
 		return m.Create
 	}
-	return V7AccessControlType{}
+	return V6AccessControlType{}
 }
 
-func (m *V7AccessControl) GetCall() V7AccessControlType {
+func (m *V6AccessControl) GetCall() V6AccessControlType {
 	if m != nil {
 		return m.Call
 	}
-	return V7AccessControlType{}
+	return V6AccessControlType{}
 }
 
-// V7AccessControlType defines the permission type for policies
-type V7AccessControlType struct {
+// V6AccessControlType defines the permission type for policies
+type V6AccessControlType struct {
 	// access_type defines which type of permission is required for the operation
-	AccessType V7AccessType `protobuf:"varint,1,opt,name=access_type,json=accessType,proto3,enum=ethermint.evm.v1.AccessType" json:"access_type,omitempty" yaml:"access_type"`
+	AccessType V6AccessType `protobuf:"varint,1,opt,name=access_type,json=accessType,proto3,enum=ethermint.evm.v1.AccessType" json:"access_type,omitempty" yaml:"access_type"`
 	// access_control_list defines defines different things depending on the AccessType:
 	// - ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation
 	// - ACCESS_TYPE_RESTRICTED: ignored
@@ -240,18 +240,18 @@ type V7AccessControlType struct {
 	AccessControlList []string `protobuf:"bytes,2,rep,name=access_control_list,json=accessControlList,proto3" json:"access_control_list,omitempty" yaml:"access_control_list"`
 }
 
-func (m *V7AccessControlType) Reset()         { *m = V7AccessControlType{} }
-func (m *V7AccessControlType) String() string { return proto.CompactTextString(m) }
-func (*V7AccessControlType) ProtoMessage()    {}
-func (*V7AccessControlType) Descriptor() ([]byte, []int) {
+func (m *V6AccessControlType) Reset()         { *m = V6AccessControlType{} }
+func (m *V6AccessControlType) String() string { return proto.CompactTextString(m) }
+func (*V6AccessControlType) ProtoMessage()    {}
+func (*V6AccessControlType) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{2}
 }
 
-func (m *V7AccessControlType) XXX_Unmarshal(b []byte) error {
+func (m *V6AccessControlType) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessControlType.Marshal(b, m, deterministic)
 	} else {
@@ -264,37 +264,37 @@ func (m *V7AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 	}
 }
 
-func (m *V7AccessControlType) XXX_Merge(src proto.Message) {
+func (m *V6AccessControlType) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessControlType.Merge(m, src)
 }
 
-func (m *V7AccessControlType) XXX_Size() int {
+func (m *V6AccessControlType) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7AccessControlType) XXX_DiscardUnknown() {
+func (m *V6AccessControlType) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessControlType.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_AccessControlType proto.InternalMessageInfo
 
-func (m *V7AccessControlType) GetAccessType() V7AccessType {
+func (m *V6AccessControlType) GetAccessType() V6AccessType {
 	if m != nil {
 		return m.AccessType
 	}
 	return AccessTypePermissionless
 }
 
-func (m *V7AccessControlType) GetAccessControlList() []string {
+func (m *V6AccessControlType) GetAccessControlList() []string {
 	if m != nil {
 		return m.AccessControlList
 	}
 	return nil
 }
 
-// V7ChainConfig defines the Ethereum V7ChainConfig parameters using *sdk.Int values
+// V6ChainConfig defines the Ethereum V6ChainConfig parameters using *sdk.Int values
 // instead of *big.Int.
-type V7ChainConfig struct {
+type V6ChainConfig struct {
 	// homestead_block switch (nil no fork, 0 = already homestead)
 	HomesteadBlock *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=homestead_block,json=homesteadBlock,proto3,customtype=cosmossdk.io/math.Int" json:"homestead_block,omitempty" yaml:"homestead_block"`
 	// dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)
@@ -336,18 +336,18 @@ type V7ChainConfig struct {
 	CancunBlock *cosmossdk_io_math.Int `protobuf:"bytes,23,opt,name=cancun_block,json=cancunBlock,proto3,customtype=cosmossdk.io/math.Int" json:"cancun_block,omitempty" yaml:"cancun_block"`
 }
 
-func (m *V7ChainConfig) Reset()         { *m = V7ChainConfig{} }
-func (m *V7ChainConfig) String() string { return proto.CompactTextString(m) }
-func (*V7ChainConfig) ProtoMessage()    {}
-func (*V7ChainConfig) Descriptor() ([]byte, []int) {
+func (m *V6ChainConfig) Reset()         { *m = V6ChainConfig{} }
+func (m *V6ChainConfig) String() string { return proto.CompactTextString(m) }
+func (*V6ChainConfig) ProtoMessage()    {}
+func (*V6ChainConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{3}
 }
 
-func (m *V7ChainConfig) XXX_Unmarshal(b []byte) error {
+func (m *V6ChainConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ChainConfig.Marshal(b, m, deterministic)
 	} else {
@@ -360,54 +360,54 @@ func (m *V7ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 	}
 }
 
-func (m *V7ChainConfig) XXX_Merge(src proto.Message) {
+func (m *V6ChainConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ChainConfig.Merge(m, src)
 }
 
-func (m *V7ChainConfig) XXX_Size() int {
+func (m *V6ChainConfig) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7ChainConfig) XXX_DiscardUnknown() {
+func (m *V6ChainConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_ChainConfig.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_ChainConfig proto.InternalMessageInfo
 
-func (m *V7ChainConfig) GetDAOForkSupport() bool {
+func (m *V6ChainConfig) GetDAOForkSupport() bool {
 	if m != nil {
 		return m.DAOForkSupport
 	}
 	return false
 }
 
-func (m *V7ChainConfig) GetEIP150Hash() string {
+func (m *V6ChainConfig) GetEIP150Hash() string {
 	if m != nil {
 		return m.EIP150Hash
 	}
 	return ""
 }
 
-// V7State represents a single Storage key value pair item.
-type V7State struct {
+// V6State represents a single Storage key value pair item.
+type V6State struct {
 	// key is the stored key
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// value is the stored value for the given key
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 }
 
-func (m *V7State) Reset()         { *m = V7State{} }
-func (m *V7State) String() string { return proto.CompactTextString(m) }
-func (*V7State) ProtoMessage()    {}
-func (*V7State) Descriptor() ([]byte, []int) {
+func (m *V6State) Reset()         { *m = V6State{} }
+func (m *V6State) String() string { return proto.CompactTextString(m) }
+func (*V6State) ProtoMessage()    {}
+func (*V6State) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{4}
 }
 
-func (m *V7State) XXX_Unmarshal(b []byte) error {
+func (m *V6State) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_State.Marshal(b, m, deterministic)
 	} else {
@@ -420,56 +420,56 @@ func (m *V7State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	}
 }
 
-func (m *V7State) XXX_Merge(src proto.Message) {
+func (m *V6State) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_State.Merge(m, src)
 }
 
-func (m *V7State) XXX_Size() int {
+func (m *V6State) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7State) XXX_DiscardUnknown() {
+func (m *V6State) XXX_DiscardUnknown() {
 	xxx_messageInfo_State.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_State proto.InternalMessageInfo
 
-func (m *V7State) GetKey() string {
+func (m *V6State) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *V7State) GetValue() string {
+func (m *V6State) GetValue() string {
 	if m != nil {
 		return m.Value
 	}
 	return ""
 }
 
-// V7TransactionLogs define the logs generated from a transaction execution
+// V6TransactionLogs define the logs generated from a transaction execution
 // with a given hash. It it used for import/export data as transactions are not
 // persisted on blockchain state after an upgrade.
-type V7TransactionLogs struct {
+type V6TransactionLogs struct {
 	// hash of the transaction
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	// logs is an array of Logs for the given transaction hash
-	Logs []*V7Log `protobuf:"bytes,2,rep,name=logs,proto3" json:"logs,omitempty"`
+	Logs []*V6Log `protobuf:"bytes,2,rep,name=logs,proto3" json:"logs,omitempty"`
 }
 
-func (m *V7TransactionLogs) Reset()         { *m = V7TransactionLogs{} }
-func (m *V7TransactionLogs) String() string { return proto.CompactTextString(m) }
-func (*V7TransactionLogs) ProtoMessage()    {}
-func (*V7TransactionLogs) Descriptor() ([]byte, []int) {
+func (m *V6TransactionLogs) Reset()         { *m = V6TransactionLogs{} }
+func (m *V6TransactionLogs) String() string { return proto.CompactTextString(m) }
+func (*V6TransactionLogs) ProtoMessage()    {}
+func (*V6TransactionLogs) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{5}
 }
 
-func (m *V7TransactionLogs) XXX_Unmarshal(b []byte) error {
+func (m *V6TransactionLogs) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TransactionLogs.Marshal(b, m, deterministic)
 	} else {
@@ -482,41 +482,41 @@ func (m *V7TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 	}
 }
 
-func (m *V7TransactionLogs) XXX_Merge(src proto.Message) {
+func (m *V6TransactionLogs) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TransactionLogs.Merge(m, src)
 }
 
-func (m *V7TransactionLogs) XXX_Size() int {
+func (m *V6TransactionLogs) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7TransactionLogs) XXX_DiscardUnknown() {
+func (m *V6TransactionLogs) XXX_DiscardUnknown() {
 	xxx_messageInfo_TransactionLogs.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TransactionLogs proto.InternalMessageInfo
 
-func (m *V7TransactionLogs) GetHash() string {
+func (m *V6TransactionLogs) GetHash() string {
 	if m != nil {
 		return m.Hash
 	}
 	return ""
 }
 
-func (m *V7TransactionLogs) GetLogs() []*V7Log {
+func (m *V6TransactionLogs) GetLogs() []*V6Log {
 	if m != nil {
 		return m.Logs
 	}
 	return nil
 }
 
-// V7Log represents an protobuf compatible Ethereum V7Log that defines a contract
+// V6Log represents an protobuf compatible Ethereum V6Log that defines a contract
 // log event. These events are generated by the LOG opcode and stored/indexed by
 // the node.
 //
 // NOTE: address, topics and data are consensus fields. The rest of the fields
 // are derived, i.e. filled in by the nodes, but not secured by consensus.
-type V7Log struct {
+type V6Log struct {
 	// address of the contract that generated the event
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// topics is a list of topics provided by the contract.
@@ -539,18 +539,18 @@ type V7Log struct {
 	Removed bool `protobuf:"varint,9,opt,name=removed,proto3" json:"removed,omitempty"`
 }
 
-func (m *V7Log) Reset()         { *m = V7Log{} }
-func (m *V7Log) String() string { return proto.CompactTextString(m) }
-func (*V7Log) ProtoMessage()    {}
-func (*V7Log) Descriptor() ([]byte, []int) {
+func (m *V6Log) Reset()         { *m = V6Log{} }
+func (m *V6Log) String() string { return proto.CompactTextString(m) }
+func (*V6Log) ProtoMessage()    {}
+func (*V6Log) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{6}
 }
 
-func (m *V7Log) XXX_Unmarshal(b []byte) error {
+func (m *V6Log) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Log.Marshal(b, m, deterministic)
 	} else {
@@ -563,85 +563,85 @@ func (m *V7Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	}
 }
 
-func (m *V7Log) XXX_Merge(src proto.Message) {
+func (m *V6Log) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Log.Merge(m, src)
 }
 
-func (m *V7Log) XXX_Size() int {
+func (m *V6Log) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7Log) XXX_DiscardUnknown() {
+func (m *V6Log) XXX_DiscardUnknown() {
 	xxx_messageInfo_Log.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_Log proto.InternalMessageInfo
 
-func (m *V7Log) GetAddress() string {
+func (m *V6Log) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-func (m *V7Log) GetTopics() []string {
+func (m *V6Log) GetTopics() []string {
 	if m != nil {
 		return m.Topics
 	}
 	return nil
 }
 
-func (m *V7Log) GetData() []byte {
+func (m *V6Log) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-func (m *V7Log) GetBlockNumber() uint64 {
+func (m *V6Log) GetBlockNumber() uint64 {
 	if m != nil {
 		return m.BlockNumber
 	}
 	return 0
 }
 
-func (m *V7Log) GetTxHash() string {
+func (m *V6Log) GetTxHash() string {
 	if m != nil {
 		return m.TxHash
 	}
 	return ""
 }
 
-func (m *V7Log) GetTxIndex() uint64 {
+func (m *V6Log) GetTxIndex() uint64 {
 	if m != nil {
 		return m.TxIndex
 	}
 	return 0
 }
 
-func (m *V7Log) GetBlockHash() string {
+func (m *V6Log) GetBlockHash() string {
 	if m != nil {
 		return m.BlockHash
 	}
 	return ""
 }
 
-func (m *V7Log) GetIndex() uint64 {
+func (m *V6Log) GetIndex() uint64 {
 	if m != nil {
 		return m.Index
 	}
 	return 0
 }
 
-func (m *V7Log) GetRemoved() bool {
+func (m *V6Log) GetRemoved() bool {
 	if m != nil {
 		return m.Removed
 	}
 	return false
 }
 
-// V7TxResult stores results of Tx execution.
-type V7TxResult struct {
+// V6TxResult stores results of Tx execution.
+type V6TxResult struct {
 	// contract_address contains the ethereum address of the created contract (if
 	// any). If the state transition is an evm.Call, the contract address will be
 	// empty.
@@ -650,7 +650,7 @@ type V7TxResult struct {
 	Bloom []byte `protobuf:"bytes,2,opt,name=bloom,proto3" json:"bloom,omitempty"`
 	// tx_logs contains the transaction hash and the proto-compatible ethereum
 	// logs.
-	TxLogs V7TransactionLogs `protobuf:"bytes,3,opt,name=tx_logs,json=txLogs,proto3" json:"tx_logs" yaml:"tx_logs"`
+	TxLogs V6TransactionLogs `protobuf:"bytes,3,opt,name=tx_logs,json=txLogs,proto3" json:"tx_logs" yaml:"tx_logs"`
 	// ret defines the bytes from the execution.
 	Ret []byte `protobuf:"bytes,4,opt,name=ret,proto3" json:"ret,omitempty"`
 	// reverted flag is set to true when the call has been reverted
@@ -659,18 +659,18 @@ type V7TxResult struct {
 	GasUsed uint64 `protobuf:"varint,6,opt,name=gas_used,json=gasUsed,proto3" json:"gas_used,omitempty"`
 }
 
-func (m *V7TxResult) Reset()         { *m = V7TxResult{} }
-func (m *V7TxResult) String() string { return proto.CompactTextString(m) }
-func (*V7TxResult) ProtoMessage()    {}
-func (*V7TxResult) Descriptor() ([]byte, []int) {
+func (m *V6TxResult) Reset()         { *m = V6TxResult{} }
+func (m *V6TxResult) String() string { return proto.CompactTextString(m) }
+func (*V6TxResult) ProtoMessage()    {}
+func (*V6TxResult) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{7}
 }
 
-func (m *V7TxResult) XXX_Unmarshal(b []byte) error {
+func (m *V6TxResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TxResult.Marshal(b, m, deterministic)
 	} else {
@@ -683,40 +683,40 @@ func (m *V7TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	}
 }
 
-func (m *V7TxResult) XXX_Merge(src proto.Message) {
+func (m *V6TxResult) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TxResult.Merge(m, src)
 }
 
-func (m *V7TxResult) XXX_Size() int {
+func (m *V6TxResult) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7TxResult) XXX_DiscardUnknown() {
+func (m *V6TxResult) XXX_DiscardUnknown() {
 	xxx_messageInfo_TxResult.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TxResult proto.InternalMessageInfo
 
-// V7AccessTuple is the element type of an access list.
-type V7AccessTuple struct {
+// V6AccessTuple is the element type of an access list.
+type V6AccessTuple struct {
 	// address is a hex formatted ethereum address
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// storage_keys are hex formatted hashes of the storage keys
 	StorageKeys []string `protobuf:"bytes,2,rep,name=storage_keys,json=storageKeys,proto3" json:"storageKeys"`
 }
 
-func (m *V7AccessTuple) Reset()         { *m = V7AccessTuple{} }
-func (m *V7AccessTuple) String() string { return proto.CompactTextString(m) }
-func (*V7AccessTuple) ProtoMessage()    {}
-func (*V7AccessTuple) Descriptor() ([]byte, []int) {
+func (m *V6AccessTuple) Reset()         { *m = V6AccessTuple{} }
+func (m *V6AccessTuple) String() string { return proto.CompactTextString(m) }
+func (*V6AccessTuple) ProtoMessage()    {}
+func (*V6AccessTuple) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{8}
 }
 
-func (m *V7AccessTuple) XXX_Unmarshal(b []byte) error {
+func (m *V6AccessTuple) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessTuple.Marshal(b, m, deterministic)
 	} else {
@@ -729,22 +729,22 @@ func (m *V7AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 	}
 }
 
-func (m *V7AccessTuple) XXX_Merge(src proto.Message) {
+func (m *V6AccessTuple) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessTuple.Merge(m, src)
 }
 
-func (m *V7AccessTuple) XXX_Size() int {
+func (m *V6AccessTuple) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7AccessTuple) XXX_DiscardUnknown() {
+func (m *V6AccessTuple) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessTuple.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_AccessTuple proto.InternalMessageInfo
 
-// V7TraceConfig holds extra parameters to trace functions.
-type V7TraceConfig struct {
+// V6TraceConfig holds extra parameters to trace functions.
+type V6TraceConfig struct {
 	// tracer is a custom javascript tracer
 	Tracer string `protobuf:"bytes,1,opt,name=tracer,proto3" json:"tracer,omitempty"`
 	// timeout overrides the default timeout of 5 seconds for JavaScript-based tracing
@@ -761,7 +761,7 @@ type V7TraceConfig struct {
 	// limit defines the maximum length of output, but zero means unlimited
 	Limit int32 `protobuf:"varint,9,opt,name=limit,proto3" json:"limit,omitempty"`
 	// overrides can be used to execute a trace using future fork rules
-	Overrides *V7ChainConfig `protobuf:"bytes,10,opt,name=overrides,proto3" json:"overrides,omitempty"`
+	Overrides *V6ChainConfig `protobuf:"bytes,10,opt,name=overrides,proto3" json:"overrides,omitempty"`
 	// enable_memory switches memory capture
 	EnableMemory bool `protobuf:"varint,11,opt,name=enable_memory,json=enableMemory,proto3" json:"enableMemory"`
 	// enable_return_data switches the capture of return data
@@ -770,18 +770,18 @@ type V7TraceConfig struct {
 	TracerJsonConfig string `protobuf:"bytes,13,opt,name=tracer_json_config,json=tracerJsonConfig,proto3" json:"tracerConfig"`
 }
 
-func (m *V7TraceConfig) Reset()         { *m = V7TraceConfig{} }
-func (m *V7TraceConfig) String() string { return proto.CompactTextString(m) }
-func (*V7TraceConfig) ProtoMessage()    {}
-func (*V7TraceConfig) Descriptor() ([]byte, []int) {
+func (m *V6TraceConfig) Reset()         { *m = V6TraceConfig{} }
+func (m *V6TraceConfig) String() string { return proto.CompactTextString(m) }
+func (*V6TraceConfig) ProtoMessage()    {}
+func (*V6TraceConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{9}
 }
 
-func (m *V7TraceConfig) XXX_Unmarshal(b []byte) error {
+func (m *V6TraceConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
 
-func (m *V7TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V6TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TraceConfig.Marshal(b, m, deterministic)
 	} else {
@@ -794,91 +794,91 @@ func (m *V7TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 	}
 }
 
-func (m *V7TraceConfig) XXX_Merge(src proto.Message) {
+func (m *V6TraceConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TraceConfig.Merge(m, src)
 }
 
-func (m *V7TraceConfig) XXX_Size() int {
+func (m *V6TraceConfig) XXX_Size() int {
 	return m.Size()
 }
 
-func (m *V7TraceConfig) XXX_DiscardUnknown() {
+func (m *V6TraceConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_TraceConfig.DiscardUnknown(m)
 }
 
 var xxx_messageInfo_TraceConfig proto.InternalMessageInfo
 
-func (m *V7TraceConfig) GetTracer() string {
+func (m *V6TraceConfig) GetTracer() string {
 	if m != nil {
 		return m.Tracer
 	}
 	return ""
 }
 
-func (m *V7TraceConfig) GetTimeout() string {
+func (m *V6TraceConfig) GetTimeout() string {
 	if m != nil {
 		return m.Timeout
 	}
 	return ""
 }
 
-func (m *V7TraceConfig) GetReexec() uint64 {
+func (m *V6TraceConfig) GetReexec() uint64 {
 	if m != nil {
 		return m.Reexec
 	}
 	return 0
 }
 
-func (m *V7TraceConfig) GetDisableStack() bool {
+func (m *V6TraceConfig) GetDisableStack() bool {
 	if m != nil {
 		return m.DisableStack
 	}
 	return false
 }
 
-func (m *V7TraceConfig) GetDisableStorage() bool {
+func (m *V6TraceConfig) GetDisableStorage() bool {
 	if m != nil {
 		return m.DisableStorage
 	}
 	return false
 }
 
-func (m *V7TraceConfig) GetDebug() bool {
+func (m *V6TraceConfig) GetDebug() bool {
 	if m != nil {
 		return m.Debug
 	}
 	return false
 }
 
-func (m *V7TraceConfig) GetLimit() int32 {
+func (m *V6TraceConfig) GetLimit() int32 {
 	if m != nil {
 		return m.Limit
 	}
 	return 0
 }
 
-func (m *V7TraceConfig) GetOverrides() *V7ChainConfig {
+func (m *V6TraceConfig) GetOverrides() *V6ChainConfig {
 	if m != nil {
 		return m.Overrides
 	}
 	return nil
 }
 
-func (m *V7TraceConfig) GetEnableMemory() bool {
+func (m *V6TraceConfig) GetEnableMemory() bool {
 	if m != nil {
 		return m.EnableMemory
 	}
 	return false
 }
 
-func (m *V7TraceConfig) GetEnableReturnData() bool {
+func (m *V6TraceConfig) GetEnableReturnData() bool {
 	if m != nil {
 		return m.EnableReturnData
 	}
 	return false
 }
 
-func (m *V7TraceConfig) GetTracerJsonConfig() string {
+func (m *V6TraceConfig) GetTracerJsonConfig() string {
 	if m != nil {
 		return m.TracerJsonConfig
 	}
@@ -886,17 +886,17 @@ func (m *V7TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
-	proto.RegisterEnum("ethermint.evm.v1.V7AccessType", V7AccessType_name, V7AccessType_value)
-	proto.RegisterType((*V7Params)(nil), "ethermint.evm.v1.V7Params")
-	proto.RegisterType((*V7AccessControl)(nil), "ethermint.evm.v1.V7AccessControl")
-	proto.RegisterType((*V7AccessControlType)(nil), "ethermint.evm.v1.V7AccessControlType")
-	proto.RegisterType((*V7ChainConfig)(nil), "ethermint.evm.v1.V7ChainConfig")
-	proto.RegisterType((*V7State)(nil), "ethermint.evm.v1.V7State")
-	proto.RegisterType((*V7TransactionLogs)(nil), "ethermint.evm.v1.V7TransactionLogs")
-	proto.RegisterType((*V7Log)(nil), "ethermint.evm.v1.V7Log")
-	proto.RegisterType((*V7TxResult)(nil), "ethermint.evm.v1.V7TxResult")
-	proto.RegisterType((*V7AccessTuple)(nil), "ethermint.evm.v1.V7AccessTuple")
-	proto.RegisterType((*V7TraceConfig)(nil), "ethermint.evm.v1.V7TraceConfig")
+	proto.RegisterEnum("ethermint.evm.v1.V6AccessType", V6AccessType_name, V6AccessType_value)
+	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.V6Params")
+	proto.RegisterType((*V6AccessControl)(nil), "ethermint.evm.v1.V6AccessControl")
+	proto.RegisterType((*V6AccessControlType)(nil), "ethermint.evm.v1.V6AccessControlType")
+	proto.RegisterType((*V6ChainConfig)(nil), "ethermint.evm.v1.V6ChainConfig")
+	proto.RegisterType((*V6State)(nil), "ethermint.evm.v1.V6State")
+	proto.RegisterType((*V6TransactionLogs)(nil), "ethermint.evm.v1.V6TransactionLogs")
+	proto.RegisterType((*V6Log)(nil), "ethermint.evm.v1.V6Log")
+	proto.RegisterType((*V6TxResult)(nil), "ethermint.evm.v1.V6TxResult")
+	proto.RegisterType((*V6AccessTuple)(nil), "ethermint.evm.v1.V6AccessTuple")
+	proto.RegisterType((*V6TraceConfig)(nil), "ethermint.evm.v1.V6TraceConfig")
 }
 
 func init() { proto.RegisterFile("ethermint/evm/v1/evm.proto", fileDescriptor_d21ecc92c8c8583e) }
@@ -1023,7 +1023,7 @@ var fileDescriptor_d21ecc92c8c8583e = []byte{
 	0x00, 0x00, 0xff, 0xff, 0x97, 0xcf, 0xe9, 0x62, 0x8b, 0x11, 0x00, 0x00,
 }
 
-func (m *V7Params) Marshal() (dAtA []byte, err error) {
+func (m *V6Params) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1033,12 +1033,12 @@ func (m *V7Params) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7Params) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6Params) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1120,7 +1120,7 @@ func (m *V7Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7AccessControl) Marshal() (dAtA []byte, err error) {
+func (m *V6AccessControl) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1130,12 +1130,12 @@ func (m *V7AccessControl) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7AccessControl) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6AccessControl) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7AccessControl) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6AccessControl) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1163,7 +1163,7 @@ func (m *V7AccessControl) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7AccessControlType) Marshal() (dAtA []byte, err error) {
+func (m *V6AccessControlType) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1173,12 +1173,12 @@ func (m *V7AccessControlType) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7AccessControlType) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6AccessControlType) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7AccessControlType) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6AccessControlType) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1200,7 +1200,7 @@ func (m *V7AccessControlType) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7ChainConfig) Marshal() (dAtA []byte, err error) {
+func (m *V6ChainConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1210,12 +1210,12 @@ func (m *V7ChainConfig) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7ChainConfig) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6ChainConfig) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1456,7 +1456,7 @@ func (m *V7ChainConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7State) Marshal() (dAtA []byte, err error) {
+func (m *V6State) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1466,12 +1466,12 @@ func (m *V7State) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7State) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6State) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1493,7 +1493,7 @@ func (m *V7State) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7TransactionLogs) Marshal() (dAtA []byte, err error) {
+func (m *V6TransactionLogs) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1503,12 +1503,12 @@ func (m *V7TransactionLogs) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7TransactionLogs) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TransactionLogs) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1537,7 +1537,7 @@ func (m *V7TransactionLogs) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7Log) Marshal() (dAtA []byte, err error) {
+func (m *V6Log) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1547,12 +1547,12 @@ func (m *V7Log) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7Log) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6Log) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1622,7 +1622,7 @@ func (m *V7Log) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7TxResult) Marshal() (dAtA []byte, err error) {
+func (m *V6TxResult) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1632,12 +1632,12 @@ func (m *V7TxResult) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7TxResult) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TxResult) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1691,7 +1691,7 @@ func (m *V7TxResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7AccessTuple) Marshal() (dAtA []byte, err error) {
+func (m *V6AccessTuple) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1701,12 +1701,12 @@ func (m *V7AccessTuple) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7AccessTuple) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6AccessTuple) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1730,7 +1730,7 @@ func (m *V7AccessTuple) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *V7TraceConfig) Marshal() (dAtA []byte, err error) {
+func (m *V6TraceConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1740,12 +1740,12 @@ func (m *V7TraceConfig) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *V7TraceConfig) MarshalTo(dAtA []byte) (int, error) {
+func (m *V6TraceConfig) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *V7TraceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V6TraceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1858,7 +1858,7 @@ func encodeVarintEvm(dAtA []byte, offset int, v uint64) int {
 	return base
 }
 
-func (m *V7Params) Size() (n int) {
+func (m *V6Params) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1897,7 +1897,7 @@ func (m *V7Params) Size() (n int) {
 	return n
 }
 
-func (m *V7AccessControl) Size() (n int) {
+func (m *V6AccessControl) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1910,7 +1910,7 @@ func (m *V7AccessControl) Size() (n int) {
 	return n
 }
 
-func (m *V7AccessControlType) Size() (n int) {
+func (m *V6AccessControlType) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1928,7 +1928,7 @@ func (m *V7AccessControlType) Size() (n int) {
 	return n
 }
 
-func (m *V7ChainConfig) Size() (n int) {
+func (m *V6ChainConfig) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2012,7 +2012,7 @@ func (m *V7ChainConfig) Size() (n int) {
 	return n
 }
 
-func (m *V7State) Size() (n int) {
+func (m *V6State) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2029,7 +2029,7 @@ func (m *V7State) Size() (n int) {
 	return n
 }
 
-func (m *V7TransactionLogs) Size() (n int) {
+func (m *V6TransactionLogs) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2048,7 +2048,7 @@ func (m *V7TransactionLogs) Size() (n int) {
 	return n
 }
 
-func (m *V7Log) Size() (n int) {
+func (m *V6Log) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2091,7 +2091,7 @@ func (m *V7Log) Size() (n int) {
 	return n
 }
 
-func (m *V7TxResult) Size() (n int) {
+func (m *V6TxResult) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2120,7 +2120,7 @@ func (m *V7TxResult) Size() (n int) {
 	return n
 }
 
-func (m *V7AccessTuple) Size() (n int) {
+func (m *V6AccessTuple) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2139,7 +2139,7 @@ func (m *V7AccessTuple) Size() (n int) {
 	return n
 }
 
-func (m *V7TraceConfig) Size() (n int) {
+func (m *V6TraceConfig) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2193,7 +2193,7 @@ func sozEvm(x uint64) (n int) {
 	return sovEvm(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
 
-func (m *V7Params) Unmarshal(dAtA []byte) error {
+func (m *V6Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2502,7 +2502,7 @@ func (m *V7Params) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7AccessControl) Unmarshal(dAtA []byte) error {
+func (m *V6AccessControl) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2619,7 +2619,7 @@ func (m *V7AccessControl) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7AccessControlType) Unmarshal(dAtA []byte) error {
+func (m *V6AccessControlType) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2662,7 +2662,7 @@ func (m *V7AccessControlType) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AccessType |= V7AccessType(b&0x7F) << shift
+				m.AccessType |= V6AccessType(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -2721,7 +2721,7 @@ func (m *V7AccessControlType) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7ChainConfig) Unmarshal(dAtA []byte) error {
+func (m *V6ChainConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3436,7 +3436,7 @@ func (m *V7ChainConfig) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7State) Unmarshal(dAtA []byte) error {
+func (m *V6State) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3551,7 +3551,7 @@ func (m *V7State) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7TransactionLogs) Unmarshal(dAtA []byte) error {
+func (m *V6TransactionLogs) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3641,7 +3641,7 @@ func (m *V7TransactionLogs) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Logs = append(m.Logs, &V7Log{})
+			m.Logs = append(m.Logs, &V6Log{})
 			if err := m.Logs[len(m.Logs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3668,7 +3668,7 @@ func (m *V7TransactionLogs) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7Log) Unmarshal(dAtA []byte) error {
+func (m *V6Log) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3958,7 +3958,7 @@ func (m *V7Log) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7TxResult) Unmarshal(dAtA []byte) error {
+func (m *V6TxResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4181,7 +4181,7 @@ func (m *V7TxResult) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7AccessTuple) Unmarshal(dAtA []byte) error {
+func (m *V6AccessTuple) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4296,7 +4296,7 @@ func (m *V7AccessTuple) Unmarshal(dAtA []byte) error {
 	return nil
 }
 
-func (m *V7TraceConfig) Unmarshal(dAtA []byte) error {
+func (m *V6TraceConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4517,7 +4517,7 @@ func (m *V7TraceConfig) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Overrides == nil {
-				m.Overrides = &V7ChainConfig{}
+				m.Overrides = &V6ChainConfig{}
 			}
 			if err := m.Overrides.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
