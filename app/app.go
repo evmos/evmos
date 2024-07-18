@@ -441,9 +441,11 @@ func NewEvmos(
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
@@ -507,9 +509,10 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -1127,7 +1130,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint:staticcheck
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
@@ -1158,6 +1161,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
 			app.EvmKeeper,
 		),
 	)

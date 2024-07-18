@@ -8,6 +8,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-func LoadWEVMOSContract() (evmtypes.CompiledContract, error) {
-	return contractutils.LegacyLoadContractFromJSONFile("WEVMOS.json")
+func LoadERC20TestCaller() (evmtypes.CompiledContract, error) {
+	return contractutils.LoadContractFromJSONFile("ERC20TestCaller.json")
 }

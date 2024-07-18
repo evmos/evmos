@@ -99,12 +99,12 @@ func DeliverEthTx(
 	}
 	res, err := BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return res, err
 	}
 
 	codec := encoding.MakeConfig(app.ModuleBasics).Codec
 	if _, err := CheckEthTxResponse(res, codec); err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return res, err
 	}
 	return res, nil
 }

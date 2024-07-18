@@ -41,7 +41,7 @@ func TestMigrate(t *testing.T) {
 		ChainConfig:         chainCfgV7,
 		ExtraEIPs:           v7types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   types.AvailableEVMExtensions,
+		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 		EVMChannels:         types.DefaultEVMChannels,
 	}
 	paramsV7Bz := cdc.MustMarshal(&paramsV7)

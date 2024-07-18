@@ -7,13 +7,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -44,8 +44,10 @@ func TestPrecompileTestSuite(t *testing.T) {
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(genesis),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
@@ -62,43 +64,23 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.network = integrationNetwork
 
-	// Register EVMOS
-	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(s.network.GetContext(), s.bondDenom)
-	s.Require().True(found, "expected evmos denom metadata")
-
-	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
-	s.Require().NoError(err, "failed to register coin")
-
+	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
+	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
+	s.Require().True(found)
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
+	s.evmosAddr = tokenPair.GetERC20Contract()
+
 	// Mint and register a second coin for testing purposes
-	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
-	xmplMetadata := banktypes.Metadata{
-		Description: "An exemplary token",
-		Base:        s.tokenDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 0,
-				Aliases:  []string{s.tokenDenom},
-			},
-			{
-				Denom:    s.tokenDenom,
-				Exponent: 18,
-			},
-		},
-		Name:    "Exemplary",
-		Symbol:  "XMPL",
-		Display: s.tokenDenom,
-	}
-
-	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
-	s.Require().NoError(err, "failed to register coin")
-
+	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
+	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
+	s.Require().True(found)
 	s.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
+
+	s.xmplAddr = tokenPair.GetERC20Contract()
 
 	s.precompile = s.setupBankPrecompile()
 }

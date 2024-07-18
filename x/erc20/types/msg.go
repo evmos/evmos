@@ -9,67 +9,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
-	_ sdk.Msg = &MsgConvertCoin{}
 	_ sdk.Msg = &MsgConvertERC20{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 const (
-	TypeMsgConvertCoin  = "convert_coin"
 	TypeMsgConvertERC20 = "convert_ERC20"
 )
-
-// NewMsgConvertCoin creates a new instance of MsgConvertCoin
-func NewMsgConvertCoin(coin sdk.Coin, receiver common.Address, sender sdk.AccAddress) *MsgConvertCoin { //nolint: interfacer
-	return &MsgConvertCoin{
-		Coin:     coin,
-		Receiver: receiver.Hex(),
-		Sender:   sender.String(),
-	}
-}
-
-// Route should return the name of the module
-func (msg MsgConvertCoin) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgConvertCoin) Type() string { return TypeMsgConvertCoin }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgConvertCoin) ValidateBasic() error {
-	if err := ValidateErc20Denom(msg.Coin.Denom); err != nil {
-		if err := ibctransfertypes.ValidateIBCDenom(msg.Coin.Denom); err != nil {
-			return err
-		}
-	}
-
-	if !msg.Coin.Amount.IsPositive() {
-		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "cannot mint a non-positive amount")
-	}
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errorsmod.Wrap(err, "invalid sender address")
-	}
-	if !common.IsHexAddress(msg.Receiver) {
-		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid receiver hex address %s", msg.Receiver)
-	}
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg MsgConvertCoin) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgConvertCoin) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(msg.Sender)
-	return []sdk.AccAddress{addr}
-}
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
 func NewMsgConvertERC20(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { //nolint: interfacer

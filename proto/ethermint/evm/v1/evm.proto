@@ -21,13 +21,15 @@ message Params {
   // allow_unprotected_txs defines if replay-protected (i.e non EIP155
   // signed) transactions can be executed on the state machine.
   bool allow_unprotected_txs = 6;
-  // active_precompiles defines the slice of hex addresses of the precompiled
-  // contracts that are active
-  repeated string active_precompiles = 7;
+  // renamed active_precompiles to active_static_precompiles
+  reserved 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
   // access_control defines the permission policy of the EVM
   AccessControl access_control = 9 [(gogoproto.customname) = "AccessControl", (gogoproto.nullable) = false];
+  // active_static_precompiles defines the slice of hex addresses of the precompiled
+  // contracts that are active
+  repeated string active_static_precompiles = 10;
 }
 
 // AccessControl defines the permission policy of the EVM

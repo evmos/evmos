@@ -4,19 +4,23 @@
 package types
 
 import (
-	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	cosmossdk_io_math "cosmossdk.io/math"
+
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -68,13 +72,13 @@ type Params struct {
 	// allow_unprotected_txs defines if replay-protected (i.e non EIP155
 	// signed) transactions can be executed on the state machine.
 	AllowUnprotectedTxs bool `protobuf:"varint,6,opt,name=allow_unprotected_txs,json=allowUnprotectedTxs,proto3" json:"allow_unprotected_txs,omitempty"`
-	// active_precompiles defines the slice of hex addresses of the precompiled
-	// contracts that are active
-	ActivePrecompiles []string `protobuf:"bytes,7,rep,name=active_precompiles,json=activePrecompiles,proto3" json:"active_precompiles,omitempty"`
 	// evm_channels is the list of channel identifiers from EVM compatible chains
 	EVMChannels []string `protobuf:"bytes,8,rep,name=evm_channels,json=evmChannels,proto3" json:"evm_channels,omitempty"`
 	// access_control defines the permission policy of the EVM
 	AccessControl AccessControl `protobuf:"bytes,9,opt,name=access_control,json=accessControl,proto3" json:"access_control"`
+	// active_static_precompiles defines the slice of hex addresses of the precompiled
+	// contracts that are active
+	ActiveStaticPrecompiles []string `protobuf:"bytes,10,rep,name=active_static_precompiles,json=activeStaticPrecompiles,proto3" json:"active_static_precompiles,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -83,9 +87,11 @@ func (*Params) ProtoMessage()    {}
 func (*Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{0}
 }
+
 func (m *Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
@@ -98,12 +104,15 @@ func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Params) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Params.Merge(m, src)
 }
+
 func (m *Params) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Params) XXX_DiscardUnknown() {
 	xxx_messageInfo_Params.DiscardUnknown(m)
 }
@@ -138,13 +147,6 @@ func (m *Params) GetAllowUnprotectedTxs() bool {
 	return false
 }
 
-func (m *Params) GetActivePrecompiles() []string {
-	if m != nil {
-		return m.ActivePrecompiles
-	}
-	return nil
-}
-
 func (m *Params) GetEVMChannels() []string {
 	if m != nil {
 		return m.EVMChannels
@@ -157,6 +159,13 @@ func (m *Params) GetAccessControl() AccessControl {
 		return m.AccessControl
 	}
 	return AccessControl{}
+}
+
+func (m *Params) GetActiveStaticPrecompiles() []string {
+	if m != nil {
+		return m.ActiveStaticPrecompiles
+	}
+	return nil
 }
 
 // AccessControl defines the permission policy of the EVM
@@ -174,9 +183,11 @@ func (*AccessControl) ProtoMessage()    {}
 func (*AccessControl) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{1}
 }
+
 func (m *AccessControl) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessControl.Marshal(b, m, deterministic)
@@ -189,12 +200,15 @@ func (m *AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
+
 func (m *AccessControl) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessControl.Merge(m, src)
 }
+
 func (m *AccessControl) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *AccessControl) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessControl.DiscardUnknown(m)
 }
@@ -232,9 +246,11 @@ func (*AccessControlType) ProtoMessage()    {}
 func (*AccessControlType) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{2}
 }
+
 func (m *AccessControlType) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessControlType.Marshal(b, m, deterministic)
@@ -247,12 +263,15 @@ func (m *AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
+
 func (m *AccessControlType) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessControlType.Merge(m, src)
 }
+
 func (m *AccessControlType) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *AccessControlType) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessControlType.DiscardUnknown(m)
 }
@@ -323,9 +342,11 @@ func (*ChainConfig) ProtoMessage()    {}
 func (*ChainConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{3}
 }
+
 func (m *ChainConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ChainConfig.Marshal(b, m, deterministic)
@@ -338,12 +359,15 @@ func (m *ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
+
 func (m *ChainConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ChainConfig.Merge(m, src)
 }
+
 func (m *ChainConfig) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ChainConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_ChainConfig.DiscardUnknown(m)
 }
@@ -378,9 +402,11 @@ func (*State) ProtoMessage()    {}
 func (*State) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{4}
 }
+
 func (m *State) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_State.Marshal(b, m, deterministic)
@@ -393,12 +419,15 @@ func (m *State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *State) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_State.Merge(m, src)
 }
+
 func (m *State) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *State) XXX_DiscardUnknown() {
 	xxx_messageInfo_State.DiscardUnknown(m)
 }
@@ -435,9 +464,11 @@ func (*TransactionLogs) ProtoMessage()    {}
 func (*TransactionLogs) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{5}
 }
+
 func (m *TransactionLogs) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TransactionLogs.Marshal(b, m, deterministic)
@@ -450,12 +481,15 @@ func (m *TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
+
 func (m *TransactionLogs) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TransactionLogs.Merge(m, src)
 }
+
 func (m *TransactionLogs) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *TransactionLogs) XXX_DiscardUnknown() {
 	xxx_messageInfo_TransactionLogs.DiscardUnknown(m)
 }
@@ -511,9 +545,11 @@ func (*Log) ProtoMessage()    {}
 func (*Log) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{6}
 }
+
 func (m *Log) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Log.Marshal(b, m, deterministic)
@@ -526,12 +562,15 @@ func (m *Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Log) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Log.Merge(m, src)
 }
+
 func (m *Log) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Log) XXX_DiscardUnknown() {
 	xxx_messageInfo_Log.DiscardUnknown(m)
 }
@@ -626,9 +665,11 @@ func (*TxResult) ProtoMessage()    {}
 func (*TxResult) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{7}
 }
+
 func (m *TxResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TxResult.Marshal(b, m, deterministic)
@@ -641,12 +682,15 @@ func (m *TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *TxResult) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TxResult.Merge(m, src)
 }
+
 func (m *TxResult) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *TxResult) XXX_DiscardUnknown() {
 	xxx_messageInfo_TxResult.DiscardUnknown(m)
 }
@@ -667,9 +711,11 @@ func (*AccessTuple) ProtoMessage()    {}
 func (*AccessTuple) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{8}
 }
+
 func (m *AccessTuple) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessTuple.Marshal(b, m, deterministic)
@@ -682,12 +728,15 @@ func (m *AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
+
 func (m *AccessTuple) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessTuple.Merge(m, src)
 }
+
 func (m *AccessTuple) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *AccessTuple) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessTuple.DiscardUnknown(m)
 }
@@ -727,9 +776,11 @@ func (*TraceConfig) ProtoMessage()    {}
 func (*TraceConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{9}
 }
+
 func (m *TraceConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TraceConfig.Marshal(b, m, deterministic)
@@ -742,12 +793,15 @@ func (m *TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
+
 func (m *TraceConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TraceConfig.Merge(m, src)
 }
+
 func (m *TraceConfig) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *TraceConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_TraceConfig.DiscardUnknown(m)
 }
@@ -989,6 +1043,15 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ActiveStaticPrecompiles) > 0 {
+		for iNdEx := len(m.ActiveStaticPrecompiles) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.ActiveStaticPrecompiles[iNdEx])
+			copy(dAtA[i:], m.ActiveStaticPrecompiles[iNdEx])
+			i = encodeVarintEvm(dAtA, i, uint64(len(m.ActiveStaticPrecompiles[iNdEx])))
+			i--
+			dAtA[i] = 0x52
+		}
+	}
 	{
 		size, err := m.AccessControl.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -1006,15 +1069,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i = encodeVarintEvm(dAtA, i, uint64(len(m.EVMChannels[iNdEx])))
 			i--
 			dAtA[i] = 0x42
-		}
-	}
-	if len(m.ActivePrecompiles) > 0 {
-		for iNdEx := len(m.ActivePrecompiles) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.ActivePrecompiles[iNdEx])
-			copy(dAtA[i:], m.ActivePrecompiles[iNdEx])
-			i = encodeVarintEvm(dAtA, i, uint64(len(m.ActivePrecompiles[iNdEx])))
-			i--
-			dAtA[i] = 0x3a
 		}
 	}
 	if m.AllowUnprotectedTxs {
@@ -1793,6 +1847,7 @@ func encodeVarintEvm(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *Params) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1814,12 +1869,6 @@ func (m *Params) Size() (n int) {
 	if m.AllowUnprotectedTxs {
 		n += 2
 	}
-	if len(m.ActivePrecompiles) > 0 {
-		for _, s := range m.ActivePrecompiles {
-			l = len(s)
-			n += 1 + l + sovEvm(uint64(l))
-		}
-	}
 	if len(m.EVMChannels) > 0 {
 		for _, s := range m.EVMChannels {
 			l = len(s)
@@ -1828,6 +1877,12 @@ func (m *Params) Size() (n int) {
 	}
 	l = m.AccessControl.Size()
 	n += 1 + l + sovEvm(uint64(l))
+	if len(m.ActiveStaticPrecompiles) > 0 {
+		for _, s := range m.ActiveStaticPrecompiles {
+			l = len(s)
+			n += 1 + l + sovEvm(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -2122,9 +2177,11 @@ func (m *TraceConfig) Size() (n int) {
 func sovEvm(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozEvm(x uint64) (n int) {
 	return sovEvm(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2271,38 +2328,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.AllowUnprotectedTxs = bool(v != 0)
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ActivePrecompiles", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvm
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvm
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvm
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ActivePrecompiles = append(m.ActivePrecompiles, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
 		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EVMChannels", wireType)
@@ -2368,6 +2393,38 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ActiveStaticPrecompiles", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ActiveStaticPrecompiles = append(m.ActiveStaticPrecompiles, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvm(dAtA[iNdEx:])
@@ -2389,6 +2446,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *AccessControl) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2505,6 +2563,7 @@ func (m *AccessControl) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *AccessControlType) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2606,6 +2665,7 @@ func (m *AccessControlType) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *ChainConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3320,6 +3380,7 @@ func (m *ChainConfig) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *State) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3434,6 +3495,7 @@ func (m *State) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *TransactionLogs) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3550,6 +3612,7 @@ func (m *TransactionLogs) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *Log) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3839,6 +3902,7 @@ func (m *Log) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *TxResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4061,6 +4125,7 @@ func (m *TxResult) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *AccessTuple) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4175,6 +4240,7 @@ func (m *AccessTuple) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *TraceConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4495,6 +4561,7 @@ func (m *TraceConfig) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipEvm(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

@@ -33,7 +33,7 @@ func CreateUpgradeHandler(
 		if utils.IsTestnet(ctx.ChainID()) {
 			p256Address := p256.Precompile{}.Address()
 			bech32Address := bech32.Precompile{}.Address()
-			if err := ek.EnablePrecompiles(ctx, p256Address, bech32Address); err != nil {
+			if err := ek.EnableStaticPrecompiles(ctx, p256Address, bech32Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
 		}
