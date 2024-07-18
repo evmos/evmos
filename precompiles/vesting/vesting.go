@@ -7,7 +7,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/evmos/evmos/v18/precompiles/authorization"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -15,9 +15,9 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 )
 
 // PrecompileAddress of the vesting EVM extension in hex format.

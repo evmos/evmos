@@ -9,8 +9,8 @@ import (
 
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/p256"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/precompiles/p256"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)

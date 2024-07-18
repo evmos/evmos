@@ -689,7 +689,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "cancel-software-upgrade":
+        if kind == "cancel-software-upgrade":
             return json.loads(
                 self.raw(
                     "tx",
@@ -707,7 +707,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "register-erc20":
+        if kind == "register-erc20":
             return json.loads(
                 self.raw(
                     "tx",
@@ -722,7 +722,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "register-coin":
+        if kind == "register-coin":
             return json.loads(
                 self.raw(
                     "tx",
@@ -741,24 +741,24 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        else:
-            with tempfile.NamedTemporaryFile("w") as fp:
-                json.dump(proposal, fp)
-                fp.flush()
-                return json.loads(
-                    self.raw(
-                        "tx",
-                        "gov",
-                        method,
-                        kind,
-                        fp.name,
-                        "-y",
-                        from_=proposer,
-                        # basic
-                        home=self.data_dir,
-                        **kwargs,
-                    )
+
+        with tempfile.NamedTemporaryFile("w") as fp:
+            json.dump(proposal, fp)
+            fp.flush()
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    fp.name,
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
                 )
+            )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
@@ -843,7 +843,7 @@ class CosmosCLI:
         amount,
         channel,  # src channel
         target_version,  # chain version number of target chain
-        i=0,
+        i=0,  # pylint: disable=unused-argument
         fees="0aevmos",
     ):
         return json.loads(
@@ -991,7 +991,6 @@ class CosmosCLI:
                 **(default_kwargs | kwargs),
             )
         )
-
 
     # ==========================
     #       FEEMARKET Module
@@ -1380,7 +1379,6 @@ class CosmosCLI:
                 **kwargs,
             )
         )
-
 
     def token_factory_create_denom(
         self,

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v19/types"
 )
 
 const (
