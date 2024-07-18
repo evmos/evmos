@@ -46,7 +46,7 @@ func TestParamsValidate(t *testing.T) {
 				EvmDenom:  DefaultEVMDenom,
 				ExtraEIPs: []string{"os_1000000"},
 			},
-			errContains: "EIP os_10000 is not activateable, valid EIPs are",
+			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
 		},
 		{
 			name: "unsorted precompiles",
