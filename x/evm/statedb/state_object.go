@@ -9,8 +9,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/ethereum/go-ethereum/crypto"
 )
+
+var emptyCodeHash = crypto.Keccak256(nil)
 
 // Account is the Ethereum consensus representation of accounts.
 // These objects are stored in the storage of auth module.
@@ -24,13 +26,13 @@ type Account struct {
 func NewEmptyAccount() *Account {
 	return &Account{
 		Balance:  new(big.Int),
-		CodeHash: types.EmptyCodeHash,
+		CodeHash: emptyCodeHash,
 	}
 }
 
 // IsContract returns if the account contains contract code.
 func (acct Account) IsContract() bool {
-	return !types.IsEmptyCodeHash(acct.CodeHash)
+	return !bytes.Equal(acct.CodeHash, emptyCodeHash)
 }
 
 // Storage represents in-memory cache/buffer of contract storage.
@@ -71,11 +73,9 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 	if account.Balance == nil {
 		account.Balance = new(big.Int)
 	}
-
 	if account.CodeHash == nil {
-		account.CodeHash = types.EmptyCodeHash
+		account.CodeHash = emptyCodeHash
 	}
-
 	return &stateObject{
 		db:            db,
 		address:       address,
@@ -87,9 +87,7 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 
 // empty returns whether the account is considered empty.
 func (s *stateObject) empty() bool {
-	return s.account.Nonce == 0 &&
-		s.account.Balance.Sign() == 0 &&
-		types.IsEmptyCodeHash(s.account.CodeHash)
+	return s.account.Nonce == 0 && s.account.Balance.Sign() == 0 && bytes.Equal(s.account.CodeHash, emptyCodeHash)
 }
 
 func (s *stateObject) markSuicided() {
@@ -151,14 +149,11 @@ func (s *stateObject) Code() []byte {
 	if s.code != nil {
 		return s.code
 	}
-
-	if types.IsEmptyCodeHash(s.CodeHash()) {
+	if bytes.Equal(s.CodeHash(), emptyCodeHash) {
 		return nil
 	}
-
 	code := s.db.keeper.GetCode(s.db.ctx, common.BytesToHash(s.CodeHash()))
 	s.code = code
-
 	return code
 }
 

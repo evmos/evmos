@@ -16,6 +16,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/suite"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -24,6 +25,7 @@ import (
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/testutil"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -119,7 +121,11 @@ func (suite *KeeperTestSuite) SetupTest() error {
 		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
 	}
 
-	acc := authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0)
+	acc := &evmostypes.EthAccount{
+		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
+	}
+
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	// fund signer acc to pay for tx fees

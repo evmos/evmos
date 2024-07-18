@@ -28,10 +28,12 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
+	evmostypes "github.com/evmos/evmos/v19/types"
 	evmosutil "github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -59,10 +61,14 @@ func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
+	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
-		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
-			acc, nil, 0, 0),
-		)
+		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
+		ethAcc := &evmostypes.EthAccount{
+			BaseAccount: baseAcc,
+			CodeHash:    emptyCodeHash,
+		}
+		genAccounts = append(genAccounts, ethAcc)
 	}
 	return genAccounts
 }

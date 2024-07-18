@@ -1,12 +1,11 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/evmos/v19/utils"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -94,60 +93,40 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	testCases := []struct {
 		name     string
-		malleate func() common.Address
+		malleate func()
+		expRes   []int
 	}{
 		{
-			name:     "Only accounts that are not a contract (no storage)",
-			malleate: nil,
+			"Only one account that's not a contract (no storage)",
+			func() {},
+			[]int{0},
 		},
 		{
-			name: "One contract (with storage) and other EOAs",
-			malleate: func() common.Address {
+			"Two accounts - one contract (with storage), one wallet",
+			func() {
 				supply := big.NewInt(100)
-				contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
-				return contractAddr
+				suite.DeployTestContract(suite.T(), suite.address, supply)
 			},
+			[]int{2, 0},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-
-			var contractAddr common.Address
-			if tc.malleate != nil {
-				contractAddr = tc.malleate()
-			}
-
+			tc.malleate()
 			i := 0
 			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
-				acc, ok := account.(*authtypes.BaseAccount)
+				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
-					// Ignore e.g. module accounts
+					// ignore non EthAccounts
 					return false
 				}
 
-				address, err := utils.Bech32ToHexAddr(acc.Address)
-				if err != nil {
-					// NOTE: we panic in the test to see any potential problems
-					// instead of skipping to the next account
-					panic(fmt.Sprintf("failed to convert %s to hex address", err))
-				}
+				addr := ethAccount.EthAddress()
+				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, addr)
 
-				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, address)
-
-				if address == contractAddr {
-					suite.Require().NotEqual(0, len(storage),
-						"expected account %d to have non-zero amount of storage slots, got %d",
-						i, len(storage),
-					)
-				} else {
-					suite.Require().Len(storage, 0,
-						"expected account %d to have %d storage slots, got %d",
-						i, 0, len(storage),
-					)
-				}
-
+				suite.Require().Equal(tc.expRes[i], len(storage))
 				i++
 				return false
 			})

@@ -5,13 +5,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/testutil"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
@@ -210,42 +210,34 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(funder sdk.AccAddress) sdk.AccAddress
+		malleate    func(funder sdk.AccAddress, vestingAddr sdk.AccAddress)
 		funder      sdk.AccAddress
+		vestingAddr sdk.AccAddress
 		expPass     bool
 		errContains string
 	}{
 		{
-			name: "fail - account does not exist",
-			malleate: func(sdk.AccAddress) sdk.AccAddress {
-				return vestingAddr
-			},
+			name:        "fail - account does not exist",
+			malleate:    func(sdk.AccAddress, sdk.AccAddress) {},
 			funder:      funderAddr,
+			vestingAddr: vestingAddr,
 			expPass:     false,
 			errContains: fmt.Sprintf("account %s does not exist", vestingAddr),
 		},
 		{
-			name: "fail - account is a smart contract",
-			malleate: func(_ sdk.AccAddress) sdk.AccAddress {
-				contractAddr, err := testutil.DeployContract(
-					suite.ctx,
-					suite.app,
-					suite.priv,
-					suite.queryClientEvm,
-					contracts.ERC20MinterBurnerDecimalsContract,
-					"TestToken", "TTK", uint8(18),
-				)
-				suite.Require().NoError(err, "failed to deploy example contract")
-
-				return utils.EthToCosmosAddr(contractAddr)
+			name: "fail - account is not an eth account",
+			malleate: func(_ sdk.AccAddress, vestingAddr sdk.AccAddress) {
+				acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
+				s.app.AccountKeeper.SetAccount(s.ctx, acc)
 			},
 			funder:      funderAddr,
+			vestingAddr: vestingAddr,
 			expPass:     false,
-			errContains: "is a contract account and cannot be converted in a clawback vesting account",
+			errContains: fmt.Sprintf("account %s is not an Ethereum account", vestingAddr),
 		},
 		{
 			name: "fail - vesting account already exists",
-			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
+			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
 				suite.Require().NoError(err)
@@ -255,39 +247,36 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 				msg := types.NewMsgCreateClawbackVestingAccount(funderAddr, vestingAddr, false)
 				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 				suite.Require().NoError(err, "failed to create vesting account")
-
-				return vestingAddr
 			},
 			funder:      funderAddr,
+			vestingAddr: vestingAddr,
 			expPass:     false,
 			errContains: "is already a clawback vesting account",
 		},
 		{
 			name: "fail - vesting address is in the blocked addresses list",
-			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
+			malleate: func(funder sdk.AccAddress, _ sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
 				suite.Require().NoError(err)
-
-				return authtypes.NewModuleAddress("distribution")
 			},
 			funder:      funderAddr,
+			vestingAddr: authtypes.NewModuleAddress("distribution"),
 			expPass:     false,
 			errContains: "is a blocked address and cannot be converted in a clawback vesting account",
 		},
 		{
 			name: "success",
-			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
+			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
 				suite.Require().NoError(err)
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr, balances)
 				suite.Require().NoError(err)
-
-				return vestingAddr
 			},
-			funder:  funderAddr,
-			expPass: true,
+			funder:      funderAddr,
+			vestingAddr: vestingAddr,
+			expPass:     true,
 		},
 	}
 
@@ -297,16 +286,16 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			suite.Require().NoError(suite.SetupTest()) // Reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
-			vestingAddr := tc.malleate(tc.funder)
+			tc.malleate(tc.funder, tc.vestingAddr)
 
-			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, vestingAddr, false)
+			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr, false)
 			res, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(&types.MsgCreateClawbackVestingAccountResponse{}, res)
 
-				accI := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
+				accI := suite.app.AccountKeeper.GetAccount(suite.ctx, tc.vestingAddr)
 				suite.Require().NotNil(accI, "expected account to be created")
 				suite.Require().IsType(&types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
 			} else {
@@ -743,7 +732,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 				_, ok := account.(vestingexported.VestingAccount)
 				suite.Require().False(ok)
 
-				_, ok = account.(*authtypes.BaseAccount)
+				_, ok = account.(evmostypes.EthAccountI)
 				suite.Require().True(ok)
 
 			} else {
