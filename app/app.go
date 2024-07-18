@@ -587,6 +587,8 @@ func NewEvmos(
 		authAddr,
 	)
 
+	app.ICAHostKeeper.WithQueryRouter(bApp.GRPCQueryRouter())
+
 	// create host IBC module
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
