@@ -30,10 +30,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
-	"github.com/evmos/evmos/v18/server"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/server"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func startInProcess(cfg Config, val *Validator) error {

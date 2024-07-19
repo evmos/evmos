@@ -12,10 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
@@ -36,7 +36,7 @@ func (k Keeper) DeployERC20Contract(
 		decimals,
 	)
 	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(evmtypes.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
 	}
 
 	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
@@ -78,7 +78,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
 		)
 	}
 
@@ -90,7 +90,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
 		)
 	}
 
@@ -102,7 +102,7 @@ func (k Keeper) QueryERC20(
 
 	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
 		return types.ERC20Data{}, errorsmod.Wrapf(
-			evmtypes.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
+			types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
 		)
 	}
 

@@ -8,7 +8,7 @@ import (
 	"slices"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 // PermissionPolicy is the interface that defines the permission policy for contract creation and calls.

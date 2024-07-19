@@ -7,18 +7,18 @@ import (
 	"embed"
 	"fmt"
 
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v18/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	auth "github.com/evmos/evmos/v19/precompiles/authorization"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 )
 
 const (
@@ -170,7 +170,7 @@ func (Precompile) IsTransaction(methodName string) bool {
 }
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
-func (p Precompile) HandleMethod(
+func (p *Precompile) HandleMethod(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,

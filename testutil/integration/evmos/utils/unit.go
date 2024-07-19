@@ -9,14 +9,14 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 )
 
 const (
@@ -57,7 +57,7 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
 
-	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), evmosMetadata)
+	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), evmosMetadata.Base)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}
@@ -121,7 +121,7 @@ func RegisterIBCERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), ibcMetadata)
+	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), ibcMetadata.Base)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}

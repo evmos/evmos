@@ -28,7 +28,6 @@ var (
 const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
-	convertCoinName  = "evmos/MsgConvertCoin"
 	updateParams     = "evmos/erc20/MsgUpdateParams"
 )
 
@@ -42,13 +41,11 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgConvertCoin{},
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
-		&RegisterCoinProposal{},
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
 	)
@@ -62,5 +59,4 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
-	cdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
 }

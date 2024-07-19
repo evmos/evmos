@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/evmos/evmos/v18/rpc/types"
+	"github.com/evmos/evmos/v19/rpc/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // FilterAPI gathers

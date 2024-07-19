@@ -10,11 +10,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/x/evm/migrations/v7"
-	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
+	v7 "github.com/evmos/evmos/v19/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func TestMigrate(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMigrate(t *testing.T) {
 		ChainConfig:         chainCfgV6,
 		ExtraEIPs:           types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   types.AvailableEVMExtensions,
+		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 		EVMChannels:         types.DefaultEVMChannels,
 	}
 
