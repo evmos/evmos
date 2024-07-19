@@ -27,6 +27,8 @@ const (
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
+var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
+
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
 	mm *module.Manager,
@@ -43,16 +45,18 @@ func CreateUpgradeHandler(
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
 
-		ctxCache, writeFn := ctx.CacheContext()
-		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
-			writeFn()
-		}
-
 		// run module migrations first.
 		// so we wont override erc20 params when running strv2 migration,
 		migrationRes, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return migrationRes, err
+		}
+
+		ctxCache, writeFn := ctx.CacheContext()
+		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Error("error removing outposts", "error", err)
 		}
 
 		bondDenom := sk.BondDenom(ctx)
@@ -72,6 +76,12 @@ func CreateUpgradeHandler(
 			writeFn()
 		}
 
+		ctxCache, writeFn = ctx.CacheContext()
+		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Error("error setting new extra EIPs", "error", err)
+		}
 		return migrationRes, err
 	}
 }
@@ -175,4 +185,20 @@ func registerERC20Extensions(ctx sdk.Context,
 	})
 
 	return err
+}
+
+func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) error {
+	params := ek.GetParams(ctx)
+	extraEIPs := params.ExtraEIPs
+
+	for _, eip := range newExtraEIPs {
+		if slices.Contains(extraEIPs, eip) {
+			logger.Debug("skipping duplicate EIP", "eip", eip)
+		} else {
+			extraEIPs = append(extraEIPs, eip)
+		}
+	}
+
+	params.ExtraEIPs = extraEIPs
+	return ek.SetParams(ctx, params)
 }

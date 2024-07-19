@@ -1693,8 +1693,7 @@
                     "extra_eips": {
                       "type": "array",
                       "items": {
-                        "type": "string",
-                        "format": "int64"
+                        "type": "string"
                       },
                       "title": "extra_eips defines the additional EIPs for the vm.Config"
                     },
@@ -21706,8 +21705,7 @@
         "extra_eips": {
           "type": "array",
           "items": {
-            "type": "string",
-            "format": "int64"
+            "type": "string"
           },
           "title": "extra_eips defines the additional EIPs for the vm.Config"
         },
@@ -21953,8 +21951,7 @@
             "extra_eips": {
               "type": "array",
               "items": {
-                "type": "string",
-                "format": "int64"
+                "type": "string"
               },
               "title": "extra_eips defines the additional EIPs for the vm.Config"
             },

@@ -19,8 +19,8 @@ import (
 // the EVM before starting the node. This means that all init genesis validations will be
 // applied to each change.
 type EVMConfigurator struct {
-	extendedEIPs             map[int]func(*vm.JumpTable)
-	extendedDefaultExtraEIPs []int64
+	extendedEIPs             map[string]func(*vm.JumpTable)
+	extendedDefaultExtraEIPs []string
 	sealed                   bool
 }
 
@@ -31,14 +31,14 @@ func NewEVMConfigurator() *EVMConfigurator {
 
 // WithExtendedEips allows to add to the go-ethereum activators map the provided
 // EIP activators.
-func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[int]func(*vm.JumpTable)) *EVMConfigurator {
+func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[string]func(*vm.JumpTable)) *EVMConfigurator {
 	ec.extendedEIPs = extendedEIPs
 	return ec
 }
 
 // WithExtendedDefaultExtraEIPs update the x/evm DefaultExtraEIPs params
 // by adding provided EIP numbers.
-func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...int64) *EVMConfigurator {
+func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConfigurator {
 	ec.extendedDefaultExtraEIPs = eips
 	return ec
 }
@@ -48,7 +48,7 @@ func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
 	if ec.sealed {
-		return fmt.Errorf("EVMConfigurator has been sealed and cannot be modified")
+		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
@@ -57,7 +57,11 @@ func (ec *EVMConfigurator) Configure() error {
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
 		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("EIP %d is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+		}
+
+		if err := vm.ValidateEIPName(eip); err != nil {
+			return fmt.Errorf("error configuring EVMConfigurator: %s", err)
 		}
 
 		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)

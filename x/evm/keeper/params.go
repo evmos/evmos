@@ -88,7 +88,7 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 }
 
 // EnableEIPs enables the given EIPs in the EVM parameters.
-func (k Keeper) EnableEIPs(ctx sdk.Context, eips ...int64) error {
+func (k Keeper) EnableEIPs(ctx sdk.Context, eips ...string) error {
 	evmParams := k.GetParams(ctx)
 	evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eips...)
 
