@@ -66,7 +66,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		}
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
-
 	})
 
 	// =====================================
