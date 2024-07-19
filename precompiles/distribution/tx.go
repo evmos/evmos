@@ -35,7 +35,7 @@ const (
 )
 
 // ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
-func (p Precompile) ClaimRewards(
+func (p *Precompile) ClaimRewards(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,
