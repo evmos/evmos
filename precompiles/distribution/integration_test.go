@@ -1495,7 +1495,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				// delegator (and withdrawer) balance should be updated
 				finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after claiming rewards")
-
 			},
 				Entry("claim rewards with transfer to delegator before and after precompile call", testCase{
 					before: true,
@@ -1511,7 +1510,6 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				}),
 			)
 		})
-
 	})
 
 	Context("claimRewards with contract as delegator", func() {
