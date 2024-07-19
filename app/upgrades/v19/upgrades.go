@@ -80,6 +80,16 @@ func CreateUpgradeHandler(
 		} else {
 			logger.Error("error setting new extra EIPs", "error", err)
 		}
+
+		if utils.IsTestnet(ctx.ChainID()) {
+			ctxCache, writeFn = ctx.CacheContext()
+			if err := ReplaceTestnetWevmosContract(ctxCache, erc20k); err == nil {
+				writeFn()
+			} else {
+				logger.Error("error setting wevmos testnet contract", "error", err)
+			}
+		}
+
 		return migrationRes, err
 	}
 }
@@ -193,4 +203,10 @@ func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) 
 
 	params.ExtraEIPs = extraEIPs
 	return ek.SetParams(ctx, params)
+}
+
+func ReplaceTestnetWevmosContract(ctx sdk.Context, erc erc20keeper.Keeper) error {
+	erc20params := erc.GetParams(ctx)
+	erc20params.NativePrecompiles = []string{erc20types.WEVMOSContractTestnet}
+	return erc.SetParams(ctx, erc20params)
 }
