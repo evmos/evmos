@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # this script is for generating protobuf files for the new google.golang.org/protobuf API
 set -eo pipefail
