@@ -11,19 +11,19 @@ import (
 )
 
 // ExtendActivators allows to merge the go ethereum activators map
-// with additional activators.
-func ExtendActivators(eips map[int]func(*JumpTable)) error {
+// with additional custom activators.
+func ExtendActivators(eips map[string]func(*JumpTable)) error {
 	// Catch early duplicated eip.
-	keys := make([]int, 0, len(eips))
+	keys := make([]string, 0, len(eips))
 	for k := range eips {
 		if ExistsEipActivator(k) {
-			return fmt.Errorf("duplicate activation: %d is already present in %s", k, ActivateableEips())
+			return fmt.Errorf("duplicate activation: %s is already present in %s", k, ActivateableEips())
 		}
 		keys = append(keys, k)
 	}
 
 	// Sorting keys to ensure deterministic execution.
-	sort.Ints(keys)
+	sort.Strings(keys)
 
 	for _, k := range keys {
 		activators[k] = eips[k]
@@ -31,10 +31,13 @@ func ExtendActivators(eips map[int]func(*JumpTable)) error {
 	return nil
 }
 
-func GetActivatorsEipNumbers() []int {
+// GetActivatorsEipNames returns the name of EIPs registered in
+// the activators map.
+// Used only in tests.
+func GetActivatorsEipNames() []string {
 	keys := maps.Keys(activators)
 
-	sort.Ints(keys)
+	sort.Strings(keys)
 	return keys
 }
 

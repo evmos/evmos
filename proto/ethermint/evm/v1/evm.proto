@@ -15,7 +15,7 @@ message Params {
   // enable_create and enable call have been deprecated
   reserved 2, 3;
   // extra_eips defines the additional EIPs for the vm.Config
-  repeated int64 extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
+  repeated string extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
   // chain_config defines the EVM chain configuration parameters
   ChainConfig chain_config = 5 [(gogoproto.moretags) = "yaml:\"chain_config\"", (gogoproto.nullable) = false];
   // allow_unprotected_txs defines if replay-protected (i.e non EIP155

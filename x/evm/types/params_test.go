@@ -11,7 +11,7 @@ import (
 func TestParamsValidate(t *testing.T) {
 	t.Parallel()
 
-	extraEips := []int64{2929, 1884, 1344}
+	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
 	testCases := []struct {
 		name        string
 		params      Params
@@ -44,9 +44,9 @@ func TestParamsValidate(t *testing.T) {
 			name: "invalid eip",
 			params: Params{
 				EvmDenom:  DefaultEVMDenom,
-				ExtraEIPs: []int64{10000},
+				ExtraEIPs: []string{"os_1000000"},
 			},
-			errContains: "EIP 10000 is not activateable, valid EIPs are",
+			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
 		},
 		{
 			name: "unsorted precompiles",
@@ -86,11 +86,11 @@ func TestParamsValidate(t *testing.T) {
 }
 
 func TestParamsEIPs(t *testing.T) {
-	extraEips := []int64{2929, 1884, 1344}
+	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
 	params := NewParams("ara", false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl)
 	actual := params.EIPs()
 
-	require.Equal(t, []int{2929, 1884, 1344}, actual)
+	require.Equal(t, []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}, actual)
 }
 
 func TestParamsValidatePriv(t *testing.T) {
@@ -99,8 +99,9 @@ func TestParamsValidatePriv(t *testing.T) {
 	require.Error(t, validateBool(""))
 	require.NoError(t, validateBool(true))
 	require.Error(t, validateEIPs(""))
-	require.NoError(t, validateEIPs([]int64{1884}))
-	require.ErrorContains(t, validateEIPs([]int64{1884, 1884, 1885, 1886}), "duplicate EIP: 1884")
+	require.Error(t, validateEIPs([]int64{1884}))
+	require.NoError(t, validateEIPs([]string{"ethereum_1884"}))
+	require.ErrorContains(t, validateEIPs([]string{"ethereum_1884", "ethereum_1884", "ethereum_1885"}), "duplicate EIP: ethereum_1884")
 	require.NoError(t, validateChannels([]string{"channel-0"}))
 	require.Error(t, validateChannels(false))
 	require.Error(t, validateChannels(int64(123)))
