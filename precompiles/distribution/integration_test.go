@@ -1458,7 +1458,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(err).To(BeNil())
 			})
 
-			DescribeTable("claimRewarsd with transfer to withdrawer", func(tc testCase) {
+			DescribeTable("claimRewards with transfer to withdrawer", func(tc testCase) {
 				// get the pending rewards to claim
 				qr := distrkeeper.Querier{Keeper: s.app.DistrKeeper}
 				qRes, err := qr.DelegationTotalRewards(s.ctx, &distrtypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: sdk.AccAddress(s.address.Bytes()).String()})
@@ -1496,15 +1496,15 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after claiming rewards")
 			},
-				Entry("claim rewards with transfer to delegator before and after precompile call", testCase{
+				Entry("claim rewards with transfer to withdrawer before and after precompile call", testCase{
 					before: true,
 					after:  true,
 				}),
-				Entry("claim rewards with transfer to delegator before precompile call", testCase{
+				Entry("claim rewards with transfer to withdrawer before precompile call", testCase{
 					before: true,
 					after:  false,
 				}),
-				Entry("claim rewards with transfer to delegator after precompile call", testCase{
+				Entry("claim rewards with transfer to withdrawer after precompile call", testCase{
 					before: false,
 					after:  true,
 				}),
