@@ -163,14 +163,19 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
+	acc := &evmostypes.EthAccount{
+		BaseAccount: baseAcc,
+		CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
+	}
+
 	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
 
 	balance := banktypes.Balance{
-		Address: baseAcc.GetAddress().String(),
+		Address: acc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
-	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
+	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// Create StateDB
 	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))

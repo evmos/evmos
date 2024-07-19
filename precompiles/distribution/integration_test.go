@@ -54,9 +54,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
-		initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-		fmt.Println("Fist Before each: ", initialBalance)
-
 		// set the default call arguments
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: s.precompile.Address(),
@@ -69,9 +66,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		}
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
-
-		initialBalance = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-		fmt.Println("Fist Before each: ", initialBalance)
 	})
 
 	// =====================================

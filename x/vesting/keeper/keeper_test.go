@@ -41,7 +41,6 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 					suite.app.AccountKeeper,
 					suite.app.BankKeeper,
 					suite.app.DistrKeeper,
-					suite.app.EvmKeeper,
 					suite.app.StakingKeeper,
 					suite.app.GovKeeper,
 				)
@@ -55,7 +54,6 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 						suite.app.AccountKeeper,
 						suite.app.BankKeeper,
 						suite.app.DistrKeeper,
-						suite.app.EvmKeeper,
 						suite.app.StakingKeeper,
 						suite.app.GovKeeper,
 					)
