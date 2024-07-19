@@ -74,7 +74,7 @@ type ContractData struct {
 	precompileABI  abi.ABI
 }
 
-// getCallArgs is a helper function to return the correct call arguments for a given call type.
+// getTxAndCallArgs is a helper function to return the correct call arguments for a given call type.
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise a caller contract is used.
 func getTxAndCallArgs(
 	callType int,
