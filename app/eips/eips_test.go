@@ -113,7 +113,7 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newEIP), "expected to have eip 0000 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newEIP), "expected to have eip evmos_0 in evm params")
 	})
 
 	It("should change CREATE opcode constant gas after enabling EIP", func() {
