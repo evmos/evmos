@@ -19,12 +19,8 @@ import (
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
-)
-
-const (
-	StrideOutpostAddress  = "0x0000000000000000000000000000000000000900"
-	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
 var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
@@ -53,7 +49,7 @@ func CreateUpgradeHandler(
 		}
 
 		ctxCache, writeFn := ctx.CacheContext()
-		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
+		if err := ReactivateStaticPrecompiles(ctxCache, ek); err == nil {
 			writeFn()
 		} else {
 			logger.Error("error removing outposts", "error", err)
@@ -74,6 +70,8 @@ func CreateUpgradeHandler(
 		ctxCache, writeFn = ctx.CacheContext()
 		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
 			writeFn()
+		} else {
+			logger.Error("error running strv2 migration", "error", err)
 		}
 
 		ctxCache, writeFn = ctx.CacheContext()
@@ -86,18 +84,12 @@ func CreateUpgradeHandler(
 	}
 }
 
-func RemoveOutpostsFromEvmParams(ctx sdk.Context,
+// ReactivateStaticPrecompiles sets ActiveStaticPrecompiles param on the evm
+func ReactivateStaticPrecompiles(ctx sdk.Context,
 	evmKeeper *evmkeeper.Keeper,
 ) error {
 	params := evmKeeper.GetParams(ctx)
-	newActivePrecompiles := make([]string, 0)
-	for _, precompile := range params.ActiveStaticPrecompiles {
-		if precompile != OsmosisOutpostAddress &&
-			precompile != StrideOutpostAddress {
-			newActivePrecompiles = append(newActivePrecompiles, precompile)
-		}
-	}
-	params.ActiveStaticPrecompiles = newActivePrecompiles
+	params.ActiveStaticPrecompiles = evmtypes.DefaultStaticPrecompiles
 	return evmKeeper.SetParams(ctx, params)
 }
 
