@@ -1443,7 +1443,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after claiming rewards")
 		})
 
-		Context("Table drive test", func() {
+		Context("Table driven tests", func() {
 			var (
 				args                   contracts.CallArgs
 				contractInitialBalance = math.NewInt(100)
