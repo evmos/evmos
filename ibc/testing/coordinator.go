@@ -60,7 +60,7 @@ func SetupPath(coord *ibctesting.Coordinator, path *Path) {
 	CreateChannels(coord, path)
 }
 
-// SetupClientConnections is a helper function to create clients and the appropriate
+// SetupConnections is a helper function to create clients and the appropriate
 // connections on both the source and counterparty chain. It assumes the caller does not
 // anticipate any errors.
 func SetupConnections(coord *ibctesting.Coordinator, path *Path) {
