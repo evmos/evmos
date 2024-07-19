@@ -2249,7 +2249,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 						PrivKey:      s.privKey,
 						MethodName:   "run",
 						Args: []interface{}{
-							big.NewInt(7), s.validators[0].GetOperator().String(),
+							big.NewInt(21), s.validators[0].GetOperator().String(),
 						},
 						GasPrice: gasPrice.BigInt(),
 					}
