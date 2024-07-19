@@ -120,6 +120,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
 - (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
 - (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
+- (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
