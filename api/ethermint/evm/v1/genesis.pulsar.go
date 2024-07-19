@@ -2,18 +2,16 @@
 package evmv1
 
 import (
-	fmt "fmt"
-	io "io"
-	reflect "reflect"
-	sync "sync"
-
 	_ "cosmossdk.io/api/amino"
-
+	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	io "io"
+	reflect "reflect"
+	sync "sync"
 )
 
 var _ protoreflect.List = (*_GenesisState_1_list)(nil)
@@ -100,21 +98,17 @@ func (x *GenesisState) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
-	_                                        protoreflect.MessageType = fastReflection_GenesisState_messageType{}
-)
+var _fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
+var _ protoreflect.MessageType = fastReflection_GenesisState_messageType{}
 
 type fastReflection_GenesisState_messageType struct{}
 
 func (x fastReflection_GenesisState_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_GenesisState)(nil)
 }
-
 func (x fastReflection_GenesisState_messageType) New() protoreflect.Message {
 	return new(fastReflection_GenesisState)
 }
-
 func (x fastReflection_GenesisState_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_GenesisState
 }
@@ -679,21 +673,17 @@ func (x *GenesisAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_GenesisAccount_messageType fastReflection_GenesisAccount_messageType
-	_                                          protoreflect.MessageType = fastReflection_GenesisAccount_messageType{}
-)
+var _fastReflection_GenesisAccount_messageType fastReflection_GenesisAccount_messageType
+var _ protoreflect.MessageType = fastReflection_GenesisAccount_messageType{}
 
 type fastReflection_GenesisAccount_messageType struct{}
 
 func (x fastReflection_GenesisAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_GenesisAccount)(nil)
 }
-
 func (x fastReflection_GenesisAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_GenesisAccount)
 }
-
 func (x fastReflection_GenesisAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_GenesisAccount
 }
@@ -1344,10 +1334,10 @@ var file_ethermint_evm_v1_genesis_proto_rawDesc = []byte{
 	0x0a, 0x1e, 0x65, 0x74, 0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2f, 0x65, 0x76, 0x6d, 0x2f,
 	0x76, 0x31, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x12, 0x10, 0x65, 0x74, 0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2e, 0x65, 0x76, 0x6d, 0x2e,
-	0x76, 0x31, 0x1a, 0x1a, 0x65, 0x74, 0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2f, 0x65, 0x76,
-	0x6d, 0x2f, 0x76, 0x31, 0x2f, 0x65, 0x76, 0x6d, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14,
-	0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e,
+	0x76, 0x31, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1a, 0x65, 0x74, 0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74,
+	0x2f, 0x65, 0x76, 0x6d, 0x2f, 0x76, 0x31, 0x2f, 0x65, 0x76, 0x6d, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67,
 	0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x94, 0x01, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65,
 	0x73, 0x69, 0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x47, 0x0a, 0x08, 0x61, 0x63, 0x63, 0x6f,
 	0x75, 0x6e, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x65, 0x74, 0x68,
@@ -1393,16 +1383,13 @@ func file_ethermint_evm_v1_genesis_proto_rawDescGZIP() []byte {
 	return file_ethermint_evm_v1_genesis_proto_rawDescData
 }
 
-var (
-	file_ethermint_evm_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_ethermint_evm_v1_genesis_proto_goTypes  = []interface{}{
-		(*GenesisState)(nil),   // 0: ethermint.evm.v1.GenesisState
-		(*GenesisAccount)(nil), // 1: ethermint.evm.v1.GenesisAccount
-		(*Params)(nil),         // 2: ethermint.evm.v1.Params
-		(*State)(nil),          // 3: ethermint.evm.v1.State
-	}
-)
-
+var file_ethermint_evm_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_ethermint_evm_v1_genesis_proto_goTypes = []interface{}{
+	(*GenesisState)(nil),   // 0: ethermint.evm.v1.GenesisState
+	(*GenesisAccount)(nil), // 1: ethermint.evm.v1.GenesisAccount
+	(*Params)(nil),         // 2: ethermint.evm.v1.Params
+	(*State)(nil),          // 3: ethermint.evm.v1.State
+}
 var file_ethermint_evm_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: ethermint.evm.v1.GenesisState.accounts:type_name -> ethermint.evm.v1.GenesisAccount
 	2, // 1: ethermint.evm.v1.GenesisState.params:type_name -> ethermint.evm.v1.Params

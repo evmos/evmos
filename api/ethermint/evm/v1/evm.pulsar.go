@@ -2,18 +2,16 @@
 package evmv1
 
 import (
-	fmt "fmt"
-	io "io"
-	reflect "reflect"
-	sync "sync"
-
 	_ "cosmossdk.io/api/amino"
-
+	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	io "io"
+	reflect "reflect"
+	sync "sync"
 )
 
 var _ protoreflect.List = (*_Params_4_list)(nil)
@@ -199,21 +197,17 @@ func (x *Params) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_Params_messageType fastReflection_Params_messageType
-	_                                  protoreflect.MessageType = fastReflection_Params_messageType{}
-)
+var _fastReflection_Params_messageType fastReflection_Params_messageType
+var _ protoreflect.MessageType = fastReflection_Params_messageType{}
 
 type fastReflection_Params_messageType struct{}
 
 func (x fastReflection_Params_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_Params)(nil)
 }
-
 func (x fastReflection_Params_messageType) New() protoreflect.Message {
 	return new(fastReflection_Params)
 }
-
 func (x fastReflection_Params_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_Params
 }
@@ -1177,21 +1171,17 @@ func (x *ChainConfig) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_ChainConfig_messageType fastReflection_ChainConfig_messageType
-	_                                       protoreflect.MessageType = fastReflection_ChainConfig_messageType{}
-)
+var _fastReflection_ChainConfig_messageType fastReflection_ChainConfig_messageType
+var _ protoreflect.MessageType = fastReflection_ChainConfig_messageType{}
 
 type fastReflection_ChainConfig_messageType struct{}
 
 func (x fastReflection_ChainConfig_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ChainConfig)(nil)
 }
-
 func (x fastReflection_ChainConfig_messageType) New() protoreflect.Message {
 	return new(fastReflection_ChainConfig)
 }
-
 func (x fastReflection_ChainConfig_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ChainConfig
 }
@@ -2721,21 +2711,17 @@ func (x *State) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_State_messageType fastReflection_State_messageType
-	_                                 protoreflect.MessageType = fastReflection_State_messageType{}
-)
+var _fastReflection_State_messageType fastReflection_State_messageType
+var _ protoreflect.MessageType = fastReflection_State_messageType{}
 
 type fastReflection_State_messageType struct{}
 
 func (x fastReflection_State_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_State)(nil)
 }
-
 func (x fastReflection_State_messageType) New() protoreflect.Message {
 	return new(fastReflection_State)
 }
-
 func (x fastReflection_State_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_State
 }
@@ -3260,21 +3246,17 @@ func (x *TransactionLogs) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_TransactionLogs_messageType fastReflection_TransactionLogs_messageType
-	_                                           protoreflect.MessageType = fastReflection_TransactionLogs_messageType{}
-)
+var _fastReflection_TransactionLogs_messageType fastReflection_TransactionLogs_messageType
+var _ protoreflect.MessageType = fastReflection_TransactionLogs_messageType{}
 
 type fastReflection_TransactionLogs_messageType struct{}
 
 func (x fastReflection_TransactionLogs_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_TransactionLogs)(nil)
 }
-
 func (x fastReflection_TransactionLogs_messageType) New() protoreflect.Message {
 	return new(fastReflection_TransactionLogs)
 }
-
 func (x fastReflection_TransactionLogs_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_TransactionLogs
 }
@@ -3831,21 +3813,17 @@ func (x *Log) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_Log_messageType fastReflection_Log_messageType
-	_                               protoreflect.MessageType = fastReflection_Log_messageType{}
-)
+var _fastReflection_Log_messageType fastReflection_Log_messageType
+var _ protoreflect.MessageType = fastReflection_Log_messageType{}
 
 type fastReflection_Log_messageType struct{}
 
 func (x fastReflection_Log_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_Log)(nil)
 }
-
 func (x fastReflection_Log_messageType) New() protoreflect.Message {
 	return new(fastReflection_Log)
 }
-
 func (x fastReflection_Log_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_Log
 }
@@ -4719,21 +4697,17 @@ func (x *TxResult) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_TxResult_messageType fastReflection_TxResult_messageType
-	_                                    protoreflect.MessageType = fastReflection_TxResult_messageType{}
-)
+var _fastReflection_TxResult_messageType fastReflection_TxResult_messageType
+var _ protoreflect.MessageType = fastReflection_TxResult_messageType{}
 
 type fastReflection_TxResult_messageType struct{}
 
 func (x fastReflection_TxResult_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_TxResult)(nil)
 }
-
 func (x fastReflection_TxResult_messageType) New() protoreflect.Message {
 	return new(fastReflection_TxResult)
 }
-
 func (x fastReflection_TxResult_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_TxResult
 }
@@ -5494,21 +5468,17 @@ func (x *AccessTuple) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_AccessTuple_messageType fastReflection_AccessTuple_messageType
-	_                                       protoreflect.MessageType = fastReflection_AccessTuple_messageType{}
-)
+var _fastReflection_AccessTuple_messageType fastReflection_AccessTuple_messageType
+var _ protoreflect.MessageType = fastReflection_AccessTuple_messageType{}
 
 type fastReflection_AccessTuple_messageType struct{}
 
 func (x fastReflection_AccessTuple_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_AccessTuple)(nil)
 }
-
 func (x fastReflection_AccessTuple_messageType) New() protoreflect.Message {
 	return new(fastReflection_AccessTuple)
 }
-
 func (x fastReflection_AccessTuple_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_AccessTuple
 }
@@ -6014,21 +5984,17 @@ func (x *TraceConfig) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_TraceConfig_messageType fastReflection_TraceConfig_messageType
-	_                                       protoreflect.MessageType = fastReflection_TraceConfig_messageType{}
-)
+var _fastReflection_TraceConfig_messageType fastReflection_TraceConfig_messageType
+var _ protoreflect.MessageType = fastReflection_TraceConfig_messageType{}
 
 type fastReflection_TraceConfig_messageType struct{}
 
 func (x fastReflection_TraceConfig_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_TraceConfig)(nil)
 }
-
 func (x fastReflection_TraceConfig_messageType) New() protoreflect.Message {
 	return new(fastReflection_TraceConfig)
 }
-
 func (x fastReflection_TraceConfig_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_TraceConfig
 }
@@ -7754,9 +7720,9 @@ var File_ethermint_evm_v1_evm_proto protoreflect.FileDescriptor
 var file_ethermint_evm_v1_evm_proto_rawDesc = []byte{
 	0x0a, 0x1a, 0x65, 0x74, 0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2f, 0x65, 0x76, 0x6d, 0x2f,
 	0x76, 0x31, 0x2f, 0x65, 0x76, 0x6d, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x10, 0x65, 0x74,
-	0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x1a, 0x14,
-	0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e,
+	0x68, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x74, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x1a, 0x11,
+	0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67,
 	0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x8a, 0x04, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61,
 	0x6d, 0x73, 0x12, 0x31, 0x0a, 0x09, 0x65, 0x76, 0x6d, 0x5f, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x14, 0xf2, 0xde, 0x1f, 0x10, 0x79, 0x61, 0x6d, 0x6c, 0x3a,
@@ -8023,20 +7989,17 @@ func file_ethermint_evm_v1_evm_proto_rawDescGZIP() []byte {
 	return file_ethermint_evm_v1_evm_proto_rawDescData
 }
 
-var (
-	file_ethermint_evm_v1_evm_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-	file_ethermint_evm_v1_evm_proto_goTypes  = []interface{}{
-		(*Params)(nil),          // 0: ethermint.evm.v1.Params
-		(*ChainConfig)(nil),     // 1: ethermint.evm.v1.ChainConfig
-		(*State)(nil),           // 2: ethermint.evm.v1.State
-		(*TransactionLogs)(nil), // 3: ethermint.evm.v1.TransactionLogs
-		(*Log)(nil),             // 4: ethermint.evm.v1.Log
-		(*TxResult)(nil),        // 5: ethermint.evm.v1.TxResult
-		(*AccessTuple)(nil),     // 6: ethermint.evm.v1.AccessTuple
-		(*TraceConfig)(nil),     // 7: ethermint.evm.v1.TraceConfig
-	}
-)
-
+var file_ethermint_evm_v1_evm_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_ethermint_evm_v1_evm_proto_goTypes = []interface{}{
+	(*Params)(nil),          // 0: ethermint.evm.v1.Params
+	(*ChainConfig)(nil),     // 1: ethermint.evm.v1.ChainConfig
+	(*State)(nil),           // 2: ethermint.evm.v1.State
+	(*TransactionLogs)(nil), // 3: ethermint.evm.v1.TransactionLogs
+	(*Log)(nil),             // 4: ethermint.evm.v1.Log
+	(*TxResult)(nil),        // 5: ethermint.evm.v1.TxResult
+	(*AccessTuple)(nil),     // 6: ethermint.evm.v1.AccessTuple
+	(*TraceConfig)(nil),     // 7: ethermint.evm.v1.TraceConfig
+}
 var file_ethermint_evm_v1_evm_proto_depIdxs = []int32{
 	1, // 0: ethermint.evm.v1.Params.chain_config:type_name -> ethermint.evm.v1.ChainConfig
 	4, // 1: ethermint.evm.v1.TransactionLogs.logs:type_name -> ethermint.evm.v1.Log
