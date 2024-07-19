@@ -127,7 +127,7 @@ evmosEnabledEIPs = []int64{
 }
 ```
 
-In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `0`
+In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `evmos_0`
 
 ### EVM Configurator
 
