@@ -123,7 +123,7 @@ should be defined. An example is reported below:
 
 ```go
 evmosEnabledEIPs = []int64{
-    0,
+    "evmos_0",
 }
 ```
 
