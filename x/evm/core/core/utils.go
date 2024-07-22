@@ -3,6 +3,8 @@ package core
 import (
 	"math/big"
 
+	"github.com/evmos/evmos/v19/utils"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -11,7 +13,7 @@ import (
 // CanTransfer checks whether there are enough funds in the address' account to make a transfer.
 // This does not take the necessary gas in to account to make the transfer valid.
 func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
-	return db.GetBalance(addr).Cmp(amount) >= 0
+	return utils.ConvertTo18Decimals(*db.GetBalance(addr)).Cmp(amount) >= 0
 }
 
 // Transfer subtracts amount from sender and adds amount to recipient using the given Db

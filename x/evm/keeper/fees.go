@@ -3,7 +3,10 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
+
+	"github.com/evmos/evmos/v19/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -55,8 +58,23 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 		return errorsmod.Wrapf(err, "account not found for sender %s", from)
 	}
 
-	// deduct the full gas cost from the user balance
-	if err := authante.DeductFees(k.bankKeeper, ctx, signerAcc, fees); err != nil {
+	// Convert the balance to 18 decimals
+	// TODO: Replace base Denom with ATOM
+	signerBalance := k.bankKeeper.GetBalance(ctx, signerAcc.GetAddress(), utils.BaseDenom)
+	balanceIn18Decimals := utils.ConvertTo18Decimals(*signerBalance.Amount.BigInt())
+
+	// Perform fee deduction in 18 decimal scale
+	balanceAfterFees := new(big.Int).Sub(balanceIn18Decimals, fees[0].Amount.BigInt())
+
+	// Scale back down to 6 decimals
+	finalBalanceIn6Decimals := utils.ConvertTo6Decimals(*balanceAfterFees)
+
+	// Calculate the actual fees deducted in 6 decimals
+	feesPaid := new(big.Int).Sub(signerBalance.Amount.BigInt(), finalBalanceIn6Decimals)
+	finalFees := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewIntFromBigInt(feesPaid)))
+
+	fmt.Println("the final fees", finalFees)
+	if err := authante.DeductFees(k.bankKeeper, ctx, signerAcc, finalFees); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct full gas cost %s from the user %s balance", fees, from)
 	}
 

@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/evmos/evmos/v19/utils"
+
 	"github.com/evmos/evmos/v19/x/evm/core/logger"
 	"github.com/evmos/evmos/v19/x/evm/core/tracers"
 
@@ -57,7 +59,7 @@ func (k Keeper) Account(c context.Context, req *types.QueryAccountRequest) (*typ
 	acct := k.GetAccountOrEmpty(ctx, addr)
 
 	return &types.QueryAccountResponse{
-		Balance:  acct.Balance.String(),
+		Balance:  utils.ConvertTo18Decimals(*acct.Balance).String(),
 		CodeHash: common.BytesToHash(acct.CodeHash).Hex(),
 		Nonce:    acct.Nonce,
 	}, nil
@@ -145,7 +147,7 @@ func (k Keeper) Balance(c context.Context, req *types.QueryBalanceRequest) (*typ
 	balanceInt := k.GetBalance(ctx, common.HexToAddress(req.Address))
 
 	return &types.QueryBalanceResponse{
-		Balance: balanceInt.String(),
+		Balance: utils.ConvertTo18Decimals(*balanceInt).String(),
 	}, nil
 }
 

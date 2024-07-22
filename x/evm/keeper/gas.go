@@ -5,6 +5,8 @@ package keeper
 import (
 	"math/big"
 
+	"github.com/evmos/evmos/v19/utils"
+
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/params"
 
@@ -40,9 +42,16 @@ func (k *Keeper) RefundGas(ctx sdk.Context, msg core.Message, leftoverGas uint64
 		return errorsmod.Wrapf(types.ErrInvalidRefund, "refunded amount value cannot be negative %d", remaining.Int64())
 	case 1:
 		// positive amount refund
-		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(remaining))}
+		// refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(remaining))}
 
 		// refund to sender from the fee collector module account, which is the escrow account in charge of collecting tx fees
+
+		feeCollectorAccount := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
+		feeCollectorBalance := k.bankKeeper.GetBalance(ctx, feeCollectorAccount, denom).Amount.BigInt()
+		scaledBalance := utils.ConvertTo18Decimals(*feeCollectorBalance)
+		refundedAmount := new(big.Int).Sub(scaledBalance, remaining)
+
+		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(utils.ConvertTo6Decimals(*refundedAmount)))}
 
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, msg.From().Bytes(), refundedCoins)
 		if err != nil {
