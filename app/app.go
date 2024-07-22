@@ -1165,7 +1165,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.StakingKeeper,
 			app.Erc20Keeper,
 			app.EvmKeeper,
-			app.FeeMarketKeeper,
 		),
 	)
 

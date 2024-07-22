@@ -7,7 +7,6 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -21,11 +20,10 @@ import (
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
 
-var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
+var newExtraEIPs = []string{"evmos_0"}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
@@ -36,7 +34,6 @@ func CreateUpgradeHandler(
 	sk stakingkeeper.Keeper,
 	erc20k erc20keeper.Keeper,
 	ek *evmkeeper.Keeper,
-	fee feemarketkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -91,13 +88,6 @@ func CreateUpgradeHandler(
 			} else {
 				logger.Error("error setting wevmos testnet contract", "error", err)
 			}
-		}
-
-		ctxCache, writeFn = ctx.CacheContext()
-		if err := UpdateBaseFee(ctxCache, fee); err == nil {
-			writeFn()
-		} else {
-			logger.Error("error setting new base fee", "error", err)
 		}
 
 		return migrationRes, err
@@ -219,10 +209,4 @@ func ReplaceTestnetWevmosContract(ctx sdk.Context, erc erc20keeper.Keeper) error
 	erc20params := erc.GetParams(ctx)
 	erc20params.NativePrecompiles = []string{erc20types.WEVMOSContractTestnet}
 	return erc.SetParams(ctx, erc20params)
-}
-
-func UpdateBaseFee(ctx sdk.Context, fee feemarketkeeper.Keeper) error {
-	feeparams := fee.GetParams(ctx)
-	feeparams.BaseFee = feeparams.BaseFee.Mul(math.NewInt(100))
-	return fee.SetParams(ctx, feeparams)
 }
