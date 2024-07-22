@@ -694,18 +694,19 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 		Context("with origin different than validator address", func() {
 			It("should fail", func() {
+				valHexAddr := common.BytesToAddress(valAddr.Bytes())
 				callArgs.Args = []interface{}{
-					defaultDescription, common.BytesToAddress(valAddr.Bytes()), defaultCommissionRate, defaultMinSelfDelegation,
+					defaultDescription, valHexAddr, defaultCommissionRate, defaultMinSelfDelegation,
 				}
 
-				// TODO add check for err msg
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeEditValidator)
 				_, _, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(1),
 					txArgs, callArgs,
 					logCheckArgs,
 				)
-				Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+				Expect(err).NotTo(BeNil(), "error while calling the contract and checking logs")
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("origin address %s is not the same as validator operator address %s", s.keyring.GetAddr(1), valHexAddr)))
 			})
 		})
 	})
@@ -2029,7 +2030,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 		nonExistingAddr = testutiltx.GenerateAddress()
 		// nonExistingVal is a validator address that does not exist in the state of the test suite
 		nonExistingVal             = sdk.ValAddress(nonExistingAddr.Bytes())
-		testContractInitialBalance = math.NewInt(100)
+		testContractInitialBalance = math.NewInt(1e18)
 	)
 
 	BeforeAll(func() {
@@ -2435,8 +2436,9 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 
 	Context("create a validator", func() {
 		var (
-			valPriv *ethsecp256k1.PrivKey
-			valAddr sdk.AccAddress
+			valPriv    *ethsecp256k1.PrivKey
+			valAddr    sdk.AccAddress
+			valHexAddr common.Address
 
 			defaultDescription = staking.Description{
 				Moniker:         "new node",
@@ -2458,6 +2460,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 		BeforeEach(func() {
 			callArgs.MethodName = "testCreateValidator"
 			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
+			valHexAddr = common.BytesToAddress(valAddr.Bytes())
 			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), valAddr.Bytes(), math.NewInt(1e18))
 			Expect(err).To(BeNil(), "error while funding account: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -2465,7 +2468,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 
 		It("tx from validator operator - should NOT create a validator", func() {
 			callArgs.Args = []interface{}{
-				defaultDescription, defaultCommission, defaultMinSelfDelegation, valAddr, defaultPubkeyBase64Str, defaultValue,
+				defaultDescription, defaultCommission, defaultMinSelfDelegation, valHexAddr, defaultPubkeyBase64Str, defaultValue,
 			}
 
 			_, _, err = s.factory.CallContractAndCheckLogs(
@@ -2477,15 +2480,14 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			qc := s.network.GetStakingClient()
-			qRes, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
-			// TODO verify error msg
-			Expect(err).To(BeTrue(), "expected validator NOT to be found")
-			Expect(qRes).To(BeNil())
+			_, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).NotTo(BeNil(), "expected validator NOT to be found")
+			Expect(err.Error()).To(ContainSubstring("not found"), "expected validator NOT to be found")
 		})
 
 		It("tx from another EOA - should create a validator fail", func() {
 			callArgs.Args = []interface{}{
-				defaultDescription, defaultCommission, defaultMinSelfDelegation, valAddr, defaultPubkeyBase64Str, defaultValue,
+				defaultDescription, defaultCommission, defaultMinSelfDelegation, valHexAddr, defaultPubkeyBase64Str, defaultValue,
 			}
 
 			_, _, err = s.factory.CallContractAndCheckLogs(
@@ -2497,10 +2499,9 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			qc := s.network.GetStakingClient()
-			qRes, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
-			// TODO verify error msg
-			Expect(err).To(BeTrue(), "expected validator NOT to be found")
-			Expect(qRes).To(BeNil())
+			_, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).NotTo(BeNil(), "expected validator NOT to be found")
+			Expect(err.Error()).To(ContainSubstring("not found"), "expected validator NOT to be found")
 		})
 	})
 
@@ -2763,10 +2764,9 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// No delegation should be created
-					qRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
-					// TODO validate error message
-					Expect(err).To(BeNil()) // expected NO delegation created
-					Expect(qRes).To(BeNil())
+					_, err = s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).NotTo(BeNil())
+					Expect(err.Error()).To(ContainSubstring("not found"), "expected NO delegation created")
 
 					// Only fees deducted on tx sender
 					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
@@ -2778,9 +2778,9 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 				It("should revert the changes and NOT delegate - failed tx - max precompile calls reached", func() {
 					callArgs := factory.CallArgs{
 						ContractABI: stakingReverterContract.ABI,
-						MethodName:  "run",
+						MethodName:  "multipleDelegations",
 						Args: []interface{}{
-							big.NewInt(10), s.network.GetValidators()[0].OperatorAddress,
+							big.NewInt(int64(evmtypes.MaxPrecompileCalls + 2)), s.network.GetValidators()[0].OperatorAddress,
 						},
 					}
 
@@ -2803,10 +2803,9 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// No delegation should be created
-					qRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
-					// TODO validate error message
-					Expect(err).To(BeNil()) // expected NO delegation created
-					Expect(qRes).To(BeNil())
+					_, err = s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).NotTo(BeNil())
+					Expect(err.Error()).To(ContainSubstring("not found"), "expected NO delegation created")
 				})
 			})
 
@@ -2876,7 +2875,10 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 
 					res, _, err := s.factory.CallContractAndCheckLogs(
 						s.keyring.GetPrivKey(0),
-						txArgs,
+						evmtypes.EvmTxArgs{
+							To:       &contractTwoAddr,
+							GasPrice: gasPrice.BigInt(),
+						},
 						args,
 						logCheckArgs,
 					)
@@ -2892,7 +2894,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount.Sub(transferToDelAmt)))
 
 					qRes, err := s.grpcHandler.GetDelegation(s.keyring.GetAccAddr(0).String(), valAddr.String())
-					Expect(err).To(BeNil()) // TODO validate error msg
+					Expect(err).To(BeNil())
 					Expect(qRes).NotTo(BeNil(), "expected delegation to be found")
 					delegation := qRes.DelegationResponse.Delegation
 					expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
