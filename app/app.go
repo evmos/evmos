@@ -926,8 +926,12 @@ func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BlockedAddrs returns all the app's module account addresses that are not
+// BlockedAddrs returns all the addresses that are not
 // allowed to receive external tokens.
+//
+// These include:
+//   - module accounts
+//   - the static precompiled contracts
 func (app *Evmos) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 
