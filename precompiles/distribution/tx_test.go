@@ -408,7 +408,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			},
 			func(_ []byte) {
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAccAddr(0), utils.BaseDenom)
-				// twice the rewards amount (rewards from 3 validators) - 5% commission
+				// rewards from 3 validators - 5% commission
 				expRewards := expRewardsAmt.Mul(math.NewInt(3))
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewards))
 			},
