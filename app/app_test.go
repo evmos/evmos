@@ -108,8 +108,8 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	// For now there are no exceptions, so this slice is empty.
 	var precompilesAbleToReceiveFunds []ethcommon.Address
 
-	availablePrecompiles := make([]ethcommon.Address, len(evmtypes.AvailableStaticEVMExtensions))
-	for i, precompile := range evmtypes.AvailableStaticEVMExtensions {
+	availablePrecompiles := make([]ethcommon.Address, len(evmtypes.AvailableStaticPrecompiles))
+	for i, precompile := range evmtypes.AvailableStaticPrecompiles {
 		availablePrecompiles[i] = ethcommon.HexToAddress(precompile)
 	}
 
