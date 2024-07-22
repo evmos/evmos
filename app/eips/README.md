@@ -102,9 +102,9 @@ In **evmOS**, custom activators should be defined in a structure with the same d
 ```go
 // Activate custom EIPs: 0000, 0001, 0002, etc
 evmosActivators = map[int]func(*vm.JumpTable){
-    0o000: eips.Enable0000,
-    0o001: eips.Enable0001,
-    0o002: eips.Enable0002,
+        "evmos_0": eips.Enable0000,
+	"evmos_1": eips.Enable0001,
+	"evmos_2": eips.Enable0002,
 }
 ```
 
@@ -123,11 +123,11 @@ should be defined. An example is reported below:
 
 ```go
 evmosEnabledEIPs = []int64{
-    0o000,
+    "evmos_0",
 }
 ```
 
-In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `0o000`
+In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `evmos_0`
 
 ### EVM Configurator
 

@@ -64,6 +64,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496) Refactor precompiles to use journal entries.
 - (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf) Update vesting precompile authorization checks.
 - (erc20) [#2607](https://github.com/evmos/evmos/pull/2607) Implement Single Token Representation v2.
+- (distribution-precompile) [#2682](https://github.com/evmos/evmos/pull/2682) Fix `claimRewards` bug and add new test cases.
+- (evm) [#2667](https://github.com/evmos/evmos/pull/2667) Modify activator maps and default extra EIP to use []string.
 
 ### Bug Fixes
 
@@ -118,6 +120,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
 - (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
 - (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
+- (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
