@@ -9,7 +9,7 @@ import (
 )
 
 func TestEnableCustomEIPs(t *testing.T) {
-	upgradeEIPs := []string{"evmos_0", "evmos_1", "evmos_2"}
+	upgradeEIPs := []string{"evmos_0"}
 
 	testCases := []struct {
 		name       string
@@ -19,12 +19,12 @@ func TestEnableCustomEIPs(t *testing.T) {
 		{
 			name:       "repeated EIP - skip",
 			activeEIPs: []string{"evmos_0"},
-			expEIPsNum: 3,
+			expEIPsNum: 1,
 		},
 		{
 			name:       "all new EIP",
 			activeEIPs: []string{"ethereum_3855"},
-			expEIPsNum: 4,
+			expEIPsNum: 2,
 		},
 	}
 
