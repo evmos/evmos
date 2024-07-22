@@ -60,7 +60,7 @@ func NewPrecompile(
 		},
 		stakingKeeper: stakingKeeper,
 	}
-	// SetAddress defines the address of the staking compile contract.
+	// SetAddress defines the address of the staking precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.StakingPrecompileAddress))
 
 	return p, nil

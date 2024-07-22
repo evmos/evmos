@@ -74,7 +74,7 @@ func NewPrecompile(
 		vestingKeeper: vestingKeeper,
 	}
 
-	// SetAddress defines the address of the bank compile contract.
+	// SetAddress defines the address of the vesting precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.VestingPrecompileAddress))
 
 	return p, nil
