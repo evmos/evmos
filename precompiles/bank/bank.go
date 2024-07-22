@@ -65,8 +65,10 @@ func NewPrecompile(
 		bankKeeper:  bankKeeper,
 		erc20Keeper: erc20Keeper,
 	}
+
 	// SetAddress defines the address of the bank compile contract.
 	p.SetAddress(common.HexToAddress(PrecompileAddress))
+
 	return p, nil
 }
 

@@ -108,11 +108,11 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	// For now there are no exceptions, so this slice is empty.
 	var precompilesAbleToReceiveFunds []ethcommon.Address
 
-	hexAvailablePrecompiles := network.App.EvmKeeper.GetParams(network.GetContext()).ActiveStaticPrecompiles
-	availablePrecompiles := make([]ethcommon.Address, len(hexAvailablePrecompiles))
-	for i, precompile := range hexAvailablePrecompiles {
+	availablePrecompiles := make([]ethcommon.Address, len(evmtypes.AvailableStaticPrecompiles))
+	for i, precompile := range evmtypes.AvailableStaticPrecompiles {
 		availablePrecompiles[i] = ethcommon.HexToAddress(precompile)
 	}
+
 	for _, precompileAddr := range availablePrecompiles {
 		t.Run(fmt.Sprintf("Cosmos Tx to %s\n", precompileAddr), func(t *testing.T) {
 			_, err := factory.ExecuteCosmosTx(signer.Priv, commontestfactory.CosmosTxArgs{

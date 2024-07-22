@@ -14,7 +14,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/precompiles/p256"
 	"github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -27,13 +26,13 @@ var (
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles
 	DefaultStaticPrecompiles = []string{
-		p256.PrecompileAddress,                       // P256 precompile
-		"0x0000000000000000000000000000000000000400", // Bech32 precompile
-		"0x0000000000000000000000000000000000000800", // Staking precompile
-		"0x0000000000000000000000000000000000000801", // Distribution precompile
-		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
-		"0x0000000000000000000000000000000000000803", // Vesting precompile
-		"0x0000000000000000000000000000000000000804", // Bank precompile
+		P256PrecompileAddress,         // P256 precompile
+		Bech32PrecompileAddress,       // Bech32 precompile
+		StakingPrecompileAddress,      // Staking precompile
+		DistributionPrecompileAddress, // Distribution precompile
+		ICS20PrecompileAddress,        // ICS20 transfer precompile
+		VestingPrecompileAddress,      // Vesting precompile
+		BankPrecompileAddress,         // Bank precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
