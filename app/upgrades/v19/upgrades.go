@@ -25,7 +25,7 @@ import (
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
 
-var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
+var newExtraEIPs = []string{"evmos_0"}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
@@ -91,13 +91,6 @@ func CreateUpgradeHandler(
 			} else {
 				logger.Error("error setting wevmos testnet contract", "error", err)
 			}
-		}
-
-		ctxCache, writeFn = ctx.CacheContext()
-		if err := UpdateBaseFee(ctxCache, fee); err == nil {
-			writeFn()
-		} else {
-			logger.Error("error setting new base fee", "error", err)
 		}
 
 		return migrationRes, err
