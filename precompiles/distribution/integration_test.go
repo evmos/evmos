@@ -340,7 +340,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// get rewards
 			rwRes, err := s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
 			Expect(err).To(BeNil())
-			expRewardsAmt = rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+			expRewardsAmt := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
 
 			txArgs.GasPrice = gasPrice.BigInt()
 			callArgs.Args = []interface{}{

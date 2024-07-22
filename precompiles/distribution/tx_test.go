@@ -399,19 +399,6 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
 		},
 		{
-			"fail - too many retrieved results",
-			func() []interface{} {
-				return []interface{}{
-					s.keyring.GetAddr(0),
-					uint32(32_000_000),
-				}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
-		},
-		{
 			"success - withdraw from all validators - 3",
 			func() []interface{} {
 				return []interface{}{
