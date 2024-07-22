@@ -931,7 +931,8 @@ func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 //
 // These include:
 //   - module accounts
-//   - the static precompiled contracts
+//   - Ethereum's native precompiles
+//   - the static precompiled contracts available through evmOS
 func (app *Evmos) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 
