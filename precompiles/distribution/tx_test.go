@@ -386,75 +386,48 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"invalid type for maxRetrieve: expected uint32",
 		},
 		{
-			"pass - withdraw from validators with maxRetrieve higher than number of validators",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(10),
-				}
-			},
-			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
-			},
-			20000,
-			false,
-			"",
-		},
-		{
 			"fail - too many retrieved results",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(32_000_000),
-				}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
-		},
-		{
-			"success - withdraw from all validators - 2",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(10),
-				}
-			},
-			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
-			},
-			20000,
-			false,
-			"",
-		},
-		{
-			"fail - too many retrieved results",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(32_000_000),
-				}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
-		},
-		{
-			"success - withdraw from all validators - 2",
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
-					uint32(2),
+					uint32(32_000_000),
+				}
+			},
+			func([]byte) {},
+			200000,
+			true,
+			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
+		},
+		{
+			"success - withdraw from all validators - 3",
+			func() []interface{} {
+				return []interface{}{
+					s.keyring.GetAddr(0),
+					uint32(3),
 				}
 			},
 			func(_ []byte) {
-				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
-				// twice the rewards amount (rewards from 2 validators) - 5% commission
-				expRewards := expRewardsAmt.Mul(math.NewInt(2))
+				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAccAddr(0), utils.BaseDenom)
+				// rewards from 3 validators - 5% commission
+				expRewards := expRewardsAmt.Mul(math.NewInt(3))
+				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewards))
+			},
+			20000,
+			false,
+			"",
+		},
+		{
+			"pass - withdraw from validators with maxRetrieve higher than number of validators",
+			func() []interface{} {
+				return []interface{}{
+					s.keyring.GetAddr(0),
+					uint32(10),
+				}
+			},
+			func([]byte) {
+				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAccAddr(0), utils.BaseDenom)
+				// rewards from 3 validators - 5% commission
+				expRewards := expRewardsAmt.Mul(math.NewInt(3))
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewards))
 			},
 			20000,
@@ -470,7 +443,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 				}
 			},
 			func([]byte) {
-				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
+				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAccAddr(0), utils.BaseDenom)
 				s.Require().Equal(balance.Amount, prevBalance.Amount.Add(expRewardsAmt))
 			},
 			20000,
@@ -520,6 +493,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 }
 
 func (s *PrecompileTestSuite) TestFundCommunityPool() {
+	var ctx sdk.Context
 	method := s.precompile.Methods[distribution.FundCommunityPoolMethod]
 
 	testCases := []struct {
@@ -557,94 +531,18 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			"success - fund the community pool 1 EVMOS",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 				}
 			},
 			func([]byte) {
-				coins := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
-				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
-				s.Require().Equal(expectedAmount, coins.AmountOf(utils.BaseDenom).BigInt())
-				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-				s.Require().Equal(big.NewInt(4e18), userBalance.Amount.BigInt())
-			},
-			20000,
-			false,
-			"",
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-
-			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
-
-			// Sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
-
-			bz, err := s.precompile.FundCommunityPool(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
-
-			if tc.expError {
-				s.Require().ErrorContains(err, tc.errContains)
-			} else {
+				pool, err := s.network.App.DistrKeeper.FeePool.Get(ctx)
 				s.Require().NoError(err)
-				tc.postCheck(bz)
-			}
-		})
-	}
-}
-
-func (s *PrecompileTestSuite) TestFundCommunityPool() {
-	method := s.precompile.Methods[distribution.FundCommunityPoolMethod]
-
-	testCases := []struct {
-		name        string
-		malleate    func() []interface{}
-		postCheck   func(data []byte)
-		gas         uint64
-		expError    bool
-		errContains string
-	}{
-		{
-			"fail - empty input args",
-			func() []interface{} {
-				return []interface{}{}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
-		},
-		{
-			"fail - invalid depositor address",
-			func() []interface{} {
-				return []interface{}{
-					nil,
-					big.NewInt(1e18),
-				}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			"invalid hex address address",
-		},
-		{
-			"success - fund the community pool 1 EVMOS",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					big.NewInt(1e18),
-				}
-			},
-			func([]byte) {
-				coins := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
-				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
+				coins := pool.CommunityPool
+				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(math.LegacyPrecision)), nil))
 				s.Require().Equal(expectedAmount, coins.AmountOf(utils.BaseDenom).BigInt())
-				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-				s.Require().Equal(big.NewInt(4e18), userBalance.Amount.BigInt())
+				userBalance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
+				s.Require().Equal(network.PrefundedAccountInitialBalance.Sub(math.NewInt(1e18)), userBalance.Amount)
 			},
 			20000,
 			false,
@@ -655,15 +553,16 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			ctx = s.network.GetContext()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			// Sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
+			// Sanity check to make sure the starting balance is always 100k EVMOS
+			balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), utils.BaseDenom)
+			s.Require().Equal(balance.Amount, network.PrefundedAccountInitialBalance)
 
-			bz, err := s.precompile.FundCommunityPool(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
+			bz, err := s.precompile.FundCommunityPool(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

@@ -180,12 +180,12 @@ func (s *PrecompileTestSuite) TestRun() {
 			malleate: func() (common.Address, []byte) {
 				input, err := s.precompile.Pack(
 					distribution.FundCommunityPoolMethod,
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
-				return s.address, input
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -195,12 +195,12 @@ func (s *PrecompileTestSuite) TestRun() {
 			malleate: func() (common.Address, []byte) {
 				input, err := s.precompile.Pack(
 					distribution.FundCommunityPoolMethod,
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
-				return s.address, input
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -255,7 +255,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				ctx, msg, cfg, nil, s.network.GetStateDB(),
 			)
 
-			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
+			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
