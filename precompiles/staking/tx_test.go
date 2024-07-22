@@ -47,7 +47,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		name          string
 		malleate      func() []interface{}
 		gas           uint64
-		callerAddress *geth.Address
+		callerAddress *common.Address
 		postCheck     func(data []byte)
 		expError      bool
 		errContains   string
@@ -362,7 +362,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 		name          string
 		malleate      func() []interface{}
 		gas           uint64
-		callerAddress *geth.Address
+		callerAddress *common.Address
 		postCheck     func(data []byte)
 		expError      bool
 		errContains   string
@@ -518,7 +518,10 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
-			&s.address,
+			func() *common.Address {
+				addr := s.keyring.GetAddr(0)
+				return &addr
+			}(),
 			func([]byte) {},
 			true,
 			"this method can only be called directly to the precompile",
