@@ -11,14 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
-
-const (
-	// PrecompileAddress defines the address of the bech32 precompile contract.
-	PrecompileAddress = "0x0000000000000000000000000000000000000400"
-)
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //
@@ -49,10 +45,9 @@ func NewPrecompile(baseGas uint64) (*Precompile, error) {
 	}, nil
 }
 
-// Address defines the address of the bech32 compile contract.
-// address: 0x0000000000000000000000000000000000000400
+// Address defines the address of the bech32 precompiled contract.
 func (Precompile) Address() common.Address {
-	return common.HexToAddress(PrecompileAddress)
+	return common.HexToAddress(evmtypes.Bech32PrecompileAddress)
 }
 
 // RequiredGas calculates the contract gas use.

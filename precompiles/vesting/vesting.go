@@ -17,11 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 )
-
-// PrecompileAddress of the vesting EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000803"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -75,8 +73,10 @@ func NewPrecompile(
 		},
 		vestingKeeper: vestingKeeper,
 	}
-	// SetAddress defines the address of the bank compile contract.
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
+
+	// SetAddress defines the address of the vesting precompiled contract.
+	p.SetAddress(common.HexToAddress(evmtypes.VestingPrecompileAddress))
+
 	return p, nil
 }
 

@@ -14,12 +14,10 @@ import (
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
-
-// PrecompileAddress of the ICS-20 EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000802"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -60,9 +58,10 @@ func NewPrecompile(
 		channelKeeper:  channelKeeper,
 		stakingKeeper:  stakingKeeper,
 	}
+
 	// SetAddress defines the address of the ICS-20 compile contract.
-	// address: 0x0000000000000000000000000000000000000802
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	p.SetAddress(common.HexToAddress(evmtypes.ICS20PrecompileAddress))
+
 	return p, nil
 }
 
