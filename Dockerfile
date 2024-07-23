@@ -7,7 +7,7 @@ WORKDIR /go/src/github.com/evmos/evmos
 
 COPY go.mod go.sum ./
 
-RUN set -eux; apk add --no-cache ca-certificates=20240226-r0 build-base=0.5-r3 git=2.45.2-r0 linux-headers=6.6-r0 bash=5.2.26-r0
+RUN set -eux; apk add --no-cache ca-certificates=20240705-r0 build-base=0.5-r3 git=2.45.2-r0 linux-headers=6.6-r0 bash=5.2.26-r0
 
 RUN --mount=type=bind,target=. --mount=type=secret,id=GITHUB_TOKEN \
     git config --global url."https://$(cat /run/secrets/GITHUB_TOKEN)@github.com/".insteadOf "https://github.com/"; \
