@@ -18,7 +18,6 @@ import (
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/staking"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v18/testutil"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
