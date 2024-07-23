@@ -4,7 +4,8 @@ on:
   push:
     tags:
       - "v*.*.*"
-permissions: read-all
+permissions:
+  contents: write
 
 jobs:
   goreleaser:
