@@ -13,13 +13,11 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-const (
-	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
-	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials #gitleaks:allow
-	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
-	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
-)
+// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
+const erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //
 
+// CreateGenesisWithTokenPairs creates a genesis that includes
+// the WEVMOS and 'xmpl' token pairs
 func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
 	// Add all keys from the keyring to the genesis accounts as well.
 	//
@@ -53,11 +51,16 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}, {
-		Erc20Address:  WEVMOSContractTestnet,
+		Erc20Address:  erc20types.WEVMOSContractTestnet,
 		Denom:         utils.BaseDenom,
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}}
+
+	// STR v2: update the NativePrecompiles and DynamicPrecompiles
+	// with the WEVMOS (default is mainnet) and 'xmpl' tokens in the erc20 params
+	erc20GenesisState.Params.NativePrecompiles = []string{erc20types.WEVMOSContractTestnet}
+	erc20GenesisState.Params.DynamicPrecompiles = []string{erc20TokenPairHex}
 
 	// Add the smart contracts to the EVM genesis
 	evmGenesisState := evmtypes.DefaultGenesisState()
