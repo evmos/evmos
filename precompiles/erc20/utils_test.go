@@ -21,6 +21,7 @@ import (
 	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	network "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -252,6 +253,7 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string, tokenPairs []
 
 // setupERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
 // a given token pair and adds the precompile to the available and active precompiles.
+// Do not use this function for integration tests.
 func setupERC20PrecompileForTokenPair(
 	unitNetwork network.UnitTestNetwork, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
@@ -276,13 +278,54 @@ func setupERC20PrecompileForTokenPair(
 	return precompile, nil
 }
 
+// setupNewERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
+// a given token pair and adds the precompile to the available and active precompiles.
+// This function should be used for integration tests
+func setupNewERC20PrecompileForTokenPair(
+	privKey cryptotypes.PrivKey,
+	unitNetwork *network.UnitTestNetwork,
+	tf factory.TxFactory, tokenPair erc20types.TokenPair,
+) (*erc20.Precompile, error) {
+	precompile, err := erc20.NewPrecompile(
+		tokenPair,
+		unitNetwork.App.BankKeeper,
+		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.TransferKeeper,
+	)
+	if err != nil {
+		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
+	}
+
+	// Update the params via gov proposal
+	params := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext())
+	params.DynamicPrecompiles = append(params.DynamicPrecompiles, precompile.Address().Hex())
+	slices.Sort(params.DynamicPrecompiles)
+
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := testutils.UpdateERC20Params(testutils.UpdateParamsInput{
+		Pk:      privKey,
+		Tf:      tf,
+		Network: unitNetwork,
+		Params:  params,
+	}); err != nil {
+		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
+	}
+
+	return precompile, nil
+}
+
 // CallType indicates which type of contract call is made during the integration tests.
 type CallType int
 
 // callType constants to differentiate between direct calls and calls through a contract.
 const (
 	directCall CallType = iota + 1
+	directCallToken2
 	contractCall
+	contractCallToken2
 	erc20Call
 	erc20CallerCall
 	erc20V5Call
@@ -290,7 +333,7 @@ const (
 )
 
 var (
-	nativeCallTypes = []CallType{directCall, contractCall}
+	nativeCallTypes = []CallType{directCall, directCallToken2, contractCall, contractCallToken2}
 	erc20CallTypes  = []CallType{erc20Call, erc20CallerCall, erc20V5Call, erc20V5CallerCall}
 )
 
@@ -402,6 +445,8 @@ func (is *IntegrationTestSuite) expectSendAuthzForERC20(callType CallType, contr
 
 	_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
 	Expect(err).ToNot(HaveOccurred(), "expected no error getting allowance")
+	// Increase block to update nonce
+	Expect(is.network.NextBlock()).To(BeNil())
 
 	var allowance *big.Int
 	err = contractABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)

@@ -3,11 +3,13 @@ package erc20_test
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"strings"
 	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -43,21 +45,24 @@ type IntegrationTestSuite struct {
 	keyring keyring.Keyring
 	factory factory.TxFactory
 
-	bondDenom  string
-	tokenDenom string
+	bondDenom     string
+	tokenDenom    string // erc20 precompile denom with supply
+	tokenDenomTwo string // erc20 precompile denom with zero supply
 
-	precompile *erc20.Precompile
+	precompile    *erc20.Precompile // erc20 precompile with supply
+	precompileTwo *erc20.Precompile // erc20 precompile with zero supply
 }
 
 func (is *IntegrationTestSuite) SetupTest() {
 	is.tokenDenom = "xmpl"
+	is.tokenDenomTwo = "xmpl2"
 
 	keys := keyring.New(2)
-	genesis := utils.CreateGenesisWithTokenPairs(keys)
+	genesis := utils.CreateGenesisWithTokenPairs(keys, is.tokenDenom, is.tokenDenomTwo)
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
-		network.WithOtherDenoms([]string{is.tokenDenom}),
+		network.WithOtherDenoms([]string{is.tokenDenom}), // add balance (supply) to is.tokenDenom
 		network.WithCustomGenesis(genesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
@@ -72,6 +77,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 
 	erc20Gen := genesis[erc20types.ModuleName].(*erc20types.GenesisState)
 	is.precompile = is.setupERC20Precompile(is.tokenDenom, erc20Gen.TokenPairs)
+	is.precompileTwo = is.setupERC20Precompile(is.tokenDenomTwo, erc20Gen.TokenPairs)
 }
 
 func TestIntegrationSuite(t *testing.T) {
@@ -126,6 +132,22 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
 				// to make calls to the correct ERC20 precompile.
 				ConstructorArgs: []interface{}{is.precompile.Address()},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
+		contractAddrTokenTwo, err := is.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: allowanceCallerContract,
+				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
+				// to make calls to the correct ERC20 precompile.
+				ConstructorArgs: []interface{}{is.precompileTwo.Address()},
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
@@ -190,8 +212,16 @@ var _ = Describe("ERC20 Extension -", func() {
 					Address: is.precompile.Address(),
 					ABI:     is.precompile.ABI,
 				},
+				directCallToken2: {
+					Address: is.precompileTwo.Address(),
+					ABI:     is.precompileTwo.ABI,
+				},
 				contractCall: {
 					Address: contractAddr,
+					ABI:     allowanceCallerContract.ABI,
+				},
+				contractCallToken2: {
+					Address: contractAddrTokenTwo,
 					ABI:     allowanceCallerContract.ABI,
 				},
 				erc20Call: {
@@ -215,7 +245,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
-		Expect(erc20Params.NativePrecompiles[0]).To(Equal(erc20types.WEVMOSContractTestnet))
+		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(erc20types.WEVMOSContractTestnet)))
 
 		wevmosAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
 		revertContractAddr, err = is.factory.DeployContract(
@@ -232,7 +262,6 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		err = is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
-		fmt.Println(revertContractAddr.String())
 	})
 
 	Context("basic functionality -", func() {
@@ -393,8 +422,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					txArgs evmtypes.EvmTxArgs
 				)
 				BeforeEach(func() {
-					fmt.Println(revertContractAddr.String())
-
 					args = factory.CallArgs{
 						ContractABI: revertCallerContract.ABI,
 					}
@@ -405,8 +432,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					}
 				})
 				It("should transfer tokens", func() {
-					fmt.Println(revertContractAddr.String())
-
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
@@ -471,10 +496,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					}
 					txArgs.Amount = amountToSend
 
-					transferCheck := passCheck.WithExpEvents(
-						erc20.EventTypeTransfer,
-					)
-					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, transferCheck)
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, execRevertedCheck)
 					Expect(err).To(BeNil())
 					Expect(is.network.NextBlock()).To(BeNil())
 
@@ -563,15 +585,12 @@ var _ = Describe("ERC20 Extension -", func() {
 						big.NewInt(100),
 						big.NewInt(100),
 						big.NewInt(100),
-						false,
-						false,
+						before,
+						after,
 					}
 					txArgs.Amount = big.NewInt(300)
 
-					transferCheck := passCheck.WithExpEvents(
-						erc20.EventTypeTransfer,
-					)
-					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, transferCheck)
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, execRevertedCheck)
 					Expect(err).To(BeNil())
 					Expect(is.network.NextBlock()).To(BeNil())
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
@@ -1317,6 +1336,15 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Fund account with some tokens
 				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
 
+				// if is native coin, get expSupply from the bank mod
+				if slices.Contains(nativeCallTypes, callType) {
+					qc := is.network.GetBankClient()
+					qRes, err := qc.SupplyOf(is.network.GetContext(), &banktypes.QuerySupplyOfRequest{Denom: is.tokenDenom})
+					Expect(err).To(BeNil())
+					Expect(qRes).NotTo(BeNil())
+					expSupply = qRes.Amount.Amount.BigInt()
+				}
+
 				// Query the balance
 				txArgs, supplyArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TotalSupplyMethod)
 
@@ -1347,8 +1375,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 				Expect(supply.Int64()).To(BeZero(), "expected zero supply")
 			},
-				Entry(" - direct call", directCall),
-				Entry(" - through contract", contractCall),
+				Entry(" - direct call", directCallToken2),
+				Entry(" - through contract", contractCallToken2),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
@@ -1924,7 +1952,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
 
 				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
-				is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+				is.precompile, err = setupNewERC20PrecompileForTokenPair(is.keyring.GetPrivKey(0), is.network, is.factory, tokenPair)
 				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
 
 				// commit changes to chain state
