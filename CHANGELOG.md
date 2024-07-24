@@ -67,6 +67,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2679](https://github.com/evmos/evmos/pull/2679) Reverted PR #2633. Use `EthAccount` type instead of `BaseAccount`.
 - (distribution-precompile) [#2682](https://github.com/evmos/evmos/pull/2682) Fix `claimRewards` bug and add new test cases.
 - (evm) [#2667](https://github.com/evmos/evmos/pull/2667) Modify activator maps and default extra EIP to use []string.
+- (erc20) [#2696](https://github.com/evmos/evmos/pull/2696) Consider EIP-55 in dynamic and native precompiles validations.
 
 ### Bug Fixes
 
