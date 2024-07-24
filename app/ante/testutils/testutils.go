@@ -134,6 +134,10 @@ func (suite *AnteTestSuite) WithEvmParamsOptions(evmParamsOpts func(*evmtypes.Pa
 	suite.evmParamsOption = evmParamsOpts
 }
 
+func (suite *AnteTestSuite) ResetEvmParamsOptions() {
+	suite.evmParamsOption = nil
+}
+
 func (suite *AnteTestSuite) GetKeyring() keyring.Keyring {
 	return suite.keyring
 }

@@ -1171,9 +1171,12 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.evmParamsOption = func(params *evmtypes.Params) {
+			suite.WithEvmParamsOptions(func(params *evmtypes.Params) {
 				params.AccessControl = tc.permissions
-			}
+			})
+			// clean up the evmParamsOption
+			defer suite.ResetEvmParamsOptions()
+
 			suite.SetupTest() // reset
 
 			ctx := suite.GetNetwork().GetContext()
