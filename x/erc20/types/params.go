@@ -141,8 +141,8 @@ func isAddrIncluded(addr common.Address, strAddrs []string) bool {
 	for _, sa := range strAddrs {
 		// check address bytes instead of the string due to possible differences
 		// on the address string related to EIP-55
-		precAddr := common.HexToAddress(sa)
-		if bytes.Equal(addr.Bytes(), precAddr.Bytes()) {
+		cmnAddr := common.HexToAddress(sa)
+		if bytes.Equal(addr.Bytes(), cmnAddr.Bytes()) {
 			return true
 		}
 	}
