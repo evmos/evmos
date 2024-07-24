@@ -1,9 +1,12 @@
 package types_test
 
 import (
+	"slices"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -111,6 +114,14 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"duplicate precompile",
 		},
 		{
+			"repeated address - one EIP-55 other not",
+			func() types.Params {
+				return types.NewParams(true, []string{}, []string{"0xcc491f589b45d4a3c679016195b3fb87d7848210", "0xcc491f589B45d4a3C679016195B3FB87D7848210"})
+			},
+			true,
+			"duplicate precompile",
+		},
+		{
 			"unsorted addresses",
 			func() types.Params {
 				params := types.DefaultParams()
@@ -135,7 +146,128 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 	}
 }
 
+func (suite *ParamsTestSuite) TestIsNativePrecompile() {
+	testCases := []struct {
+		name     string
+		malleate func() types.Params
+		addr     common.Address
+		expRes   bool
+	}{
+		{
+			"default",
+			types.DefaultParams,
+			common.HexToAddress(types.WEVMOSContractMainnet),
+			true,
+		},
+		{
+			"not native precompile",
+			func() types.Params { return types.NewParams(true, nil, nil) },
+			common.HexToAddress(types.WEVMOSContractMainnet),
+			false,
+		},
+		{
+			"EIP-55 address - is native precompile",
+			func() types.Params {
+				return types.NewParams(true, []string{"0xcc491f589B45d4a3C679016195B3FB87D7848210"}, nil)
+			},
+			common.HexToAddress(types.WEVMOSContractTestnet),
+			true,
+		},
+		{
+			"NOT EIP-55 address - is native precompile",
+			func() types.Params {
+				return types.NewParams(true, []string{"0xcc491f589b45d4a3c679016195b3fb87d7848210"}, nil)
+			},
+			common.HexToAddress(types.WEVMOSContractTestnet),
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		p := tc.malleate()
+		suite.Require().Equal(tc.expRes, p.IsNativePrecompile(tc.addr), tc.name)
+	}
+}
+
+func (suite *ParamsTestSuite) TestIsDynamicPrecompile() {
+	testCases := []struct {
+		name     string
+		malleate func() types.Params
+		addr     common.Address
+		expRes   bool
+	}{
+		{
+			"default - not dynamic precompile",
+			types.DefaultParams,
+			common.HexToAddress(types.WEVMOSContractMainnet),
+			false,
+		},
+		{
+			"no dynamic precompiles",
+			func() types.Params { return types.NewParams(true, nil, nil) },
+			common.HexToAddress(types.WEVMOSContractMainnet),
+			false,
+		},
+		{
+			"EIP-55 address - is dynamic precompile",
+			func() types.Params {
+				return types.NewParams(true, nil, []string{"0xcc491f589B45d4a3C679016195B3FB87D7848210"})
+			},
+			common.HexToAddress(types.WEVMOSContractTestnet),
+			true,
+		},
+		{
+			"NOT EIP-55 address - is dynamic precompile",
+			func() types.Params {
+				return types.NewParams(true, nil, []string{"0xcc491f589b45d4a3c679016195b3fb87d7848210"})
+			},
+			common.HexToAddress(types.WEVMOSContractTestnet),
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		p := tc.malleate()
+		suite.Require().Equal(tc.expRes, p.IsDynamicPrecompile(tc.addr), tc.name)
+	}
+}
+
 func (suite *ParamsTestSuite) TestParamsValidatePriv() {
 	suite.Require().Error(types.ValidateBool(1))
 	suite.Require().NoError(types.ValidateBool(true))
+}
+
+func TestValidatePrecompiles(t *testing.T) {
+	testCases := []struct {
+		name        string
+		precompiles []string
+		expError    bool
+		errContains string
+	}{
+		{
+			"invalid precompile address",
+			[]string{"0xct491f589b45d4a3c679016195b3fb87d7848210", "0xcc491f589B45d4a3C679016195B3FB87D7848210"},
+			true,
+			"invalid precompile",
+		},
+		{
+			"same address but one EIP-55 and other don't",
+			[]string{"0xcc491f589b45d4a3c679016195b3fb87d7848210", "0xcc491f589B45d4a3C679016195B3FB87D7848210"},
+			false,
+			"",
+		},
+	}
+	for _, tc := range testCases {
+
+		slices.Sort(tc.precompiles)
+		addrs, err := types.ValidatePrecompiles(tc.precompiles)
+
+		if tc.expError {
+			require.Error(t, err, tc.name)
+			require.ErrorContains(t, err, tc.errContains)
+		} else {
+			require.NoError(t, err, tc.name)
+			require.Equal(t, len(tc.precompiles), len(addrs), tc.name)
+		}
+	}
 }
