@@ -1,0 +1,25 @@
+name: goreleaser-dry-run
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/**
+
+permissions: read-all
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          check-latest: true
+      - name: release dry run
+        run: make release-dry-run
