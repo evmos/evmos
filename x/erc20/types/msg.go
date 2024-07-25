@@ -4,22 +4,34 @@
 package types
 
 import (
+	protov2 "google.golang.org/protobuf/proto"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
+	erc20api "github.com/evmos/evmos/v18/api/evmos/erc20/v1"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
-	_ sdk.Msg = &MsgConvertERC20{}
-	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg              = &MsgConvertERC20{}
+	_ sdk.Msg              = &MsgUpdateParams{}
+	_ sdk.HasValidateBasic = &MsgConvertERC20{}
+	_ sdk.HasValidateBasic = &MsgUpdateParams{}
 )
 
 const (
 	TypeMsgConvertERC20 = "convert_ERC20"
 )
+
+var MsgConvertERC20CustomGetSigner = txsigning.CustomGetSigner{
+	MsgType: protov2.MessageName(&erc20api.MsgConvertERC20{}),
+	Fn:      erc20api.GetSigners,
+}
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
 func NewMsgConvertERC20(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { //nolint: interfacer
@@ -58,18 +70,6 @@ func (msg MsgConvertERC20) ValidateBasic() error {
 // GetSignBytes encodes the message for signing
 func (msg MsgConvertERC20) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgConvertERC20) GetSigners() []sdk.AccAddress {
-	addr := common.HexToAddress(msg.Sender)
-	return []sdk.AccAddress{addr.Bytes()}
-}
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(m.Authority)
-	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check of the provided data
