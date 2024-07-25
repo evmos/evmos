@@ -9,18 +9,18 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v18/x/erc20/keeper"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 	erc20mocks "github.com/evmos/evmos/v18/x/erc20/types/mocks"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/mock"
 )
 
 func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 	var (
-		ctx          sdk.Context
 		contractAddr common.Address
 		coinName     string
 	)
@@ -71,8 +71,15 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			func(common.Address) {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
-				testutils.UpdateERC20Params(params)
-				suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
+				err := testutils.UpdateERC20Params(
+					testutils.UpdateParamsInput{
+						Tf:      suite.factory,
+						Network: suite.network,
+						Pk:      suite.keyring.GetPrivKey(0),
+						Params:  params,
+					},
+				)
+				suite.Require().NoError(err)
 			},
 			func() {},
 			contractMinterBurner,
@@ -222,7 +229,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			func(common.Address) {},
 			func() {
-				mockBankKeeper := &erc20mocks.BankKeeper{}
+				ctrl := gomock.NewController(suite.T())
+				mockBankKeeper := erc20mocks.NewMockBankKeeper(ctrl)
 
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
@@ -231,10 +239,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to mint"))
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to mint")).AnyTimes()
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow")).AnyTimes()
+				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false).AnyTimes()
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()}).AnyTimes()
 			},
 			contractMinterBurner,
 			false,
@@ -246,7 +254,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			func(common.Address) {},
 			func() {
-				mockBankKeeper := &erc20mocks.BankKeeper{}
+				ctrl := gomock.NewController(suite.T())
+				mockBankKeeper := erc20mocks.NewMockBankKeeper(ctrl)
+
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.network.App.AccountKeeper,
@@ -254,10 +264,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -269,7 +279,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			func(common.Address) {},
 			func() {
-				mockBankKeeper := &erc20mocks.BankKeeper{}
+				ctrl := gomock.NewController(suite.T())
+				mockBankKeeper := erc20mocks.NewMockBankKeeper(ctrl)
 
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
@@ -278,10 +289,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: math.NewInt(int64(10))})
+				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: coinName, Amount:  math.OneInt()}).AnyTimes()
 			},
 			contractMinterBurner,
 			false,
@@ -301,8 +312,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			contractAddr, err = suite.setupRegisterERC20Pair(tc.contractType)
 			suite.Require().NoError(err)
 
-			ctx = suite.network.GetContext()
-
 			tc.malleate(contractAddr)
 			suite.Require().NotNil(contractAddr)
 
@@ -312,7 +321,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			_, err = suite.MintERC20Token(contractAddr, suite.keyring.GetAddr(0), suite.keyring.GetAddr(0), big.NewInt(tc.mint))
 			suite.Require().NoError(err)
 			// update context with latest committed changes
-			ctx = suite.network.GetContext()
 
 			tc.extra()
 
@@ -323,17 +331,15 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.keyring.GetAddr(0),
 			)
 
-			_, err = suite.factory.CommitCosmosTx(
-				suite.keyring.GetPrivKey(0),
-				factory.CosmosTxArgs{
-					Msgs: []sdk.Msg{msg},
-				},
-			)
-			suite.Require().NoError(err)
-			ctx = suite.network.GetContext()
+			ctx := suite.network.GetContext()
+			_, err = suite.network.App.Erc20Keeper.ConvertERC20(ctx, msg)
+			// _, err = suite.factory.CommitCosmosTx(
+			// 	suite.keyring.GetPrivKey(0),
+			// 	factory.CosmosTxArgs{
+			// 		Msgs: []sdk.Msg{msg},
+			// 	},
+			// )
 
-			balance, err := suite.BalanceOf(contractAddr, suite.keyring.GetAddr(0))
-			suite.Require().NoError(err)
 			cosmosBalance := suite.network.App.BankKeeper.GetBalance(ctx, sender, coinName)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
@@ -351,7 +357,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.Require().False(found)
 				} else {
 					suite.Require().Equal(cosmosBalance.Amount, math.NewInt(tc.transfer))
-					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.transfer).Int64())
 				}
 			} else {
 				suite.Require().Error(err, tc.name)

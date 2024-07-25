@@ -7,8 +7,6 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
-
-	"github.com/stretchr/testify/mock"
 	
 	types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
@@ -19,7 +17,6 @@ import (
 
 // BankKeeper is a mock of BankKeeper interface.
 type BankKeeper struct {
-	mock.Mock
 	ctrl     *gomock.Controller
 	recorder *MockBankKeeperMockRecorder
 }
