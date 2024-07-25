@@ -16,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
@@ -88,7 +89,15 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []int64{}
-		err = in.UpdateEvmParams(defaultParams)
+
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
@@ -99,6 +108,8 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		res, err := tf.ExecuteEthTx(senderPriv, deploymentTxArgs)
 		Expect(err).To(BeNil(), "failed during contract deployment")
 		gasUsedPre = res.GasUsed
+		// commit block to update sender nonce
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
 	It("should enable the new EIP", func() {
@@ -108,7 +119,14 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(qRes.Params)
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
@@ -124,6 +142,8 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 		res, err := tf.ExecuteEthTx(senderPriv2, deploymentTxArgs)
 		Expect(err).To(BeNil(), "failed during contract deployment")
+		// commit block to update sender nonce
+		Expect(in.NextBlock()).To(BeNil())
 
 		gasUsedPost := res.GasUsed
 
@@ -173,7 +193,14 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []int64{}
-		err = in.UpdateEvmParams(defaultParams)
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
@@ -187,6 +214,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy counter factory contract")
+		Expect(in.NextBlock()).To(BeNil())
 
 		res, err := tf.ExecuteContractCall(
 			senderPriv,
@@ -200,6 +228,8 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to increment counter value")
 		gasUsedPre = res.GasUsed
 
+		Expect(in.NextBlock()).To(BeNil())
+
 		// Query the counter value to check proper state transition later.
 		res, err = tf.ExecuteContractCall(
 			senderPriv,
@@ -211,6 +241,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get counter value")
+		Expect(in.NextBlock()).To(BeNil())
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
@@ -232,7 +263,14 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(qRes.Params)
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
@@ -254,6 +292,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to increment counter value")
 		gasUsedPost := res.GasUsed
+		Expect(in.NextBlock()).To(BeNil())
 
 		res, err = tf.ExecuteContractCall(
 			senderPriv,
@@ -265,6 +304,8 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get counter value")
+		Expect(in.NextBlock()).To(BeNil())
+
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
 
@@ -329,7 +370,14 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		// Set extra EIPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []int64{}
-		err = in.UpdateEvmParams(defaultParams)
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 	})
 
@@ -339,6 +387,7 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 
 		res, err := tf.ExecuteEthTx(senderPriv, deploymentTxArgs)
 		Expect(err).To(BeNil(), "failed during contract deployment")
+		Expect(in.NextBlock()).To(BeNil())
 
 		gasUsedPre = res.GasUsed
 	})
@@ -350,7 +399,14 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = in.UpdateEvmParams(qRes.Params)
+		err = utils.UpdateEvmParams(
+			utils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
@@ -364,6 +420,7 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 
 		res, err := tf.ExecuteEthTx(senderPriv2, deploymentTxArgs)
 		Expect(err).To(BeNil(), "failed during contract deployment")
+		Expect(in.NextBlock()).To(BeNil())
 
 		gasUsedPost := res.GasUsed
 
