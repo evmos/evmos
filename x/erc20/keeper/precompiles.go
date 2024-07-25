@@ -21,7 +21,6 @@ func (k Keeper) GetERC20PrecompileInstance(
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
 	params := k.GetParams(ctx)
-
 	if k.IsAvailableERC20Precompile(&params, address) {
 		precompile, err := k.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
