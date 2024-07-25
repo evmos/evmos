@@ -5,8 +5,8 @@ package keeper
 
 import (
 	"fmt"
-	"slices"
 	"maps"
+	"slices"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"

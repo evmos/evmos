@@ -80,6 +80,10 @@ func (p *Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
+	if err := msg.Amount.Validate(); err != nil {
+		return nil, err
+	}
+
 	isTransferFrom := method.Name == TransferFromMethod
 	owner := sdk.AccAddress(from.Bytes())
 	spenderAddr := contract.CallerAddress
