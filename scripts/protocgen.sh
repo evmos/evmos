@@ -22,4 +22,4 @@ done
 cp -r github.com/evmos/evmos/v*/* ./
 rm -rf github.com
 
-./scripts/protocgen-pulsar.sh
+sh ./scripts/protocgen-pulsar.sh

@@ -2,18 +2,16 @@
 package erc20v1
 
 import (
-	fmt "fmt"
-	io "io"
-	reflect "reflect"
-	sync "sync"
-
 	_ "cosmossdk.io/api/amino"
-
+	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	io "io"
+	reflect "reflect"
+	sync "sync"
 )
 
 var _ protoreflect.List = (*_GenesisState_2_list)(nil)
@@ -100,21 +98,17 @@ func (x *GenesisState) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
-	_                                        protoreflect.MessageType = fastReflection_GenesisState_messageType{}
-)
+var _fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
+var _ protoreflect.MessageType = fastReflection_GenesisState_messageType{}
 
 type fastReflection_GenesisState_messageType struct{}
 
 func (x fastReflection_GenesisState_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_GenesisState)(nil)
 }
-
 func (x fastReflection_GenesisState_messageType) New() protoreflect.Message {
 	return new(fastReflection_GenesisState)
 }
-
 func (x fastReflection_GenesisState_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_GenesisState
 }
@@ -593,17 +587,111 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 	}
 }
 
+var _ protoreflect.List = (*_Params_3_list)(nil)
+
+type _Params_3_list struct {
+	list *[]string
+}
+
+func (x *_Params_3_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_Params_3_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_Params_3_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_Params_3_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_Params_3_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message Params at list field NativePrecompiles as it is not of Message kind"))
+}
+
+func (x *_Params_3_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_Params_3_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_Params_3_list) IsValid() bool {
+	return x.list != nil
+}
+
+var _ protoreflect.List = (*_Params_4_list)(nil)
+
+type _Params_4_list struct {
+	list *[]string
+}
+
+func (x *_Params_4_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_Params_4_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_Params_4_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_Params_4_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_Params_4_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message Params at list field DynamicPrecompiles as it is not of Message kind"))
+}
+
+func (x *_Params_4_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_Params_4_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_Params_4_list) IsValid() bool {
+	return x.list != nil
+}
+
 var (
-	md_Params                 protoreflect.MessageDescriptor
-	fd_Params_enable_erc20    protoreflect.FieldDescriptor
-	fd_Params_enable_evm_hook protoreflect.FieldDescriptor
+	md_Params                     protoreflect.MessageDescriptor
+	fd_Params_enable_erc20        protoreflect.FieldDescriptor
+	fd_Params_native_precompiles  protoreflect.FieldDescriptor
+	fd_Params_dynamic_precompiles protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_evmos_erc20_v1_genesis_proto_init()
 	md_Params = File_evmos_erc20_v1_genesis_proto.Messages().ByName("Params")
 	fd_Params_enable_erc20 = md_Params.Fields().ByName("enable_erc20")
-	fd_Params_enable_evm_hook = md_Params.Fields().ByName("enable_evm_hook")
+	fd_Params_native_precompiles = md_Params.Fields().ByName("native_precompiles")
+	fd_Params_dynamic_precompiles = md_Params.Fields().ByName("dynamic_precompiles")
 }
 
 var _ protoreflect.Message = (*fastReflection_Params)(nil)
@@ -626,21 +714,17 @@ func (x *Params) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_Params_messageType fastReflection_Params_messageType
-	_                                  protoreflect.MessageType = fastReflection_Params_messageType{}
-)
+var _fastReflection_Params_messageType fastReflection_Params_messageType
+var _ protoreflect.MessageType = fastReflection_Params_messageType{}
 
 type fastReflection_Params_messageType struct{}
 
 func (x fastReflection_Params_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_Params)(nil)
 }
-
 func (x fastReflection_Params_messageType) New() protoreflect.Message {
 	return new(fastReflection_Params)
 }
-
 func (x fastReflection_Params_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_Params
 }
@@ -681,9 +765,15 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 			return
 		}
 	}
-	if x.EnableEvmHook != false {
-		value := protoreflect.ValueOfBool(x.EnableEvmHook)
-		if !f(fd_Params_enable_evm_hook, value) {
+	if len(x.NativePrecompiles) != 0 {
+		value := protoreflect.ValueOfList(&_Params_3_list{list: &x.NativePrecompiles})
+		if !f(fd_Params_native_precompiles, value) {
+			return
+		}
+	}
+	if len(x.DynamicPrecompiles) != 0 {
+		value := protoreflect.ValueOfList(&_Params_4_list{list: &x.DynamicPrecompiles})
+		if !f(fd_Params_dynamic_precompiles, value) {
 			return
 		}
 	}
@@ -704,8 +794,10 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	case "evmos.erc20.v1.Params.enable_erc20":
 		return x.EnableErc20 != false
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		return x.EnableEvmHook != false
+	case "evmos.erc20.v1.Params.native_precompiles":
+		return len(x.NativePrecompiles) != 0
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		return len(x.DynamicPrecompiles) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -724,8 +816,10 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	case "evmos.erc20.v1.Params.enable_erc20":
 		x.EnableErc20 = false
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		x.EnableEvmHook = false
+	case "evmos.erc20.v1.Params.native_precompiles":
+		x.NativePrecompiles = nil
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		x.DynamicPrecompiles = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -745,9 +839,18 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 	case "evmos.erc20.v1.Params.enable_erc20":
 		value := x.EnableErc20
 		return protoreflect.ValueOfBool(value)
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		value := x.EnableEvmHook
-		return protoreflect.ValueOfBool(value)
+	case "evmos.erc20.v1.Params.native_precompiles":
+		if len(x.NativePrecompiles) == 0 {
+			return protoreflect.ValueOfList(&_Params_3_list{})
+		}
+		listValue := &_Params_3_list{list: &x.NativePrecompiles}
+		return protoreflect.ValueOfList(listValue)
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		if len(x.DynamicPrecompiles) == 0 {
+			return protoreflect.ValueOfList(&_Params_4_list{})
+		}
+		listValue := &_Params_4_list{list: &x.DynamicPrecompiles}
+		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -770,8 +873,14 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 	switch fd.FullName() {
 	case "evmos.erc20.v1.Params.enable_erc20":
 		x.EnableErc20 = value.Bool()
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		x.EnableEvmHook = value.Bool()
+	case "evmos.erc20.v1.Params.native_precompiles":
+		lv := value.List()
+		clv := lv.(*_Params_3_list)
+		x.NativePrecompiles = *clv.list
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		lv := value.List()
+		clv := lv.(*_Params_4_list)
+		x.DynamicPrecompiles = *clv.list
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -792,10 +901,20 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "evmos.erc20.v1.Params.native_precompiles":
+		if x.NativePrecompiles == nil {
+			x.NativePrecompiles = []string{}
+		}
+		value := &_Params_3_list{list: &x.NativePrecompiles}
+		return protoreflect.ValueOfList(value)
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		if x.DynamicPrecompiles == nil {
+			x.DynamicPrecompiles = []string{}
+		}
+		value := &_Params_4_list{list: &x.DynamicPrecompiles}
+		return protoreflect.ValueOfList(value)
 	case "evmos.erc20.v1.Params.enable_erc20":
 		panic(fmt.Errorf("field enable_erc20 of message evmos.erc20.v1.Params is not mutable"))
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		panic(fmt.Errorf("field enable_evm_hook of message evmos.erc20.v1.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -811,8 +930,12 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 	switch fd.FullName() {
 	case "evmos.erc20.v1.Params.enable_erc20":
 		return protoreflect.ValueOfBool(false)
-	case "evmos.erc20.v1.Params.enable_evm_hook":
-		return protoreflect.ValueOfBool(false)
+	case "evmos.erc20.v1.Params.native_precompiles":
+		list := []string{}
+		return protoreflect.ValueOfList(&_Params_3_list{list: &list})
+	case "evmos.erc20.v1.Params.dynamic_precompiles":
+		list := []string{}
+		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
@@ -885,8 +1008,17 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if x.EnableErc20 {
 			n += 2
 		}
-		if x.EnableEvmHook {
-			n += 2
+		if len(x.NativePrecompiles) > 0 {
+			for _, s := range x.NativePrecompiles {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if len(x.DynamicPrecompiles) > 0 {
+			for _, s := range x.DynamicPrecompiles {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -917,15 +1049,23 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if x.EnableEvmHook {
-			i--
-			if x.EnableEvmHook {
-				dAtA[i] = 1
-			} else {
-				dAtA[i] = 0
+		if len(x.DynamicPrecompiles) > 0 {
+			for iNdEx := len(x.DynamicPrecompiles) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.DynamicPrecompiles[iNdEx])
+				copy(dAtA[i:], x.DynamicPrecompiles[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DynamicPrecompiles[iNdEx])))
+				i--
+				dAtA[i] = 0x22
 			}
-			i--
-			dAtA[i] = 0x10
+		}
+		if len(x.NativePrecompiles) > 0 {
+			for iNdEx := len(x.NativePrecompiles) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.NativePrecompiles[iNdEx])
+				copy(dAtA[i:], x.NativePrecompiles[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.NativePrecompiles[iNdEx])))
+				i--
+				dAtA[i] = 0x1a
+			}
 		}
 		if x.EnableErc20 {
 			i--
@@ -1006,11 +1146,11 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 					}
 				}
 				x.EnableErc20 = bool(v != 0)
-			case 2:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field EnableEvmHook", wireType)
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field NativePrecompiles", wireType)
 				}
-				var v int
+				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -1020,12 +1160,56 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= int(b&0x7F) << shift
+					stringLen |= uint64(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				x.EnableEvmHook = bool(v != 0)
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.NativePrecompiles = append(x.NativePrecompiles, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
+			case 4:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DynamicPrecompiles", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.DynamicPrecompiles = append(x.DynamicPrecompiles, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -1131,9 +1315,12 @@ type Params struct {
 
 	// enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
 	EnableErc20 bool `protobuf:"varint,1,opt,name=enable_erc20,json=enableErc20,proto3" json:"enable_erc20,omitempty"`
-	// enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
-	// Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address.
-	EnableEvmHook bool `protobuf:"varint,2,opt,name=enable_evm_hook,json=enableEvmHook,proto3" json:"enable_evm_hook,omitempty"`
+	// native_precompiles defines the slice of hex addresses of the
+	// active precompiles that are used to interact with native staking coins as ERC20s
+	NativePrecompiles []string `protobuf:"bytes,3,rep,name=native_precompiles,json=nativePrecompiles,proto3" json:"native_precompiles,omitempty"`
+	// dynamic_precompiles defines the slice of hex addresses of the
+	// active precompiles that are used to interact with Bank coins as ERC20s
+	DynamicPrecompiles []string `protobuf:"bytes,4,rep,name=dynamic_precompiles,json=dynamicPrecompiles,proto3" json:"dynamic_precompiles,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -1163,11 +1350,18 @@ func (x *Params) GetEnableErc20() bool {
 	return false
 }
 
-func (x *Params) GetEnableEvmHook() bool {
+func (x *Params) GetNativePrecompiles() []string {
 	if x != nil {
-		return x.EnableEvmHook
+		return x.NativePrecompiles
 	}
-	return false
+	return nil
+}
+
+func (x *Params) GetDynamicPrecompiles() []string {
+	if x != nil {
+		return x.DynamicPrecompiles
+	}
+	return nil
 }
 
 var File_evmos_erc20_v1_genesis_proto protoreflect.FileDescriptor
@@ -1175,11 +1369,11 @@ var File_evmos_erc20_v1_genesis_proto protoreflect.FileDescriptor
 var file_evmos_erc20_v1_genesis_proto_rawDesc = []byte{
 	0x0a, 0x1c, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31,
 	0x2f, 0x67, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e,
-	0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x1a, 0x1a,
-	0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31, 0x2f, 0x65,
-	0x72, 0x63, 0x32, 0x30, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72,
+	0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x1a, 0x11,
+	0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x1a, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76,
+	0x31, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67,
+	0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x22, 0x90, 0x01, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53,
 	0x74, 0x61, 0x74, 0x65, 0x12, 0x39, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63,
@@ -1189,24 +1383,27 @@ var file_evmos_erc20_v1_genesis_proto_rawDesc = []byte{
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63,
 	0x32, 0x30, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50, 0x61, 0x69, 0x72, 0x42,
 	0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0a, 0x74, 0x6f, 0x6b, 0x65,
-	0x6e, 0x50, 0x61, 0x69, 0x72, 0x73, 0x22, 0x66, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x12, 0x21, 0x0a, 0x0c, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x65, 0x72, 0x63, 0x32, 0x30,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x45, 0x72,
-	0x63, 0x32, 0x30, 0x12, 0x39, 0x0a, 0x0f, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x65, 0x76,
-	0x6d, 0x5f, 0x68, 0x6f, 0x6f, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x42, 0x11, 0xe2, 0xde,
-	0x1f, 0x0d, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x45, 0x56, 0x4d, 0x48, 0x6f, 0x6f, 0x6b, 0x52,
-	0x0d, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x45, 0x76, 0x6d, 0x48, 0x6f, 0x6f, 0x6b, 0x42, 0xa5,
-	0x01, 0x0a, 0x12, 0x63, 0x6f, 0x6d, 0x2e, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63,
-	0x32, 0x30, 0x2e, 0x76, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72,
-	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x27, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b,
-	0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72,
-	0x63, 0x32, 0x30, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x72, 0x63, 0x32, 0x30, 0x76, 0x31, 0xa2, 0x02,
-	0x03, 0x45, 0x45, 0x58, 0xaa, 0x02, 0x0e, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x45, 0x72, 0x63,
-	0x32, 0x30, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0e, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x5c, 0x45, 0x72,
-	0x63, 0x32, 0x30, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1a, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x5c, 0x45,
-	0x72, 0x63, 0x32, 0x30, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64,
-	0x61, 0x74, 0x61, 0xea, 0x02, 0x10, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x45, 0x72, 0x63,
-	0x32, 0x30, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x50, 0x61, 0x69, 0x72, 0x73, 0x22, 0x91, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x12, 0x21, 0x0a, 0x0c, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x65, 0x72, 0x63, 0x32,
+	0x30, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x45,
+	0x72, 0x63, 0x32, 0x30, 0x12, 0x2d, 0x0a, 0x12, 0x6e, 0x61, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x70,
+	0x72, 0x65, 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x11, 0x6e, 0x61, 0x74, 0x69, 0x76, 0x65, 0x50, 0x72, 0x65, 0x63, 0x6f, 0x6d, 0x70, 0x69,
+	0x6c, 0x65, 0x73, 0x12, 0x2f, 0x0a, 0x13, 0x64, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x5f, 0x70,
+	0x72, 0x65, 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x12, 0x64, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x50, 0x72, 0x65, 0x63, 0x6f, 0x6d, 0x70,
+	0x69, 0x6c, 0x65, 0x73, 0x4a, 0x04, 0x08, 0x02, 0x10, 0x03, 0x42, 0xa5, 0x01, 0x0a, 0x12, 0x63,
+	0x6f, 0x6d, 0x2e, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76,
+	0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
+	0x01, 0x5a, 0x27, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f,
+	0x76, 0x31, 0x3b, 0x65, 0x72, 0x63, 0x32, 0x30, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x45, 0x45, 0x58,
+	0xaa, 0x02, 0x0e, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x45, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x56,
+	0x31, 0xca, 0x02, 0x0e, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x5c, 0x45, 0x72, 0x63, 0x32, 0x30, 0x5c,
+	0x56, 0x31, 0xe2, 0x02, 0x1a, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x5c, 0x45, 0x72, 0x63, 0x32, 0x30,
+	0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea,
+	0x02, 0x10, 0x45, 0x76, 0x6d, 0x6f, 0x73, 0x3a, 0x3a, 0x45, 0x72, 0x63, 0x32, 0x30, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1221,15 +1418,12 @@ func file_evmos_erc20_v1_genesis_proto_rawDescGZIP() []byte {
 	return file_evmos_erc20_v1_genesis_proto_rawDescData
 }
 
-var (
-	file_evmos_erc20_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_evmos_erc20_v1_genesis_proto_goTypes  = []interface{}{
-		(*GenesisState)(nil), // 0: evmos.erc20.v1.GenesisState
-		(*Params)(nil),       // 1: evmos.erc20.v1.Params
-		(*TokenPair)(nil),    // 2: evmos.erc20.v1.TokenPair
-	}
-)
-
+var file_evmos_erc20_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_evmos_erc20_v1_genesis_proto_goTypes = []interface{}{
+	(*GenesisState)(nil), // 0: evmos.erc20.v1.GenesisState
+	(*Params)(nil),       // 1: evmos.erc20.v1.Params
+	(*TokenPair)(nil),    // 2: evmos.erc20.v1.TokenPair
+}
 var file_evmos_erc20_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: evmos.erc20.v1.GenesisState.params:type_name -> evmos.erc20.v1.Params
 	2, // 1: evmos.erc20.v1.GenesisState.token_pairs:type_name -> evmos.erc20.v1.TokenPair

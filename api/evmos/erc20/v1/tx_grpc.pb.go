@@ -22,7 +22,6 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_ConvertCoin_FullMethodName  = "/evmos.erc20.v1.Msg/ConvertCoin"
 	Msg_ConvertERC20_FullMethodName = "/evmos.erc20.v1.Msg/ConvertERC20"
 	Msg_UpdateParams_FullMethodName = "/evmos.erc20.v1.Msg/UpdateParams"
 )
@@ -31,9 +30,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgClient interface {
-	// ConvertCoin mints a ERC20 representation of the native Cosmos coin denom
-	// that is registered on the token mapping.
-	ConvertCoin(ctx context.Context, in *MsgConvertCoin, opts ...grpc.CallOption) (*MsgConvertCoinResponse, error)
 	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
 	// contract that is registered on the token mapping.
 	ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts ...grpc.CallOption) (*MsgConvertERC20Response, error)
@@ -48,15 +44,6 @@ type msgClient struct {
 
 func NewMsgClient(cc grpc.ClientConnInterface) MsgClient {
 	return &msgClient{cc}
-}
-
-func (c *msgClient) ConvertCoin(ctx context.Context, in *MsgConvertCoin, opts ...grpc.CallOption) (*MsgConvertCoinResponse, error) {
-	out := new(MsgConvertCoinResponse)
-	err := c.cc.Invoke(ctx, Msg_ConvertCoin_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *msgClient) ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts ...grpc.CallOption) (*MsgConvertERC20Response, error) {
@@ -81,9 +68,6 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
 type MsgServer interface {
-	// ConvertCoin mints a ERC20 representation of the native Cosmos coin denom
-	// that is registered on the token mapping.
-	ConvertCoin(context.Context, *MsgConvertCoin) (*MsgConvertCoinResponse, error)
 	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
 	// contract that is registered on the token mapping.
 	ConvertERC20(context.Context, *MsgConvertERC20) (*MsgConvertERC20Response, error)
@@ -97,9 +81,6 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
-func (UnimplementedMsgServer) ConvertCoin(context.Context, *MsgConvertCoin) (*MsgConvertCoinResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConvertCoin not implemented")
-}
 func (UnimplementedMsgServer) ConvertERC20(context.Context, *MsgConvertERC20) (*MsgConvertERC20Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConvertERC20 not implemented")
 }
@@ -117,24 +98,6 @@ type UnsafeMsgServer interface {
 
 func RegisterMsgServer(s grpc.ServiceRegistrar, srv MsgServer) {
 	s.RegisterService(&Msg_ServiceDesc, srv)
-}
-
-func _Msg_ConvertCoin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgConvertCoin)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).ConvertCoin(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Msg_ConvertCoin_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).ConvertCoin(ctx, req.(*MsgConvertCoin))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Msg_ConvertERC20_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -180,10 +143,6 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "evmos.erc20.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ConvertCoin",
-			Handler:    _Msg_ConvertCoin_Handler,
-		},
 		{
 			MethodName: "ConvertERC20",
 			Handler:    _Msg_ConvertERC20_Handler,

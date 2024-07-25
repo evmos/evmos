@@ -2,20 +2,18 @@
 package epochsv1
 
 import (
-	fmt "fmt"
-	io "io"
-	reflect "reflect"
-	sync "sync"
-
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/query/v1beta1"
-
+	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	io "io"
+	reflect "reflect"
+	sync "sync"
 )
 
 var (
@@ -49,21 +47,17 @@ func (x *QueryEpochsInfoRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_QueryEpochsInfoRequest_messageType fastReflection_QueryEpochsInfoRequest_messageType
-	_                                                  protoreflect.MessageType = fastReflection_QueryEpochsInfoRequest_messageType{}
-)
+var _fastReflection_QueryEpochsInfoRequest_messageType fastReflection_QueryEpochsInfoRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryEpochsInfoRequest_messageType{}
 
 type fastReflection_QueryEpochsInfoRequest_messageType struct{}
 
 func (x fastReflection_QueryEpochsInfoRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryEpochsInfoRequest)(nil)
 }
-
 func (x fastReflection_QueryEpochsInfoRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryEpochsInfoRequest)
 }
-
 func (x fastReflection_QueryEpochsInfoRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryEpochsInfoRequest
 }
@@ -541,21 +535,17 @@ func (x *QueryEpochsInfoResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_QueryEpochsInfoResponse_messageType fastReflection_QueryEpochsInfoResponse_messageType
-	_                                                   protoreflect.MessageType = fastReflection_QueryEpochsInfoResponse_messageType{}
-)
+var _fastReflection_QueryEpochsInfoResponse_messageType fastReflection_QueryEpochsInfoResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryEpochsInfoResponse_messageType{}
 
 type fastReflection_QueryEpochsInfoResponse_messageType struct{}
 
 func (x fastReflection_QueryEpochsInfoResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryEpochsInfoResponse)(nil)
 }
-
 func (x fastReflection_QueryEpochsInfoResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryEpochsInfoResponse)
 }
-
 func (x fastReflection_QueryEpochsInfoResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryEpochsInfoResponse
 }
@@ -1065,21 +1055,17 @@ func (x *QueryCurrentEpochRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_QueryCurrentEpochRequest_messageType fastReflection_QueryCurrentEpochRequest_messageType
-	_                                                    protoreflect.MessageType = fastReflection_QueryCurrentEpochRequest_messageType{}
-)
+var _fastReflection_QueryCurrentEpochRequest_messageType fastReflection_QueryCurrentEpochRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCurrentEpochRequest_messageType{}
 
 type fastReflection_QueryCurrentEpochRequest_messageType struct{}
 
 func (x fastReflection_QueryCurrentEpochRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCurrentEpochRequest)(nil)
 }
-
 func (x fastReflection_QueryCurrentEpochRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCurrentEpochRequest)
 }
-
 func (x fastReflection_QueryCurrentEpochRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCurrentEpochRequest
 }
@@ -1489,21 +1475,17 @@ func (x *QueryCurrentEpochResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_QueryCurrentEpochResponse_messageType fastReflection_QueryCurrentEpochResponse_messageType
-	_                                                     protoreflect.MessageType = fastReflection_QueryCurrentEpochResponse_messageType{}
-)
+var _fastReflection_QueryCurrentEpochResponse_messageType fastReflection_QueryCurrentEpochResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCurrentEpochResponse_messageType{}
 
 type fastReflection_QueryCurrentEpochResponse_messageType struct{}
 
 func (x fastReflection_QueryCurrentEpochResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCurrentEpochResponse)(nil)
 }
-
 func (x fastReflection_QueryCurrentEpochResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCurrentEpochResponse)
 }
-
 func (x fastReflection_QueryCurrentEpochResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCurrentEpochResponse
 }
@@ -2048,16 +2030,16 @@ var File_evmos_epochs_v1_query_proto protoreflect.FileDescriptor
 var file_evmos_epochs_v1_query_proto_rawDesc = []byte{
 	0x0a, 0x1b, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2f, 0x76,
 	0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0f, 0x65,
-	0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2e, 0x76, 0x31, 0x1a, 0x2a,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x71, 0x75, 0x65, 0x72,
-	0x79, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1d, 0x65, 0x76, 0x6d, 0x6f,
-	0x73, 0x2f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x6e, 0x65,
-	0x73, 0x69, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
-	0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f,
-	0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61,
-	0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2e, 0x76, 0x31, 0x1a, 0x11,
+	0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x2a, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x71,
+	0x75, 0x65, 0x72, 0x79, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x67,
+	0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1d, 0x65,
+	0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2f, 0x76, 0x31, 0x2f, 0x67,
+	0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f,
+	0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61,
+	0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x22, 0x60, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x45, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x49,
 	0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61,
 	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26,
@@ -2126,19 +2108,16 @@ func file_evmos_epochs_v1_query_proto_rawDescGZIP() []byte {
 	return file_evmos_epochs_v1_query_proto_rawDescData
 }
 
-var (
-	file_evmos_epochs_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-	file_evmos_epochs_v1_query_proto_goTypes  = []interface{}{
-		(*QueryEpochsInfoRequest)(nil),    // 0: evmos.epochs.v1.QueryEpochsInfoRequest
-		(*QueryEpochsInfoResponse)(nil),   // 1: evmos.epochs.v1.QueryEpochsInfoResponse
-		(*QueryCurrentEpochRequest)(nil),  // 2: evmos.epochs.v1.QueryCurrentEpochRequest
-		(*QueryCurrentEpochResponse)(nil), // 3: evmos.epochs.v1.QueryCurrentEpochResponse
-		(*v1beta1.PageRequest)(nil),       // 4: cosmos.base.query.v1beta1.PageRequest
-		(*EpochInfo)(nil),                 // 5: evmos.epochs.v1.EpochInfo
-		(*v1beta1.PageResponse)(nil),      // 6: cosmos.base.query.v1beta1.PageResponse
-	}
-)
-
+var file_evmos_epochs_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_evmos_epochs_v1_query_proto_goTypes = []interface{}{
+	(*QueryEpochsInfoRequest)(nil),    // 0: evmos.epochs.v1.QueryEpochsInfoRequest
+	(*QueryEpochsInfoResponse)(nil),   // 1: evmos.epochs.v1.QueryEpochsInfoResponse
+	(*QueryCurrentEpochRequest)(nil),  // 2: evmos.epochs.v1.QueryCurrentEpochRequest
+	(*QueryCurrentEpochResponse)(nil), // 3: evmos.epochs.v1.QueryCurrentEpochResponse
+	(*v1beta1.PageRequest)(nil),       // 4: cosmos.base.query.v1beta1.PageRequest
+	(*EpochInfo)(nil),                 // 5: evmos.epochs.v1.EpochInfo
+	(*v1beta1.PageResponse)(nil),      // 6: cosmos.base.query.v1beta1.PageResponse
+}
 var file_evmos_epochs_v1_query_proto_depIdxs = []int32{
 	4, // 0: evmos.epochs.v1.QueryEpochsInfoRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	5, // 1: evmos.epochs.v1.QueryEpochsInfoResponse.epochs:type_name -> evmos.epochs.v1.EpochInfo
