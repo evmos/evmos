@@ -27,7 +27,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 	}
 
 	lastBid := k.GetHighestBid(ctx)
-	if bid.Amount.Amount.LT(lastBid.Amount.Amount) {
+	if bid.Amount.Amount.LTE(lastBid.Amount.Amount) {
 		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than last bid %s", bid.Amount, lastBid.Amount)
 	}
 
@@ -75,7 +75,7 @@ func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin
 	return &types.MsgDepositCoinResponse{}, nil
 }
 
-// UpdateParams defines a method for updating inflation params
+// UpdateParams defines a method for updating auction params
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority.String() != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), req.Authority)
@@ -92,17 +92,13 @@ func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) 
 // refundLastBid refunds the last bid placed on an auction
 func (k Keeper) refundLastBid(ctx sdk.Context) error {
 
-	previousBid := k.GetHighestBid(ctx)
-	previousBidAmount := previousBid.Amount.Amount
+	lastBid := k.GetHighestBid(ctx)
+	lastBidAmount := previousBid.Amount.Amount
 	lastBidder, err := sdk.AccAddressFromBech32(previousBid.Sender)
 	if err != nil {
 		return err
 	}
 
 	bidAmount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, previousBidAmount))
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount); err != nil {
-		return err
-	}
-
-	return nil
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount); 
 }

@@ -9,13 +9,13 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
-// GenesisState defines the inflation module's genesis state.
+// GenesisState defines the auctions module's genesis state.
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// Params holds parameters for the inflation module.
+// Params holds parameters for the auctions module.
 message Params {
   // enable_auction is a boolean that defines if the auction module is enabled
   bool enable_auction = 1;

@@ -14,7 +14,7 @@ service Query {
   rpc AuctionInfo(QueryCurrentAuctionInfoRequest) returns (QueryCurrentAuctionInfoResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/auction_info";
   }
-  // Params retrieves the erc20 module params
+  // Params retrieves the auctions module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/params";
   }
@@ -23,7 +23,7 @@ service Query {
 message QueryParamsRequest {}
 
 message QueryParamsResponse {
-  // params defines all the paramaters of the module
+  // params defines all the parameters of the module
   Params params = 1;
 }
 

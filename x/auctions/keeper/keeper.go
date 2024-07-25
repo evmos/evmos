@@ -11,7 +11,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
-// Keeper of the inflation store
+// Keeper of the auction store
 type Keeper struct {
 	storeKey      storetypes.StoreKey
 	cdc           codec.BinaryCodec
@@ -20,7 +20,7 @@ type Keeper struct {
 	accountKeeper authkeeper.AccountKeeper
 }
 
-// NewKeeper creates a new mint Keeper instance
+// NewKeeper creates a new auction Keeper instance
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
