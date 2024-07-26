@@ -46,6 +46,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
+		&RegisterCoinProposal{}, // Keep interface for backwards compatibility on proposals query
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
 	)
