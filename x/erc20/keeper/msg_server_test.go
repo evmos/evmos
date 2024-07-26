@@ -318,7 +318,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			coinName = types.CreateDenom(contractAddr.String())
 			sender := suite.keyring.GetAccAddr(0)
 
-			_, err = suite.MintERC20Token(contractAddr, suite.keyring.GetAddr(0), suite.keyring.GetAddr(0), big.NewInt(tc.mint))
+			_, err = suite.MintERC20Token(contractAddr, suite.keyring.GetAddr(0), big.NewInt(tc.mint))
 			suite.Require().NoError(err)
 			// update context with latest committed changes
 

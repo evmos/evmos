@@ -13,7 +13,7 @@ import (
 	evm "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) (abcitypes.ExecTxResult, error) {
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, to common.Address, amount *big.Int) (abcitypes.ExecTxResult, error) {
 	res, err := suite.factory.ExecuteContractCall(
 		suite.keyring.GetPrivKey(0),
 		evm.EvmTxArgs{

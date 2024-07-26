@@ -7,6 +7,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/x/erc20/keeper/testdata"
 	"github.com/evmos/evmos/v18/x/erc20/types"
@@ -23,6 +24,22 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 	suite.Require().NoError(err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToModule(suite.network.GetContext(), types.ModuleName, authtypes.FeeCollectorName, coins)
 	suite.Require().NoError(err)
+}
+
+func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
+	addr, err := suite.factory.DeployContract(
+		suite.keyring.GetPrivKey(0),
+		evm.EvmTxArgs{},
+		factory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{name, symbol, decimals},
+		},
+	)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	return addr, suite.network.NextBlock()
 }
 
 func (suite *KeeperTestSuite) DeployContractMaliciousDelayed() (common.Address, error) {

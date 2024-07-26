@@ -86,14 +86,7 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) (common.A
 	case contractMaliciousDelayed:
 		contract, err = suite.DeployContractMaliciousDelayed()
 	default:
-		contract, err = suite.factory.DeployContract(
-			suite.keyring.GetPrivKey(0),
-			evmtypes.EvmTxArgs{},
-			testfactory.ContractDeploymentData{
-				Contract:        contracts.ERC20MinterBurnerDecimalsContract,
-				ConstructorArgs: []interface{}{erc20Name, erc20Symbol, erc20Decimals},
-			},
-		)
+		contract, err = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 	}
 
 	if err != nil {
@@ -105,8 +98,7 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) (common.A
 
 	// submit gov proposal to register ERC20 token pair
 	_, err = testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-		Address:      contract,
-		Denom:        erc20Denom,
+		Addresses:      []string{contract.Hex()},
 		ProposerPriv: suite.keyring.GetPrivKey(0),
 	})
 
