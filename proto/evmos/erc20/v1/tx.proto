@@ -15,6 +15,7 @@ option go_package = "github.com/evmos/evmos/v18/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
   // contract that is registered on the token mapping.
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
