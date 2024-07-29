@@ -124,6 +124,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
 - (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
+- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
