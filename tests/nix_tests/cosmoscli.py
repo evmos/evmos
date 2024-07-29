@@ -689,7 +689,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "cancel-software-upgrade":
+        if kind == "cancel-software-upgrade":
             return json.loads(
                 self.raw(
                     "tx",
@@ -707,7 +707,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "register-erc20":
+        if kind == "register-erc20":
             return json.loads(
                 self.raw(
                     "tx",
@@ -722,7 +722,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        elif kind == "register-coin":
+        if kind == "register-coin":
             return json.loads(
                 self.raw(
                     "tx",
@@ -741,24 +741,24 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-        else:
-            with tempfile.NamedTemporaryFile("w") as fp:
-                json.dump(proposal, fp)
-                fp.flush()
-                return json.loads(
-                    self.raw(
-                        "tx",
-                        "gov",
-                        method,
-                        kind,
-                        fp.name,
-                        "-y",
-                        from_=proposer,
-                        # basic
-                        home=self.data_dir,
-                        **kwargs,
-                    )
+
+        with tempfile.NamedTemporaryFile("w") as fp:
+            json.dump(proposal, fp)
+            fp.flush()
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    fp.name,
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
                 )
+            )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
@@ -843,7 +843,7 @@ class CosmosCLI:
         amount,
         channel,  # src channel
         target_version,  # chain version number of target chain
-        i=0,
+        i=0,  # pylint: disable=unused-argument
         fees="0aevmos",
     ):
         return json.loads(
@@ -867,6 +867,24 @@ class CosmosCLI:
                 packet_timeout_timestamp=0,
                 fees=fees,
             )
+        )
+
+    def escrow_address(self, channel, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return (
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "escrow-address",
+                "transfer",
+                channel,
+                **(default_kwargs | kwargs),
+            )
+            .decode()
+            .strip()
         )
 
     def register_counterparty_payee(
@@ -951,6 +969,24 @@ class CosmosCLI:
             self.raw(
                 "q",
                 "evm",
+                "params",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    # ==========================
+    #        ERC20 Module
+    # ==========================
+
+    def erc20_params(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "erc20",
                 "params",
                 **(default_kwargs | kwargs),
             )
@@ -1332,6 +1368,64 @@ class CosmosCLI:
                 "create-pool",
                 "-y",
                 pool_file=pool_file_path,
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def token_factory_create_denom(
+        self,
+        denom,
+        from_,
+        **kwargs,
+    ):
+        """
+        Create Osmosis token factory denom.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "create-denom",
+                denom,
+                "-y",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def token_factory_mint_denom(
+        self,
+        from_,
+        amount,
+        denom,
+        **kwargs,
+    ):
+        """
+        Mint Osmosis token factory denom with a given amount.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "mint",
+                f"{amount}{denom}",
+                from_,
+                "-y",
                 from_=from_,
                 home=self.data_dir,
                 node=self.node_rpc,

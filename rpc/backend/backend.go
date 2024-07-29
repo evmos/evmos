@@ -20,10 +20,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	rpctypes "github.com/evmos/evmos/v18/rpc/types"
-	"github.com/evmos/evmos/v18/server/config"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v19/rpc/types"
+	"github.com/evmos/evmos/v19/server/config"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // BackendI implements the Cosmos and EVM backend.

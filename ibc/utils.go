@@ -13,9 +13,9 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
@@ -80,14 +80,10 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 		unprefixedDenom := rawDenom[len(voucherPrefix):]
 
 		// coin denomination used in sending from the escrow address
-		denom := unprefixedDenom
-
 		// The denomination used to send the coins is either the native denom or the hash of the path
 		// if the denomination is not native.
 		denomTrace := transfertypes.ParseDenomTrace(unprefixedDenom)
-		if denomTrace.Path != "" {
-			denom = denomTrace.IBCDenom()
-		}
+		denom := denomTrace.IBCDenom()
 
 		return sdk.Coin{
 			Denom:  denom,
@@ -120,6 +116,24 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 		Denom:  trace.IBCDenom(),
 		Amount: amount,
 	}
+}
+
+// IsBaseDenomFromSourceChain checks if the given denom has only made a single hop.
+// It returns true if the denomination is single-hop, false otherwise.
+// This function expects to receive a string representing a token like
+// the denom string of the `FungibleTokenPacketData` of a received packet.
+// If the coin denom starts with `factory/` then it is a token factory coin, and we should not convert it
+// NOTE: Check https://docs.osmosis.zone/osmosis-core/modules/tokenfactory/ for more information
+func IsBaseDenomFromSourceChain(rawDenom string) bool {
+	// Parse the raw denomination to get its DenomTrace
+	denomTrace := transfertypes.ParseDenomTrace(rawDenom)
+
+	// Split the denom of the DenomTrace into its components
+	denomComponents := strings.Split(denomTrace.BaseDenom, "/")
+
+	// Each hop in the path is represented by a pair of port and channel ids
+	// If the number of components in the path is equal to or more than 2, it has hopped multiple chains
+	return len(denomTrace.Path) == 0 && len(denomComponents) == 1
 }
 
 // GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the

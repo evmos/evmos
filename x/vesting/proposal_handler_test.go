@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v18/testutil"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/vesting"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/testutil"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/vesting"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 var (

@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			name: "success - Active precompiles are sorted when setting params",
 			paramsFun: func() interface{} {
-				params.ActivePrecompiles = []string{
+				params.ActiveStaticPrecompiles = []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				}
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			getFun: func() interface{} {
 				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-				return evmParams.GetActivePrecompiles()
+				return evmParams.GetActiveStaticPrecompiles()
 			},
 			expected: true,
 		},

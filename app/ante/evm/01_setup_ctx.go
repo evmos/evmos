@@ -8,7 +8,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	evmante "github.com/evmos/evmos/v18/x/evm/ante"
+	evmante "github.com/evmos/evmos/v19/x/evm/ante"
 )
 
 var _ sdktypes.AnteDecorator = &EthSetupContextDecorator{}
@@ -40,7 +40,7 @@ func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper EVMKeeper) (sd
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected GasTx", tx)
 	}
 
-	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
+	// We need to set up an empty gas config so that the gas is consistent with Ethereum.
 	newCtx := evmante.BuildEvmExecutionCtx(ctx).
 		WithGasMeter(sdktypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.

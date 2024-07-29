@@ -13,13 +13,13 @@ import (
 	govtypesv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	upgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v16 "github.com/evmos/evmos/v18/app/upgrades/v16"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v18/testutil"
-	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	incentives "github.com/evmos/evmos/v18/x/incentives/types"
+	v16 "github.com/evmos/evmos/v19/app/upgrades/v16"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/testutil"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	incentives "github.com/evmos/evmos/v19/x/incentives/types"
 )
 
 func (its *IntegrationTestSuite) TestFeeCollectorMigration() {

@@ -10,3 +10,8 @@ const (
 	// Internal call type is used in case of smart contract methods calls
 	Internal
 )
+
+// MaxPrecompileCalls is the maximum number of precompile
+// calls within a transaction. We want to limit this because
+// for each precompile tx we're creating a cached context
+const MaxPrecompileCalls uint8 = 7

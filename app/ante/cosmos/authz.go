@@ -38,7 +38,7 @@ func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 // checkDisabledMsgs iterates through the msgs and returns an error if it finds any unauthorized msgs.
 //
 // When searchOnlyInAuthzMsgs is enabled, only authz MsgGrant and MsgExec are blocked, if they contain unauthorized msg types.
-// Otherwise any msg matching the disabled types are blocked, regardless of being in an authz msg or not.
+// Otherwise, any msg matching the disabled types are blocked, regardless of being in an authz msg or not.
 //
 // This method is recursive as MsgExec's can wrap other MsgExecs. The check for nested messages is performed up to the
 // maxNestedMsgs threshold. If there are more than that limit, it returns an error

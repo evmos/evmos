@@ -21,15 +21,15 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 	ethcommon "github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-	commontestfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
+	commontestfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -108,7 +108,11 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	// For now there are no exceptions, so this slice is empty.
 	var precompilesAbleToReceiveFunds []ethcommon.Address
 
-	availablePrecompiles := network.App.EvmKeeper.GetAvailablePrecompileAddrs()
+	availablePrecompiles := make([]ethcommon.Address, len(evmtypes.AvailableStaticPrecompiles))
+	for i, precompile := range evmtypes.AvailableStaticPrecompiles {
+		availablePrecompiles[i] = ethcommon.HexToAddress(precompile)
+	}
+
 	for _, precompileAddr := range availablePrecompiles {
 		t.Run(fmt.Sprintf("Cosmos Tx to %s\n", precompileAddr), func(t *testing.T) {
 			_, err := factory.ExecuteCosmosTx(signer.Priv, commontestfactory.CosmosTxArgs{

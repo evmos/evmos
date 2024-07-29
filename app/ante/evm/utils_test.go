@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v18/ethereum/eip712"
-	"github.com/evmos/evmos/v18/testutil"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	"github.com/evmos/evmos/v19/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -34,15 +34,15 @@ import (
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	evtypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) BuildTestEthTx(
@@ -215,7 +215,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 		valAddr,
 		privEd.PubKey(),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
-		stakingtypes.NewDescription("moniker", "indentity", "website", "security_contract", "details"),
+		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
 		math.OneInt(),
 	)
@@ -232,7 +232,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator2(from sdk.AccAddr
 		privEd.PubKey(),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
 		// Ensure optional fields can be left blank
-		stakingtypes.NewDescription("moniker", "indentity", "", "", ""),
+		stakingtypes.NewDescription("moniker", "identity", "", "", ""),
 		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
 		math.OneInt(),
 	)
@@ -654,7 +654,7 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 	return txBuilder
 }
 
-// prepareAccount is a helper function that asigns the corresponding
+// prepareAccount is a helper function that assigns the corresponding
 // balance and rewards to the provided account
 func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards math.Int) sdk.Context {
 	ctx, err := testutil.PrepareAccountsForDelegationRewards(

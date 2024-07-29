@@ -5,13 +5,13 @@ package evm_test
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	evmante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 )
 
-func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
+func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -70,7 +70,7 @@ func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			// Function under test
-			gasWanted := evmante.UpdateComulativeGasWanted(
+			gasWanted := evmante.UpdateCumulativeGasWanted(
 				tc.getCtx(),
 				tc.msgGasWanted,
 				tc.maxTxGasWanted,

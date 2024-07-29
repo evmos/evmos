@@ -10,13 +10,13 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-	"github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
+	"github.com/evmos/evmos/v19/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
-// UpdateComulativeGasWanted updates the cumulative gas wanted
-func UpdateComulativeGasWanted(
+// UpdateCumulativeGasWanted updates the cumulative gas wanted
+func UpdateCumulativeGasWanted(
 	ctx sdktypes.Context,
 	msgGasWanted uint64,
 	maxTxGasWanted uint64,
@@ -101,7 +101,7 @@ func deductFees(
 	return nil
 }
 
-// GetMsgPriority returns the priority of a Eth Tx capped by the minimum priority
+// GetMsgPriority returns the priority of an Eth Tx capped by the minimum priority
 func GetMsgPriority(
 	txData evmtypes.TxData,
 	minPriority int64,

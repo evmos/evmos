@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v7_test
 
 import (
@@ -10,19 +11,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/x/evm/migrations/v7"
-	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
+	v7 "github.com/evmos/evmos/v19/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
+	// Initialize the store
 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_test")
+	tKey := sdk.NewTransientStoreKey("transient_storekey")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)
 
@@ -32,17 +34,17 @@ func TestMigrate(t *testing.T) {
 	var chainCfgV6 v6types.V6ChainConfig
 	err = json.Unmarshal(bz, &chainCfgV6)
 	require.NoError(t, err)
-	v6Params := v6types.V6Params{
+
+	// Create a pre migration environment with default params.
+	paramsV6 := v6types.V6Params{
 		EvmDenom:            types.DefaultEVMDenom,
 		ChainConfig:         chainCfgV6,
-		ExtraEIPs:           types.DefaultExtraEIPs,
+		ExtraEIPs:           v6types.DefaultExtraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   types.AvailableEVMExtensions,
+		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 		EVMChannels:         types.DefaultEVMChannels,
 	}
-
-	// Set the params in the store
-	paramsV6Bz := cdc.MustMarshal(&v6Params)
+	paramsV6Bz := cdc.MustMarshal(&paramsV6)
 	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
 
 	err = v7.MigrateStore(ctx, storeKey, cdc)
@@ -52,7 +54,6 @@ func TestMigrate(t *testing.T) {
 	var params types.Params
 	cdc.MustUnmarshal(paramsBz, &params)
 
-	// test that the params have been migrated correctly
 	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
 	require.False(t, params.AllowUnprotectedTxs)
 	require.Equal(t, chainConfig, params.ChainConfig)

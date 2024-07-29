@@ -11,11 +11,11 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v18/testutil"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v19/testutil"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // Call is a helper function to call any arbitrary smart contract.
@@ -84,7 +84,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 
 	res, err = evmosutil.DeliverEthTx(app, args.PrivKey, msg)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error during deliver tx: %s", err)
+		return res, nil, fmt.Errorf("error during deliver tx: %s", err)
 	}
 	if !res.IsOK() {
 		return res, nil, fmt.Errorf("error during deliver tx: %v", res.Log)
@@ -103,7 +103,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 func CallContractAndCheckLogs(ctx sdk.Context, app *evmosapp.Evmos, cArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abci.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
 	res, ethRes, err := Call(ctx, app, cArgs)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, err
+		return res, nil, err
 	}
 
 	logCheckArgs.Res = res

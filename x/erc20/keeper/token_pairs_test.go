@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
@@ -17,15 +17,15 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 		malleate func()
 	}{
 		{
-			"no pair registered", func() { expRes = []types.TokenPair{} },
+			"no pair registered", func() { expRes = types.DefaultTokenPairs },
 		},
 		{
 			"1 pair registered",
 			func() {
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
-
-				expRes = []types.TokenPair{pair}
+				expRes = types.DefaultTokenPairs
+				expRes = append(expRes, pair)
 			},
 		},
 		{
@@ -35,8 +35,8 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
-
-				expRes = []types.TokenPair{pair, pair2}
+				expRes = types.DefaultTokenPairs
+				expRes = append(expRes, []types.TokenPair{pair, pair2}...)
 			},
 		},
 	}

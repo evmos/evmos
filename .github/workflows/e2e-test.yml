@@ -54,6 +54,8 @@ jobs:
             "test_ics20_precompile.py"
             "test_no_abci_resp.py"
             "test_precompiles.py"
+            "test_str_v2.py"
+            "test_str_v2_token_factory.py"
             "test_priority.py"
             "test_pruned_node.py"
             "test_rollback.py"

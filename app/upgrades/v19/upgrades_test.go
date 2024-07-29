@@ -8,12 +8,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v18/app/upgrades/v19"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app/upgrades/v19"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -162,4 +162,47 @@ func TestMigrateEthAccountsToBaseAccounts(t *testing.T) {
 		network.App.EvmKeeper.GetCode(network.GetContext(), codeHash),
 		"expected different code",
 	)
+}
+
+func TestEnableCustomEIPs(t *testing.T) {
+	upgradeEIPs := []string{"evmos_0", "evmos_1", "evmos_2"}
+
+	testCases := []struct {
+		name       string
+		activeEIPs []string
+		expEIPsNum int
+	}{
+		{
+			name:       "repeated EIP - skip",
+			activeEIPs: []string{"evmos_0"},
+			expEIPsNum: 3,
+		},
+		{
+			name:       "all new EIP",
+			activeEIPs: []string{"ethereum_3855"},
+			expEIPsNum: 4,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			network := testnetwork.NewUnitTestNetwork()
+
+			require.NoError(t, network.NextBlock(), "failed to advance block")
+
+			oldParams := network.App.EvmKeeper.GetParams(network.GetContext())
+			oldParams.ExtraEIPs = tc.activeEIPs
+			err := network.UpdateEvmParams(oldParams)
+			require.NoError(t, err, "failed to update EVM params")
+
+			logger := network.GetContext().Logger()
+			err = v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
+			require.NoError(t, err)
+
+			params := network.App.EvmKeeper.GetParams(network.GetContext())
+			require.Equal(t, tc.expEIPsNum, len(params.ExtraEIPs))
+
+			require.Subset(t, params.ExtraEIPs, upgradeEIPs, "expected all new EIPs to be present")
+		})
+	}
 }

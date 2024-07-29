@@ -8,11 +8,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/testutil"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 var (

@@ -16,6 +16,7 @@
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-verify": "^1.1.1",
     "@openzeppelin/hardhat-upgrades": "^2.0.2",
+    "@openzeppelin/contracts": "^4.9.6",
     "@typechain/ethers-v6": "^0.4.3",
     "@typechain/hardhat": "^8.0.3",
     "@types/chai": "^4.3.5",

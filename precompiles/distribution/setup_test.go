@@ -3,8 +3,8 @@ package distribution_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v18/precompiles/distribution"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v19/precompiles/distribution"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -18,8 +18,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v18/app"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v19/app"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
