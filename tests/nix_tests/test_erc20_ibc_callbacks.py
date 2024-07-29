@@ -146,9 +146,11 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
     new_dst_balance = 0
 
     def check_balance_change():
-        nonlocal new_dst_balance 
+        nonlocal new_dst_balance
         nonlocal erc20_ibc_denom
-        erc20_ibc_denom = chainmain.cosmos_cli().denom_hash(f"transfer/channel-0/erc20/${contract.address}")
+        erc20_ibc_denom = chainmain.cosmos_cli().denom_hash(
+            f"transfer/channel-0/erc20/${contract.address}"
+        )
         print(erc20_ibc_denom)
         if erc20_ibc_denom is None:
             return False

@@ -963,7 +963,7 @@ class CosmosCLI:
                 **(default_kwargs | kwargs),
             )
         )
-    
+
     def denom_hash(self, trace, **kwargs):
         default_kwargs = {
             "node": self.node_rpc,
@@ -977,7 +977,7 @@ class CosmosCLI:
                 trace,
                 **(default_kwargs | kwargs),
             )
-        )    
+        )
 
     # ==========================
     #        EVM Module
@@ -1196,7 +1196,7 @@ class CosmosCLI:
                 **kwargs,
             )
         )
-    
+
     def convert_erc20(self, contract_address: str, amount: int, account: str, **kwargs):
         kwargs.setdefault(
             "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
@@ -1213,7 +1213,7 @@ class CosmosCLI:
                 home=self.data_dir,
                 **kwargs,
             )
-        )    
+        )
 
     def get_token_pairs(self, **kwargs):
         default_kwargs = {"output": "json", "home": self.data_dir}
