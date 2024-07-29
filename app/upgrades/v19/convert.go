@@ -70,7 +70,7 @@ func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 
 // executeConversion receives the whole set of address with erc20 balances
 // it sends the equivalent coin from the escrow address into the holder address
-// it doesnt need to burn the erc20 balance, because the evm storage will be deleted later
+// it doesn't need to burn the erc20 balance, because the evm storage will be deleted later
 func executeConversion(
 	ctx sdk.Context,
 	results []BalanceResult,
@@ -79,7 +79,7 @@ func executeConversion(
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 	wevmosAccount := sdk.AccAddress(wrappedEvmosAddr.Bytes())
-	// Go trough every address with an erc20 balance
+	// Go through every address with an erc20 balance
 	for _, result := range results {
 		tokenPair := nativeTokenPairs[result.id]
 
@@ -110,7 +110,7 @@ func executeConversion(
 	return nil
 }
 
-// ConvertERC20Coins iterates trough all the authmodule accounts and all missing accounts from the auth module
+// ConvertERC20Coins iterates through all the authmodule accounts and all missing accounts from the auth module
 // recovers the balance from erc20 contracts for the registered token pairs
 // and for each entry it sends the balance from escrow into the account.
 func ConvertERC20Coins(
