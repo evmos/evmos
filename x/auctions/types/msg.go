@@ -37,8 +37,8 @@ func (msg MsgBid) ValidateBasic() error {
 	if msg.Amount.Denom != utils.BaseDenom {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom should be %s", utils.BaseDenom)
 	}
-	if msg.Amount.IsZero() {
-		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero")
+	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero or negative")
 	}
 	return nil
 }
@@ -72,8 +72,8 @@ func (msg MsgDepositCoin) ValidateBasic() error {
 	if msg.Amount.Denom == utils.BaseDenom {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom cannot be be %s", utils.BaseDenom)
 	}
-	if msg.Amount.IsZero() {
-		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero")
+	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero or negative")
 	}
 	return nil
 }

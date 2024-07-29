@@ -5,8 +5,8 @@ import (
 	"github.com/evmos/evmos/v18/x/auctions/types"
 )
 
-// GetRound gets the current auction round
-func (k *Keeper) GetRound(ctx sdk.Context) uint64 {
+// getRound gets the current auction round
+func (k *Keeper) getRound(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyPrefixAuctionRound)
 	if bz == nil {
@@ -16,8 +16,8 @@ func (k *Keeper) GetRound(ctx sdk.Context) uint64 {
 	return round
 }
 
-// SetRound sets the current auction round
-func (k *Keeper) SetRound(ctx sdk.Context, round uint64) {
+// setRound sets the current auction round
+func (k *Keeper) setRound(ctx sdk.Context, round uint64) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyPrefixAuctionRound, sdk.Uint64ToBigEndian(round))
 }

@@ -8,7 +8,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/auctions/types"
 	"github.com/pkg/errors"
 )
@@ -21,12 +20,12 @@ var (
 func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	params := k.GetParams(ctx)
+	params := k.getParams(ctx)
 	if !params.EnableAuction {
 		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
 	}
 
-	lastBid := k.GetHighestBid(ctx)
+	lastBid := k.getHighestBid(ctx)
 	if bid.Amount.Amount.LTE(lastBid.Amount.Amount) {
 		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than last bid %s", bid.Amount, lastBid.Amount)
 	}
@@ -46,7 +45,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 			return nil, errors.Wrap(err, "refund failed")
 		}
 	}
-	k.SetHighestBid(ctx, bid.Sender, bid.Amount)
+	k.setHighestBid(ctx, bid.Sender, bid.Amount)
 
 	// TODO: emit events
 
@@ -56,7 +55,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 // DepositCoin defines a method for depositing coins into the auction module
 func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin) (*types.MsgDepositCoinResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	params := k.GetParams(ctx)
+	params := k.getParams(ctx)
 	if !params.EnableAuction {
 		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
 	}
@@ -82,23 +81,9 @@ func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) 
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.SetParams(ctx, req.Params); err != nil {
+	if err := k.setParams(ctx, req.Params); err != nil {
 		return nil, errorsmod.Wrapf(err, "error setting params")
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
-}
-
-// refundLastBid refunds the last bid placed on an auction
-func (k Keeper) refundLastBid(ctx sdk.Context) error {
-
-	lastBid := k.GetHighestBid(ctx)
-	lastBidAmount := previousBid.Amount.Amount
-	lastBidder, err := sdk.AccAddressFromBech32(previousBid.Sender)
-	if err != nil {
-		return err
-	}
-
-	bidAmount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, previousBidAmount))
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount); 
 }

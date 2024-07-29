@@ -22,16 +22,15 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		return
 	}
 
-	params := k.GetParams(ctx)
+	params := k.getParams(ctx)
 	if !params.EnableAuction {
 		return
 	}
 
-	lastBid := k.GetHighestBid(ctx)
-	lastBidAmount := lastBid.Amount.Amount
+	lastBid := k.getHighestBid(ctx)
 
 	// Distribute the awards from the last auction
-	if lastBidAmount.IsPositive() && lastBid.Sender != "" {
+	if isValidBid(lastBid) {
 		bidWinner, err := sdk.AccAddressFromBech32(lastBid.Sender)
 		if err != nil {
 			return
@@ -58,13 +57,13 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		}
 
 		// Clear up the bid in the store
-		k.DeleteBid(ctx)
+		k.deleteBid(ctx)
 	}
 
 	// Advance the auction round
-	currentRound := k.GetRound(ctx)
+	currentRound := k.getRound(ctx)
 	nextRound := currentRound + 1
-	k.SetRound(ctx, nextRound)
+	k.setRound(ctx, nextRound)
 
 	// Send the entire balance from the Auctions Collector module account to the current Auctions account
 	accumulatedCoins := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.AuctionCollectorName))
@@ -74,6 +73,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 
 	// TODO: Emit some events here
 
+}
+
+// isValidBid checks if the bid is valid
+func isValidBid(lastBid *types.Bid) bool {
+	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" {
+		return true
+	}
+	return false
 }
 
 // Hooks wrapper struct for incentives keeper

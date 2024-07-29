@@ -21,7 +21,6 @@ const (
 const (
 	prefixAuctionRound = iota + 1
 	prefixBid
-	prefixEpochIdentifier
 )
 
 // KVStore key prefixes
