@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"context"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -12,9 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	_ types.MsgServer = &Keeper{}
-)
+var _ types.MsgServer = &Keeper{}
 
 // Bid defines a method for placing a bid on an auction
 func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResponse, error) {

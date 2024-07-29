@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/evmos/evmos/v18/x/auctions/client/cli"
 	"github.com/evmos/evmos/v18/x/auctions/keeper"
 	"github.com/evmos/evmos/v18/x/auctions/types"

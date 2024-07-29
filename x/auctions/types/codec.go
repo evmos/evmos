@@ -42,7 +42,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
-
 }
 
 // RegisterLegacyAminoCodec registers the necessary x/auctions interfaces and

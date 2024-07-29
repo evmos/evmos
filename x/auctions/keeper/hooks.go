@@ -72,7 +72,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	}
 
 	// TODO: Emit some events here
-
 }
 
 // isValidBid checks if the bid is valid
