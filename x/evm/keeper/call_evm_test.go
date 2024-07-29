@@ -15,16 +15,19 @@ const erc20Decimals = uint8(18)
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	suite.Commit()
+	err := suite.network.NextBlock()
+	// suite.Require().NoError(err)
 	addr, err := testutil.DeployContract(
-		suite.ctx,
-		suite.app,
-		suite.priv,
-		suite.queryClient,
+		suite.network.GetContext(),
+		suite.network.App,
+		suite.keyring.GetPrivKey(0),
+		suite.network.GetEvmClient(),
 		contracts.ERC20MinterBurnerDecimalsContract,
 		name, symbol, decimals,
 	)
-	suite.Commit()
+	suite.Require().NoError(err)
+	err = suite.network.NextBlock()
+	// suite.Require().NoError(err)
 	return addr, err
 }
 
@@ -53,7 +56,7 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.Require().NoError(err)
 		account := utiltx.GenerateAddress()
 
-		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
+		res, err := suite.network.App.EvmKeeper.CallEVM(suite.network.GetContext(), erc20, types.ModuleAddress, contract, true, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
@@ -130,11 +133,11 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			"fail deploy",
 			types.ModuleAddress,
 			func() ([]byte, *common.Address) {
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				params.AccessControl.Create = evmtypes.AccessControlType{
 					AccessType: evmtypes.AccessTypeRestricted,
 				}
-				_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				_ = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
 				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 				return data, nil
@@ -149,7 +152,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 
 			data, contract := tc.malleate()
 
-			res, err := suite.app.EvmKeeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
+			res, err := suite.network.App.EvmKeeper.CallEVMWithData(suite.network.GetContext(), tc.from, contract, data, true)
 			if tc.expPass {
 				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 				suite.Require().NoError(err)

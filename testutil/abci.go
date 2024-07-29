@@ -186,6 +186,10 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	}
 
 	req := abci.RequestFinalizeBlock{Txs: [][]byte{bz}}
+	req.Height = app.LastBlockHeight() + 1
+	req.Hash = app.LastCommitID().Hash
+	// req.ProposerAddress =
+
 	res, err := app.BaseApp.FinalizeBlock(&req)
 	if err != nil {
 		return abci.ExecTxResult{}, err

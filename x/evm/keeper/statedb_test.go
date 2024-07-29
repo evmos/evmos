@@ -21,6 +21,7 @@ import (
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
@@ -330,7 +331,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
 	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
+	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
 
 	testCases := []struct {
 		name     string
