@@ -8,6 +8,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
@@ -56,14 +57,13 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 		return nil, errorsmod.Wrap(err, "failed to validate erc20 registration data")
 	}
 
-	proposal := erc20types.RegisterERC20Proposal{
-		Title:          fmt.Sprintf("Register %d Token", len(data.Addresses)),
-		Description:    fmt.Sprintf("This proposal registers %d ERC20 tokens", len(data.Addresses)),
+	proposal := erc20types.MsgRegisterERC20{
+		Authority:      authtypes.NewModuleAddress("gov").String(),
 		Erc20Addresses: data.Addresses,
 	}
 
 	// Submit the proposal
-	proposalID, err := SubmitLegacyProposal(tf, network, data.ProposerPriv, &proposal)
+	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, fmt.Sprintf("Register %d Token", len(data.Addresses)), &proposal)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to submit proposal")
 	}

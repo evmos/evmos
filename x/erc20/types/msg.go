@@ -20,8 +20,11 @@ import (
 var (
 	_ sdk.Msg              = &MsgConvertERC20{}
 	_ sdk.Msg              = &MsgUpdateParams{}
+	_ sdk.Msg              = &MsgRegisterERC20{}
+	_ sdk.Msg              = &MsgToggleConversion{}
 	_ sdk.HasValidateBasic = &MsgConvertERC20{}
 	_ sdk.HasValidateBasic = &MsgUpdateParams{}
+	_ sdk.HasValidateBasic = &MsgRegisterERC20{}
 )
 
 const (
@@ -84,4 +87,14 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (m *MsgRegisterERC20) ValidateBasic() error {
+	for _, addr := range m.Erc20Addresses {
+		if !common.IsHexAddress(addr) {
+			return errortypes.ErrInvalidAddress.Wrapf("invalid ERC20 contract address: %s", addr)
+		}
+	}
+	return nil
 }

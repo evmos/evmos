@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) (common.A
 
 	// submit gov proposal to register ERC20 token pair
 	_, err = testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-		Addresses:      []string{contract.Hex()},
+		Addresses:    []string{contract.Hex()},
 		ProposerPriv: suite.keyring.GetPrivKey(0),
 	})
 
@@ -184,7 +184,10 @@ func (suite *KeeperTestSuite) TestRegisterERC20() {
 
 			tc.malleate()
 
-			_, err = suite.network.App.Erc20Keeper.RegisterERC20(ctx, contractAddr)
+			_, err = suite.network.App.Erc20Keeper.RegisterERC20(ctx, &types.MsgRegisterERC20{
+				Authority:      authtypes.NewModuleAddress("gov").String(),
+				Erc20Addresses: []string{contractAddr.Hex()},
+			})
 			metadata, found := suite.network.App.BankKeeper.GetDenomMetaData(ctx, coinName)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
@@ -282,7 +285,10 @@ func (suite *KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can
 				ctx = suite.network.GetContext()
 				id = suite.network.App.Erc20Keeper.GetTokenPairID(ctx, contractAddr.String())
 				pair, _ = suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
-				pair, _ = suite.network.App.Erc20Keeper.ToggleConversion(ctx, contractAddr.String())
+				res, err := suite.network.App.Erc20Keeper.ToggleConversion(ctx, &types.MsgToggleConversion{Authority: authtypes.NewModuleAddress("gov").String(), Token: contractAddr.String()})
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+				pair, _ = suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
 			},
 			true,
 			true,
@@ -295,8 +301,7 @@ func (suite *KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can
 
 			tc.malleate()
 
-			var err error
-			pair, err = suite.network.App.Erc20Keeper.ToggleConversion(ctx, contractAddr.String())
+			_, err = suite.network.App.Erc20Keeper.ToggleConversion(ctx, &types.MsgToggleConversion{Authority: authtypes.NewModuleAddress("gov").String(), Token: contractAddr.String()})
 			// Request the pair using the GetPairToken func to make sure that is updated on the db
 			pair, _ = suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
 			if tc.expPass {
