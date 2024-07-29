@@ -20,7 +20,7 @@ var (
 func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	params := k.getParams(ctx)
+	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
 	}
@@ -55,7 +55,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 // DepositCoin defines a method for depositing coins into the auction module
 func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin) (*types.MsgDepositCoinResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	params := k.getParams(ctx)
+	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
 	}
@@ -81,7 +81,7 @@ func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) 
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.setParams(ctx, req.Params); err != nil {
+	if err := k.SetParams(ctx, req.Params); err != nil {
 		return nil, errorsmod.Wrapf(err, "error setting params")
 	}
 

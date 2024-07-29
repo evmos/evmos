@@ -40,6 +40,6 @@ func (k Keeper) Params(
 	_ *types.QueryParamsRequest,
 ) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.getParams(ctx)
+	params := k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: &params}, nil
 }

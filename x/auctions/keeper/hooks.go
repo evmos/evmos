@@ -22,7 +22,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		return
 	}
 
-	params := k.getParams(ctx)
+	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return
 	}
