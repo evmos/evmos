@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	incentives "github.com/evmos/evmos/v18/x/incentives/types"
+	incentives "github.com/evmos/evmos/v19/x/incentives/types"
 )
 
 // DeleteIncentivesProposals deletes the RegisterIncentives & CancelIncentiveProposal proposals from the store

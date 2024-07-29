@@ -5,17 +5,17 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
 
-	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
+	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
 
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3 "github.com/evmos/evmos/v18/x/erc20/migrations/v3"
+	v3 "github.com/evmos/evmos/v19/x/erc20/migrations/v3"
 )
 
 type mockSubspace struct {
@@ -54,7 +54,7 @@ func TestMigrate(t *testing.T) {
 	require.NoError(t, v3.MigrateStore(ctx, storeKey, mockSubspace))
 
 	// Get all the new parameters from the store
-	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
+	enableEvmHook := store.Has(v3types.ParamStoreKeyEnableEVMHook)
 	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
 
 	params := v3types.NewParams(enableErc20, enableEvmHook)

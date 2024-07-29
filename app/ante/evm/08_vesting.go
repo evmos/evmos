@@ -10,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 // EthVestingTransactionDecorator validates if clawback vesting accounts are
@@ -31,8 +31,9 @@ type EthVestingExpenseTracker struct {
 	Spendable *big.Int
 }
 
-// NOTE: Can't delete the legacy decorator yet because vesting module's tests would have to be refactored
 // NewEthVestingTransactionDecorator returns a new EthVestingTransactionDecorator.
+//
+// NOTE: Can't delete the legacy decorator yet because vesting module's tests would have to be refactored
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,

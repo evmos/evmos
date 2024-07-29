@@ -5,10 +5,10 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-	"github.com/evmos/evmos/v18/testutil"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
+	"github.com/evmos/evmos/v19/testutil"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
 )
 
 // TestClaimStakingRewardsIfNecessary tests the ClaimStakingRewardsIfNecessary function
@@ -56,7 +56,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				// assigned rewards, of which one is sufficient to cover the transaction fees and the other
 				// is not. This is because the iteration over rewards is done in a non-deterministic fashion,
 				// This means, that e.g. if reward C is sufficient, but A and B are not,
-				// all of the options [A], [B-A], [B-C-A] or [C-A] are possible to be withdrawn, which
+				// All options [A], [B-A], [B-C-A] or [C-A] are possible to be withdrawn, which
 				// increases the complexity of assertions.
 				var err error
 				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(

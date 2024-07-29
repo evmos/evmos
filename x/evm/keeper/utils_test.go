@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,10 +13,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v18/server/config"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/server/config"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

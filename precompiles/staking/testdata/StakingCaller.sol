@@ -98,7 +98,9 @@ contract StakingCaller {
         string memory _validatorAddr,
         uint256 _amount
     ) public {
+        counter++;
         staking.STAKING_CONTRACT.delegate(_addr, _validatorAddr, _amount);
+        counter--;
     }
 
     /// @dev This function calls the staking precompile's undelegate method.

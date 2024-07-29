@@ -120,62 +120,55 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v18/client/docs/statik"
-	"github.com/evmos/evmos/v18/utils"
+	_ "github.com/evmos/evmos/v19/client/docs/statik"
+	"github.com/evmos/evmos/v19/utils"
 
-	"github.com/evmos/evmos/v18/app/ante"
-	ethante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/app/post"
-	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
-	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
-	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/ethereum/eip712"
-	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
-	bech32precompile "github.com/evmos/evmos/v18/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
-	p256precompile "github.com/evmos/evmos/v18/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
-	srvflags "github.com/evmos/evmos/v18/server/flags"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	"github.com/evmos/evmos/v18/x/erc20"
-	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	"github.com/evmos/evmos/v18/x/evm"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	"github.com/evmos/evmos/v18/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	"github.com/evmos/evmos/v18/x/incentives"
-	inflation "github.com/evmos/evmos/v18/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	"github.com/evmos/evmos/v18/x/staking"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
-	"github.com/evmos/evmos/v18/x/vesting"
-	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/app/ante"
+	ethante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/app/post"
+	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
+	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
+	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	srvflags "github.com/evmos/evmos/v19/server/flags"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v19/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/erc20"
+	erc20client "github.com/evmos/evmos/v19/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/evm"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v19/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v19/x/incentives"
+	inflation "github.com/evmos/evmos/v19/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/x/staking"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	"github.com/evmos/evmos/v19/x/vesting"
+	vestingclient "github.com/evmos/evmos/v19/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v18/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v19/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
-	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/js"
+	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/native"
 )
 
 func init() {
@@ -454,9 +447,11 @@ func NewEvmos(
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
@@ -525,9 +520,10 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -953,8 +949,13 @@ func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BlockedAddrs returns all the app's module account addresses that are not
+// BlockedAddrs returns all the addresses that are not
 // allowed to receive external tokens.
+//
+// These include:
+//   - module accounts
+//   - Ethereum's native precompiles
+//   - the static precompiled contracts available through evmOS
 func (app *Evmos) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 
@@ -968,15 +969,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedToReceive[acc]
 	}
 
-	blockedPrecompilesHex := []string{
-		p256precompile.PrecompileAddress,
-		bech32precompile.PrecompileAddress,
-		bankprecompile.PrecompileAddress,
-		stakingprecompile.PrecompileAddress,
-		distprecompile.PrecompileAddress,
-		ics20precompile.PrecompileAddress,
-		vestingprecompile.PrecompileAddress,
-	}
+	blockedPrecompilesHex := evmtypes.DefaultStaticPrecompiles
 	for _, addr := range vm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
 	}
@@ -1150,7 +1143,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint:staticcheck
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
@@ -1181,6 +1174,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
 			app.EvmKeeper,
 		),
 	)

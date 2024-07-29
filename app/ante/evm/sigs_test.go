@@ -3,9 +3,9 @@ package evm_test
 import (
 	"math/big"
 
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestSignatures() {
@@ -48,7 +48,7 @@ func (suite *AnteTestSuite) TestSignatures() {
 	ethTx := msgEthereumTx.AsTransaction()
 	ethV, ethR, ethS := ethTx.RawSignatureValues()
 
-	// The signatures of MsgehtereumTx should be the same with the corresponding eth tx
+	// The signatures of MsgEthereumTx should be the same with the corresponding eth tx
 	suite.Require().Equal(msgV, ethV)
 	suite.Require().Equal(msgR, ethR)
 	suite.Require().Equal(msgS, ethS)

@@ -11,7 +11,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	teststypes "github.com/evmos/evmos/v18/types/tests"
+	teststypes "github.com/evmos/evmos/v19/types/tests"
 )
 
 func init() {
@@ -328,5 +328,41 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 			require.NoError(t, err)
 		}
 		require.Equal(t, tc.expDec, dec)
+	}
+}
+
+func TestIsBaseDenomFromSourceChain(t *testing.T) {
+	tests := []struct {
+		name     string
+		denom    string
+		expected bool
+	}{
+		{
+			name:     "one hop",
+			denom:    "transfer/channel-0/uatom",
+			expected: false,
+		},
+		{
+			name:     "no hop with factory prefix",
+			denom:    "factory/owner/uatom",
+			expected: false,
+		},
+		{
+			name:     "multi hop",
+			denom:    "transfer/channel-0/transfer/channel-1/uatom",
+			expected: false,
+		},
+		{
+			name:     "no hop",
+			denom:    "uatom",
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsBaseDenomFromSourceChain(tt.denom)
+			require.Equal(t, tt.expected, result)
+		})
 	}
 }

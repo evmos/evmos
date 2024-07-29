@@ -8,7 +8,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -17,10 +16,10 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v18/app"
-	ibctesting "github.com/evmos/evmos/v18/ibc/testing"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	evm "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app"
+	ibctesting "github.com/evmos/evmos/v19/ibc/testing"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evm "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -54,16 +53,7 @@ type KeeperTestSuite struct {
 	suiteIBCTesting bool
 }
 
-var (
-	s *KeeperTestSuite
-	// sendAndReceiveMsgFee corresponds to the fees paid on Evmos chain when calling the SendAndReceive function
-	// This function makes 3 cosmos txs under the hood
-	sendAndReceiveMsgFee = math.NewInt(ibctesting.DefaultFeeAmt * 3)
-	// sendBackCoinsFee corresponds to the fees paid on Evmos chain when calling the SendBackCoins function
-	// or calling the SendAndReceive from another chain to Evmos
-	// This function makes 2 cosmos txs under the hood
-	sendBackCoinsFee = math.NewInt(ibctesting.DefaultFeeAmt * 2)
-)
+var s *KeeperTestSuite
 
 func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)

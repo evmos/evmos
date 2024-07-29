@@ -424,6 +424,15 @@ format:
 
 .PHONY: format
 
+
+format-python: format-isort format-black
+
+format-black:
+	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black
+
+format-isort:
+	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
+
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
@@ -458,7 +467,7 @@ proto-format:
 
 proto-lint:
 	@echo "Linting Protobuf files"
-	@$(protoImage) buf lint --error-format=json	
+	@$(protoImage) buf lint --error-format=json
 	@$(protoLinter) lint ./proto
 
 proto-check-breaking:
@@ -532,7 +541,7 @@ release-dry-run:
 		-v ${GOPATH}/pkg:/go/pkg \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--clean --skip-validate --skip-publish --snapshot
+		--clean --skip validate --skip publish --snapshot
 
 release:
 	@if [ ! -f ".release-env" ]; then \
@@ -548,7 +557,7 @@ release:
 		-v `pwd`:/go/src/$(PACKAGE_NAME) \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --clean --skip-validate
+		release --clean --skip validate
 
 .PHONY: release-dry-run release
 
@@ -556,9 +565,9 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-# Clean up the contracts directory, install the necessary dependencies
-# and then compile the solidity contracts found in the Evmos repository.
-contracts-all: contracts-clean contracts-compile
+# Install the necessary dependencies, compile the solidity contracts found in the
+# Evmos repository and then clean up the contracts data.
+contracts-all: contracts-compile contracts-clean
 
 # Clean smart contract compilation artifacts, dependencies and cache files
 contracts-clean:

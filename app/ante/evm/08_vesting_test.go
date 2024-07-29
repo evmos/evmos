@@ -11,11 +11,11 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 type AccountExpenses = map[string]*evm.EthVestingExpenseTracker
@@ -87,7 +87,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 			},
 		},
 		{
-			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total + previosExpenses should fail",
+			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total + previousExpenses should fail",
 			expectedError: vestingtypes.ErrInsufficientUnlockedCoins,
 			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()

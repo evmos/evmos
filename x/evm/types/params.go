@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"slices"
-	"sort"
-	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,11 +13,10 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v18/precompiles/p256"
-	"github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 var (
@@ -27,19 +24,19 @@ var (
 	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
-	// AvailableEVMExtensions defines the default active precompiles
-	AvailableEVMExtensions = []string{
-		p256.PrecompileAddress,                       // P256 precompile
-		"0x0000000000000000000000000000000000000400", // Bech32 precompile
-		"0x0000000000000000000000000000000000000800", // Staking precompile
-		"0x0000000000000000000000000000000000000801", // Distribution precompile
-		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
-		"0x0000000000000000000000000000000000000803", // Vesting precompile
-		"0x0000000000000000000000000000000000000804", // Bank precompile
+	// DefaultStaticPrecompiles defines the default active precompiles
+	DefaultStaticPrecompiles = []string{
+		P256PrecompileAddress,         // P256 precompile
+		Bech32PrecompileAddress,       // Bech32 precompile
+		StakingPrecompileAddress,      // Staking precompile
+		DistributionPrecompileAddress, // Distribution precompile
+		ICS20PrecompileAddress,        // ICS20 transfer precompile
+		VestingPrecompileAddress,      // Vesting precompile
+		BankPrecompileAddress,         // Bank precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
-	DefaultExtraEIPs   = []int64{3855}
+	DefaultExtraEIPs   = []string{"ethereum_3855"}
 	DefaultEVMChannels = []string{
 		"channel-10", // Injective
 		"channel-31", // Cronos
@@ -64,35 +61,32 @@ func NewParams(
 	evmDenom string,
 	allowUnprotectedTxs bool,
 	config ChainConfig,
-	extraEIPs []int64,
-	activePrecompiles,
+	extraEIPs []string,
+	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
 ) Params {
 	return Params{
-		EvmDenom:            evmDenom,
-		AllowUnprotectedTxs: allowUnprotectedTxs,
-		ExtraEIPs:           extraEIPs,
-		ChainConfig:         config,
-		ActivePrecompiles:   activePrecompiles,
-		EVMChannels:         evmChannels,
-		AccessControl:       accessControl,
+		EvmDenom:                evmDenom,
+		AllowUnprotectedTxs:     allowUnprotectedTxs,
+		ExtraEIPs:               extraEIPs,
+		ChainConfig:             config,
+		ActiveStaticPrecompiles: activeStaticPrecompiles,
+		EVMChannels:             evmChannels,
+		AccessControl:           accessControl,
 	}
 }
 
 // DefaultParams returns default evm parameters
-// ExtraEIPs is empty to prevent overriding the latest hard fork instruction set
-// ActivePrecompiles is empty to prevent overriding the default precompiles
-// from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:            DefaultEVMDenom,
-		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           DefaultExtraEIPs,
-		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   AvailableEVMExtensions,
-		EVMChannels:         DefaultEVMChannels,
-		AccessControl:       DefaultAccessControl,
+		EvmDenom:                DefaultEVMDenom,
+		ChainConfig:             DefaultChainConfig(),
+		ExtraEIPs:               DefaultExtraEIPs,
+		AllowUnprotectedTxs:     DefaultAllowUnprotectedTxs,
+		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
+		EVMChannels:             DefaultEVMChannels,
+		AccessControl:           DefaultAccessControl,
 	}
 }
 
@@ -132,7 +126,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
+	if err := ValidatePrecompiles(p.ActiveStaticPrecompiles); err != nil {
 		return err
 	}
 
@@ -143,25 +137,18 @@ func (p Params) Validate() error {
 	return validateChannels(p.EVMChannels)
 }
 
-// EIPs returns the ExtraEIPS as a int slice
-func (p Params) EIPs() []int {
-	eips := make([]int, len(p.ExtraEIPs))
-	for i, eip := range p.ExtraEIPs {
-		eips[i] = int(eip)
-	}
+// EIPs returns the ExtraEIPS as a slice.
+func (p Params) EIPs() []string {
+	eips := make([]string, len(p.ExtraEIPs))
+	copy(eips, p.ExtraEIPs)
 	return eips
 }
 
-// HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
-func (p Params) HasCustomPrecompiles() bool {
-	return len(p.ActivePrecompiles) > 0
-}
-
-// GetActivePrecompilesAddrs is a util function that the Active Precompiles
+// GetActiveStaticPrecompilesAddrs is a util function that the Active Precompiles
 // as a slice of addresses.
-func (p Params) GetActivePrecompilesAddrs() []common.Address {
-	precompiles := make([]common.Address, len(p.ActivePrecompiles))
-	for i, precompile := range p.ActivePrecompiles {
+func (p Params) GetActiveStaticPrecompilesAddrs() []common.Address {
+	precompiles := make([]common.Address, len(p.ActiveStaticPrecompiles))
+	for i, precompile := range p.ActiveStaticPrecompiles {
 		precompiles[i] = common.HexToAddress(precompile)
 	}
 	return precompiles
@@ -171,16 +158,6 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 // EVM channels
 func (p Params) IsEVMChannel(channel string) bool {
 	return slices.Contains(p.EVMChannels, channel)
-}
-
-// IsActivePrecompile returns true if the given precompile address is
-// registered as an active precompile.
-func (p Params) IsActivePrecompile(address string) bool {
-	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
-		return strings.Compare(address, p.ActivePrecompiles[i])
-	})
-
-	return found
 }
 
 func (ac AccessControl) Validate() error {
@@ -205,36 +182,6 @@ func (act AccessControlType) Validate() error {
 	}
 	return nil
 }
-
-// func validateAccessControl(i interface{}) error {
-// 	permissions, ok := i.(AccessControl)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permissions policy type: %T", i)
-// 	}
-//
-// 	if err := validatePermissionType(permissions.Create); err != nil {
-// 		return err
-// 	}
-//
-// 	return validatePermissionType(permissions.Call)
-// }
-//
-// func validatePermissionType(i interface{}) error {
-// 	permission, ok := i.(AccessControlType)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permission type: %T", i)
-// 	}
-//
-// 	if err := validateAccessType(permission.AccessType); err != nil {
-// 		return err
-// 	}
-//
-// 	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
 
 func validateAccessType(i interface{}) error {
 	accessType, ok := i.(AccessType)
@@ -282,22 +229,27 @@ func validateBool(i interface{}) error {
 }
 
 func validateEIPs(i interface{}) error {
-	eips, ok := i.([]int64)
+	eips, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
 	}
 
-	uniqueEIPs := make(map[int64]struct{})
+	uniqueEIPs := make(map[string]struct{})
 
 	for _, eip := range eips {
-		if !vm.ValidEip(int(eip)) {
-			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
+		if !vm.ExistsEipActivator(eip) {
+			return fmt.Errorf("EIP %s is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
+		}
+
+		if err := vm.ValidateEIPName(eip); err != nil {
+			return fmt.Errorf("EIP %s name is not valid", eip)
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
-			return fmt.Errorf("found duplicate EIP: %d", eip)
+			return fmt.Errorf("found duplicate EIP: %s", eip)
 		}
 		uniqueEIPs[eip] = struct{}{}
+
 	}
 
 	return nil
@@ -332,9 +284,8 @@ func ValidatePrecompiles(i interface{}) error {
 		seenPrecompiles[precompile] = struct{}{}
 	}
 
-	// NOTE: Check that the precompiles are sorted. This is required for the
-	// precompiles to be found correctly when using the IsActivePrecompile method,
-	// because of the use of sort.Find.
+	// NOTE: Check that the precompiles are sorted. This is required
+	// to ensure determinism
 	if !slices.IsSorted(precompiles) {
 		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
 	}
