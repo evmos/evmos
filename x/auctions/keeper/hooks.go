@@ -5,9 +5,9 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/auctions/types"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/auctions/types"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 )
 
 // BeforeEpochStart starts a new auction at the beginning of the epoch

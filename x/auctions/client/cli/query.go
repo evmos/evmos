@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/x/auctions/types"
 	"github.com/spf13/cobra"
 )
 

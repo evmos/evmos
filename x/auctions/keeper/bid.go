@@ -2,8 +2,8 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
 // getHighestBid gets the highest bid

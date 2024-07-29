@@ -9,7 +9,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/x/auctions/types"
 	"github.com/pkg/errors"
 )
 

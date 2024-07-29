@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 )
 
 var (

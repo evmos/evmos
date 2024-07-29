@@ -5,7 +5,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
 // GetParams returns the total set of auctions parameters.

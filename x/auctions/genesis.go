@@ -6,8 +6,8 @@ package auctions
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/x/auctions/keeper"
-	"github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/x/auctions/keeper"
+	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
