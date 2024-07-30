@@ -1,4 +1,5 @@
 import json
+import tempfile
 
 import pytest
 
@@ -9,7 +10,6 @@ from .ibc_utils import (
     assert_ready,
     get_balance,
     prepare_network,
-    setup_denom_trace,
 )
 from .network import CosmosChain, Evmos
 from .utils import (
@@ -18,14 +18,9 @@ from .utils import (
     CONTRACTS,
     KEYS,
     MAX_UINT256,
+    REGISTER_ERC20_PROP,
     approve_proposal,
-    check_error,
-    debug_trace_tx,
-    decode_bech32,
     deploy_contract,
-    eth_to_bech32,
-    get_precompile_contract,
-    send_transaction,
     w3_wait_for_new_blocks,
     wait_for_ack,
     wait_for_fn,
@@ -86,11 +81,8 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
     dst_addr = chainmain.cosmos_cli().address("signer2")
 
     # deploy erc20 contract
-    contract, _ = deploy_contract(
-        w3,
-        CONTRACTS["TestERC20A"],
-    )
-    w3_wait_for_new_blocks(w3, 1)
+    contract, _ = deploy_contract(w3, CONTRACTS["TestERC20A"], key=KEYS["signer2"])
+    w3_wait_for_new_blocks(w3, 2)
 
     # Check token pairs before IBC transfer,
     # should only exist the WEVMOS pair
@@ -98,15 +90,25 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
     pairs_count_before = len(pairs)
 
     # register token pair
-    rsp = evmos_cli.gov_legacy_proposal("signer2", "register-erc20")
-    assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(evmos_cli, 1)
+    with tempfile.NamedTemporaryFile("w") as fp:
+        proposal = REGISTER_ERC20_PROP
+        proposal["messages"][0]["erc20addresses"] = [contract.address]
+        json.dump(proposal, fp)
+        fp.flush()
+        rsp = evmos_cli.gov_proposal("signer2", fp.name)
+        assert rsp["code"] == 0, rsp["raw_log"]
+        txhash = rsp["txhash"]
 
-    props = evmos_cli.query_proposals()
+        wait_for_new_blocks(evmos_cli, 2)
+        receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
+
+    res = evmos_cli.query_proposals()
+    props = res["proposals"]
     props_count = len(props)
     assert props_count >= 1
 
-    approve_proposal(evmos, props[props_count - 1].id)
+    approve_proposal(evmos, props[props_count - 1]["id"])
 
     pairs = evmos_cli.get_token_pairs()
     assert len(pairs) == pairs_count_before + 1
@@ -117,9 +119,15 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
     assert erc20_balance == initial_amt
 
     # convert to IBC voucher
-    ibc_voucher_denom = f"erc20/${contract.address}"
-    evmos_cli.convert_erc20(contract.address, convert_amt, "signer2")
-    wait_for_new_blocks(evmos_cli, 1)
+    ibc_voucher_denom = f"erc20/{contract.address}"
+    if convert_amt > 0:
+        rsp = evmos_cli.convert_erc20(contract.address, convert_amt, "signer2")
+        assert rsp["code"] == 0, rsp["raw_log"]
+        wait_for_new_blocks(evmos_cli, 2)
+
+        txhash = rsp["txhash"]
+        receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
     # check erc20 balance & IBC voucher balance
     erc20_balance = contract.functions.balanceOf(evmos_addr).call()
@@ -135,29 +143,32 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
         f"{transfer_amt}{ibc_voucher_denom}",
         "channel-0",
         1,
+        1,
+        fees=f"{int(1e17)}aevmos",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(evmos_cli, 1)
+    wait_for_new_blocks(evmos_cli, 2)
 
-    # get the IBC denom on the destination chain
-    erc20_ibc_denom = None
+    txhash = rsp["txhash"]
+    receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
-    # check balance on destination chain
-    new_dst_balance = 0
+    res = chainmain.cosmos_cli().denom_traces()
+    prev_denom_traces_len = len(res["denom_traces"])
 
-    def check_balance_change():
-        nonlocal new_dst_balance
-        nonlocal erc20_ibc_denom
-        erc20_ibc_denom = chainmain.cosmos_cli().denom_hash(
-            f"transfer/channel-0/erc20/${contract.address}"
-        )
-        print(erc20_ibc_denom)
-        if erc20_ibc_denom is None:
-            return False
-        new_dst_balance = get_balance(chainmain, dst_addr, erc20_ibc_denom)
-        return new_dst_balance > 0
+    # wait for the ack and registering the denom trace
+    def check_denom_trace_change():
+        res = chainmain.cosmos_cli().denom_traces()
+        return len(res["denom_traces"]) > prev_denom_traces_len
 
-    wait_for_fn("balance change", check_balance_change)
+    wait_for_fn("denom trace registration", check_denom_trace_change)
+
+    denom_hash = chainmain.cosmos_cli().denom_hash(
+        f"transfer/channel-0/{ibc_voucher_denom}"
+    )["hash"]
+    erc20_ibc_denom = f"ibc/{denom_hash}"
+
+    new_dst_balance = get_balance(chainmain, dst_addr, erc20_ibc_denom)
     assert new_dst_balance == transfer_amt
 
     # send back erc20 IBC voucher to origin
@@ -167,9 +178,18 @@ def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
         f"{transfer_amt}{erc20_ibc_denom}",
         "channel-0",
         1,
+        1,
+        "100000000basecro",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_ack(chainmain.cosmos_cli(), "chainmain")
+
+    # wait for ack on destination chain
+    wait_for_ack(evmos_cli, "evmos")
+    wait_for_new_blocks(evmos_cli, 2)
+
+    txhash = rsp["txhash"]
+    receipt = chainmain.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
     # check balance on source and destination chains
     chain_main_balance = get_balance(chainmain, dst_addr, erc20_ibc_denom)
