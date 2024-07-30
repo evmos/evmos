@@ -27,17 +27,17 @@ let
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
   # the go_1_22 nixpkgs is v1.22.1
-  # but we need the v1.22.2. 
+  # but we need the v1.22.5. 
   # This overrides the pkg to use
-  # the v1.22.2 version  
+  # the v1.22.5 version  
   go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
     pname = "golang";
-    version = "go1.22.2";
+    version = "go1.22.5";
     src = fetchFromGitHub {
       owner = "golang";
       repo = "go";
-      rev = "dddf0ae40fa0c1223aba191d73a44425a08e1035";
-      sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
+      rev = "8e1fdea8316d840fd07e9d6e026048e53290948b";
+      sha256 = "sha256-qQFigrj6J2K+NMkzo24v98cbcvsy0AuVJ4qT7DzsDKo=";
     };
   };  
 in

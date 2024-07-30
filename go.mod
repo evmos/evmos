@@ -1,6 +1,7 @@
 module github.com/evmos/evmos/v19
 
-go 1.22.2
+go 1.22.5
+
 require (
 	cosmossdk.io/api v0.3.1
 	cosmossdk.io/errors v1.0.1
