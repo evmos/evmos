@@ -333,12 +333,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 
 			ctx := suite.network.GetContext()
 			_, err = suite.network.App.Erc20Keeper.ConvertERC20(ctx, msg)
-			// _, err = suite.factory.CommitCosmosTx(
-			// 	suite.keyring.GetPrivKey(0),
-			// 	factory.CosmosTxArgs{
-			// 		Msgs: []sdk.Msg{msg},
-			// 	},
-			// )
 
 			cosmosBalance := suite.network.App.BankKeeper.GetBalance(ctx, sender, coinName)
 			if tc.expPass {
