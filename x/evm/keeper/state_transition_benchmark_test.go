@@ -117,7 +117,7 @@ func newEthMsgTx(
 		ethTx = ethtypes.NewTx(templateDynamicFeeTx)
 		baseFee = big.NewInt(3)
 	default:
-		return nil, baseFee, errors.New("unsupport tx type")
+		return nil, baseFee, errors.New("unsupported tx type")
 	}
 
 	msg := &evmtypes.MsgEthereumTx{}
