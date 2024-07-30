@@ -7,9 +7,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/vesting"
@@ -33,7 +30,10 @@ type CallType struct {
 }
 
 // BuildCallArgs builds the call arguments for the integration test suite
-// depending on the type of interaction.
+// depending on the type of interaction. `contractAddr` is used as the `to`
+// of the transaction only if the `callType` is direct, Otherwise, this
+// field is ignored and the `to` is the vesting precompile.
+// FIX: should be renamed
 func (s *PrecompileTestSuite) BuildCallArgs(
 	callType CallType,
 	contractAddr common.Address,
@@ -48,8 +48,8 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 		callArgs.ContractABI = s.precompile.ABI
 		to = s.precompile.Address()
 	} else {
-		to = contractAddr
 		callArgs.ContractABI = vestingCaller.ABI
+		to = contractAddr
 	}
 	txArgs.To = &to
 	return callArgs, txArgs
@@ -81,7 +81,7 @@ func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(ctx sdk.Context, 
 	s.Require().NoError(err)
 }
 
-// ExpectSimpleVestingAccount checks that the vesting account has the expected funder address
+// ExpectSimpleVestingAccount checks that the vesting account has the expected funder address.
 func (s *PrecompileTestSuite) ExpectSimpleVestingAccount(vestingAddr, funderAddr common.Address) {
 	vestingAcc := s.GetVestingAccount(vestingAddr)
 	funder, err := sdk.AccAddressFromBech32(vestingAcc.FunderAddress)

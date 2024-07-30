@@ -54,7 +54,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new vesting Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	vestingKeeper vestingkeeper.Keeper,
@@ -75,7 +75,7 @@ func NewPrecompile(
 		},
 		vestingKeeper: vestingKeeper,
 	}
-	// SetAddress defines the address of the bank compile contract.
+	// SetAddress defines the address of the vesting compile contract.
 	p.SetAddress(common.HexToAddress(PrecompileAddress))
 	return p, nil
 }
