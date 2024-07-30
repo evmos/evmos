@@ -261,8 +261,8 @@ schema = 3
     version = "v0.6.0"
     hash = "sha256-RtIG2qARd5sT10WQ7F3LR8YJhS8exs+KiuUiVf75bWg="
   [mod."github.com/go-logr/logr"]
-    version = "v1.4.1"
-    hash = "sha256-WM4badoqxXlBmqCRrnmtNce63dLlr/FJav3BJSYHvaY="
+    version = "v1.4.2"
+    hash = "sha256-/W6qGilFlZNTb9Uq48xGZ4IbsVeSwJiAMLw4wiNYHLI="
   [mod."github.com/go-logr/stdr"]
     version = "v1.2.2"
     hash = "sha256-rRweAP7XIb4egtT1f2gkz4sYOu7LDHmcJ5iNsJUd0sE="
@@ -468,11 +468,11 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.19.0"
-    hash = "sha256-el0o74ZgX/0wqCwK0zeFksv0Ja9lHKTgmCwuzQEWauo="
+    version = "v2.19.1"
+    hash = "sha256-fF95Tv54nT14mUfM0GP3HDE5k6eqTdui7FAjQHZCqhM="
   [mod."github.com/onsi/gomega"]
-    version = "v1.33.1"
-    hash = "sha256-oYfRaN1xqngIHQQxEEc+FQZ6UHC99VZQzAePT0Xkz8s="
+    version = "v1.34.0"
+    hash = "sha256-1XPAyzQkQ9n4VVRFX60aIdMwWt/6RqVYHIyBDRnMLxQ="
   [mod."github.com/opencontainers/go-digest"]
     version = "v1.0.0"
     hash = "sha256-cfVDjHyWItmUGZ2dzQhCHgmOmou8v7N+itDkLZVkqkQ="
