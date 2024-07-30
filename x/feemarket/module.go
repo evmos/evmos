@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
+	"github.com/evmos/evmos/v18/x/feemarket/client/cli"
 	"github.com/evmos/evmos/v18/x/feemarket/keeper"
 	"github.com/evmos/evmos/v18/x/feemarket/types"
 )
@@ -83,6 +85,11 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 // RegisterInterfaces registers interfaces and implementations of the fee market module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
+}
+
+// GetTxCmd returns the root query command for the erc20 module.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // ____________________________________________________________________________
