@@ -4,8 +4,9 @@ package evm
 
 import (
 	"bytes"
-	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
 	"math/big"
+
+	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
