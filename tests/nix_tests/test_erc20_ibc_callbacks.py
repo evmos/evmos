@@ -4,20 +4,15 @@ import tempfile
 import pytest
 
 from .ibc_utils import (
-    BASECRO_IBC_DENOM,
-    EVMOS_IBC_DENOM,
-    OSMO_IBC_DENOM,
     assert_ready,
     get_balance,
     prepare_network,
 )
 from .network import CosmosChain, Evmos
 from .utils import (
-    ACCOUNTS,
     ADDRS,
     CONTRACTS,
     KEYS,
-    MAX_UINT256,
     REGISTER_ERC20_PROP,
     approve_proposal,
     deploy_contract,
