@@ -212,6 +212,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		if err := CanTransfer(
 			ctx,
+			md.accountKeeper,
 			md.evmKeeper,
 			coreMsg,
 			decUtils.BaseFee,

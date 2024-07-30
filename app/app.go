@@ -14,9 +14,9 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/evmos/evmos/v18/x/auctions"
-	auctionskeeper "github.com/evmos/evmos/v18/x/auctions/keeper"
-	auctionstypes "github.com/evmos/evmos/v18/x/auctions/types"
+	"github.com/evmos/evmos/v19/x/auctions"
+	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"
+	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -498,11 +498,6 @@ func NewEvmos(
 
 	app.StakingKeeper = *stakingKeeper
 
-	app.AuctionsKeeper = auctionskeeper.NewKeeper(
-		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.AccountKeeper,
-	)
-
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
@@ -534,6 +529,11 @@ func NewEvmos(
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
 		),
+	)
+
+	app.AuctionsKeeper = auctionskeeper.NewKeeper(
+		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
@@ -639,12 +639,12 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
-		auctions.NewAppModule(appCodec, app.AuctionsKeeper),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
+		auctions.NewAppModule(appCodec, app.AuctionsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper),
 	)
 

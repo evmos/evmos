@@ -3,6 +3,8 @@
 package evm
 
 import (
+	"bytes"
+	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -18,6 +20,7 @@ import (
 // CanTransfer checks if the sender is allowed to transfer funds according to the EVM block
 func CanTransfer(
 	ctx sdk.Context,
+	accountKeeper evmtypes.AccountKeeper,
 	evmKeeper EVMKeeper,
 	msg core.Message,
 	baseFee *big.Int,
@@ -43,6 +46,15 @@ func CanTransfer(
 
 	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())))
 	evm := evmKeeper.NewEVM(ctx, msg, cfg, evmtypes.NewNoOpTracer(), stateDB)
+
+	auctionsModuleAccount := accountKeeper.GetModuleAddress(auctionstypes.ModuleName)
+	// Add a check for the auctions module account
+	if bytes.Equal(msg.To().Bytes(), auctionsModuleAccount.Bytes()) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidAddress,
+			"cannot transfer funds to the auctions module account",
+		)
+	}
 
 	// check that caller has enough balance to cover asset transfer for **topmost** call
 	// NOTE: here the gas consumed is from the context with the infinite gas meter
