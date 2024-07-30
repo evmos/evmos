@@ -19,7 +19,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
+	"github.com/evmos/evmos/v18/x/inflation/v1/client/cli"
 	"github.com/evmos/evmos/v18/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 )
@@ -83,6 +85,11 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
 		panic(err)
 	}
+}
+
+// GetTxCmd returns the root query command for the erc20 module.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // ___________________________________________________________________________
