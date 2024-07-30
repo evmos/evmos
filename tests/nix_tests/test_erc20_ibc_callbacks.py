@@ -3,11 +3,7 @@ import tempfile
 
 import pytest
 
-from .ibc_utils import (
-    assert_ready,
-    get_balance,
-    prepare_network,
-)
+from .ibc_utils import assert_ready, get_balance, prepare_network
 from .network import CosmosChain, Evmos
 from .utils import (
     ADDRS,
