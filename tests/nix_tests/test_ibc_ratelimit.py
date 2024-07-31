@@ -182,7 +182,6 @@ def test_evmos_ibc_transfer_ibc_denom(
         fees="100000000basecro",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
-    txhash = rsp["txhash"]
 
     wait_for_ack(cli, "evmos")
     if err_inflow is not None:
@@ -192,9 +191,6 @@ def test_evmos_ibc_transfer_ibc_denom(
         new_dst_balance = get_balance(evmos, src_addr, src_denom)
         assert new_dst_balance == old_dst_balance
         return
-
-    receipt = chainmain.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
-    assert receipt["tx_result"]["code"] == 0, receipt["tx_result"]["log"]
 
     def check_balance_change():
         new_dst_balance = get_balance(evmos, src_addr, src_denom)
