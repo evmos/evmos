@@ -2,7 +2,6 @@ import json
 import tempfile
 
 import pytest
-from attr import has
 
 from .ibc_utils import (
     CRO_IBC_DENOM,
