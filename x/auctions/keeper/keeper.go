@@ -41,7 +41,7 @@ func NewKeeper(
 
 // refundLastBid refunds the last bid placed on an auction
 func (k Keeper) refundLastBid(ctx sdk.Context) error {
-	lastBid := k.getHighestBid(ctx)
+	lastBid := k.GetHighestBid(ctx)
 	lastBidAmount := lastBid.Amount.Amount
 	lastBidder, err := sdk.AccAddressFromBech32(lastBid.Sender)
 	if err != nil {

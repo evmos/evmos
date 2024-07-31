@@ -24,7 +24,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 		return nil, errorsmod.Wrapf(types.ErrAuctionDisabled, "auction is disabled")
 	}
 
-	lastBid := k.getHighestBid(ctx)
+	lastBid := k.GetHighestBid(ctx)
 	if bid.Amount.Amount.LTE(lastBid.Amount.Amount) {
 		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than last bid %s", bid.Amount, lastBid.Amount)
 	}
@@ -44,7 +44,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 			return nil, errors.Wrap(err, "refund failed")
 		}
 	}
-	k.setHighestBid(ctx, bid.Sender, bid.Amount)
+	k.SetHighestBid(ctx, bid.Sender, bid.Amount)
 
 	// TODO: emit events
 

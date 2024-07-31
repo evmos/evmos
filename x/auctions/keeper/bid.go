@@ -9,8 +9,8 @@ import (
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
-// getHighestBid gets the highest bid
-func (k *Keeper) getHighestBid(ctx sdk.Context) *types.Bid {
+// GetHighestBid gets the highest bid
+func (k *Keeper) GetHighestBid(ctx sdk.Context) *types.Bid {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyPrefixBid)
 
@@ -26,8 +26,8 @@ func (k *Keeper) getHighestBid(ctx sdk.Context) *types.Bid {
 	return &bid
 }
 
-// setHighestBid sets the highest bid
-func (k *Keeper) setHighestBid(ctx sdk.Context, sender string, amount sdk.Coin) {
+// SetHighestBid sets the highest bid
+func (k *Keeper) SetHighestBid(ctx sdk.Context, sender string, amount sdk.Coin) {
 	store := ctx.KVStore(k.storeKey)
 	bid := &types.Bid{
 		Sender: sender,

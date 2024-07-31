@@ -28,8 +28,8 @@ func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoR
 		}
 	}
 
-	currentRound := k.getRound(ctx)
-	highestBid := k.getHighestBid(ctx)
+	currentRound := k.GetRound(ctx)
+	highestBid := k.GetHighestBid(ctx)
 	return &types.QueryCurrentAuctionInfoResponse{
 		Tokens:        filteredCoins,
 		CurrentRound:  currentRound,

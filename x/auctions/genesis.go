@@ -15,10 +15,18 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	if err != nil {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
+
+	// Set the highest bid
+	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
+
+	// Set the current round
+	k.SetRound(ctx, data.Round)
 }
 
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
+		Bid:    *k.GetHighestBid(ctx),
+		Round:  k.GetRound(ctx),
 	}
 }

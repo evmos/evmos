@@ -68,7 +68,7 @@ func (m *QueryParamsRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 type QueryParamsResponse struct {
-	// params defines all the paramaters of the module
+	// params defines all the parameters of the module
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
 }
 
@@ -277,7 +277,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
 	AuctionInfo(ctx context.Context, in *QueryCurrentAuctionInfoRequest, opts ...grpc.CallOption) (*QueryCurrentAuctionInfoResponse, error)
-	// Params retrieves the erc20 module params
+	// Params retrieves the auctions module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -310,7 +310,7 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	AuctionInfo(context.Context, *QueryCurrentAuctionInfoRequest) (*QueryCurrentAuctionInfoResponse, error)
-	// Params retrieves the erc20 module params
+	// Params retrieves the auctions module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 
