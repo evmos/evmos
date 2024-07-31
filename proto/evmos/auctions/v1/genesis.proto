@@ -6,6 +6,7 @@ package evmos.auctions.v1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "evmos/auctions/v1/auction.proto";
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
@@ -13,6 +14,10 @@ option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+  // bid defines the latest bid of the auction.
+  Bid bid = 2 [(gogoproto.nullable) = false];
+  // round defines the current round of the auction.
+  uint64 round = 3;
 }
 
 // Params holds parameters for the auctions module.
