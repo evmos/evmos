@@ -941,6 +941,37 @@ class CosmosCLI:
                 **(default_kwargs | kwargs),
             )
         )
+    
+    def rate_limits(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ratelimit",
+                "list-rate-limits",
+                **(default_kwargs | kwargs),
+            )
+        )["rate_limits"]
+
+
+    def rate_limit(self,channel, denom, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ratelimit",
+                "rate-limit",
+                channel,
+                denom=denom,
+                **(default_kwargs | kwargs),
+            )
+        )
 
     # ==========================
     #        EVM Module

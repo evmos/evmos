@@ -502,9 +502,20 @@ func NewEvmos(
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
+	// Create the rate limit keeper
+	app.RatelimitKeeper = *ratelimitkeeper.NewKeeper(
+		appCodec,
+		keys[ratelimittypes.StoreKey],
+		app.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
+
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.RatelimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
@@ -556,17 +567,6 @@ func NewEvmos(
 
 	// create host IBC module
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
-
-	// Create the rate limit keeper
-	app.RatelimitKeeper = *ratelimitkeeper.NewKeeper(
-		appCodec,
-		keys[ratelimittypes.StoreKey],
-		app.GetSubspace(ratelimittypes.ModuleName),
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
-	)
 
 	/*
 		Create Transfer Stack
@@ -1202,6 +1202,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
+			Added:   []string{ratelimittypes.ModuleName},
 		}
 	default:
 		// no-op
