@@ -5,33 +5,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/testutil"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 )
 
-const erc20Decimals = uint8(18)
-
-// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	err := suite.network.NextBlock()
-	// suite.Require().NoError(err)
-	addr, err := testutil.DeployContract(
-		suite.network.GetContext(),
-		suite.network.App,
-		suite.keyring.GetPrivKey(0),
-		suite.network.GetEvmClient(),
-		contracts.ERC20MinterBurnerDecimalsContract,
-		name, symbol, decimals,
-	)
-	suite.Require().NoError(err)
-	err = suite.network.NextBlock()
-	// suite.Require().NoError(err)
-	return addr, err
-}
-
 func (suite *KeeperTestSuite) TestCallEVM() {
+	wevmosContract := common.HexToAddress(types.WEVMOSContractMainnet)
 	testCases := []struct {
 		name    string
 		method  string
@@ -52,11 +32,8 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.SetupTest() // reset
 
 		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-		contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-		suite.Require().NoError(err)
 		account := utiltx.GenerateAddress()
-
-		res, err := suite.network.App.EvmKeeper.CallEVM(suite.network.GetContext(), erc20, types.ModuleAddress, contract, true, tc.method, account)
+		res, err := suite.network.App.EvmKeeper.CallEVM(suite.network.GetContext(), erc20, types.ModuleAddress, wevmosContract, false, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
@@ -68,71 +45,71 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 
 func (suite *KeeperTestSuite) TestCallEVMWithData() {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	wevmosContract := common.HexToAddress(types.WEVMOSContractMainnet)
 	testCases := []struct {
 		name     string
 		from     common.Address
-		malleate func() ([]byte, *common.Address)
+		malleate func() []byte
+		deploy   bool
 		expPass  bool
 	}{
 		{
 			"unknown method",
 			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
+			func() []byte {
 				account := utiltx.GenerateAddress()
 				data, _ := erc20.Pack("", account)
-				return data, &contract
+				return data
 			},
+			false,
 			false,
 		},
 		{
 			"pass",
 			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
+			func() []byte {
+
 				account := utiltx.GenerateAddress()
 				data, _ := erc20.Pack("balanceOf", account)
-				return data, &contract
+				return data
 			},
+			false,
 			true,
 		},
 		{
 			"fail empty data",
 			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				return []byte{}, &contract
+			func() []byte {
+				return []byte{}
 			},
+			false,
 			false,
 		},
 
 		{
 			"fail empty sender",
 			common.Address{},
-			func() ([]byte, *common.Address) {
-				contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-				suite.Require().NoError(err)
-				return []byte{}, &contract
+			func() []byte {
+				return []byte{}
 			},
+			false,
 			false,
 		},
 		{
 			"deploy",
 			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
+			func() []byte {
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
 				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-				return data, nil
+				return data
 			},
+			true,
 			true,
 		},
 		{
 			"fail deploy",
 			types.ModuleAddress,
-			func() ([]byte, *common.Address) {
+			func() []byte {
 				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				params.AccessControl.Create = evmtypes.AccessControlType{
 					AccessType: evmtypes.AccessTypeRestricted,
@@ -140,8 +117,9 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 				_ = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
 				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-				return data, nil
+				return data
 			},
+			true,
 			false,
 		},
 	}
@@ -150,9 +128,16 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			data, contract := tc.malleate()
+			data := tc.malleate()
+			var res *evmtypes.MsgEthereumTxResponse
+			var err error
 
-			res, err := suite.network.App.EvmKeeper.CallEVMWithData(suite.network.GetContext(), tc.from, contract, data, true)
+			if tc.deploy {
+				res, err = suite.network.App.EvmKeeper.CallEVMWithData(suite.network.GetContext(), tc.from, nil, data, true)
+			} else {
+				res, err = suite.network.App.EvmKeeper.CallEVMWithData(suite.network.GetContext(), tc.from, &wevmosContract, data, false)
+			}
+
 			if tc.expPass {
 				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 				suite.Require().NoError(err)

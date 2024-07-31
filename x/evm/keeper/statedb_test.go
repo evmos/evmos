@@ -329,10 +329,6 @@ func (suite *KeeperTestSuite) TestSetCode() {
 }
 
 func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
-	addr := utiltx.GenerateAddress()
-	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
-
 	testCases := []struct {
 		name     string
 		codeHash []byte
@@ -352,6 +348,13 @@ func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			addr := utiltx.GenerateAddress()
+			baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
+			fmt.Println(baseAcc.GetAddress().String())
+			has := suite.network.App.AccountKeeper.HasAccount(suite.network.GetContext(), addr.Bytes())
+			suite.Require().False(has)
+			suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
 			ctx := suite.network.GetContext()
 			if len(tc.code) == 0 {
 				suite.network.App.EvmKeeper.DeleteCode(ctx, tc.codeHash)
@@ -1028,24 +1031,24 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 
 	testCases := []struct {
 		name        string
-		addr        common.Address
+		malleate    func() common.Address
 		expPass     bool
 		errContains string
 	}{
 		{
 			name:        "remove address",
-			addr:        suite.keyring.GetAddr(0),
+			malleate:    func() common.Address { return suite.keyring.GetAddr(0) },
 			errContains: "only smart contracts can be self-destructed",
 		},
 		{
-			name:    "remove unexistent address - returns nil error",
-			addr:    common.HexToAddress("unexistent_address"),
-			expPass: true,
+			name:     "remove unexistent address - returns nil error",
+			malleate: func() common.Address { return common.HexToAddress("unexistent_address") },
+			expPass:  true,
 		},
 		{
-			name:    "remove deployed contract",
-			addr:    contractAddr,
-			expPass: true,
+			name:     "remove deployed contract",
+			malleate: func() common.Address { return contractAddr },
+			expPass:  true,
 		},
 	}
 
@@ -1055,19 +1058,21 @@ func (suite *KeeperTestSuite) TestDeleteAccount() {
 			ctx = suite.network.GetContext()
 			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 
-			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, tc.addr)
+			addr := tc.malleate()
+
+			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, addr)
 			if tc.expPass {
 				suite.Require().NoError(err, "expected deleting account to succeed")
 
-				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, addr)
 				suite.Require().Nil(acc, "expected no account to be found after deleting")
 
-				balance := suite.network.App.EvmKeeper.GetBalance(ctx, tc.addr)
+				balance := suite.network.App.EvmKeeper.GetBalance(ctx, addr)
 				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
 			} else {
 				suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
 
-				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, addr)
 				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
 			}
 		})
