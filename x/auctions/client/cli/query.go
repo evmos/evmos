@@ -59,8 +59,8 @@ func GetAuctionInfo() *cobra.Command {
 func GetParamsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "Get the evm params",
-		Long:  "Get the evm parameter values.",
+		Short: "Get the auction module params",
+		Long:  "Get the auction module parameter values.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
