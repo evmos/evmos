@@ -22,6 +22,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 
 	// testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	// "github.com/evmos/evmos/v18/utils"
@@ -48,6 +49,8 @@ var (
 	doublePeriods []vesting.Period
 	// emptyPeriods is a empty slice of periods used in testing
 	emptyPeriods []vesting.Period
+
+	defaultFundingAmount int64
 
 	// err is a basic error type
 	err error
@@ -98,9 +101,10 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		s.SetupTest(3)
 
 		// Set the default value for the vesting or lockup periods
+		defaultFundingAmount = 100
 		defaultPeriod := vesting.Period{
 			Length: 10,
-			Amount: []cmn.Coin{{Denom: s.bondDenom, Amount: big.NewInt(100)}},
+			Amount: []cmn.Coin{{Denom: s.bondDenom, Amount: big.NewInt(defaultFundingAmount)}},
 		}
 		instantPeriod := defaultPeriod
 		instantPeriod.Length = 0
@@ -321,6 +325,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(s.network.NextBlock()).To(BeNil())
 
+				// Query balances before precompile call to compare final balances.
 				vestAccInitialBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
 				Expect(err).To(BeNil())
 				funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
@@ -354,7 +359,71 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				// The vesting periods are defaulted to instant vesting, i.e. period length = 0.
 				s.ExpectVestingAccount(vestingAccKey.Addr, defaultPeriods, instantPeriods)
 
-				vestCoinsAmt := math.NewIntFromBigInt(defaultPeriods[0].Amount[0].Amount)
+				// Query balances after precompile call.
+				vestAccFinalBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				funderFinalBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				vestingCallerFinalBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
+				Expect(err).To(BeNil())
+
+				// Check balances after precompile call.
+				Expect(vestAccFinalBal.Balance.Amount).To(Equal(vestAccInitialBal.Balance.Amount.Add(math.NewInt(defaultFundingAmount))))
+				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(math.NewInt(defaultFundingAmount)).Sub(fees)))
+				Expect(vestingCallerFinalBal.Balance.Amount).To(Equal(vestingCallerInitialBal.Balance.Amount))
+			})
+
+			It(fmt.Sprintf("should succeed when defining only lockup and funder is a smart contract (%s)", callType.name), func() {
+				if callType.directCall {
+					Skip("this should only be run for smart contract calls")
+				}
+
+				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, sdk.AccAddress(vestingCallerAddr.Bytes()), false)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// Send some funds to the smart contract to allow it to fund the account.
+				// The authorization to be able to fund from the smart contract is already in the setup
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, funderKey, sdk.AccAddress(vestingCallerAddr.Bytes()), math.NewInt(defaultFundingAmount))
+				Expect(err).To(BeNil(), "error while sending coins")
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// Query balances before precompile call to compare final balances.
+				vestAccInitialBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				vestingCallerInitialBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
+				Expect(err).To(BeNil())
+				// NOTE: in this case the funder is not sending funds from its account but is just calling the contract that
+				// will fund the vesting account.
+				funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+
+				// Build and execute the tx to fund the vesting account from a smart contract.
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				txArgs.GasPrice = gasPrice.BigInt()
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					vestingCallerAddr,
+					vestingAccKey.Addr,
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					emptyPeriods,
+				}
+
+				fundClawbackVestingCheck := passCheck.
+					WithExpEvents(vesting.EventTypeFundVestingAccount)
+
+				res, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				fees := gasPrice.MulRaw(res.GasUsed)
+
+				// Check the vesting account
+				//
+				// NOTE: The vesting account is created with the lockup periods only, since the vesting periods are empty.
+				// The vesting periods are defaulted to instant vesting, i.e. period length = 0.
+				s.ExpectVestingAccount(vestingAccKey.Addr, defaultPeriods, instantPeriods)
 
 				// Query balances after precompile call.
 				vestAccFinalBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
@@ -365,195 +434,202 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(err).To(BeNil())
 
 				// Check balances after precompile call.
-				Expect(vestAccFinalBal.Balance.Amount).To(Equal(vestAccInitialBal.Balance.Amount.Add(vestCoinsAmt)))
-				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(vestCoinsAmt).Sub(fees)))
+				Expect(vestAccFinalBal.Balance.Amount).To(Equal(vestAccInitialBal.Balance.Amount.Add(math.NewInt(defaultFundingAmount))), "expected vesting account to have initial balance plus vesting")
+				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(fees)), "expected funder to have initial balance minus fees")
+				Expect(vestingCallerFinalBal.Balance.Amount.Int64()).To(Equal(vestingCallerInitialBal.Balance.Amount.Sub(math.NewInt(defaultFundingAmount)).Int64()), "expected vesting caller to have initial balance minus vesting")
+			})
+
+			It(fmt.Sprintf("should succeed when defining only vesting and funder is an EOA (%s)", callType.name), func() { //nolint:dupl
+
+				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// Query balances before precompile call to compare final balances.
+				vestAccInitialBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				vestingCallerInitialBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
+				Expect(err).To(BeNil())
+
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				txArgs.GasPrice = gasPrice.BigInt()
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					vestingAccKey.Addr,
+					uint64(time.Now().Unix()),
+					emptyPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := passCheck.
+					WithExpEvents(vesting.EventTypeFundVestingAccount)
+
+				res, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				fees := gasPrice.MulRaw(res.GasUsed)
+
+				// Check the vesting account
+				//
+				// NOTE: The vesting account is created with the vesting periods only, since the lockup periods are empty.
+				// The lockup periods are defaulted to instant unlocking, i.e. period length = 0.
+				s.ExpectVestingAccount(vestingAccKey.Addr, instantPeriods, defaultPeriods)
+
+				// Query balances after precompile call.
+				vestAccFinalBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				funderFinalBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+				Expect(err).To(BeNil())
+				vestingCallerFinalBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
+				Expect(err).To(BeNil())
+
+				// Check balances after precompile call.
+				Expect(vestAccFinalBal.Balance.Amount).To(Equal(vestAccInitialBal.Balance.Amount.Add(math.NewInt(defaultFundingAmount))))
+				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(math.NewInt(defaultFundingAmount)).Sub(fees)))
 				Expect(vestingCallerFinalBal.Balance.Amount).To(Equal(vestingCallerInitialBal.Balance.Amount))
 			})
 
-			// It(fmt.Sprintf("should fund the vesting account from a smart contract when defining only lockup (%s)", callType.name), func() {
+			// TODO: not clear the scope of this test
+
+			// It(fmt.Sprintf("should fail with a smart contract different than the contract that calls the precompile (%s)", callType.name), func() {
 			// 	if callType.directCall {
 			// 		Skip("this should only be run for smart contract calls")
 			// 	}
 			//
-			// 	// The funder is a smart contract.
-			// 	err = s.factory.CreateClawbackVestingAccount(vestingAccountKey.Priv, sdk.AccAddress(vestingCallerAddr.Bytes()), false)
+			// 	counterContract, err := contracts.LoadCounterContract()
+			// 	Expect(err).ToNot(HaveOccurred(), "error while getting the counter contract: %v", err)
+			//
+			// 	contractCounterAddr, err := s.factory.DeployContract(
+			// 		funderKey.Priv,
+			// 		evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			// 		factory.ContractDeploymentData{
+			// 			Contract: counterContract,
+			// 		},
+			// 	)
+			// 	Expect(err).ToNot(HaveOccurred(), "error while deploying the counter smart contract: %v", err)
 			// 	Expect(s.network.NextBlock()).To(BeNil())
 			//
-			// 	// send some funds to the smart contract
-			// 	// authorization to be able to fund from the smart contract is already in the setup
-			// 	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, vestingCallerAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(100))))
-			// 	Expect(err).ToNot(HaveOccurred(), "error while funding the contract: %v", err)
+			// 	err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
+			// 	Expect(err).To(BeNil())
+			// 	Expect(s.network.NextBlock()).To(BeNil())
 			//
-			// 	txSenderInitialBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			// 	vestAccInitialBal := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
+			// 	// Send some funds to the smart contract to allow it to fund the account.
+			// 	err = testutils.FundAccountWithBaseDenom(s.factory, s.network, funderKey, sdk.AccAddress(contractCounterAddr.Bytes()), math.NewInt(defaultFundingAmount))
+			// 	Expect(err).To(BeNil(), "error while sending coins to the contract")
+			// 	Expect(s.network.NextBlock()).To(BeNil())
+			//
+			// 	// Create authorization for tx sender to use funder's balance to fund a vesting account.
+			// 	approvalCallArgs := factory.CallArgs{
+			// 		ContractABI: s.precompile.ABI,
+			// 		MethodName:  "approve",
+			// 		Args: []interface{}{
+			// 			contractCounterAddr,
+			// 			vesting.FundVestingAccountMsgURL,
+			// 		},
+			// 	}
+			//
+			// 	precompileAddr := s.precompile.Address()
+			// 	logCheck := passCheck.WithExpEvents(authorization.EventTypeApproval)
+			//
+			// 	_, _, err = s.factory.CallContractAndCheckLogs(funderKey.Priv, evmtypes.EvmTxArgs{To: &precompileAddr}, approvalCallArgs, logCheck)
+			// 	Expect(err).To(BeNil(), "error while creating the generic authorization: %v", err)
+			// 	Expect(s.network.NextBlock()).To(BeNil())
+			//
+			// 	auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractCounterAddr.Bytes()).String(), funderKey.AccAddr.String())
+			// 	Expect(err).To(BeNil())
+			// 	Expect(auths).To(HaveLen(1))
+			//
+			// 	// Query balances before precompile call.
+			// 	funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+			// 	Expect(err).To(BeNil())
 			//
 			// 	// Build and execute the tx to fund the vesting account from a smart contract
-			// 	fundVestingAccArgs := s.BuildCallArgs(callType, vestingCallerAddr).
-			// 		WithMethodName(vesting.FundVestingAccountMethod).
-			// 		WithArgs(
-			// 			vestingCallerAddr,
-			// 			toAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			emptyPeriods,
-			// 		).
-			// 		WithGasPrice(gasPrice.BigInt())
-			//
-			// 	fundClawbackVestingCheck := passCheck.
-			// 		WithExpEvents(vesting.EventTypeFundVestingAccount)
-			//
-			// 	res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, fundVestingAccArgs, fundClawbackVestingCheck)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
-			//
-			// 	res, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
-			// 	Expect(s.network.NextBlock()).To(BeNil())
-			//
-			// 	fees := gasPrice.MulRaw(res.GasUsed)
-			// 	// Check the vesting account
-			// 	//
-			// 	// NOTE: The vesting account is created with the lockup periods only, since the vesting periods are empty.
-			// 	// The vesting periods are defaulted to instant vesting, i.e. period length = 0.
-			// 	s.ExpectVestingAccount(vestingKey.Addr, defaultPeriods, instantPeriods)
-			// })
-			//
-			// It(fmt.Sprintf("should fund the vesting when defining only vesting (%s)", callType.name), func() { //nolint:dupl
-			// 	funder := s.keyring.GetKey(0)
-			// 	vestingKey := s.keyring.GetKey(1)
-			//
-			// 	err = s.factory.CreateClawbackVestingAccount(vestingKey.Priv, funder.AccAddr, false)
-			// 	Expect(s.network.NextBlock()).To(BeNil())
-			//
-			// 	callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
+			// 	// Build and execute the tx to fund the vesting account from a smart contract.
+			// 	callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+			// 	txArgs.GasPrice = gasPrice.BigInt()
 			// 	callArgs.MethodName = vesting.FundVestingAccountMethod
 			// 	callArgs.Args = []interface{}{
-			// 		funder.Addr,
-			// 		vestingKey.Addr,
+			// 		contractCounterAddr,
+			// 		vestingAccKey.Addr,
 			// 		uint64(time.Now().Unix()),
-			// 		emptyPeriods,
 			// 		defaultPeriods,
+			// 		emptyPeriods,
 			// 	}
 			//
-			// 	fundClawbackVestingCheck := passCheck.
-			// 		WithExpEvents(vesting.EventTypeFundVestingAccount)
+			// 	res, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, execRevertedCheck)
+			// 	Expect(err).To(HaveOccurred())
 			//
-			// 	_, _, err := s.factory.CallContractAndCheckLogs(funder.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
-			// 	Expect(s.network.NextBlock()).To(BeNil())
+			// 	fees := gasPrice.MulRaw(res.GasUsed)
 			//
-			// 	// Check the vesting account
+			// 	funderFinalBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
+			// 	Expect(err).To(BeNil())
+			//
+			// 	Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(fees)), "expected funder to have initial balance minus fees")
+			// 	// // check that tx signer's balance is reduced by the fees paid
+			// 	// txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+			// 	// Expect(txSenderFinalBal.Amount.LTE(txSenderInitialBal.Amount)).To(BeTrue())
 			// 	//
-			// 	// NOTE: The vesting account is created with the vesting periods only, since the lockup periods are empty.
-			// 	// The lockup periods are defaulted to instant unlocking, i.e. period length = 0.
-			// 	s.ExpectVestingAccount(vestingKey.Addr, instantPeriods, defaultPeriods)
-			//
-			// 	// check that tx signer's balance is reduced by the fees paid
-			// 	txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			// 	Expect(txSenderFinalBal.Amount).To(Equal(txSenderInitialBal.Amount.Sub(fees)))
-			//
-			// 	// check the contract's balance was deducted to fund the vesting account
-			// 	contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
-			// 	Expect(contractFinalBal.Amount).To(Equal(sdk.ZeroInt()))
-			//
-			// 	vestCoinsAmt := math.NewIntFromBigInt(defaultPeriods[0].Amount[0].Amount)
-			// 	vestAccFinalBal := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
-			// 	Expect(vestAccFinalBal.Amount).To(Equal(vestAccInitialBal.Amount.Add(vestCoinsAmt)))
+			// 	// // the balance of the contract that calls the precompile should remain 0
+			// 	// contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			// 	// Expect(contractFinalBal.Amount).To(Equal(sdk.ZeroInt()))
+			// 	//
+			// 	// // the balance of the funder contract should remain unchanged
+			// 	// funderContractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, funderContractAddr.Bytes(), s.bondDenom)
+			// 	// Expect(funderContractFinalBal.Amount).To(Equal(funderContractInitialAmt))
 			// })
 			//
-			// It(fmt.Sprintf("contract that calls funder - should NOT fund the vesting account with a smart contract different than the contract that calls the precompile (%s)", callType.name), func() {
-			// 	if callType.directCall {
-			// 		Skip("this should only be run for smart contract calls")
-			// 	}
-			// 	counterContract, err := contracts.LoadCounterContract()
-			// 	Expect(err).ToNot(HaveOccurred())
-			//
-			// 	funderContractAddr, err := s.DeployContract(counterContract)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while deploying the smart contract: %v", err)
-			//
-			// 	s.CreateTestClawbackVestingAccount(funderContractAddr, toAddr)
-			// 	// send some funds to the smart contract
-			// 	// authorization to be able to fund from the smart contract is already in the setup
-			// 	funderContractInitialAmt := math.NewInt(200)
-			// 	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, funderContractAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, funderContractInitialAmt)))
-			// 	Expect(err).ToNot(HaveOccurred(), "error while funding the contract: %v", err)
-			//
-			// 	// create authorization for tx sender to use funder's balance to fund a vesting account
-			// 	err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, s.address, funderContractAddr, vesting.FundVestingAccountMsgURL)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
-			//
-			// 	txSenderInitialBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			//
-			// 	// Build and execute the tx to fund the vesting account from a smart contract
-			// 	fundVestingAccArgs := s.BuildCallArgs(callType, contractAddr).
-			// 		WithMethodName(vesting.FundVestingAccountMethod).
-			// 		WithArgs(
-			// 			funderContractAddr,
-			// 			toAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			emptyPeriods,
-			// 		)
-			// 	_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, fundVestingAccArgs, execRevertedCheck)
-			// 	Expect(err).To(HaveOccurred())
-			//
-			// 	// check that tx signer's balance is reduced by the fees paid
-			// 	txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			// 	Expect(txSenderFinalBal.Amount.LTE(txSenderInitialBal.Amount)).To(BeTrue())
-			//
-			// 	// the balance of the contract that calls the precompile should remain 0
-			// 	contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
-			// 	Expect(contractFinalBal.Amount).To(Equal(sdk.ZeroInt()))
-			//
-			// 	// the balance of the funder contract should remain unchanged
-			// 	funderContractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, funderContractAddr.Bytes(), s.bondDenom)
-			// 	Expect(funderContractFinalBal.Amount).To(Equal(funderContractInitialAmt))
-			// })
-			//
-			// It(fmt.Sprintf("fund using a third party EOA - should NOT fund the vesting account even if authorized (%s)", callType.name), func() {
-			// 	if callType.directCall {
-			// 		Skip("this should only be run for smart contract calls")
-			// 	}
-			//
-			// 	// send some funds to the funder, a third party EOA
-			// 	funderAccAddr, _ := testutiltx.NewAccAddressAndKey()
-			// 	funderHexAddr := common.BytesToAddress(funderAccAddr)
-			// 	initialFunderBalance := math.NewInt(200)
-			// 	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, funderAccAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, initialFunderBalance)))
-			// 	Expect(err).ToNot(HaveOccurred(), "error while funding the third party EOA: %v", err)
-			//
-			// 	// create authorization for tx sender to use funder's balance to fund a vesting account
-			// 	err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, s.address, funderHexAddr, vesting.FundVestingAccountMsgURL)
-			// 	Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
-			//
-			// 	// create clawback vesting account with the corresponding funder
-			// 	s.CreateTestClawbackVestingAccount(funderHexAddr, toAddr)
-			//
-			// 	txSenderInitialBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			//
-			// 	// Build and execute the tx to fund the vesting account from a third party EOA
-			// 	fundVestingAccArgs := s.BuildCallArgs(callType, contractAddr).
-			// 		WithMethodName(vesting.FundVestingAccountMethod).
-			// 		WithArgs(
-			// 			funderHexAddr,
-			// 			toAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			emptyPeriods,
-			// 		).
-			// 		WithGasPrice(gasPrice.BigInt())
-			//
-			// 	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, fundVestingAccArgs, execRevertedCheck)
-			// 	Expect(err).To(HaveOccurred())
-			//
-			// 	// check that tx signer's balance is reduced by the fees paid
-			// 	txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			// 	Expect(txSenderFinalBal.Amount.LTE(txSenderInitialBal.Amount)).To(BeTrue())
-			//
-			// 	// check the funders's balance remains unchanged
-			// 	funderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, funderAccAddr, s.bondDenom)
-			// 	Expect(funderFinalBal.Amount).To(Equal(initialFunderBalance))
-			// })
-			//
+			It(fmt.Sprintf("should fail using a third party EOA even if authorized (%s)", callType.name), func() {
+				if callType.directCall {
+					Skip("this should only be run for smart contract calls")
+				}
+
+				txSenderKey := s.keyring.GetKey(2)
+
+				// Create authorization for tx sender to use funder's balance to fund a vesting account.
+				s.CreateFundVestingAccountAuthorization(funderKey, txSenderKey.Addr)
+
+				// Create clawback vesting account. Not that the funder is not the transaction sender.
+				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
+
+				// Query initialBalances before precompile call to compare final initialBalances.
+				initialBalances := s.GetBondBalances(vestingAccKey.AccAddr, funderKey.AccAddr, txSenderKey.AccAddr)
+				vestAccInitialBal, funderInitialBal, txSenderInitialBal := initialBalances[0], initialBalances[1], initialBalances[2]
+
+				// Build and execute the tx to fund the vesting account.
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				txArgs.GasPrice = gasPrice.BigInt()
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					vestingAccKey.Addr,
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					emptyPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck.
+					WithExpEvents(vesting.EventTypeFundVestingAccount)
+
+				res, _, err := s.factory.CallContractAndCheckLogs(txSenderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).ToNot(HaveOccurred(), "expected error in the fund vesting account execution")
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// NOTE: GasUsed is 0, is it normal?
+				fees := gasPrice.MulRaw(res.GasUsed)
+
+				// Query balances after precompile call.
+				finalBalances := s.GetBondBalances(vestingAccKey.AccAddr, funderKey.AccAddr, txSenderKey.AccAddr)
+				vestAccFinalBal, funderFinalBal, txSenderFinalBal := finalBalances[0], finalBalances[1], finalBalances[2]
+
+				// Check balances after precompile call.
+				Expect(vestAccFinalBal).To(Equal(vestAccInitialBal))
+				Expect(funderFinalBal).To(Equal(funderInitialBal))
+				Expect(txSenderFinalBal).To(Equal(txSenderInitialBal.Sub(fees))) // WROOONG
+			})
+
 			// It(fmt.Sprintf("should NOT fund the vesting with tx origin funds when calling the precompile from a smart contract and WITHOUT authorization (%s)", callType.name), func() {
 			// 	// when calling from a smart contract
 			// 	// the funder (s.address) needs to authorize

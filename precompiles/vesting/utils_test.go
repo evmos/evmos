@@ -12,10 +12,12 @@ import (
 	"github.com/evmos/evmos/v18/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
+	"github.com/evmos/evmos/v18/precompiles/authorization"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
@@ -116,6 +118,45 @@ func (s *PrecompileTestSuite) GetVestingAccount(addr common.Address) *vestingtyp
 	vestingAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
 	Expect(ok).To(BeTrue(), "vesting account should be of type VestingAccount")
 	return vestingAcc
+}
+
+// CreateFundVestingAuthorization creates an approval authorization for the grantee to use granter's balance
+// to fund a vesting account. The method check that this is the only authorization stored for the pair
+// (granter, grantee) and returns an error if this is not true.
+func (s *PrecompileTestSuite) CreateFundVestingAccountAuthorization(granter keyring.Key, grantee common.Address) {
+	approvalCallArgs := factory.CallArgs{
+		ContractABI: s.precompile.ABI,
+		MethodName:  "approve",
+		Args: []interface{}{
+			grantee,
+			vesting.FundVestingAccountMsgURL,
+		},
+	}
+
+	precompileAddr := s.precompile.Address()
+	logCheck := passCheck.WithExpEvents(authorization.EventTypeApproval)
+
+	_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, evmtypes.EvmTxArgs{To: &precompileAddr}, approvalCallArgs, logCheck)
+	Expect(err).To(BeNil(), "error while creating the generic authorization: %v", err)
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(grantee.Bytes()).String(), granter.AccAddr.String())
+	Expect(err).To(BeNil())
+	Expect(auths).To(HaveLen(1))
+}
+
+// GetBondBalances returns the balances of the bonded denom for the given addresses. The
+// testing suite checks for error to be nil during the queries.
+func (s *PrecompileTestSuite) GetBondBalances(addresses ...sdk.AccAddress) []math.Int {
+	balances := make([]math.Int, 0, len(addresses))
+
+	for _, acc := range addresses {
+		balResp, err := s.grpcHandler.GetBalance(acc, s.bondDenom)
+		Expect(err).To(BeNil())
+		balances = append(balances, balResp.Balance.Amount)
+	}
+
+	return balances
 }
 
 // mergeEventMaps is a helper function to merge events maps from different contracts.
