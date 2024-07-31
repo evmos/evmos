@@ -941,7 +941,7 @@ class CosmosCLI:
                 **(default_kwargs | kwargs),
             )
         )
-    
+
     def rate_limits(self, **kwargs):
         default_kwargs = {
             "node": self.node_rpc,
@@ -956,8 +956,7 @@ class CosmosCLI:
             )
         )["rate_limits"]
 
-
-    def rate_limit(self,channel, denom, **kwargs):
+    def rate_limit(self, channel, denom, **kwargs):
         default_kwargs = {
             "node": self.node_rpc,
             "output": "json",
