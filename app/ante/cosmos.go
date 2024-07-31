@@ -22,7 +22,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
 		ante.NewSetUpContextDecorator(),
-		//cosmosante.NewRejectAuctionTransfers(options.AccountKeeper),
+		// cosmosante.NewRejectAuctionTransfers(options.AccountKeeper),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
