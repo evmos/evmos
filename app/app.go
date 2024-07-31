@@ -251,12 +251,6 @@ var (
 		auctionstypes.ModuleName:           {authtypes.Burner},
 		auctionstypes.AuctionCollectorName: nil,
 	}
-
-	// allowed to receive funds
-	allowedToReceive = map[string]bool{
-		auctionstypes.ModuleName:           true,
-		auctionstypes.AuctionCollectorName: true,
-	}
 )
 
 var (
@@ -967,7 +961,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	sort.Strings(accs)
 
 	for _, acc := range accs {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedToReceive[acc]
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
 	blockedPrecompilesHex := evmtypes.DefaultStaticPrecompiles
