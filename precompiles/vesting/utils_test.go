@@ -17,6 +17,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
+	contractutils "github.com/evmos/evmos/v18/contracts/utils"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -177,4 +178,9 @@ func mergeEventMaps(map1, map2 map[string]abi.Event) map[string]abi.Event {
 	}
 
 	return mergedMap
+}
+
+// FIXME: should be moved in the proper space
+func LoadCounterContract() (evmtypes.CompiledContract, error) {
+	return contractutils.LoadContractFromJSONFile("VestingCaller.json")
 }

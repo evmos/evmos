@@ -326,12 +326,8 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// Query balances before precompile call to compare final balances.
-				vestAccInitialBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-				funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-				vestingCallerInitialBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
-				Expect(err).To(BeNil())
+				initialBalances := s.GetBondBalances(vestingAccKey.AccAddr, funderKey.AccAddr, sdk.AccAddress(vestingCallerAddr.Bytes()))
+				vestAccInitialBal, funderInitialBal, vestingCallerInitialBal := initialBalances[0], initialBalances[1], initialBalances[2]
 
 				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
 				txArgs.GasPrice = gasPrice.BigInt()
@@ -360,17 +356,13 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				s.ExpectVestingAccount(vestingAccKey.Addr, defaultPeriods, instantPeriods)
 
 				// Query balances after precompile call.
-				vestAccFinalBal, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-				funderFinalBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-				vestingCallerFinalBal, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestingCallerAddr.Bytes()), s.bondDenom)
-				Expect(err).To(BeNil())
+				finalBalances := s.GetBondBalances(vestingAccKey.AccAddr, funderKey.AccAddr, sdk.AccAddress(vestingCallerAddr.Bytes()))
+				vestAccFinalBal, funderFinalBal, vestingCallerFinalBal := finalBalances[0], finalBalances[1], finalBalances[2]
 
 				// Check balances after precompile call.
-				Expect(vestAccFinalBal.Balance.Amount).To(Equal(vestAccInitialBal.Balance.Amount.Add(math.NewInt(defaultFundingAmount))))
-				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(math.NewInt(defaultFundingAmount)).Sub(fees)))
-				Expect(vestingCallerFinalBal.Balance.Amount).To(Equal(vestingCallerInitialBal.Balance.Amount))
+				Expect(vestAccFinalBal).To(Equal(vestAccInitialBal.Add(math.NewInt(defaultFundingAmount))))
+				Expect(funderFinalBal).To(Equal(funderInitialBal.Sub(math.NewInt(defaultFundingAmount)).Sub(fees)))
+				Expect(vestingCallerFinalBal).To(Equal(vestingCallerInitialBal))
 			})
 
 			It(fmt.Sprintf("should succeed when defining only lockup and funder is a smart contract (%s)", callType.name), func() {
@@ -581,10 +573,11 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 			// 	// Expect(funderContractFinalBal.Amount).To(Equal(funderContractInitialAmt))
 			// })
 			//
-			It(fmt.Sprintf("should fail using a third party EOA even if authorized (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fail using a third party EOA even if authorized by funder (%s)", callType.name), func() {
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
+				fmt.Println("executing now!!!!")
 
 				txSenderKey := s.keyring.GetKey(2)
 
@@ -630,29 +623,37 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(txSenderFinalBal).To(Equal(txSenderInitialBal.Sub(fees))) // WROOONG
 			})
 
-			// It(fmt.Sprintf("should NOT fund the vesting with tx origin funds when calling the precompile from a smart contract and WITHOUT authorization (%s)", callType.name), func() {
-			// 	// when calling from a smart contract
-			// 	// the funder (s.address) needs to authorize
-			// 	// for the smart contract to use its funds
-			// 	if callType.directCall {
-			// 		Skip("this should only be run for smart contract calls")
-			// 	}
-			// 	s.CreateTestClawbackVestingAccount(s.address, toAddr)
-			// 	fundVestingAccArgs := s.BuildCallArgs(callType, contractAddr).
-			// 		WithMethodName(vesting.FundVestingAccountMethod).
-			// 		WithArgs(
-			// 			s.address,
-			// 			toAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			emptyPeriods,
-			// 			defaultPeriods,
-			// 		)
-			//
-			// 	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, fundVestingAccArgs, execRevertedCheck)
-			// 	Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
-			// })
-			//
-			// It(fmt.Sprintf("should fund the vesting when defining only vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should fail when the contract calling the precompile is not authorized by the funder (%s)", callType.name), func() {
+				if callType.directCall {
+					Skip("this should only be run for smart contract calls")
+				}
+
+				// By default we are creating an authorization for the vesting caller from the funder key. For this
+				// reason, we need to use another funder now.
+				funderNoAuthKey := s.keyring.GetKey(2)
+				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderNoAuthKey.AccAddr, false)
+
+				// Build and execute the tx to fund the vesting account.
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				txArgs.GasPrice = gasPrice.BigInt()
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderNoAuthKey.Addr,
+					vestingAccKey.Addr,
+					uint64(time.Now().Unix()),
+					emptyPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck.
+					WithExpEvents(vesting.EventTypeFundVestingAccount)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(funderNoAuthKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).ToNot(HaveOccurred(), "expected error in the fund vesting account execution")
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			// It(fmt.Sprintf("should succeed when defining only vesting (%s)", callType.name), func() {
 			// 	// when calling from a smart contract
 			// 	// the funder (s.address) needs to authorize
 			// 	// for the smart contract to use its funds

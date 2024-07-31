@@ -11,8 +11,3 @@ import (
 func LoadVestingCallerContract() (evmtypes.CompiledContract, error) {
 	return contractutils.LoadContractFromJSONFile("VestingCaller.json")
 }
-
-// FIXME: should be moved in the proper space
-func LoadCounterContract() (evmtypes.CompiledContract, error) {
-	return contractutils.LoadContractFromJSONFile("VestingCaller.json")
-}
