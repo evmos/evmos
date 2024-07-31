@@ -108,6 +108,10 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
+	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
+
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
@@ -229,6 +233,7 @@ var (
 		epochs.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		incentives.AppModuleBasic{},
+		ratelimit.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -243,6 +248,7 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		ratelimittypes.ModuleName:      nil,
 	}
 )
 
@@ -287,6 +293,7 @@ type Evmos struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        transferkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	RatelimitKeeper       ratelimitkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -550,6 +557,17 @@ func NewEvmos(
 	// create host IBC module
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	// Create the rate limit keeper
+	app.RatelimitKeeper = *ratelimitkeeper.NewKeeper(
+		appCodec,
+		keys[ratelimittypes.StoreKey],
+		app.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
+
 	/*
 		Create Transfer Stack
 
@@ -570,6 +588,7 @@ func NewEvmos(
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = ratelimit.NewIBCMiddleware(app.RatelimitKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -615,6 +634,7 @@ func NewEvmos(
 		ibc.NewAppModule(app.IBCKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		transferModule,
+		ratelimit.NewAppModule(appCodec, app.RatelimitKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -659,6 +679,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -689,6 +710,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -725,6 +747,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
@@ -1116,9 +1139,11 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck
+	// IBC subspaces
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(ratelimittypes.ModuleName)
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
