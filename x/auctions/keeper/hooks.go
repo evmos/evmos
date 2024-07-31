@@ -27,7 +27,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		return
 	}
 
-	lastBid := k.getHighestBid(ctx)
+	lastBid := k.GetHighestBid(ctx)
 
 	// Distribute the awards from the last auction
 	if isValidBid(lastBid) {
@@ -61,9 +61,9 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	}
 
 	// Advance the auction round
-	currentRound := k.getRound(ctx)
+	currentRound := k.GetRound(ctx)
 	nextRound := currentRound + 1
-	k.setRound(ctx, nextRound)
+	k.SetRound(ctx, nextRound)
 
 	// Send the entire balance from the Auctions Collector module account to the current Auctions account
 	accumulatedCoins := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.AuctionCollectorName))
