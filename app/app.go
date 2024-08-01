@@ -156,7 +156,6 @@ import (
 	staking "github.com/evmos/evmos/v18/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	"github.com/evmos/evmos/v18/x/vesting"
-	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
@@ -206,8 +205,6 @@ var (
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler,
-				// Evmos proposal types
-				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},

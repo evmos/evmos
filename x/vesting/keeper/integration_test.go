@@ -13,6 +13,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -1346,19 +1347,23 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		var clawbackProposalID uint64
 		BeforeEach(func() {
 			// submit clawback proposal
-			govClawbackProposal := &types.ClawbackProposal{
-				Title:              "test gov clawback",
-				Description:        "this is an example of a governance proposal to clawback vesting coins",
-				Address:            vestingAcc.AccAddr.String(),
-				DestinationAddress: funder.AccAddr.String(),
+			govClawbackMsg := &types.MsgClawback{
+				FunderAddress:  authtypes.NewModuleAddress("gov").String(),
+				AccountAddress: vestingAcc.AccAddr.String(),
+				DestAddress:    funder.AccAddr.String(),
 			}
 
 			// minimum possible deposit (without getting into voting period)
 			deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1e16)}}
 
 			// Create the message to submit the proposal
-			msgSubmit, err := govv1beta1.NewMsgSubmitProposal(
-				govClawbackProposal, deposit, s.keyring.GetAddr(0).Bytes(),
+			msgSubmit, err := govv1.NewMsgSubmitProposal(
+				[]sdk.Msg{govClawbackMsg}, deposit, 
+				s.keyring.GetAccAddr(0).String(), 
+				"test gov clawback meta", 
+				"test gov clawback", 
+				"test gov clawback", 
+				false,
 			)
 			Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
 			// deliver the proposal
@@ -1596,9 +1601,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	Context("governance clawback to community pool", func() {
-		govClawbackProposal := &types.ClawbackProposal{
-			Title:       "test gov clawback",
-			Description: "this is an example of a governance proposal to clawback vesting coins to the community pool",
+		govClawbackMsg := &types.MsgClawback{
+			FunderAddress: authtypes.NewModuleAddress("gov").String(),
 		}
 		It("should claw back unvested amount before cliff", func() {
 			// initial balances
@@ -1616,8 +1620,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform governance clawback before cliff
 			// via a gov proposal
-			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			govClawbackMsg.AccountAddress = vestingAcc.AccAddr.String()
+			propID, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).To(BeNil())
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
@@ -1692,8 +1696,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform governance clawback
 			// via a gov proposal
-			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			govClawbackMsg.AccountAddress = vestingAcc.AccAddr.String()
+			propID, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).To(BeNil())
 			voteRes, err := testutils.VoteOnProposal(s.factory, vestingAcc.Priv, propID, govv1.OptionYes)
 			Expect(err).To(BeNil())
@@ -1854,8 +1858,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balanceDest := balRes.Balance
 
 			// Perform gov clawback
-			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			govClawbackMsg.AccountAddress = vestingAcc.AccAddr.String()
+			propID, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).To(BeNil())
 
 			// vote with vesting account that made a delegation previously
@@ -1918,8 +1922,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// Perform gov clawback before cliff - funds should go to new funder (no dest address defined)
-			govClawbackProposal.Address = vestingAcc.AccAddr.String()
-			propID, err := testutils.SubmitLegacyProposal(s.factory, s.network, newFunder.Priv, govClawbackProposal)
+			govClawbackMsg.AccountAddress = vestingAcc.AccAddr.String()
+			propID, err := testutils.SubmitProposal(s.factory, s.network, newFunder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).To(BeNil())
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
@@ -1944,10 +1948,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.setupClawbackVestingAccount(newVestAcc, funder, testutil.TestVestingSchedule.VestingPeriods, testutil.TestVestingSchedule.LockupPeriods, false)
 
 			// Perform clawback before cliff
-			govClawbackProposal.Address = newVestAcc.AccAddr.String()
-			_, err := testutils.SubmitLegacyProposal(s.factory, s.network, funder.Priv, govClawbackProposal)
+			govClawbackMsg.AccountAddress = newVestAcc.AccAddr.String()
+			_, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("failed to run legacy handler vesting"))
+			Expect(err.Error()).To(ContainSubstring("proposal status different than expected"))
 		})
 	})
 })
