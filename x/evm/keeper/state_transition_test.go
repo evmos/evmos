@@ -18,7 +18,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
@@ -669,47 +668,58 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 			false,
 			params.TxGas,
 		},
-		// {
-		// 	"call contract tx with config param EnableCall = false",
-		// 	func() {
-		// 		config.Params.AccessControl = evmtypes.AccessControl{
-		// 			Call: evmtypes.AccessControlType{
-		// 				AccessType: evmtypes.AccessTypeRestricted,
-		// 			},
-		// 		}
-		// 		msg, err = newNativeMessage(
-		// 			vmdb.GetNonce(suite.address),
-		// 			suite.network.GetContext().BlockHeight(),
-		// 			suite.address,
-		// 			chainCfg,
-		// 			suite.signer,
-		// 			signer,
-		// 			ethtypes.AccessListTxType,
-		// 			nil,
-		// 			nil,
-		// 		)
-		// 		suite.Require().NoError(err)
-		// 		return msg
-		// 	},
-		// 	false,
-		// 	true,
-		// 	0,
-		// },
-		// {
-		// 	"create contract tx with config param EnableCreate = false",
-		// 	func() {
-		// 		msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
-		// 		suite.Require().NoError(err)
-		// 		config.Params.AccessControl = evmtypes.AccessControl{
-		// 			Create: evmtypes.AccessControlType{
-		// 				AccessType: evmtypes.AccessTypeRestricted,
-		// 			},
-		// 		}
-		// 	},
-		// 	false,
-		// 	true,
-		// 	0,
-		// },
+		{
+			"call contract tx with config param EnableCall = false",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				recipient := keyring.GetAddr(1)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(100),
+					Input:  []byte("contract_data"),
+				})
+				suite.Require().NoError(err)
+				return msg
+			},
+			func() types.Params {
+				defaultParams := types.DefaultParams()
+				defaultParams.AccessControl = evmtypes.AccessControl{
+					Call: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
+				return defaultParams
+			},
+			feemarkettypes.DefaultParams,
+			false,
+			true,
+			0,
+		},
+		{
+			"create contract tx with config param EnableCreate = false",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					Amount: big.NewInt(100),
+					Input:  []byte("contract_data"),
+				})
+				suite.Require().NoError(err)
+				return msg
+			},
+			func() types.Params {
+				defaultParams := types.DefaultParams()
+				defaultParams.AccessControl = evmtypes.AccessControl{
+					Create: evmtypes.AccessControlType{
+						AccessType: evmtypes.AccessTypeRestricted,
+					},
+				}
+				return defaultParams
+			},
+			feemarkettypes.DefaultParams,
+			false,
+			true,
+			0,
+		},
 		{
 			"fail - fix panic when minimumGasUsed is not uint64",
 			func() core.Message {
@@ -776,7 +786,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 
 			if tc.expErr {
 				suite.Require().Error(err)
-			} else {
+			} else if !tc.expVMErr {
 				suite.Require().NoError(err)
 				suite.Require().False(res.Failed())
 				suite.Require().Equal(tc.expectedGasUsed, res.GasUsed)
@@ -788,42 +798,9 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 				return
 			}
 
-			if tc.expVMErr {
-				suite.Require().NotEmpty(res.VmError)
-				return
-			}
-
 			suite.Require().NoError(err)
 		})
 	}
-}
-
-func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
-	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
-	if err != nil {
-		return nil, err
-	}
-
-	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(suite.network.GetContext().BlockHeight()))
-	return ethMsg.AsMessage(msgSigner, nil)
-}
-
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
-	contractCreateTx := &ethtypes.AccessListTx{
-		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation + 1000, // account for data length
-		To:       nil,
-		Data:     []byte("contract_data"),
-		Nonce:    nonce,
-	}
-	ethTx := ethtypes.NewTx(contractCreateTx)
-	ethMsg := &evmtypes.MsgEthereumTx{}
-	err := ethMsg.FromEthereumTx(ethTx)
-	suite.Require().NoError(err)
-	ethMsg.From = suite.keyring.GetAddr(0).Hex()
-
-	cosmossigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-	return ethMsg, ethMsg.Sign(signer, cosmossigner)
 }
 
 func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {

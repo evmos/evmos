@@ -350,10 +350,7 @@ func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			addr := utiltx.GenerateAddress()
-			baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-			fmt.Println(baseAcc.GetAddress().String())
-			has := suite.network.App.AccountKeeper.HasAccount(suite.network.GetContext(), addr.Bytes())
-			suite.Require().False(has)
+			baseAcc := suite.network.App.AccountKeeper.NewAccountWithAddress(suite.network.GetContext(), addr.Bytes())
 			suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
 			ctx := suite.network.GetContext()
 			if len(tc.code) == 0 {

@@ -1592,197 +1592,199 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 	}
 }
 
-// func (suite *EvmKeeperTestSuite) TestEthCall() {
-// 	keyring := testkeyring.New(2)
-// 	unitNetwork := network.NewUnitTestNetwork(
-// 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-// 	)
+func (suite *KeeperTestSuite) TestEthCall() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
 
-// 	erc20Contract, err := testdata.LoadERC20Contract()
-// 	suite.Require().NoError(err)
+	erc20Contract, err := testdata.LoadERC20Contract()
+	suite.Require().NoError(err)
 
-// 	// Generate common data for requests
-// 	sender := keyring.GetAddr(0)
-// 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
-// 	ctorArgs, err := erc20Contract.ABI.Pack("", sender, supply)
-// 	suite.Require().NoError(err)
-// 	data := erc20Contract.Bin
-// 	data = append(data, ctorArgs...)
+	// Generate common data for requests
+	sender := keyring.GetAddr(0)
+	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
+	ctorArgs, err := erc20Contract.ABI.Pack("", sender, supply)
+	suite.Require().NoError(err)
+	data := erc20Contract.Bin
+	data = append(data, ctorArgs...)
 
-// 	testCases := []struct {
-// 		name       string
-// 		malleate   func()
-// 		expVMError bool
-// 	}{
-// 		{
-// 			"invalid args",
-// 			func() *types.EthCallRequest {
-// 				return &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"invalid args - specified both gasPrice and maxFeePerGas",
-// 			func() *types.EthCallRequest {
-// 				hexBigInt := hexutil.Big(*big.NewInt(1))
-// 				args, err := json.Marshal(&types.TransactionArgs{
-// 					From:         &sender,
-// 					Data:         (*hexutil.Bytes)(&data),
-// 					GasPrice:     &hexBigInt,
-// 					MaxFeePerGas: &hexBigInt,
-// 				})
-// 				suite.Require().NoError(err)
+	testCases := []struct {
+		name       string
+		getReq     func() *types.EthCallRequest
+		expVMError bool
+	}{
+		{
+			"invalid args",
+			func() *types.EthCallRequest {
+				return &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
+			},
+			false,
+		},
+		{
+			"invalid args - specified both gasPrice and maxFeePerGas",
+			func() *types.EthCallRequest {
+				hexBigInt := hexutil.Big(*big.NewInt(1))
+				args, err := json.Marshal(&types.TransactionArgs{
+					From:         &sender,
+					Data:         (*hexutil.Bytes)(&data),
+					GasPrice:     &hexBigInt,
+					MaxFeePerGas: &hexBigInt,
+				})
+				suite.Require().NoError(err)
 
-// 				return &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"set param AccessControl - no Access",
-// 			func() {
-// 				args, err := json.Marshal(&types.TransactionArgs{
-// 					From: &address,
-// 					Data: (*hexutil.Bytes)(&data),
-// 				})
+				return &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+			},
+			false,
+		},
+		//FIXME RAMA
+		// {
+		// 	"set param AccessControl - no Access",
+		// 	func() *types.EthCallRequest {
+		// 		args, err := json.Marshal(&types.TransactionArgs{
+		// 			From: &sender,
+		// 			Data: (*hexutil.Bytes)(&data),
+		// 		})
 
-// 				suite.Require().NoError(err)
-// 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+		// 		suite.Require().NoError(err)
+		// 		req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-// 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-// 				params.AccessControl = types.AccessControl{
-// 					Create: types.AccessControlType{
-// 						AccessType: types.AccessTypeRestricted,
-// 					},
-// 				}
-// 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-// 				suite.Require().NoError(err)
-// 			},
-// 			true,
-// 		},
-// 		{
-// 			"set param AccessControl = non whitelist",
-// 			func() {
-// 				args, err := json.Marshal(&types.TransactionArgs{
-// 					From: &address,
-// 					Data: (*hexutil.Bytes)(&data),
-// 				})
+		// 		params := suite.network.app.EvmKeeper.GetParams(suite.ctx)
+		// 		params.AccessControl = types.AccessControl{
+		// 			Create: types.AccessControlType{
+		// 				AccessType: types.AccessTypeRestricted,
+		// 			},
+		// 		}
+		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 		return req
+		// 	},
+		// 	true,
+		// },
+		// {
+		// 	"set param AccessControl = non whitelist",
+		// 	func() {
+		// 		args, err := json.Marshal(&types.TransactionArgs{
+		// 			From: &address,
+		// 			Data: (*hexutil.Bytes)(&data),
+		// 		})
 
-// 				suite.Require().NoError(err)
-// 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+		// 		suite.Require().NoError(err)
+		// 		req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-// 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
-// 				params.AccessControl = types.AccessControl{
-// 					Create: types.AccessControlType{
-// 						AccessType: types.AccessTypePermissioned,
-// 					},
-// 				}
-// 				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-// 				suite.Require().NoError(err)
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(tc.name, func() {
-// 			req := tc.getReq()
+		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
+		// 		params.AccessControl = types.AccessControl{
+		// 			Create: types.AccessControlType{
+		// 				AccessType: types.AccessTypePermissioned,
+		// 			},
+		// 		}
+		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	true,
+		// },
+	}
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			req := tc.getReq()
 
-// 			res, err := suite.queryClient.EthCall(suite.ctx, req)
-// 			if tc.expVMError {
-// 				suite.Require().NotNil(res)
-// 				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")
-// 			} else {
-// 				suite.Require().Error(err)
-// 			}
+			res, err := unitNetwork.GetEvmClient().EthCall(unitNetwork.GetContext(), req)
+			if tc.expVMError {
+				suite.Require().NotNil(res)
+				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")
+			} else {
+				suite.Require().Error(err)
+			}
 
-// 			// Reset params
-// 			defaultEvmParams := types.DefaultParams()
-// 			err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), defaultEvmParams)
-// 			suite.Require().NoError(err)
-// 		})
-// 	}
-// }
+			// Reset params
+			defaultEvmParams := types.DefaultParams()
+			err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), defaultEvmParams)
+			suite.Require().NoError(err)
+		})
+	}
+}
 
-// func (suite *EvmKeeperTestSuite) TestEmptyRequest() {
-// 	keyring := testkeyring.New(1)
-// 	unitNetwork := network.NewUnitTestNetwork(
-// 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-// 	)
+func (suite *EvmKeeperTestSuite) TestEmptyRequest() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
 
-// 	k := unitNetwork.App.EvmKeeper
+	k := unitNetwork.App.EvmKeeper
 
-// 	testCases := []struct {
-// 		name      string
-// 		queryFunc func() (interface{}, error)
-// 	}{
-// 		{
-// 			"Account method",
-// 			func() (interface{}, error) {
-// 				return k.Account(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"CosmosAccount method",
-// 			func() (interface{}, error) {
-// 				return k.CosmosAccount(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"ValidatorAccount method",
-// 			func() (interface{}, error) {
-// 				return k.ValidatorAccount(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"Balance method",
-// 			func() (interface{}, error) {
-// 				return k.Balance(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"Storage method",
-// 			func() (interface{}, error) {
-// 				return k.Storage(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"Code method",
-// 			func() (interface{}, error) {
-// 				return k.Code(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"EthCall method",
-// 			func() (interface{}, error) {
-// 				return k.EthCall(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"EstimateGas method",
-// 			func() (interface{}, error) {
-// 				return k.EstimateGas(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"TraceTx method",
-// 			func() (interface{}, error) {
-// 				return k.TraceTx(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 		{
-// 			"TraceBlock method",
-// 			func() (interface{}, error) {
-// 				return k.TraceBlock(unitNetwork.GetContext(), nil)
-// 			},
-// 		},
-// 	}
+	testCases := []struct {
+		name      string
+		queryFunc func() (interface{}, error)
+	}{
+		{
+			"Account method",
+			func() (interface{}, error) {
+				return k.Account(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"CosmosAccount method",
+			func() (interface{}, error) {
+				return k.CosmosAccount(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"ValidatorAccount method",
+			func() (interface{}, error) {
+				return k.ValidatorAccount(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"Balance method",
+			func() (interface{}, error) {
+				return k.Balance(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"Storage method",
+			func() (interface{}, error) {
+				return k.Storage(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"Code method",
+			func() (interface{}, error) {
+				return k.Code(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"EthCall method",
+			func() (interface{}, error) {
+				return k.EthCall(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"EstimateGas method",
+			func() (interface{}, error) {
+				return k.EstimateGas(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"TraceTx method",
+			func() (interface{}, error) {
+				return k.TraceTx(unitNetwork.GetContext(), nil)
+			},
+		},
+		{
+			"TraceBlock method",
+			func() (interface{}, error) {
+				return k.TraceBlock(unitNetwork.GetContext(), nil)
+			},
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			_, err := tc.queryFunc()
-// 			suite.Require().Error(err)
-// 		})
-// 	}
-// }
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			_, err := tc.queryFunc()
+			suite.Require().Error(err)
+		})
+	}
+}
 
 func getDefaultTraceBlockRequest(unitNetwork network.Network) types.QueryTraceBlockRequest {
 	ctx := unitNetwork.GetContext()
