@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
@@ -22,7 +23,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		malleate    func() []interface{}
 		expPass     bool
 		errContains string
-		expBalances []bank.Balance
+		expBalances func(evmosAddr, xmplAddr common.Address) []bank.Balance
 	}{
 		{
 			"fail - invalid number of arguments",
@@ -55,7 +56,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			[]bank.Balance{},
+			func(common.Address, common.Address) []bank.Balance { return []bank.Balance{} },
 		},
 		{
 			"pass - Initial balances present",
@@ -66,15 +67,17 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			[]bank.Balance{
-				{
-					ContractAddress: s.evmosAddr,
-					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
-				},
-				{
-					ContractAddress: s.xmplAddr,
-					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
-				},
+			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+				return []bank.Balance{
+					{
+						ContractAddress: evmosAddr,
+						Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+					},
+					{
+						ContractAddress: xmplAddr,
+						Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+					},
+				}
 			},
 		},
 		{
@@ -87,13 +90,15 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			[]bank.Balance{{
-				ContractAddress: s.evmosAddr,
-				Amount:          network.PrefundedAccountInitialBalance.BigInt(),
-			}, {
-				ContractAddress: s.xmplAddr,
-				Amount:          network.PrefundedAccountInitialBalance.Add(math.NewInt(1e18)).BigInt(),
-			}},
+			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+				return []bank.Balance{{
+					ContractAddress: evmosAddr,
+					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+				}, {
+					ContractAddress: xmplAddr,
+					Amount:          network.PrefundedAccountInitialBalance.Add(math.NewInt(1e18)).BigInt(),
+				}}
+			},
 		},
 	}
 
@@ -115,7 +120,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				var balances []bank.Balance
 				err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 				s.Require().NoError(err)
-				s.Require().Equal(tc.expBalances, balances)
+				s.Require().Equal(tc.expBalances(s.evmosAddr, s.xmplAddr), balances)
 			} else {
 				s.Require().Contains(err.Error(), tc.errContains)
 			}
@@ -137,20 +142,22 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 	testcases := []struct {
 		name      string
 		malleate  func()
-		expSupply []bank.Balance
+		expSupply func(evmosAddr, xmplAddr common.Address) []bank.Balance
 	}{
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
 				ctx = s.mintAndSendXMPLCoin(ctx, s.keyring.GetAccAddr(0), math.NewInt(1e18))
 			},
-			[]bank.Balance{{
-				ContractAddress: s.evmosAddr,
-				Amount:          evmosTotalSupply.BigInt(),
-			}, {
-				ContractAddress: s.xmplAddr,
-				Amount:          xmplTotalSupply.Add(math.NewInt(1e18)).BigInt(),
-			}},
+			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+				return []bank.Balance{{
+					ContractAddress: evmosAddr,
+					Amount:          evmosTotalSupply.BigInt(),
+				}, {
+					ContractAddress: xmplAddr,
+					Amount:          xmplTotalSupply.Add(math.NewInt(1e18)).BigInt(),
+				}}
+			},
 		},
 	}
 
@@ -171,7 +178,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 			var balances []bank.Balance
 			err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 			s.Require().NoError(err)
-			s.Require().Equal(tc.expSupply, balances)
+			s.Require().Equal(tc.expSupply(s.evmosAddr, s.xmplAddr), balances)
 		})
 	}
 }
