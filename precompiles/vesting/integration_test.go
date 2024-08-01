@@ -11,7 +11,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	// authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -292,6 +292,11 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		}
 	})
 
+	// Tests naming convention used:
+	// - succeed: the fund transaction should pass.
+	// - fail: the fund transaction should fail.
+	// - not fund: the fund transaction should not fail but the funding
+	//             should not be done.
 	Context("to fund a clawback vesting account", func() {
 		for _, callType := range callTypes {
 			callType := callType
@@ -559,7 +564,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 			// 	// Expect(funderContractFinalBal.Amount).To(Equal(funderContractInitialAmt))
 			// })
 			//
-			It(fmt.Sprintf("should fail using a third party EOA even if authorized by funder (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund using a third party EOA even if authorized by funder (%s)", callType.name), func() {
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
@@ -605,10 +610,18 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				// Check balances after precompile call.
 				Expect(vestAccFinalBal).To(Equal(vestAccInitialBal))
 				Expect(funderFinalBal).To(Equal(funderInitialBal))
-				Expect(txSenderFinalBal).To(Equal(txSenderInitialBal.Sub(fees))) // WROOONG
+				Expect(txSenderFinalBal).To(Equal(txSenderInitialBal.Sub(fees)))
+
+				// Check the vesting account
+				acc, err := s.grpcHandler.GetAccount(vestingAccKey.AccAddr.String())
+				Expect(err).To(BeNil())
+				va, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+				Expect(ok).To(BeTrue())
+				Expect(va.LockupPeriods).To(BeNil(), "vesting account should not have a lockup period")
+				Expect(va.VestingPeriods).To(BeNil(), "vesting account should not have a vesting period")
 			})
 
-			It(fmt.Sprintf("should fail when the contract calling the precompile is not authorized by the funder (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when the contract calling the precompile is not authorized by the funder (%s)", callType.name), func() {
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
@@ -976,7 +989,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestingCallerFinalBal.Int64()).To(Equal(vestingCallerInitialBal.Sub(math.NewInt(defaultFundingAmount)).Int64()), "expected vesting caller to have initial balance minus vesting")
 			})
 
-			It(fmt.Sprintf("should fail when defining different total coins for lockup and vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when defining different total coins for lockup and vesting (%s)", callType.name), func() {
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
@@ -1022,7 +1035,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(funderFinalBal).To(Equal(funderInitialBal), "expected funder to have initial balance")
 			})
 
-			It(fmt.Sprintf("should fail when defining neither lockup nor vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when defining neither lockup nor vesting (%s)", callType.name), func() {
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
@@ -1066,7 +1079,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(funderFinalBal).To(Equal(funderInitialBal), "expected funder to have initial balance")
 			})
 
-			It(fmt.Sprintf("should fail when exceeding the funder balance (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when exceeding the funder balance (%s)", callType.name), func() {
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
@@ -1117,145 +1130,98 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestAccFinalBal).To(Equal(vestAccInitialBal), "expected vesting account to have initial balance")
 				Expect(funderFinalBal).To(Equal(funderInitialBal), "expected funder to have initial balance")
 			})
-			//
-			// 	It(fmt.Sprintf("should not fund the vesting when not sending as the funder (%s)", callType.name), func() {
-			// 		funder := s.keyring.GetKey(0)
-			// 		vestingKey := s.keyring.GetKey(1)
-			// 		differentSender := s.keyring.GetKey(2)
-			//
-			// 		err = s.factory.CreateClawbackVestingAccount(vestingKey.Priv, funder.AccAddr, false)
-			// 		Expect(err).To(BeNil())
-			// 		Expect(s.network.NextBlock()).To(BeNil())
-			//
-			// 		callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-			// 		callArgs.MethodName = vesting.FundVestingAccountMethod
-			// 		callArgs.Args = []interface{}{
-			// 			funder.Addr,
-			// 			vestingKey.Addr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			defaultPeriods,
-			// 		}
-			//
-			// 		fundClawbackVestingCheck := execRevertedCheck
-			// 		if callType.directCall {
-			// 			fundClawbackVestingCheck = failCheck.
-			// 				WithErrContains(
-			// 					fmt.Sprintf("tx origin address %s does not match the from address %s",
-			// 						differentSender.Addr,
-			// 						funder.Addr,
-			// 					),
-			// 				)
-			// 		}
-			//
-			// 		_, _, err := s.factory.CallContractAndCheckLogs(differentSender.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 		Expect(err).NotTo(HaveOccurred(), "error while calling the contract: %v", err)
-			// 		Expect(s.network.NextBlock()).To(BeNil())
-			//
-			// 		// Check the vesting account
-			// 		acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), vestingKey.AccAddr)
-			// 		Expect(acc).ToNot(BeNil(), "account should exist")
-			// 		va, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-			// 		Expect(ok).To(BeTrue())
-			// 		Expect(va.LockupPeriods).To(BeNil(), "vesting account should not be funded")
-			// 		Expect(va.VestingPeriods).To(BeNil(), "vesting account should not be funded")
-			// 	})
-			//
-			// 	It(fmt.Sprintf("should not fund the vesting when the address is blocked (%s)", callType.name), func() {
-			// 		funder := s.keyring.GetKey(0)
-			// 		moduleAddr := common.BytesToAddress(authtypes.NewModuleAddress("distribution").Bytes())
-			//
-			// 		callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-			// 		callArgs.MethodName = vesting.FundVestingAccountMethod
-			// 		callArgs.Args = []interface{}{
-			// 			funder.Addr,
-			// 			moduleAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			defaultPeriods,
-			// 		}
-			//
-			// 		fundClawbackVestingCheck := execRevertedCheck
-			// 		if callType.directCall {
-			// 			fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
-			// 		}
-			//
-			// 		_, _, err := s.factory.CallContractAndCheckLogs(funder.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 		Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
-			//
-			// 		// check that the module address is not a vesting account
-			// 		acc := s.network.App.AccountKeeper.GetAccount(s.network.GetContext(), moduleAddr.Bytes())
-			// 		Expect(acc).ToNot(BeNil(), "module account should be found")
-			// 		_, ok := acc.(*vestingtypes.ClawbackVestingAccount)
-			// 		Expect(ok).To(BeFalse(), "module account should not be a vesting account")
-			// 	})
-			//
-			// 	It(fmt.Sprintf("should not fund the vesting when the address is blocked - a precompile address (%s)", callType.name), func() {
-			// 		funder := s.keyring.GetKey(0)
-			//
-			// 		callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-			// 		callArgs.MethodName = vesting.FundVestingAccountMethod
-			// 		callArgs.Args = []interface{}{
-			// 			funder.Addr,
-			// 			s.precompile.Address(),
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			defaultPeriods,
-			// 		}
-			//
-			// 		fundClawbackVestingCheck := execRevertedCheck
-			// 		if callType.directCall {
-			// 			fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
-			// 		}
-			//
-			// 		_, _, err := s.factory.CallContractAndCheckLogs(funder.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 		Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
-			// 	})
-			//
-			// 	It(fmt.Sprintf("should not fund the vesting when the address is uninitialized (%s)", callType.name), func() {
-			// 		newAddr := testutiltx.GenerateAddress()
-			// 		funder := s.keyring.GetKey(0)
-			//
-			// 		callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-			// 		callArgs.MethodName = vesting.FundVestingAccountMethod
-			// 		callArgs.Args = []interface{}{
-			// 			funder.Addr,
-			// 			newAddr,
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			defaultPeriods,
-			// 		}
-			//
-			// 		fundClawbackVestingCheck := execRevertedCheck
-			// 		if callType.directCall {
-			// 			fundClawbackVestingCheck = failCheck.WithErrContains("does not exist")
-			// 		}
-			//
-			// 		_, _, err := s.factory.CallContractAndCheckLogs(funder.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 		Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
-			// 	})
-			//
-			// 	It(fmt.Sprintf("should not fund the vesting when the address is the zero address (%s)", callType.name), func() {
-			// 		funder := s.keyring.GetKey(0)
-			//
-			// 		callArgs, txArgs := s.BuildCallArgs(callType, contractAddr)
-			// 		callArgs.MethodName = vesting.FundVestingAccountMethod
-			// 		callArgs.Args = []interface{}{
-			// 			funder.Addr,
-			// 			common.Address{},
-			// 			uint64(time.Now().Unix()),
-			// 			defaultPeriods,
-			// 			defaultPeriods,
-			// 		}
-			//
-			// 		fundClawbackVestingCheck := execRevertedCheck
-			// 		if callType.directCall {
-			// 			fundClawbackVestingCheck = failCheck.WithErrContains("invalid address")
-			// 		}
-			//
-			// 		_, _, err := s.factory.CallContractAndCheckLogs(funder.Priv, txArgs, callArgs, fundClawbackVestingCheck)
-			// 		Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for the zero address", err)
-			// 	})
+
+			It(fmt.Sprintf("should not fund when the address is blocked - a module account (%s)", callType.name), func() {
+				moduleAcc := authtypes.NewModuleAddress("distribution")
+				moduleAccAddr := common.BytesToAddress(moduleAcc.Bytes())
+
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					moduleAccAddr,
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck
+				if callType.directCall {
+					fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
+				}
+
+				_, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a blocked address", err)
+
+				// check that the module address is not a vesting account
+				acc, err := s.grpcHandler.GetAccount(moduleAcc.String())
+				Expect(err).To(BeNil())
+				Expect(acc).ToNot(BeNil(), "module account should be found")
+				_, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+				Expect(ok).To(BeFalse(), "module account should not be a vesting account")
+			})
+
+			It(fmt.Sprintf("should not fund when the address is blocked - a precompile address (%s)", callType.name), func() {
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					s.precompile.Address(),
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck
+				if callType.directCall {
+					fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
+				}
+
+				_, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
+			})
+
+			It(fmt.Sprintf("should not fund when the address is uninitialized (%s)", callType.name), func() {
+				newAddr := testutiltx.GenerateAddress()
+
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					newAddr,
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck
+				if callType.directCall {
+					fundClawbackVestingCheck = failCheck.WithErrContains("does not exist")
+				}
+
+				_, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
+			})
+
+			It(fmt.Sprintf("should not fund when the address is the zero address (%s)", callType.name), func() {
+				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
+				callArgs.MethodName = vesting.FundVestingAccountMethod
+				callArgs.Args = []interface{}{
+					funderKey.Addr,
+					common.Address{},
+					uint64(time.Now().Unix()),
+					defaultPeriods,
+					defaultPeriods,
+				}
+
+				fundClawbackVestingCheck := execRevertedCheck
+				if callType.directCall {
+					fundClawbackVestingCheck = failCheck.WithErrContains("invalid address")
+				}
+
+				_, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, fundClawbackVestingCheck)
+				Expect(err).NotTo(HaveOccurred(), "error while creating a clawback vesting account for the zero address", err)
+			})
 		}
 	})
 	//
