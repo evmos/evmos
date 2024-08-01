@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	"math/big"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
@@ -62,11 +60,11 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(pair) == 1)
 
 				amt := math.NewInt(10)
 				_, err = suite.MintERC20Token(contractAddr, sender.Addr, amt.BigInt())
@@ -87,7 +85,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				})
 				suite.Require().NoError(err)
 
-				coin := sdk.NewCoin(pair.Denom, amt)
+				coin := sdk.NewCoin(pair[0].Denom, amt)
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, sender.AccAddr.String(), "", timeoutHeight, 0, "")
 
 				return transferMsg
@@ -101,11 +99,11 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(pair) == 1)
 
 				amt := math.NewInt(10)
 				_, err = suite.MintERC20Token(contractAddr, sender.Addr, amt.BigInt())
@@ -121,7 +119,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				})
 				suite.Require().NoError(err)
 
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, amt), sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair[0].Denom, amt), sender.AccAddr.String(), "", timeoutHeight, 0, "")
 
 				return transferMsg
 			},
@@ -143,11 +141,11 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(pair) == 1)
 
 				amt := math.NewInt(10)
 				_, err = suite.MintERC20Token(contractAddr, sender.Addr, amt.BigInt())
@@ -158,10 +156,10 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				// disable token conversion
-				err = testutils.ToggleTokenConversion(suite.factory, suite.network, sender.Priv, pair.Denom)
+				err = testutils.ToggleTokenConversion(suite.factory, suite.network, sender.Priv, pair[0].Denom)
 				suite.Require().NoError(err)
 
-				coin := sdk.NewCoin(pair.Denom, math.NewInt(10))
+				coin := sdk.NewCoin(pair[0].Denom, math.NewInt(10))
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, sender.AccAddr.String(), "", timeoutHeight, 0, "")
 
 				return transferMsg
@@ -174,18 +172,20 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
 
-				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+				res, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(res) == 1)
+				pair := res[0]
 				suite.Require().Equal("erc20/"+pair.Erc20Address, pair.Denom)
 
-				_, err = suite.MintERC20Token(contractAddr, suite.keyring.GetAddr(0), big.NewInt(10))
+				amt := math.NewInt(10)
+				_, err = suite.MintERC20Token(contractAddr, sender.Addr, amt.BigInt())
 				suite.Require().NoError(err)
 
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, math.NewInt(10)), sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, amt), sender.AccAddr.String(), "", timeoutHeight, 0, "")
 
 				return transferMsg
 			},
@@ -198,11 +198,11 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(pair) == 1)
 
 				// mint some erc20 tokens
 				amt := math.NewInt(10)
@@ -214,7 +214,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				err = suite.ConvertERC20(sender, contractAddr, amt)
 				suite.Require().NoError(err)
 
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, amt), sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair[0].Denom, amt), sender.AccAddr.String(), "", timeoutHeight, 0, "")
 
 				return transferMsg
 			},
@@ -227,13 +227,13 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 
 				pair, err := testutils.RegisterERC20(suite.factory, suite.network, testutils.ERC20RegistrationData{
-					Address:      contractAddr,
-					Denom:        "token",
+					Addresses:    []string{contractAddr.Hex()},
 					ProposerPriv: sender.Priv,
 				})
 				suite.Require().NoError(err)
+				suite.Require().True(len(pair) == 1)
 
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, math.NewInt(10)), sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair[0].Denom, math.NewInt(10)), sender.AccAddr.String(), "", timeoutHeight, 0, "")
 				return transferMsg
 			},
 			false,
@@ -242,14 +242,13 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		// STRV2
 		// native coin - perform normal ibc transfer
 		{
-			"no-op - fail transfer",
+			"no-op - transfer",
 			func() *types.MsgTransfer {
 				coin := sdk.NewCoin(suite.otherDenom, math.NewInt(10))
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, sender.AccAddr.String(), "", timeoutHeight, 0, "")
-
 				return transferMsg
 			},
-			false,
+			true,
 		},
 	}
 	for _, tc := range testCases {
@@ -258,8 +257,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			sender = suite.keyring.GetKey(0)
 			ctx = suite.network.GetContext()
 
-			_, err := suite.network.App.ScopedTransferKeeper.NewCapability(ctx, host.ChannelCapabilityPath("transfer", "channel-0"))
-			suite.Require().NoError(err)
 			suite.network.App.TransferKeeper = keeper.NewKeeper(
 				suite.network.App.AppCodec(), suite.network.App.GetKey(types.StoreKey), suite.network.App.GetSubspace(types.ModuleName),
 				&MockICS4Wrapper{}, // ICS4 Wrapper
@@ -270,7 +267,10 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			)
 			msg := tc.malleate()
 
-			_, err = suite.network.App.TransferKeeper.Transfer(ctx, msg)
+			// get updated context with the latest changes
+			ctx = suite.network.GetContext()
+
+			_, err := suite.network.App.TransferKeeper.Transfer(ctx, msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {

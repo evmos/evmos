@@ -50,9 +50,36 @@ func TestKeeperTestSuite(t *testing.T) {
 func (s *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
 	s.otherDenom = "xmpl"
+
+	// Set custom genesis with capability record
+	customGenesis := network.CustomGenesisState{}
+
+	capParams := capabilitytypes.DefaultGenesis()
+	capParams.Index = 2
+	capParams.Owners = []capabilitytypes.GenesisOwners{
+		{
+			Index: 1,
+			IndexOwners: capabilitytypes.CapabilityOwners{
+				Owners: []capabilitytypes.Owner{
+					{
+						Module: "ibc",
+						Name:   "capabilities/ports/transfer/channels/channel-0",
+					},
+					{
+						Module: "transfer",
+						Name:   "capabilities/ports/transfer/channels/channel-0",
+					},
+				},
+			},
+		},
+	}
+
+	customGenesis[capabilitytypes.ModuleName] = capParams
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{s.otherDenom}),
+		network.WithCustomGenesis(customGenesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
@@ -155,7 +182,7 @@ func (suite *KeeperTestSuite) ConvertERC20(sender keyring.Key, contractAddr comm
 	msg := &erc20types.MsgConvertERC20{
 		ContractAddress: contractAddr.Hex(),
 		Amount:          amt,
-		Sender:          sender.AccAddr.String(),
+		Sender:          sender.Addr.String(),
 		Receiver:        sender.AccAddr.String(),
 	}
 	_, err := suite.factory.CommitCosmosTx(sender.Priv, cmnfactory.CosmosTxArgs{
