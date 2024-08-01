@@ -69,6 +69,27 @@ WASM_BINARIES = {
     "Swaprouter": "swaprouter.wasm",
 }
 
+REGISTER_ERC20_PROP = {
+    "messages": [
+        {
+            "@type": "/evmos.erc20.v1.MsgRegisterERC20",
+            "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+            "erc20addresses": ["ADDRESS_HERE"],
+        }
+    ],
+    "metadata": "ipfs://CID",
+    "deposit": "1aevmos",
+    "title": "register erc20",
+    "summary": "register erc20",
+    "expedited": False,
+}
+
+PROPOSAL_STATUS_DEPOSIT_PERIOD = 1
+PROPOSAL_STATUS_VOTING_PERIOD = 2
+PROPOSAL_STATUS_PASSED = 3
+PROPOSAL_STATUS_REJECTED = 4
+PROPOSAL_STATUS_FAILED = 5
+
 
 def wasm_binaries_path(filename):
     return Path(__file__).parent / "cosmwasm/artifacts/" / filename
@@ -120,10 +141,10 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+    cur_height = begin_height = int((cli.status())["sync_info"]["latest_block_height"])
     while cur_height - begin_height < n:
         time.sleep(sleep)
-        cur_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+        cur_height = int((cli.status())["sync_info"]["latest_block_height"])
     return cur_height
 
 
@@ -158,7 +179,7 @@ def get_current_height(cli):
     except AssertionError as e:
         print(f"get sync status failed: {e}", file=sys.stderr)
     else:
-        current_height = int(status["SyncInfo"]["latest_block_height"])
+        current_height = int(status["sync_info"]["latest_block_height"])
     return current_height
 
 
@@ -180,7 +201,7 @@ def w3_wait_for_block(w3, height, timeout=240):
 def wait_for_block_time(cli, t):
     print("wait for block time", t)
     while True:
-        now = isoparse((cli.status())["SyncInfo"]["latest_block_time"])
+        now = isoparse((cli.status())["sync_info"]["latest_block_time"])
         print("block time now: ", now)
         if now >= t:
             break
@@ -205,10 +226,16 @@ def approve_proposal(n, proposal_id, **kwargs):
     """
     cli = n.cosmos_cli()
 
+    # make the deposit (1 aevmos)
+    rsp = cli.gov_deposit("signer2", proposal_id, 1)
+    assert rsp["code"] == 0, rsp["raw_log"]
+    wait_for_new_blocks(cli, 1)
+
     for i in range(len(n.config["validators"])):
         rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes", **kwargs)
         assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(cli, 1)
+        wait_for_new_blocks(cli, 1)
+    wait_for_new_blocks(cli, 2)
     assert (
         int(cli.query_tally(proposal_id)["yes_count"]) == cli.staking_pool()
     ), "all validators should have voted yes"
@@ -216,7 +243,7 @@ def approve_proposal(n, proposal_id, **kwargs):
     proposal = cli.query_proposal(proposal_id)
     wait_for_block_time(cli, isoparse(proposal["voting_end_time"]))
     proposal = cli.query_proposal(proposal_id)
-    assert proposal["status"] == "PROPOSAL_STATUS_PASSED", proposal
+    assert int(proposal["status"]) == int(PROPOSAL_STATUS_PASSED), proposal
 
 
 def get_precompile_contract(w3, name):
