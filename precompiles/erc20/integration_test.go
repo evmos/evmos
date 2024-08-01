@@ -1944,15 +1944,15 @@ var _ = Describe("ERC20 Extension -", func() {
 				expName = erc20types.CreateDenom(erc20Addr.String())
 
 				// Register ERC20 token pair for this test
-				tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-					Address:      erc20Addr,
-					Denom:        denom,
+				tokenPairs, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+					Addresses:      []string{erc20Addr.Hex()},
 					ProposerPriv: is.keyring.GetPrivKey(0),
 				})
 				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+				Expect(tokenPairs).To(HaveLen(1))
 
 				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
-				is.precompile, err = setupNewERC20PrecompileForTokenPair(is.keyring.GetPrivKey(0), is.network, is.factory, tokenPair)
+				is.precompile, err = setupNewERC20PrecompileForTokenPair(is.keyring.GetPrivKey(0), is.network, is.factory, tokenPairs[0])
 				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
 
 				// commit changes to chain state
@@ -2775,8 +2775,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 
 			// Register the deployed erc20 contract as a token pair
 			_, err = utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-				Address:      erc20Addr,
-				Denom:        tokenDenom,
+				Addresses:      []string{erc20Addr.Hex()},
 				ProposerPriv: contractOwner.Priv,
 			})
 			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
