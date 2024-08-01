@@ -13,12 +13,10 @@ import (
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 const (
-	// PrecompileAddress defines the bank precompile address in Hex format
-	PrecompileAddress string = "0x0000000000000000000000000000000000000804"
-
 	// GasBalanceOf defines the gas cost for a single ERC-20 balanceOf query
 	GasBalanceOf = 2_851
 
@@ -67,7 +65,7 @@ func NewPrecompile(
 	}
 
 	// SetAddress defines the address of the bank compile contract.
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	p.SetAddress(common.HexToAddress(evmtypes.BankPrecompileAddress))
 
 	return p, nil
 }

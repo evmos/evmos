@@ -946,7 +946,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
-	blockedPrecompilesHex := evmtypes.DefaultStaticPrecompiles
+	blockedPrecompilesHex := evmtypes.AvailableStaticPrecompiles
 	for _, addr := range vm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
 	}
