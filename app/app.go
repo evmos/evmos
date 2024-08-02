@@ -133,6 +133,7 @@ import (
 	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
+	v191 "github.com/evmos/evmos/v19/app/upgrades/v19_1"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
@@ -1193,6 +1194,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v19.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v191.UpgradeName,
+		v191.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1210,9 +1224,21 @@ func (app *Evmos) setupUpgradeHandlers() {
 	switch upgradeInfo.Name {
 	case v19.UpgradeName:
 		// revenue module is deprecated in v19
+		// This ran only on testnet
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
-			Added:   []string{ratelimittypes.ModuleName},
+		}
+	case v191.UpgradeName:
+		if utils.IsMainnet(app.ChainID()) {
+			// revenue module is deprecated in v19.1
+			storeUpgrades = &storetypes.StoreUpgrades{
+				Deleted: []string{"revenue"},
+				Added:   []string{ratelimittypes.ModuleName},
+			}
+		} else {
+			storeUpgrades = &storetypes.StoreUpgrades{
+				Added: []string{ratelimittypes.ModuleName},
+			}
 		}
 	default:
 		// no-op
