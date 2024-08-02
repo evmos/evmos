@@ -89,7 +89,7 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 
 // GetTxCmd returns the root tx command for the erc20 module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewRawTxCmd()
+	return cli.NewTxCmd()
 }
 
 // GetTxCmd returns the root query command for the erc20 module.
