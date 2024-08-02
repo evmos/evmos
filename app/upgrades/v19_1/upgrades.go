@@ -41,7 +41,7 @@ func CreateUpgradeHandler(
 		if utils.IsTestnet(ctx.ChainID()) {
 			return mm.RunMigrations(ctx, configurator, vm)
 		}
-		
+
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 		// revenue module is deprecated
 		logger.Debug("deleting revenue module from version map...")

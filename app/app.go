@@ -1207,7 +1207,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
-		}		
+		}
 	default:
 		// no-op
 	}
