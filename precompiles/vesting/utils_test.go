@@ -17,7 +17,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
-	contractutils "github.com/evmos/evmos/v18/contracts/utils"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -122,15 +121,15 @@ func (s *PrecompileTestSuite) GetVestingAccount(addr common.Address) *vestingtyp
 }
 
 // CreateFundVestingAuthorization creates an approval authorization for the grantee to use granter's balance
-// to fund a vesting account. The method check that this is the only authorization stored for the pair
+// to send the specified message. The method check that this is the only authorization stored for the pair
 // (granter, grantee) and returns an error if this is not true.
-func (s *PrecompileTestSuite) CreateFundVestingAccountAuthorization(granter keyring.Key, grantee common.Address) {
+func (s *PrecompileTestSuite) CreateVestingMsgAuthorization(granter keyring.Key, grantee common.Address, msg string) {
 	approvalCallArgs := factory.CallArgs{
 		ContractABI: s.precompile.ABI,
 		MethodName:  "approve",
 		Args: []interface{}{
 			grantee,
-			vesting.FundVestingAccountMsgURL,
+			msg,
 		},
 	}
 
@@ -178,9 +177,4 @@ func mergeEventMaps(map1, map2 map[string]abi.Event) map[string]abi.Event {
 	}
 
 	return mergedMap
-}
-
-// FIXME: should be moved in the proper space
-func LoadCounterContract() (evmtypes.CompiledContract, error) {
-	return contractutils.LoadContractFromJSONFile("VestingCaller.json")
 }
