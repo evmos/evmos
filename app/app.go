@@ -1238,7 +1238,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			}
 		} else {
 			storeUpgrades = &storetypes.StoreUpgrades{
-				Added:   []string{ratelimittypes.ModuleName},
+				Added: []string{ratelimittypes.ModuleName},
 			}
 		}
 	default:
