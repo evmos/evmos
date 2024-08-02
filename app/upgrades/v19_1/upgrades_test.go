@@ -3,7 +3,7 @@ package v191_test
 import (
 	"testing"
 
-	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
+	"github.com/evmos/evmos/v19/app/upgrades/v19_1"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/require"
 )
@@ -40,7 +40,7 @@ func TestEnableCustomEIPs(t *testing.T) {
 			require.NoError(t, err, "failed to update EVM params")
 
 			logger := network.GetContext().Logger()
-			err = v19.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
+			err = v191.EnableCustomEIPs(network.GetContext(), logger, network.App.EvmKeeper)
 			require.NoError(t, err)
 
 			params := network.App.EvmKeeper.GetParams(network.GetContext())

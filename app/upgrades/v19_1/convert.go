@@ -15,7 +15,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	fixes "github.com/evmos/evmos/v19/app/upgrades/v19/fixes"
+	fixes "github.com/evmos/evmos/v19/app/upgrades/v19_1/fixes"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
