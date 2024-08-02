@@ -38,6 +38,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 - (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (upgrade) [#2728](https://github.com/evmos/evmos/pull/2728) Add upgrade handler for v19.1.0.
 
 ## [v19.0.0] - 2024-07-23
 
