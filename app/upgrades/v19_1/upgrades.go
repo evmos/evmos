@@ -62,16 +62,7 @@ func CreateUpgradeHandler(
 		}
 
 		bondDenom := sk.BondDenom(ctx)
-
-		var wevmosContract common.Address
-		switch {
-		case utils.IsMainnet(ctx.ChainID()):
-			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
-		case utils.IsTestnet(ctx.ChainID()):
-			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
-		default:
-			panic("unknown chain id")
-		}
+		wevmosContract := common.HexToAddress(erc20types.WEVMOSContractMainnet)
 
 		ctxCache, writeFn = ctx.CacheContext()
 		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
