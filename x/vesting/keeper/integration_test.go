@@ -1068,8 +1068,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// create 3 prefunded accounts:
 		// index 0 will be the funder and
 		// index 1 will be vesting account
-		// index 2 will be extra account for other test cases
-		keys := keyring.New(3)
+		// index 2 and 3 will be extra account for other test cases
+		keys := keyring.New(4)
 
 		// don't send inflation and fees tokens to community pool
 		// so we can check better when the claw backed tokens go to
@@ -1358,11 +1358,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Create the message to submit the proposal
 			msgSubmit, err := govv1.NewMsgSubmitProposal(
-				[]sdk.Msg{govClawbackMsg}, deposit, 
-				s.keyring.GetAccAddr(0).String(), 
-				"test gov clawback meta", 
-				"test gov clawback", 
-				"test gov clawback", 
+				[]sdk.Msg{govClawbackMsg}, deposit,
+				s.keyring.GetAccAddr(0).String(),
+				"test gov clawback meta",
+				"test gov clawback",
+				"test gov clawback",
 				false,
 			)
 			Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
@@ -1952,6 +1952,36 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			_, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", govClawbackMsg)
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("proposal status different than expected"))
+			hasActivePropposal := s.network.App.VestingKeeper.HasActiveClawbackProposal(s.network.GetContext(), vestingAcc.AccAddr)
+			Expect(hasActivePropposal).To(BeFalse(), "expected an active clawback proposal for the vesting account")
+		})
+
+		It("should not claw back when governance clawback is disabled - proposal with one vesting acc with gov clawback and other not", func() {
+			// disable governance clawback
+			newVestAcc := s.keyring.GetKey(2)
+			s.setupClawbackVestingAccount(newVestAcc, funder, testutil.TestVestingSchedule.VestingPeriods, testutil.TestVestingSchedule.LockupPeriods, false)
+			
+			// governance clawback enabled
+			otherVestAcc := s.keyring.GetKey(3)
+			s.setupClawbackVestingAccount(otherVestAcc, funder, testutil.TestVestingSchedule.VestingPeriods, testutil.TestVestingSchedule.LockupPeriods, true)
+
+			// Perform clawback before cliff
+			msg1 := &types.MsgClawback{
+				FunderAddress: authtypes.NewModuleAddress("gov").String(),
+				AccountAddress: otherVestAcc.AccAddr.String(),
+			}
+			msg2 := &types.MsgClawback{
+				FunderAddress: authtypes.NewModuleAddress("gov").String(),
+				AccountAddress: newVestAcc.AccAddr.String(),
+			}
+			govClawbackMsg.AccountAddress = newVestAcc.AccAddr.String()
+			_, err := testutils.SubmitProposal(s.factory, s.network, funder.Priv, "test gov clawback", msg1, msg2)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(ContainSubstring("proposal status different than expected"))
+			hasActivePropposal := s.network.App.VestingKeeper.HasActiveClawbackProposal(s.network.GetContext(), vestingAcc.AccAddr)
+			Expect(hasActivePropposal).To(BeFalse(), "expected an active clawback proposal for the vesting account")
+			hasActivePropposal = s.network.App.VestingKeeper.HasActiveClawbackProposal(s.network.GetContext(), otherVestAcc.AccAddr)
+			Expect(hasActivePropposal).To(BeFalse(), "expected an active clawback proposal for the vesting account")			
 		})
 	})
 })
