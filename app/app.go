@@ -1204,9 +1204,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Deleted: []string{"revenue"},
 		}
 	case v191.UpgradeName:
-		// revenue module is deprecated in v19
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"revenue"},
+		if utils.IsMainnet(app.ChainID()) {
+			// revenue module is deprecated in v19.1
+			storeUpgrades = &storetypes.StoreUpgrades{
+				Deleted: []string{"revenue"},
+			}
 		}
 	default:
 		// no-op
