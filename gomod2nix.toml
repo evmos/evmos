@@ -162,6 +162,9 @@ schema = 3
   [mod."github.com/cosmos/iavl"]
     version = "v0.21.0-alpha.1.0.20230904092046-df3db2d96583"
     hash = "sha256-3Va8Ljq63IXty0oHlRpqfsC6WsMut6TWZ2R+/nYtfTU="
+  [mod."github.com/cosmos/ibc-apps/modules/rate-limiting/v7"]
+    version = "v7.0.0"
+    hash = "sha256-eHXU2btyS0GADsPH1DkohydVNQsrEXfEHzRguH0JyK0="
   [mod."github.com/cosmos/ibc-go/v7"]
     version = "v7.7.0"
     hash = "sha256-JS84d+tqd65eNfsV3FNkjWWAjDaqhiX4/tdUGjdkUb8="
@@ -300,8 +303,8 @@ schema = 3
     version = "v1.5.4"
     hash = "sha256-N3+Lv9lEZjrdOWdQhFj6Y3Iap4rVLEQeI8/eFFyAMZ0="
   [mod."github.com/golang/snappy"]
-    version = "v0.0.4"
-    hash = "sha256-Umx+5xHAQCN/Gi4HbtMhnDCSPFAXSsjVbXd8n5LhjAA="
+    version = "v0.0.5-0.20220116011046-fa5810519dcb"
+    hash = "sha256-4GVLPBwJIXYFJU+Uvoa/sb5VHea7yJhwE7feABa7ucs="
   [mod."github.com/google/btree"]
     version = "v1.1.2"
     hash = "sha256-K7V2obq3pLM71Mg0vhhHtZ+gtaubwXPQx3xcIyZDCjM="
