@@ -174,7 +174,7 @@ def test_denom_hash(ibc, name, args, exp_res):
             "empty input args",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [],
             "improper number of arguments",
@@ -184,7 +184,7 @@ def test_denom_hash(ibc, name, args, exp_res):
             "authorization does not exist - returns empty array",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["community"],
@@ -197,14 +197,14 @@ def test_denom_hash(ibc, name, args, exp_res):
             "existing authorization with one denom",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["community"],
                 ADDRS["validator"],
             ],
             None,
-            [("transfer", "channel-0", [("aevmos", 1000000000000000000)], [],[])],
+            [("transfer", "channel-0", [("aevmos", 1000000000000000000)], [], [])],
         ),
         (
             "existing authorization with a multiple coin denomination",
@@ -215,7 +215,8 @@ def test_denom_hash(ibc, name, args, exp_res):
                         "transfer",
                         "channel-0",
                         [["aevmos", int(1e18)], ["uatom", int(1e18)]],
-                        [],[],
+                        [],
+                        [],
                     ]
                 ],
             ],
@@ -229,7 +230,8 @@ def test_denom_hash(ibc, name, args, exp_res):
                     "transfer",
                     "channel-0",
                     [("aevmos", 1000000000000000000), ("uatom", 1000000000000000000)],
-                    [],[],
+                    [],
+                    [],
                 )
             ],
         ),
@@ -272,7 +274,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "channel does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-1", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-1", [["aevmos", int(1e18)]], [], []]],
             ],
             True,
             "channel not found",
@@ -282,7 +284,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "MaxInt256 allocation",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [], []]],
             ],
             False,
             "",
@@ -292,7 +294,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "create authorization with specific spend limit",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             False,
             "",
@@ -338,7 +340,8 @@ def test_approve(ibc, name, args, exp_err, err_contains, exp_spend_limit):
         "transfer",
         "channel-0",
         [("aevmos", exp_spend_limit)],
-        [],[]
+        [],
+        [],
     )
 
     # check the authorization was created
@@ -456,7 +459,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "empty input args",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [],
             True,
@@ -467,7 +470,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "authorization does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer1"],
@@ -484,7 +487,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "allocation for specified denom does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -501,7 +504,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "the new spend limit overflows the maxUint256",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -518,7 +521,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "increase allowance by 1 EVMOS",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -540,7 +543,8 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
                         "transfer",
                         "channel-0",
                         [["aevmos", int(1e18)], ["uatom", int(1e18)]],
-                        [],[]
+                        [],
+                        [],
                     ]
                 ],
             ],
@@ -638,7 +642,7 @@ def test_increase_allowance(
             "empty input args",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [],
             True,
@@ -649,7 +653,7 @@ def test_increase_allowance(
             "authorization does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer1"],
@@ -666,7 +670,7 @@ def test_increase_allowance(
             "allocation for specified denom does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -683,7 +687,7 @@ def test_increase_allowance(
             "the new spend limit is negative",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -700,7 +704,7 @@ def test_increase_allowance(
             "decrease allowance by 0.5 EVMOS",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [],[]]],
+                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -722,7 +726,8 @@ def test_increase_allowance(
                         "transfer",
                         "channel-0",
                         [["aevmos", int(1e18)], ["uatom", int(1e18)]],
-                        [],[],
+                        [],
+                        [],
                     ]
                 ],
             ],
@@ -935,7 +940,7 @@ def test_ibc_transfer_with_authorization(
     # based on the specific coins for each test case
     if auth_coins is not None:
         approve_tx = pc.functions.approve(
-            eth_contract.address, [["transfer", "channel-0", auth_coins, [],[]]]
+            eth_contract.address, [["transfer", "channel-0", auth_coins, [], []]]
         ).build_transaction(
             {
                 "from": ADDRS["signer2"],
