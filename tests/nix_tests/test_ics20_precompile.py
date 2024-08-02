@@ -1451,7 +1451,7 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
         # check balance on destination chain
         # wait a couple of blocks to check on the other chain
-        wait_for_new_blocks(ibc.chains["evmos"].cosmos_cli(), 5)
+        wait_for_new_blocks(ibc.chains["chainmain"].cosmos_cli(), 5)
         dest_final_balance = get_balance(
             ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
         )
