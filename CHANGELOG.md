@@ -35,10 +35,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v19.1.0] - 2024-08-02
+
+### State Machine Breaking
 
 - (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
 - (upgrade) [#2728](https://github.com/evmos/evmos/pull/2728) Add upgrade handler for v19.1.0.
+
+### Bug Fixes
+
+- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
 
 ## [v19.0.0] - 2024-07-23
 
@@ -78,7 +84,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
 - (tests) [#2642](https://github.com/evmos/evmos/pull/2642) Fix Dockerfile by bumping dependency and fix E2E tests by adjusting used Docker image.
-- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
 
 ### Improvements
 
