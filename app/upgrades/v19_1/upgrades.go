@@ -36,13 +36,13 @@ func CreateUpgradeHandler(
 	ek *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		logger := ctx.Logger().With("upgrade", UpgradeName)
 		// Testnet already ran this logic on v19 upgrade.
 		// skip this for testnet
 		if utils.IsTestnet(ctx.ChainID()) {
 			return mm.RunMigrations(ctx, configurator, vm)
 		}
-		
-		logger := ctx.Logger().With("upgrade", UpgradeName)
+
 		// revenue module is deprecated
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
