@@ -2,46 +2,60 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package v7_test
 
-// func TestMigrate(t *testing.T) {
-// 	encCfg := encoding.MakeConfig(app.ModuleBasics)
-// 	cdc := encCfg.Codec
+import (
+	"encoding/json"
+	"testing"
 
-// 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-// 	tKey := sdk.NewTransientStoreKey("transient_test")
-// 	ctx := testutil.DefaultContext(storeKey, tKey)
-// 	kvStore := ctx.KVStore(storeKey)
+	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
+	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v18/encoding"
+	v7 "github.com/evmos/evmos/v18/x/evm/migrations/v7"
+	v6types "github.com/evmos/evmos/v18/x/evm/migrations/v7/types"
+	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/stretchr/testify/require"
+)
 
-// 	chainConfig := types.DefaultChainConfig()
-// 	bz, err := json.Marshal(chainConfig)
-// 	require.NoError(t, err)
-// 	var chainCfgV6 v6types.V6ChainConfig
-// 	err = json.Unmarshal(bz, &chainCfgV6)
-// 	require.NoError(t, err)
-// 	v6Params := v6types.V6Params{
-// 		EvmDenom:            types.DefaultEVMDenom,
-// 		ChainConfig:         chainCfgV6,
-// 		ExtraEIPs:           types.DefaultExtraEIPs,
-// 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
-// 		ActivePrecompiles:   types.DefaultStaticPrecompiles,
-// 		EVMChannels:         types.DefaultEVMChannels,
-// 	}
+func TestMigrate(t *testing.T) {
+	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	cdc := encCfg.Codec
 
-// 	// Set the params in the store
-// 	paramsV6Bz := cdc.MustMarshal(&v6Params)
-// 	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
+	tKey := storetypes.NewTransientStoreKey("transient_test")
+	ctx := testutil.DefaultContext(storeKey, tKey)
+	kvStore := ctx.KVStore(storeKey)
 
-// 	err = v7.MigrateStore(ctx, storeKey, cdc)
-// 	require.NoError(t, err)
+	chainConfig := types.DefaultChainConfig()
+	bz, err := json.Marshal(chainConfig)
+	require.NoError(t, err)
+	var chainCfgV6 v6types.V6ChainConfig
+	err = json.Unmarshal(bz, &chainCfgV6)
+	require.NoError(t, err)
+	v6Params := v6types.V6Params{
+		EvmDenom:            types.DefaultEVMDenom,
+		ChainConfig:         chainCfgV6,
+		ExtraEIPs:           types.DefaultExtraEIPs,
+		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:   types.DefaultStaticPrecompiles,
+		EVMChannels:         types.DefaultEVMChannels,
+	}
 
-// 	paramsBz := kvStore.Get(types.KeyPrefixParams)
-// 	var params types.Params
-// 	cdc.MustUnmarshal(paramsBz, &params)
+	// Set the params in the store
+	paramsV6Bz := cdc.MustMarshal(&v6Params)
+	kvStore.Set(types.KeyPrefixParams, paramsV6Bz)
 
-// 	// test that the params have been migrated correctly
-// 	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
-// 	require.False(t, params.AllowUnprotectedTxs)
-// 	require.Equal(t, chainConfig, params.ChainConfig)
-// 	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)
-// 	require.Equal(t, types.DefaultEVMChannels, params.EVMChannels)
-// 	require.Equal(t, types.DefaultAccessControl, params.AccessControl)
-// }
+	err = v7.MigrateStore(ctx, storeKey, cdc)
+	require.NoError(t, err)
+
+	paramsBz := kvStore.Get(types.KeyPrefixParams)
+	var params types.Params
+	cdc.MustUnmarshal(paramsBz, &params)
+
+	// test that the params have been migrated correctly
+	require.Equal(t, types.DefaultEVMDenom, params.EvmDenom)
+	require.False(t, params.AllowUnprotectedTxs)
+	require.Equal(t, chainConfig, params.ChainConfig)
+	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)
+	require.Equal(t, types.DefaultEVMChannels, params.EVMChannels)
+	require.Equal(t, types.DefaultAccessControl, params.AccessControl)
+}

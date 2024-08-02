@@ -1576,51 +1576,52 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			false,
 		},
 		//FIXME RAMA
-		// {
-		// 	"set param AccessControl - no Access",
-		// 	func() *types.EthCallRequest {
-		// 		args, err := json.Marshal(&types.TransactionArgs{
-		// 			From: &sender,
-		// 			Data: (*hexutil.Bytes)(&data),
-		// 		})
+		{
+			"set param AccessControl - no Access",
+			func() *types.EthCallRequest {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &sender,
+					Data: (*hexutil.Bytes)(&data),
+				})
 
-		// 		suite.Require().NoError(err)
-		// 		req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+				suite.Require().NoError(err)
+				req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-		// 		params := suite.network.app.EvmKeeper.GetParams(suite.ctx)
-		// 		params.AccessControl = types.AccessControl{
-		// 			Create: types.AccessControlType{
-		// 				AccessType: types.AccessTypeRestricted,
-		// 			},
-		// 		}
-		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 		return req
-		// 	},
-		// 	true,
-		// },
-		// {
-		// 	"set param AccessControl = non whitelist",
-		// 	func() {
-		// 		args, err := json.Marshal(&types.TransactionArgs{
-		// 			From: &address,
-		// 			Data: (*hexutil.Bytes)(&data),
-		// 		})
+				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				suite.Require().NoError(err)
+				return req
+			},
+			true,
+		},
+		{
+			"set param AccessControl = non whitelist",
+			func() *types.EthCallRequest {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &sender,
+					Data: (*hexutil.Bytes)(&data),
+				})
 
-		// 		suite.Require().NoError(err)
-		// 		req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+				suite.Require().NoError(err)
+				req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-		// 		params := suite.app.EvmKeeper.GetParams(suite.ctx)
-		// 		params.AccessControl = types.AccessControl{
-		// 			Create: types.AccessControlType{
-		// 				AccessType: types.AccessTypePermissioned,
-		// 			},
-		// 		}
-		// 		err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	true,
-		// },
+				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypePermissioned,
+					},
+				}
+				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				suite.Require().NoError(err)
+				return req
+			},
+			true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
