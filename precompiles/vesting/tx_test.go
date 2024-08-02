@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/vesting"
@@ -422,31 +423,31 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 			true,
 			"invalid type for vestingAddress",
 		},
-		// {
-		// 	"success",
-		// 	func() []interface{} {
-		// 		s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
-		// 		return []interface{}{
-		// 			toAddr,
-		// 		}
-		// 	},
-		// 	20000,
-		// 	func(data []byte) {
-		// 		success, err := s.precompile.Unpack(vesting.ConvertVestingAccountMethod, data)
-		// 		s.Require().NoError(err)
-		// 		s.Require().Equal(success[0], true)
-		//
-		// 		// Check if the vesting account was converted back to an non-vesting account
-		// 		account := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
-		// 		_, ok := account.(*authtypes.BaseAccount)
-		// 		s.Require().True(ok, "expected account to be a base account")
-		//
-		// 		_, ok = account.(*vestingtypes.ClawbackVestingAccount)
-		// 		s.Require().False(ok, "expected account not to be a vesting account after converting")
-		// 	},
-		// 	false,
-		// 	"",
-		// },
+		{
+			"success",
+			func() []interface{} {
+				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
+				return []interface{}{
+					toAddr,
+				}
+			},
+			20000,
+			func(data []byte) {
+				success, err := s.precompile.Unpack(vesting.ConvertVestingAccountMethod, data)
+				s.Require().NoError(err)
+				s.Require().Equal(success[0], true)
+
+				// Check if the vesting account was converted back to an non-vesting account
+				account := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
+				_, ok := account.(*authtypes.BaseAccount)
+				s.Require().True(ok, "expected account to be a base account")
+
+				_, ok = account.(*vestingtypes.ClawbackVestingAccount)
+				s.Require().False(ok, "expected account not to be a vesting account after converting")
+			},
+			false,
+			"",
+		},
 	}
 
 	for _, tc := range testCases {
