@@ -141,10 +141,22 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int((cli.status())["sync_info"]["latest_block_height"])
+    """
+    Helper function to wait for new blocks on a cosmos chain.
+    If the chain has sdk < 0.50, the sync_info field will be 'SyncInfo'.
+    With cosmos-sdk v0.50+, the sync_info field is 'sync_info'
+    """
+    sync_info_field="sync_info"
+    try:
+        cur_height = begin_height = int((cli.status())[sync_info_field]["latest_block_height"])
+    except KeyError:
+        sync_info_field = "SyncInfo"
+        cur_height = begin_height = int((cli.status())[sync_info_field]["latest_block_height"])
+    
     while cur_height - begin_height < n:
         time.sleep(sleep)
-        cur_height = int((cli.status())["sync_info"]["latest_block_height"])
+        cur_height = int((cli.status())[sync_info_field]["latest_block_height"])
+    
     return cur_height
 
 
