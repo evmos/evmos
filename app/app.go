@@ -1227,7 +1227,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// This ran only on testnet
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
-			Added:   []string{ratelimittypes.ModuleName},
 		}
 	case v191.UpgradeName:
 		if utils.IsMainnet(app.ChainID()) {
@@ -1238,7 +1237,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			}
 		} else {
 			storeUpgrades = &storetypes.StoreUpgrades{
-				Added:   []string{ratelimittypes.ModuleName},
+				Added: []string{ratelimittypes.ModuleName},
 			}
 		}
 	default:
