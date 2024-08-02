@@ -11,6 +11,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -21,6 +22,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/evmos/evmos/v18/x/vesting/client/cli"
 	"github.com/evmos/evmos/v18/x/vesting/keeper"
 	"github.com/evmos/evmos/v18/x/vesting/types"
 )
@@ -72,6 +74,16 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
 		panic(err)
 	}
+}
+
+// GetTxCmd returns the root tx command for the erc20 module.
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.NewTxCmd()
+}
+
+// GetTxCmd returns the root query command for the erc20 module.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // AppModule extends the AppModuleBasic implementation by implementing the
