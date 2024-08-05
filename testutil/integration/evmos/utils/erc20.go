@@ -91,3 +91,25 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 
 	return res, nil
 }
+
+// ToggleTokenConversion is a helper function to toggle an ERC20 token pair conversion through
+// submitting a governance proposal and having it pass.
+func ToggleTokenConversion(tf factory.TxFactory, network network.Network, privKey cryptotypes.PrivKey, token string) error {
+	proposal := erc20types.MsgToggleConversion{
+		Authority: authtypes.NewModuleAddress("gov").String(),
+		Token:     token,
+	}
+
+	// Submit the proposal
+	proposalID, err := SubmitProposal(tf, network, privKey, fmt.Sprintf("Toggle %s Token", token), &proposal)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to submit proposal")
+	}
+
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
+
+	return ApproveProposal(tf, network, privKey, proposalID)
+}
