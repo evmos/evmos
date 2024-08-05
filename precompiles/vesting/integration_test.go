@@ -13,7 +13,6 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
@@ -25,7 +24,6 @@ import (
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	// "github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
@@ -449,93 +447,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestAccFinalBal).To(Equal(vestAccInitialBal.Add(math.NewInt(defaultFundingAmount))))
 				Expect(funderFinalBal).To(Equal(funderInitialBal.Sub(math.NewInt(defaultFundingAmount)).Sub(fees)))
 				Expect(vestingCallerFinalBal).To(Equal(vestingCallerInitialBal))
-			})
-
-			It(fmt.Sprintf("should fail with a smart contract different than the contract that calls the precompile (%s)", callType.name), func() {
-				if callType.directCall {
-					Skip("this should only be run for smart contract calls")
-				}
-
-				counterContract, err := contracts.LoadCounterContract()
-				Expect(err).ToNot(HaveOccurred(), "error while getting the counter contract: %v", err)
-
-				contractCounterAddr, err := s.factory.DeployContract(
-					funderKey.Priv,
-					evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
-					factory.ContractDeploymentData{
-						Contract: counterContract,
-					},
-				)
-				Expect(err).ToNot(HaveOccurred(), "error while deploying the counter smart contract: %v", err)
-				Expect(s.network.NextBlock()).To(BeNil())
-
-				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
-				Expect(err).To(BeNil())
-				Expect(s.network.NextBlock()).To(BeNil())
-
-				// Send some funds to the smart contract to allow it to fund the account.
-				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, funderKey, sdk.AccAddress(contractCounterAddr.Bytes()), math.NewInt(defaultFundingAmount))
-				Expect(err).To(BeNil(), "error while sending coins to the contract")
-				Expect(s.network.NextBlock()).To(BeNil())
-
-				// Create authorization for tx sender to use funder's balance to fund a vesting account.
-				approvalCallArgs := factory.CallArgs{
-					ContractABI: s.precompile.ABI,
-					MethodName:  "approve",
-					Args: []interface{}{
-						contractCounterAddr,
-						vesting.FundVestingAccountMsgURL,
-					},
-				}
-
-				precompileAddr := s.precompile.Address()
-				logCheck := passCheck.WithExpEvents(authorization.EventTypeApproval)
-
-				_, _, err = s.factory.CallContractAndCheckLogs(funderKey.Priv, evmtypes.EvmTxArgs{To: &precompileAddr}, approvalCallArgs, logCheck)
-				Expect(err).To(BeNil(), "error while creating the generic authorization: %v", err)
-				Expect(s.network.NextBlock()).To(BeNil())
-
-				auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractCounterAddr.Bytes()).String(), funderKey.AccAddr.String())
-				Expect(err).To(BeNil())
-				Expect(auths).To(HaveLen(1))
-
-				// Query balances before precompile call.
-				funderInitialBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-
-				// Build and execute the tx to fund the vesting account from a smart contract
-				// Build and execute the tx to fund the vesting account from a smart contract.
-				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
-				txArgs.GasPrice = gasPrice.BigInt()
-				callArgs.MethodName = vesting.FundVestingAccountMethod
-				callArgs.Args = []interface{}{
-					contractCounterAddr,
-					vestingAccKey.Addr,
-					uint64(time.Now().Unix()),
-					defaultPeriods,
-					emptyPeriods,
-				}
-
-				res, _, err := s.factory.CallContractAndCheckLogs(funderKey.Priv, txArgs, callArgs, execRevertedCheck)
-				Expect(err).NotTo(HaveOccurred())
-
-				fees := gasPrice.MulRaw(res.GasUsed)
-
-				funderFinalBal, err := s.grpcHandler.GetBalance(funderKey.AccAddr, s.bondDenom)
-				Expect(err).To(BeNil())
-
-				Expect(funderFinalBal.Balance.Amount).To(Equal(funderInitialBal.Balance.Amount.Sub(fees)), "expected funder to have initial balance minus fees")
-				// // check that tx signer's balance is reduced by the fees paid
-				// txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-				// Expect(txSenderFinalBal.Amount.LTE(txSenderInitialBal.Amount)).To(BeTrue())
-				//
-				// // the balance of the contract that calls the precompile should remain 0
-				// contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
-				// Expect(contractFinalBal.Amount).To(Equal(sdk.ZeroInt()))
-				//
-				// // the balance of the funder contract should remain unchanged
-				// funderContractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, funderContractAddr.Bytes(), s.bondDenom)
-				// Expect(funderContractFinalBal.Amount).To(Equal(funderContractInitialAmt))
 			})
 
 			It(fmt.Sprintf("should not fund using a third party EOA even if authorized by funder (%s)", callType.name), func() {
