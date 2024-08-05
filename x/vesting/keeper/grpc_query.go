@@ -30,7 +30,6 @@ func (k Keeper) Balances(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-
 	clawbackAccount, err := k.GetClawbackVestingAccount(goCtx, addr)
 	if err != nil {
 		return nil, status.Errorf(
