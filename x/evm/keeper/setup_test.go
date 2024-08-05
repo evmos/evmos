@@ -98,6 +98,4 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.factory = tf
 	s.handler = gh
 	s.keyring = keys
-
-	s.network.NextBlock()
 }

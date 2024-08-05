@@ -1572,7 +1572,6 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			},
 			false,
 		},
-		// FIXME RAMA
 		{
 			"set param AccessControl - no Access",
 			func() *types.EthCallRequest {

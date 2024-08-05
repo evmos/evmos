@@ -69,7 +69,7 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 	}{
 		{"not enable london HF, not enable feemarket", false, false, nil},
 		{"enable london HF, not enable feemarket", true, false, big.NewInt(0)},
-		{"enable london HF, enable feemarket", true, true, big.NewInt(875000000)},
+		{"enable london HF, enable feemarket", true, true, big.NewInt(1000000000)},
 		{"not enable london HF, enable feemarket", false, true, nil},
 	}
 
@@ -111,7 +111,6 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			// var passed bool
 			suite.SetupTest()
 			ctx = suite.network.GetContext()
 
@@ -152,7 +151,6 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				i++
 				return false
 			})
-			// suite.Require().True(passed)
 		})
 	}
 }

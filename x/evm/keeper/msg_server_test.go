@@ -110,8 +110,6 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run("MsgUpdateParams", func() {
-			// Function to be tested
-
 			msg := tc.getMsg()
 			_, err := suite.network.App.EvmKeeper.UpdateParams(suite.network.GetContext(), msg)
 			if tc.expectedErr != nil {
