@@ -57,10 +57,10 @@ class CosmosCLI:
         return json.loads(self.raw("status", node=self.node_rpc))
 
     def block_height(self):
-        return int(self.status()["SyncInfo"]["latest_block_height"])
+        return int(self.status()["sync_info"]["latest_block_height"])
 
     def block_time(self):
-        return isoparse(self.status()["SyncInfo"]["latest_block_time"])
+        return isoparse(self.status()["sync_info"]["latest_block_time"])
 
     def rollback(self):
         self.raw("rollback", home=self.data_dir)
@@ -173,9 +173,10 @@ class CosmosCLI:
         return rsp["result"]
 
     def tx_search(self, events: str):
-        "/tx_search"
         return json.loads(
-            self.raw("query", "txs", events=events, output="json", node=self.node_rpc)
+            self.raw(
+                "query", "txs", query=f'"{events}"', output="json", node=self.node_rpc
+            )
         )
 
     def tx_search_rpc(self, events: str):
@@ -490,7 +491,7 @@ class CosmosCLI:
         return int(
             json.loads(
                 self.raw("query", "staking", "pool", output="json", node=self.node_rpc)
-            )["bonded_tokens" if bonded else "not_bonded_tokens"]
+            )["pool"]["bonded_tokens" if bonded else "not_bonded_tokens"]
         )
 
     def get_delegated_amount(self, which_addr):
@@ -659,6 +660,11 @@ class CosmosCLI:
     #         GOV module
     # ==========================
     def gov_proposal(self, proposer, proposal_file_name, **kwargs):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -667,7 +673,9 @@ class CosmosCLI:
                 proposal_file_name,
                 "-y",
                 from_=proposer,
+                output="json",
                 home=self.data_dir,
+                node=self.node_rpc,
                 **kwargs,
             )
         )
@@ -694,6 +702,7 @@ class CosmosCLI:
                     deposit=proposal.get("deposit"),
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
@@ -712,44 +721,10 @@ class CosmosCLI:
                     deposit=proposal.get("deposit"),
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
-        if kind == "register-erc20":
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "gov",
-                    method,
-                    kind,
-                    proposal.get("erc20_address"),
-                    "-y",
-                    from_=proposer,
-                    # basic
-                    home=self.data_dir,
-                    **kwargs,
-                )
-            )
-        if kind == "register-coin":
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "gov",
-                    method,
-                    kind,
-                    proposal.get("metadata"),
-                    "-y",
-                    from_=proposer,
-                    # content
-                    title=proposal.get("title"),
-                    description=proposal.get("description"),
-                    deposit=proposal.get("deposit"),
-                    # basic
-                    home=self.data_dir,
-                    **kwargs,
-                )
-            )
-
         with tempfile.NamedTemporaryFile("w") as fp:
             json.dump(proposal, fp)
             fp.flush()
@@ -764,12 +739,17 @@ class CosmosCLI:
                     from_=proposer,
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -779,12 +759,21 @@ class CosmosCLI:
                 option,
                 "-y",
                 from_=voter,
+                output="json",
                 home=self.data_dir,
+                node=self.node_rpc,
                 **kwargs,
             )
         )
 
-    def gov_deposit(self, depositor, proposal_id, amount, denom=DEFAULT_DENOM):
+    def gov_deposit(
+        self, depositor, proposal_id, amount, denom=DEFAULT_DENOM, **kwargs
+    ):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -795,9 +784,11 @@ class CosmosCLI:
                 "-y",
                 from_=depositor,
                 home=self.data_dir,
+                output="json",
                 node=self.node_rpc,
                 keyring_backend="test",
                 chain_id=self.chain_id,
+                **kwargs,
             )
         )
 
@@ -826,7 +817,7 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )
+        )["proposal"]
 
     def query_tally(self, proposal_id):
         return json.loads(
@@ -838,7 +829,7 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )
+        )["tally"]
 
     # ==========================
     #           IBC
@@ -869,6 +860,7 @@ class CosmosCLI:
                 from_=from_,
                 home=self.data_dir,
                 node=self.node_rpc,
+                output="json",
                 keyring_backend="test",
                 chain_id=self.chain_id,
                 packet_timeout_height=f"{target_version}-10000000000",
@@ -964,6 +956,21 @@ class CosmosCLI:
             )
         )
 
+    def denom_hash(self, trace, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "denom-hash",
+                trace,
+                **(default_kwargs | kwargs),
+            )
+        )
+
     # ==========================
     #        EVM Module
     # ==========================
@@ -1025,6 +1032,8 @@ class CosmosCLI:
                     "q",
                     "feemarket",
                     "base-fee",
+                    output="json",
+                    node=self.node_rpc,
                     **(default_kwargs | kwargs),
                 )
             )["base_fee"]
@@ -1177,6 +1186,29 @@ class CosmosCLI:
                 coin,
                 "-y",
                 from_=account,
+                node=self.node_rpc,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def convert_erc20(self, contract_address: str, amount: int, account: str, **kwargs):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 1_700_000)
+        return json.loads(
+            self.raw(
+                "tx",
+                "erc20",
+                "convert-erc20",
+                contract_address,
+                amount,
+                "-y",
+                from_=account,
+                output="json",
+                node=self.node_rpc,
                 home=self.data_dir,
                 **kwargs,
             )
@@ -1189,6 +1221,7 @@ class CosmosCLI:
                 "q",
                 "erc20",
                 "token-pairs",
+                node=self.node_rpc,
                 **(default_kwargs | kwargs),
             )
         )

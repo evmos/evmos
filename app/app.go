@@ -83,7 +83,6 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -99,7 +98,6 @@ import (
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
@@ -144,7 +142,6 @@ import (
 	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	"github.com/evmos/evmos/v18/x/erc20"
-	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	"github.com/evmos/evmos/v18/x/evm"
@@ -159,7 +156,6 @@ import (
 	staking "github.com/evmos/evmos/v18/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	"github.com/evmos/evmos/v18/x/vesting"
-	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
@@ -209,9 +205,6 @@ var (
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler,
-				// Evmos proposal types
-				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
-				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -492,13 +485,6 @@ func NewEvmos(
 		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper, authAddr,
 	)
 
-	// register the proposal types
-	govRouter := govv1beta1.NewRouter()
-	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(vestingtypes.RouterKey, vesting.NewVestingProposalHandler(&app.VestingKeeper))
-
 	govConfig := govtypes.Config{
 		MaxMetadataLen: 5000,
 	}
@@ -506,9 +492,6 @@ func NewEvmos(
 		appCodec, runtime.NewKVStoreService(keys[govtypes.StoreKey]), app.AccountKeeper, app.BankKeeper,
 		stakingKeeper, app.DistrKeeper, app.MsgServiceRouter(), govConfig, authAddr,
 	)
-
-	// Set legacy router for backwards compatibility with gov v1beta1
-	govKeeper.SetLegacyRouter(govRouter)
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(

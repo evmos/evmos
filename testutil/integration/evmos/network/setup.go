@@ -15,6 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	"github.com/cosmos/gogoproto/proto"
 
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -72,6 +74,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 		// This is handled accordingly on chain and context initialization
 		return genesisState, nil
 	},
+	capabilitytypes.ModuleName: genStateSetter[*capabilitytypes.GenesisState](capabilitytypes.ModuleName),
 }
 
 // genStateSetter is a generic function to set module-specific genesis state

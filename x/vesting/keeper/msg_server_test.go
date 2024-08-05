@@ -13,10 +13,12 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/testutil"
+	evmosfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
+	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/evmos/evmos/v18/x/vesting/types"
 )
 
@@ -214,10 +216,12 @@ func TestMsgFundVestingAccountSpecialCases(t *testing.T) {
 
 func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 	var (
-		ctx sdk.Context
-		nw  *network.UnitTestNetwork
+		ctx     sdk.Context
+		nw      *network.UnitTestNetwork
+		handler grpc.Handler
+		factory evmosfactory.TxFactory
 	)
-	funderAddr, _ := utiltx.NewAccAddressAndKey()
+	funderAddr, funderPriv := utiltx.NewAccAddressAndKey()
 	vestingAddr, _ := utiltx.NewAccAddressAndKey()
 
 	testcases := []struct {
@@ -239,15 +243,17 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		{
 			name: "fail - account is a smart contract",
 			malleate: func(_ sdk.AccAddress) sdk.AccAddress {
-				contractAddr, err := testutil.DeployContract(
-					suite.ctx,
-					suite.app,
-					suite.priv,
-					suite.queryClientEvm,
-					contracts.ERC20MinterBurnerDecimalsContract,
-					"TestToken", "TTK", uint8(18),
+				contractAddr, err := factory.DeployContract(
+					funderPriv,
+					evmtypes.EvmTxArgs{},
+					evmosfactory.ContractDeploymentData{
+						Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+						ConstructorArgs: []interface{}{"TestToken", "TTK", uint8(18)},
+					},
 				)
-				suite.Require().NoError(err, "failed to deploy example contract")
+				require.NoError(t, err)
+				require.NoError(t, nw.NextBlock())
+				ctx = nw.GetContext()
 
 				return utils.EthToCosmosAddr(contractAddr)
 			},
@@ -305,19 +311,21 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// reset
-			nw = network.NewUnitTestNetwork()
+			nw = network.NewUnitTestNetwork(network.WithPreFundedAccounts(funderAddr))
+			handler = grpc.NewIntegrationHandler(nw)
+			factory = evmosfactory.New(nw, handler)
 			ctx = nw.GetContext()
 
 			vestingAddr := tc.malleate(tc.funder)
 
-			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr, false)
+			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, vestingAddr, false)
 			res, err := nw.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 
 			if tc.expPass {
 				require.NoError(t, err)
 				require.Equal(t, &types.MsgCreateClawbackVestingAccountResponse{}, res)
 
-				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
+				accI := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
 				require.NotNil(t, accI, "expected account to be created")
 				require.IsType(t, &types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
 			} else {
