@@ -1945,7 +1945,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// Register ERC20 token pair for this test
 				tokenPairs, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-					Addresses:      []string{erc20Addr.Hex()},
+					Addresses:    []string{erc20Addr.Hex()},
 					ProposerPriv: is.keyring.GetPrivKey(0),
 				})
 				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
@@ -2775,7 +2775,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 
 			// Register the deployed erc20 contract as a token pair
 			_, err = utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-				Addresses:      []string{erc20Addr.Hex()},
+				Addresses:    []string{erc20Addr.Hex()},
 				ProposerPriv: contractOwner.Priv,
 			})
 			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")

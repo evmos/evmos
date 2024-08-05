@@ -2597,7 +2597,6 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 		})
 
 		It("with tx from another EOA - should fail", func() {
-
 			callArgs.Args = []interface{}{
 				defaultDescription, valHexAddr,
 				defaultCommissionRate, defaultMinSelfDelegation,

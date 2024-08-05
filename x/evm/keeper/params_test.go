@@ -47,12 +47,12 @@ func (suite *KeeperTestSuite) TestParams() {
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
-				err := suite.network.App.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return types.AccessTypeRestricted
 			},
 			func() interface{} {
-				evmParams := suite.network.App.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetAccessControl().Create.AccessType
 			},
 			true,
@@ -65,12 +65,12 @@ func (suite *KeeperTestSuite) TestParams() {
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
-				err := suite.network.App.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return types.AccessTypeRestricted
 			},
 			func() interface{} {
-				evmParams := suite.network.App.EvmKeeper.GetParams(suite.ctx)
+				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetAccessControl().Call.AccessType
 			},
 			true,

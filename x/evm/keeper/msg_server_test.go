@@ -9,22 +9,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
 
-func (suite *EvmKeeperTestSuite) TestEthereumTx() {
-	keyring := testkeyring.New(2)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	txFactory := factory.New(unitNetwork, grpcHandler)
-
+func (suite *KeeperTestSuite) TestEthereumTx() {
+	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
+	suite.SetupTest()
 	testCases := []struct {
 		name        string
 		getMsg      func() *types.MsgEthereumTx
@@ -37,7 +29,7 @@ func (suite *EvmKeeperTestSuite) TestEthereumTx() {
 					// Have insufficient gas
 					GasLimit: 10,
 				}
-				tx, err := txFactory.GenerateSignedEthTx(keyring.GetPrivKey(0), args)
+				tx, err := suite.factory.GenerateSignedEthTx(suite.keyring.GetPrivKey(0), args)
 				suite.Require().NoError(err)
 				return tx.GetMsgs()[0].(*types.MsgEthereumTx)
 			},
@@ -46,12 +38,12 @@ func (suite *EvmKeeperTestSuite) TestEthereumTx() {
 		{
 			"success - transfer funds tx",
 			func() *types.MsgEthereumTx {
-				recipient := keyring.GetAddr(1)
+				recipient := suite.keyring.GetAddr(1)
 				args := types.EvmTxArgs{
 					To:     &recipient,
 					Amount: big.NewInt(1e18),
 				}
-				tx, err := txFactory.GenerateSignedEthTx(keyring.GetPrivKey(0), args)
+				tx, err := suite.factory.GenerateSignedEthTx(suite.keyring.GetPrivKey(0), args)
 				suite.Require().NoError(err)
 				return tx.GetMsgs()[0].(*types.MsgEthereumTx)
 			},
@@ -60,13 +52,14 @@ func (suite *EvmKeeperTestSuite) TestEthereumTx() {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		suite.Run(tc.name, func() {
 			msg := tc.getMsg()
 
 			// Function to be tested
-			res, err := unitNetwork.App.EvmKeeper.EthereumTx(unitNetwork.GetContext(), msg)
+			res, err := suite.network.App.EvmKeeper.EthereumTx(suite.network.GetContext(), msg)
 
-			events := unitNetwork.GetContext().EventManager().Events()
+			events := suite.network.GetContext().EventManager().Events()
 			if tc.expectedErr != nil {
 				suite.Require().Error(err)
 				// no events should have been emitted
@@ -82,18 +75,15 @@ func (suite *EvmKeeperTestSuite) TestEthereumTx() {
 				suite.Require().True(utils.ContainsEventType(events.ToABCIEvents(), sdktypes.EventTypeMessage))
 			}
 
-			err = unitNetwork.NextBlock()
+			err = suite.network.NextBlock()
 			suite.Require().NoError(err)
 		})
 	}
+	suite.enableFeemarket = false
 }
 
-func (suite *EvmKeeperTestSuite) TestUpdateParams() {
-	keyring := testkeyring.New(1)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
-
+func (suite *KeeperTestSuite) TestUpdateParams() {
+	suite.SetupTest()
 	testCases := []struct {
 		name        string
 		getMsg      func() *types.MsgUpdateParams
@@ -121,9 +111,8 @@ func (suite *EvmKeeperTestSuite) TestUpdateParams() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run("MsgUpdateParams", func() {
-			// Function to be tested
 			msg := tc.getMsg()
-			_, err := unitNetwork.App.EvmKeeper.UpdateParams(unitNetwork.GetContext(), msg)
+			_, err := suite.network.App.EvmKeeper.UpdateParams(suite.network.GetContext(), msg)
 			if tc.expectedErr != nil {
 				suite.Require().Error(err)
 				suite.Contains(err.Error(), tc.expectedErr.Error())
@@ -132,7 +121,7 @@ func (suite *EvmKeeperTestSuite) TestUpdateParams() {
 			}
 		})
 
-		err := unitNetwork.NextBlock()
+		err := suite.network.NextBlock()
 		suite.Require().NoError(err)
 	}
 }

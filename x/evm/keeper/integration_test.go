@@ -292,7 +292,14 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	DescribeTable("Performs transfer and contract call", func(getTestParams func() evmtypes.Params, transferParams, contractCallParams PermissionsTableTest) {
 		params := getTestParams()
-		err := s.network.UpdateEvmParams(params)
+		err := integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      s.factory,
+				Network: s.network,
+				Pk:      s.keyring.GetPrivKey(0),
+				Params:  params,
+			},
+		)
 		Expect(err).To(BeNil())
 
 		err = s.network.NextBlock()
@@ -463,7 +470,14 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	DescribeTable("Performs contract deployment and contract call with AccessControl", func(getTestParams func() evmtypes.Params, createParams, callParams PermissionsTableTest) {
 		params := getTestParams()
-		err := s.network.UpdateEvmParams(params)
+		err := integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      s.factory,
+				Network: s.network,
+				Pk:      s.keyring.GetPrivKey(0),
+				Params:  params,
+			},
+		)
 		Expect(err).To(BeNil())
 
 		err = s.network.NextBlock()
@@ -646,7 +660,7 @@ type PermissionsTableTest struct {
 	SignerIndex int
 }
 
-func checkMintTopics(res abcitypes.ResponseDeliverTx) error {
+func checkMintTopics(res abcitypes.ExecTxResult) error {
 	// Check contract call response has the expected topics for a mint
 	// call within an ERC20 contract
 	expectedTopics := []string{

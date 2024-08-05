@@ -93,6 +93,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		qRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
 		delegatedAmountPre = qRes.DelegationResponse.Balance.Amount
+		Expect(network.NextBlock()).To(BeNil())
 
 		// Deploy an ERC-20 token contract.
 		erc20Addr, err = factory.DeployContract(
@@ -105,7 +106,6 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
 		Expect(network.NextBlock()).To(BeNil())
-	})
 
 		// Mint some tokens to the deployer.
 		_, err = factory.ExecuteContractCall(
@@ -160,7 +160,6 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
 		Expect(network.NextBlock()).To(BeNil())
-	})
 
 		// Approve the flash loan contract to spend tokens. This is required because
 		// the contract will get funds from the caller to perform actions.
@@ -266,7 +265,6 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to execute flash loan")
 		Expect(network.NextBlock()).To(BeNil())
-	})
 
 		delRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")

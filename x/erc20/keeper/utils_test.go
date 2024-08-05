@@ -43,7 +43,6 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 }
 
 func (suite *KeeperTestSuite) DeployContractMaliciousDelayed() (common.Address, error) {
-
 	maliciousDelayedContract, err := testdata.LoadMaliciousDelayedContract()
 	suite.Require().NoError(err, "failed to load malicious delayed contract")
 
