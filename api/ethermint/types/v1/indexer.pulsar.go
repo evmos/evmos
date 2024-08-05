@@ -3,14 +3,15 @@ package typesv1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -56,17 +57,21 @@ func (x *TxResult) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_TxResult_messageType fastReflection_TxResult_messageType
-var _ protoreflect.MessageType = fastReflection_TxResult_messageType{}
+var (
+	_fastReflection_TxResult_messageType fastReflection_TxResult_messageType
+	_                                    protoreflect.MessageType = fastReflection_TxResult_messageType{}
+)
 
 type fastReflection_TxResult_messageType struct{}
 
 func (x fastReflection_TxResult_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_TxResult)(nil)
 }
+
 func (x fastReflection_TxResult_messageType) New() protoreflect.Message {
 	return new(fastReflection_TxResult)
 }
+
 func (x fastReflection_TxResult_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_TxResult
 }
@@ -870,10 +875,12 @@ func file_ethermint_types_v1_indexer_proto_rawDescGZIP() []byte {
 	return file_ethermint_types_v1_indexer_proto_rawDescData
 }
 
-var file_ethermint_types_v1_indexer_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_ethermint_types_v1_indexer_proto_goTypes = []interface{}{
-	(*TxResult)(nil), // 0: ethermint.types.v1.TxResult
-}
+var (
+	file_ethermint_types_v1_indexer_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_ethermint_types_v1_indexer_proto_goTypes  = []interface{}{
+		(*TxResult)(nil), // 0: ethermint.types.v1.TxResult
+	}
+)
 var file_ethermint_types_v1_indexer_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

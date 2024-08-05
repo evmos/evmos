@@ -68,7 +68,6 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			"pass",
 			types.ModuleAddress,
 			func() []byte {
-
 				account := utiltx.GenerateAddress()
 				data, _ := erc20.Pack("balanceOf", account)
 				return data

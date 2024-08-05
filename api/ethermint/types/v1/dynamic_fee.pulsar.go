@@ -2,16 +2,18 @@
 package typesv1
 
 import (
-	_ "cosmossdk.io/api/amino"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
+	_ "cosmossdk.io/api/amino"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -45,17 +47,21 @@ func (x *ExtensionOptionDynamicFeeTx) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ExtensionOptionDynamicFeeTx_messageType fastReflection_ExtensionOptionDynamicFeeTx_messageType
-var _ protoreflect.MessageType = fastReflection_ExtensionOptionDynamicFeeTx_messageType{}
+var (
+	_fastReflection_ExtensionOptionDynamicFeeTx_messageType fastReflection_ExtensionOptionDynamicFeeTx_messageType
+	_                                                       protoreflect.MessageType = fastReflection_ExtensionOptionDynamicFeeTx_messageType{}
+)
 
 type fastReflection_ExtensionOptionDynamicFeeTx_messageType struct{}
 
 func (x fastReflection_ExtensionOptionDynamicFeeTx_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ExtensionOptionDynamicFeeTx)(nil)
 }
+
 func (x fastReflection_ExtensionOptionDynamicFeeTx_messageType) New() protoreflect.Message {
 	return new(fastReflection_ExtensionOptionDynamicFeeTx)
 }
+
 func (x fastReflection_ExtensionOptionDynamicFeeTx_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ExtensionOptionDynamicFeeTx
 }
@@ -530,10 +536,12 @@ func file_ethermint_types_v1_dynamic_fee_proto_rawDescGZIP() []byte {
 	return file_ethermint_types_v1_dynamic_fee_proto_rawDescData
 }
 
-var file_ethermint_types_v1_dynamic_fee_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_ethermint_types_v1_dynamic_fee_proto_goTypes = []interface{}{
-	(*ExtensionOptionDynamicFeeTx)(nil), // 0: ethermint.types.v1.ExtensionOptionDynamicFeeTx
-}
+var (
+	file_ethermint_types_v1_dynamic_fee_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_ethermint_types_v1_dynamic_fee_proto_goTypes  = []interface{}{
+		(*ExtensionOptionDynamicFeeTx)(nil), // 0: ethermint.types.v1.ExtensionOptionDynamicFeeTx
+	}
+)
 var file_ethermint_types_v1_dynamic_fee_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

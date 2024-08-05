@@ -25,7 +25,6 @@ func (suite *KeeperTestSuite) MintERC20Token(contractAddr, to common.Address, am
 			Args:        []interface{}{to, amount},
 		},
 	)
-
 	if err != nil {
 		return res, err
 	}
@@ -47,7 +46,6 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) (inter
 			Args:        []interface{}{account},
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}

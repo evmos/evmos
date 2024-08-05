@@ -53,7 +53,6 @@ func (suite *KeeperTestSuite) TestEthereumTx() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
-
 			msg := tc.getMsg()
 
 			// Function to be tested

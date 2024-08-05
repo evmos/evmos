@@ -38,7 +38,6 @@ const expGasConsumed = 7442
 const expGasConsumedWithFeeMkt = 7436
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
-
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -196,7 +195,6 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
-
 	testCases := []struct {
 		msg           string
 		getReqAndResp func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse)
@@ -545,7 +543,6 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 }
 
 func (suite *KeeperTestSuite) TestEstimateGas() {
-
 	gasHelper := hexutil.Uint64(20000)
 	higherGas := hexutil.Uint64(25000)
 	// Hardcode recipient address to avoid non determinism in tests
@@ -1575,7 +1572,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			},
 			false,
 		},
-		//FIXME RAMA
+		// FIXME RAMA
 		{
 			"set param AccessControl - no Access",
 			func() *types.EthCallRequest {

@@ -33,7 +33,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
-
 	header := suite.network.GetContext().BlockHeader()
 	h, _ := cmttypes.HeaderFromProto(&header)
 	hash := h.Hash()
@@ -124,7 +123,6 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 }
 
 func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
-
 	validators := suite.network.GetValidators()
 	proposerAddressHex := utils.ValidatorConsAddressToHex(
 		validators[0].OperatorAddress,
@@ -175,7 +173,6 @@ func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
 }
 
 func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
-
 	testCases := []struct {
 		name               string
 		data               []byte
@@ -304,7 +301,6 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 }
 
 func (suite *KeeperTestSuite) TestGasToRefund() {
-
 	testCases := []struct {
 		name           string
 		gasconsumed    uint64
@@ -478,7 +474,6 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 }
 
 func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
-
 	testCases := []struct {
 		name        string
 		gasConsumed uint64
@@ -536,7 +531,6 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 }
 
 func (suite *KeeperTestSuite) TestEVMConfig() {
-
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
 	eip155ChainID := suite.network.GetEIP155ChainID()
 	cfg, err := suite.network.App.EvmKeeper.EVMConfig(
