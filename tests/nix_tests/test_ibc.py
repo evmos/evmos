@@ -49,7 +49,7 @@ def test_ibc_transfer_with_hermes(ibc):
     # assert that the relayer transactions do enables the
     # dynamic fee extension option.
     cli = ibc.chains["evmos"].cosmos_cli()
-    criteria = "message.action=/ibc.core.channel.v1.MsgChannelOpenInit"
+    criteria = "message.action='/ibc.core.channel.v1.MsgChannelOpenInit'"
     tx = cli.tx_search(criteria)["txs"][0]
     events = parse_events_rpc(tx["events"])
     fee = int(events["tx"]["fee"].removesuffix("aevmos"))

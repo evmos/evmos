@@ -29,9 +29,9 @@ def test_send_funds_to_distr_mod(evmos_cluster):
     mod_accs = cli.query_module_accounts()
 
     for acc in mod_accs:
-        if acc["name"] != "distribution":
+        if acc["value"]["name"] != "distribution":
             continue
-        receiver = acc["base_account"]["address"]
+        receiver = acc["value"]["address"]
 
     assert receiver is not None
 
@@ -80,9 +80,9 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     old_src_balance = cli.balance(eth_to_bech32(sender))
 
     for acc in mod_accs:
-        if acc["name"] != "distribution":
+        if acc["value"]["name"] != "distribution":
             continue
-        receiver = decode_bech32(acc["base_account"]["address"])
+        receiver = decode_bech32(acc["value"]["address"])
 
     assert receiver is not None
 
