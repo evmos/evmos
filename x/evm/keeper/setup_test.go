@@ -48,7 +48,7 @@ func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, unitTestSuite)
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
 	// Set custom balance based on test params
 	customGenesis := network.CustomGenesisState{}

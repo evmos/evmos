@@ -774,8 +774,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestingCallerFinalBal.Int64()).To(Equal(vestingCallerInitialBal.Sub(math.NewInt(defaultFundingAmount)).Int64()), "expected vesting caller to have initial balance minus vesting")
 			})
 
-			It(fmt.Sprintf("should succeed when defining both lockup and vesting and funder is EOA (%s)", callType.name), func() { //nolint:dupl
-
+			It(fmt.Sprintf("should succeed when defining both lockup and vesting and funder is EOA (%s)", callType.name), func() {
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())

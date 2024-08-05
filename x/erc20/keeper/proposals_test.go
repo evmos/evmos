@@ -36,41 +36,20 @@ const (
 	ibcBase            = "ibc/7B2A4F6E798182988D77B6B884919AF617A73503FDAC27C916CD7A69A69013CF"
 )
 
-var (
-	metadataCoin = banktypes.Metadata{
-		Description: "description of the token",
-		Base:        cosmosTokenBase,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    cosmosTokenBase,
-				Exponent: 0,
-			},
-			{
-				Denom:    cosmosTokenDisplay,
-				Exponent: defaultExponent,
-			},
+var metadataIbc = banktypes.Metadata{
+	Description: "ATOM IBC voucher (channel 14)",
+	Base:        ibcBase,
+	// NOTE: Denom units MUST be increasing
+	DenomUnits: []*banktypes.DenomUnit{
+		{
+			Denom:    ibcBase,
+			Exponent: 0,
 		},
-		Name:    cosmosTokenBase,
-		Symbol:  erc20Symbol,
-		Display: cosmosTokenBase,
-	}
-
-	metadataIbc = banktypes.Metadata{
-		Description: "ATOM IBC voucher (channel 14)",
-		Base:        ibcBase,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    ibcBase,
-				Exponent: 0,
-			},
-		},
-		Name:    "ATOM channel-14",
-		Symbol:  "ibcATOM-14",
-		Display: ibcBase,
-	}
-)
+	},
+	Name:    "ATOM channel-14",
+	Symbol:  "ibcATOM-14",
+	Display: ibcBase,
+}
 
 // setupRegisterERC20Pair deploys an ERC20 smart contract and
 // registers it as ERC20.
@@ -211,7 +190,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can copy locks here because it is a test
+func (suite *KeeperTestSuite) TestToggleConverision() {
 	var (
 		ctx          sdk.Context
 		err          error

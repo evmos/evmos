@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
@@ -13,8 +12,6 @@ import (
 	"github.com/evmos/evmos/v18/x/erc20/types"
 	evm "github.com/evmos/evmos/v18/x/evm/types"
 )
-
-var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 // MintFeeCollector mints some coins to the fee collector address.
 // Use this only for unit tests. For integration tests, you can use the

@@ -21,7 +21,7 @@ type KeeperTestSuite struct {
 	factory factory.TxFactory
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
@@ -29,8 +29,8 @@ func (s *KeeperTestSuite) SetupTest() {
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
-	s.network = nw
-	s.factory = tf
-	s.handler = gh
-	s.keyring = keys
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
 }

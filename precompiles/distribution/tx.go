@@ -250,7 +250,7 @@ func (p *Precompile) FundCommunityPool(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
+	_, err = msgSrv.FundCommunityPool(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

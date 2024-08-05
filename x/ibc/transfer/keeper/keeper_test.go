@@ -23,7 +23,7 @@ import (
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -47,9 +47,9 @@ func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
-	s.otherDenom = "xmpl"
+	suite.otherDenom = "xmpl"
 
 	// Set custom genesis with capability record
 	customGenesis := network.CustomGenesisState{}
@@ -78,16 +78,16 @@ func (s *KeeperTestSuite) SetupTest() {
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
-		network.WithOtherDenoms([]string{s.otherDenom}),
+		network.WithOtherDenoms([]string{suite.otherDenom}),
 		network.WithCustomGenesis(customGenesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
-	s.network = nw
-	s.factory = tf
-	s.handler = gh
-	s.keyring = keys
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
 }
 
 var _ transfertypes.ChannelKeeper = &MockChannelKeeper{}
