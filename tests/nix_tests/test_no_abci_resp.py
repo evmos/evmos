@@ -57,4 +57,7 @@ def test_gas_eth_tx(evmos_cluster):
         evmos_cluster.w3.eth.gas_price
         raise Exception("This query should have failed")
     except Exception as error:
-        assert "node is not persisting finalize block responses" in error.args[0]["message"]
+        assert (
+            "node is not persisting finalize block responses"
+            in error.args[0]["message"]
+        )
