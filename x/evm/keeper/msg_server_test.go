@@ -15,6 +15,7 @@ import (
 
 func (suite *KeeperTestSuite) TestEthereumTx() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 	testCases := []struct {
 		name        string

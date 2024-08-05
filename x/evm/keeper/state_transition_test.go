@@ -33,6 +33,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
+	suite.SetupTest()
 	header := suite.network.GetContext().BlockHeader()
 	h, _ := cmttypes.HeaderFromProto(&header)
 	hash := h.Hash()
@@ -123,6 +124,7 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 }
 
 func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
+	suite.SetupTest()
 	validators := suite.network.GetValidators()
 	proposerAddressHex := utils.ValidatorConsAddressToHex(
 		validators[0].OperatorAddress,
@@ -173,6 +175,7 @@ func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
 }
 
 func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
+	suite.SetupTest()
 	testCases := []struct {
 		name               string
 		data               []byte
@@ -301,6 +304,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 }
 
 func (suite *KeeperTestSuite) TestGasToRefund() {
+	suite.SetupTest()
 	testCases := []struct {
 		name           string
 		gasconsumed    uint64
@@ -474,6 +478,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 }
 
 func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
+	suite.SetupTest()
 	testCases := []struct {
 		name        string
 		gasConsumed uint64
@@ -531,6 +536,7 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 }
 
 func (suite *KeeperTestSuite) TestEVMConfig() {
+	suite.SetupTest()
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
 	eip155ChainID := suite.network.GetEIP155ChainID()
 	cfg, err := suite.network.App.EvmKeeper.EVMConfig(
@@ -542,7 +548,6 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	// suite.Require().Equal(unitNetwork.Getkeyring.GetAddress(0), cfg.CoinBase)
 	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
@@ -556,6 +561,7 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 
 func (suite *KeeperTestSuite) TestApplyMessage() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
@@ -600,6 +606,7 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 
 func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 	testCases := []struct {
 		name               string
@@ -764,6 +771,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 }
 
 func (suite *KeeperTestSuite) TestGetProposerAddress() {
+	suite.SetupTest()
 	address := sdk.ConsAddress(suite.keyring.GetAddr(0).Bytes())
 	proposerAddress := sdk.ConsAddress(suite.network.GetContext().BlockHeader().ProposerAddress)
 	testCases := []struct {

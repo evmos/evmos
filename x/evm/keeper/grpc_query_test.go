@@ -937,6 +937,7 @@ func getDefaultTraceTxRequest(unitNetwork network.Network) types.QueryTraceTxReq
 
 func (suite *KeeperTestSuite) TestTraceTx() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 
 	// Hardcode recipient address to avoid non determinism in tests
@@ -1204,6 +1205,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 func (suite *KeeperTestSuite) TestTraceBlock() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 
 	// Hardcode recipient to make gas estimation deterministic
@@ -1387,6 +1389,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 
 func (suite *KeeperTestSuite) TestNonceInQuery() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 
 	senderKey := suite.keyring.GetKey(0)
@@ -1439,6 +1442,7 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 
 func (suite *KeeperTestSuite) TestQueryBaseFee() {
 	suite.enableFeemarket = true
+	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
 
 	testCases := []struct {
