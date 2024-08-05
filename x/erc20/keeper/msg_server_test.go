@@ -292,7 +292,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false)
-				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: coinName, Amount:  math.OneInt()}).AnyTimes()
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: coinName, Amount: math.OneInt()}).AnyTimes()
 			},
 			contractMinterBurner,
 			false,

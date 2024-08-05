@@ -283,7 +283,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			if tc.disableTokenPair {
 				_, err := suite.network.App.Erc20Keeper.ToggleConversion(ctx, &types.MsgToggleConversion{
 					Authority: authtypes.NewModuleAddress("gov").String(),
-					Token: pair.Denom,
+					Token:     pair.Denom,
 				})
 				suite.Require().NoError(err)
 			}

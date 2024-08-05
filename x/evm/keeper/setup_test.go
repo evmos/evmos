@@ -4,11 +4,6 @@ import (
 	"math"
 	"testing"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -34,10 +29,6 @@ type KeeperTestSuite struct {
 	enableFeemarket  bool
 	enableLondonHF   bool
 	mintFeeCollector bool
-}
-
-type UnitTestSuite struct {
-	suite.Suite
 }
 
 type UnitTestSuite struct {

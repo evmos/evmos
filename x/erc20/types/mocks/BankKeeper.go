@@ -7,7 +7,7 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
-	
+
 	types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	keeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
