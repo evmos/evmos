@@ -2674,6 +2674,7 @@ var (
 		(*EventConvertERC20)(nil),          // 3: evmos.erc20.v1.EventConvertERC20
 	}
 )
+
 var file_evmos_erc20_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

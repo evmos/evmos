@@ -1043,6 +1043,7 @@ var (
 		(*Params)(nil),                  // 2: ethermint.feemarket.v1.Params
 	}
 )
+
 var file_ethermint_feemarket_v1_tx_proto_depIdxs = []int32{
 	2, // 0: ethermint.feemarket.v1.MsgUpdateParams.params:type_name -> ethermint.feemarket.v1.Params
 	0, // 1: ethermint.feemarket.v1.Msg.UpdateParams:input_type -> ethermint.feemarket.v1.MsgUpdateParams

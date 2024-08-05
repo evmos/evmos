@@ -2138,6 +2138,7 @@ var (
 		(*v1beta1.PageResponse)(nil),      // 6: cosmos.base.query.v1beta1.PageResponse
 	}
 )
+
 var file_evmos_epochs_v1_query_proto_depIdxs = []int32{
 	4, // 0: evmos.epochs.v1.QueryEpochsInfoRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	5, // 1: evmos.epochs.v1.QueryEpochsInfoResponse.epochs:type_name -> evmos.epochs.v1.EpochInfo

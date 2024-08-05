@@ -1533,6 +1533,7 @@ var (
 		(*InflationDistribution)(nil),  // 3: evmos.inflation.v1.InflationDistribution
 	}
 )
+
 var file_evmos_inflation_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: evmos.inflation.v1.GenesisState.params:type_name -> evmos.inflation.v1.Params
 	2, // 1: evmos.inflation.v1.Params.exponential_calculation:type_name -> evmos.inflation.v1.ExponentialCalculation

@@ -1750,6 +1750,7 @@ var (
 		(*v1beta1.Period)(nil),             // 4: cosmos.vesting.v1beta1.Period
 	}
 )
+
 var file_evmos_vesting_v2_vesting_proto_depIdxs = []int32{
 	2, // 0: evmos.vesting.v2.ClawbackVestingAccount.base_vesting_account:type_name -> cosmos.vesting.v1beta1.BaseVestingAccount
 	3, // 1: evmos.vesting.v2.ClawbackVestingAccount.start_time:type_name -> google.protobuf.Timestamp
