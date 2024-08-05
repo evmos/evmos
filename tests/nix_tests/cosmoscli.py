@@ -28,6 +28,7 @@ class CosmosCLI:
         self,
         data_dir,
         node_rpc,
+        node_api,
         cmd,
     ):
         self.data_dir = data_dir
@@ -36,6 +37,7 @@ class CosmosCLI:
         )
         self.chain_id = self._genesis["chain_id"]
         self.node_rpc = node_rpc
+        self.node_api = node_api
         self.raw = ChainCommand(cmd)
         self.output = None
         self.error = None
@@ -1127,6 +1129,13 @@ class CosmosCLI:
                 res[key.strip().lower()] = value.strip()
 
         return res
+
+    def vesting_balance_http(self, addr: str):
+        rsp = requests.get(
+            f"{self.node_api}/evmos/vesting/v2/balances/{addr}"
+        ).json()
+        assert "error" not in rsp, rsp["error"]
+        return rsp
 
     def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
         kwargs.setdefault(

@@ -48,11 +48,14 @@ class Evmos:
                 self._w3 = web3.Web3(web3.providers.HTTPProvider(self.w3_http_endpoint))
         return self._w3
 
-    def base_port(self, i):
+    def base_port(self, i=0):
         return self.config["validators"][i]["base_port"]
 
     def node_rpc(self, i):
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
+
+    def node_api(self, i=0):
+        return "http://127.0.0.1:%d" % ports.api_port(self.base_port(i))
 
     def use_websocket(self, use=True):
         self._w3 = None
@@ -60,7 +63,7 @@ class Evmos:
 
     def cosmos_cli(self, i=0):
         return CosmosCLI(
-            self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
+            self.base_dir / f"node{i}", self.node_rpc(i), self.node_api(i), self.chain_binary
         )
 
     def node_home(self, i=0):
@@ -84,15 +87,20 @@ class CosmosChain:
     def node_rpc(self, i=0):
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
 
+    def node_api(self, i=0):
+        return "http://127.0.0.1:%d" % ports.api_port(self.base_port(i))
+
     def cosmos_cli(self, i=0):
         node_path = self.base_dir / f"node{i}"
         if node_path.exists() and node_path.is_dir():
-            return CosmosCLI(node_path, self.node_rpc(i), self.daemon_name)
+            return CosmosCLI(
+                node_path, self.node_rpc(i), self.node_api(i), self.daemon_name
+            )
         # in case the provided directory does not exist
         # try with the other node. This applies for
         # stride that has a special setup because is a consumer chain
         node_path = self.base_dir / "node1"
-        return CosmosCLI(node_path, self.node_rpc(), self.daemon_name)
+        return CosmosCLI(node_path, self.node_rpc(), self.node_api(), self.daemon_name)
 
 
 #  Hermes IBC relayer
