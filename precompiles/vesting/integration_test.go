@@ -344,7 +344,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestingCallerFinalBal).To(Equal(vestingCallerInitialBal))
 			})
 
-			It(fmt.Sprintf("should succeed when defining only lockup and funder is a smart contract (%s)", callType.name), func() {
+			It(fmt.Sprintf("should succeed when defining only lockup and funder is a smart contract (%s)", callType.name), func() { //nolint:dupl
 				if callType.directCall {
 					Skip("this should only be run for smart contract calls")
 				}
@@ -536,7 +536,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 			})
 
-			It(fmt.Sprintf("should succeed when defining only vesting and funder is an EOA (%s)", callType.name), func() {
+			It(fmt.Sprintf("should succeed when defining only vesting and funder is an EOA (%s)", callType.name), func() { //nolint:dupl
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(s.network.NextBlock()).To(BeNil())
 
@@ -873,7 +873,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(vestingCallerFinalBal.Int64()).To(Equal(vestingCallerInitialBal.Sub(math.NewInt(defaultFundingAmount)).Int64()), "expected vesting caller to have initial balance minus vesting")
 			})
 
-			It(fmt.Sprintf("should not fund when defining different total coins for lockup and vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when defining different total coins for lockup and vesting (%s)", callType.name), func() { //nolint:dupl
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
@@ -919,7 +919,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 				Expect(funderFinalBal).To(Equal(funderInitialBal), "expected funder to have initial balance")
 			})
 
-			It(fmt.Sprintf("should not fund when defining neither lockup nor vesting (%s)", callType.name), func() {
+			It(fmt.Sprintf("should not fund when defining neither lockup nor vesting (%s)", callType.name), func() { //nolint:dupl
 				err = s.factory.CreateClawbackVestingAccount(vestingAccKey.Priv, funderKey.AccAddr, false)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
