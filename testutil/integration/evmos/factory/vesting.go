@@ -19,7 +19,9 @@ type VestingTxFactory interface {
 	// CreateClawbackVestingAccount is a method to create and broadcast a MsgCreateClawbackVestingAccount
 	CreateClawbackVestingAccount(vestingPriv cryptotypes.PrivKey, funderAddr sdk.AccAddress, enableGovClawback bool) error
 	// FundVestingAccount is a method to create and broadcast a MsgFundVestingAccount
-	FundVestingAccount(funderPriv cryptotypes.PrivKey, vestingAddr sdk.AccAddress, startTime time.Time, lockupPeriods, vestingPeriods sdkvesting.Periods) error
+	FundVestingAccount(funderpriv cryptotypes.PrivKey, vestingAddr sdk.AccAddress, startTime time.Time, lockupPeriods, vestingPeriods sdkvesting.Periods) error
+	// UpdateVestingFunder is a method to create and broadcast a MsgUpdateVestingFunder
+	UpdateVestingFunder(funderpriv cryptotypes.PrivKey, newFunderAddr sdk.AccAddress, vestingAddr sdk.AccAddress) error
 }
 
 type vestingTxFactory struct {
@@ -70,6 +72,27 @@ func (tf *vestingTxFactory) FundVestingAccount(funderPriv cryptotypes.PrivKey, v
 
 	if resp.Code != 0 {
 		err = fmt.Errorf("received error code %d on FundVestingAccount transaction. Logs: %s", resp.Code, resp.Log)
+	}
+
+	return err
+}
+
+// UpdateVestingFunder with the given new funder.
+func (tf *vestingTxFactory) UpdateVestingFunder(funderPriv cryptotypes.PrivKey, newFunderAddr, vestingAddr sdk.AccAddress) error {
+	funderAccAddr := sdk.AccAddress(funderPriv.PubKey().Address())
+
+	msg := vestingtypes.NewMsgUpdateVestingFunder(
+		funderAccAddr,
+		newFunderAddr,
+		vestingAddr,
+	)
+
+	resp, err := tf.ExecuteCosmosTx(funderPriv, commonfactory.CosmosTxArgs{
+		Msgs: []sdk.Msg{msg},
+	})
+
+	if resp.Code != 0 {
+		err = fmt.Errorf("received error code %d on UpdateVestingFunder transaction. Logs: %s", resp.Code, resp.Log)
 	}
 
 	return err

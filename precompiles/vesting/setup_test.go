@@ -21,7 +21,8 @@ type PrecompileTestSuite struct {
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	bondDenom  string
+	bondDenom string
+
 	precompile *vesting.Precompile
 }
 
@@ -37,9 +38,9 @@ func (s *PrecompileTestSuite) SetupTest(nKeys int) {
 	grpcHandler := grpc.NewIntegrationHandler(nw)
 	txFactory := factory.New(nw, grpcHandler)
 
-	ctx := nw.GetContext()
-	sk := nw.App.StakingKeeper
-	bondDenom, err := sk.BondDenom(ctx)
+	stakingParams, err := grpcHandler.GetStakingParams()
+	bondDenom := stakingParams.Params.BondDenom
+
 	if err != nil {
 		panic(err)
 	}
