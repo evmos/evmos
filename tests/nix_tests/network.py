@@ -137,8 +137,8 @@ def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
         path,
         base_port,
         cfg,
-        chain_binary="evmosd-rocksdb",
         post_init=create_snapshots_dir,
+        chain_binary="evmosd-rocksdb",
     )
 
 

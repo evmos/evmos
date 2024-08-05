@@ -490,8 +490,8 @@ default {{
       memiavl: {{
         enable: true,
       }},
-      store: {{
-        streamers: ['versiondb'],
+      versiondb: {{
+        enable: true,
       }},
     }},
     config+: {{

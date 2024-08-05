@@ -14,8 +14,8 @@ config {
         'snapshot-keep-recent': 0,
         'snapshot-interval': 1,
       },
-      'store'+: {
-        streamers: [],
+      'versiondb'+: {
+        enable: false,
       },
     },
     config+: {

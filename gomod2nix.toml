@@ -91,6 +91,9 @@ schema = 3
   [mod."github.com/VictoriaMetrics/fastcache"]
     version = "v1.6.0"
     hash = "sha256-u1dkRJ2Y5+hnYlkyMPm14HxKkAv999bjN622nZDjaBo="
+  [mod."github.com/alitto/pond"]
+    version = "v1.8.3"
+    hash = "sha256-Iaiw4a8Up0tB2iu8xdmXKHwXBGWBBGnqMGfZYWNc1ng="
   [mod."github.com/aws/aws-sdk-go"]
     version = "v1.44.224"
     hash = "sha256-zkewIYLOT+CvBDsxXnY2ZaFyoDdt/JCFQ2sCIdBmTFo="
@@ -170,8 +173,8 @@ schema = 3
     version = "v1.0.0-beta.5"
     hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
   [mod."github.com/cosmos/cosmos-sdk"]
-    version = "v0.50.8-evmos"
-    hash = "sha256-ka9dSI8fLE/kLIM/zp4lltkzK+5LnjwWgFddbbLX7XY="
+    version = "v0.50.8-evmos.0.20240805151214-edcb4fe26840"
+    hash = "sha256-2bhRmg09AvCT5IRzjXrzenhMSKkmJI/0AK+M3whJPX8="
     replaced = "github.com/evmos/cosmos-sdk"
   [mod."github.com/cosmos/go-bip39"]
     version = "v1.0.0"
@@ -209,6 +212,15 @@ schema = 3
   [mod."github.com/creachadair/tomledit"]
     version = "v0.0.24"
     hash = "sha256-4vUukHONOjNn0qfQr4esK6TWfPWsIp+rbdz65og84lw="
+  [mod."github.com/crypto-org-chain/cronos/memiavl"]
+    version = "v0.0.5-0.20240722062311-8384cad72737"
+    hash = "sha256-KxwdnxZIIdZeugBwduaTFZichmEATZy5bdIiZZetbyE="
+  [mod."github.com/crypto-org-chain/cronos/store"]
+    version = "v0.0.5-0.20240722062311-8384cad72737"
+    hash = "sha256-WDE/7f8uMwdkNDwX1sx4YJyC42J6f2BsU5Ft0TWWcGc="
+  [mod."github.com/crypto-org-chain/cronos/versiondb"]
+    version = "v0.0.0-20240722062311-8384cad72737"
+    hash = "sha256-CyRDsKd/CYkTPol9xvQDt6HuOxEMVoPPW/IoGK+UD8Q="
   [mod."github.com/danieljoos/wincred"]
     version = "v1.2.0"
     hash = "sha256-LHcvTJCc8++bFndbd8ZgMSTe4L5h2C4rN+cSWHCz54Y="
@@ -450,6 +462,9 @@ schema = 3
   [mod."github.com/kr/text"]
     version = "v0.2.0"
     hash = "sha256-fadcWxZOORv44oak3jTxm6YcITcFxdGt4bpn869HxUE="
+  [mod."github.com/ledgerwatch/erigon-lib"]
+    version = "v0.0.0-20230210071639-db0e7ed11263"
+    hash = "sha256-SKFGLsJV6G4xIQ5IU+qq9EY3v0/I8B/CTMcDOhXGfc4="
   [mod."github.com/lib/pq"]
     version = "v1.10.7"
     hash = "sha256-YPUv1VBZNFVUjFxQKdYd0Djje6KYYE99Hz6FnTfrmMw="
@@ -628,6 +643,12 @@ schema = 3
   [mod."github.com/tidwall/sjson"]
     version = "v1.2.5"
     hash = "sha256-OYGNolkmL7E1Qs2qrQ3IVpQp5gkcHNU/AB/z2O+Myps="
+  [mod."github.com/tidwall/tinylru"]
+    version = "v1.1.0"
+    hash = "sha256-yjhttcm2IcJn6Rf9KicGqxm3LAOD3oheJel3QTi9znE="
+  [mod."github.com/tidwall/wal"]
+    version = "v1.1.7"
+    hash = "sha256-HLLFUEw8hWSSSSPSWZHt2KjoZftbje3Xxd9gROM2I+U="
   [mod."github.com/tklauser/go-sysconf"]
     version = "v0.3.11"
     hash = "sha256-io8s7PJi4OX+wXkCm+v5pKy4yiqA/RE/I4ksy6mKX30="
@@ -649,6 +670,9 @@ schema = 3
   [mod."github.com/xeipuuv/gojsonschema"]
     version = "v1.2.0"
     hash = "sha256-1ERBEvxj3pvHkMS2mvmvmYRi8jgAaTquo5hwjDLAEdc="
+  [mod."github.com/zbiljic/go-filelock"]
+    version = "v0.0.0-20170914061330-1dbf7103ab7d"
+    hash = "sha256-JqNj/Wg8nGFSmndgYC7+FZzL2zG7rwOQMjlqYs3ZGvw="
   [mod."github.com/zondax/hid"]
     version = "v0.9.2"
     hash = "sha256-9h1gEJ/loyaJvu9AsmslztiA8U9ixDTC6TBw9lCU2BE="

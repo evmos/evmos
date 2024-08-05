@@ -15,7 +15,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
