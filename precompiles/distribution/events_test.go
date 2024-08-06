@@ -243,7 +243,6 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
-//nolint:dupl
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	var (
 		ctx  sdk.Context
@@ -286,7 +285,6 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}
 }
 
-//nolint:dupl
 func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	var (
 		ctx  sdk.Context

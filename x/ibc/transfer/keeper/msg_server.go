@@ -70,7 +70,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	msg.Token.Denom = pair.Denom
 
 	if !pair.IsNativeERC20() {
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+		return k.Keeper.Transfer(ctx, msg)
 	}
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
 	balance := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)

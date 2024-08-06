@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	//nolint:revive // dot imports are fine for Ginkgo
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/stretchr/testify/suite"
@@ -39,12 +38,12 @@ func TestKeeperUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
 	// Set custom balance based on test params
 	customGenesis := network.CustomGenesisState{}
 
-	if s.mintFeeCollector {
+	if suite.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
@@ -65,9 +64,9 @@ func (s *KeeperTestSuite) SetupTest() {
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
-	s.network = nw
-	s.factory = tf
-	s.handler = gh
-	s.keyring = keys
-	s.queryClient = nw.GetERC20Client()
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
+	suite.queryClient = nw.GetERC20Client()
 }

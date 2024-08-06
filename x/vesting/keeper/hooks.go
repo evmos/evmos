@@ -90,15 +90,23 @@ func (k Keeper) AfterProposalDeposit(c context.Context, proposalID uint64, _ sdk
 	// check if vesting account has gov clawback enabled
 	// otherwise, cancel the proposal
 	// keep track of the accounts that this proposal activated
-	// gov clawback, beacuse if we cancel the prop, we need to revert the changes
-	var activeGovProp []sdk.AccAddress
+	// gov clawback, because if we cancel the prop, we need to revert the changes
+	activeGovProp := make([]sdk.AccAddress, 0, len(clawbackProposals))
 	for _, cp := range clawbackProposals {
 		vestingAccAddr := sdk.MustAccAddressFromBech32(cp.AccountAddress)
 		if ok := k.HasGovClawbackDisabled(ctx, vestingAccAddr); ok {
 			// cancel the proposal
 			proposal.FailedReason = fmt.Sprintf("vesting account %s has governance clawback disabled", vestingAccAddr)
 			proposal.Status = govv1.StatusRejected
-			k.govKeeper.SetProposal(ctx, proposal)
+			err = k.govKeeper.SetProposal(ctx, proposal)
+			if err != nil {
+				k.Logger(ctx).Error("failed to save proposal",
+					"proposalID", proposalID,
+					"hook", "AfterProposalDeposit",
+					"error", err,
+				)
+				return err
+			}
 			// revert the changes if there're other vesting accounts
 			// affected in this proposal
 			for _, va := range activeGovProp {

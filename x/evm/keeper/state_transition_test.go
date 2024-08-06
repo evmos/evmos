@@ -28,7 +28,6 @@ import (
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/keeper"
 	"github.com/evmos/evmos/v18/x/evm/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
 )
 
@@ -545,7 +544,7 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 		eip155ChainID,
 	)
 	suite.Require().NoError(err)
-	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
+	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
@@ -650,9 +649,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			func() types.Params {
 				defaultParams := types.DefaultParams()
-				defaultParams.AccessControl = evmtypes.AccessControl{
-					Call: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
+				defaultParams.AccessControl = types.AccessControl{
+					Call: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
 					},
 				}
 				return defaultParams
@@ -675,9 +674,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			func() types.Params {
 				defaultParams := types.DefaultParams()
-				defaultParams.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
+				defaultParams.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
 					},
 				}
 				return defaultParams
