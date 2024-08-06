@@ -816,6 +816,7 @@ func NewEvmos(
 	// wire up the versiondb's `StreamingService` and `MultiStore`.
 	if cast.ToBool(appOpts.Get("versiondb.enable")) {
 		app.qms, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		//nolint:nolintlint
 		if err != nil {
 			panic(errorsmod.Wrap(err, "error on versionDB setup"))
 		}
