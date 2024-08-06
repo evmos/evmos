@@ -31,12 +31,6 @@ import (
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
-// expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7442
-
-// expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7436
-
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	testCases := []struct {
 		msg         string

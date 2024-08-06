@@ -12,7 +12,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -104,7 +103,7 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	}
 
 	if !unpackedRet.Value {
-		return nil, errorsmod.Wrap(errortypes.ErrLogic, "failed to execute transfer")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
 	}
 
 	// Check expected escrow balance after transfer execution
@@ -234,7 +233,7 @@ func (k Keeper) ConvertCoinNativeERC20(
 	}
 
 	if !unpackedRet.Value {
-		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
 	}
 
 	// Check expected Receiver balance after transfer execution

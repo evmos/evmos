@@ -21,7 +21,7 @@ type KeeperTestSuite struct {
 }
 
 // SetupTest setup test environment
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -37,9 +37,9 @@ func (s *KeeperTestSuite) SetupTest() {
 		panic(err)
 	}
 
-	s.denom = bondDenom
-	s.factory = txFactory
-	s.grpcHandler = grpcHandler
-	s.keyring = keyring
-	s.network = nw
+	suite.denom = bondDenom
+	suite.factory = txFactory
+	suite.grpcHandler = grpcHandler
+	suite.keyring = keyring
+	suite.network = nw
 }

@@ -22,7 +22,6 @@ import (
 	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
@@ -369,8 +368,8 @@ func (suite *KeeperTestSuite) TestKeeperSetOrDeleteCode() {
 
 func TestIterateContracts(t *testing.T) {
 	keyring := testkeyring.New(1)
-	network := testnetwork.NewUnitTestNetwork(
-		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	network := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	handler := testhandler.NewIntegrationHandler(network)
 	factory := testfactory.New(network, handler)
@@ -685,7 +684,7 @@ func (suite *KeeperTestSuite) TestSnapshot() {
 	}
 }
 
-func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv cryptotypes.PrivKey) authsigning.Tx { //nolint:stylecheck
+func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv cryptotypes.PrivKey) authsigning.Tx {
 	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsEthereumTx{})
 	suite.Require().NoError(err)
 

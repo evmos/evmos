@@ -10,11 +10,19 @@ import (
 
 // Close will be called in graceful shutdown in start cmd
 func (app *Evmos) Close() error {
-	err := app.BaseApp.Close()
+	errs := []error{app.BaseApp.Close()}
 
-	if cms, ok := app.CommitMultiStore().(io.Closer); ok {
-		return errors.Join(err, cms.Close())
+	// flush the versiondb
+	if closer, ok := app.qms.(io.Closer); ok {
+		errs = append(errs, closer.Close())
 	}
 
+	// mainly to flush memiavl
+	if closer, ok := app.BaseApp.CommitMultiStore().(io.Closer); ok {
+		errs = append(errs, closer.Close())
+	}
+
+	err := errors.Join(errs...)
+	app.BaseApp.Logger().Info("Application gracefully shutdown", "error", err)
 	return err
 }

@@ -28,6 +28,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	dbm "github.com/cosmos/cosmos-db"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
@@ -98,7 +99,7 @@ import (
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -162,6 +163,8 @@ import (
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v18/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+
+	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/evmos/evmos/v18/x/evm/core/tracers/js"
@@ -307,6 +310,9 @@ type Evmos struct {
 	// simulation manager
 	sm *module.SimulationManager
 
+	// queryMultistore used on versionDB build
+	qms storetypes.MultiStore
+
 	tpsCounter *tpsCounter
 }
 
@@ -334,9 +340,8 @@ func NewEvmos(
 
 	eip712.SetEncodingConfig(encodingConfig)
 
-	// NOT SUPPORTED IN SDK v0.50
 	// setup memiavl if it's enabled in config
-	// baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
+	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
 
 	// Setup Mempool and Proposal Handlers
 	baseAppOptions = append(baseAppOptions, func(app *baseapp.BaseApp) {
@@ -809,19 +814,17 @@ func NewEvmos(
 	}
 
 	// wire up the versiondb's `StreamingService` and `MultiStore`.
-	var queryMultiStore storetypes.MultiStore
-
-	// VERSION DB IS NOT SUPPORTED IN SDK v0.50
-	// streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
-	// if slices.Contains(streamers, versionDB) {
-	// 	queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
-	// 	if err != nil {
-	// 		panic(errorsmod.Wrap(err, "error on versionDB setup"))
-	// 	}
-	// }
+	if cast.ToBool(appOpts.Get("versiondb.enable")) {
+		app.qms, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		//nolint:nolintlint
+		if err != nil {
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
+		}
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
+	app.SetPreBlocker(app.PreBlocker)
 	app.SetBeginBlocker(app.BeginBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
@@ -852,8 +855,8 @@ func NewEvmos(
 
 		// queryMultiStore will be only defined when using versionDB
 		// when defined, we check if the iavl & versionDB versions match
-		if queryMultiStore != nil {
-			v1 := queryMultiStore.LatestVersion()
+		if app.qms != nil {
+			v1 := app.qms.LatestVersion()
 			v2 := app.LastBlockHeight()
 			// Prevent creating gaps in versiondb
 			// - if versiondb lag behind iavl, when commit new blocks, it creates gap in versiondb.
@@ -964,6 +967,10 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abc
 	}
 
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+}
+
+func (app *Evmos) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	return app.mm.PreBlock(ctx)
 }
 
 // LoadHeight loads state at a particular height

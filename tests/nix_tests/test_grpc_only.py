@@ -8,11 +8,12 @@ import pytest
 import requests
 from pystarport import ports
 
-from .network import Evmos, setup_custom_evmos
+from .network import Evmos, create_snapshots_dir, setup_custom_evmos
 from .utils import (
     CONTRACTS,
     decode_bech32,
     deploy_contract,
+    memiavl_config,
     supervisorctl,
     wait_for_block,
     wait_for_port,
@@ -29,22 +30,20 @@ def custom_evmos(tmp_path_factory):
     )
 
 
-# ATM rocksdb build is not supported for sdkv0.50
-# This is due to cronos dependencies (versionDB, memIAVL)
-# @pytest.fixture(scope="module")
-# def custom_evmos_rocksdb(tmp_path_factory):
-#     path = tmp_path_factory.mktemp("grpc-only-rocksdb")
-#     yield from setup_custom_evmos(
-#         path,
-#         26810,
-#         memiavl_config(path, "rollback-test"),
-#         post_init=create_snapshots_dir,
-#         chain_binary="evmosd-rocksdb",
-#     )
+@pytest.fixture(scope="module")
+def custom_evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("grpc-only-rocksdb")
+    yield from setup_custom_evmos(
+        path,
+        26810,
+        memiavl_config(path, "rollback-test"),
+        post_init=create_snapshots_dir,
+        chain_binary="evmosd-rocksdb",
+    )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
-def evmos_cluster(request, custom_evmos):
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -52,10 +51,8 @@ def evmos_cluster(request, custom_evmos):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
-    # ATM rocksdb build is not supported for sdkv0.50
-    # This is due to cronos dependencies (versionDB, memIAVL)
-    # elif provider == "evmos-rocksdb":
-    #     yield custom_evmos_rocksdb
+    elif provider == "evmos-rocksdb":
+        yield custom_evmos_rocksdb
     else:
         raise NotImplementedError
 

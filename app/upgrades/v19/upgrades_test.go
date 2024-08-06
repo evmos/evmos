@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v18/app/upgrades/v19"
+	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v18/types"
@@ -71,7 +72,7 @@ var (
 
 // createGenesisWithERC20 creates a genesis state that contains the state containing an EthAccount that is a smart contract.
 func createGenesisWithERC20(keyring testkeyring.Keyring) testnetwork.CustomGenesisState {
-	genesisAccounts := []authtypes.AccountI{
+	genesisAccounts := []types.AccountI{
 		&authtypes.BaseAccount{
 			Address:       baseAccountAddress,
 			PubKey:        nil,
