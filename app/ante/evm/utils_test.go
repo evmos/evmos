@@ -28,7 +28,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/evmos/evmos/v18/app/ante/testutils"
 	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
 
@@ -129,8 +129,8 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),
-		sdk.NewCoin(suite.GetNetwork().GetDenom(), sdkmath.NewInt(20)),
-		stakingtypes.NewDescription("moniker", "indentity", "website", "security_contract", "details"),
+		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)),
+		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),
 	)
@@ -565,7 +565,7 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 	return txBuilder
 }
 
-// prepareAccount is a helper function that asigns the corresponding
+// prepareAccount is a helper function that assigns the corresponding
 // balance and rewards to the provided account
 func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards sdkmath.Int) sdk.Context {
 	ctx, err := testutil.PrepareAccountsForDelegationRewards(

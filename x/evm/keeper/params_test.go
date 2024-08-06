@@ -40,30 +40,38 @@ func (suite *KeeperTestSuite) TestParams() {
 			true,
 		},
 		{
-			"success - Check EnableCreate param is set to false and can be retrieved correctly",
+			"success - Check Access Control Create param is set to restricted and can be retrieved correctly",
 			func() interface{} {
-				params.EnableCreate = false
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
 				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
-				return params.EnableCreate
+				return types.AccessTypeRestricted
 			},
 			func() interface{} {
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetEnableCreate()
+				return evmParams.GetAccessControl().Create.AccessType
 			},
 			true,
 		},
 		{
-			"success - Check EnableCall param is set to false and can be retrieved correctly",
+			"success - Check Access control param is set to restricted and can be retrieved correctly",
 			func() interface{} {
-				params.EnableCall = false
+				params.AccessControl = types.AccessControl{
+					Call: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
 				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
-				return params.EnableCall
+				return types.AccessTypeRestricted
 			},
 			func() interface{} {
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetEnableCall()
+				return evmParams.GetAccessControl().Call.AccessType
 			},
 			true,
 		},
@@ -98,7 +106,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			name: "success - Active precompiles are sorted when setting params",
 			paramsFun: func() interface{} {
-				params.ActivePrecompiles = []string{
+				params.ActiveStaticPrecompiles = []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
 				}
@@ -113,7 +121,7 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			getFun: func() interface{} {
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetActivePrecompiles()
+				return evmParams.GetActiveStaticPrecompiles()
 			},
 			expected: true,
 		},

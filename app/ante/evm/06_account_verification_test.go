@@ -56,8 +56,8 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				balanceResp, err := grpcHandler.GetBalance(senderKey.AccAddr, unitNetwork.GetDenom())
 				suite.Require().NoError(err)
 
-				invalidaAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))
-				txArgs.Amount = invalidaAmount.BigInt()
+				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))
+				txArgs.Amount = invalidAmount.BigInt()
 				return statedbAccount, txArgs
 			},
 		},
@@ -69,15 +69,15 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
 
-				// Make tx cost is negative. This has to be a big value because the
+				// Make tx cost negative. This has to be a big value because
 				// it has to be bigger than the fee for the full cost to be negative
-				invalidaAmount := big.NewInt(-1e18)
-				txArgs.Amount = invalidaAmount
+				invalidAmount := big.NewInt(-1e18)
+				txArgs.Amount = invalidAmount
 				return statedbAccount, txArgs
 			},
 		},
 		{
-			name:          "success: tx is succesfull and account is created if its nil",
+			name:          "success: tx is successful and account is created if its nil",
 			expectedError: errortypes.ErrInsufficientFunds,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
@@ -86,7 +86,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			},
 		},
 		{
-			name:          "success: tx is succesfull if account is EOA and exists",
+			name:          "success: tx is successful if account is EOA and exists",
 			expectedError: nil,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)

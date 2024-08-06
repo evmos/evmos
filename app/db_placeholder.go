@@ -23,7 +23,7 @@ const versionDB = "versiondb" //nolint:unused
 // If you're building the binary with rocksdb,
 // the setupVersionDB function from the 'app/db.go' file
 // will be called
-func (app *Evmos) setupVersionDB( //nolint:unused
+func (app *Evmos) setupVersionDB(
 	_ string,
 	_ map[string]*storetypes.KVStoreKey,
 	_ map[string]*storetypes.TransientStoreKey,

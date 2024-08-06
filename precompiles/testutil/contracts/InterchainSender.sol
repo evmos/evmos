@@ -5,6 +5,7 @@ import "./../../ics20/ICS20I.sol";
 import "./../../common/Types.sol";
 
 contract InterchainSender {
+    int64 public counter;
     /// @dev Approves the required spend limits for IBC transactions.
     /// @dev This creates a Cosmos Authorization Grants for the given methods.
     /// @dev This emits an Approval event.
@@ -107,6 +108,94 @@ contract InterchainSender {
                 timeoutTimestamp,
                 memo
             );
+    }
+
+
+    function testMultiTransferWithInternalTransfer(
+        address payable _source,
+        string memory sourcePort,
+        string memory sourceChannel,
+        string memory denom,
+        uint256 amount,
+        string memory receiver,
+        bool _before,
+        bool _between,
+        bool _after
+    ) public {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _source.call{value: 15}("");
+            require(sent, "Failed to send Ether to delegator");
+        }
+        Height memory timeoutHeight = Height(100, 100);
+        ICS20_CONTRACT.transfer(
+            sourcePort,
+            sourceChannel,
+            denom,
+            amount / 2,
+            _source,
+            receiver,
+            timeoutHeight,
+            0,
+            ""
+        );
+        if (_between) {
+            counter++;
+            (bool sent, ) = _source.call{value: 15}("");
+            require(sent, "Failed to send Ether to delegator");
+        }
+        ICS20_CONTRACT.transfer(
+            sourcePort,
+            sourceChannel,
+            denom,
+            amount / 2,
+            _source,
+            receiver,
+            timeoutHeight,
+            0,
+            ""
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _source.call{value: 15}("");
+            require(sent, "Failed to send Ether to delegator");
+        }
+    }
+
+
+ function testTransferFundsWithTransferToOtherAcc(
+        address payable _otherAcc,
+        address _source,
+        string memory sourcePort,
+        string memory sourceChannel,
+        string memory denom,
+        uint256 amount,
+        string memory receiver,
+        bool _before,
+        bool _after
+    ) public {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _otherAcc.call{value: 15}("");
+            require(sent, "Failed to send Ether to delegator");
+        }
+        Height memory timeoutHeight = Height(100, 100);
+        ICS20_CONTRACT.transfer(
+            sourcePort,
+            sourceChannel,
+            denom,
+            amount,
+            _source,
+            receiver,
+            timeoutHeight,
+            0,
+            ""
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _otherAcc.call{value: 15}("");
+            require(sent, "Failed to send Ether to delegator");
+        }
     }
 
     // QUERIES

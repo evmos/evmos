@@ -6,6 +6,7 @@ package keeper
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -51,7 +52,7 @@ func (k Keeper) AfterProposalDeposit(c context.Context, proposalID uint64, _ sdk
 	if err != nil {
 		k.Logger(ctx).Error("proposal not found",
 			"proposalID", proposalID,
-			"hook", "AfterProposalSubmission",
+			"hook", "AfterProposalDeposit",
 		)
 		return err
 	}
@@ -60,11 +61,12 @@ func (k Keeper) AfterProposalDeposit(c context.Context, proposalID uint64, _ sdk
 	if err != nil {
 		k.Logger(ctx).Error("failed to get clawback proposal",
 			"proposalID", proposalID,
-			"hook", "AfterProposalSubmission",
+			"hook", "AfterProposalDeposit",
 			"error", err,
 		)
 		return err
 	}
+
 	if len(clawbackProposals) == 0 {
 		// no-op when proposal does not contain a clawback proposal
 		return nil
@@ -74,7 +76,7 @@ func (k Keeper) AfterProposalDeposit(c context.Context, proposalID uint64, _ sdk
 	if err != nil {
 		k.Logger(ctx).Error("failed to get gov params",
 			"proposalID", proposalID,
-			"hook", "AfterProposalSubmission",
+			"hook", "AfterProposalDeposit",
 			"error", err,
 		)
 		return err
@@ -85,9 +87,35 @@ func (k Keeper) AfterProposalDeposit(c context.Context, proposalID uint64, _ sdk
 		return nil
 	}
 
-	for _, clawbackProposal := range clawbackProposals {
-		vestingAccAddr := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+	// check if vesting account has gov clawback enabled
+	// otherwise, cancel the proposal
+	// keep track of the accounts that this proposal activated
+	// gov clawback, because if we cancel the prop, we need to revert the changes
+	activeGovProp := make([]sdk.AccAddress, 0, len(clawbackProposals))
+	for _, cp := range clawbackProposals {
+		vestingAccAddr := sdk.MustAccAddressFromBech32(cp.AccountAddress)
+		if ok := k.HasGovClawbackDisabled(ctx, vestingAccAddr); ok {
+			// cancel the proposal
+			proposal.FailedReason = fmt.Sprintf("vesting account %s has governance clawback disabled", vestingAccAddr)
+			proposal.Status = govv1.StatusRejected
+			err = k.govKeeper.SetProposal(ctx, proposal)
+			if err != nil {
+				k.Logger(ctx).Error("failed to save proposal",
+					"proposalID", proposalID,
+					"hook", "AfterProposalDeposit",
+					"error", err,
+				)
+				return err
+			}
+			// revert the changes if there're other vesting accounts
+			// affected in this proposal
+			for _, va := range activeGovProp {
+				k.DeleteActiveClawbackProposal(ctx, va)
+			}
+			break
+		}
 		k.SetActiveClawbackProposal(ctx, vestingAccAddr)
+		activeGovProp = append(activeGovProp, vestingAccAddr)
 	}
 	return nil
 }
@@ -143,42 +171,39 @@ func (k Keeper) AfterProposalVotingPeriodEnded(c context.Context, proposalID uin
 		)
 		return err
 	}
+
 	if len(clawbackProposals) == 0 {
 		// no-op when proposal content does not contain a clawback proposal
 		return nil
 	}
 
-	for _, clawbackProposal := range clawbackProposals {
-		vestingAccAddr := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+	for _, cp := range clawbackProposals {
+		vestingAccAddr := sdk.MustAccAddressFromBech32(cp.AccountAddress)
 		k.DeleteActiveClawbackProposal(ctx, vestingAccAddr)
 	}
+
 	return nil
 }
 
 // getClawbackProposals checks if the proposal with the given ID is a governance
 // clawback proposal.
-func getClawbackProposals(proposal govv1.Proposal) ([]vestingtypes.ClawbackProposal, error) {
+func getClawbackProposals(proposal govv1.Proposal) ([]vestingtypes.MsgClawback, error) {
 	msgs, err := proposal.GetMsgs()
 	if err != nil {
-		return []vestingtypes.ClawbackProposal{}, err
+		return []vestingtypes.MsgClawback{}, err
 	}
 	if len(msgs) == 0 {
-		return []vestingtypes.ClawbackProposal{}, errors.New("proposal has no messages")
+		return []vestingtypes.MsgClawback{}, errors.New("proposal has no messages")
 	}
 
-	clawbackProposals := make([]vestingtypes.ClawbackProposal, 0, len(msgs))
+	clawbackProposals := make([]vestingtypes.MsgClawback, 0, len(msgs))
 	for _, msg := range msgs {
-		msgContent, ok := msg.(*govv1.MsgExecLegacyContent)
+		msg, ok := msg.(*vestingtypes.MsgClawback)
 		if !ok {
 			continue
 		}
 
-		clawbackProposal, ok := msgContent.Content.GetCachedValue().(*vestingtypes.ClawbackProposal)
-		if !ok {
-			continue
-		}
-
-		clawbackProposals = append(clawbackProposals, *clawbackProposal)
+		clawbackProposals = append(clawbackProposals, *msg)
 	}
 
 	// NOTE: no need to return an error here, it's expected that most proposals do not contain a clawback proposal

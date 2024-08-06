@@ -8,13 +8,14 @@ import (
 	"slices"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/encoding"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	"github.com/cosmos/gogoproto/proto"
+
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
@@ -34,7 +35,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	evmostypes "github.com/evmos/evmos/v18/types"
-	evmosutil "github.com/evmos/evmos/v18/utils"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
@@ -52,6 +52,7 @@ type defaultGenesisParams struct {
 	staking     StakingCustomGenesisState
 	slashing    SlashingCustomGenesisState
 	bank        BankCustomGenesisState
+	gov         GovCustomGenesisState
 }
 
 // genesisSetupFunctions contains the available genesis setup functions
@@ -73,6 +74,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 		// This is handled accordingly on chain and context initialization
 		return genesisState, nil
 	},
+	capabilitytypes.ModuleName: genStateSetter[*capabilitytypes.GenesisState](capabilitytypes.ModuleName),
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
@@ -111,14 +113,10 @@ func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSe
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
-	emptyCodeHash := crypto.Keccak256Hash(nil).String()
 	for _, acc := range accounts {
-		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		ethAcc := &evmostypes.EthAccount{
-			BaseAccount: baseAcc,
-			CodeHash:    emptyCodeHash,
-		}
-		genAccounts = append(genAccounts, ethAcc)
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(
+			acc, nil, 0, 0),
+		)
 	}
 	return genAccounts
 }
@@ -436,16 +434,26 @@ func setAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 	return genesisState, nil
 }
 
+// GovCustomGenesisState defines the gov genesis state
+type GovCustomGenesisState struct {
+	denom string
+}
+
 // setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
+func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams GovCustomGenesisState) evmostypes.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
-	// set 'aevmos' as deposit denom
 	minDepositAmt := sdkmath.NewInt(1e18)
-	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, minDepositAmt))
-	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, minDepositAmt))
+	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
+	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	return genesisState
+}
+
+func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
+	erc20Gen := erc20types.DefaultGenesisState()
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
 }
 
@@ -457,8 +465,9 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ev
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultGovGenesisState(evmosApp, genesisState, params.gov)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
+	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
@@ -473,6 +482,8 @@ func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesis
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			panic(fmt.Sprintf("module %s not found in genesis setup functions", mod))
 		}
 	}
 	return genesisState, err

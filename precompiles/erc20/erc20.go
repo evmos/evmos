@@ -10,8 +10,7 @@ import (
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -66,7 +65,7 @@ func NewPrecompile(
 		return nil, err
 	}
 
-	return &Precompile{
+	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
@@ -77,17 +76,15 @@ func NewPrecompile(
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
-	}, nil
-}
-
-// Address defines the address of the ERC-20 precompile contract.
-func (p Precompile) Address() common.Address {
-	return p.tokenPair.GetERC20Contract()
+	}
+	// Address defines the address of the ERC-20 precompile contract.
+	p.SetAddress(p.tokenPair.GetERC20Contract())
+	return p, nil
 }
 
 // RequiredGas calculates the contract gas used for the
 func (p Precompile) RequiredGas(input []byte) uint64 {
-	// Validate input length
+	// NOTE: This check avoid panicking when trying to decode the method ID
 	if len(input) < 4 {
 		return 0
 	}
@@ -133,7 +130,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract ERC-20 methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +149,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	if !contract.UseGas(cost) {
 		return nil, vm.ErrOutOfGas
 	}
-
+	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+		return nil, err
+	}
 	return bz, nil
 }
 
@@ -171,7 +170,7 @@ func (Precompile) IsTransaction(methodName string) bool {
 }
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
-func (p Precompile) HandleMethod(
+func (p *Precompile) HandleMethod(
 	ctx sdk.Context,
 	contract *vm.Contract,
 	stateDB vm.StateDB,

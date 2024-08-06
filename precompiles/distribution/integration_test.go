@@ -9,9 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -23,6 +21,7 @@ import (
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -73,7 +72,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		}
 
 		defaultLogCheck = testutil.LogCheckArgs{
-			ABIEvents: s.precompile.ABI.Events,
+			ABIEvents: s.precompile.Events,
 		}
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
@@ -126,7 +125,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				s.keyring.GetAddr(0).String(),
 			}
 
-			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
+			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
@@ -186,7 +185,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				s.network.GetValidators()[0].OperatorAddress,
 			}
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
@@ -305,6 +304,84 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			Expect(queryRes.Balance.Amount).To(Equal(expWithdrawerFinal), "expected withdrawer final balance to be equal to initial balance + rewards")
 		})
+
+		It("should withdraw delegation rewards to a smart contract", func() {
+			// deploy a smart contract to use as withdrawer
+			distributionCallerContract, err := contracts.LoadDistributionCallerContract()
+			Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
+
+			contractAddr, err := s.factory.DeployContract(
+				s.keyring.GetPrivKey(0),
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract: distributionCallerContract,
+				},
+			)
+			Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialWithdrawerBalance := balRes.Balance
+			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
+
+			// set contract address as withdrawer address
+			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), contractAddr.Bytes())
+			Expect(err).To(BeNil())
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// get tx sender initial balance
+			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			initialBalance := balRes.Balance
+
+			// get rewards
+			rwRes, err := s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			expRewardsAmt := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+			txArgs.GasPrice = gasPrice.BigInt()
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				s.network.GetValidators()[0].OperatorAddress,
+			}
+
+			withdrawalCheck := passCheck.
+				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
+
+			txArgs.GasLimit = 300_000
+			res, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
+
+			var rewards []cmn.Coin
+			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
+			Expect(err).To(BeNil())
+			Expect(len(rewards)).To(Equal(1))
+			Expect(rewards[0].Denom).To(Equal(s.bondDenom))
+			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
+
+			// check tx sender balance is reduced by fees paid
+			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			fees := gasPrice.MulRaw(res.GasUsed)
+			expFinal := initialBalance.Amount.Sub(fees)
+			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance - fees")
+
+			// check that the rewards were added to the withdrawer balance
+			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalWithdrawerBalance := balRes.Balance
+			Expect(finalWithdrawerBalance.Amount).To(Equal(expRewardsAmt))
+		})
 	})
 
 	Describe("Validator Commission: Execute WithdrawValidatorCommission tx", func() {
@@ -351,7 +428,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			validatorHexAddr := common.BytesToAddress(s.validatorsKeys[0].AccAddr)
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), validatorHexAddr.String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.keyring.GetAddr(0).String(), validatorHexAddr.String())
 
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
@@ -407,6 +484,82 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to the final balance after withdrawing commission")
 		})
+
+		It("should withdraw validator commission to a smart contract", func() {
+			// deploy a smart contract to use as withdrawer
+			distributionCallerContract, err := contracts.LoadDistributionCallerContract()
+			Expect(err).To(BeNil(), "error while loading the smart contract: %v", err)
+
+			contractAddr, err := s.factory.DeployContract(
+				s.keyring.GetPrivKey(0),
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract: distributionCallerContract,
+				},
+			)
+			Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialWithdrawerBalance := balRes.Balance
+			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
+
+			// set contract address as withdrawer address
+			err = s.factory.SetWithdrawAddress(s.validatorsKeys[0].Priv, contractAddr.Bytes())
+			Expect(err).To(BeNil())
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// get validator initial balance
+			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			initialBalance := balRes.Balance
+
+			// get the accrued commission amount
+			commRes, err := s.grpcHandler.GetValidatorCommission(s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			expCommAmt := commRes.Commission.Commission.AmountOf(s.bondDenom).TruncateInt()
+
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+			txArgs.GasPrice = gasPrice.BigInt()
+
+			withdrawalCheck := passCheck.
+				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
+
+			txArgs.GasLimit = 300_000
+			res, ethRes, err := s.factory.CallContractAndCheckLogs(
+				s.validatorsKeys[0].Priv,
+				txArgs,
+				callArgs,
+				withdrawalCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			var comm []cmn.Coin
+			err = s.precompile.UnpackIntoInterface(&comm, distribution.WithdrawValidatorCommissionMethod, ethRes.Ret)
+			Expect(err).To(BeNil())
+			Expect(len(comm)).To(Equal(1))
+			Expect(comm[0].Denom).To(Equal(s.bondDenom))
+			Expect(comm[0].Amount).To(Equal(expCommAmt.BigInt()))
+
+			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil(), "error while calling GetBalance")
+			finalBalance := balRes.Balance
+
+			fees := gasPrice.MulRaw(res.GasUsed)
+			expFinal := initialBalance.Amount.Sub(fees)
+			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to the final balance after withdrawing commission")
+
+			// check that the commission was added to the withdrawer balance
+			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalWithdrawerBalance := balRes.Balance
+			Expect(finalWithdrawerBalance.Amount).To(Equal(expCommAmt))
+		})
 	})
 
 	Describe("Execute ClaimRewards transaction", func() {
@@ -432,7 +585,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				differentAddr, uint32(1),
 			}
 
-			claimRewardsCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
+			claimRewardsCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
 
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
@@ -486,7 +639,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(finalBalance.Amount).To(Equal(expBalanceAmt), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
-
 	// =====================================
 	// 				QUERIES
 	// =====================================
@@ -799,6 +951,13 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 var _ = Describe("Calling distribution precompile from another contract", Ordered, func() {
 	s := new(PrecompileTestSuite)
+	// testCase is a struct used for cases of contracts calls that have some operation
+	// performed before and/or after the precompile call
+	type testCase struct {
+		withdrawer *common.Address
+		before     bool
+		after      bool
+	}
 
 	var (
 		distrCallerContract evmtypes.CompiledContract
@@ -1024,13 +1183,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(balRes.Balance.Amount).To(Equal(initBalanceAmt.Add(expRewardsAmt).Sub(fees)), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
-		It("should withdraw rewards successfully to the new withdrawer address", func() {
-			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+		DescribeTable("should withdraw rewards successfully to the new withdrawer address", func(tc testCase) {
+			balRes, err := s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			withdrawerInitialBalance := balRes.Balance
 
 			// Set new withdrawer address
-			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), differentAddr.Bytes())
+			err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), tc.withdrawer.Bytes())
 			Expect(err).To(BeNil())
 			// persist state change
 			Expect(s.network.NextBlock()).To(BeNil())
@@ -1070,7 +1229,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
 			// should increase withdrawer balance by rewards
-			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 
 			Expect(balRes.Balance.Amount).To(Equal(withdrawerInitialBalance.Amount.Add(expRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -1082,6 +1241,209 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			expDelgatorFinal := delegatorInitialBalance.Amount.Sub(fees)
 			Expect(balRes.Balance.Amount).To(Equal(expDelgatorFinal), "expected delegator final balance to be equal to initial balance - fees")
+		},
+			Entry("withdrawer addr is existing acc", testCase{
+				withdrawer: &differentAddr,
+			}),
+			Entry("withdrawer addr is non-existing acc", testCase{
+				withdrawer: func() *common.Address {
+					addr := testutiltx.GenerateAddress()
+					return &addr
+				}(),
+			}),
+		)
+
+		// Specific BeforeEach for table-driven tests
+		Context("Table-driven tests for Withdraw Delegator Rewards", func() {
+			contractInitialBalance := math.NewInt(100)
+
+			BeforeEach(func() {
+				callArgs.MethodName = "testWithdrawDelegatorRewardsWithTransfer"
+
+				// send some funds to the contract
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), contractInitialBalance)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			DescribeTable("withdraw delegation rewards with internal transfers to delegator - should withdraw rewards successfully to the withdrawer address",
+				func(tc testCase) {
+					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					if tc.withdrawer != nil {
+						// Set new withdrawer address
+						err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), tc.withdrawer.Bytes())
+						Expect(err).To(BeNil())
+						// persist state change
+						Expect(s.network.NextBlock()).To(BeNil())
+						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						Expect(err).To(BeNil())
+					}
+					withdrawerInitialBalance := balRes.Balance
+
+					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					delInitialBalance := balRes.Balance
+
+					// get the pending rewards to claim
+					qRes, err := s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).To(BeNil())
+					expRewards := qRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+					callArgs.Args = []interface{}{
+						s.keyring.GetAddr(0), s.network.GetValidators()[0].OperatorAddress, tc.before, tc.after,
+					}
+
+					logCheckArgs := passCheck.
+						WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
+
+					res, _, err := s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						txArgs,
+						callArgs,
+						logCheckArgs,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+
+					fees := gasPrice.MulRaw(res.GasUsed)
+
+					// check balances
+					contractTransferredAmt := math.ZeroInt()
+					for _, transferred := range []bool{tc.before, tc.after} {
+						if transferred {
+							contractTransferredAmt = contractTransferredAmt.AddRaw(15)
+						}
+					}
+					// contract balance be updated according to the transferred amount
+					balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractFinalBalance := balRes.Balance
+					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Sub(contractTransferredAmt)))
+
+					expDelFinalBalance := delInitialBalance.Amount.Sub(fees).Add(contractTransferredAmt).Add(expRewards)
+					if tc.withdrawer != nil {
+						expDelFinalBalance = delInitialBalance.Amount.Sub(fees).Add(contractTransferredAmt)
+						expWithdrawerFinalBalance := withdrawerInitialBalance.Amount.Add(expRewards)
+						// withdrawer balance should have the rewards
+						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						Expect(err).To(BeNil())
+						withdrawerFinalBalance := balRes.Balance
+						Expect(withdrawerFinalBalance.Amount).To(Equal(expWithdrawerFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
+					}
+
+					// delegator balance should have the transferred amt - fees + rewards (when is the withdrawer)
+					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					delFinalBalance := balRes.Balance
+					Expect(delFinalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
+				},
+
+				Entry("delegator == withdrawer - with internal transfers before and after precompile call", testCase{
+					before: true,
+					after:  true,
+				}),
+
+				Entry("delegator == withdrawer - with internal transfers before precompile call", testCase{
+					before: true,
+					after:  false,
+				}),
+
+				Entry("delegator == withdrawer - with internal transfers after precompile call", testCase{
+					before: false,
+					after:  true,
+				}),
+				Entry("delegator != withdrawer - with internal transfers before and after precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     true,
+					after:      true,
+				}),
+
+				Entry("delegator != withdrawer - with internal transfers before precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     true,
+					after:      false,
+				}),
+
+				Entry("delegator != withdrawer - with internal transfers after precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     false,
+					after:      true,
+				}),
+			)
+
+			DescribeTable("should revert withdraw rewards successfully and update correspondingly the withdrawer and contract's balances", func(tc testCase) {
+				// Set new withdrawer address
+				err = s.factory.SetWithdrawAddress(s.keyring.GetPrivKey(0), tc.withdrawer.Bytes())
+				Expect(err).To(BeNil())
+				// persist state change
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// get the pending rewards to claim
+				qRes, err := s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
+				Expect(err).To(BeNil())
+				initRewards := qRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+				balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				Expect(err).To(BeNil())
+				delInitBalance := balRes.Balance
+				balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				withdrawerInitBalance := balRes.Balance
+
+				// update args to call the corresponding contract method
+				callArgs.MethodName = "revertWithdrawRewardsAndTransfer"
+				callArgs.Args = []interface{}{
+					s.keyring.GetAddr(0), *tc.withdrawer, s.network.GetValidators()[0].OperatorAddress, true,
+				}
+
+				res, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+				fees := gasPrice.MulRaw(res.GasUsed)
+
+				// check balances
+				contractTransferredAmt := math.NewInt(15)
+				// contract balance be updated according to the transferred amount
+				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				contractFinalBalance := balRes.Balance
+				Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Sub(contractTransferredAmt)))
+
+				// delegator balance should be initial_balance - fees
+				balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				Expect(err).To(BeNil())
+				delFinalBalance := balRes.Balance
+				Expect(delFinalBalance.Amount).To(Equal(delInitBalance.Amount.Sub(fees)))
+
+				// withdrawer balance should increase by the transferred amount only
+				// the rewards withdrawal should revert
+				balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				withdrawerFinalBalance := balRes.Balance
+				Expect(withdrawerFinalBalance.Amount).To(Equal(withdrawerInitBalance.Amount.Add(contractTransferredAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
+
+				// rewards to claim should be the same or more than before
+				qRes, err = s.grpcHandler.GetDelegationRewards(s.keyring.GetAccAddr(0).String(), s.network.GetValidators()[0].OperatorAddress)
+				Expect(err).To(BeNil())
+				finalRewards := qRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+				Expect(finalRewards.GTE(initRewards)).To(BeTrue())
+			},
+				Entry("withdrawer addr is existing acc", testCase{
+					withdrawer: &differentAddr,
+				}),
+				Entry("withdrawer addr is non-existing acc", testCase{
+					withdrawer: func() *common.Address {
+						addr := testutiltx.GenerateAddress()
+						return &addr
+					}(),
+				}),
+			)
 		})
 	})
 
@@ -1156,6 +1518,240 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Add(accruedRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
+		})
+
+		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
+			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
+
+			balRes, err := s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialWithdrawerBalance := balRes.Balance
+			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
+
+			// call the smart contract to update the withdrawer
+			// Set new withdrawer address for the contract
+			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
+			res1, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				factory.CallArgs{
+					ContractABI: distrCallerContract.ABI,
+					MethodName:  "testSetWithdrawAddressFromContract",
+					Args:        []interface{}{withdrawerAddr.String()},
+				},
+				setWithdrawCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(res1.IsOK()).To(BeTrue(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// get accrued rewards prev to tx
+			rwRes, err := s.grpcHandler.GetDelegationRewards(sdk.AccAddress(contractAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			accruedRewardsAmt = rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
+
+			txArgs.GasLimit = 300_000
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+
+			// withdrawer balance should increase with the rewards amt
+			balRes, err = s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalWithdrawerBalance := balRes.Balance
+			Expect(finalWithdrawerBalance.Amount).To(Equal(accruedRewardsAmt), "expected final balance to be greater than initial balance after withdrawing rewards")
+
+			// delegator balance (contract) should remain unchanged
+			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalDelegatorBalance := balRes.Balance
+			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
+		})
+
+		Context("Withdraw Delegator Rewards with another smart contract (different than the contract calling the precompile) as delegator", func() {
+			var (
+				delContractAddr        common.Address
+				contractInitialBalance = math.NewInt(100)
+			)
+			BeforeEach(func() {
+				callArgs.MethodName = "testWithdrawDelegatorRewardsWithTransfer"
+
+				// deploy another delegator contract
+				delContractAddr, err = s.factory.DeployContract(
+					s.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+					factory.ContractDeploymentData{
+						Contract: distrCallerContract,
+					},
+				)
+				Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+				// NextBlock the smart contract
+				Expect(s.network.NextBlock()).To(BeNil(), "error calling NextBlock: %v", err)
+
+				// send funds to the contract
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), delContractAddr.Bytes(), math.NewInt(2e18))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				stkPrecompile, err := s.getStakingPrecompile()
+				Expect(err).To(BeNil())
+				// make a delegation with contract as delegator
+				logCheck := testutil.LogCheckArgs{
+					ExpPass:   true,
+					ABIEvents: stkPrecompile.ABI.Events,
+					ExpEvents: []string{authorization.EventTypeApproval, staking.EventTypeDelegate},
+				}
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{
+						To: &delContractAddr,
+					},
+					factory.CallArgs{
+						ContractABI: distrCallerContract.ABI,
+						MethodName:  "testDelegateFromContract",
+						Args: []interface{}{
+							s.network.GetValidators()[0].OperatorAddress,
+							big.NewInt(1e18),
+						},
+					},
+					logCheck,
+				)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// wait to accrue some rewards for contract address
+				rwRes, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, sdk.AccAddress(delContractAddr.Bytes()).String(), minExpRewardOrCommission)
+				Expect(err).To(BeNil())
+
+				// contract's accrued rewards amt
+				accruedRewardsAmt = rwRes.AmountOf(s.bondDenom).TruncateInt()
+
+				balRes, err := s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				initialBalance = balRes.Balance
+
+				// send some funds to the contract
+				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), contractInitialBalance)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			It("should NOT allow to withdraw rewards", func() {
+				balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				Expect(err).To(BeNil())
+				txSenderInitialBalance := balRes.Balance
+				balRes, err = s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				delInitialBalance := balRes.Balance
+				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				callerContractInitialBal := balRes.Balance
+
+				// get the pending rewards to claim
+				rwRes, err := s.grpcHandler.GetDelegationRewards(sdk.AccAddress(delContractAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+				Expect(err).To(BeNil())
+				expRewards := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+				callArgs.Args = []interface{}{delContractAddr, s.network.GetValidators()[0].OperatorAddress, true, true}
+
+				res, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+				fees := gasPrice.MulRaw(res.GasUsed)
+				// check balances
+				// tx signer final balance should be the initial balance - fees
+				balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				Expect(err).To(BeNil())
+				txSignerFinalBalance := balRes.Balance
+				Expect(txSignerFinalBalance.Amount).To(Equal(txSenderInitialBalance.Amount.Sub(fees)))
+
+				// caller contract balance should remain unchanged
+				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				contractFinalBalance := balRes.Balance
+				Expect(contractFinalBalance).To(Equal(callerContractInitialBal))
+
+				// delegator balance should remain unchanged
+				balRes, err = s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				delFinalBalance := balRes.Balance
+				Expect(delFinalBalance).To(Equal(delInitialBalance))
+
+				// delegation rewards should remain be the same or higher
+				rwRes, err = s.grpcHandler.GetDelegationRewards(sdk.AccAddress(delContractAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+				Expect(err).To(BeNil())
+				finalRewards := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+				Expect(finalRewards.GTE(expRewards)).To(BeTrue())
+			})
+		})
+
+		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
+			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
+
+			balRes, err := s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialWithdrawerBalance := balRes.Balance
+			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
+
+			// Set new withdrawer address for the contract
+			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
+			res1, _, err := s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				factory.CallArgs{
+					ContractABI: distrCallerContract.ABI,
+					MethodName:  "testSetWithdrawAddressFromContract",
+					Args:        []interface{}{withdrawerAddr.String()},
+				},
+				setWithdrawCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(res1.IsOK()).To(BeTrue(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// get the pending rewards to claim
+			rwRes, err := s.grpcHandler.GetDelegationRewards(sdk.AccAddress(contractAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			expRewards := rwRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
+
+			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
+
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+
+			txArgs.GasLimit = 500_000
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
+
+			// withdrawer balance should increase with the rewards amt
+			balRes, err = s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalWithdrawerBalance := balRes.Balance
+			Expect(finalWithdrawerBalance.Amount.Equal(expRewards)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+
+			// delegator balance (contract) should remain unchanged
+			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalDelegatorBalance := balRes.Balance
+			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
 		})
 	})
 
@@ -1241,6 +1837,204 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			expFinal := valInitialBalance.Amount.Add(accruedCommissionAmt).Sub(fees)
 			Expect(valFinalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance + validator commission - fees")
+		})
+
+		It("should withdraw commission successfully to withdrawer address (contract)", func() {
+			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			initialWithdrawerBalance := balRes.Balance
+			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
+
+			// Set new withdrawer address
+			err = s.factory.SetWithdrawAddress(s.validatorsKeys[0].Priv, contractAddr.Bytes())
+			Expect(err).To(BeNil())
+			// persist state change
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			qRes, err := s.grpcHandler.GetValidatorCommission(s.network.GetValidators()[0].OperatorAddress)
+			Expect(err).To(BeNil())
+			accruedCommissionAmt = qRes.Commission.Commission.AmountOf(s.bondDenom).TruncateInt()
+
+			// validator acc balance before the tx
+			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil())
+			initialBalance := balRes.Balance
+
+			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
+
+			logCheckArgs := passCheck.
+				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
+
+			txArgs.GasLimit = 500_000
+			txArgs.GasPrice = gasPrice.BigInt()
+			res, _, err := s.factory.CallContractAndCheckLogs(
+				s.validatorsKeys[0].Priv,
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil())
+			finalWithdrawerBalance := balRes.Balance
+			Expect(finalWithdrawerBalance.Amount).To(Equal(initialWithdrawerBalance.Amount.Add(accruedCommissionAmt)), "expected final balance to be equal to initial balance + validator commission")
+
+			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			Expect(err).To(BeNil())
+			finalBalance := balRes.Balance
+			fees := gasPrice.MulRaw(res.GasUsed)
+			expFinal := initialBalance.Amount.Sub(fees)
+			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance  - fees")
+		})
+
+		// Specific BeforeEach for table-driven tests
+		Context("Table-driven tests for Withdraw Validator Commission", func() {
+			contractInitialBalance := math.NewInt(100)
+			BeforeEach(func() {
+				callArgs.MethodName = "testWithdrawValidatorCommissionWithTransfer"
+
+				// send some funds to the contract
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), contractInitialBalance)
+				Expect(err).To(BeNil())
+				// persist state change
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			DescribeTable("withdraw validator commission with state changes in withdrawer - should withdraw commission successfully to the withdrawer address",
+				func(tc testCase) {
+					withdrawerAddr := s.validatorsKeys[0].Addr
+					balRes, err := s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					Expect(err).To(BeNil())
+					if tc.withdrawer != nil {
+						withdrawerAddr = *tc.withdrawer
+						// Set new withdrawer address
+						err = s.factory.SetWithdrawAddress(s.validatorsKeys[0].Priv, tc.withdrawer.Bytes())
+						Expect(err).To(BeNil())
+						// persist state change
+						Expect(s.network.NextBlock()).To(BeNil())
+						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						Expect(err).To(BeNil())
+					}
+					withdrawerInitialBalance := balRes.Balance
+
+					// validator acc balance before the tx
+					balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					Expect(err).To(BeNil())
+					valInitialBalance := balRes.Balance
+
+					// get the pending commission to claim
+					qRes, err := s.grpcHandler.GetValidatorCommission(s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).To(BeNil())
+					expCommission := qRes.Commission.Commission.AmountOf(s.bondDenom).TruncateInt()
+
+					callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress, withdrawerAddr, tc.before, tc.after}
+
+					logCheckArgs := passCheck.
+						WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
+
+					txArgs.GasPrice = gasPrice.BigInt()
+					txArgs.GasLimit = 600_000
+					res, _, err := s.factory.CallContractAndCheckLogs(
+						s.validatorsKeys[0].Priv,
+						txArgs,
+						callArgs,
+						logCheckArgs,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
+
+					fees := gasPrice.MulRaw(res.GasUsed)
+
+					// calculate the transferred amt during the call
+					contractTransferredAmt := math.ZeroInt()
+					for _, transferred := range []bool{tc.before, tc.after} {
+						if transferred {
+							contractTransferredAmt = contractTransferredAmt.AddRaw(15)
+						}
+					}
+
+					// check balances
+					expContractFinalBalance := contractInitialBalance.Sub(contractTransferredAmt)
+					expValFinalBalance := valInitialBalance.Amount.Sub(fees).Add(contractTransferredAmt).Add(expCommission)
+					if tc.withdrawer != nil {
+						expValFinalBalance = valInitialBalance.Amount.Sub(fees)
+						if *tc.withdrawer == contractAddr {
+							// no internal transfers if the contract itself is the withdrawer
+							expContractFinalBalance = contractInitialBalance.Add(expCommission)
+						} else {
+							expWithdrawerFinalBalance := withdrawerInitialBalance.Amount.Add(expCommission).Add(contractTransferredAmt)
+							// withdrawer balance should have the rewards
+							balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+							Expect(err).To(BeNil())
+							withdrawerFinalBalance := balRes.Balance
+							Expect(withdrawerFinalBalance.Amount).To(Equal(expWithdrawerFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
+						}
+					}
+
+					// contract balance be updated according to the transferred amount
+					balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractFinalBalance := balRes.Balance
+					Expect(contractFinalBalance.Amount).To(Equal(expContractFinalBalance))
+
+					// validator balance should have the transferred amt - fees + rewards (when is the withdrawer)
+					balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					Expect(err).To(BeNil())
+					valFinalBalance := balRes.Balance
+					Expect(valFinalBalance.Amount).To(Equal(expValFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
+				},
+
+				Entry("validator == withdrawer - with internal transfers before and after precompile call", testCase{
+					before: true,
+					after:  true,
+				}),
+
+				Entry("validator == withdrawer - with internal transfers before precompile call", testCase{
+					before: true,
+					after:  false,
+				}),
+
+				Entry("validator == withdrawer - with internal transfers after precompile call", testCase{
+					before: false,
+					after:  true,
+				}),
+				Entry("validator != withdrawer - with internal transfers before and after precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     true,
+					after:      true,
+				}),
+
+				Entry("validator != withdrawer - with internal transfers before precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     true,
+					after:      false,
+				}),
+
+				Entry("validator != withdrawer - with internal transfers after precompile call", testCase{
+					withdrawer: &differentAddr,
+					before:     false,
+					after:      true,
+				}),
+				Entry("contract as withdrawer - with contract state change before and after precompile call", testCase{
+					withdrawer: &contractAddr,
+					before:     true,
+					after:      true,
+				}),
+
+				Entry("contract as withdrawer - with contract state change before precompile call", testCase{
+					withdrawer: &contractAddr,
+					before:     true,
+					after:      false,
+				}),
+
+				Entry("contract as withdrawer - with contract state change after precompile call", testCase{
+					withdrawer: &contractAddr,
+					before:     false,
+					after:      true,
+				}),
+			)
 		})
 	})
 
@@ -1907,6 +2701,60 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 				Expect(1).To(Equal(len(out.Total)))
 				Expect(out.Total[0].Amount).To(Equal(accruedRewardsAmt.TruncateInt().BigInt()))
+			})
+
+			Context("query call with revert - all changes should revert to corresponding stateDB snapshot", func() {
+				var (
+					reverterContract           evmtypes.CompiledContract
+					reverterAddr               common.Address
+					testContractInitialBalance = math.NewInt(1000)
+				)
+				BeforeEach(func() {
+					var err error
+					// Deploy Reverter contract
+					reverterContract, err = contracts.LoadReverterContract()
+					Expect(err).To(BeNil(), "error while loading the Reverter contract")
+
+					reverterAddr, err = s.factory.DeployContract(
+						s.keyring.GetPrivKey(0),
+						evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+						factory.ContractDeploymentData{
+							Contract: reverterContract,
+						},
+					)
+					Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+					// persist state change
+					Expect(s.network.NextBlock()).To(BeNil())
+
+					// send some funds to the Reverter contracts to transfer to the
+					// delegator during the tx
+					err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), reverterAddr.Bytes(), testContractInitialBalance)
+					Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
+				})
+
+				It("should revert the execution - Reverter contract", func() {
+					args := factory.CallArgs{
+						ContractABI: reverterContract.ABI,
+						MethodName:  "run",
+					}
+					_, _, err = s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						evmtypes.EvmTxArgs{
+							To:       &reverterAddr,
+							GasPrice: gasPrice.BigInt(),
+						},
+						args,
+						execRevertedCheck,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+					balRes, err := s.grpcHandler.GetBalance(reverterAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+
+					contractFinalBalance := balRes.Balance
+					Expect(contractFinalBalance.Amount).To(Equal(testContractInitialBalance))
+				})
 			})
 		})
 

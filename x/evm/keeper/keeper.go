@@ -16,8 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
@@ -40,6 +40,7 @@ type Keeper struct {
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority sdk.AccAddress
+
 	// access to account state
 	accountKeeper types.AccountKeeper
 	// update balance and accounting operations with coins
@@ -48,15 +49,14 @@ type Keeper struct {
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
 	feeMarketKeeper types.FeeMarketKeeper
+	// erc20Keeper interface needed to instantiate erc20 precompiles
+	erc20Keeper types.Erc20Keeper
 
 	// chain ID number obtained from the context's chain id
 	eip155ChainID *big.Int
 
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
-
-	// EVM Hooks for tx post-processing
-	hooks types.EvmHooks
 
 	// Legacy subspace
 	ss paramstypes.Subspace
@@ -76,6 +76,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	sk types.StakingKeeper,
 	fmk types.FeeMarketKeeper,
+	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
 ) *Keeper {
@@ -100,6 +101,7 @@ func NewKeeper(
 		storeKey:        storeKey,
 		transientKey:    transientKey,
 		tracer:          tracer,
+		erc20Keeper:     erc20Keeper,
 		ss:              ss,
 	}
 }
@@ -245,19 +247,15 @@ func (k *Keeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) 
 		return nil
 	}
 
-	codeHash := types.EmptyCodeHash
-	ethAcct, ok := acct.(evmostypes.EthAccountI)
-	if ok {
-		codeHash = ethAcct.GetCodeHash().Bytes()
-	}
+	codeHashBz := k.GetCodeHash(ctx, addr).Bytes()
 
 	return &statedb.Account{
 		Nonce:    acct.GetSequence(),
-		CodeHash: codeHash,
+		CodeHash: codeHashBz,
 	}
 }
 
-// GetAccountOrEmpty returns empty account if not exist, returns error if it's not `EthAccount`
+// GetAccountOrEmpty returns empty account if not exist
 func (k *Keeper) GetAccountOrEmpty(ctx sdk.Context, addr common.Address) statedb.Account {
 	acct := k.GetAccount(ctx, addr)
 	if acct != nil {
@@ -351,34 +349,4 @@ func (k Keeper) AddTransientGasUsed(ctx sdk.Context, gasUsed uint64) (uint64, er
 	}
 	k.SetTransientGasUsed(ctx, result)
 	return result, nil
-}
-
-// ----------------------------------------------------------------------------
-// Hooks
-// ----------------------------------------------------------------------------
-
-// SetHooks sets the hooks for the EVM module
-// It should be called only once during initialization, it panic if called more than once.
-func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
-	if k.hooks != nil {
-		panic("cannot set evm hooks twice")
-	}
-
-	k.hooks = eh
-	return k
-}
-
-// CleanHooks resets the hooks for the EVM module
-// NOTE: Should only be used for testing purposes
-func (k *Keeper) CleanHooks() *Keeper {
-	k.hooks = nil
-	return k
-}
-
-// PostTxProcessing delegate the call to the hooks. If no hook has been registered, this function returns with a `nil` error
-func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
-	if k.hooks == nil {
-		return nil
-	}
-	return k.hooks.PostTxProcessing(ctx, msg, receipt)
 }

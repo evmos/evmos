@@ -4,11 +4,6 @@ import (
 	"math"
 	"testing"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -36,6 +31,10 @@ type KeeperTestSuite struct {
 	mintFeeCollector bool
 }
 
+type UnitTestSuite struct {
+	suite.Suite
+}
+
 var s *KeeperTestSuite
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -44,12 +43,12 @@ func TestKeeperTestSuite(t *testing.T) {
 	s.enableLondonHF = true
 	suite.Run(t, s)
 
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
+	// Run UnitTestSuite
+	unitTestSuite := new(UnitTestSuite)
+	suite.Run(t, unitTestSuite)
 }
 
-func (s *KeeperTestSuite) SetupTest() {
+func (suite *KeeperTestSuite) SetupTest() {
 	keys := keyring.New(2)
 	// Set custom balance based on test params
 	customGenesis := network.CustomGenesisState{}

@@ -10,7 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -476,12 +476,10 @@ func (s *PrecompileTestSuite) TestRun() {
 				ctx, msg, cfg, nil, stDB,
 			)
 
-			params := s.network.App.EvmKeeper.GetParams(ctx)
-			activePrecompiles := params.GetActivePrecompilesAddrs()
-			precompileMap := s.network.App.EvmKeeper.Precompiles(activePrecompiles...)
-			err = vm.ValidatePrecompiles(precompileMap, activePrecompiles)
-			s.Require().NoError(err, "invalid precompiles", activePrecompiles)
-			evm.WithPrecompiles(precompileMap, activePrecompiles)
+			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
+			s.Require().NoError(err, "failed to instantiate precompile")
+			s.Require().True(found, "not found precompile")
+			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
 
 			// Run precompiled contract
 			bz, err := s.precompile.Run(evm, contract, tc.readOnly)

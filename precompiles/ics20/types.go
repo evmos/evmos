@@ -10,14 +10,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
@@ -321,9 +321,11 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 		}
 
 		allocations[i] = transfertypes.Allocation{
-			SourcePort:    a.SourcePort,
-			SourceChannel: a.SourceChannel,
-			SpendLimit:    spendLimit,
+			SourcePort:        a.SourcePort,
+			SourceChannel:     a.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         a.AllowList,
+			AllowedPacketData: a.AllowedPacketData,
 		}
 	}
 
@@ -365,10 +367,11 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocatio
 		}
 
 		allocations[i] = cmn.ICS20Allocation{
-			SourcePort:    allocation.SourcePort,
-			SourceChannel: allocation.SourceChannel,
-			SpendLimit:    spendLimit,
-			AllowList:     allocation.AllowList,
+			SourcePort:        allocation.SourcePort,
+			SourceChannel:     allocation.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         allocation.AllowList,
+			AllowedPacketData: allocation.AllowedPacketData,
 		}
 	}
 

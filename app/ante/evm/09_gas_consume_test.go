@@ -12,7 +12,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 )
 
-func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
+func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -71,7 +71,7 @@ func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			// Function under test
-			gasWanted := evmante.UpdateComulativeGasWanted(
+			gasWanted := evmante.UpdateCumulativeGasWanted(
 				tc.getCtx(),
 				tc.msgGasWanted,
 				tc.maxTxGasWanted,

@@ -6,7 +6,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	grpchandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
@@ -20,7 +19,6 @@ func TestCheckBalances(t *testing.T) {
 		network.WithDenom(testDenom),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	handler := grpchandler.NewIntegrationHandler(nw)
 
 	testcases := []struct {
 		name        string
@@ -53,7 +51,7 @@ func TestCheckBalances(t *testing.T) {
 				),
 			}}
 
-			err := utils.CheckBalances(handler, balances)
+			err := utils.CheckBalances(nw.GetContext(), nw.GetBankClient(), balances)
 			if tc.expPass {
 				require.NoError(t, err, "unexpected error checking balances")
 			} else {

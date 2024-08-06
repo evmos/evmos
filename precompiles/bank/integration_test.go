@@ -6,15 +6,11 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v18/precompiles/bank"
 	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
-	erc20precompile "github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
@@ -22,9 +18,7 @@ import (
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -55,89 +49,13 @@ func (is *IntegrationTestSuite) SetupTest() {
 	// once logic is integrated
 	// with the protocol via genesis and/or a transaction
 	is.tokenDenom = xmplDenom
-
-	// Need a custom genesis to include:
-	// 1. erc20 tokenPairs
-	// 2. evm account with code & storage
-	// 3. add accounts corresponding to the erc20 contracts
-	//    in the auth module
-	// 4. register xmpl and wevmos denom meta in bank
-	customGen := network.CustomGenesisState{}
-
-	// 1 - add EVMOS and XMPL token pairs to genesis
-	erc20Gen := erc20types.DefaultGenesisState()
-	erc20Gen.TokenPairs = append(
-		erc20Gen.TokenPairs,
-		erc20types.TokenPair{
-			Erc20Address:  erc20precompile.WEVMOSContractTestnet,
-			Denom:         utils.BaseDenom,
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE,
-		},
-		erc20types.TokenPair{
-			Erc20Address:  xmplErc20Addr,
-			Denom:         xmplDenom,
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE,
-		},
-	)
-	customGen[erc20types.ModuleName] = erc20Gen
-
-	// 2 - Add EVM account with corresponding code and storage
-	evmGen := evmtypes.DefaultGenesisState()
-	evmGen.Accounts = append(
-		evmGen.Accounts,
-		evmtypes.GenesisAccount{
-			Address: erc20precompile.WEVMOSContractTestnet,
-			Code:    erc20ContractCode,
-			Storage: wevmosContractStorage,
-		},
-		evmtypes.GenesisAccount{
-			Address: xmplErc20Addr,
-			Code:    erc20ContractCode,
-			Storage: xmplContractStorage,
-		},
-	)
-
-	customGen[evmtypes.ModuleName] = evmGen
-
-	// 3 - Add accounts corresponding to the ERC20 contracts in auth module
-	authGen := authtypes.DefaultGenesisState()
-	is.evmosAddr = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
-	is.xmplAddr = common.HexToAddress(xmplErc20Addr)
-
-	// provide only the address and code hash,
-	// then the setup will determine the account number
-	codeHash := crypto.Keccak256Hash(common.Hex2Bytes(erc20ContractCode)).String()
-	genAccs := []authtypes.GenesisAccount{
-		&evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(is.evmosAddr.Bytes(), nil, 0, 0),
-			CodeHash:    codeHash,
-		},
-		&evmostypes.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(is.xmplAddr.Bytes(), nil, 0, 0),
-			CodeHash:    codeHash,
-		},
-	}
-	packedAccs, err := authtypes.PackAccounts(genAccs)
-	Expect(err).ToNot(HaveOccurred())
-
-	authGen.Accounts = append(
-		authGen.Accounts,
-		packedAccs...,
-	)
-	customGen[authtypes.ModuleName] = authGen
-
-	// 4 - Add EVMOS and XMPL denom metadata to bank module genesis
-	bankGen := banktypes.DefaultGenesisState()
-	bankGen.DenomMetadata = append(bankGen.DenomMetadata, evmosMetadata, xmplMetadata)
-	customGen[banktypes.ModuleName] = bankGen
-
 	keyring := keyring.New(2)
+	genesis := testutils.CreateGenesisWithTokenPairs(keyring)
+
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithOtherDenoms([]string{is.tokenDenom}),
-		network.WithCustomGenesis(customGen),
+		network.WithOtherDenoms([]string{is.tokenDenom}), // set some funds of other denom to the prefunded accounts
+		network.WithCustomGenesis(genesis),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
@@ -154,6 +72,15 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.keyring = keyring
 	is.network = integrationNetwork
 
+	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
+	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
+	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
+	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
+
+	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
+	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
+	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
+	is.xmplAddr = common.HexToAddress(tokenPair.Erc20Address)
 	is.precompile = is.setupBankPrecompile()
 }
 

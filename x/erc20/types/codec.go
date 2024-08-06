@@ -28,8 +28,9 @@ var (
 const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
-	convertCoinName  = "evmos/MsgConvertCoin"
 	updateParams     = "evmos/erc20/MsgUpdateParams"
+	registerERC20    = "evmos/erc20/MsgRegisterERC20"
+	toggleConversion = "evmos/erc20/MsgToggleConversion"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -42,13 +43,13 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgConvertCoin{},
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
+		&MsgRegisterERC20{},
+		&MsgToggleConversion{},
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
-		&RegisterCoinProposal{},
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
 	)
@@ -62,5 +63,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
-	cdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
+	cdc.RegisterConcrete(&MsgRegisterERC20{}, registerERC20, nil)
+	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
 }

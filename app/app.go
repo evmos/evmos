@@ -28,6 +28,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	dbm "github.com/cosmos/cosmos-db"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
@@ -83,7 +84,6 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -99,8 +99,7 @@ import (
 	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -118,8 +117,11 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
+
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v18/client/docs/statik"
+	"github.com/evmos/evmos/v18/utils"
 
 	"github.com/evmos/evmos/v18/app/ante"
 	ethante "github.com/evmos/evmos/v18/app/ante/evm"
@@ -128,14 +130,19 @@ import (
 	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
 	"github.com/evmos/evmos/v18/ethereum/eip712"
-	"github.com/evmos/evmos/v18/precompiles/common"
+	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
+	bech32precompile "github.com/evmos/evmos/v18/precompiles/bech32"
+	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
+	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
+	p256precompile "github.com/evmos/evmos/v18/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
 	srvflags "github.com/evmos/evmos/v18/server/flags"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/epochs"
 	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
 	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
 	"github.com/evmos/evmos/v18/x/erc20"
-	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	"github.com/evmos/evmos/v18/x/evm"
@@ -150,7 +157,6 @@ import (
 	staking "github.com/evmos/evmos/v18/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
 	"github.com/evmos/evmos/v18/x/vesting"
-	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 
@@ -158,9 +164,11 @@ import (
 	"github.com/evmos/evmos/v18/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 
+	memiavlstore "github.com/crypto-org-chain/cronos/store"
+
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
-	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+	_ "github.com/evmos/evmos/v18/x/evm/core/tracers/js"
+	_ "github.com/evmos/evmos/v18/x/evm/core/tracers/native"
 )
 
 func init() {
@@ -200,9 +208,6 @@ var (
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler,
-				// Evmos proposal types
-				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
-				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -305,6 +310,9 @@ type Evmos struct {
 	// simulation manager
 	sm *module.SimulationManager
 
+	// queryMultistore used on versionDB build
+	qms storetypes.MultiStore
+
 	tpsCounter *tpsCounter
 }
 
@@ -332,9 +340,8 @@ func NewEvmos(
 
 	eip712.SetEncodingConfig(encodingConfig)
 
-	// NOT SUPPORTED IN SDK v0.50
 	// setup memiavl if it's enabled in config
-	// baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
+	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
 
 	// Setup Mempool and Proposal Handlers
 	baseAppOptions = append(baseAppOptions, func(app *baseapp.BaseApp) {
@@ -399,7 +406,7 @@ func NewEvmos(
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, runtime.NewKVStoreService(keys[authtypes.StoreKey]),
-		evmostypes.ProtoAccount, maccPerms,
+		authtypes.ProtoBaseAccount, maccPerms,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
@@ -471,22 +478,17 @@ func NewEvmos(
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper, authAddr,
 	)
-
-	// register the proposal types
-	govRouter := govv1beta1.NewRouter()
-	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)). //nolint:staticcheck
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(vestingtypes.RouterKey, vesting.NewVestingProposalHandler(&app.VestingKeeper))
 
 	govConfig := govtypes.Config{
 		MaxMetadataLen: 5000,
@@ -495,9 +497,6 @@ func NewEvmos(
 		appCodec, runtime.NewKVStoreService(keys[govtypes.StoreKey]), app.AccountKeeper, app.BankKeeper,
 		stakingKeeper, app.DistrKeeper, app.MsgServiceRouter(), govConfig, authAddr,
 	)
-
-	// Set legacy router for backwards compatibility with gov v1beta1
-	govKeeper.SetLegacyRouter(govRouter)
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
@@ -520,7 +519,7 @@ func NewEvmos(
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -537,9 +536,10 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 		authAddr,
 	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -562,12 +562,6 @@ func NewEvmos(
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.VestingKeeper.Hooks(),
-		),
-	)
-
-	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-			app.Erc20Keeper.Hooks(),
 		),
 	)
 
@@ -820,19 +814,17 @@ func NewEvmos(
 	}
 
 	// wire up the versiondb's `StreamingService` and `MultiStore`.
-	var queryMultiStore storetypes.MultiStore
-
-	// VERSION DB IS NOT SUPPORTED IN SDK v0.50
-	// streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
-	// if slices.Contains(streamers, versionDB) {
-	// 	queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
-	// 	if err != nil {
-	// 		panic(errorsmod.Wrap(err, "error on versionDB setup"))
-	// 	}
-	// }
+	if cast.ToBool(appOpts.Get("versiondb.enable")) {
+		app.qms, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		//nolint:nolintlint
+		if err != nil {
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
+		}
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
+	app.SetPreBlocker(app.PreBlocker)
 	app.SetBeginBlocker(app.BeginBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
@@ -863,8 +855,8 @@ func NewEvmos(
 
 		// queryMultiStore will be only defined when using versionDB
 		// when defined, we check if the iavl & versionDB versions match
-		if queryMultiStore != nil {
-			v1 := queryMultiStore.LatestVersion()
+		if app.qms != nil {
+			v1 := app.qms.LatestVersion()
 			v2 := app.LastBlockHeight()
 			// Prevent creating gaps in versiondb
 			// - if versiondb lag behind iavl, when commit new blocks, it creates gap in versiondb.
@@ -977,6 +969,10 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abc
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
+func (app *Evmos) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	return app.mm.PreBlock(ctx)
+}
+
 // LoadHeight loads state at a particular height
 func (app *Evmos) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
@@ -1014,8 +1010,21 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
-	for _, precompile := range common.DefaultPrecompilesBech32 {
-		blockedAddrs[precompile] = true
+	blockedPrecompilesHex := []string{
+		p256precompile.PrecompileAddress,
+		bech32precompile.PrecompileAddress,
+		bankprecompile.PrecompileAddress,
+		stakingprecompile.PrecompileAddress,
+		distprecompile.PrecompileAddress,
+		ics20precompile.PrecompileAddress,
+		vestingprecompile.PrecompileAddress,
+	}
+	for _, addr := range vm.PrecompiledAddressesBerlin {
+		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
+	}
+
+	for _, precompile := range blockedPrecompilesHex {
+		blockedAddrs[utils.EthHexToCosmosAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
@@ -1206,7 +1215,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint:staticcheck
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
@@ -1236,6 +1245,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v19.UpgradeName,
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
 			app.EvmKeeper,
 		),
 	)

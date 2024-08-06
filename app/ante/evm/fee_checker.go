@@ -12,7 +12,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/params"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/x/evm/types"
 )
@@ -25,8 +24,12 @@ import (
 // - when `ExtensionOptionDynamicFeeTx` is omitted, `tipFeeCap` defaults to `MaxInt64`.
 // - when london hardfork is not enabled, it falls back to SDK default behavior (validator min-gas-prices).
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
-func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
-	return func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
+func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
+	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+		feeTx, ok := tx.(sdk.FeeTx)
+		if !ok {
+			return sdk.Coins{}, 0, errorsmod.Wrap(errortypes.ErrTxDecode, "Tx must be a FeeTx")
+		}
 		// TODO: in the e2e test, if the fee in the genesis transaction meet the baseFee and minGasPrice in the feemarket, we can remove this code
 		if ctx.BlockHeight() == 0 {
 			// genesis transactions: fallback to min-gas-price logic

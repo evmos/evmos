@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -18,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"golang.org/x/exp/constraints"
 )
 
 const (
@@ -30,6 +32,34 @@ const (
 	// BaseDenom defines the Evmos mainnet denomination
 	BaseDenom = "aevmos"
 )
+
+// EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
+// from it.
+func EthHexToCosmosAddr(hexAddr string) sdk.AccAddress {
+	return EthToCosmosAddr(common.HexToAddress(hexAddr))
+}
+
+// EthToCosmosAddr converts a given Ethereum style address to an SDK address.
+func EthToCosmosAddr(addr common.Address) sdk.AccAddress {
+	return sdk.AccAddress(addr.Bytes())
+}
+
+// Bech32ToHexAddr converts a given Bech32 address string and converts it to
+// an Ethereum address.
+func Bech32ToHexAddr(bech32Addr string) (common.Address, error) {
+	accAddr, err := sdk.AccAddressFromBech32(bech32Addr)
+	if err != nil {
+		return common.Address{}, errorsmod.Wrapf(err, "failed to convert bech32 string to address")
+	}
+
+	return CosmosToEthAddr(accAddr), nil
+}
+
+// CosmosToEthAddr converts a given SDK account address to
+// an Ethereum address.
+func CosmosToEthAddr(accAddr sdk.AccAddress) common.Address {
+	return common.BytesToAddress(accAddr.Bytes())
+}
 
 // IsMainnet returns true if the chain-id has the Evmos mainnet EIP155 chain prefix.
 func IsMainnet(chainID string) bool {
@@ -124,7 +154,7 @@ func GetIBCDenomAddress(denom string) (common.Address, error) {
 	}
 
 	if len(denom) < 5 || strings.TrimSpace(denom[4:]) == "" {
-		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s does not a valid IBC voucher hash", denom)
+		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s is not a valid IBC voucher hash", denom)
 	}
 
 	// Get the address from the hash of the ICS20's DenomTrace Path
@@ -157,4 +187,11 @@ func ComputeIBCDenom(
 	denom string,
 ) string {
 	return ComputeIBCDenomTrace(portID, channelID, denom).IBCDenom()
+}
+
+// SortSlice sorts a slice of any ordered type.
+func SortSlice[T constraints.Ordered](slice []T) {
+	sort.Slice(slice, func(i, j int) bool {
+		return slice[i] < slice[j]
+	})
 }

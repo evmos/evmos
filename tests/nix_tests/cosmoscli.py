@@ -28,6 +28,7 @@ class CosmosCLI:
         self,
         data_dir,
         node_rpc,
+        node_api,
         cmd,
     ):
         self.data_dir = data_dir
@@ -36,6 +37,7 @@ class CosmosCLI:
         )
         self.chain_id = self._genesis["chain_id"]
         self.node_rpc = node_rpc
+        self.node_api = node_api
         self.raw = ChainCommand(cmd)
         self.output = None
         self.error = None
@@ -57,10 +59,10 @@ class CosmosCLI:
         return json.loads(self.raw("status", node=self.node_rpc))
 
     def block_height(self):
-        return int(self.status()["SyncInfo"]["latest_block_height"])
+        return int(self.status()["sync_info"]["latest_block_height"])
 
     def block_time(self):
-        return isoparse(self.status()["SyncInfo"]["latest_block_time"])
+        return isoparse(self.status()["sync_info"]["latest_block_time"])
 
     def rollback(self):
         self.raw("rollback", home=self.data_dir)
@@ -173,9 +175,10 @@ class CosmosCLI:
         return rsp["result"]
 
     def tx_search(self, events: str):
-        "/tx_search"
         return json.loads(
-            self.raw("query", "txs", events=events, output="json", node=self.node_rpc)
+            self.raw(
+                "query", "txs", query=f'"{events}"', output="json", node=self.node_rpc
+            )
         )
 
     def tx_search_rpc(self, events: str):
@@ -403,8 +406,12 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )["pool"][0]
-        return float(coin["amount"])
+        )
+        if "pool" not in coin:
+            return 0
+        if len(coin["pool"]) == 0:
+            return 0
+        return float(coin["pool"][0]["amount"])
 
     def distribution_reward(self, delegator_addr):
         coin = json.loads(
@@ -486,7 +493,7 @@ class CosmosCLI:
         return int(
             json.loads(
                 self.raw("query", "staking", "pool", output="json", node=self.node_rpc)
-            )["bonded_tokens" if bonded else "not_bonded_tokens"]
+            )["pool"]["bonded_tokens" if bonded else "not_bonded_tokens"]
         )
 
     def get_delegated_amount(self, which_addr):
@@ -655,6 +662,11 @@ class CosmosCLI:
     #         GOV module
     # ==========================
     def gov_proposal(self, proposer, proposal_file_name, **kwargs):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -663,7 +675,9 @@ class CosmosCLI:
                 proposal_file_name,
                 "-y",
                 from_=proposer,
+                output="json",
                 home=self.data_dir,
+                node=self.node_rpc,
                 **kwargs,
             )
         )
@@ -690,10 +704,11 @@ class CosmosCLI:
                     deposit=proposal.get("deposit"),
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
-        elif kind == "cancel-software-upgrade":
+        if kind == "cancel-software-upgrade":
             return json.loads(
                 self.raw(
                     "tx",
@@ -708,64 +723,35 @@ class CosmosCLI:
                     deposit=proposal.get("deposit"),
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
-        elif kind == "register-erc20":
+        with tempfile.NamedTemporaryFile("w") as fp:
+            json.dump(proposal, fp)
+            fp.flush()
             return json.loads(
                 self.raw(
                     "tx",
                     "gov",
                     method,
                     kind,
-                    proposal.get("erc20_address"),
+                    fp.name,
                     "-y",
                     from_=proposer,
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
-        elif kind == "register-coin":
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "gov",
-                    method,
-                    kind,
-                    proposal.get("metadata"),
-                    "-y",
-                    from_=proposer,
-                    # content
-                    title=proposal.get("title"),
-                    description=proposal.get("description"),
-                    deposit=proposal.get("deposit"),
-                    # basic
-                    home=self.data_dir,
-                    **kwargs,
-                )
-            )
-        else:
-            with tempfile.NamedTemporaryFile("w") as fp:
-                json.dump(proposal, fp)
-                fp.flush()
-                return json.loads(
-                    self.raw(
-                        "tx",
-                        "gov",
-                        method,
-                        kind,
-                        fp.name,
-                        "-y",
-                        from_=proposer,
-                        # basic
-                        home=self.data_dir,
-                        **kwargs,
-                    )
-                )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -775,12 +761,21 @@ class CosmosCLI:
                 option,
                 "-y",
                 from_=voter,
+                output="json",
                 home=self.data_dir,
+                node=self.node_rpc,
                 **kwargs,
             )
         )
 
-    def gov_deposit(self, depositor, proposal_id, amount, denom=DEFAULT_DENOM):
+    def gov_deposit(
+        self, depositor, proposal_id, amount, denom=DEFAULT_DENOM, **kwargs
+    ):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(
                 "tx",
@@ -791,9 +786,11 @@ class CosmosCLI:
                 "-y",
                 from_=depositor,
                 home=self.data_dir,
+                output="json",
                 node=self.node_rpc,
                 keyring_backend="test",
                 chain_id=self.chain_id,
+                **kwargs,
             )
         )
 
@@ -822,7 +819,7 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )
+        )["proposal"]
 
     def query_tally(self, proposal_id):
         return json.loads(
@@ -834,7 +831,7 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
             )
-        )
+        )["tally"]
 
     # ==========================
     #           IBC
@@ -847,7 +844,7 @@ class CosmosCLI:
         amount,
         channel,  # src channel
         target_version,  # chain version number of target chain
-        i=0,
+        i=0,  # pylint: disable=unused-argument
         fees="0aevmos",
     ):
         return json.loads(
@@ -865,12 +862,31 @@ class CosmosCLI:
                 from_=from_,
                 home=self.data_dir,
                 node=self.node_rpc,
+                output="json",
                 keyring_backend="test",
                 chain_id=self.chain_id,
                 packet_timeout_height=f"{target_version}-10000000000",
                 packet_timeout_timestamp=0,
                 fees=fees,
             )
+        )
+
+    def escrow_address(self, channel, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return (
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "escrow-address",
+                "transfer",
+                channel,
+                **(default_kwargs | kwargs),
+            )
+            .decode()
+            .strip()
         )
 
     def register_counterparty_payee(
@@ -942,6 +958,21 @@ class CosmosCLI:
             )
         )
 
+    def denom_hash(self, trace, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "denom-hash",
+                trace,
+                **(default_kwargs | kwargs),
+            )
+        )
+
     # ==========================
     #        EVM Module
     # ==========================
@@ -974,6 +1005,24 @@ class CosmosCLI:
         )
 
     # ==========================
+    #        ERC20 Module
+    # ==========================
+
+    def erc20_params(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "erc20",
+                "params",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    # ==========================
     #       FEEMARKET Module
     # ==========================
 
@@ -985,6 +1034,8 @@ class CosmosCLI:
                     "q",
                     "feemarket",
                     "base-fee",
+                    output="json",
+                    node=self.node_rpc,
                     **(default_kwargs | kwargs),
                 )
             )["base_fee"]
@@ -1079,6 +1130,11 @@ class CosmosCLI:
 
         return res
 
+    def vesting_balance_http(self, addr: str):
+        rsp = requests.get(f"{self.node_api}/evmos/vesting/v2/balances/{addr}").json()
+        assert "error" not in rsp, rsp["error"]
+        return rsp
+
     def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
         kwargs.setdefault(
             "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
@@ -1137,6 +1193,29 @@ class CosmosCLI:
                 coin,
                 "-y",
                 from_=account,
+                node=self.node_rpc,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def convert_erc20(self, contract_address: str, amount: int, account: str, **kwargs):
+        kwargs.setdefault(
+            "gas_prices",
+            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        )
+        kwargs.setdefault("gas", 1_700_000)
+        return json.loads(
+            self.raw(
+                "tx",
+                "erc20",
+                "convert-erc20",
+                contract_address,
+                amount,
+                "-y",
+                from_=account,
+                output="json",
+                node=self.node_rpc,
                 home=self.data_dir,
                 **kwargs,
             )
@@ -1149,6 +1228,7 @@ class CosmosCLI:
                 "q",
                 "erc20",
                 "token-pairs",
+                node=self.node_rpc,
                 **(default_kwargs | kwargs),
             )
         )
@@ -1379,6 +1459,64 @@ class CosmosCLI:
                 "create-pool",
                 "-y",
                 pool_file=pool_file_path,
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def token_factory_create_denom(
+        self,
+        denom,
+        from_,
+        **kwargs,
+    ):
+        """
+        Create Osmosis token factory denom.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "create-denom",
+                denom,
+                "-y",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def token_factory_mint_denom(
+        self,
+        from_,
+        amount,
+        denom,
+        **kwargs,
+    ):
+        """
+        Mint Osmosis token factory denom with a given amount.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "tokenfactory",
+                "mint",
+                f"{amount}{denom}",
+                from_,
+                "-y",
                 from_=from_,
                 home=self.data_dir,
                 node=self.node_rpc,

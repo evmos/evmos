@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
 const (
@@ -136,10 +136,11 @@ func (p Precompile) Allowance(
 		}
 
 		allocs[i] = cmn.ICS20Allocation{
-			SourcePort:    a.SourcePort,
-			SourceChannel: a.SourceChannel,
-			SpendLimit:    spendLimit,
-			AllowList:     a.AllowList,
+			SourcePort:        a.SourcePort,
+			SourceChannel:     a.SourceChannel,
+			SpendLimit:        spendLimit,
+			AllowList:         a.AllowList,
+			AllowedPacketData: a.AllowedPacketData,
 		}
 	}
 

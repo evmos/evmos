@@ -5,7 +5,7 @@ package statedb
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 )
 
 // ExtStateDB defines an extension to the interface provided by the go-ethereum
@@ -29,7 +29,9 @@ type Keeper interface {
 
 	// Write methods, only called by `StateDB.Commit()`
 	SetAccount(ctx sdk.Context, addr common.Address, account Account) error
+	DeleteState(ctx sdk.Context, addr common.Address, key common.Hash)
 	SetState(ctx sdk.Context, addr common.Address, key common.Hash, value []byte)
+	DeleteCode(ctx sdk.Context, codeHash []byte)
 	SetCode(ctx sdk.Context, codeHash []byte, code []byte)
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 }

@@ -100,12 +100,12 @@ func DeliverEthTx(
 	}
 	res, err := BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
 	if err != nil {
-		return abci.ExecTxResult{}, err
+		return res, err
 	}
 
 	codec := encoding.MakeConfig(app.ModuleBasics).Codec
 	if _, err := CheckEthTxResponse(res, codec); err != nil {
-		return abci.ExecTxResult{}, err
+		return res, err
 	}
 	return res, nil
 }
@@ -186,6 +186,7 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	}
 
 	req := abci.RequestFinalizeBlock{Txs: [][]byte{bz}}
+
 	res, err := app.BaseApp.FinalizeBlock(&req)
 	if err != nil {
 		return abci.ExecTxResult{}, err

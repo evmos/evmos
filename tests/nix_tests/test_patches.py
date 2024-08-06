@@ -29,9 +29,9 @@ def test_send_funds_to_distr_mod(evmos_cluster):
     mod_accs = cli.query_module_accounts()
 
     for acc in mod_accs:
-        if acc["name"] != "distribution":
+        if acc["value"]["name"] != "distribution":
             continue
-        receiver = acc["base_account"]["address"]
+        receiver = acc["value"]["address"]
 
     assert receiver is not None
 
@@ -80,9 +80,9 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     old_src_balance = cli.balance(eth_to_bech32(sender))
 
     for acc in mod_accs:
-        if acc["name"] != "distribution":
+        if acc["value"]["name"] != "distribution":
             continue
-        receiver = decode_bech32(acc["base_account"]["address"])
+        receiver = decode_bech32(acc["value"]["address"])
 
     assert receiver is not None
 
@@ -301,7 +301,9 @@ def test_unvested_token_delegation(evmos_cluster):
     assert rsp["code"] == 0, rsp["raw_log"]
 
     # wait tx to be committed
-    wait_for_new_blocks(cli, 2)
+    # get tx receipt and check if tx was succesful
+    receipt = wait_for_cosmos_tx_receipt(cli, rsp["txhash"])
+    assert receipt["tx_result"]["code"] == 0, receipt["log"]
 
     # fund vesting account
     with tempfile.NamedTemporaryFile("w") as lockup_file:
@@ -354,12 +356,15 @@ def test_unvested_token_delegation(evmos_cluster):
             assert rsp["code"] == 0, rsp["raw_log"]
 
             # wait tx to be committed
-            wait_for_new_blocks(cli, 2)
+            # get tx receipt and check if tx was succesful
+            receipt = wait_for_cosmos_tx_receipt(cli, rsp["txhash"])
+            assert receipt["tx_result"]["code"] == 0, receipt["log"]
 
     # check vesting balances
     # vested should be zero at this point
-    balances = cli.vesting_balance(address)
-    assert balances["vested"] == ""
+    balances = cli.vesting_balance_http(address)
+    assert balances["vested"] == []
+    assert len(balances["locked"]) == 1
     assert balances["locked"] == balances["unvested"]
 
     # try to delegate more than the allowed tokens

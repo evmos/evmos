@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/core/appmodule"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,19 +19,23 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
+	"github.com/evmos/evmos/v18/x/erc20/client/cli"
 	"github.com/evmos/evmos/v18/x/erc20/keeper"
 	"github.com/evmos/evmos/v18/x/erc20/types"
 )
 
 // consensusVersion defines the current x/erc20 module consensus version.
-const consensusVersion = 3
+const consensusVersion = 4
 
 // type check to ensure the interface is properly implemented
 var (
 	_ module.AppModule           = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
+
+	_ appmodule.AppModule = AppModule{}
 )
 
 // app module Basics object
@@ -80,6 +85,16 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
+// GetTxCmd returns the root tx command for the erc20 module.
+func (b AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.NewTxCmd()
+}
+
+// GetTxCmd returns the root query command for the erc20 module.
+func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
+}
+
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
@@ -119,7 +134,11 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	// register v2 -> v3 migration
 	if err := cfg.RegisterMigration(types.ModuleName, 2, migrator.Migrate2to3); err != nil {
-		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+		panic(fmt.Errorf("failed to migrate %s to v3: %w", types.ModuleName, err))
+	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 3, migrator.Migrate3to4); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v4: %w", types.ModuleName, err))
 	}
 }
 

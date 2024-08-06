@@ -8,18 +8,18 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/ethereum/go-ethereum/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v18/testutil"
 	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
 )
 
@@ -437,10 +437,13 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
 
-				// Check if the vesting account was converted back to an EthAccountI
+				// Check if the vesting account was converted back to an non-vesting account
 				account := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
-				_, ok := account.(evmostypes.EthAccountI)
-				s.Require().True(ok)
+				_, ok := account.(*authtypes.BaseAccount)
+				s.Require().True(ok, "expected account to be a base account")
+
+				_, ok = account.(*vestingtypes.ClawbackVestingAccount)
+				s.Require().False(ok, "expected account not to be a vesting account after converting")
 			},
 			false,
 			"",

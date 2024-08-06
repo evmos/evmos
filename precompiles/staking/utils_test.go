@@ -1,6 +1,7 @@
 package staking_test
 
 import (
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"slices"
@@ -17,7 +18,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
-
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -463,4 +464,12 @@ func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Ke
 	Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
 
 	return clawbackAccount
+}
+
+// Generate the Base64 encoded PubKey associated with a PrivKey generated with
+// the ed25519 algorithm used in Tendermint nodes.
+func GenerateBase64PubKey() string {
+	privKey := ed25519.GenPrivKey()
+	pubKey := privKey.PubKey().(*ed25519.PubKey)
+	return base64.StdEncoding.EncodeToString(pubKey.Bytes())
 }

@@ -136,7 +136,8 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithUseLedger(true).
 		WithKeyring(kr).
 		WithClient(mocks.MockCometRPC{Client: rpcclientmock.Client{}}).
-		WithChainID(utils.TestnetChainID + "-13")
+		WithChainID(utils.TestnetChainID + "-13").
+		WithSignModeStr(flags.SignModeLegacyAminoJSON)
 
 	srvCtx := server.NewDefaultContext()
 	ctx := context.Background()

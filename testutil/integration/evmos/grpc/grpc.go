@@ -5,6 +5,7 @@ package grpc
 
 import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	commongrpc "github.com/evmos/evmos/v18/testutil/integration/common/grpc"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
@@ -38,6 +39,9 @@ type Handler interface {
 	GetCirculatingSupply() (*infltypes.QueryCirculatingSupplyResponse, error)
 	GetInflationRate() (*infltypes.QueryInflationRateResponse, error)
 	GetInflationParams() (*infltypes.QueryParamsResponse, error)
+
+	// Staking methods
+	GetStakingParams() (*stakingtypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

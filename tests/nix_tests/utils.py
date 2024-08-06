@@ -17,10 +17,11 @@ from eth_account import Account
 from hexbytes import HexBytes
 from pystarport import ports
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
-from .http_rpc import comet_status
 from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
+
+from .http_rpc import comet_status
 
 load_dotenv(Path(__file__).parent.parent.parent / "scripts/.env")
 Account.enable_unaudited_hdwallet_features()
@@ -35,7 +36,7 @@ KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
-WEVMOS_ADDRESS = Web3.toChecksumAddress("0xcc491f589b45d4a3c679016195b3fb87d7848210")
+WEVMOS_ADDRESS = Web3.toChecksumAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -44,8 +45,11 @@ TEST_CONTRACTS = {
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
     "ICS20FromContract": "ICS20FromContract.sol",
+    "InterchainSender": "evmos/testutil/contracts/InterchainSender.sol",
+    "InterchainSenderCaller": "evmos/testutil/contracts/InterchainSenderCaller.sol",
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
+    "DistributionCaller": "evmos/testutil/contracts/DistributionCaller.sol",
     "StakingI": "evmos/staking/StakingI.sol",
     "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
@@ -64,6 +68,27 @@ WASM_BINARIES = {
     "CrosschainSwap": "crosschain_swaps.wasm",
     "Swaprouter": "swaprouter.wasm",
 }
+
+REGISTER_ERC20_PROP = {
+    "messages": [
+        {
+            "@type": "/evmos.erc20.v1.MsgRegisterERC20",
+            "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+            "erc20addresses": ["ADDRESS_HERE"],
+        }
+    ],
+    "metadata": "ipfs://CID",
+    "deposit": "1aevmos",
+    "title": "register erc20",
+    "summary": "register erc20",
+    "expedited": False,
+}
+
+PROPOSAL_STATUS_DEPOSIT_PERIOD = 1
+PROPOSAL_STATUS_VOTING_PERIOD = 2
+PROPOSAL_STATUS_PASSED = 3
+PROPOSAL_STATUS_REJECTED = 4
+PROPOSAL_STATUS_FAILED = 5
 
 
 def wasm_binaries_path(filename):
@@ -116,10 +141,26 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+    """
+    Helper function to wait for new blocks on a cosmos chain.
+    If the chain has sdk < 0.50, the sync_info field will be 'SyncInfo'.
+    With cosmos-sdk v0.50+, the sync_info field is 'sync_info'
+    """
+    sync_info_field = "sync_info"
+    try:
+        cur_height = begin_height = int(
+            (cli.status())[sync_info_field]["latest_block_height"]
+        )
+    except KeyError:
+        sync_info_field = "SyncInfo"
+        cur_height = begin_height = int(
+            (cli.status())[sync_info_field]["latest_block_height"]
+        )
+
     while cur_height - begin_height < n:
         time.sleep(sleep)
-        cur_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+        cur_height = int((cli.status())[sync_info_field]["latest_block_height"])
+
     return cur_height
 
 
@@ -154,7 +195,7 @@ def get_current_height(cli):
     except AssertionError as e:
         print(f"get sync status failed: {e}", file=sys.stderr)
     else:
-        current_height = int(status["SyncInfo"]["latest_block_height"])
+        current_height = int(status["sync_info"]["latest_block_height"])
     return current_height
 
 
@@ -176,7 +217,7 @@ def w3_wait_for_block(w3, height, timeout=240):
 def wait_for_block_time(cli, t):
     print("wait for block time", t)
     while True:
-        now = isoparse((cli.status())["SyncInfo"]["latest_block_time"])
+        now = isoparse((cli.status())["sync_info"]["latest_block_time"])
         print("block time now: ", now)
         if now >= t:
             break
@@ -201,10 +242,16 @@ def approve_proposal(n, proposal_id, **kwargs):
     """
     cli = n.cosmos_cli()
 
+    # make the deposit (1 aevmos)
+    rsp = cli.gov_deposit("signer2", proposal_id, 1)
+    assert rsp["code"] == 0, rsp["raw_log"]
+    wait_for_new_blocks(cli, 1)
+
     for i in range(len(n.config["validators"])):
         rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes", **kwargs)
         assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(cli, 1)
+        wait_for_new_blocks(cli, 1)
+    wait_for_new_blocks(cli, 2)
     assert (
         int(cli.query_tally(proposal_id)["yes_count"]) == cli.staking_pool()
     ), "all validators should have voted yes"
@@ -212,7 +259,7 @@ def approve_proposal(n, proposal_id, **kwargs):
     proposal = cli.query_proposal(proposal_id)
     wait_for_block_time(cli, isoparse(proposal["voting_end_time"]))
     proposal = cli.query_proposal(proposal_id)
-    assert proposal["status"] == "PROPOSAL_STATUS_PASSED", proposal
+    assert int(proposal["status"]) == int(PROPOSAL_STATUS_PASSED), proposal
 
 
 def get_precompile_contract(w3, name):
@@ -443,8 +490,8 @@ default {{
       memiavl: {{
         enable: true,
       }},
-      store: {{
-        streamers: ['versiondb'],
+      versiondb: {{
+        enable: true,
       }},
     }},
     config+: {{
@@ -558,3 +605,12 @@ def check_error(err: Exception, err_contains):
     else:
         print(f"Unexpected {err=}, {type(err)=}")
         raise
+
+
+def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
+    info = json.loads(CONTRACTS["IERC20"].read_text())
+    contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
+    tx = contract.functions.transfer(to_addr, amount).build_transaction(
+        {"from": from_addr}
+    )
+    return send_transaction(w3, tx, key)

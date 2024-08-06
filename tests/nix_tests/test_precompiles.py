@@ -15,7 +15,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -81,7 +81,7 @@ def test_ibc_transfer(ibc):
     assert transfer_event.args.memo == ""
 
     # check gas used
-    assert receipt.gasUsed == 49307
+    assert receipt.gasUsed == 48184
 
     # check gas estimation is accurate
     assert receipt.gasUsed == gas_estimation
@@ -156,7 +156,7 @@ def test_ibc_transfer_timeout(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC\)\: packet timeout"  # noqa: E501
+    exp_err = r"rpc error: code = Unknown desc = invalid packet timeout: current timestamp: \d+, timeout timestamp \d+: timeout elapsed"  # noqa: E501
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000

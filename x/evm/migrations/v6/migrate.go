@@ -30,8 +30,6 @@ func MigrateStore(
 	cdc.MustUnmarshal(paramsV5Bz, &paramsV5)
 
 	params.EvmDenom = paramsV5.EvmDenom
-	params.EnableCreate = paramsV5.EnableCreate
-	params.EnableCall = paramsV5.EnableCall
 	params.ExtraEIPs = paramsV5.ExtraEIPs
 	params.ChainConfig = types.ChainConfig{
 		HomesteadBlock:      paramsV5.ChainConfig.HomesteadBlock,
@@ -55,7 +53,7 @@ func MigrateStore(
 		CancunBlock:         paramsV5.ChainConfig.CancunBlock,
 	}
 	params.AllowUnprotectedTxs = paramsV5.AllowUnprotectedTxs
-	params.ActivePrecompiles = paramsV5.ActivePrecompiles
+	params.ActiveStaticPrecompiles = paramsV5.ActivePrecompiles
 	params.EVMChannels = types.DefaultEVMChannels
 
 	// DefaultEVMChannels are for Evmos mainnet
