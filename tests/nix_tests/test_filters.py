@@ -32,7 +32,7 @@ def evmos_indexer(tmp_path_factory):
 
 @pytest.fixture(
     scope="module",
-    params=["evmos", "geth", "evmos-ws", "evmos_rocksdb", "enable-indexer"],
+    params=["evmos", "geth", "evmos-ws", "evmos-rocksdb", "enable-indexer"],
 )
 def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
     """

@@ -490,8 +490,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.m
 github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021/go.mod h1:AFq3mo9L8Lqqiid3OhADV3RfLJnjiw63cSpi+fDTRC0=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/evmos/cosmos-sdk v0.50.8-evmos.0.20240805151214-edcb4fe26840 h1:1RcsqMQEDRWUW7bmazAXM9sCLGryN6XsBRI5LhzXxbY=
-github.com/evmos/cosmos-sdk v0.50.8-evmos.0.20240805151214-edcb4fe26840/go.mod h1:Zb+DgHtiByNwgj71IlJBXwOq6dLhtyAq3AgqpXm/jHo=
+github.com/evmos/cosmos-sdk v0.50.8-evmos.2 h1:maO3+7MnibwLNa1rPydMJ/kusvgtQHvxm6ZTNMgMuYk=
+github.com/evmos/cosmos-sdk v0.50.8-evmos.2/go.mod h1:Zb+DgHtiByNwgj71IlJBXwOq6dLhtyAq3AgqpXm/jHo=
 github.com/evmos/cosmos-sdk/store v0.0.0-20240718141609-414cbd051fbe h1:CKvjP3CcWckOiwffAARb9qe+t0+VWoVDiicYkQMvZfQ=
 github.com/evmos/cosmos-sdk/store v0.0.0-20240718141609-414cbd051fbe/go.mod h1:Bm6h8ZkYgVTytHK5vhHOMKw9OHyiumm3b1UbkYIJ/Ug=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc4 h1:vwDVMScuB2KSu8ze5oWUuxm6v3bMUp6dL3PWvJNJY+I=
