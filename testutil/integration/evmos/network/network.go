@@ -132,6 +132,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		validators:  validators,
 		delegations: delegations,
 	}
+	govParams := GovCustomGenesisState{
+		denom: n.cfg.denom,
+	}
+
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
@@ -153,6 +157,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			staking:     stakingParams,
 			bank:        bankParams,
 			slashing:    slashingParams,
+			gov:         govParams,
 		},
 	)
 
