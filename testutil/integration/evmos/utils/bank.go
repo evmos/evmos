@@ -4,13 +4,13 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cmnfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/common/grpc"
 	cmnnet "github.com/evmos/evmos/v18/testutil/integration/common/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 )
@@ -23,11 +23,11 @@ func FundAccountWithBaseDenom(tf cmnfactory.CoreTxFactory, nw cmnnet.Network, se
 
 // CheckBalances checks that the given accounts have the expected balances and
 // returns an error if that is not the case.
-func CheckBalances(handler grpc.Handler, balances []banktypes.Balance) error {
+func CheckBalances(ctx context.Context, client banktypes.QueryClient, balances []banktypes.Balance) error {
 	for _, balance := range balances {
 		addr := balance.GetAddress()
 		for _, coin := range balance.GetCoins() {
-			balance, err := handler.GetBalance(sdk.AccAddress(addr), coin.Denom)
+			balance, err := client.Balance(ctx, &banktypes.QueryBalanceRequest{Address: addr, Denom: coin.Denom})
 			if err != nil {
 				return err
 			}
