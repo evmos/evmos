@@ -1131,9 +1131,7 @@ class CosmosCLI:
         return res
 
     def vesting_balance_http(self, addr: str):
-        rsp = requests.get(
-            f"{self.node_api}/evmos/vesting/v2/balances/{addr}"
-        ).json()
+        rsp = requests.get(f"{self.node_api}/evmos/vesting/v2/balances/{addr}").json()
         assert "error" not in rsp, rsp["error"]
         return rsp
 

@@ -63,7 +63,10 @@ class Evmos:
 
     def cosmos_cli(self, i=0):
         return CosmosCLI(
-            self.base_dir / f"node{i}", self.node_rpc(i), self.node_api(i), self.chain_binary
+            self.base_dir / f"node{i}",
+            self.node_rpc(i),
+            self.node_api(i),
+            self.chain_binary,
         )
 
     def node_home(self, i=0):
