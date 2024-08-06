@@ -12,7 +12,8 @@ import (
 	"github.com/linxGnu/grocksdb"
 	"github.com/spf13/cobra"
 
-	// versiondbclient "github.com/crypto-org-chain/cronos/versiondb/client"
+	versiondbclient "github.com/crypto-org-chain/cronos/versiondb/client"
+
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/cmd/evmosd/opendb"
 )
@@ -27,13 +28,12 @@ func ChangeSetCmd() *cobra.Command {
 	}
 	sort.Strings(storeNames)
 
-	// NOT SUPPORTED IN SDK v0.50
-	// return versiondbclient.ChangeSetGroupCmd(versiondbclient.Options{
-	// 	DefaultStores:  storeNames,
-	// 	OpenReadOnlyDB: opendb.OpenReadOnlyDB,
-	// 	AppRocksDBOptions: func(sstFileWriter bool) *grocksdb.Options {
-	// 		return opendb.NewRocksdbOptions(nil, sstFileWriter)
-	// 	},
-	// })
+	return versiondbclient.ChangeSetGroupCmd(versiondbclient.Options{
+		DefaultStores:  storeNames,
+		OpenReadOnlyDB: opendb.OpenReadOnlyDB,
+		AppRocksDBOptions: func(sstFileWriter bool) *grocksdb.Options {
+			return opendb.NewRocksdbOptions(nil, sstFileWriter)
+		},
+	})
 	return nil
 }

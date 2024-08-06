@@ -11,10 +11,9 @@ import (
 	"path/filepath"
 
 	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	// NOT SUPPORTED IN SDK v0.50
-	// "github.com/crypto-org-chain/cronos/versiondb"
-	// "github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
+
+	"github.com/crypto-org-chain/cronos/versiondb"
+	"github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
 )
 
 // versionDB constant for 'versiondb'
@@ -33,9 +32,9 @@ func (app *Evmos) setupVersionDB(
 	keys map[string]*storetypes.KVStoreKey,
 	tkeys map[string]*storetypes.TransientStoreKey,
 	memKeys map[string]*storetypes.MemoryStoreKey,
-) (sdk.MultiStore, error) {
+) (storetypes.MultiStore, error) {
 	dataDir := filepath.Join(homePath, "data", versionDB)
-	if err := os.MkdirAll(dataDir, 0o750); err != nil {
+	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
 		return nil, err
 	}
 	store, err := tsrocksdb.NewStore(dataDir)
@@ -44,19 +43,26 @@ func (app *Evmos) setupVersionDB(
 	}
 
 	// default to exposing all
-	exposeStoreKeys := make([]storetypes.StoreKey, 0, len(keys))
+	exposedKeys := make([]storetypes.StoreKey, 0, len(keys))
 	for _, storeKey := range keys {
-		exposeStoreKeys = append(exposeStoreKeys, storeKey)
+		exposedKeys = append(exposedKeys, storeKey)
+	}
+	app.CommitMultiStore().AddListeners(exposedKeys)
+
+	// register in app streaming manager
+	sm := app.StreamingManager()
+	sm.ABCIListeners = append(sm.ABCIListeners, versiondb.NewStreamingService(store))
+	app.SetStreamingManager(sm)
+
+	delegatedStoreKeys := make(map[storetypes.StoreKey]struct{})
+	for _, k := range tkeys {
+		delegatedStoreKeys[k] = struct{}{}
+	}
+	for _, k := range memKeys {
+		delegatedStoreKeys[k] = struct{}{}
 	}
 
-	// service := versiondb.NewStreamingService(store, exposeStoreKeys)
-	// app.SetStreamingService(service)
-
-	// verDB := versiondb.NewMultiStore(app.CommitMultiStore(), store, exposeStoreKeys)
-	// verDB.MountTransientStores(tkeys)
-	// verDB.MountMemoryStores(memKeys)
-
-	// app.SetQueryMultiStore(verDB)
-	// return verDB, nil
-	return nil, nil
+	verDB := versiondb.NewMultiStore(app.CommitMultiStore(), store, keys, delegatedStoreKeys)
+	app.SetQueryMultiStore(verDB)
+	return verDB, nil
 }

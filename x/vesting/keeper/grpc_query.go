@@ -30,9 +30,7 @@ func (k Keeper) Balances(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	clawbackAccount, err := k.GetClawbackVestingAccount(ctx, addr)
+	clawbackAccount, err := k.GetClawbackVestingAccount(goCtx, addr)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
@@ -40,6 +38,7 @@ func (k Keeper) Balances(
 		)
 	}
 
+	ctx := sdk.UnwrapSDKContext(goCtx)
 	locked := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
 	unvested := clawbackAccount.GetVestingCoins(ctx.BlockTime())
 	vested := clawbackAccount.GetVestedCoins(ctx.BlockTime())

@@ -68,7 +68,7 @@ func openRocksdb(dir string, readonly bool) (dbm.DB, error) {
 	wo := grocksdb.NewDefaultWriteOptions()
 	woSync := grocksdb.NewDefaultWriteOptions()
 	woSync.SetSync(true)
-	return dbm.NewRocksDBWithRawDB(db, ro, wo, woSync), nil
+	return dbm.NewRocksDBWithRaw(db, ro, wo, woSync), nil
 }
 
 // loadLatestOptions try to load options from existing db, returns nil if not exists.
