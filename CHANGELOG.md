@@ -128,6 +128,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
+- (cmd) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
