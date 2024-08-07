@@ -255,7 +255,7 @@ var (
 		erc20types.ModuleName:              {authtypes.Minter, authtypes.Burner},
 		auctionstypes.ModuleName:           {authtypes.Burner},
 		auctionstypes.AuctionCollectorName: nil,
-		ratelimittypes.ModuleName:      nil,
+		ratelimittypes.ModuleName:          nil,
 	}
 )
 
