@@ -8,20 +8,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-<<<<<<< HEAD
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
-=======
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
->>>>>>> main
 	"github.com/stretchr/testify/mock"
 )
 
@@ -251,12 +243,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		// STRV2
 		// native coin - perform normal ibc transfer
 		{
-<<<<<<< HEAD
-			"no-op - transfer",
-			func() *types.MsgTransfer {
-				coin := sdk.NewCoin(suite.otherDenom, math.NewInt(10))
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, sender.AccAddr.String(), "", timeoutHeight, 0, "")
-=======
 			"no-op - fail transfer",
 			func() *types.MsgTransfer {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
@@ -289,7 +275,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0, "")
 
->>>>>>> main
 				return transferMsg
 			},
 			false,

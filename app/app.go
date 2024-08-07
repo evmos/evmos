@@ -108,28 +108,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
 
-<<<<<<< HEAD
-	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
-	icahost "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
-=======
-	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
-
-	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v8/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-
-	"github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 
@@ -138,60 +117,26 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
->>>>>>> main
 
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v19/client/docs/statik"
 	"github.com/evmos/evmos/v19/utils"
 
-	"github.com/evmos/evmos/v19/app/ante"
-	ethante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/app/post"
-	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
-	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
-	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
-	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
-	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
-	p256precompile "github.com/evmos/evmos/v19/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
-	srvflags "github.com/evmos/evmos/v19/server/flags"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/epochs"
 	epochskeeper "github.com/evmos/evmos/v19/x/epochs/keeper"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	"github.com/evmos/evmos/v19/x/erc20"
-	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	"github.com/evmos/evmos/v19/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	inflation "github.com/evmos/evmos/v19/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
-	staking "github.com/evmos/evmos/v19/x/staking"
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
-	"github.com/evmos/evmos/v19/x/vesting"
-	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-
-	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v19/client/docs/statik"
-	"github.com/evmos/evmos/v19/utils"
 
 	"github.com/evmos/evmos/v19/app/ante"
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
@@ -199,34 +144,20 @@ import (
 	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v19/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	"github.com/evmos/evmos/v19/x/erc20"
-	erc20client "github.com/evmos/evmos/v19/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/evmos/v19/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	"github.com/evmos/evmos/v19/x/incentives"
-	inflation "github.com/evmos/evmos/v19/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/evmos/evmos/v19/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	"github.com/evmos/evmos/v19/x/vesting"
-	vestingclient "github.com/evmos/evmos/v19/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v19/x/ibc/transfer"
@@ -235,13 +166,8 @@ import (
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-<<<<<<< HEAD
 	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/js"
 	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/native"
-=======
-	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/js"
-	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/native"
->>>>>>> main
 )
 
 func init() {
@@ -300,11 +226,8 @@ var (
 		erc20.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		consensus.AppModuleBasic{},
-<<<<<<< HEAD
-=======
 		incentives.AppModuleBasic{},
 		ratelimit.AppModuleBasic{},
->>>>>>> main
 	)
 
 	// module account permissions
@@ -485,14 +408,9 @@ func NewEvmos(
 
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-<<<<<<< HEAD
 		appCodec, runtime.NewKVStoreService(keys[authtypes.StoreKey]),
 		authtypes.ProtoBaseAccount, maccPerms,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
-=======
-		appCodec, keys[authtypes.StoreKey],
-		authtypes.ProtoBaseAccount, maccPerms,
->>>>>>> main
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
 	)
@@ -604,11 +522,7 @@ func NewEvmos(
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
-<<<<<<< HEAD
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
-=======
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
->>>>>>> main
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -620,7 +534,7 @@ func NewEvmos(
 	// Create the rate limit keeper
 	app.RateLimitKeeper = *ratelimitkeeper.NewKeeper(
 		appCodec,
-		keys[ratelimittypes.StoreKey],
+		runtime.NewKVStoreService(keys[ratelimittypes.StoreKey]),
 		app.GetSubspace(ratelimittypes.ModuleName),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		app.BankKeeper,
@@ -630,13 +544,8 @@ func NewEvmos(
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-<<<<<<< HEAD
-		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
-=======
 		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
->>>>>>> main
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 		authAddr,
@@ -1126,19 +1035,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
-<<<<<<< HEAD
-	blockedPrecompilesHex := []string{
-		p256precompile.PrecompileAddress,
-		bech32precompile.PrecompileAddress,
-		bankprecompile.PrecompileAddress,
-		stakingprecompile.PrecompileAddress,
-		distprecompile.PrecompileAddress,
-		ics20precompile.PrecompileAddress,
-		vestingprecompile.PrecompileAddress,
-	}
-=======
 	blockedPrecompilesHex := evmtypes.AvailableStaticPrecompiles
->>>>>>> main
 	for _, addr := range vm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
 	}
@@ -1329,18 +1226,13 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck
 	// IBC subspaces
-<<<<<<< HEAD
 	keyTable := ibcclienttypes.ParamKeyTable()
 	keyTable.RegisterParamSet(&ibcconnectiontypes.Params{})
 	paramsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
-=======
-	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(ibcexported.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	// FIX: do we need a keytable?
 	paramsKeeper.Subspace(ratelimittypes.ModuleName)
->>>>>>> main
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())

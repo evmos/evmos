@@ -4,16 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
-=======
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
->>>>>>> main
 )
 
 func TestSetGetEpochIdentifier(t *testing.T) {

@@ -1,15 +1,11 @@
 package keeper_test
 
 import (
-<<<<<<< HEAD
 	"testing"
 
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
-=======
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
->>>>>>> main
 )
 
 func TestParams(t *testing.T) {
