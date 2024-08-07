@@ -13,7 +13,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 
 	"github.com/evmos/evmos/v19/contracts"
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
@@ -29,23 +28,6 @@ import (
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/contracts"
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	contractutils "github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

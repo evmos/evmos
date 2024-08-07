@@ -8,11 +8,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 type JSONLogger struct {

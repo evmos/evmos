@@ -233,11 +233,7 @@ func (k Keeper) ConvertCoinNativeERC20(
 	}
 
 	if !unpackedRet.Value {
-<<<<<<< HEAD
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
-=======
-		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
->>>>>>> main
 	}
 
 	// Check expected Receiver balance after transfer execution

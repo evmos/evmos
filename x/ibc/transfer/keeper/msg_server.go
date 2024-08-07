@@ -14,13 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-<<<<<<< HEAD
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-=======
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
->>>>>>> main
 )
 
 var _ types.MsgServer = Keeper{}
@@ -75,11 +70,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	msg.Token.Denom = pair.Denom
 
 	if !pair.IsNativeERC20() {
-<<<<<<< HEAD
 		return k.Keeper.Transfer(ctx, msg)
-=======
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
->>>>>>> main
 	}
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
 	balance := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)

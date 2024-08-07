@@ -19,26 +19,13 @@ package vm
 import (
 	"fmt"
 	"sort"
-<<<<<<< HEAD
-=======
 	"strconv"
 	"strings"
->>>>>>> main
 
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 )
 
-<<<<<<< HEAD
-var activators = map[int]func(*JumpTable){
-	3855: enable3855,
-	3529: enable3529,
-	3198: enable3198,
-	2929: enable2929,
-	2200: enable2200,
-	1884: enable1884,
-	1344: enable1344,
-=======
 var activators = map[string]func(*JumpTable){
 	"ethereum_3855": enable3855,
 	"ethereum_3529": enable3529,
@@ -47,47 +34,20 @@ var activators = map[string]func(*JumpTable){
 	"ethereum_2200": enable2200,
 	"ethereum_1884": enable1884,
 	"ethereum_1344": enable1344,
->>>>>>> main
 }
 
 // EnableEIP enables the given EIP on the config.
 // This operation writes in-place, and callers need to ensure that the globally
 // defined jump tables are not polluted.
-<<<<<<< HEAD
-func EnableEIP(eipNum int, jt *JumpTable) error {
-	enablerFn, ok := activators[eipNum]
-	if !ok {
-		return fmt.Errorf("undefined eip %d", eipNum)
-=======
 func EnableEIP(eipName string, jt *JumpTable) error {
 	enablerFn, ok := activators[eipName]
 	if !ok {
 		return fmt.Errorf("undefined eip %s", eipName)
->>>>>>> main
 	}
 	enablerFn(jt)
 	return nil
 }
 
-<<<<<<< HEAD
-// ExistsEipActivator return true if the given EIP
-// number is associated with an activator function.
-// Return false otherwise.
-func ExistsEipActivator(eipNum int) bool {
-	_, ok := activators[eipNum]
-	return ok
-}
-
-func ActivateableEips() []string {
-	var nums []string
-	if len(activators) > 0 {
-		for k := range activators {
-			nums = append(nums, fmt.Sprintf("%d", k))
-		}
-		sort.Strings(nums)
-	}
-	return nums
-=======
 // ValidateEIPName checks if an EIP name is valid or not. The allowed
 // name structure is a string that can be represented as "chainName" + "_" + "int".
 func ValidateEIPName(eipName string) error {
@@ -120,7 +80,6 @@ func ActivateableEips() []string {
 		sort.Strings(names)
 	}
 	return names
->>>>>>> main
 }
 
 // enable1884 applies EIP-1884 to the given jump table:

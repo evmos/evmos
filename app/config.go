@@ -4,15 +4,9 @@
 package app
 
 import (
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/app/eips"
 	evmconfig "github.com/evmos/evmos/v19/x/evm/config"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/app/eips"
-	evmconfig "github.com/evmos/evmos/v19/x/evm/config"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 // The init function of the config file allows to setup the global

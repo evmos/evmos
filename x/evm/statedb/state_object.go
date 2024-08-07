@@ -7,16 +7,10 @@ import (
 	"math/big"
 	"sort"
 
-<<<<<<< HEAD
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/x/evm/types"
-=======
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // Account is the Ethereum consensus representation of accounts.
@@ -133,11 +127,7 @@ func (s *stateObject) SetBalance(amount *big.Int) {
 // AddPrecompileFn appends to the journal an entry
 // with a snapshot of the multi-store and events
 // previous to the precompile call
-<<<<<<< HEAD
 func (s *stateObject) AddPrecompileFn(cms storetypes.CacheMultiStore, events sdk.Events) {
-=======
-func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events) {
->>>>>>> main
 	s.db.journal.append(precompileCallChange{
 		multiStore: cms,
 		events:     events,

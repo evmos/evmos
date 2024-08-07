@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/contracts"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/erc20/types"
@@ -13,33 +12,6 @@ import (
 
 func (suite *KeeperTestSuite) TestCallEVM() {
 	wevmosContract := common.HexToAddress(types.WEVMOSContractMainnet)
-=======
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-)
-
-const erc20Decimals = uint8(18)
-
-// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	suite.Commit()
-	addr, err := testutil.DeployContract(
-		suite.ctx,
-		suite.app,
-		suite.priv,
-		suite.queryClient,
-		contracts.ERC20MinterBurnerDecimalsContract,
-		name, symbol, decimals,
-	)
-	suite.Commit()
-	return addr, err
-}
-
-func (suite *KeeperTestSuite) TestCallEVM() {
->>>>>>> main
 	testCases := []struct {
 		name    string
 		method  string
@@ -60,16 +32,8 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.SetupTest() // reset
 
 		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-<<<<<<< HEAD
 		account := utiltx.GenerateAddress()
 		res, err := suite.network.App.EvmKeeper.CallEVM(suite.network.GetContext(), erc20, types.ModuleAddress, wevmosContract, false, tc.method, account)
-=======
-		contract, err := suite.DeployContract("coin", "token", erc20Decimals)
-		suite.Require().NoError(err)
-		account := utiltx.GenerateAddress()
-
-		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
->>>>>>> main
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)

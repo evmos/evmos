@@ -5,11 +5,7 @@ import (
 	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 // Context contains some contextual infos for a transaction execution that is not

@@ -10,13 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // InitGenesis initializes genesis state based on exported genesis

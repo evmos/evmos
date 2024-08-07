@@ -6,18 +6,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-<<<<<<< HEAD
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
 
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -111,11 +104,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			name: "One contract (with storage) and other EOAs",
 			malleate: func() common.Address {
 				supply := big.NewInt(100)
-<<<<<<< HEAD
 				contractAddr := suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
-=======
-				contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
->>>>>>> main
 				return contractAddr
 			},
 		},
@@ -124,10 +113,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-<<<<<<< HEAD
 			ctx = suite.network.GetContext()
-=======
->>>>>>> main
 
 			var contractAddr common.Address
 			if tc.malleate != nil {
@@ -135,11 +121,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			}
 
 			i := 0
-<<<<<<< HEAD
 			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-=======
-			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
->>>>>>> main
 				acc, ok := account.(*authtypes.BaseAccount)
 				if !ok {
 					// Ignore e.g. module accounts
@@ -153,11 +135,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 					panic(fmt.Sprintf("failed to convert %s to hex address", err))
 				}
 
-<<<<<<< HEAD
 				storage := suite.network.App.EvmKeeper.GetAccountStorage(ctx, address)
-=======
-				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, address)
->>>>>>> main
 
 				if address == contractAddr {
 					suite.Require().NotEqual(0, len(storage),

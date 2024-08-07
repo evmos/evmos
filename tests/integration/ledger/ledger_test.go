@@ -148,13 +148,8 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					msg := []byte("test message")
 
-<<<<<<< HEAD
 					signed, _, err := kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
-					s.Require().NoError(err, "failed to sign messsage")
-=======
-					signed, _, err := kr.SignByAddress(ledgerAddr, msg)
 					s.Require().NoError(err, "failed to sign message")
->>>>>>> main
 
 					valid := s.pubKey.VerifySignature(msg, signed)
 					s.Require().True(valid, "invalid signature returned")

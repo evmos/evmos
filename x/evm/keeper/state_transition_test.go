@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -30,12 +29,10 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-=======
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
@@ -468,16 +465,13 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
-<<<<<<< HEAD
 			err = unitNetwork.App.EvmKeeper.RefundGas(
 				unitNetwork.GetContext(),
 				coreMsg,
 				refund,
 				unitNetwork.GetDenom(),
 			)
-=======
-			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom)
->>>>>>> main
+
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {
@@ -558,13 +552,7 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-<<<<<<< HEAD
 	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
-=======
-	suite.Require().Equal(suite.address, cfg.CoinBase)
-	suite.Require().Equal(evmtypes.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
-}
->>>>>>> main
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
@@ -621,7 +609,6 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 }
 
 func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
-<<<<<<< HEAD
 	suite.enableFeemarket = true
 	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
@@ -633,25 +620,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		expErr             bool
 		expVMErr           bool
 		expectedGasUsed    uint64
-=======
-	var (
-		msg             core.Message
-		err             error
-		expectedGasUsed uint64
-		config          *statedb.EVMConfig
-		keeperParams    evmtypes.Params
-		signer          ethtypes.Signer
-		vmdb            *statedb.StateDB
-		txConfig        statedb.TxConfig
-		chainCfg        *params.ChainConfig
-	)
-
-	testCases := []struct {
-		name     string
-		malleate func()
-		expErr   bool
-		expVMErr bool
->>>>>>> main
 	}{
 		{
 			"success - messsage applied ok with default params",

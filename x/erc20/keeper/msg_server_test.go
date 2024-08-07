@@ -9,7 +9,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/erc20/types"
@@ -17,13 +16,6 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/golang/mock/gomock"
-=======
-	"github.com/evmos/evmos/v19/x/erc20/keeper"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v19/x/erc20/types/mocks"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 	"github.com/stretchr/testify/mock"
 )
 

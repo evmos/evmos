@@ -6,10 +6,7 @@ import "../../staking/StakingI.sol" as staking;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {
-<<<<<<< HEAD
     string[] private delegateMethod = [staking.MSG_DELEGATE];
-=======
->>>>>>> main
     int64 public counter;
 
     function testSetWithdrawAddressFromContract(
@@ -225,7 +222,6 @@ contract DistributionCaller {
             (bool sent, ) = depositor.call{value: 15}("");
             require(sent, "Failed to send Ether to delegator");
         }
-<<<<<<< HEAD
     }
 
     /// @dev This function calls the staking precompile's delegate method.
@@ -247,8 +243,6 @@ contract DistributionCaller {
             _validatorAddr,
             _amount
         );
-=======
->>>>>>> main
     }
 
     function getValidatorDistributionInfo(

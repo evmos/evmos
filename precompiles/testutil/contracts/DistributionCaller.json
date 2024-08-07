@@ -554,7 +554,6 @@
     {
       "inputs": [
         {
-<<<<<<< HEAD
           "internalType": "string",
           "name": "_validatorAddr",
           "type": "string"
@@ -573,8 +572,6 @@
     {
       "inputs": [
         {
-=======
->>>>>>> main
           "internalType": "address",
           "name": "depositor",
           "type": "address"

@@ -83,8 +83,6 @@ func NewConvertERC20Cmd() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
-<<<<<<< HEAD
-=======
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
 func NewRegisterERC20ProposalCmd() *cobra.Command {
@@ -209,4 +207,3 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	}
 	return cmd
 }
->>>>>>> main

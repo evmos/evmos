@@ -1,7 +1,6 @@
 package ante_test
 
 import (
-<<<<<<< HEAD
 	"testing"
 
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
@@ -9,11 +8,6 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/types"
 	"github.com/stretchr/testify/require"
-=======
-	ethante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/types"
->>>>>>> main
 
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/app/ante"

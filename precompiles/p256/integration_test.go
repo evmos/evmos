@@ -124,13 +124,8 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 				}
 			}
 			params.ActiveStaticPrecompiles = activePrecompiles
-<<<<<<< HEAD
 			customGenesis.Params = params
 			s = setupIntegrationTestSuite(customGenesis)
-=======
-			err := s.network.UpdateEvmParams(params)
-			Expect(err).To(BeNil())
->>>>>>> main
 		})
 
 		DescribeTable("execute contract call", func(inputFn func() (input []byte)) {
@@ -143,11 +138,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 			}
 
 			_, err := s.factory.ExecuteEthTx(senderKey.Priv, args)
-<<<<<<< HEAD
-			Expect(err).To(BeNil(), "expected no error since contract doesnt exists")
-=======
 			Expect(err).To(BeNil(), "expected no error since contract doesn't exists")
->>>>>>> main
 		},
 			Entry(
 				"valid signature",

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-<<<<<<< HEAD
 	"github.com/stretchr/testify/require"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -21,16 +20,6 @@ import (
 	"github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/evmos/v19/x/vesting/types"
-=======
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 )
 
 var (
@@ -254,7 +243,6 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		{
 			name: "fail - account is a smart contract",
 			malleate: func(_ sdk.AccAddress) sdk.AccAddress {
-<<<<<<< HEAD
 				contractAddr, err := factory.DeployContract(
 					funderPriv,
 					evmtypes.EvmTxArgs{},
@@ -266,17 +254,6 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				require.NoError(t, err)
 				require.NoError(t, nw.NextBlock())
 				ctx = nw.GetContext()
-=======
-				contractAddr, err := testutil.DeployContract(
-					suite.ctx,
-					suite.app,
-					suite.priv,
-					suite.queryClientEvm,
-					contracts.ERC20MinterBurnerDecimalsContract,
-					"TestToken", "TTK", uint8(18),
-				)
-				suite.Require().NoError(err, "failed to deploy example contract")
->>>>>>> main
 
 				return utils.EthToCosmosAddr(contractAddr)
 			},
@@ -294,14 +271,8 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				require.NoError(t, err)
 
 				msg := types.NewMsgCreateClawbackVestingAccount(funderAddr, vestingAddr, false)
-<<<<<<< HEAD
 				_, err = nw.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 				require.NoError(t, err, "failed to create vesting account")
-=======
-				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
-				suite.Require().NoError(err, "failed to create vesting account")
-
->>>>>>> main
 				return vestingAddr
 			},
 			funder:      funderAddr,
@@ -312,14 +283,8 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			name: "fail - vesting address is in the blocked addresses list",
 			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
 				// fund the funder and vesting accounts from Bankkeeper
-<<<<<<< HEAD
 				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
 				require.NoError(t, err)
-=======
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
-				suite.Require().NoError(err)
-
->>>>>>> main
 				return authtypes.NewModuleAddress("distribution")
 			},
 			funder:      funderAddr,
@@ -330,17 +295,10 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			name: "success",
 			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
 				// fund the funder and vesting accounts from Bankkeeper
-<<<<<<< HEAD
 				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
 				require.NoError(t, err)
 				err = testutil.FundAccount(ctx, nw.App.BankKeeper, vestingAddr, balances)
 				require.NoError(t, err)
-=======
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, balances)
-				suite.Require().NoError(err)
-				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr, balances)
-				suite.Require().NoError(err)
->>>>>>> main
 
 				return vestingAddr
 			},
@@ -361,25 +319,15 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			vestingAddr := tc.malleate(tc.funder)
 
 			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, vestingAddr, false)
-<<<<<<< HEAD
 			res, err := nw.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
-=======
-			res, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
->>>>>>> main
 
 			if tc.expPass {
 				require.NoError(t, err)
 				require.Equal(t, &types.MsgCreateClawbackVestingAccountResponse{}, res)
 
-<<<<<<< HEAD
 				accI := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
 				require.NotNil(t, accI, "expected account to be created")
 				require.IsType(t, &types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
-=======
-				accI := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-				suite.Require().NotNil(accI, "expected account to be created")
-				suite.Require().IsType(&types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
->>>>>>> main
 			} else {
 				require.Error(t, err)
 				require.ErrorContains(t, err, tc.errContains)
@@ -825,11 +773,7 @@ func TestConvertVestingAccount(t *testing.T) {
 				require.False(t, ok)
 
 				_, ok = account.(*authtypes.BaseAccount)
-<<<<<<< HEAD
 				require.True(t, ok)
-=======
-				suite.Require().True(ok)
->>>>>>> main
 
 			} else {
 				require.Error(t, err)

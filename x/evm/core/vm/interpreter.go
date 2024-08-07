@@ -33,11 +33,7 @@ type Config struct {
 
 	JumpTable *JumpTable // EVM instruction table, automatically populated if unset
 
-<<<<<<< HEAD
-	ExtraEips []int // Additional EIPS that are to be enabled
-=======
 	ExtraEips []string // Additional EIPS that are to be enabled
->>>>>>> main
 }
 
 // ScopeContext contains the things that are per-call, such as stack and memory,

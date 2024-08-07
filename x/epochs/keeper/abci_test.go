@@ -5,14 +5,9 @@ import (
 	"testing"
 	"time"
 
-<<<<<<< HEAD
 	"github.com/stretchr/testify/require"
 
 	"github.com/evmos/evmos/v19/x/epochs/types"
-=======
-	"github.com/evmos/evmos/v19/x/epochs"
-	"github.com/evmos/evmos/v19/x/epochs/types"
->>>>>>> main
 )
 
 func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {

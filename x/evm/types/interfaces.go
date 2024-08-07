@@ -13,22 +13,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
->>>>>>> main
 )
 
 // AccountKeeper defines the expected account keeper interface
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-<<<<<<< HEAD
 	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) bool)
 	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	SetAccount(ctx context.Context, account sdk.AccountI)
@@ -36,13 +29,6 @@ type AccountKeeper interface {
 	GetParams(ctx context.Context) (params authtypes.Params)
 	GetSequence(ctx context.Context, account sdk.AccAddress) (uint64, error)
 	AddressCodec() address.Codec
-=======
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
-	SetAccount(ctx sdk.Context, account authtypes.AccountI)
-	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
-	GetParams(ctx sdk.Context) (params authtypes.Params)
-	GetSequence(ctx sdk.Context, account sdk.AccAddress) (uint64, error)
->>>>>>> main
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

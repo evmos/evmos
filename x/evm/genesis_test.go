@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -17,19 +16,6 @@ import (
 	"github.com/evmos/evmos/v19/x/evm"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	testhandler "github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/evm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 	"github.com/stretchr/testify/require"
 )
 

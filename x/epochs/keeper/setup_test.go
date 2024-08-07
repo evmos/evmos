@@ -7,17 +7,7 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/epochs/types"
-=======
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
-
-	evm "github.com/evmos/evmos/v19/x/evm/types"
-
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/x/epochs/types"
->>>>>>> main
 )
 
 const (

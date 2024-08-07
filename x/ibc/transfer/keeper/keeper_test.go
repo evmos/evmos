@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/contracts"
 	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
@@ -21,22 +20,6 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evm "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evm "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/x/erc20/types"
->>>>>>> main
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"

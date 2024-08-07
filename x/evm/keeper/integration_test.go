@@ -15,7 +15,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/precompiles/staking"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
@@ -24,16 +23,6 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 type IntegrationTestSuite struct {
@@ -303,7 +292,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	DescribeTable("Performs transfer and contract call", func(getTestParams func() evmtypes.Params, transferParams, contractCallParams PermissionsTableTest) {
 		params := getTestParams()
-<<<<<<< HEAD
 		err := integrationutils.UpdateEvmParams(
 			integrationutils.UpdateParamsInput{
 				Tf:      s.factory,
@@ -312,9 +300,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Params:  params,
 			},
 		)
-=======
-		err := s.network.UpdateEvmParams(params)
->>>>>>> main
 		Expect(err).To(BeNil())
 
 		err = s.network.NextBlock()

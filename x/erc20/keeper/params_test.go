@@ -3,12 +3,8 @@ package keeper_test
 import (
 	"reflect"
 
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/x/erc20/types"
-=======
-	"github.com/evmos/evmos/v19/x/erc20/types"
->>>>>>> main
 )
 
 func (suite *KeeperTestSuite) TestParams() {

@@ -14,13 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // revision is the identifier of a version of state.
@@ -105,11 +100,7 @@ func (s *StateDB) GetCacheContext() (sdk.Context, error) {
 }
 
 // MultiStoreSnapshot returns a copy of the stateDB CacheMultiStore.
-<<<<<<< HEAD
 func (s *StateDB) MultiStoreSnapshot() storetypes.CacheMultiStore {
-=======
-func (s *StateDB) MultiStoreSnapshot() sdk.CacheMultiStore {
->>>>>>> main
 	if s.writeCache == nil {
 		err := s.cache()
 		if err != nil {
@@ -118,11 +109,7 @@ func (s *StateDB) MultiStoreSnapshot() sdk.CacheMultiStore {
 	}
 	// the cacheCtx multi store is already a CacheMultiStore
 	// so we need to pass a copy of the current state of it
-<<<<<<< HEAD
 	cms := s.cacheCtx.MultiStore().(storetypes.CacheMultiStore)
-=======
-	cms := s.cacheCtx.MultiStore().(sdk.CacheMultiStore)
->>>>>>> main
 	snapshot := cms.Copy()
 
 	return snapshot
@@ -357,11 +344,7 @@ func (s *StateDB) setStateObject(object *stateObject) {
 // AddPrecompileFn adds a precompileCall journal entry
 // with a snapshot of the multi-store and events previous
 // to the precompile call.
-<<<<<<< HEAD
 func (s *StateDB) AddPrecompileFn(addr common.Address, cms storetypes.CacheMultiStore, events sdk.Events) error {
-=======
-func (s *StateDB) AddPrecompileFn(addr common.Address, cms sdk.CacheMultiStore, events sdk.Events) error {
->>>>>>> main
 	stateObject := s.getOrNewStateObject(addr)
 	if stateObject == nil {
 		return fmt.Errorf("could not add precompile call to address %s. State object not found", addr)

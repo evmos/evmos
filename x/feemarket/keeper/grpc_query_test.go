@@ -4,15 +4,10 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
 	"github.com/stretchr/testify/require"
-=======
-	ethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/x/feemarket/types"
->>>>>>> main
 )
 
 func TestQueryParams(t *testing.T) {

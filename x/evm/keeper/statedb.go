@@ -8,7 +8,6 @@ import (
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
-<<<<<<< HEAD
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
@@ -16,12 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
-=======
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 var _ statedb.Keeper = &Keeper{}
@@ -77,11 +70,7 @@ func (k *Keeper) GetCodeHash(ctx sdk.Context, addr common.Address) common.Hash {
 // The iteration is stopped when the callback function returns true.
 func (k Keeper) IterateContracts(ctx sdk.Context, cb func(addr common.Address, codeHash common.Hash) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-<<<<<<< HEAD
 	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixCodeHash)
-=======
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixCodeHash)
->>>>>>> main
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {

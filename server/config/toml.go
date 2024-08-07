@@ -2,11 +2,7 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package config
 
-<<<<<<< HEAD
-// DefaultEVMConfigTemplate defines the configuration template for the EVM RPC configuration
-=======
 // DefaultEVMConfigTemplate defines the configuration template for the EVM RPC configuration.
->>>>>>> main
 const DefaultEVMConfigTemplate = `
 ###############################################################################
 ###                             EVM Configuration                           ###
@@ -101,7 +97,6 @@ certificate-path = "{{ .TLS.CertificatePath }}"
 # Key path defines the key.pem file path for the TLS configuration.
 key-path = "{{ .TLS.KeyPath }}"
 `
-<<<<<<< HEAD
 
 const DefaultRosettaConfigTemplate = `
 ###############################################################################
@@ -160,5 +155,3 @@ const DefaultVersionDBTemplate = `
 # Enable defines if the versiondb should be enabled.
 enable = {{ .VersionDB.Enable }}
 `
-=======
->>>>>>> main

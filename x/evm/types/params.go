@@ -14,16 +14,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-<<<<<<< HEAD
-	"github.com/evmos/evmos/v19/precompiles/p256"
 	"github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 var (
@@ -33,15 +26,6 @@ var (
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles
 	DefaultStaticPrecompiles = []string{
-<<<<<<< HEAD
-		p256.PrecompileAddress,                       // P256 precompile
-		"0x0000000000000000000000000000000000000400", // Bech32 precompile
-		"0x0000000000000000000000000000000000000800", // Staking precompile
-		"0x0000000000000000000000000000000000000801", // Distribution precompile
-		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
-		"0x0000000000000000000000000000000000000803", // Vesting precompile
-		"0x0000000000000000000000000000000000000804", // Bank precompile
-=======
 		P256PrecompileAddress,         // P256 precompile
 		Bech32PrecompileAddress,       // Bech32 precompile
 		StakingPrecompileAddress,      // Staking precompile
@@ -49,7 +33,6 @@ var (
 		ICS20PrecompileAddress,        // ICS20 transfer precompile
 		VestingPrecompileAddress,      // Vesting precompile
 		BankPrecompileAddress,         // Bank precompile
->>>>>>> main
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
@@ -78,11 +61,7 @@ func NewParams(
 	evmDenom string,
 	allowUnprotectedTxs bool,
 	config ChainConfig,
-<<<<<<< HEAD
-	extraEIPs []int64,
-=======
 	extraEIPs []string,
->>>>>>> main
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
@@ -152,13 +131,6 @@ func (p Params) Validate() error {
 	}
 
 	if err := p.AccessControl.Validate(); err != nil {
-<<<<<<< HEAD
-		return err
-	}
-
-	if err := p.AccessControl.Validate(); err != nil {
-=======
->>>>>>> main
 		return err
 	}
 
@@ -198,48 +170,6 @@ func (ac AccessControl) Validate() error {
 	}
 
 	return nil
-<<<<<<< HEAD
-=======
-}
-
-func (act AccessControlType) Validate() error {
-	if err := validateAccessType(act.AccessType); err != nil {
-		return err
-	}
-
-	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
-		return err
-	}
-	return nil
-}
-
-func validateAccessType(i interface{}) error {
-	accessType, ok := i.(AccessType)
-	if !ok {
-		return fmt.Errorf("invalid access type type: %T", i)
-	}
-
-	switch accessType {
-	case AccessTypePermissionless, AccessTypeRestricted, AccessTypePermissioned:
-		return nil
-	default:
-		return fmt.Errorf("invalid access type: %s", accessType)
-	}
-}
-
-func validateAllowlistAddresses(i interface{}) error {
-	addresses, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid whitelist addresses type: %T", i)
-	}
-
-	for _, address := range addresses {
-		if err := types.ValidateAddress(address); err != nil {
-			return fmt.Errorf("invalid whitelist address: %s", address)
-		}
-	}
-	return nil
->>>>>>> main
 }
 
 func (act AccessControlType) Validate() error {
@@ -280,36 +210,6 @@ func validateAllowlistAddresses(i interface{}) error {
 	}
 	return nil
 }
-
-// func validateAccessControl(i interface{}) error {
-// 	permissions, ok := i.(AccessControl)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permissions policy type: %T", i)
-// 	}
-//
-// 	if err := validatePermissionType(permissions.Create); err != nil {
-// 		return err
-// 	}
-//
-// 	return validatePermissionType(permissions.Call)
-// }
-//
-// func validatePermissionType(i interface{}) error {
-// 	permission, ok := i.(AccessControlType)
-// 	if !ok {
-// 		return fmt.Errorf("invalid permission type: %T", i)
-// 	}
-//
-// 	if err := validateAccessType(permission.AccessType); err != nil {
-// 		return err
-// 	}
-//
-// 	if err := validateAllowlistAddresses(permission.AccessControlList); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
 
 func validateEVMDenom(i interface{}) error {
 	denom, ok := i.(string)
@@ -337,17 +237,12 @@ func validateEIPs(i interface{}) error {
 	uniqueEIPs := make(map[string]struct{})
 
 	for _, eip := range eips {
-<<<<<<< HEAD
-		if !vm.ExistsEipActivator(int(eip)) {
-			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
-=======
 		if !vm.ExistsEipActivator(eip) {
 			return fmt.Errorf("EIP %s is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
 		if err := vm.ValidateEIPName(eip); err != nil {
 			return fmt.Errorf("EIP %s name is not valid", eip)
->>>>>>> main
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {

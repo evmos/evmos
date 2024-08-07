@@ -15,13 +15,9 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-<<<<<<< HEAD
 	enccodec "github.com/evmos/evmos/v19/encoding/codec"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	enccodec "github.com/evmos/evmos/v19/encoding/codec"
->>>>>>> main
 )
 
 // MakeConfig creates an EncodingConfig for testing

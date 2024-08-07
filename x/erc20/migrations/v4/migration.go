@@ -4,16 +4,10 @@
 package v4
 
 import (
-<<<<<<< HEAD
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
 	"github.com/evmos/evmos/v19/x/erc20/types"
-=======
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
-	"github.com/evmos/evmos/v19/x/erc20/types"
->>>>>>> main
 )
 
 const AddressLength = 42

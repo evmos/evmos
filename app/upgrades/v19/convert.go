@@ -8,31 +8,19 @@ import (
 	"math/big"
 	"time"
 
-<<<<<<< HEAD
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
-=======
-	"github.com/cometbft/cometbft/libs/log"
->>>>>>> main
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-<<<<<<< HEAD
 	fixes "github.com/evmos/evmos/v19/app/upgrades/v19/fixes"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-=======
-	fixes "github.com/evmos/evmos/v19/app/upgrades/v19/fixes"
-	evmostypes "github.com/evmos/evmos/v19/types"
-	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
->>>>>>> main
 )
 
 // storeKey contains the slot in which the balance is stored in the evm.
@@ -83,11 +71,7 @@ func GetMissingWalletsFromAuthModule(ctx sdk.Context,
 
 // executeConversion receives the whole set of address with erc20 balances
 // it sends the equivalent coin from the escrow address into the holder address
-<<<<<<< HEAD
-// it doesnt need to burn the erc20 balance, because the evm storage will be deleted later
-=======
 // it doesn't need to burn the erc20 balance, because the evm storage will be deleted later
->>>>>>> main
 func executeConversion(
 	ctx sdk.Context,
 	results []BalanceResult,
@@ -96,11 +80,7 @@ func executeConversion(
 	nativeTokenPairs []erc20types.TokenPair,
 ) error {
 	wevmosAccount := sdk.AccAddress(wrappedEvmosAddr.Bytes())
-<<<<<<< HEAD
-	// Go trough every address with an erc20 balance
-=======
 	// Go through every address with an erc20 balance
->>>>>>> main
 	for _, result := range results {
 		tokenPair := nativeTokenPairs[result.id]
 
@@ -111,11 +91,7 @@ func executeConversion(
 			continue
 		}
 		// Create the coin
-<<<<<<< HEAD
 		coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(balance)}}
-=======
-		coins := sdk.Coins{sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(balance)}}
->>>>>>> main
 
 		// If its Wevmos
 		if tokenPair.Erc20Address == wrappedEvmosAddr.Hex() {
@@ -135,11 +111,7 @@ func executeConversion(
 	return nil
 }
 
-<<<<<<< HEAD
-// ConvertERC20Coins iterates trough all the authmodule accounts and all missing accounts from the auth module
-=======
 // ConvertERC20Coins iterates through all the authmodule accounts and all missing accounts from the auth module
->>>>>>> main
 // recovers the balance from erc20 contracts for the registered token pairs
 // and for each entry it sends the balance from escrow into the account.
 func ConvertERC20Coins(
@@ -163,11 +135,7 @@ func ConvertERC20Coins(
 
 	i := 0
 	// should ignore the xen token accounts
-<<<<<<< HEAD
 	accountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
-=======
-	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
->>>>>>> main
 		i++
 		if i%100_000 == 0 {
 			logger.Info(fmt.Sprintf("Processing account: %d", i))

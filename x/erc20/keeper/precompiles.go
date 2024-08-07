@@ -5,23 +5,14 @@ package keeper
 
 import (
 	"fmt"
-<<<<<<< HEAD
 	"slices"
-=======
->>>>>>> main
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 // GetERC20PrecompileInstance returns the precompile instance for the given address.
@@ -30,10 +21,6 @@ func (k Keeper) GetERC20PrecompileInstance(
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
 	params := k.GetParams(ctx)
-<<<<<<< HEAD
-=======
-
->>>>>>> main
 	if k.IsAvailableERC20Precompile(&params, address) {
 		precompile, err := k.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
@@ -62,11 +49,6 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
 func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
-<<<<<<< HEAD
 	return slices.Contains(params.NativePrecompiles, address.Hex()) ||
 		slices.Contains(params.DynamicPrecompiles, address.Hex())
-=======
-	return params.IsNativePrecompile(address) ||
-		params.IsDynamicPrecompile(address)
->>>>>>> main
 }

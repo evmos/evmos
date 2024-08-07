@@ -10,16 +10,10 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 const (
@@ -69,15 +63,10 @@ func NewPrecompile(
 		bankKeeper:  bankKeeper,
 		erc20Keeper: erc20Keeper,
 	}
-<<<<<<< HEAD
-	// SetAddress defines the address of the bank precompiled contract.
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
-=======
 
 	// SetAddress defines the address of the bank compile contract.
 	p.SetAddress(common.HexToAddress(evmtypes.BankPrecompileAddress))
 
->>>>>>> main
 	return p, nil
 }
 

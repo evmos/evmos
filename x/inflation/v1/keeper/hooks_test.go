@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-<<<<<<< HEAD
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,10 +12,6 @@ import (
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
-=======
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
->>>>>>> main
 )
 
 func TestEpochIdentifierAfterEpochEnd(t *testing.T) {

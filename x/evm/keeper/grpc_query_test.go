@@ -15,7 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
-<<<<<<< HEAD
 	ethlogger "github.com/evmos/evmos/v19/x/evm/core/logger"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
@@ -27,29 +26,19 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-=======
-	ethlogger "github.com/evmos/evmos/v19/x/evm/core/logger"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
-	"github.com/evmos/evmos/v19/server/config"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
-<<<<<<< HEAD
-=======
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
 const expGasConsumed = 7475
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
 const expGasConsumedWithFeeMkt = 7469
 
->>>>>>> main
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	testCases := []struct {
 		msg         string

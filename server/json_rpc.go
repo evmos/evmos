@@ -15,13 +15,8 @@ import (
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 	"github.com/evmos/evmos/v19/rpc"
 
-<<<<<<< HEAD
 	svrconfig "github.com/evmos/evmos/v19/server/config"
 	evmostypes "github.com/evmos/evmos/v19/types"
-=======
-	"github.com/evmos/evmos/v19/server/config"
-	evmostypes "github.com/evmos/evmos/v19/types"
->>>>>>> main
 )
 
 // StartJSONRPC starts the JSON-RPC server

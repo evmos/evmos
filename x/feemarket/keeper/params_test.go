@@ -4,13 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
 	"github.com/stretchr/testify/require"
-=======
-	"github.com/evmos/evmos/v19/x/feemarket/types"
->>>>>>> main
 )
 
 func TestGetParams(t *testing.T) {

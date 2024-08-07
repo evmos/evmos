@@ -10,15 +10,9 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
-=======
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 )
 
 var (

@@ -33,22 +33,14 @@ import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-<<<<<<< HEAD
 
 	evmostypes "github.com/evmos/evmos/v19/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
-=======
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
-	evmosutil "github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // genSetupFn is the type for the module genesis setup functions
@@ -371,7 +363,6 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 		return nil, fmt.Errorf("invalid type %T for bank module genesis state", customGenesis)
 	}
 
-<<<<<<< HEAD
 	bankGen := &banktypes.GenesisState{}
 	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
 
@@ -380,77 +371,6 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 		bankGen.Balances = append(bankGen.Balances, customGen.Balances...)
 		for _, b := range customGen.Balances {
 			coins = append(coins, b.Coins...)
-=======
-// genesisSetupFunctions contains the available genesis setup functions
-// that can be used to customize the network genesis
-var genesisSetupFunctions = map[string]genSetupFn{
-	authtypes.ModuleName:  genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
-	evmtypes.ModuleName:   genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
-	govtypes.ModuleName:   genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	infltypes.ModuleName:  genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
-	erc20types.ModuleName: genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
-}
-
-// setDefaultAuthGenesisState sets the default auth genesis state
-func setDefaultAuthGenesisState(
-	evmosApp *app.Evmos,
-	genesisState simapp.GenesisState,
-	genAccs []authtypes.GenesisAccount,
-) simapp.GenesisState {
-	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
-	return genesisState
-}
-
-// setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
-	govGen := govtypesv1.DefaultGenesisState()
-	updatedParams := govGen.Params
-	// set 'aevmos' as deposit denom
-	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, sdkmath.NewInt(1e18)))
-	govGen.Params = updatedParams
-	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
-	return genesisState
-}
-
-func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
-	erc20Gen := erc20types.DefaultGenesisState()
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
-	return genesisState
-}
-
-// defaultAuthGenesisState sets the default genesis state
-// for the testing setup
-func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) simapp.GenesisState {
-	genesisState := app.NewDefaultGenesisState()
-
-	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
-	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
-	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
-	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
-	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
-
-	return genesisState
-}
-
-// customizeGenesis modifies genesis state if there're any custom genesis state
-// for specific modules
-func customizeGenesis(
-	evmosApp *app.Evmos,
-	customGen CustomGenesisState,
-	genesisState simapp.GenesisState,
-) (simapp.GenesisState, error) {
-	var err error
-	for mod, modGenState := range customGen {
-		if fn, found := genesisSetupFunctions[mod]; found {
-			genesisState, err = fn(evmosApp, genesisState, modGenState)
-			if err != nil {
-				return genesisState, err
-			}
-		} else {
-			panic(fmt.Sprintf("module %s not found in genesis setup functions", mod))
->>>>>>> main
 		}
 		bankGen.Supply = bankGen.Supply.Add(coins...)
 	}

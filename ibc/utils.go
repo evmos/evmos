@@ -11,15 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-<<<<<<< HEAD
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
-=======
-	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
->>>>>>> main
 
 	"github.com/evmos/evmos/v19/utils"
 )

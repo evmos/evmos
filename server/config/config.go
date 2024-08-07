@@ -271,11 +271,8 @@ func AppConfig(denom string) (string, interface{}) {
 
 	customAppTemplate := config.DefaultConfigTemplate +
 		DefaultEVMConfigTemplate +
-<<<<<<< HEAD
 		DefaultRosettaConfigTemplate +
 		DefaultVersionDBTemplate +
-=======
->>>>>>> main
 		memiavlcfg.DefaultConfigTemplate
 
 	return customAppTemplate, *customAppConfig
