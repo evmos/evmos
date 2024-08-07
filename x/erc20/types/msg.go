@@ -13,7 +13,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 <<<<<<< HEAD
-	erc20api "github.com/evmos/evmos/v18/api/evmos/erc20/v1"
+	erc20api "github.com/evmos/evmos/v19/api/evmos/erc20/v1"
 
 =======
 >>>>>>> main

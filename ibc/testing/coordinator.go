@@ -15,9 +15,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 <<<<<<< HEAD
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/evmos/evmos/v18/app"
+	"github.com/evmos/evmos/v19/app"
 =======
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/evmos/v19/app"
 >>>>>>> main
 	"github.com/stretchr/testify/require"

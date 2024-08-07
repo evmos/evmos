@@ -12,8 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 <<<<<<< HEAD
 
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	"github.com/evmos/evmos/v18/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 =======
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"

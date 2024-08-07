@@ -7,9 +7,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 <<<<<<< HEAD
 
-	"github.com/evmos/evmos/v18/precompiles/staking"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/precompiles/staking"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 )
 
 =======

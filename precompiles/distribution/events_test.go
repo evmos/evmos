@@ -11,12 +11,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/cmd/config"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/precompiles/distribution"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
+	"github.com/evmos/evmos/v19/cmd/config"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/distribution"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
 =======
 	"github.com/evmos/evmos/v19/cmd/config"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"

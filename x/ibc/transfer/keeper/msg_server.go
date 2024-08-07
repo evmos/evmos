@@ -16,9 +16,9 @@ import (
 
 <<<<<<< HEAD
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 =======
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 >>>>>>> main
 )

@@ -51,14 +51,14 @@ import (
 <<<<<<< HEAD
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	evmosclient "github.com/evmos/evmos/v18/client"
-	"github.com/evmos/evmos/v18/client/block"
-	"github.com/evmos/evmos/v18/client/debug"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/ethereum/eip712"
-	evmosserver "github.com/evmos/evmos/v18/server"
-	servercfg "github.com/evmos/evmos/v18/server/config"
-	srvflags "github.com/evmos/evmos/v18/server/flags"
+	evmosclient "github.com/evmos/evmos/v19/client"
+	"github.com/evmos/evmos/v19/client/block"
+	"github.com/evmos/evmos/v19/client/debug"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v19/server"
+	servercfg "github.com/evmos/evmos/v19/server/config"
+	srvflags "github.com/evmos/evmos/v19/server/flags"
 =======
 	evmosclient "github.com/evmos/evmos/v19/client"
 	"github.com/evmos/evmos/v19/client/block"

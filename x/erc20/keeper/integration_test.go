@@ -19,9 +19,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 =======
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

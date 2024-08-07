@@ -20,7 +20,7 @@ func(jt *vm.JumpTable) {}
 ```
 
 <<<<<<< HEAD
-where `vm` is the package `"github.com/evmos/evmos/v18/x/evm/core/vm"`.
+where `vm` is the package `"github.com/evmos/evmos/v19/x/evm/core/vm"`.
 =======
 where `vm` is the package `"github.com/evmos/evmos/v19/x/evm/core/vm"`.
 >>>>>>> main

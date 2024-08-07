@@ -7,7 +7,7 @@ import (
 <<<<<<< HEAD
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/epochs/types"
 =======
 	"github.com/evmos/evmos/v19/x/epochs/types"
 >>>>>>> main

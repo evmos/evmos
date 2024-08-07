@@ -23,8 +23,8 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 <<<<<<< HEAD
-	evmapi "github.com/evmos/evmos/v18/api/ethermint/evm/v1"
-	"github.com/evmos/evmos/v18/types"
+	evmapi "github.com/evmos/evmos/v19/api/ethermint/evm/v1"
+	"github.com/evmos/evmos/v19/types"
 =======
 	"github.com/evmos/evmos/v19/types"
 >>>>>>> main

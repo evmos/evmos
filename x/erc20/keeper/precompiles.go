@@ -14,9 +14,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/precompiles/erc20"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/precompiles/erc20"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 =======
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/x/erc20/types"

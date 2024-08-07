@@ -15,13 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/app"
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	"github.com/evmos/evmos/v18/app/ante/testutils"
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v18/encoding"
-	testutil "github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/app"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/app/ante/testutils"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/encoding"
+	testutil "github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
 =======
 	"github.com/evmos/evmos/v19/app"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"

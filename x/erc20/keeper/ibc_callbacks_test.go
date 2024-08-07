@@ -26,9 +26,9 @@ import (
 	ibcmock "github.com/cosmos/ibc-go/v8/testing/mock"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/x/erc20/types"

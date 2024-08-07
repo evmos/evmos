@@ -4,10 +4,10 @@ import (
 <<<<<<< HEAD
 	"testing"
 
-	ethante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/types"
+	ethante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/types"
 	"github.com/stretchr/testify/require"
 =======
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"

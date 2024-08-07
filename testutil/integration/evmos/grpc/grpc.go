@@ -8,11 +8,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	commongrpc "github.com/evmos/evmos/v18/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	commongrpc "github.com/evmos/evmos/v19/testutil/integration/common/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 =======
 	commongrpc "github.com/evmos/evmos/v19/testutil/integration/common/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"

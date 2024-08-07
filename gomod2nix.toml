@@ -211,8 +211,8 @@ schema = 3
   [mod."github.com/cosmos/ibc-apps/modules/rate-limiting/v7"]
     version = "v7.0.0"
     hash = "sha256-eHXU2btyS0GADsPH1DkohydVNQsrEXfEHzRguH0JyK0="
-  [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.7.0"
+  [mod."github.com/cosmos/ibc-go/v8"]
+    version = "v8.7.0"
     hash = "sha256-JS84d+tqd65eNfsV3FNkjWWAjDaqhiX4/tdUGjdkUb8="
 >>>>>>> main
   [mod."github.com/cosmos/ics23/go"]

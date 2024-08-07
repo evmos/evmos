@@ -9,11 +9,11 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 <<<<<<< HEAD
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v18/app/ante/evm"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"

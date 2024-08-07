@@ -59,9 +59,9 @@ import (
 	"github.com/evmos/evmos/v19/crypto/hd"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/server/config"
-	evmostypes "github.com/evmos/evmos/v18/types"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/server/config"
+	evmostypes "github.com/evmos/evmos/v19/types"
 =======
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/server/config"

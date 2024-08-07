@@ -21,11 +21,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 <<<<<<< HEAD
-	fixes "github.com/evmos/evmos/v18/app/upgrades/v19/fixes"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	fixes "github.com/evmos/evmos/v19/app/upgrades/v19/fixes"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 =======
 	fixes "github.com/evmos/evmos/v19/app/upgrades/v19/fixes"
 	evmostypes "github.com/evmos/evmos/v19/types"

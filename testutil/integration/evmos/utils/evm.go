@@ -10,9 +10,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"

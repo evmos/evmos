@@ -7,11 +7,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/x/erc20/keeper/testdata"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	evm "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/x/erc20/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evm "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // MintFeeCollector mints some coins to the fee collector address.

@@ -10,8 +10,8 @@ import (
 
 <<<<<<< HEAD
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/x/evm/types"
 =======
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"

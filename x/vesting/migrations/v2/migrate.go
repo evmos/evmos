@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 <<<<<<< HEAD
 
-	v1vestingtypes "github.com/evmos/evmos/v18/x/vesting/migrations/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	v1vestingtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 =======
 	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	v1vestingtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"

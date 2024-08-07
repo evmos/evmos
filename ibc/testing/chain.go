@@ -20,9 +20,9 @@ import (
 	"github.com/cosmos/ibc-go/v8/testing/mock"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
 =======
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	evmostypes "github.com/evmos/evmos/v19/types"

@@ -7,10 +7,9 @@ import (
 <<<<<<< HEAD
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3types "github.com/evmos/evmos/v18/x/erc20/migrations/v3/types"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 =======
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
 	"github.com/evmos/evmos/v19/x/erc20/types"

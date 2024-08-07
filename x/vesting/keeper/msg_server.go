@@ -15,8 +15,8 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/vesting/types"
 =======
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/vesting/types"

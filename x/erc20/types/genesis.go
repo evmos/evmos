@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 =======
 	"github.com/evmos/evmos/v19/utils"
 >>>>>>> main

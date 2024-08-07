@@ -7,9 +7,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 >>>>>>> main

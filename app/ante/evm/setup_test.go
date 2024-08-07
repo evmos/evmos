@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/suite"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/app/ante/testutils"
+	"github.com/evmos/evmos/v19/app/ante/testutils"
+	storetypes "cosmossdk.io/store/types"
 =======
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

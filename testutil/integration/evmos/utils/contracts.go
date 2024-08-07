@@ -8,8 +8,8 @@ import (
 
 <<<<<<< HEAD
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 

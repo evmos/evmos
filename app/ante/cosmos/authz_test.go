@@ -19,11 +19,11 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 <<<<<<< HEAD
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	"github.com/evmos/evmos/v19/testutil"

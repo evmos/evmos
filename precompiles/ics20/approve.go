@@ -7,13 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
-	"github.com/evmos/evmos/v18/precompiles/authorization"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-=======
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 // Approve implements the ICS20 approve transactions.

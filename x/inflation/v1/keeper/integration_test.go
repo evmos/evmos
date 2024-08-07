@@ -13,9 +13,9 @@ import (
 
 <<<<<<< HEAD
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	integrationutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	"github.com/evmos/evmos/v18/x/inflation/v1/types"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 =======
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"

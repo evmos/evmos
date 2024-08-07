@@ -27,12 +27,12 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 <<<<<<< HEAD
-	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	commonnetwork "github.com/evmos/evmos/v19/testutil/integration/common/network"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 =======
 	commonnetwork "github.com/evmos/evmos/v19/testutil/integration/common/network"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"

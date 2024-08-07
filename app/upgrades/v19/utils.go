@@ -10,7 +10,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	evmostypes "github.com/evmos/evmos/v18/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
 =======
 	evmostypes "github.com/evmos/evmos/v19/types"
 >>>>>>> main

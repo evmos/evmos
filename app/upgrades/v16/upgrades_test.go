@@ -11,7 +11,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypesv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	v16 "github.com/evmos/evmos/v19/app/upgrades/v16"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"

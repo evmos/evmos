@@ -5,7 +5,7 @@ package v3
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 <<<<<<< HEAD
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 =======
 	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"

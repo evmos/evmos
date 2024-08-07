@@ -14,9 +14,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 =======
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 

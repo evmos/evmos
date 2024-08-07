@@ -11,14 +11,14 @@ import (
 <<<<<<< HEAD
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 =======
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 >>>>>>> main

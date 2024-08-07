@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 =======
 	"github.com/evmos/evmos/v19/utils"
 >>>>>>> main
@@ -20,7 +20,7 @@ import (
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 =======
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 >>>>>>> main

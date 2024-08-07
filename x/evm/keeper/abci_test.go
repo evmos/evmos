@@ -2,9 +2,9 @@ package keeper_test
 
 import (
 <<<<<<< HEAD
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	"github.com/cometbft/cometbft/abci/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"

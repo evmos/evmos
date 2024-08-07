@@ -4,8 +4,8 @@ import (
 <<<<<<< HEAD
 	"testing"
 
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/stretchr/testify/require"
 =======
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -7,12 +7,12 @@ import (
 	"cosmossdk.io/x/feegrant"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/app"
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/app"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
 =======
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"

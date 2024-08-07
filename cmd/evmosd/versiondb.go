@@ -15,8 +15,8 @@ import (
 	versiondbclient "github.com/crypto-org-chain/cronos/versiondb/client"
 <<<<<<< HEAD
 
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/cmd/evmosd/opendb"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"
 =======
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"

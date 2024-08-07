@@ -15,7 +15,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 <<<<<<< HEAD
-	contractutils "github.com/evmos/evmos/v18/contracts/utils"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 =======
 	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 >>>>>>> main

@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 =======
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 >>>>>>> main

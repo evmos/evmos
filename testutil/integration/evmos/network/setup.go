@@ -35,12 +35,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 <<<<<<< HEAD
 
-	evmostypes "github.com/evmos/evmos/v18/types"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 =======
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"

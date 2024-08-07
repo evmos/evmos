@@ -9,10 +9,10 @@ import (
 <<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/evmos/evmos/v18/cmd/config"
-	"github.com/evmos/evmos/v18/testutil/integration/common/network"
+	"github.com/evmos/evmos/v19/cmd/config"
+	"github.com/evmos/evmos/v19/testutil/integration/common/network"
 =======
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/evmos/v19/testutil/integration/common/network"
 >>>>>>> main
 )

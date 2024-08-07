@@ -13,7 +13,7 @@ import (
 
 <<<<<<< HEAD
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	"github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/x/vesting/types"
 =======
 	"github.com/evmos/evmos/v19/x/vesting/types"
 >>>>>>> main

@@ -19,7 +19,7 @@ import (
 	types "github.com/cosmos/cosmos-sdk/types"
 
 <<<<<<< HEAD
-	vm "github.com/evmos/evmos/v18/x/evm/core/vm"
+	vm "github.com/evmos/evmos/v19/x/evm/core/vm"
 =======
 	vm "github.com/evmos/evmos/v19/x/evm/core/vm"
 >>>>>>> main

@@ -9,13 +9,13 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 <<<<<<< HEAD
-	"github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/app/ante/testutils"
-	"github.com/evmos/evmos/v18/testutil"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/app/ante/testutils"
+	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 =======
 	"github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/testutil"

@@ -16,8 +16,8 @@ import (
 	"github.com/evmos/evmos/v19/rpc"
 
 <<<<<<< HEAD
-	svrconfig "github.com/evmos/evmos/v18/server/config"
-	evmostypes "github.com/evmos/evmos/v18/types"
+	svrconfig "github.com/evmos/evmos/v19/server/config"
+	evmostypes "github.com/evmos/evmos/v19/types"
 =======
 	"github.com/evmos/evmos/v19/server/config"
 	evmostypes "github.com/evmos/evmos/v19/types"
