@@ -70,13 +70,12 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.AuctionCollectorName, types.ModuleName, accumulatedCoins); err != nil {
 		return
 	}
-
-	// TODO: Emit some events here
 }
 
 // isValidBid checks if the bid is valid
 func isValidBid(lastBid *types.Bid) bool {
-	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" {
+	_, err := sdk.AccAddressFromBech32(lastBid.Sender)
+	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
 		return true
 	}
 	return false
