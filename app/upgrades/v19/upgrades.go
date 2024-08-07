@@ -8,7 +8,6 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -62,15 +61,6 @@ func CreateUpgradeHandler(
 		ctxCache, writeFn := ctx.CacheContext()
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
 			writeFn()
-		}
-
-		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
-
-		// run module migrations first.
-		// so we wont override erc20 params when running strv2 migration,
-		migrationRes, err := mm.RunMigrations(ctx, configurator, vm)
-		if err != nil {
-			return migrationRes, err
 		}
 
 		bondDenom, err := sk.BondDenom(ctx)

@@ -245,7 +245,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		{
 			"no-op - fail transfer",
 			func() *types.MsgTransfer {
-				senderAcc := sdk.AccAddress(suite.address.Bytes())
+				senderAcc := suite.keyring.GetAccAddr(0)
 
 				denom := "ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992"
 				coinMetadata := banktypes.Metadata{
@@ -269,7 +269,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				coin := sdk.NewCoin(denom, math.NewInt(10))
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20Extension(suite.ctx, coinMetadata.Base)
+				pair, err := suite.network.App.Erc20Keeper.RegisterERC20Extension(suite.network.GetContext(), coinMetadata.Base)
 				suite.Require().Equal(pair.Denom, denom)
 				suite.Require().NoError(err)
 

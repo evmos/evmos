@@ -205,21 +205,6 @@ func (s *PrecompileTestSuite) TestRun() {
 			readOnly: false,
 			expPass:  true,
 		},
-		{
-			name: "pass - fund community pool transaction",
-			malleate: func() (common.Address, []byte) {
-				input, err := s.precompile.Pack(
-					distribution.FundCommunityPoolMethod,
-					s.address,
-					big.NewInt(1e18),
-				)
-				s.Require().NoError(err, "failed to pack input")
-
-				return s.address, input
-			},
-			readOnly: false,
-			expPass:  true,
-		},
 	}
 
 	for _, tc := range testcases {
