@@ -46,8 +46,6 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 	}
 	k.SetHighestBid(ctx, bid.Sender, bid.Amount)
 
-	// TODO: emit events
-
 	return &types.MsgBidResponse{}, nil
 }
 
@@ -67,8 +65,6 @@ func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.AuctionCollectorName, sdk.NewCoins(deposit.Amount)); err != nil {
 		return nil, errors.Wrap(err, "deposit failed")
 	}
-
-	// TODO: Emit Events
 
 	return &types.MsgDepositCoinResponse{}, nil
 }

@@ -4,32 +4,20 @@ syntax = "proto3";
 package evmos.auctions.v1;
 import "gogoproto/gogo.proto";
 
-
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
-
+// Bid is a message type for submitting a bid
 message Bid {
-  string sender = 1 [
-    (gogoproto.jsontag) = "sender",
-    (gogoproto.moretags) = "yaml:\"sender\""
-  ];
-
-  string amount = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable) = false
-  ];
+  // sender is the address of the bidder
+  string sender = 1 [(gogoproto.jsontag) = "sender", (gogoproto.moretags) = "yaml:\"sender\""];
+  // amount is the amount of the bid
+  string amount = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin", (gogoproto.nullable) = false];
 }
 
-
+// Deposit is a message type for deposits
 message Deposit {
-  string sender = 1 [
-    (gogoproto.jsontag) = "sender",
-    (gogoproto.moretags) = "yaml:\"sender\""
-  ];
-
-  string amount = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable) = false
-  ];
+  // sender is the address of the depositor
+  string sender = 1 [(gogoproto.jsontag) = "sender", (gogoproto.moretags) = "yaml:\"sender\""];
+  // amount is the amount of the deposit
+  string amount = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin", (gogoproto.nullable) = false];
 }
-

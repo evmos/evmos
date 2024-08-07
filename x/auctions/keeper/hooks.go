@@ -11,7 +11,7 @@ import (
 )
 
 // BeforeEpochStart starts a new auction at the beginning of the epoch
-func (k Keeper) BeforeEpochStart(ctx sdk.Context, _ string, _ int64) {
+func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 	// no-op
 }
 

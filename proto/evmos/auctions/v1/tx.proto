@@ -3,26 +3,24 @@
 syntax = "proto3";
 package evmos.auctions.v1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "evmos/auctions/v1/genesis.proto";
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
-
 // Msg defines the auctions Msg service.
 service Msg {
-
   // Bid defines a method for placing a bid for an auction
-  rpc Bid(MsgBid) returns (MsgBidResponse){
+  rpc Bid(MsgBid) returns (MsgBidResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/bid";
   }
 
   // DepositCoins defines a method for depositing coins to an auction
-  rpc DepositCoin(MsgDepositCoin) returns (MsgDepositCoinResponse){
+  rpc DepositCoin(MsgDepositCoin) returns (MsgDepositCoinResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/deposit_coin";
   }
 
@@ -32,6 +30,7 @@ service Msg {
   }
 }
 
+// MsgUpdateParams defines a message for updating the auction parameters
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   // authority is the address of the governance account.
@@ -45,30 +44,28 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
 
-
-// Bid is a message for placing a bid on an auction
+// MsgBid is a message for placing a bid on an auction
 message MsgBid {
   option (cosmos.msg.v1.signer) = "sender";
+  // sender is the address of the account that is bidding
   string sender = 1;
 
   // amount of tokens in EVMOS to bid
-  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
 }
 
-
+// MsgBidResponse is a response to a bid message
 message MsgBidResponse {}
 
-
-// DepositCoins is a message for depositing coins to an auction
+// MsgDepositCoin is a message for depositing coins to an auction
 message MsgDepositCoin {
-  // sender is the address of the account that is depositing coins
   option (cosmos.msg.v1.signer) = "sender";
+  // sender is the address of the account that is depositing coins
   string sender = 1;
 
   // amount to deposit into the auction
-  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
 }
 
+// MsgDepositCoinResponse is a response to a deposit coin message
 message MsgDepositCoinResponse {}
-
-

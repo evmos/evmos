@@ -3,14 +3,16 @@
 syntax = "proto3";
 package evmos.auctions.v1;
 
+import "cosmos/base/v1beta1/coin.proto";
+import "evmos/auctions/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "evmos/auctions/v1/genesis.proto";
-import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
+// Query defines the gRPC querier service.
 service Query {
+  // AuctionInfo retrieves the current auction info
   rpc AuctionInfo(QueryCurrentAuctionInfoRequest) returns (QueryCurrentAuctionInfoResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/auction_info";
   }
@@ -20,27 +22,27 @@ service Query {
   }
 }
 
+// QueryParamsRequest is the request type for the Query/Params RPC method
 message QueryParamsRequest {}
 
+// QueryParamsResponse is the response type for the Query/Params RPC method
 message QueryParamsResponse {
   // params defines all the parameters of the module
   Params params = 1;
 }
 
+// QueryCurrentAuctionInfoRequest is the request type for the Query/AuctionInfo RPC method
 message QueryCurrentAuctionInfoRequest {}
 
+// QueryCurrentAuctionInfoResponse is the response type for the Query/AuctionInfo RPC method
 message QueryCurrentAuctionInfoResponse {
-  // amount describes the amount put on auction
-  repeated cosmos.base.v1beta1.Coin tokens = 1 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    (gogoproto.nullable) = false
-  ];
+  // tokens describes the amount put on auction
+  repeated cosmos.base.v1beta1.Coin tokens = 1
+      [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
   // current_round describes the current round of the auction
   uint64 current_round = 2;
   // highest_bid describes the highest bid in the current round
-  cosmos.base.v1beta1.Coin highest_bid = 3 [
-    (gogoproto.nullable) = false
-  ];
+  cosmos.base.v1beta1.Coin highest_bid = 3 [(gogoproto.nullable) = false];
   // bidder_address describes the address of the highest bidder
   string bidder_address = 4;
 }
