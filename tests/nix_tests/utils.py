@@ -597,7 +597,6 @@ def debug_trace_tx(evmos, tx_hash: str):
     return rsp.json()["result"]
 
 
-<<<<<<< HEAD
 def check_error(err: Exception, err_contains):
     if err_contains is not None:
         # stringify error in case it is an obj
@@ -608,8 +607,6 @@ def check_error(err: Exception, err_contains):
         raise
 
 
-=======
->>>>>>> main
 def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
     info = json.loads(CONTRACTS["IERC20"].read_text())
     contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])

@@ -5,11 +5,7 @@ package mocks
 import (
 	context "context"
 
-<<<<<<< HEAD
 	types "github.com/evmos/evmos/v19/x/erc20/types"
-=======
-	types "github.com/evmos/evmos/v19/x/erc20/types"
->>>>>>> main
 	mock "github.com/stretchr/testify/mock"
 )
 

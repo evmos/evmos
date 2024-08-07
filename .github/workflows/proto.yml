@@ -32,11 +32,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-<<<<<<< HEAD
-      - uses: bufbuild/buf-setup-action@v1.34.0
-=======
       - uses: bufbuild/buf-setup-action@v1.35.1
->>>>>>> main
       - uses: bufbuild/buf-lint-action@v1
         with:
           input: "proto"
@@ -45,11 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-<<<<<<< HEAD
-      - uses: bufbuild/buf-setup-action@v1.34.0
-=======
       - uses: bufbuild/buf-setup-action@v1.35.1
->>>>>>> main
       - uses: bufbuild/buf-breaking-action@v1
         with:
           input: "proto"

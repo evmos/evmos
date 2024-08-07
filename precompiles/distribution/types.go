@@ -7,11 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/utils"
-=======
-	"github.com/evmos/evmos/v19/utils"
->>>>>>> main
 
 	"cosmossdk.io/math"
 
@@ -166,13 +162,6 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 		Amount:    sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
 	}
 
-<<<<<<< HEAD
-=======
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
->>>>>>> main
 	return msg, depositorAddress, nil
 }
 

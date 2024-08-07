@@ -12,13 +12,8 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
->>>>>>> main
 )
 
 // Precompile is a common struct for all precompiles that holds the common data each
@@ -56,11 +51,7 @@ func NewBalanceChangeEntry(acc common.Address, amt *big.Int, op Operation) balan
 // This is needed to allow us to revert the changes
 // during the EVM execution
 type snapshot struct {
-<<<<<<< HEAD
 	MultiStore storetypes.CacheMultiStore
-=======
-	MultiStore sdk.CacheMultiStore
->>>>>>> main
 	Events     sdk.Events
 }
 

@@ -76,15 +76,10 @@ func NewPrecompile(
 		},
 		vestingKeeper: vestingKeeper,
 	}
-<<<<<<< HEAD
-	// SetAddress defines the address of the vesting compile contract.
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
-=======
 
 	// SetAddress defines the address of the vesting precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.VestingPrecompileAddress))
 
->>>>>>> main
 	return p, nil
 }
 

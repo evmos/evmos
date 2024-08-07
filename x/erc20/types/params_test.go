@@ -114,8 +114,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"duplicate precompile",
 		},
 		{
-<<<<<<< HEAD
-=======
 			"repeated address - one EIP-55 other not",
 			func() types.Params {
 				return types.NewParams(true, []string{}, []string{"0xcc491f589b45d4a3c679016195b3fb87d7848210", "0xcc491f589B45d4a3C679016195B3FB87D7848210"})
@@ -124,7 +122,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"duplicate precompile",
 		},
 		{
->>>>>>> main
 			"unsorted addresses",
 			func() types.Params {
 				params := types.DefaultParams()

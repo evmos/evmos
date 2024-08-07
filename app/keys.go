@@ -17,7 +17,7 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-<<<<<<< HEAD
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -28,18 +28,6 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
-=======
-	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
-	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 )
 
 // StoreKeys returns the application store keys,

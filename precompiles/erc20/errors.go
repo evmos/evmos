@@ -10,17 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/crypto"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/ibc"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/ibc"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 // Errors that have formatted information are defined here as a string.

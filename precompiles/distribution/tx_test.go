@@ -5,31 +5,19 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
-<<<<<<< HEAD
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/distribution"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
-=======
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
->>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
@@ -398,40 +386,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"invalid type for maxRetrieve: expected uint32",
 		},
 		{
-<<<<<<< HEAD
 			"fail - too many retrieved results",
-=======
-			"pass - withdraw from validators with maxRetrieve higher than number of validators",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(10),
-				}
-			},
-			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
-			},
-			20000,
-			false,
-			"",
-		},
-		{
-			"fail - too many retrieved results",
-			func() []interface{} {
-				return []interface{}{
-					s.address,
-					uint32(32_000_000),
-				}
-			},
-			func([]byte) {},
-			200000,
-			true,
-			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
-		},
-		{
-			"success - withdraw from all validators - 2",
->>>>>>> main
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),

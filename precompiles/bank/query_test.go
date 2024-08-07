@@ -6,15 +6,10 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-<<<<<<< HEAD
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/precompiles/bank"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
-=======
-	"github.com/evmos/evmos/v19/precompiles/bank"
-	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
->>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestBalances() {

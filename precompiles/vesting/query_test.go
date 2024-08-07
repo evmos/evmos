@@ -5,14 +5,9 @@ package vesting_test
 import (
 	"fmt"
 
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/vesting"
-=======
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/vesting"
->>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestBalances() {

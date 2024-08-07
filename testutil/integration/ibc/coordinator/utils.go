@@ -6,15 +6,10 @@ import (
 	"strconv"
 	"testing"
 
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/evmos/v19/testutil/integration/common/network"
-=======
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/evmos/evmos/v19/testutil/integration/common/network"
->>>>>>> main
 )
 
 // getIBCChains returns a map of TestChain's for the given network interface.

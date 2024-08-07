@@ -40,11 +40,7 @@ import (
 	"encoding/json"
 	"errors"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/tracers"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/tracers"
->>>>>>> main
 )
 
 // init registers itself this packages as a lookup for tracers.

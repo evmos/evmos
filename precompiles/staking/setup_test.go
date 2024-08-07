@@ -3,30 +3,11 @@ package staking_test
 import (
 	"testing"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/precompiles/staking"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-=======
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
->>>>>>> main
 	"github.com/stretchr/testify/suite"
 )
 

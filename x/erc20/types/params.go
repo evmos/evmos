@@ -4,19 +4,12 @@
 package types
 
 import (
-<<<<<<< HEAD
-	"fmt"
-	"slices"
-
-	"github.com/evmos/evmos/v19/types"
-=======
 	"bytes"
 	"fmt"
 	"slices"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/types"
->>>>>>> main
 )
 
 const (
@@ -75,32 +68,6 @@ func (p Params) Validate() error {
 		return err
 	}
 
-<<<<<<< HEAD
-	if err := ValidatePrecompiles(p.NativePrecompiles); err != nil {
-		return err
-	}
-
-	if err := ValidatePrecompiles(p.DynamicPrecompiles); err != nil {
-		return err
-	}
-
-	combined := p.DynamicPrecompiles
-	combined = append(combined, p.NativePrecompiles...)
-	return ValidatePrecompilesUniqueness(combined)
-}
-
-// ValidatePrecompiles checks if the precompile addresses are valid and unique.
-func ValidatePrecompiles(i interface{}) error {
-	precompiles, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid precompile slice type: %T", i)
-	}
-
-	for _, precompile := range precompiles {
-		if err := types.ValidateAddress(precompile); err != nil {
-			return fmt.Errorf("invalid precompile %s", precompile)
-		}
-=======
 	npAddrs, err := ValidatePrecompiles(p.NativePrecompiles)
 	if err != nil {
 		return err
@@ -130,21 +97,11 @@ func ValidatePrecompiles(i interface{}) ([]common.Address, error) {
 			return nil, fmt.Errorf("invalid precompile %s", precompile)
 		}
 		precAddrs = append(precAddrs, common.HexToAddress(precompile))
->>>>>>> main
 	}
 
 	// NOTE: Check that the precompiles are sorted. This is required
 	// to ensure determinism
 	if !slices.IsSorted(precompiles) {
-<<<<<<< HEAD
-		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
-	}
-	return nil
-}
-
-func ValidatePrecompilesUniqueness(i interface{}) error {
-	precompiles, ok := i.([]string)
-=======
 		return nil, fmt.Errorf("precompiles need to be sorted: %s", precompiles)
 	}
 	return precAddrs, nil
@@ -152,22 +109,12 @@ func ValidatePrecompilesUniqueness(i interface{}) error {
 
 func validatePrecompilesUniqueness(i interface{}) error {
 	precompiles, ok := i.([]common.Address)
->>>>>>> main
 	if !ok {
 		return fmt.Errorf("invalid precompile slice type: %T", i)
 	}
 
 	seenPrecompiles := make(map[string]struct{})
 	for _, precompile := range precompiles {
-<<<<<<< HEAD
-		if _, ok := seenPrecompiles[precompile]; ok {
-			return fmt.Errorf("duplicate precompile %s", precompile)
-		}
-
-		seenPrecompiles[precompile] = struct{}{}
-	}
-	return nil
-=======
 		// use address.Hex() to make sure all addresses are using EIP-55
 		if _, ok := seenPrecompiles[precompile.Hex()]; ok {
 			return fmt.Errorf("duplicate precompile %s", precompile)
@@ -200,5 +147,4 @@ func isAddrIncluded(addr common.Address, strAddrs []string) bool {
 		}
 	}
 	return false
->>>>>>> main
 }

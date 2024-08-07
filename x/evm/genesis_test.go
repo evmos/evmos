@@ -117,10 +117,6 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "valid account with code",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-<<<<<<< HEAD
-=======
-				ctx := network.GetContext()
->>>>>>> main
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},

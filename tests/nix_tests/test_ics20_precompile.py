@@ -17,11 +17,8 @@ from .utils import (
     ADDRS,
     CONTRACTS,
     KEYS,
-<<<<<<< HEAD
     MAX_UINT256,
     check_error,
-=======
->>>>>>> main
     debug_trace_tx,
     decode_bech32,
     deploy_contract,

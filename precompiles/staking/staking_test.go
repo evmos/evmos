@@ -10,7 +10,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,17 +20,6 @@ import (
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -488,11 +476,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				ctx, msg, cfg, nil, stDB,
 			)
 
-<<<<<<< HEAD
 			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
-=======
-			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
->>>>>>> main
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)

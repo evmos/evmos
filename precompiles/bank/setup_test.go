@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-<<<<<<< HEAD
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/precompiles/bank"
@@ -13,17 +12,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-=======
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/bank"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
->>>>>>> main
 	"github.com/stretchr/testify/suite"
 )
 
@@ -52,20 +40,8 @@ func TestPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-<<<<<<< HEAD
 func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.tokenDenom = xmplDenom
-=======
-func (s *PrecompileTestSuite) SetupTest() {
-	keyring := testkeyring.New(2)
-	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
-	integrationNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomGenesis(genesis),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
->>>>>>> main
 
 	keyring := testkeyring.New(2)
 	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
@@ -87,11 +63,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-<<<<<<< HEAD
 	s.network = unitNetwork
-=======
-	s.network = integrationNetwork
->>>>>>> main
 
 	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
 	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
@@ -100,13 +72,11 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	s.evmosAddr = tokenPair.GetERC20Contract()
 
-<<<<<<< HEAD
-=======
+	// FIXME: MERGE CONFLICT
 	// Mint and register a second coin for testing purposes
-	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
-	s.Require().NoError(err)
+	// err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	// s.Require().NoError(err)
 
->>>>>>> main
 	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
 	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
 	s.Require().True(found)

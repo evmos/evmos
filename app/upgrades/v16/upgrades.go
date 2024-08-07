@@ -11,19 +11,11 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/precompiles/bech32"
 	"github.com/evmos/evmos/v19/precompiles/p256"
 	"github.com/evmos/evmos/v19/utils"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
-=======
-	"github.com/evmos/evmos/v19/precompiles/bech32"
-	"github.com/evmos/evmos/v19/precompiles/p256"
-	"github.com/evmos/evmos/v19/utils"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
->>>>>>> main
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v16.0.0

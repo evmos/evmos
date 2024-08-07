@@ -61,16 +61,10 @@ func NewPrecompile(
 		channelKeeper:  channelKeeper,
 		stakingKeeper:  stakingKeeper,
 	}
-<<<<<<< HEAD
-	// SetAddress defines the address of the ICS-20 compile contract.
-	// address: 0x0000000000000000000000000000000000000802
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
-=======
 
 	// SetAddress defines the address of the ICS-20 compile contract.
 	p.SetAddress(common.HexToAddress(evmtypes.ICS20PrecompileAddress))
 
->>>>>>> main
 	return p, nil
 }
 

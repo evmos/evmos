@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-<<<<<<< HEAD
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v19/precompiles/authorization"
@@ -24,21 +23,6 @@ import (
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -96,17 +80,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 
-<<<<<<< HEAD
 		// reset tx args each test to avoid keeping custom
 		// values of previous tests (e.g. gasLimit)
 		precompileAddr := s.precompile.Address()
 		txArgs = evmtypes.EvmTxArgs{
 			To: &precompileAddr,
 		}
-=======
-		initialBalance = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-		fmt.Println("Fist Before each: ", initialBalance)
->>>>>>> main
 	})
 
 	// =====================================

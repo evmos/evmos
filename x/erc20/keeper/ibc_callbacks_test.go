@@ -25,15 +25,9 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	ibcmock "github.com/cosmos/ibc-go/v8/testing/mock"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 var erc20Denom = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
@@ -276,15 +270,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			err = testutil.FundAccount(ctx, suite.network.App.BankKeeper, tc.receiver, coins)
 			suite.Require().NoError(err)
 
-<<<<<<< HEAD
 			id := suite.network.App.Erc20Keeper.GetTokenPairID(ctx, contractAddr.String())
 			pair, _ := suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
-=======
-			// Register Token Pair for testing
-			contractAddr := suite.setupRegisterERC20Pair(1)
-			id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
-			pair, _ := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
->>>>>>> main
 			suite.Require().NotNil(pair)
 
 			if tc.disableERC20 {
@@ -352,17 +339,11 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			name: "pass - erc20 is disabled",
 			malleate: func() transfertypes.FungibleTokenPacketData {
 				// Register Token Pair for testing
-<<<<<<< HEAD
 				contractAddr, err := suite.setupRegisterERC20Pair(contractMinterBurner)
 				suite.Require().NoError(err, "failed to register pair")
 				ctx = suite.network.GetContext()
 				id := suite.network.App.Erc20Keeper.GetTokenPairID(ctx, contractAddr.String())
 				pair, _ := suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
-=======
-				contractAddr := suite.setupRegisterERC20Pair(1)
-				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, _ := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
->>>>>>> main
 				suite.Require().NotNil(pair)
 
 				params := suite.network.App.Erc20Keeper.GetParams(ctx)
@@ -383,7 +364,6 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			name: "pass - erc20 is disabled",
 			malleate: func() transfertypes.FungibleTokenPacketData {
 				// Register Token Pair for testing
-<<<<<<< HEAD
 				contractAddr, err := suite.setupRegisterERC20Pair(contractMinterBurner)
 				suite.Require().NoError(err, "failed to register pair")
 				ctx = suite.network.GetContext()
@@ -394,16 +374,6 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				err = testutil.FundAccount(
 					ctx,
 					suite.network.App.BankKeeper,
-=======
-				contractAddr := suite.setupRegisterERC20Pair(1)
-				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, _ := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
-				suite.Require().NotNil(pair)
-
-				err := testutil.FundAccount(
-					suite.ctx,
-					suite.app.BankKeeper,
->>>>>>> main
 					sdk.MustAccAddressFromBech32(senderAddr),
 					sdk.NewCoins(
 						sdk.NewCoin(pair.Denom, math.NewInt(100)),
@@ -411,11 +381,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				)
 				suite.Require().NoError(err)
 
-<<<<<<< HEAD
 				_, err = suite.network.App.EvmKeeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.keyring.GetAddr(0), contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
-=======
-				_, err = suite.app.EvmKeeper.CallEVM(s.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.address, contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
->>>>>>> main
 				suite.Require().NoError(err)
 
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")
@@ -468,17 +434,11 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 			name: "no-op - ack error sender is module account",
 			malleate: func() {
 				// Register Token Pair for testing
-<<<<<<< HEAD
 				contractAddr, err := suite.setupRegisterERC20Pair(contractMinterBurner)
 				suite.Require().NoError(err, "failed to register pair")
 				ctx = suite.network.GetContext()
 				id := suite.network.App.Erc20Keeper.GetTokenPairID(ctx, contractAddr.String())
 				pair, _ = suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
-=======
-				contractAddr := suite.setupRegisterERC20Pair(1)
-				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
->>>>>>> main
 				suite.Require().NotNil(pair)
 
 				// for testing purposes we can only fund is not allowed to receive funds
@@ -504,17 +464,11 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 			name: "no-op - positive ack",
 			malleate: func() {
 				// Register Token Pair for testing
-<<<<<<< HEAD
 				contractAddr, err := suite.setupRegisterERC20Pair(contractMinterBurner)
 				suite.Require().NoError(err, "failed to register pair")
 				ctx = suite.network.GetContext()
 				id := suite.network.App.Erc20Keeper.GetTokenPairID(ctx, contractAddr.String())
 				pair, _ = suite.network.App.Erc20Keeper.GetTokenPair(ctx, id)
-=======
-				contractAddr := suite.setupRegisterERC20Pair(1)
-				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
->>>>>>> main
 				suite.Require().NotNil(pair)
 
 				sender = sdk.AccAddress(senderPk.PubKey().Address())
@@ -567,10 +521,7 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 }
 
 func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
-<<<<<<< HEAD
 	var ctx sdk.Context
-=======
->>>>>>> main
 	testCases := []struct {
 		name     string
 		malleate func() transfertypes.FungibleTokenPacketData

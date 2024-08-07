@@ -140,11 +140,7 @@ config {
            },
          },
          gas_price: {
-<<<<<<< HEAD
            price: 80000000000,
-=======
-           price: 40000000000,
->>>>>>> main
            denom: 'aevmos',
          },
          extension_options: [{

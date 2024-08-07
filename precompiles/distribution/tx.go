@@ -6,11 +6,7 @@ package distribution
 import (
 	"fmt"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/utils"
-=======
-	"github.com/evmos/evmos/v19/utils"
->>>>>>> main
 
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 
@@ -19,11 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 )
 
 const (
@@ -56,25 +48,12 @@ func (p *Precompile) ClaimRewards(
 		return nil, err
 	}
 
-<<<<<<< HEAD
 	maxVals, err := p.stakingKeeper.MaxValidators(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if maxRetrieve > maxVals {
 		return nil, fmt.Errorf("maxRetrieve (%d) parameter exceeds the maximum number of validators (%d)", maxRetrieve, maxVals)
-=======
-	maxVals := p.stakingKeeper.MaxValidators(ctx)
-	if maxRetrieve > maxVals {
-		return nil, fmt.Errorf("maxRetrieve (%d) parameter exceeds the maximum number of validators (%d)", maxRetrieve, maxVals)
-	}
-
-	// If the contract is the delegator, we don't need an origin check
-	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorAddr && origin != delegatorAddr
-	if !isContractDelegator && origin != delegatorAddr {
-		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorAddr.String())
->>>>>>> main
 	}
 
 	// If the contract is the delegator, we don't need an origin check
@@ -110,14 +89,10 @@ func (p *Precompile) ClaimRewards(
 	// this happens when the precompile is called from a smart contract
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
-<<<<<<< HEAD
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorAddr)
 		if err != nil {
 			return nil, err
 		}
-=======
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorAddr)
->>>>>>> main
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
 	}
 
@@ -144,11 +119,7 @@ func (p Precompile) SetWithdrawAddress(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-<<<<<<< HEAD
 	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
-=======
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr && origin != delegatorHexAddr
->>>>>>> main
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
@@ -181,11 +152,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-<<<<<<< HEAD
 	isContractDelegator := (contract.CallerAddress == delegatorHexAddr) && (origin != delegatorHexAddr)
-=======
-	isContractDelegator := contract.CallerAddress == delegatorHexAddr && origin != delegatorHexAddr
->>>>>>> main
 	if !isContractDelegator && origin != delegatorHexAddr {
 		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorHexAddr.String())
 	}
@@ -201,7 +168,6 @@ func (p *Precompile) WithdrawDelegatorRewards(
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
-<<<<<<< HEAD
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorHexAddr)
 		if err != nil {
 			return nil, err
@@ -213,16 +179,6 @@ func (p *Precompile) WithdrawDelegatorRewards(
 		return nil, err
 	}
 
-=======
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorHexAddr)
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
-	}
-
-	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
-		return nil, err
-	}
-
->>>>>>> main
 	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
 }
 
@@ -258,14 +214,10 @@ func (p *Precompile) WithdrawValidatorCommission(
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
 		// commissions go to the withdrawer address
-<<<<<<< HEAD
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, validatorHexAddr)
 		if err != nil {
 			return nil, err
 		}
-=======
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, validatorHexAddr)
->>>>>>> main
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
 	}
 
@@ -298,11 +250,7 @@ func (p *Precompile) FundCommunityPool(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-<<<<<<< HEAD
 	_, err = msgSrv.FundCommunityPool(ctx, msg)
-=======
-	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
->>>>>>> main
 	if err != nil {
 		return nil, err
 	}
@@ -323,16 +271,10 @@ func (p *Precompile) FundCommunityPool(
 
 // getWithdrawerHexAddr is a helper function to get the hex address
 // of the withdrawer for the specified account address
-<<<<<<< HEAD
 func (p Precompile) getWithdrawerHexAddr(ctx sdk.Context, delegatorAddr common.Address) (common.Address, error) {
 	withdrawerAccAddr, err := p.distributionKeeper.GetDelegatorWithdrawAddr(ctx, delegatorAddr.Bytes())
 	if err != nil {
 		return common.Address{}, err
 	}
 	return common.BytesToAddress(withdrawerAccAddr), nil
-=======
-func (p Precompile) getWithdrawerHexAddr(ctx sdk.Context, delegatorAddr common.Address) common.Address {
-	withdrawerAccAddr := p.distributionKeeper.GetDelegatorWithdrawAddr(ctx, delegatorAddr.Bytes())
-	return common.BytesToAddress(withdrawerAccAddr)
->>>>>>> main
 }

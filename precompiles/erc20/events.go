@@ -11,11 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-=======
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
->>>>>>> main
 
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"

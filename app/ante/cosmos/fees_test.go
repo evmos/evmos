@@ -6,20 +6,12 @@ import (
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/app"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
-=======
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
-	"github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
->>>>>>> main
 )
 
 type deductFeeDecoratorTestCase struct {
@@ -95,7 +87,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
-<<<<<<< HEAD
 			name:        "pass - insufficient funds but sufficient staking rewards",
 			balance:     zero,
 			rewards:     []math.Int{initBalance},
@@ -120,9 +111,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
-=======
-			name:        "fail - insufficient funds",
->>>>>>> main
 			balance:     math.NewInt(1e5),
 			rewards:     []math.Int{math.NewInt(1e5)},
 			gas:         10_000_000,

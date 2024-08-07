@@ -50,10 +50,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
-<<<<<<< HEAD
-=======
 		&RegisterCoinProposal{}, // Keep interface for backwards compatibility on proposals query
->>>>>>> main
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},
 	)
@@ -67,9 +64,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
-<<<<<<< HEAD
 	cdc.RegisterConcrete(&MsgRegisterERC20{}, registerERC20, nil)
 	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
-=======
->>>>>>> main
 }

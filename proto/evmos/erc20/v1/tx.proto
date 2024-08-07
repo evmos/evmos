@@ -15,10 +15,7 @@ option go_package = "github.com/evmos/evmos/v19/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
-<<<<<<< HEAD
   option (cosmos.msg.v1.service) = true;
-=======
->>>>>>> main
   // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
   // contract that is registered on the token mapping.
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
@@ -38,7 +35,6 @@ service Msg {
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
 // coin.
 message MsgConvertERC20 {
-<<<<<<< HEAD
   option (amino.name) = "evmos/MsgConvertERC20";
   option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
@@ -46,12 +42,6 @@ message MsgConvertERC20 {
   // amount of ERC20 tokens to convert
   string amount = 2
       [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-=======
-  // contract_address of an ERC20 token contract, that is registered in a token pair
-  string contract_address = 1;
-  // amount of ERC20 tokens to convert
-  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
->>>>>>> main
   // receiver is the bech32 address to receive native Cosmos coins
   string receiver = 3;
   // sender is the hex address from the owner of the given ERC20 tokens
@@ -93,7 +83,6 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
-<<<<<<< HEAD
 
 // MsgRegisterERC20 is the Msg/RegisterERC20 request type for registering
 // an Erc20 contract token pair.
@@ -129,5 +118,3 @@ message MsgToggleConversion {
 // MsgToggleConversionResponse defines the response structure for executing a
 // ToggleConversion message.
 message MsgToggleConversionResponse {}
-=======
->>>>>>> main

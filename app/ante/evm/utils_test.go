@@ -13,11 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-<<<<<<< HEAD
-=======
 	"github.com/evmos/evmos/v19/ethereum/eip712"
 	"github.com/evmos/evmos/v19/testutil"
->>>>>>> main
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -32,16 +29,10 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
-<<<<<<< HEAD
 	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/evmos/evmos/v19/app/ante/testutils"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-=======
-	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
->>>>>>> main
 
 	evtypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
@@ -49,15 +40,8 @@ import (
 
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-<<<<<<< HEAD
-	"github.com/evmos/evmos/v19/ethereum/eip712"
-	"github.com/evmos/evmos/v19/testutil"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 )
 
 func (suite *AnteTestSuite) CreateTxBuilder(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, unsetExtensionOptions ...bool) client.TxBuilder {
@@ -145,17 +129,10 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),
-<<<<<<< HEAD
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)),
 		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),
-=======
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
-		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
-		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-		math.OneInt(),
->>>>>>> main
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)
@@ -170,15 +147,9 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator2(from sdk.AccAddr
 		privEd.PubKey(),
 		sdk.NewCoin(suite.GetNetwork().GetDenom(), sdkmath.NewInt(20)),
 		// Ensure optional fields can be left blank
-<<<<<<< HEAD
 		stakingtypes.NewDescription("moniker", "indentity", "", "", ""),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),
-=======
-		stakingtypes.NewDescription("moniker", "identity", "", "", ""),
-		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-		math.OneInt(),
->>>>>>> main
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)

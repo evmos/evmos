@@ -5,16 +5,8 @@ package factory
 
 import (
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-=======
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-
-	errorsmod "cosmossdk.io/errors"
->>>>>>> main
 )
 
 const (
