@@ -4,10 +4,17 @@
 package keeper
 
 import (
+<<<<<<< HEAD
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 // IsContract determines if the given address is a smart contract.

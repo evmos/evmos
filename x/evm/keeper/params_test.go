@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
@@ -47,12 +47,20 @@ func (suite *KeeperTestSuite) TestParams() {
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
+<<<<<<< HEAD
 				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+=======
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+>>>>>>> main
 				suite.Require().NoError(err)
 				return types.AccessTypeRestricted
 			},
 			func() interface{} {
+<<<<<<< HEAD
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				return evmParams.GetAccessControl().Create.AccessType
 			},
 			true,
@@ -65,12 +73,20 @@ func (suite *KeeperTestSuite) TestParams() {
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
+<<<<<<< HEAD
 				err := suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+=======
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+>>>>>>> main
 				suite.Require().NoError(err)
 				return types.AccessTypeRestricted
 			},
 			func() interface{} {
+<<<<<<< HEAD
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				return evmParams.GetAccessControl().Call.AccessType
 			},
 			true,
@@ -120,7 +136,11 @@ func (suite *KeeperTestSuite) TestParams() {
 				}
 			},
 			getFun: func() interface{} {
+<<<<<<< HEAD
 				evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				return evmParams.GetActiveStaticPrecompiles()
 			},
 			expected: true,

@@ -17,8 +17,11 @@ from .utils import (
     ADDRS,
     CONTRACTS,
     KEYS,
+<<<<<<< HEAD
     MAX_UINT256,
     check_error,
+=======
+>>>>>>> main
     debug_trace_tx,
     decode_bech32,
     deploy_contract,
@@ -936,6 +939,7 @@ def test_ibc_transfer_with_authorization(
     counter = eth_contract.functions.counter().call()
     assert counter == 0
 
+<<<<<<< HEAD
     # create the authorization for the deployed contract
     # based on the specific coins for each test case
     if auth_coins is not None:
@@ -947,6 +951,71 @@ def test_ibc_transfer_with_authorization(
                 "gasPrice": evmos_gas_price,
                 "gas": gas_limit,
             }
+=======
+    # Approve the contract to spend the src_denom
+    approve_tx = pc.functions.approve(
+        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
+    ).build_transaction(
+        {
+            "from": ADDRS["signer2"],
+            "gasPrice": evmos_gas_price,
+            "gas": gas_limit,
+        }
+    )
+    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+    assert tx_receipt.status == 1
+
+    def check_allowance_set():
+        new_allowance = pc.functions.allowance(
+            eth_contract.address, ADDRS["signer2"]
+        ).call()
+        return new_allowance != []
+
+    wait_for_fn("allowance has changed", check_allowance_set)
+
+    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_adr, src_denom)
+    # Deposit into the contract
+    deposit_tx = eth_contract.functions.deposit().build_transaction(
+        {
+            "from": ADDRS["signer2"],
+            "value": amt,
+            "gas": gas_limit,
+            "gasPrice": evmos_gas_price,
+        }
+    )
+    deposit_receipt = send_transaction(
+        ibc.chains["evmos"].w3, deposit_tx, KEYS["signer2"]
+    )
+    assert deposit_receipt.status == 1
+    fees = deposit_receipt.gasUsed * evmos_gas_price
+
+    def check_contract_balance():
+        new_contract_balance = eth_contract.functions.balanceOfContract().call()
+        return new_contract_balance > 0
+
+    wait_for_fn("contract balance change", check_contract_balance)
+
+    # Calling the actual transfer function on the custom contract
+    send_tx = eth_contract.functions.transfer(
+        "transfer", "channel-0", src_denom, amt, dst_addr
+    ).build_transaction(
+        {
+            "from": ADDRS["signer2"],
+            "gasPrice": evmos_gas_price,
+            "gas": gas_limit,
+        }
+    )
+    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    assert receipt.status == 1
+    fees += receipt.gasUsed * evmos_gas_price
+
+    final_dest_balance = 0
+
+    def check_dest_balance():
+        nonlocal final_dest_balance
+        final_dest_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+>>>>>>> main
         )
         receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
         assert receipt.status == 1, f"Failed: {name}"

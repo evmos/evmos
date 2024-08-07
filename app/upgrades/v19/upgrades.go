@@ -4,6 +4,7 @@
 package v19
 
 import (
+<<<<<<< HEAD
 	"context"
 	"slices"
 
@@ -23,12 +24,35 @@ import (
 	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+=======
+	"slices"
+
+	errorsmod "cosmossdk.io/errors"
+	"github.com/cometbft/cometbft/libs/log"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/ethereum/go-ethereum/common"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+>>>>>>> main
 )
 
 const (
 	StrideOutpostAddress  = "0x0000000000000000000000000000000000000900"
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
+
+var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
@@ -47,8 +71,18 @@ func CreateUpgradeHandler(
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
 
+		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
+
+		// run module migrations first.
+		// so we wont override erc20 params when running strv2 migration,
+		migrationRes, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return migrationRes, err
+		}
+
 		ctxCache, writeFn := ctx.CacheContext()
 		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
+<<<<<<< HEAD
 			writeFn()
 		}
 
@@ -80,6 +114,36 @@ func CreateUpgradeHandler(
 			writeFn()
 		}
 
+=======
+			writeFn()
+		} else {
+			logger.Error("error removing outposts", "error", err)
+		}
+
+		bondDenom := sk.BondDenom(ctx)
+
+		var wevmosContract common.Address
+		switch {
+		case utils.IsMainnet(ctx.ChainID()):
+			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
+		case utils.IsTestnet(ctx.ChainID()):
+			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
+		default:
+			panic("unknown chain id")
+		}
+
+		ctxCache, writeFn = ctx.CacheContext()
+		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
+			writeFn()
+		}
+
+		ctxCache, writeFn = ctx.CacheContext()
+		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Error("error setting new extra EIPs", "error", err)
+		}
+>>>>>>> main
 		return migrationRes, err
 	}
 }
@@ -189,7 +253,11 @@ func registerERC20Extensions(ctx sdk.Context,
 // smart contracts in the dedicated store in the EVM module and convert the former
 // EthAccounts to standard Cosmos SDK accounts.
 func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper, ek *evmkeeper.Keeper) {
+<<<<<<< HEAD
 	ak.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
+=======
+	ak.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+>>>>>>> main
 		ethAcc, ok := account.(*evmostypes.EthAccount)
 		if !ok {
 			return false
@@ -207,3 +275,22 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 		return false
 	})
 }
+<<<<<<< HEAD
+=======
+
+func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) error {
+	params := ek.GetParams(ctx)
+	extraEIPs := params.ExtraEIPs
+
+	for _, eip := range newExtraEIPs {
+		if slices.Contains(extraEIPs, eip) {
+			logger.Debug("skipping duplicate EIP", "eip", eip)
+		} else {
+			extraEIPs = append(extraEIPs, eip)
+		}
+	}
+
+	params.ExtraEIPs = extraEIPs
+	return ek.SetParams(ctx, params)
+}
+>>>>>>> main

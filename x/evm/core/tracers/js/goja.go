@@ -28,9 +28,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/tracers"
 	jsassets "github.com/evmos/evmos/v18/x/evm/core/tracers/js/internal/tracers"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/tracers"
+	jsassets "github.com/evmos/evmos/v19/x/evm/core/tracers/js/internal/tracers"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 var assetTracers = make(map[string]string)

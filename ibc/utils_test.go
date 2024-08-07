@@ -8,10 +8,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+<<<<<<< HEAD
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	teststypes "github.com/evmos/evmos/v18/types/tests"
+=======
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	teststypes "github.com/evmos/evmos/v19/types/tests"
+>>>>>>> main
 )
 
 func init() {

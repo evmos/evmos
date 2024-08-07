@@ -6,7 +6,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 // accessList is an accumulator for the set of accounts and storage slots an EVM

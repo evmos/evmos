@@ -9,6 +9,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+<<<<<<< HEAD
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v18/precompiles/authorization"
@@ -16,6 +17,16 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+=======
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+>>>>>>> main
 )
 
 // PrecompileAddress of the ICS-20 EVM extension in hex format.
@@ -60,9 +71,16 @@ func NewPrecompile(
 		channelKeeper:  channelKeeper,
 		stakingKeeper:  stakingKeeper,
 	}
+<<<<<<< HEAD
 	// SetAddress defines the address of the ICS-20 compile contract.
 	// address: 0x0000000000000000000000000000000000000802
 	p.SetAddress(common.HexToAddress(PrecompileAddress))
+=======
+
+	// SetAddress defines the address of the ICS-20 compile contract.
+	p.SetAddress(common.HexToAddress(evmtypes.ICS20PrecompileAddress))
+
+>>>>>>> main
 	return p, nil
 }
 

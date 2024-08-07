@@ -7,8 +7,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+<<<<<<< HEAD
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 const (

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/contracts"
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	testhandler "github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
@@ -12,6 +13,15 @@ import (
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/evmos/evmos/v19/contracts"
+	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	testhandler "github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 	"github.com/stretchr/testify/require"
 )
 

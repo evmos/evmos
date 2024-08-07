@@ -11,10 +11,16 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+<<<<<<< HEAD
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	testtx "github.com/evmos/evmos/v18/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
+=======
+	testtx "github.com/evmos/evmos/v19/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+>>>>>>> main
 )
 
 // Config defines the configuration for a chain.

@@ -9,10 +9,14 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
+<<<<<<< HEAD
 // registerERC20 creates a Cosmos coin and registers the token pair between the
+=======
+// RegisterERC20 creates a Cosmos coin and registers the token pair between the
+>>>>>>> main
 // coin and the ERC20
 func (k Keeper) registerERC20(
 	ctx sdk.Context,

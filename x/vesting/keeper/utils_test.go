@@ -9,6 +9,19 @@ import (
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
+<<<<<<< HEAD
+=======
+
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
+
+	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/x/vesting/types"
+>>>>>>> main
 )
 
 func (suite *KeeperTestSuite) setupClawbackVestingAccount(vestingAccount, funder keyring.Key, vestingPeriods, lockupPeriods sdkvesting.Periods, enableGovClawback bool) *types.ClawbackVestingAccount {

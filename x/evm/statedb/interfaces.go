@@ -5,7 +5,11 @@ package statedb
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 // ExtStateDB defines an extension to the interface provided by the go-ethereum

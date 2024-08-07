@@ -8,12 +8,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/precompiles/distribution"
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/precompiles/distribution"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -205,6 +214,21 @@ func (s *PrecompileTestSuite) TestRun() {
 			readOnly: false,
 			expPass:  true,
 		},
+		{
+			name: "pass - fund community pool transaction",
+			malleate: func() (common.Address, []byte) {
+				input, err := s.precompile.Pack(
+					distribution.FundCommunityPoolMethod,
+					s.address,
+					big.NewInt(1e18),
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.address, input
+			},
+			readOnly: false,
+			expPass:  true,
+		},
 	}
 
 	for _, tc := range testcases {
@@ -255,7 +279,11 @@ func (s *PrecompileTestSuite) TestRun() {
 				ctx, msg, cfg, nil, s.network.GetStateDB(),
 			)
 
+<<<<<<< HEAD
 			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
+=======
+			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
+>>>>>>> main
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)

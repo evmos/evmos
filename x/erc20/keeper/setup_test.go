@@ -3,8 +3,28 @@ package keeper_test
 import (
 	"testing"
 
+<<<<<<< HEAD
 	sdkmath "cosmossdk.io/math"
 
+=======
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v19/app"
+	ibctesting "github.com/evmos/evmos/v19/ibc/testing"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evm "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 	"github.com/stretchr/testify/suite"
 
 	"github.com/ethereum/go-ethereum/params"
@@ -34,6 +54,7 @@ type KeeperTestSuite struct {
 	mintFeeCollector bool
 }
 
+<<<<<<< HEAD
 func TestKeeperUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
@@ -69,4 +90,18 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.handler = gh
 	suite.keyring = keys
 	suite.queryClient = nw.GetERC20Client()
+=======
+var s *KeeperTestSuite
+
+func TestKeeperTestSuite(t *testing.T) {
+	s = new(KeeperTestSuite)
+	suite.Run(t, s)
+
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "ERC20 Keeper Integration Tests Suite")
+}
+
+func (suite *KeeperTestSuite) SetupTest() {
+	suite.DoSetupTest()
+>>>>>>> main
 }

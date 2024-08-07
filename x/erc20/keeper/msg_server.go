@@ -17,8 +17,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/hashicorp/go-metrics"
 
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -233,7 +233,11 @@ func (k Keeper) ConvertCoinNativeERC20(
 	}
 
 	if !unpackedRet.Value {
+<<<<<<< HEAD
 		return errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
+=======
+		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
+>>>>>>> main
 	}
 
 	// Check expected Receiver balance after transfer execution

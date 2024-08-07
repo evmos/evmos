@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
@@ -27,7 +27,11 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 			"1 pair registered",
 			func() {
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
+<<<<<<< HEAD
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair)
+=======
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+>>>>>>> main
 				expRes = types.DefaultTokenPairs
 				expRes = append(expRes, pair)
 			},
@@ -37,8 +41,13 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 			func() {
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE)
+<<<<<<< HEAD
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair)
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair2)
+=======
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
+>>>>>>> main
 				expRes = types.DefaultTokenPairs
 				expRes = append(expRes, []types.TokenPair{pair, pair2}...)
 			},

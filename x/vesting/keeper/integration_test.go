@@ -20,6 +20,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+<<<<<<< HEAD
 
 	"github.com/evmos/evmos/v18/app"
 	"github.com/evmos/evmos/v18/contracts"
@@ -42,6 +43,17 @@ import (
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
+=======
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v19/x/vesting/types"
+>>>>>>> main
 )
 
 type KeeperTestSuite struct {

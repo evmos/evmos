@@ -7,7 +7,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/evmos/evmos/v18/precompiles/authorization"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -15,9 +15,16 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
+=======
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
+>>>>>>> main
 )
 
 // PrecompileAddress of the vesting EVM extension in hex format.
@@ -75,8 +82,15 @@ func NewPrecompile(
 		},
 		vestingKeeper: vestingKeeper,
 	}
+<<<<<<< HEAD
 	// SetAddress defines the address of the vesting compile contract.
 	p.SetAddress(common.HexToAddress(PrecompileAddress))
+=======
+
+	// SetAddress defines the address of the vesting precompiled contract.
+	p.SetAddress(common.HexToAddress(evmtypes.VestingPrecompileAddress))
+
+>>>>>>> main
 	return p, nil
 }
 

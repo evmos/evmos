@@ -12,8 +12,12 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+<<<<<<< HEAD
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
 	"github.com/hashicorp/go-metrics"
+=======
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 var _ sdk.PostDecorator = &BurnDecorator{}

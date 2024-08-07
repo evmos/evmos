@@ -4,10 +4,15 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
 	"github.com/evmos/evmos/v18/x/feemarket/types"
 	"github.com/stretchr/testify/require"
+=======
+	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
+	"github.com/evmos/evmos/v19/x/feemarket/types"
+>>>>>>> main
 )
 
 type mockSubspace struct {

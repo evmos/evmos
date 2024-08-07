@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"testing"
 
+<<<<<<< HEAD
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -20,6 +21,26 @@ import (
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/evmos/evmos/v19/precompiles/bank/testdata"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+
+	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v19/precompiles/bank"
+
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+>>>>>>> main
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -50,11 +71,17 @@ func (is *IntegrationTestSuite) SetupTest() {
 	// with the protocol via genesis and/or a transaction
 	is.tokenDenom = xmplDenom
 	keyring := keyring.New(2)
+<<<<<<< HEAD
 	genesis := testutils.CreateGenesisWithTokenPairs(keyring)
 
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithOtherDenoms([]string{is.tokenDenom}), // set some funds of other denom to the prefunded accounts
+=======
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keyring)
+	integrationNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+>>>>>>> main
 		network.WithCustomGenesis(genesis),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
@@ -77,6 +104,13 @@ func (is *IntegrationTestSuite) SetupTest() {
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
+<<<<<<< HEAD
+=======
+	// Mint and register a second coin for testing purposes
+	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
+	Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
+
+>>>>>>> main
 	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
 	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")

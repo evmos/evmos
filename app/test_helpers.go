@@ -26,12 +26,17 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/encoding"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+=======
+	"github.com/evmos/evmos/v19/encoding"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+>>>>>>> main
 
-	"github.com/evmos/evmos/v18/cmd/config"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/cmd/config"
+	"github.com/evmos/evmos/v19/utils"
 )
 
 // DefaultTestingAppInit defines the IBC application used for testing

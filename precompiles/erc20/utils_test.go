@@ -14,6 +14,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	auth "github.com/evmos/evmos/v18/precompiles/authorization"
 	"github.com/evmos/evmos/v18/precompiles/erc20"
 	"github.com/evmos/evmos/v18/precompiles/testutil"
@@ -25,6 +26,18 @@ import (
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	auth "github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v19/precompiles/erc20"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	commonfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	commonnetwork "github.com/evmos/evmos/v19/testutil/integration/common/network"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	network "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 
 	//nolint:revive // dot imports are fine for Gomega
 	. "github.com/onsi/gomega"
@@ -231,6 +244,7 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
+<<<<<<< HEAD
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string, tokenPairs []erc20types.TokenPair) *erc20.Precompile {
 	var tokenPair erc20types.TokenPair
 	for _, tp := range tokenPairs {
@@ -239,6 +253,13 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string, tokenPairs []
 		}
 		tokenPair = tp
 	}
+=======
+//
+// TODO: refactor
+func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+	is.network.App.Erc20Keeper.SetToken(is.network.GetContext(), tokenPair)
+>>>>>>> main
 
 	precompile, err := erc20.NewPrecompile(
 		tokenPair,
@@ -337,7 +358,7 @@ var (
 	erc20CallTypes  = []CallType{erc20Call, erc20CallerCall, erc20V5Call, erc20V5CallerCall}
 )
 
-// getCallArgs is a helper function to return the correct call arguments for a given call type.
+// getTxAndCallArgs is a helper function to return the correct call arguments for a given call type.
 //
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
 // ERC20CallerContract's ABI is used and the given contract address.

@@ -10,6 +10,7 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
@@ -18,6 +19,16 @@ import (
 	evmosutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	"github.com/evmos/evmos/v18/x/evm/statedb"
+=======
+	geth "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v19/cmd/config"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/staking"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestCreateValidator() {
@@ -47,7 +58,11 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		name          string
 		malleate      func() []interface{}
 		gas           uint64
+<<<<<<< HEAD
 		callerAddress *common.Address
+=======
+		callerAddress *geth.Address
+>>>>>>> main
 		postCheck     func(data []byte)
 		expError      bool
 		errContains   string
@@ -295,7 +310,11 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			validatorAddress = validator.Addr
 
 			var contract *vm.Contract
+<<<<<<< HEAD
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, validatorAddress, s.precompile, tc.gas)
+=======
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+>>>>>>> main
 			if tc.callerAddress != nil {
 				contract.CallerAddress = *tc.callerAddress
 			}
@@ -362,7 +381,11 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 		name          string
 		malleate      func() []interface{}
 		gas           uint64
+<<<<<<< HEAD
 		callerAddress *common.Address
+=======
+		callerAddress *geth.Address
+>>>>>>> main
 		postCheck     func(data []byte)
 		expError      bool
 		errContains   string
@@ -518,10 +541,14 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 				}
 			},
 			200000,
+<<<<<<< HEAD
 			func() *common.Address {
 				addr := s.keyring.GetAddr(0)
 				return &addr
 			}(),
+=======
+			&s.address,
+>>>>>>> main
 			func([]byte) {},
 			true,
 			"this method can only be called directly to the precompile",
@@ -652,7 +679,11 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			validatorAddress = common.BytesToAddress(valAddr.Bytes())
 
 			var contract *vm.Contract
+<<<<<<< HEAD
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, validatorAddress, s.precompile, tc.gas)
+=======
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
+>>>>>>> main
 			if tc.callerAddress != nil {
 				contract.CallerAddress = *tc.callerAddress
 			}

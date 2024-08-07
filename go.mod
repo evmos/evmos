@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v18
+module github.com/evmos/evmos/v19
 
 go 1.22.2
 
@@ -15,7 +15,6 @@ require (
 	cosmossdk.io/x/feegrant v0.1.0
 	cosmossdk.io/x/tx v0.13.3
 	cosmossdk.io/x/upgrade v0.1.0
-	github.com/btcsuite/btcd v0.24.0
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/cometbft/cometbft v0.38.10
 	github.com/cosmos/cosmos-db v1.0.2
@@ -29,6 +28,11 @@ require (
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240722062311-8384cad72737
+	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
+	github.com/armon/go-metrics v0.4.1
+	github.com/btcsuite/btcd v0.24.2
+	github.com/cometbft/cometbft-db v0.12.0
+	github.com/cosmos/ibc-apps/modules/rate-limiting/v7 v7.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dop251/goja v0.0.0-20220405120441-9037c2b61cbf
 	github.com/ethereum/go-ethereum v1.11.5
@@ -39,11 +43,11 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-metrics v0.5.3
 	github.com/hashicorp/go-version v1.7.0
-	github.com/holiman/uint256 v1.2.1
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/linxGnu/grocksdb v1.9.2
 	github.com/onsi/ginkgo/v2 v2.19.0
-	github.com/onsi/gomega v1.33.1
+	github.com/holiman/uint256 v1.3.1
+	github.com/onsi/gomega v1.34.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
@@ -52,7 +56,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/tidwall/gjson v1.17.1
+	github.com/tidwall/gjson v1.17.3
 	github.com/tidwall/sjson v1.2.5
 	github.com/tyler-smith/go-bip39 v1.1.0
 	github.com/zondax/hid v0.9.2
@@ -75,13 +79,22 @@ require (
 	cloud.google.com/go/storage v1.38.0 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
+<<<<<<< HEAD
 	cosmossdk.io/x/circuit v0.1.0 // indirect
+=======
+	cosmossdk.io/log v1.3.1 // indirect
+>>>>>>> main
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
+<<<<<<< HEAD
 	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
+=======
+	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
+	github.com/DataDog/zstd v1.5.2 // indirect
+>>>>>>> main
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -94,8 +107,12 @@ require (
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0 // indirect
+<<<<<<< HEAD
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
+=======
+	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
+>>>>>>> main
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
@@ -134,11 +151,17 @@ require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+<<<<<<< HEAD
 	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
+=======
+	github.com/getsentry/sentry-go v0.23.0 // indirect
+	github.com/gin-gonic/gin v1.9.1 // indirect
+	github.com/go-kit/kit v0.12.0 // indirect
+>>>>>>> main
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
@@ -149,7 +172,12 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+<<<<<<< HEAD
 	github.com/golang/snappy v0.0.4 // indirect
+=======
+	github.com/golang/mock v1.6.0 // indirect
+	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
+>>>>>>> main
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
@@ -164,23 +192,37 @@ require (
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.7.5 // indirect
+<<<<<<< HEAD
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
+=======
+>>>>>>> main
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-plugin v1.6.0 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
+<<<<<<< HEAD
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
+=======
+	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
+>>>>>>> main
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
+<<<<<<< HEAD
 	github.com/iancoleman/strcase v0.3.0 // indirect
+=======
+>>>>>>> main
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
+<<<<<<< HEAD
 	github.com/klauspost/compress v1.17.7 // indirect
+=======
+	github.com/klauspost/compress v1.17.0 // indirect
+>>>>>>> main
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/ledgerwatch/erigon-lib v0.0.0-20230210071639-db0e7ed11263 // indirect
@@ -202,6 +244,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/opencontainers/runc v1.1.12 // indirect
+<<<<<<< HEAD
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/petermattis/goid v0.0.0-20231207134359-e60b3f734c67 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
@@ -213,6 +256,19 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rjeczalik/notify v0.9.3 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
+=======
+	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/prometheus/client_golang v1.16.0 // indirect
+	github.com/prometheus/client_model v0.4.0 // indirect
+	github.com/prometheus/common v0.44.0 // indirect
+	github.com/prometheus/procfs v0.12.0 // indirect
+	github.com/prometheus/tsdb v0.10.0 // indirect
+	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/rjeczalik/notify v0.9.3 // indirect
+	github.com/rogpeppe/go-internal v1.11.0 // indirect
+>>>>>>> main
 	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -246,14 +302,25 @@ require (
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
+<<<<<<< HEAD
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
+=======
+	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/oauth2 v0.20.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+>>>>>>> main
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+<<<<<<< HEAD
 	google.golang.org/api v0.171.0 // indirect
+=======
+	google.golang.org/api v0.169.0 // indirect
+>>>>>>> main
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -272,11 +339,18 @@ replace (
 	cosmossdk.io/store => github.com/evmos/cosmos-sdk/store v0.0.0-20240718141609-414cbd051fbe
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+<<<<<<< HEAD
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.50.8-evmos.2
+=======
+	// use Cosmos-SDK fork to enable Ledger functionality
+	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.47.13-evmos
+>>>>>>> main
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc4
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	// need this replace with cosmos-sdk v0.47.11 (more info here https://github.com/cosmos/cosmos-sdk/issues/20159)
+	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )

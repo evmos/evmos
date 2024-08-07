@@ -6,9 +6,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v18/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
+=======
+	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+>>>>>>> main
 )
 
 func TestUpdateParams(t *testing.T) {

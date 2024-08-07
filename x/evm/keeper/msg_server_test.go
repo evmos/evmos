@@ -8,9 +8,16 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+<<<<<<< HEAD
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v18/x/evm/types"
+=======
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 func (suite *KeeperTestSuite) TestEthereumTx() {

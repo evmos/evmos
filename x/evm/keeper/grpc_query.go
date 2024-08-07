@@ -10,8 +10,13 @@ import (
 	"math/big"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/logger"
 	"github.com/evmos/evmos/v18/x/evm/core/tracers"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/logger"
+	"github.com/evmos/evmos/v19/x/evm/core/tracers"
+>>>>>>> main
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,12 +30,16 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 
-	evmostypes "github.com/evmos/evmos/v18/types"
-	evmante "github.com/evmos/evmos/v18/x/evm/ante"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	evmante "github.com/evmos/evmos/v19/x/evm/ante"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var _ types.QueryServer = Keeper{}

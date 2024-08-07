@@ -4,7 +4,12 @@ package v3
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+=======
+	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+>>>>>>> main
 )
 
 // MigrateStore migrates the x/vesting module state from the consensus version 2 to

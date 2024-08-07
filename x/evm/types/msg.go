@@ -22,8 +22,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
+<<<<<<< HEAD
 	evmapi "github.com/evmos/evmos/v18/api/ethermint/evm/v1"
 	"github.com/evmos/evmos/v18/types"
+=======
+	"github.com/evmos/evmos/v19/types"
+>>>>>>> main
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -311,7 +315,7 @@ func (msg *MsgEthereumTx) GetSender(chainID *big.Int) (common.Address, error) {
 	return from, nil
 }
 
-// UnpackInterfaces implements UnpackInterfacesMesssage.UnpackInterfaces
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (msg MsgEthereumTx) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return unpacker.UnpackAny(msg.Data, new(TxData))
 }

@@ -9,8 +9,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 // GetParams returns the total set of evm parameters.
@@ -88,7 +93,7 @@ func appendPrecompiles(existingPrecompiles []string, addresses ...common.Address
 }
 
 // EnableEIPs enables the given EIPs in the EVM parameters.
-func (k Keeper) EnableEIPs(ctx sdk.Context, eips ...int64) error {
+func (k Keeper) EnableEIPs(ctx sdk.Context, eips ...string) error {
 	evmParams := k.GetParams(ctx)
 	evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eips...)
 

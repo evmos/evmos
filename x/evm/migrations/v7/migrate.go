@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+<<<<<<< HEAD
 package v7
 
 import (
@@ -13,6 +14,25 @@ import (
 
 // MigrateStore migrates the x/evm module state from the consensus version 6 to
 // version 7. Specifically, it adds the new AccessControl policy.
+=======
+
+package v7
+
+import (
+	"fmt"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
+)
+
+// MigrateStore migrates the x/evm module state from the consensus version 6 to
+// version 7. Specifically, it changes the type of the Params ExtraEIPs from
+// []int64 to []string and introduces the access control.
+>>>>>>> main
 func MigrateStore(
 	ctx sdk.Context,
 	storeKey storetypes.StoreKey,
@@ -29,7 +49,10 @@ func MigrateStore(
 	cdc.MustUnmarshal(paramsV6Bz, &paramsV6)
 
 	params.EvmDenom = paramsV6.EvmDenom
+<<<<<<< HEAD
 	params.ExtraEIPs = paramsV6.ExtraEIPs
+=======
+>>>>>>> main
 	params.ChainConfig = types.ChainConfig{
 		HomesteadBlock:      paramsV6.ChainConfig.HomesteadBlock,
 		DAOForkBlock:        paramsV6.ChainConfig.DAOForkBlock,
@@ -58,6 +81,18 @@ func MigrateStore(
 	// set the default access control configuration
 	params.AccessControl = types.DefaultAccessControl
 
+<<<<<<< HEAD
+=======
+	// Migrate old ExtraEIPs from int64 to string. Since no Evmos EIPs have been
+	// created before and activators contains only `ethereum_XXXX` activations,
+	// all values will be prefixed with `ethereum_`.
+	params.ExtraEIPs = make([]string, 0, len(paramsV6.ExtraEIPs))
+	for _, eip := range paramsV6.ExtraEIPs {
+		eipName := fmt.Sprintf("ethereum_%d", eip)
+		params.ExtraEIPs = append(params.ExtraEIPs, eipName)
+	}
+
+>>>>>>> main
 	if err := params.Validate(); err != nil {
 		return err
 	}
@@ -65,5 +100,9 @@ func MigrateStore(
 	bz := cdc.MustMarshal(&params)
 
 	store.Set(types.KeyPrefixParams, bz)
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 	return nil
 }

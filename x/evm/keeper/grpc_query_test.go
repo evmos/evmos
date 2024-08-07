@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
+<<<<<<< HEAD
 	ethlogger "github.com/evmos/evmos/v18/x/evm/core/logger"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 
@@ -26,11 +27,29 @@ import (
 	"github.com/evmos/evmos/v18/x/evm/statedb"
 	"github.com/evmos/evmos/v18/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+=======
+	ethlogger "github.com/evmos/evmos/v19/x/evm/core/logger"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+
+	"github.com/evmos/evmos/v19/server/config"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
+<<<<<<< HEAD
+=======
+// expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
+const expGasConsumed = 7475
+
+// expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
+const expGasConsumedWithFeeMkt = 7469
+
+>>>>>>> main
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	testCases := []struct {
 		msg         string
@@ -808,16 +827,24 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
 				}
+<<<<<<< HEAD
 				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
+<<<<<<< HEAD
 				err = suite.network.App.EvmKeeper.SetParams(
 					suite.network.GetContext(),
 					params,
 				)
+=======
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+>>>>>>> main
 				suite.Require().NoError(err)
 
 				return args
@@ -1089,7 +1116,20 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 					ConstructorArgs: constructorArgs,
 				}
 
+<<<<<<< HEAD
 				txArgs, err := suite.factory.GenerateDeployContractArgs(senderKey.Addr, types.EvmTxArgs{}, deploymentData)
+=======
+				predecessors = append(predecessors, contractTx)
+				suite.Commit()
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.AccessControl = types.AccessControl{
+					Create: types.AccessControlType{
+						AccessType: types.AccessTypeRestricted,
+					},
+				}
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+>>>>>>> main
 				suite.Require().NoError(err)
 
 				txMsg, err := suite.factory.GenerateMsgEthereumTx(senderKey.Priv, txArgs)
@@ -1112,8 +1152,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				return []*types.MsgEthereumTx{&txMsg}
 			},
 			expPass:       true,
+<<<<<<< HEAD
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			// expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+=======
+			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			expFinalGas:   27140, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+>>>>>>> main
 		},
 		{
 			msg: "invalid chain id",
@@ -1544,7 +1589,11 @@ func (suite *KeeperTestSuite) TestEthCall() {
 
 	testCases := []struct {
 		name       string
+<<<<<<< HEAD
 		getReq     func() *types.EthCallRequest
+=======
+		malleate   func()
+>>>>>>> main
 		expVMError bool
 	}{
 		{
@@ -1572,7 +1621,11 @@ func (suite *KeeperTestSuite) TestEthCall() {
 		},
 		{
 			"set param AccessControl - no Access",
+<<<<<<< HEAD
 			func() *types.EthCallRequest {
+=======
+			func() {
+>>>>>>> main
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &sender,
 					Data: (*hexutil.Bytes)(&data),
@@ -1581,13 +1634,21 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				suite.Require().NoError(err)
 				req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
+<<<<<<< HEAD
 				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
+<<<<<<< HEAD
 				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+=======
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+>>>>>>> main
 				suite.Require().NoError(err)
 				return req
 			},
@@ -1595,24 +1656,41 @@ func (suite *KeeperTestSuite) TestEthCall() {
 		},
 		{
 			"set param AccessControl = non whitelist",
+<<<<<<< HEAD
 			func() *types.EthCallRequest {
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &sender,
+=======
+			func() {
+				args, err := json.Marshal(&types.TransactionArgs{
+					From: &address,
+>>>>>>> main
 					Data: (*hexutil.Bytes)(&data),
 				})
 
 				suite.Require().NoError(err)
+<<<<<<< HEAD
 				req := &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+=======
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+>>>>>>> main
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypePermissioned,
 					},
 				}
+<<<<<<< HEAD
 				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
 				return req
+=======
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+>>>>>>> main
 			},
 			true,
 		},
@@ -1621,7 +1699,11 @@ func (suite *KeeperTestSuite) TestEthCall() {
 		suite.Run(tc.name, func() {
 			req := tc.getReq()
 
+<<<<<<< HEAD
 			res, err := suite.network.GetEvmClient().EthCall(suite.network.GetContext(), req)
+=======
+			res, err := suite.queryClient.EthCall(suite.ctx, req)
+>>>>>>> main
 			if tc.expVMError {
 				suite.Require().NotNil(res)
 				suite.Require().Contains(res.VmError, "does not have permission to deploy contracts")

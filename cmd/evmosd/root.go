@@ -48,6 +48,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
+<<<<<<< HEAD
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
 	evmosclient "github.com/evmos/evmos/v18/client"
@@ -58,10 +59,20 @@ import (
 	evmosserver "github.com/evmos/evmos/v18/server"
 	servercfg "github.com/evmos/evmos/v18/server/config"
 	srvflags "github.com/evmos/evmos/v18/server/flags"
+=======
+	evmosclient "github.com/evmos/evmos/v19/client"
+	"github.com/evmos/evmos/v19/client/block"
+	"github.com/evmos/evmos/v19/client/debug"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v19/server"
+	servercfg "github.com/evmos/evmos/v19/server/config"
+	srvflags "github.com/evmos/evmos/v19/server/flags"
+>>>>>>> main
 
-	"github.com/evmos/evmos/v18/app"
-	cmdcfg "github.com/evmos/evmos/v18/cmd/config"
-	evmoskr "github.com/evmos/evmos/v18/crypto/keyring"
+	"github.com/evmos/evmos/v19/app"
+	cmdcfg "github.com/evmos/evmos/v19/cmd/config"
+	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
 )
 
 const (

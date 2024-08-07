@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
@@ -1171,12 +1171,18 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+<<<<<<< HEAD
 			suite.WithEvmParamsOptions(func(params *evmtypes.Params) {
 				params.AccessControl = tc.permissions
 			})
 			// clean up the evmParamsOption
 			defer suite.ResetEvmParamsOptions()
 
+=======
+			suite.evmParamsOption = func(params *evmtypes.Params) {
+				params.AccessControl = tc.permissions
+			}
+>>>>>>> main
 			suite.SetupTest() // reset
 
 			ctx := suite.GetNetwork().GetContext()

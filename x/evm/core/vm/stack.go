@@ -39,7 +39,11 @@ type Stack struct {
 func NewStack() (*Stack, error) {
 	stack, ok := stackPool.Get().(*Stack)
 	if !ok {
+<<<<<<< HEAD
 		return nil, fmt.Errorf("Type assertion failure: cannot get Stack pointer from stackPool")
+=======
+		return nil, fmt.Errorf("type assertion failure: cannot get Stack pointer from stackPool")
+>>>>>>> main
 	}
 	return stack, nil
 }
@@ -125,7 +129,11 @@ type ReturnStack struct {
 func NewReturnStack() (*ReturnStack, error) {
 	rStack, ok := rStackPool.Get().(*ReturnStack)
 	if !ok {
+<<<<<<< HEAD
 		return nil, fmt.Errorf("Type assertion failure: cannot get ReturnStack pointer from rStackPool")
+=======
+		return nil, fmt.Errorf("type assertion failure: cannot get ReturnStack pointer from rStackPool")
+>>>>>>> main
 	}
 	return rStack, nil
 }

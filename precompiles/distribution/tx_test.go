@@ -5,19 +5,31 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/precompiles/testutil"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+<<<<<<< HEAD
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/precompiles/distribution"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
+=======
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/distribution"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+>>>>>>> main
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
@@ -386,7 +398,40 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			"invalid type for maxRetrieve: expected uint32",
 		},
 		{
+<<<<<<< HEAD
 			"fail - too many retrieved results",
+=======
+			"pass - withdraw from validators with maxRetrieve higher than number of validators",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(10),
+				}
+			},
+			func([]byte) {
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
+			},
+			20000,
+			false,
+			"",
+		},
+		{
+			"fail - too many retrieved results",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(32_000_000),
+				}
+			},
+			func([]byte) {},
+			200000,
+			true,
+			"maxRetrieve (32000000) parameter exceeds the maximum number of validators (100)",
+		},
+		{
+			"success - withdraw from all validators - 2",
+>>>>>>> main
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -563,6 +608,84 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			s.Require().Equal(balance.Amount, network.PrefundedAccountInitialBalance)
 
 			bz, err := s.precompile.FundCommunityPool(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
+
+			if tc.expError {
+				s.Require().ErrorContains(err, tc.errContains)
+			} else {
+				s.Require().NoError(err)
+				tc.postCheck(bz)
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestFundCommunityPool() {
+	method := s.precompile.Methods[distribution.FundCommunityPoolMethod]
+
+	testCases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func(data []byte)
+		gas         uint64
+		expError    bool
+		errContains string
+	}{
+		{
+			"fail - empty input args",
+			func() []interface{} {
+				return []interface{}{}
+			},
+			func([]byte) {},
+			200000,
+			true,
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+		},
+		{
+			"fail - invalid depositor address",
+			func() []interface{} {
+				return []interface{}{
+					nil,
+					big.NewInt(1e18),
+				}
+			},
+			func([]byte) {},
+			200000,
+			true,
+			"invalid hex address address",
+		},
+		{
+			"success - fund the community pool 1 EVMOS",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					big.NewInt(1e18),
+				}
+			},
+			func([]byte) {
+				coins := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
+				s.Require().Equal(expectedAmount, coins.AmountOf(utils.BaseDenom).BigInt())
+				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(big.NewInt(4e18), userBalance.Amount.BigInt())
+			},
+			20000,
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			var contract *vm.Contract
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+
+			// Sanity check to make sure the starting balance is always 5 EVMOS
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
+
+			bz, err := s.precompile.FundCommunityPool(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

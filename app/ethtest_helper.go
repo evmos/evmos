@@ -24,10 +24,15 @@ import (
 	cmtypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 
 	"github.com/evmos/evmos/v18/encoding"
 	evmostypes "github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
+=======
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/utils"
+>>>>>>> main
 )
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in

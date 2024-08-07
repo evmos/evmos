@@ -6,12 +6,20 @@ import (
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/app"
 	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
 	"github.com/evmos/evmos/v18/testutil"
 	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
 	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
 	"github.com/evmos/evmos/v18/utils"
+=======
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/testutil"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+>>>>>>> main
 )
 
 type deductFeeDecoratorTestCase struct {
@@ -67,14 +75,14 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			errContains: "must provide positive gas",
 		},
 		{
-			name:        "fail - checkTx - insufficient funds and no staking rewards",
+			name:        "fail - checkTx - insufficient funds",
 			balance:     zero,
 			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
-			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			errContains: "failed to deduct fee: spendable balance",
 			postCheck: func() {
 				// the balance should not have changed
 				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
@@ -87,6 +95,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
+<<<<<<< HEAD
 			name:        "pass - insufficient funds but sufficient staking rewards",
 			balance:     zero,
 			rewards:     []math.Int{initBalance},
@@ -111,13 +120,16 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
+=======
+			name:        "fail - insufficient funds",
+>>>>>>> main
 			balance:     math.NewInt(1e5),
 			rewards:     []math.Int{math.NewInt(1e5)},
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
 			expPass:     false,
-			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			errContains: "failed to deduct fee: spendable balance",
 			postCheck: func() {
 				// the balance should not have changed
 				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)

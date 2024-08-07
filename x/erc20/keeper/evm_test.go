@@ -8,15 +8,20 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	testfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/x/erc20/keeper"
-	"github.com/evmos/evmos/v18/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v18/x/erc20/types/mocks"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/x/erc20/keeper"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	erc20mocks "github.com/evmos/evmos/v19/x/erc20/types/mocks"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -125,7 +130,11 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 		tc.malleate()
 
 		abi := contracts.ERC20MinterBurnerDecimalsContract.ABI
+<<<<<<< HEAD
 		balance := suite.network.App.Erc20Keeper.BalanceOf(suite.network.GetContext(), abi, contract, utiltx.GenerateAddress())
+=======
+		balance := suite.app.Erc20Keeper.BalanceOf(suite.ctx, abi, contract, utiltx.GenerateAddress())
+>>>>>>> main
 		if tc.res {
 			suite.Require().Equal(balance.Int64(), tc.expBalance)
 		} else {

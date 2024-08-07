@@ -3,8 +3,13 @@ package types_test
 import (
 	"testing"
 
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/erc20/types"
+=======
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+>>>>>>> main
 	"github.com/stretchr/testify/suite"
 )
 

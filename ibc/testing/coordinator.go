@@ -13,8 +13,13 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+<<<<<<< HEAD
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/evmos/v18/app"
+=======
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/evmos/evmos/v19/app"
+>>>>>>> main
 	"github.com/stretchr/testify/require"
 )
 
@@ -60,7 +65,7 @@ func SetupPath(coord *ibctesting.Coordinator, path *Path) {
 	CreateChannels(coord, path)
 }
 
-// SetupClientConnections is a helper function to create clients and the appropriate
+// SetupConnections is a helper function to create clients and the appropriate
 // connections on both the source and counterparty chain. It assumes the caller does not
 // anticipate any errors.
 func SetupConnections(coord *ibctesting.Coordinator, path *Path) {

@@ -10,9 +10,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-	"github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
+	"github.com/evmos/evmos/v19/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // UpdateCumulativeGasWanted updates the cumulative gas wanted
@@ -79,18 +79,6 @@ func deductFees(
 		return nil
 	}
 
-	// If the account balance is not sufficient, try to withdraw enough staking rewards
-	if err := anteutils.ClaimStakingRewardsIfNecessary(
-		ctx,
-		keepers.Bank,
-		keepers.Distribution,
-		keepers.Staking,
-		feePayer,
-		fees,
-	); err != nil {
-		return err
-	}
-
 	if err := keepers.Evm.DeductTxCostsFromUserBalance(
 		ctx,
 		fees,
@@ -98,6 +86,7 @@ func deductFees(
 	); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
+
 	return nil
 }
 

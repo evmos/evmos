@@ -4,6 +4,7 @@
 package types
 
 import (
+<<<<<<< HEAD
 	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -17,6 +18,31 @@ import (
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+=======
+	fmt "fmt"
+<<<<<<<< HEAD:x/evm/migrations/v6/types/evm.pb.go
+	cosmossdk_io_math "cosmossdk.io/math"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
+========
+>>>>>>>> main:x/evm/migrations/v7/types/evm.pb.go
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
+	cosmossdk_io_math "cosmossdk.io/math"
+
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
+)
+
+// Reference imports to suppress errors if they are not otherwise used.
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
+>>>>>>> main
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -24,15 +50,53 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+<<<<<<< HEAD
+=======
+// V6AccessType defines the types of permissions for the operations
+type V6AccessType int32
+
+const (
+	// ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone
+	AccessTypePermissionless V6AccessType = 0
+	// ACCESS_TYPE_RESTRICTED restrict the operation to anyone
+	AccessTypeRestricted V6AccessType = 1
+	// ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses
+	AccessTypePermissioned V6AccessType = 2
+)
+
+var V6AccessType_name = map[int32]string{
+	0: "ACCESS_TYPE_PERMISSIONLESS",
+	1: "ACCESS_TYPE_RESTRICTED",
+	2: "ACCESS_TYPE_PERMISSIONED",
+}
+
+var V6AccessType_value = map[string]int32{
+	"ACCESS_TYPE_PERMISSIONLESS": 0,
+	"ACCESS_TYPE_RESTRICTED":     1,
+	"ACCESS_TYPE_PERMISSIONED":   2,
+}
+
+func (x V6AccessType) String() string {
+	return proto.EnumName(V6AccessType_name, int32(x))
+}
+
+func (V6AccessType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_d21ecc92c8c8583e, []int{0}
+}
+
+>>>>>>> main
 // V6Params defines the EVM module parameters
 type V6Params struct {
 	// evm_denom represents the token denomination used to run the EVM state
 	// transitions.
 	EvmDenom string `protobuf:"bytes,1,opt,name=evm_denom,json=evmDenom,proto3" json:"evm_denom,omitempty" yaml:"evm_denom"`
+<<<<<<< HEAD
 	// enable_create toggles state transitions that use the vm.Create function
 	EnableCreate bool `protobuf:"varint,2,opt,name=enable_create,json=enableCreate,proto3" json:"enable_create,omitempty" yaml:"enable_create"`
 	// enable_call toggles state transitions that use the vm.Call function
 	EnableCall bool `protobuf:"varint,3,opt,name=enable_call,json=enableCall,proto3" json:"enable_call,omitempty" yaml:"enable_call"`
+=======
+>>>>>>> main
 	// extra_eips defines the additional EIPs for the vm.Config
 	ExtraEIPs []int64 `protobuf:"varint,4,rep,packed,name=extra_eips,json=extraEips,proto3" json:"extra_eips,omitempty" yaml:"extra_eips"`
 	// chain_config defines the EVM chain configuration parameters
@@ -45,6 +109,11 @@ type V6Params struct {
 	ActivePrecompiles []string `protobuf:"bytes,7,rep,name=active_precompiles,json=activePrecompiles,proto3" json:"active_precompiles,omitempty"`
 	// evm_channels is the list of channel identifiers from EVM compatible chains
 	EVMChannels []string `protobuf:"bytes,8,rep,name=evm_channels,json=evmChannels,proto3" json:"evm_channels,omitempty"`
+<<<<<<< HEAD
+=======
+	// access_control defines the permission policy of the EVM
+	AccessControl V6AccessControl `protobuf:"bytes,9,opt,name=access_control,json=accessControl,proto3" json:"access_control"`
+>>>>>>> main
 }
 
 func (m *V6Params) Reset()         { *m = V6Params{} }
@@ -53,9 +122,17 @@ func (*V6Params) ProtoMessage()    {}
 func (*V6Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d21ecc92c8c8583e, []int{0}
 }
+<<<<<<< HEAD
 func (m *V6Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+
+func (m *V6Params) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
@@ -68,12 +145,24 @@ func (m *V6Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6Params) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Params.Merge(m, src)
 }
 func (m *V6Params) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6Params) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Params.Merge(m, src)
+}
+
+func (m *V6Params) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6Params) XXX_DiscardUnknown() {
 	xxx_messageInfo_Params.DiscardUnknown(m)
 }
@@ -87,6 +176,7 @@ func (m *V6Params) GetEvmDenom() string {
 	return ""
 }
 
+<<<<<<< HEAD
 func (m *V6Params) GetEnableCreate() bool {
 	if m != nil {
 		return m.EnableCreate
@@ -101,6 +191,8 @@ func (m *V6Params) GetEnableCall() bool {
 	return false
 }
 
+=======
+>>>>>>> main
 func (m *V6Params) GetExtraEIPs() []int64 {
 	if m != nil {
 		return m.ExtraEIPs
@@ -136,17 +228,199 @@ func (m *V6Params) GetEVMChannels() []string {
 	return nil
 }
 
+<<<<<<< HEAD
+=======
+func (m *V6Params) GetAccessControl() V6AccessControl {
+	if m != nil {
+		return m.AccessControl
+	}
+	return V6AccessControl{}
+}
+
+// V6AccessControl defines the permission policy of the EVM
+// for creating and calling contracts
+type V6AccessControl struct {
+	// create defines the permission policy for creating contracts
+	Create V6AccessControlType `protobuf:"bytes,1,opt,name=create,proto3" json:"create"`
+	// call defines the permission policy for calling contracts
+	Call V6AccessControlType `protobuf:"bytes,2,opt,name=call,proto3" json:"call"`
+}
+
+func (m *V6AccessControl) Reset()         { *m = V6AccessControl{} }
+func (m *V6AccessControl) String() string { return proto.CompactTextString(m) }
+func (*V6AccessControl) ProtoMessage()    {}
+func (*V6AccessControl) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d21ecc92c8c8583e, []int{1}
+}
+
+func (m *V6AccessControl) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+func (m *V6AccessControl) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AccessControl.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+
+func (m *V6AccessControl) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccessControl.Merge(m, src)
+}
+
+func (m *V6AccessControl) XXX_Size() int {
+	return m.Size()
+}
+
+func (m *V6AccessControl) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccessControl.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccessControl proto.InternalMessageInfo
+
+func (m *V6AccessControl) GetCreate() V6AccessControlType {
+	if m != nil {
+		return m.Create
+	}
+	return V6AccessControlType{}
+}
+
+func (m *V6AccessControl) GetCall() V6AccessControlType {
+	if m != nil {
+		return m.Call
+	}
+	return V6AccessControlType{}
+}
+
+// V6AccessControlType defines the permission type for policies
+type V6AccessControlType struct {
+	// access_type defines which type of permission is required for the operation
+	AccessType V6AccessType `protobuf:"varint,1,opt,name=access_type,json=accessType,proto3,enum=ethermint.evm.v1.AccessType" json:"access_type,omitempty" yaml:"access_type"`
+	// access_control_list defines defines different things depending on the AccessType:
+	// - ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation
+	// - ACCESS_TYPE_RESTRICTED: ignored
+	// - ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation
+	AccessControlList []string `protobuf:"bytes,2,rep,name=access_control_list,json=accessControlList,proto3" json:"access_control_list,omitempty" yaml:"access_control_list"`
+}
+
+func (m *V6AccessControlType) Reset()         { *m = V6AccessControlType{} }
+func (m *V6AccessControlType) String() string { return proto.CompactTextString(m) }
+func (*V6AccessControlType) ProtoMessage()    {}
+func (*V6AccessControlType) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d21ecc92c8c8583e, []int{2}
+}
+
+func (m *V6AccessControlType) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+func (m *V6AccessControlType) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AccessControlType.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+
+func (m *V6AccessControlType) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccessControlType.Merge(m, src)
+}
+
+func (m *V6AccessControlType) XXX_Size() int {
+	return m.Size()
+}
+
+func (m *V6AccessControlType) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccessControlType.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccessControlType proto.InternalMessageInfo
+
+func (m *V6AccessControlType) GetAccessType() V6AccessType {
+	if m != nil {
+		return m.AccessType
+	}
+	return AccessTypePermissionless
+}
+
+func (m *V6AccessControlType) GetAccessControlList() []string {
+	if m != nil {
+		return m.AccessControlList
+	}
+	return nil
+}
+
+>>>>>>> main
 // V6ChainConfig defines the Ethereum V6ChainConfig parameters using *sdk.Int values
 // instead of *big.Int.
 type V6ChainConfig struct {
 	// homestead_block switch (nil no fork, 0 = already homestead)
+<<<<<<< HEAD
 	HomesteadBlock *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=homestead_block,json=homesteadBlock,proto3,customtype=cosmossdk.io/math.Int" json:"homestead_block,omitempty" yaml:"homestead_block"`
 	// dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)
 	DAOForkBlock *cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=dao_fork_block,json=daoForkBlock,proto3,customtype=cosmossdk.io/math.Int" json:"dao_fork_block,omitempty" yaml:"dao_fork_block"`
+=======
+<<<<<<<< HEAD:x/evm/migrations/v6/types/evm.pb.go
+	HomesteadBlock *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=homestead_block,json=homesteadBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"homestead_block,omitempty" yaml:"homestead_block"`
+	// dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)
+	DAOForkBlock *cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=dao_fork_block,json=daoForkBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"dao_fork_block,omitempty" yaml:"dao_fork_block"`
+========
+	HomesteadBlock *cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=homestead_block,json=homesteadBlock,proto3,customtype=cosmossdk.io/math.Int" json:"homestead_block,omitempty" yaml:"homestead_block"`
+	// dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)
+	DAOForkBlock *cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=dao_fork_block,json=daoForkBlock,proto3,customtype=cosmossdk.io/math.Int" json:"dao_fork_block,omitempty" yaml:"dao_fork_block"`
+>>>>>>>> main:x/evm/migrations/v7/types/evm.pb.go
+>>>>>>> main
 	// dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork
 	DAOForkSupport bool `protobuf:"varint,3,opt,name=dao_fork_support,json=daoForkSupport,proto3" json:"dao_fork_support,omitempty" yaml:"dao_fork_support"`
 	// eip150_block: EIP150 implements the Gas price changes
 	// (https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:x/evm/migrations/v6/types/evm.pb.go
+	EIP150Block *cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=eip150_block,json=eip150Block,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"eip150_block,omitempty" yaml:"eip150_block"`
+	// eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)
+	EIP150Hash string `protobuf:"bytes,5,opt,name=eip150_hash,json=eip150Hash,proto3" json:"eip150_hash,omitempty" yaml:"byzantium_block"`
+	// eip155_block: EIP155Block HF block
+	EIP155Block *cosmossdk_io_math.Int `protobuf:"bytes,6,opt,name=eip155_block,json=eip155Block,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"eip155_block,omitempty" yaml:"eip155_block"`
+	// eip158_block: EIP158 HF block
+	EIP158Block *cosmossdk_io_math.Int `protobuf:"bytes,7,opt,name=eip158_block,json=eip158Block,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"eip158_block,omitempty" yaml:"eip158_block"`
+	// byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)
+	ByzantiumBlock *cosmossdk_io_math.Int `protobuf:"bytes,8,opt,name=byzantium_block,json=byzantiumBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"byzantium_block,omitempty" yaml:"byzantium_block"`
+	// constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)
+	ConstantinopleBlock *cosmossdk_io_math.Int `protobuf:"bytes,9,opt,name=constantinople_block,json=constantinopleBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"constantinople_block,omitempty" yaml:"constantinople_block"`
+	// petersburg_block: Petersburg switch block (nil same as Constantinople)
+	PetersburgBlock *cosmossdk_io_math.Int `protobuf:"bytes,10,opt,name=petersburg_block,json=petersburgBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"petersburg_block,omitempty" yaml:"petersburg_block"`
+	// istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)
+	IstanbulBlock *cosmossdk_io_math.Int `protobuf:"bytes,11,opt,name=istanbul_block,json=istanbulBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"istanbul_block,omitempty" yaml:"istanbul_block"`
+	// muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)
+	MuirGlacierBlock *cosmossdk_io_math.Int `protobuf:"bytes,12,opt,name=muir_glacier_block,json=muirGlacierBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"muir_glacier_block,omitempty" yaml:"muir_glacier_block"`
+	// berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)
+	BerlinBlock *cosmossdk_io_math.Int `protobuf:"bytes,13,opt,name=berlin_block,json=berlinBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"berlin_block,omitempty" yaml:"berlin_block"`
+	// london_block: London switch block (nil = no fork, 0 = already on london)
+	LondonBlock *cosmossdk_io_math.Int `protobuf:"bytes,17,opt,name=london_block,json=londonBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"london_block,omitempty" yaml:"london_block"`
+	// arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)
+	ArrowGlacierBlock *cosmossdk_io_math.Int `protobuf:"bytes,18,opt,name=arrow_glacier_block,json=arrowGlacierBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"arrow_glacier_block,omitempty" yaml:"arrow_glacier_block"`
+	// gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)
+	GrayGlacierBlock *cosmossdk_io_math.Int `protobuf:"bytes,20,opt,name=gray_glacier_block,json=grayGlacierBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"gray_glacier_block,omitempty" yaml:"gray_glacier_block"`
+	// merge_netsplit_block: Virtual fork after The Merge to use as a network splitter
+	MergeNetsplitBlock *cosmossdk_io_math.Int `protobuf:"bytes,21,opt,name=merge_netsplit_block,json=mergeNetsplitBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"merge_netsplit_block,omitempty" yaml:"merge_netsplit_block"`
+	// shanghai_block switch block (nil = no fork, 0 = already on shanghai)
+	ShanghaiBlock *cosmossdk_io_math.Int `protobuf:"bytes,22,opt,name=shanghai_block,json=shanghaiBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"shanghai_block,omitempty" yaml:"shanghai_block"`
+	// cancun_block switch block (nil = no fork, 0 = already on cancun)
+	CancunBlock *cosmossdk_io_math.Int `protobuf:"bytes,23,opt,name=cancun_block,json=cancunBlock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"cancun_block,omitempty" yaml:"cancun_block"`
+========
+>>>>>>> main
 	EIP150Block *cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=eip150_block,json=eip150Block,proto3,customtype=cosmossdk.io/math.Int" json:"eip150_block,omitempty" yaml:"eip150_block"`
 	// eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)
 	EIP150Hash string `protobuf:"bytes,5,opt,name=eip150_hash,json=eip150Hash,proto3" json:"eip150_hash,omitempty" yaml:"byzantium_block"`
@@ -178,17 +452,31 @@ type V6ChainConfig struct {
 	ShanghaiBlock *cosmossdk_io_math.Int `protobuf:"bytes,22,opt,name=shanghai_block,json=shanghaiBlock,proto3,customtype=cosmossdk.io/math.Int" json:"shanghai_block,omitempty" yaml:"shanghai_block"`
 	// cancun_block switch block (nil = no fork, 0 = already on cancun)
 	CancunBlock *cosmossdk_io_math.Int `protobuf:"bytes,23,opt,name=cancun_block,json=cancunBlock,proto3,customtype=cosmossdk.io/math.Int" json:"cancun_block,omitempty" yaml:"cancun_block"`
+<<<<<<< HEAD
+=======
+>>>>>>>> main:x/evm/migrations/v7/types/evm.pb.go
+>>>>>>> main
 }
 
 func (m *V6ChainConfig) Reset()         { *m = V6ChainConfig{} }
 func (m *V6ChainConfig) String() string { return proto.CompactTextString(m) }
 func (*V6ChainConfig) ProtoMessage()    {}
 func (*V6ChainConfig) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{1}
 }
 func (m *V6ChainConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{3}
+}
+
+func (m *V6ChainConfig) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ChainConfig.Marshal(b, m, deterministic)
@@ -201,12 +489,24 @@ func (m *V6ChainConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6ChainConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ChainConfig.Merge(m, src)
 }
 func (m *V6ChainConfig) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6ChainConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChainConfig.Merge(m, src)
+}
+
+func (m *V6ChainConfig) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6ChainConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_ChainConfig.DiscardUnknown(m)
 }
@@ -239,11 +539,21 @@ func (m *V6State) Reset()         { *m = V6State{} }
 func (m *V6State) String() string { return proto.CompactTextString(m) }
 func (*V6State) ProtoMessage()    {}
 func (*V6State) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{2}
 }
 func (m *V6State) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{4}
+}
+
+func (m *V6State) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_State.Marshal(b, m, deterministic)
@@ -256,12 +566,24 @@ func (m *V6State) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6State) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_State.Merge(m, src)
 }
 func (m *V6State) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6State) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_State.Merge(m, src)
+}
+
+func (m *V6State) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6State) XXX_DiscardUnknown() {
 	xxx_messageInfo_State.DiscardUnknown(m)
 }
@@ -296,11 +618,21 @@ func (m *V6TransactionLogs) Reset()         { *m = V6TransactionLogs{} }
 func (m *V6TransactionLogs) String() string { return proto.CompactTextString(m) }
 func (*V6TransactionLogs) ProtoMessage()    {}
 func (*V6TransactionLogs) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{3}
 }
 func (m *V6TransactionLogs) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{5}
+}
+
+func (m *V6TransactionLogs) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TransactionLogs.Marshal(b, m, deterministic)
@@ -313,12 +645,24 @@ func (m *V6TransactionLogs) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6TransactionLogs) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TransactionLogs.Merge(m, src)
 }
 func (m *V6TransactionLogs) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6TransactionLogs) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionLogs.Merge(m, src)
+}
+
+func (m *V6TransactionLogs) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6TransactionLogs) XXX_DiscardUnknown() {
 	xxx_messageInfo_TransactionLogs.DiscardUnknown(m)
 }
@@ -372,11 +716,21 @@ func (m *V6Log) Reset()         { *m = V6Log{} }
 func (m *V6Log) String() string { return proto.CompactTextString(m) }
 func (*V6Log) ProtoMessage()    {}
 func (*V6Log) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{4}
 }
 func (m *V6Log) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{6}
+}
+
+func (m *V6Log) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Log.Marshal(b, m, deterministic)
@@ -389,12 +743,24 @@ func (m *V6Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6Log) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Log.Merge(m, src)
 }
 func (m *V6Log) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6Log) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Log.Merge(m, src)
+}
+
+func (m *V6Log) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6Log) XXX_DiscardUnknown() {
 	xxx_messageInfo_Log.DiscardUnknown(m)
 }
@@ -487,11 +853,21 @@ func (m *V6TxResult) Reset()         { *m = V6TxResult{} }
 func (m *V6TxResult) String() string { return proto.CompactTextString(m) }
 func (*V6TxResult) ProtoMessage()    {}
 func (*V6TxResult) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{5}
 }
 func (m *V6TxResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{7}
+}
+
+func (m *V6TxResult) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TxResult.Marshal(b, m, deterministic)
@@ -504,12 +880,24 @@ func (m *V6TxResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6TxResult) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TxResult.Merge(m, src)
 }
 func (m *V6TxResult) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6TxResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TxResult.Merge(m, src)
+}
+
+func (m *V6TxResult) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6TxResult) XXX_DiscardUnknown() {
 	xxx_messageInfo_TxResult.DiscardUnknown(m)
 }
@@ -528,11 +916,21 @@ func (m *V6AccessTuple) Reset()         { *m = V6AccessTuple{} }
 func (m *V6AccessTuple) String() string { return proto.CompactTextString(m) }
 func (*V6AccessTuple) ProtoMessage()    {}
 func (*V6AccessTuple) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{6}
 }
 func (m *V6AccessTuple) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{8}
+}
+
+func (m *V6AccessTuple) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessTuple.Marshal(b, m, deterministic)
@@ -545,12 +943,24 @@ func (m *V6AccessTuple) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6AccessTuple) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessTuple.Merge(m, src)
 }
 func (m *V6AccessTuple) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6AccessTuple) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccessTuple.Merge(m, src)
+}
+
+func (m *V6AccessTuple) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6AccessTuple) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessTuple.DiscardUnknown(m)
 }
@@ -588,11 +998,21 @@ func (m *V6TraceConfig) Reset()         { *m = V6TraceConfig{} }
 func (m *V6TraceConfig) String() string { return proto.CompactTextString(m) }
 func (*V6TraceConfig) ProtoMessage()    {}
 func (*V6TraceConfig) Descriptor() ([]byte, []int) {
+<<<<<<< HEAD
 	return fileDescriptor_d21ecc92c8c8583e, []int{7}
 }
 func (m *V6TraceConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+=======
+	return fileDescriptor_d21ecc92c8c8583e, []int{9}
+}
+
+func (m *V6TraceConfig) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+
+>>>>>>> main
 func (m *V6TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_TraceConfig.Marshal(b, m, deterministic)
@@ -605,12 +1025,24 @@ func (m *V6TraceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
+<<<<<<< HEAD
 func (m *V6TraceConfig) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_TraceConfig.Merge(m, src)
 }
 func (m *V6TraceConfig) XXX_Size() int {
 	return m.Size()
 }
+=======
+
+func (m *V6TraceConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TraceConfig.Merge(m, src)
+}
+
+func (m *V6TraceConfig) XXX_Size() int {
+	return m.Size()
+}
+
+>>>>>>> main
 func (m *V6TraceConfig) XXX_DiscardUnknown() {
 	xxx_messageInfo_TraceConfig.DiscardUnknown(m)
 }
@@ -695,7 +1127,14 @@ func (m *V6TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
+<<<<<<< HEAD
 	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.V6Params")
+=======
+	proto.RegisterEnum("ethermint.evm.v1.V6AccessType", V6AccessType_name, V6AccessType_value)
+	proto.RegisterType((*V6Params)(nil), "ethermint.evm.v1.V6Params")
+	proto.RegisterType((*V6AccessControl)(nil), "ethermint.evm.v1.V6AccessControl")
+	proto.RegisterType((*V6AccessControlType)(nil), "ethermint.evm.v1.V6AccessControlType")
+>>>>>>> main
 	proto.RegisterType((*V6ChainConfig)(nil), "ethermint.evm.v1.V6ChainConfig")
 	proto.RegisterType((*V6State)(nil), "ethermint.evm.v1.V6State")
 	proto.RegisterType((*V6TransactionLogs)(nil), "ethermint.evm.v1.V6TransactionLogs")
@@ -708,6 +1147,7 @@ func init() {
 func init() { proto.RegisterFile("ethermint/evm/v1/evm.proto", fileDescriptor_d21ecc92c8c8583e) }
 
 var fileDescriptor_d21ecc92c8c8583e = []byte{
+<<<<<<< HEAD
 	// 1661 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x57, 0xcd, 0x4f, 0x23, 0xc9,
 	0x15, 0x07, 0x6c, 0xa0, 0x5d, 0x36, 0x76, 0x53, 0x18, 0xd6, 0x3b, 0xa3, 0xd0, 0xa4, 0x0f, 0x11,
@@ -813,6 +1253,127 @@ var fileDescriptor_d21ecc92c8c8583e = []byte{
 	0x7f, 0x14, 0xc5, 0xa2, 0x97, 0x77, 0x0f, 0x02, 0x9a, 0xca, 0xa7, 0x32, 0xe5, 0xe6, 0xef, 0xe0,
 	0xe8, 0xf4, 0x70, 0xa8, 0xde, 0xd0, 0x62, 0xd4, 0x27, 0xbc, 0xbb, 0xa6, 0xde, 0xc6, 0xcf, 0xff,
 	0x17, 0x00, 0x00, 0xff, 0xff, 0xc3, 0x00, 0x49, 0xb2, 0x61, 0x0f, 0x00, 0x00,
+=======
+	// 1884 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x58, 0xdd, 0x4f, 0x2b, 0xc7,
+	0x15, 0xc7, 0x78, 0x81, 0xf5, 0xd8, 0xd8, 0xcb, 0x60, 0x88, 0xe3, 0xa4, 0x2c, 0xdd, 0x56, 0x15,
+	0xad, 0x12, 0xb8, 0x70, 0x43, 0x8b, 0x92, 0x7e, 0x61, 0x70, 0x5a, 0x28, 0xf7, 0x06, 0x8d, 0x49,
+	0xab, 0x54, 0x8d, 0x56, 0xe3, 0xdd, 0x89, 0xbd, 0x61, 0x77, 0xc7, 0xda, 0x19, 0xfb, 0xda, 0xfd,
+	0x0b, 0xa2, 0xdb, 0x97, 0xf6, 0x0f, 0xb8, 0x52, 0xa4, 0xfe, 0x23, 0x7d, 0x8c, 0xfa, 0x94, 0xc7,
+	0xaa, 0x52, 0xb7, 0x95, 0xef, 0x1b, 0x8f, 0xbc, 0x57, 0xaa, 0xe6, 0xc3, 0x9f, 0x10, 0x42, 0x5f,
+	0x60, 0xce, 0xd7, 0xef, 0x77, 0xce, 0x99, 0xb3, 0x3b, 0xb3, 0x06, 0x55, 0xc2, 0xdb, 0x24, 0x89,
+	0x82, 0x98, 0xef, 0x91, 0x5e, 0xb4, 0xd7, 0xdb, 0x17, 0xff, 0x76, 0x3b, 0x09, 0xe5, 0x14, 0x5a,
+	0x63, 0xdb, 0xae, 0x50, 0xf6, 0xf6, 0xab, 0xe5, 0x16, 0x6d, 0x51, 0x69, 0xdc, 0x13, 0x2b, 0xe5,
+	0xe7, 0xfc, 0x3b, 0x0b, 0x96, 0x2f, 0x71, 0x82, 0x23, 0x06, 0xf7, 0x41, 0x8e, 0xf4, 0x22, 0xd7,
+	0x27, 0x31, 0x8d, 0x2a, 0x99, 0xed, 0xcc, 0x4e, 0xae, 0x56, 0xbe, 0x4d, 0x6d, 0x6b, 0x80, 0xa3,
+	0xf0, 0x7d, 0x67, 0x6c, 0x72, 0x90, 0x49, 0x7a, 0xd1, 0xa9, 0x58, 0xc2, 0x63, 0x00, 0x48, 0x9f,
+	0x27, 0xd8, 0x25, 0x41, 0x87, 0x55, 0x8c, 0xed, 0xec, 0x4e, 0xb6, 0xe6, 0x0c, 0x53, 0x3b, 0x57,
+	0x17, 0xda, 0xfa, 0xd9, 0x25, 0xbb, 0x4d, 0xed, 0x35, 0x0d, 0x30, 0x76, 0x74, 0x50, 0x4e, 0x0a,
+	0xf5, 0xa0, 0xc3, 0xe0, 0xa7, 0xa0, 0xe0, 0xb5, 0x71, 0x10, 0xbb, 0x1e, 0x8d, 0x3f, 0x0b, 0x5a,
+	0x95, 0xa5, 0xed, 0xcc, 0x4e, 0xfe, 0xe0, 0x3b, 0xbb, 0xf3, 0xf9, 0xef, 0x9e, 0x08, 0xaf, 0x13,
+	0xe9, 0x54, 0x7b, 0xeb, 0xab, 0xd4, 0x5e, 0xb8, 0x4d, 0xed, 0x75, 0x05, 0x3d, 0x0d, 0xe0, 0xa0,
+	0xbc, 0x37, 0xf1, 0x84, 0x07, 0x60, 0x03, 0x87, 0x21, 0x7d, 0xe1, 0x76, 0x63, 0x51, 0x30, 0xf1,
+	0x38, 0xf1, 0x5d, 0xde, 0x67, 0x95, 0xe5, 0xed, 0xcc, 0x8e, 0x89, 0xd6, 0xa5, 0xf1, 0xe3, 0x89,
+	0xed, 0xaa, 0xcf, 0xe0, 0xbb, 0x00, 0x62, 0x8f, 0x07, 0x3d, 0xe2, 0x76, 0x12, 0xe2, 0xd1, 0xa8,
+	0x13, 0x84, 0x84, 0x55, 0x56, 0xb6, 0xb3, 0x3b, 0x39, 0xb4, 0xa6, 0x2c, 0x97, 0x13, 0x03, 0x3c,
+	0x00, 0x05, 0xd1, 0x1c, 0xaf, 0x8d, 0xe3, 0x98, 0x84, 0xac, 0x62, 0x0a, 0xc7, 0x5a, 0x69, 0x98,
+	0xda, 0xf9, 0xfa, 0x6f, 0x9f, 0x9d, 0x68, 0x35, 0xca, 0x93, 0x5e, 0x34, 0x12, 0xe0, 0xa7, 0xa0,
+	0x88, 0x3d, 0x8f, 0x30, 0x26, 0xb2, 0xe6, 0x09, 0x0d, 0x2b, 0x39, 0x59, 0xb7, 0x7d, 0xb7, 0xee,
+	0x63, 0xe9, 0x77, 0xa2, 0xdc, 0x6a, 0x1b, 0xa2, 0xf2, 0x61, 0x6a, 0xaf, 0xce, 0xa8, 0xd1, 0x2a,
+	0x9e, 0x16, 0xcf, 0x0d, 0x73, 0xd1, 0xca, 0x9e, 0x1b, 0x66, 0xd6, 0x32, 0x9c, 0xbf, 0x64, 0xc0,
+	0xac, 0x33, 0x3c, 0x06, 0xcb, 0x5e, 0x42, 0x30, 0x27, 0x72, 0x97, 0xf3, 0x07, 0xdf, 0xfb, 0x16,
+	0xd2, 0xab, 0x41, 0x87, 0xd4, 0x0c, 0x41, 0x8c, 0x74, 0x20, 0xfc, 0x19, 0x30, 0x3c, 0x1c, 0x86,
+	0x95, 0xc5, 0xff, 0x17, 0x40, 0x86, 0x39, 0xff, 0xca, 0x80, 0xb5, 0x3b, 0x1e, 0xd0, 0x03, 0x79,
+	0xdd, 0x14, 0x3e, 0xe8, 0xa8, 0xe4, 0x8a, 0x07, 0x6f, 0x7f, 0x13, 0xb6, 0x04, 0xfd, 0xfe, 0x30,
+	0xb5, 0xc1, 0x44, 0xbe, 0x4d, 0x6d, 0xa8, 0x46, 0x62, 0x0a, 0xc8, 0x41, 0x00, 0x8f, 0x3d, 0xa0,
+	0x07, 0xd6, 0x67, 0x3b, 0xef, 0x86, 0x01, 0xe3, 0x95, 0x45, 0xb9, 0x69, 0x4f, 0x87, 0xa9, 0x3d,
+	0x9b, 0xd8, 0x45, 0xc0, 0xf8, 0x6d, 0x6a, 0x57, 0x67, 0x50, 0xa7, 0x23, 0x1d, 0x31, 0x12, 0x73,
+	0x01, 0xce, 0x7f, 0x8b, 0x20, 0x3f, 0x35, 0xaf, 0xf0, 0x0f, 0xa0, 0xd4, 0xa6, 0x11, 0x61, 0x9c,
+	0x60, 0xdf, 0x6d, 0x86, 0xd4, 0xbb, 0xd6, 0x0f, 0xd8, 0xd3, 0x7f, 0xa6, 0xf6, 0x86, 0x47, 0x59,
+	0x44, 0x19, 0xf3, 0xaf, 0x77, 0x03, 0xba, 0x17, 0x61, 0xde, 0xde, 0x3d, 0x8b, 0x05, 0xe9, 0xa6,
+	0x22, 0x9d, 0x8b, 0x74, 0x50, 0x71, 0xac, 0xa9, 0x09, 0x05, 0x6c, 0x83, 0xa2, 0x8f, 0xa9, 0xfb,
+	0x19, 0x4d, 0xae, 0x35, 0xf8, 0xa2, 0x04, 0xaf, 0x7d, 0x23, 0xf8, 0x30, 0xb5, 0x0b, 0xa7, 0xc7,
+	0x1f, 0x7d, 0x48, 0x93, 0x6b, 0x09, 0x71, 0x9b, 0xda, 0x1b, 0x8a, 0x6c, 0x16, 0xc8, 0x41, 0x05,
+	0x1f, 0xd3, 0xb1, 0x1b, 0xfc, 0x1d, 0xb0, 0xc6, 0x0e, 0xac, 0xdb, 0xe9, 0xd0, 0x84, 0x57, 0xb2,
+	0xe2, 0x41, 0xaa, 0xbd, 0x3b, 0x4c, 0xed, 0xa2, 0x86, 0x6c, 0x28, 0xcb, 0x6d, 0x6a, 0xbf, 0x31,
+	0x07, 0xaa, 0x63, 0x1c, 0x54, 0xd4, 0xb0, 0xda, 0x15, 0x36, 0x41, 0x81, 0x04, 0x9d, 0xfd, 0xc3,
+	0x27, 0xba, 0x00, 0x43, 0x16, 0xf0, 0x8b, 0x87, 0x0a, 0xc8, 0xd7, 0xcf, 0x2e, 0xf7, 0x0f, 0x9f,
+	0x8c, 0xf2, 0xd7, 0xaf, 0x82, 0x69, 0x14, 0x07, 0xe5, 0x95, 0xa8, 0x92, 0x3f, 0x03, 0x5a, 0x74,
+	0xdb, 0x98, 0xb5, 0xe5, 0x8b, 0x26, 0x57, 0xdb, 0x11, 0x03, 0xa4, 0x90, 0x7e, 0x8d, 0x59, 0x7b,
+	0xd2, 0xf5, 0xe6, 0xe0, 0x8f, 0x38, 0xe6, 0x41, 0x37, 0x1a, 0x61, 0x01, 0x15, 0x2c, 0xbc, 0xc6,
+	0xe9, 0x1e, 0xea, 0x74, 0x97, 0x1f, 0x9b, 0xee, 0xe1, 0x7d, 0xe9, 0x1e, 0xce, 0xa6, 0xab, 0x7c,
+	0xc6, 0x1c, 0x47, 0x9a, 0x63, 0xe5, 0xb1, 0x1c, 0x47, 0xf7, 0x71, 0x1c, 0xcd, 0x72, 0x28, 0x1f,
+	0x31, 0x97, 0x73, 0x75, 0x56, 0xcc, 0x47, 0xcf, 0xe5, 0x9d, 0x0e, 0x15, 0xc7, 0x1a, 0x85, 0x7e,
+	0x0d, 0xca, 0x1e, 0x8d, 0x19, 0x17, 0xba, 0x98, 0x76, 0x42, 0xa2, 0x29, 0x72, 0x92, 0xe2, 0xe8,
+	0x21, 0x8a, 0xb7, 0xf4, 0x8b, 0xfd, 0x9e, 0x70, 0x07, 0xad, 0xcf, 0xaa, 0x15, 0x99, 0x0b, 0xac,
+	0x0e, 0xe1, 0x24, 0x61, 0xcd, 0x6e, 0xd2, 0xd2, 0x44, 0x40, 0x12, 0xbd, 0xf7, 0x10, 0x91, 0x9e,
+	0xd0, 0xf9, 0x50, 0x07, 0x95, 0x26, 0x2a, 0x45, 0xf0, 0x09, 0x28, 0x06, 0x82, 0xb5, 0xd9, 0x0d,
+	0x35, 0x7c, 0x5e, 0xc2, 0x1f, 0x3c, 0x04, 0xaf, 0x9f, 0xaa, 0xd9, 0x40, 0x07, 0xad, 0x8e, 0x14,
+	0x0a, 0xda, 0x07, 0x30, 0xea, 0x06, 0x89, 0xdb, 0x0a, 0xb1, 0x17, 0x90, 0x44, 0xc3, 0x17, 0x24,
+	0xfc, 0x8f, 0x1f, 0x82, 0x7f, 0x53, 0xc1, 0xdf, 0x0d, 0x76, 0x90, 0x25, 0x94, 0xbf, 0x52, 0x3a,
+	0xc5, 0xd2, 0x00, 0x85, 0x26, 0x49, 0xc2, 0x20, 0xd6, 0xf8, 0xab, 0x12, 0xff, 0xc9, 0x43, 0xf8,
+	0x7a, 0x82, 0xa6, 0xc3, 0x1c, 0x94, 0x57, 0xe2, 0x18, 0x34, 0xa4, 0xb1, 0x4f, 0x47, 0xa0, 0x6b,
+	0x8f, 0x06, 0x9d, 0x0e, 0x73, 0x50, 0x5e, 0x89, 0x0a, 0xb4, 0x05, 0xd6, 0x71, 0x92, 0xd0, 0x17,
+	0x73, 0x0d, 0x81, 0x12, 0xfb, 0x27, 0x0f, 0x61, 0x8f, 0xde, 0xd3, 0x77, 0xa3, 0xc5, 0x7b, 0x5a,
+	0x68, 0x67, 0x5a, 0xe2, 0x03, 0xd8, 0x4a, 0xf0, 0x60, 0x8e, 0xa7, 0xfc, 0xe8, 0xc6, 0xdf, 0x0d,
+	0x76, 0x90, 0x25, 0x94, 0x33, 0x2c, 0x9f, 0x83, 0x72, 0x44, 0x92, 0x16, 0x71, 0x63, 0xc2, 0x59,
+	0x27, 0x0c, 0xb8, 0xe6, 0xd9, 0x78, 0xf4, 0x73, 0x70, 0x5f, 0xb8, 0x83, 0xa0, 0x54, 0x3f, 0xd7,
+	0xda, 0xf1, 0x94, 0xb2, 0x36, 0x8e, 0x5b, 0x6d, 0x1c, 0x68, 0x96, 0xcd, 0x47, 0x4f, 0xe9, 0x6c,
+	0xa0, 0x83, 0x56, 0x47, 0x8a, 0xf1, 0x56, 0x7b, 0x38, 0xf6, 0xba, 0xa3, 0xad, 0x7e, 0xe3, 0xd1,
+	0x5b, 0x3d, 0x1d, 0x26, 0xee, 0x67, 0x52, 0x94, 0xa0, 0xe7, 0x86, 0x59, 0xb4, 0x4a, 0xe7, 0x86,
+	0x59, 0xb2, 0xac, 0x73, 0xc3, 0xb4, 0xac, 0xb5, 0x73, 0xc3, 0x5c, 0xb7, 0xca, 0x68, 0x75, 0x40,
+	0x43, 0xea, 0xf6, 0x9e, 0xaa, 0x20, 0x94, 0x27, 0x2f, 0x30, 0xd3, 0x2f, 0x1a, 0x54, 0xf4, 0x30,
+	0xc7, 0xe1, 0x80, 0xe9, 0x46, 0x20, 0x4b, 0xb5, 0x67, 0xea, 0xd8, 0xda, 0x03, 0x4b, 0x0d, 0x2e,
+	0xee, 0x29, 0x16, 0xc8, 0x5e, 0x93, 0x81, 0x3a, 0x6c, 0x91, 0x58, 0xc2, 0x32, 0x58, 0xea, 0xe1,
+	0xb0, 0x4b, 0xd4, 0x19, 0x89, 0x94, 0xe0, 0x5c, 0x82, 0xd2, 0x55, 0x82, 0x63, 0x26, 0x6e, 0x77,
+	0x34, 0xbe, 0xa0, 0x2d, 0x06, 0x21, 0x30, 0xe4, 0x39, 0xa1, 0x62, 0xe5, 0x1a, 0xfe, 0x10, 0x18,
+	0x21, 0x6d, 0x31, 0x79, 0x5b, 0xc8, 0x1f, 0x6c, 0xdc, 0xbd, 0x9a, 0x5c, 0xd0, 0x16, 0x92, 0x2e,
+	0xce, 0xdf, 0x17, 0x41, 0xf6, 0x82, 0xb6, 0x60, 0x05, 0xac, 0x60, 0xdf, 0x4f, 0x08, 0x63, 0x1a,
+	0x69, 0x24, 0xc2, 0x4d, 0xb0, 0xcc, 0x69, 0x27, 0xf0, 0x14, 0x5c, 0x0e, 0x69, 0x49, 0x10, 0xfb,
+	0x98, 0x63, 0x79, 0xb0, 0x16, 0x90, 0x5c, 0x8b, 0x3b, 0xa6, 0xac, 0xcc, 0x8d, 0xbb, 0x51, 0x93,
+	0x24, 0xf2, 0x7c, 0x34, 0x6a, 0xa5, 0x9b, 0xd4, 0xce, 0x4b, 0xfd, 0x73, 0xa9, 0x46, 0xd3, 0x02,
+	0x7c, 0x07, 0xac, 0xf0, 0xfe, 0xf4, 0x59, 0xb7, 0x7e, 0x93, 0xda, 0x25, 0x3e, 0x29, 0x53, 0x1c,
+	0x65, 0x68, 0x99, 0xf7, 0xe5, 0x91, 0xb6, 0x07, 0x4c, 0xde, 0x77, 0x83, 0xd8, 0x27, 0x7d, 0x79,
+	0x9c, 0x19, 0xb5, 0xf2, 0x4d, 0x6a, 0x5b, 0x53, 0xee, 0x67, 0xc2, 0x86, 0x56, 0x78, 0x5f, 0x2e,
+	0xe0, 0x3b, 0x00, 0xa8, 0x94, 0x24, 0x83, 0x3a, 0x9d, 0x56, 0x6f, 0x52, 0x3b, 0x27, 0xb5, 0x12,
+	0x7b, 0xb2, 0x84, 0x0e, 0x58, 0x52, 0xd8, 0xa6, 0xc4, 0x2e, 0xdc, 0xa4, 0xb6, 0x19, 0xd2, 0x96,
+	0xc2, 0x54, 0x26, 0xd1, 0xaa, 0x84, 0x44, 0xb4, 0x47, 0x7c, 0x79, 0x44, 0x98, 0x68, 0x24, 0x3a,
+	0x7f, 0x5a, 0x04, 0xe6, 0x55, 0x1f, 0x11, 0xd6, 0x0d, 0x39, 0xfc, 0x10, 0x58, 0xf2, 0x02, 0x86,
+	0x3d, 0xee, 0xce, 0xb4, 0xb6, 0xf6, 0xd6, 0xe4, 0x85, 0x3e, 0xef, 0xe1, 0xa0, 0xd2, 0x48, 0x75,
+	0xac, 0xfb, 0x5f, 0x06, 0x4b, 0xcd, 0x90, 0xd2, 0x48, 0x4e, 0x42, 0x01, 0x29, 0x01, 0x22, 0xd9,
+	0x35, 0xb9, 0xcb, 0x59, 0x79, 0xb9, 0xfd, 0xee, 0xdd, 0x5d, 0x9e, 0x1b, 0x95, 0xda, 0xa6, 0xfe,
+	0x1c, 0x29, 0x2a, 0x6e, 0x1d, 0xef, 0x88, 0xde, 0xca, 0x51, 0xb2, 0x40, 0x36, 0x21, 0x5c, 0x6e,
+	0x5a, 0x01, 0x89, 0x25, 0xac, 0x02, 0x33, 0x21, 0x3d, 0x92, 0x70, 0xe2, 0xcb, 0xcd, 0x31, 0xd1,
+	0x58, 0x86, 0x6f, 0x02, 0xb3, 0x85, 0x99, 0xdb, 0x65, 0xc4, 0x57, 0x3b, 0x81, 0x56, 0x5a, 0x98,
+	0x7d, 0xcc, 0x88, 0xff, 0xbe, 0xf1, 0xc5, 0x97, 0xf6, 0x82, 0x83, 0x41, 0x5e, 0x5f, 0x79, 0xbb,
+	0x9d, 0x90, 0x3c, 0x30, 0x61, 0x07, 0xa0, 0xc0, 0x38, 0x4d, 0x70, 0x8b, 0xb8, 0xd7, 0x64, 0xa0,
+	0xe7, 0x4c, 0x4d, 0x8d, 0xd6, 0xff, 0x86, 0x0c, 0x18, 0x9a, 0x16, 0x34, 0xc5, 0x97, 0x06, 0xc8,
+	0x5f, 0x25, 0xd8, 0x23, 0xfa, 0x02, 0x2b, 0x66, 0x55, 0x88, 0x89, 0xa6, 0xd0, 0x92, 0xe0, 0xe6,
+	0x41, 0x44, 0x68, 0x97, 0xeb, 0xe7, 0x69, 0x24, 0x8a, 0x88, 0x84, 0x90, 0x3e, 0xf1, 0x64, 0x1b,
+	0x0d, 0xa4, 0x25, 0x78, 0x08, 0x56, 0xfd, 0x80, 0xe1, 0x66, 0x48, 0x5c, 0xc6, 0xb1, 0x77, 0xad,
+	0xca, 0xaf, 0x59, 0x37, 0xa9, 0x5d, 0xd0, 0x86, 0x86, 0xd0, 0xa3, 0x19, 0x09, 0x7e, 0x00, 0x4a,
+	0x93, 0x30, 0x99, 0xad, 0xfa, 0x82, 0xab, 0xc1, 0x9b, 0xd4, 0x2e, 0x8e, 0x5d, 0xa5, 0x05, 0xcd,
+	0xc9, 0x62, 0xa7, 0x7d, 0xd2, 0xec, 0xb6, 0xe4, 0xf0, 0x99, 0x48, 0x09, 0x42, 0x1b, 0x06, 0x51,
+	0xc0, 0xe5, 0xb0, 0x2d, 0x21, 0x25, 0xc0, 0x0f, 0x40, 0x8e, 0xf6, 0x48, 0x92, 0x04, 0x3e, 0x61,
+	0xf2, 0x02, 0xf1, 0x6d, 0x1f, 0xa3, 0x68, 0xe2, 0x2f, 0x8a, 0x23, 0xb1, 0x4c, 0x32, 0x22, 0x11,
+	0x4d, 0x06, 0xf2, 0x8a, 0xa0, 0x8b, 0x53, 0x86, 0x67, 0x52, 0x8f, 0x66, 0x24, 0x58, 0x03, 0x50,
+	0x87, 0x25, 0x84, 0x77, 0x93, 0xd8, 0x95, 0xcf, 0x7f, 0x41, 0xc6, 0xca, 0xa7, 0x50, 0x59, 0x91,
+	0x34, 0x9e, 0x62, 0x8e, 0xd1, 0x1d, 0x0d, 0xfc, 0x39, 0x80, 0x6a, 0x4f, 0xdc, 0xcf, 0x19, 0x1d,
+	0x7f, 0x4d, 0xab, 0x33, 0x5e, 0xf2, 0x2b, 0xab, 0xce, 0xd9, 0x52, 0xd2, 0x39, 0xa3, 0xba, 0x8a,
+	0x73, 0xc3, 0x34, 0xac, 0xa5, 0x73, 0xc3, 0x5c, 0xb1, 0xcc, 0x71, 0xff, 0x74, 0x15, 0x68, 0x7d,
+	0x24, 0x4f, 0xa5, 0xf7, 0xa3, 0xbf, 0x65, 0xc0, 0xd4, 0x97, 0x17, 0xfc, 0x29, 0xa8, 0x1e, 0x9f,
+	0x9c, 0xd4, 0x1b, 0x0d, 0xf7, 0xea, 0x93, 0xcb, 0xba, 0x7b, 0x59, 0x47, 0xcf, 0xce, 0x1a, 0x8d,
+	0xb3, 0x8f, 0x9e, 0x5f, 0xd4, 0x1b, 0x0d, 0x6b, 0xa1, 0xfa, 0xf6, 0xcb, 0x57, 0xdb, 0x95, 0x89,
+	0xff, 0xa5, 0xe8, 0x27, 0x63, 0x01, 0x8d, 0x43, 0x31, 0xa9, 0xef, 0x81, 0xcd, 0xe9, 0x68, 0x54,
+	0x6f, 0x5c, 0xa1, 0xb3, 0x93, 0xab, 0xfa, 0xa9, 0x95, 0xa9, 0x56, 0x5e, 0xbe, 0xda, 0x2e, 0x4f,
+	0x22, 0x11, 0x61, 0x3c, 0x09, 0xc4, 0xb7, 0x3a, 0x3c, 0x02, 0x95, 0xfb, 0x39, 0xeb, 0xa7, 0xd6,
+	0x62, 0xb5, 0xfa, 0xf2, 0xd5, 0xf6, 0xe6, 0x7d, 0x8c, 0xc4, 0xaf, 0x1a, 0x5f, 0xfc, 0x75, 0x6b,
+	0xa1, 0xf6, 0xcb, 0xaf, 0x86, 0x5b, 0x99, 0xaf, 0x87, 0x5b, 0x99, 0xff, 0x0c, 0xb7, 0x32, 0x7f,
+	0x7e, 0xbd, 0xb5, 0xf0, 0xf5, 0xeb, 0xad, 0x85, 0x7f, 0xbc, 0xde, 0x5a, 0xf8, 0xfd, 0x0f, 0x5a,
+	0x01, 0x6f, 0x77, 0x9b, 0xbb, 0x1e, 0x8d, 0xf6, 0x48, 0x2f, 0xa2, 0x4c, 0xff, 0xed, 0xed, 0x1f,
+	0xed, 0xf5, 0xe5, 0xaf, 0x2d, 0xe2, 0xcb, 0x92, 0x35, 0x97, 0xe5, 0xaf, 0x28, 0x4f, 0xff, 0x17,
+	0x00, 0x00, 0xff, 0xff, 0x97, 0xcf, 0xe9, 0x62, 0x8b, 0x11, 0x00, 0x00,
+>>>>>>> main
 }
 
 func (m *V6Params) Marshal() (dAtA []byte, err error) {
@@ -835,6 +1396,19 @@ func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+<<<<<<< HEAD
+=======
+	{
+		size, err := m.AccessControl.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvm(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x4a
+>>>>>>> main
 	if len(m.EVMChannels) > 0 {
 		for iNdEx := len(m.EVMChannels) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.EVMChannels[iNdEx])
@@ -874,6 +1448,7 @@ func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i--
 	dAtA[i] = 0x2a
 	if len(m.ExtraEIPs) > 0 {
+<<<<<<< HEAD
 		dAtA3 := make([]byte, len(m.ExtraEIPs)*10)
 		var j2 int
 		for _, num1 := range m.ExtraEIPs {
@@ -912,6 +1487,26 @@ func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
+=======
+		dAtA4 := make([]byte, len(m.ExtraEIPs)*10)
+		var j3 int
+		for _, num1 := range m.ExtraEIPs {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j3++
+			}
+			dAtA4[j3] = uint8(num)
+			j3++
+		}
+		i -= j3
+		copy(dAtA[i:], dAtA4[:j3])
+		i = encodeVarintEvm(dAtA, i, uint64(j3))
+		i--
+		dAtA[i] = 0x22
+	}
+>>>>>>> main
 	if len(m.EvmDenom) > 0 {
 		i -= len(m.EvmDenom)
 		copy(dAtA[i:], m.EvmDenom)
@@ -922,6 +1517,89 @@ func (m *V6Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+<<<<<<< HEAD
+=======
+func (m *V6AccessControl) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *V6AccessControl) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *V6AccessControl) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Call.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvm(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Create.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvm(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *V6AccessControlType) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *V6AccessControlType) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *V6AccessControlType) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AccessControlList) > 0 {
+		for iNdEx := len(m.AccessControlList) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.AccessControlList[iNdEx])
+			copy(dAtA[i:], m.AccessControlList[iNdEx])
+			i = encodeVarintEvm(dAtA, i, uint64(len(m.AccessControlList[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.AccessType != 0 {
+		i = encodeVarintEvm(dAtA, i, uint64(m.AccessType))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+>>>>>>> main
 func (m *V6ChainConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1579,6 +2257,10 @@ func encodeVarintEvm(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6Params) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1589,12 +2271,15 @@ func (m *V6Params) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvm(uint64(l))
 	}
+<<<<<<< HEAD
 	if m.EnableCreate {
 		n += 2
 	}
 	if m.EnableCall {
 		n += 2
 	}
+=======
+>>>>>>> main
 	if len(m.ExtraEIPs) > 0 {
 		l = 0
 		for _, e := range m.ExtraEIPs {
@@ -1619,6 +2304,42 @@ func (m *V6Params) Size() (n int) {
 			n += 1 + l + sovEvm(uint64(l))
 		}
 	}
+<<<<<<< HEAD
+=======
+	l = m.AccessControl.Size()
+	n += 1 + l + sovEvm(uint64(l))
+	return n
+}
+
+func (m *V6AccessControl) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Create.Size()
+	n += 1 + l + sovEvm(uint64(l))
+	l = m.Call.Size()
+	n += 1 + l + sovEvm(uint64(l))
+	return n
+}
+
+func (m *V6AccessControlType) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.AccessType != 0 {
+		n += 1 + sovEvm(uint64(m.AccessType))
+	}
+	if len(m.AccessControlList) > 0 {
+		for _, s := range m.AccessControlList {
+			l = len(s)
+			n += 1 + l + sovEvm(uint64(l))
+		}
+	}
+>>>>>>> main
 	return n
 }
 
@@ -1882,9 +2603,17 @@ func (m *V6TraceConfig) Size() (n int) {
 func sovEvm(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+<<<<<<< HEAD
 func sozEvm(x uint64) (n int) {
 	return sovEvm(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+=======
+
+func sozEvm(x uint64) (n int) {
+	return sovEvm(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+
+>>>>>>> main
 func (m *V6Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1946,6 +2675,7 @@ func (m *V6Params) Unmarshal(dAtA []byte) error {
 			}
 			m.EvmDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+<<<<<<< HEAD
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EnableCreate", wireType)
@@ -1986,6 +2716,8 @@ func (m *V6Params) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.EnableCall = bool(v != 0)
+=======
+>>>>>>> main
 		case 4:
 			if wireType == 0 {
 				var v int64
@@ -2179,6 +2911,42 @@ func (m *V6Params) Unmarshal(dAtA []byte) error {
 			}
 			m.EVMChannels = append(m.EVMChannels, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
+<<<<<<< HEAD
+=======
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccessControl", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.AccessControl.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+>>>>>>> main
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvm(dAtA[iNdEx:])
@@ -2200,6 +2968,229 @@ func (m *V6Params) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+func (m *V6AccessControl) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AccessControl: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AccessControl: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Create", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Create.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Call", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Call.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
+func (m *V6AccessControlType) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AccessControlType: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AccessControlType: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccessType", wireType)
+			}
+			m.AccessType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.AccessType |= V6AccessType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccessControlList", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AccessControlList = append(m.AccessControlList, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+
+>>>>>>> main
 func (m *V6ChainConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2914,6 +3905,10 @@ func (m *V6ChainConfig) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6State) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3028,6 +4023,10 @@ func (m *V6State) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6TransactionLogs) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3144,6 +4143,10 @@ func (m *V6TransactionLogs) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6Log) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3433,6 +4436,10 @@ func (m *V6Log) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6TxResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3655,6 +4662,10 @@ func (m *V6TxResult) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6AccessTuple) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3769,6 +4780,10 @@ func (m *V6AccessTuple) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func (m *V6TraceConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4089,6 +5104,10 @@ func (m *V6TraceConfig) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 func skipEvm(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

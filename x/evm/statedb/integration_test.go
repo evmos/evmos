@@ -9,6 +9,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/contracts"
 	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
 	testcontracts "github.com/evmos/evmos/v18/precompiles/testutil/contracts"
@@ -17,6 +18,16 @@ import (
 	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/evmos/evmos/v19/contracts"
+	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
+	testcontracts "github.com/evmos/evmos/v19/precompiles/testutil/contracts"
+	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 
 	//nolint:revive // okay to use dot imports for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -93,7 +104,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		qRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
 		delegatedAmountPre = qRes.DelegationResponse.Balance.Amount
+<<<<<<< HEAD
 		Expect(network.NextBlock()).To(BeNil())
+=======
+>>>>>>> main
 
 		// Deploy an ERC-20 token contract.
 		erc20Addr, err = factory.DeployContract(
@@ -105,7 +119,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
+<<<<<<< HEAD
 		Expect(network.NextBlock()).To(BeNil())
+=======
+>>>>>>> main
 
 		// Mint some tokens to the deployer.
 		_, err = factory.ExecuteContractCall(
@@ -159,7 +176,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
+<<<<<<< HEAD
 		Expect(network.NextBlock()).To(BeNil())
+=======
+>>>>>>> main
 
 		// Approve the flash loan contract to spend tokens. This is required because
 		// the contract will get funds from the caller to perform actions.
@@ -264,7 +284,10 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to execute flash loan")
+<<<<<<< HEAD
 		Expect(network.NextBlock()).To(BeNil())
+=======
+>>>>>>> main
 
 		delRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")

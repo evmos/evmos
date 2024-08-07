@@ -27,8 +27,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/params"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/x/evm/core/tracers"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/x/evm/core/tracers"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 type account struct{}

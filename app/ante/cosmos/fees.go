@@ -13,7 +13,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.
@@ -129,8 +129,8 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 	}
 
 	// deduct the fees
-	if err := deductFeesFromBalanceOrUnclaimedStakingRewards(ctx, dfd, deductFeesFromAcc, fees); err != nil {
-		return fmt.Errorf("%q has insufficient funds and failed to claim sufficient staking rewards to pay for fees: %w", deductFeesFrom.String(), err)
+	if err := authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees); err != nil {
+		return errorsmod.Wrap(err, "failed to deduct fee")
 	}
 
 	events := sdk.Events{
@@ -145,6 +145,7 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 	return nil
 }
 
+<<<<<<< HEAD
 // deductFeesFromBalanceOrUnclaimedStakingRewards tries to deduct the fees from the account balance.
 // If the account balance is not enough, it tries to claim enough staking rewards to cover the fees.
 func deductFeesFromBalanceOrUnclaimedStakingRewards(
@@ -159,6 +160,8 @@ func deductFeesFromBalanceOrUnclaimedStakingRewards(
 	return authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees)
 }
 
+=======
+>>>>>>> main
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
 // unit of gas is fixed and set by each validator, and the tx priority is computed from the gas price.
 func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {

@@ -12,8 +12,12 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+<<<<<<< HEAD
 	utiltx "github.com/evmos/evmos/v18/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 	"github.com/stretchr/testify/require"
 )
 
@@ -119,7 +123,7 @@ func newEthMsgTx(
 		ethTx = ethtypes.NewTx(templateDynamicFeeTx)
 		baseFee = big.NewInt(3)
 	default:
-		return nil, baseFee, errors.New("unsupport tx type")
+		return nil, baseFee, errors.New("unsupported tx type")
 	}
 
 	msg := &evmtypes.MsgEthereumTx{}

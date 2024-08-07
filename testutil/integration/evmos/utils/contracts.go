@@ -6,9 +6,16 @@ import (
 	"fmt"
 	"slices"
 
+<<<<<<< HEAD
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response

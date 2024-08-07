@@ -19,11 +19,17 @@ package vm
 import (
 	"fmt"
 	"sort"
+<<<<<<< HEAD
+=======
+	"strconv"
+	"strings"
+>>>>>>> main
 
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 )
 
+<<<<<<< HEAD
 var activators = map[int]func(*JumpTable){
 	3855: enable3855,
 	3529: enable3529,
@@ -32,20 +38,38 @@ var activators = map[int]func(*JumpTable){
 	2200: enable2200,
 	1884: enable1884,
 	1344: enable1344,
+=======
+var activators = map[string]func(*JumpTable){
+	"ethereum_3855": enable3855,
+	"ethereum_3529": enable3529,
+	"ethereum_3198": enable3198,
+	"ethereum_2929": enable2929,
+	"ethereum_2200": enable2200,
+	"ethereum_1884": enable1884,
+	"ethereum_1344": enable1344,
+>>>>>>> main
 }
 
 // EnableEIP enables the given EIP on the config.
 // This operation writes in-place, and callers need to ensure that the globally
 // defined jump tables are not polluted.
+<<<<<<< HEAD
 func EnableEIP(eipNum int, jt *JumpTable) error {
 	enablerFn, ok := activators[eipNum]
 	if !ok {
 		return fmt.Errorf("undefined eip %d", eipNum)
+=======
+func EnableEIP(eipName string, jt *JumpTable) error {
+	enablerFn, ok := activators[eipName]
+	if !ok {
+		return fmt.Errorf("undefined eip %s", eipName)
+>>>>>>> main
 	}
 	enablerFn(jt)
 	return nil
 }
 
+<<<<<<< HEAD
 // ExistsEipActivator return true if the given EIP
 // number is associated with an activator function.
 // Return false otherwise.
@@ -63,6 +87,40 @@ func ActivateableEips() []string {
 		sort.Strings(nums)
 	}
 	return nums
+=======
+// ValidateEIPName checks if an EIP name is valid or not. The allowed
+// name structure is a string that can be represented as "chainName" + "_" + "int".
+func ValidateEIPName(eipName string) error {
+	eipSplit := strings.Split(eipName, "_")
+	if len(eipSplit) != 2 {
+		return fmt.Errorf("eip name does not conform to structure 'chainName_Number'")
+	}
+	if _, err := strconv.Atoi(eipSplit[1]); err != nil {
+		return fmt.Errorf("eip number should be convertible to int")
+	}
+	return nil
+}
+
+// ExistsEipActivator return true if the given EIP
+// name is associated with an activator function.
+// Return false otherwise.
+func ExistsEipActivator(eipName string) bool {
+	_, ok := activators[eipName]
+	return ok
+}
+
+// ActivateableEips returns the sorted slice of EIP names
+// that can be activated.
+func ActivateableEips() []string {
+	var names []string
+	if len(activators) > 0 {
+		for k := range activators {
+			names = append(names, k)
+		}
+		sort.Strings(names)
+	}
+	return names
+>>>>>>> main
 }
 
 // enable1884 applies EIP-1884 to the given jump table:

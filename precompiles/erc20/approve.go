@@ -18,9 +18,15 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 	auth "github.com/evmos/evmos/v18/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v18/precompiles/common"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	auth "github.com/evmos/evmos/v19/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 // Approve sets the given amount as the allowance of the spender address over

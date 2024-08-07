@@ -21,9 +21,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v18/x/evm/client/cli"
-	"github.com/evmos/evmos/v18/x/evm/keeper"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/x/evm/client/cli"
+	"github.com/evmos/evmos/v19/x/evm/keeper"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // consensusVersion defines the current x/evm module consensus version.
@@ -135,15 +135,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
 	m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
-	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
-		panic(err)
-	}
 
-	if err := cfg.RegisterMigration(types.ModuleName, 4, m.Migrate4to5); err != nil {
-		panic(err)
-	}
-
-	if err := cfg.RegisterMigration(types.ModuleName, 5, m.Migrate5to6); err != nil {
+	if err := cfg.RegisterMigration(types.ModuleName, 6, m.Migrate6to7); err != nil {
 		panic(err)
 	}
 

@@ -12,12 +12,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
+<<<<<<< HEAD
 	erc20api "github.com/evmos/evmos/v18/api/evmos/erc20/v1"
 
+=======
+>>>>>>> main
 	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
+<<<<<<< HEAD
 	_ sdk.Msg              = &MsgConvertERC20{}
 	_ sdk.Msg              = &MsgUpdateParams{}
 	_ sdk.Msg              = &MsgRegisterERC20{}
@@ -25,17 +29,24 @@ var (
 	_ sdk.HasValidateBasic = &MsgConvertERC20{}
 	_ sdk.HasValidateBasic = &MsgUpdateParams{}
 	_ sdk.HasValidateBasic = &MsgRegisterERC20{}
+=======
+	_ sdk.Msg = &MsgConvertERC20{}
+	_ sdk.Msg = &MsgUpdateParams{}
+>>>>>>> main
 )
 
 const (
 	TypeMsgConvertERC20 = "convert_ERC20"
 )
 
+<<<<<<< HEAD
 var MsgConvertERC20CustomGetSigner = txsigning.CustomGetSigner{
 	MsgType: protov2.MessageName(&erc20api.MsgConvertERC20{}),
 	Fn:      erc20api.GetSigners,
 }
 
+=======
+>>>>>>> main
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
 func NewMsgConvertERC20(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { //nolint: interfacer
 	return &MsgConvertERC20{

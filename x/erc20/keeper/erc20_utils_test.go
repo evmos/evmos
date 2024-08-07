@@ -5,12 +5,19 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/evmos/evmos/v18/contracts"
 	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
 	evm "github.com/evmos/evmos/v18/x/evm/types"
+=======
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evm "github.com/evmos/evmos/v19/x/evm/types"
+>>>>>>> main
 )
 
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, to common.Address, amount *big.Int) (abcitypes.ExecTxResult, error) {

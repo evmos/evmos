@@ -13,9 +13,14 @@ import (
 	"path/filepath"
 
 	"cosmossdk.io/math"
+<<<<<<< HEAD
 
 	cmtconfig "github.com/cometbft/cometbft/config"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
+=======
+	tmconfig "github.com/cometbft/cometbft/config"
+	tmrand "github.com/cometbft/cometbft/libs/rand"
+>>>>>>> main
 	"github.com/cometbft/cometbft/types"
 	cmttime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
@@ -40,13 +45,13 @@ import (
 	mintypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v18/crypto/hd"
-	"github.com/evmos/evmos/v18/server/config"
-	srvflags "github.com/evmos/evmos/v18/server/flags"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/crypto/hd"
+	"github.com/evmos/evmos/v19/server/config"
+	srvflags "github.com/evmos/evmos/v19/server/flags"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
-	"github.com/evmos/evmos/v18/testutil/network"
+	"github.com/evmos/evmos/v19/testutil/network"
 )
 
 var (

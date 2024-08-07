@@ -14,10 +14,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/precompiles/p256"
 	"github.com/evmos/evmos/v18/types"
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
+=======
+	"github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+>>>>>>> main
 )
 
 var (
@@ -27,6 +33,7 @@ var (
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles
 	DefaultStaticPrecompiles = []string{
+<<<<<<< HEAD
 		p256.PrecompileAddress,                       // P256 precompile
 		"0x0000000000000000000000000000000000000400", // Bech32 precompile
 		"0x0000000000000000000000000000000000000800", // Staking precompile
@@ -34,10 +41,19 @@ var (
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 		"0x0000000000000000000000000000000000000804", // Bank precompile
+=======
+		P256PrecompileAddress,         // P256 precompile
+		Bech32PrecompileAddress,       // Bech32 precompile
+		StakingPrecompileAddress,      // Staking precompile
+		DistributionPrecompileAddress, // Distribution precompile
+		ICS20PrecompileAddress,        // ICS20 transfer precompile
+		VestingPrecompileAddress,      // Vesting precompile
+		BankPrecompileAddress,         // Bank precompile
+>>>>>>> main
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
-	DefaultExtraEIPs   = []int64{3855}
+	DefaultExtraEIPs   = []string{"ethereum_3855"}
 	DefaultEVMChannels = []string{
 		"channel-10", // Injective
 		"channel-31", // Cronos
@@ -62,7 +78,11 @@ func NewParams(
 	evmDenom string,
 	allowUnprotectedTxs bool,
 	config ChainConfig,
+<<<<<<< HEAD
 	extraEIPs []int64,
+=======
+	extraEIPs []string,
+>>>>>>> main
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
@@ -132,22 +152,23 @@ func (p Params) Validate() error {
 	}
 
 	if err := p.AccessControl.Validate(); err != nil {
+<<<<<<< HEAD
 		return err
 	}
 
 	if err := p.AccessControl.Validate(); err != nil {
+=======
+>>>>>>> main
 		return err
 	}
 
 	return validateChannels(p.EVMChannels)
 }
 
-// EIPs returns the ExtraEIPS as a int slice
-func (p Params) EIPs() []int {
-	eips := make([]int, len(p.ExtraEIPs))
-	for i, eip := range p.ExtraEIPs {
-		eips[i] = int(eip)
-	}
+// EIPs returns the ExtraEIPS as a slice.
+func (p Params) EIPs() []string {
+	eips := make([]string, len(p.ExtraEIPs))
+	copy(eips, p.ExtraEIPs)
 	return eips
 }
 
@@ -177,6 +198,48 @@ func (ac AccessControl) Validate() error {
 	}
 
 	return nil
+<<<<<<< HEAD
+=======
+}
+
+func (act AccessControlType) Validate() error {
+	if err := validateAccessType(act.AccessType); err != nil {
+		return err
+	}
+
+	if err := validateAllowlistAddresses(act.AccessControlList); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateAccessType(i interface{}) error {
+	accessType, ok := i.(AccessType)
+	if !ok {
+		return fmt.Errorf("invalid access type type: %T", i)
+	}
+
+	switch accessType {
+	case AccessTypePermissionless, AccessTypeRestricted, AccessTypePermissioned:
+		return nil
+	default:
+		return fmt.Errorf("invalid access type: %s", accessType)
+	}
+}
+
+func validateAllowlistAddresses(i interface{}) error {
+	addresses, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid whitelist addresses type: %T", i)
+	}
+
+	for _, address := range addresses {
+		if err := types.ValidateAddress(address); err != nil {
+			return fmt.Errorf("invalid whitelist address: %s", address)
+		}
+	}
+	return nil
+>>>>>>> main
 }
 
 func (act AccessControlType) Validate() error {
@@ -266,22 +329,32 @@ func validateBool(i interface{}) error {
 }
 
 func validateEIPs(i interface{}) error {
-	eips, ok := i.([]int64)
+	eips, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
 	}
 
-	uniqueEIPs := make(map[int64]struct{})
+	uniqueEIPs := make(map[string]struct{})
 
 	for _, eip := range eips {
+<<<<<<< HEAD
 		if !vm.ExistsEipActivator(int(eip)) {
 			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
+=======
+		if !vm.ExistsEipActivator(eip) {
+			return fmt.Errorf("EIP %s is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
+		}
+
+		if err := vm.ValidateEIPName(eip); err != nil {
+			return fmt.Errorf("EIP %s name is not valid", eip)
+>>>>>>> main
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
-			return fmt.Errorf("found duplicate EIP: %d", eip)
+			return fmt.Errorf("found duplicate EIP: %s", eip)
 		}
 		uniqueEIPs[eip] = struct{}{}
+
 	}
 
 	return nil

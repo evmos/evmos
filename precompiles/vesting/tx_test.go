@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+<<<<<<< HEAD
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -21,6 +22,19 @@ import (
 	"github.com/evmos/evmos/v18/utils"
 	"github.com/evmos/evmos/v18/x/evm/core/vm"
 	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+=======
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v19/testutil"
+	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+>>>>>>> main
 )
 
 var (
@@ -438,7 +452,11 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 				s.Require().Equal(success[0], true)
 
 				// Check if the vesting account was converted back to an non-vesting account
+<<<<<<< HEAD
 				account := s.network.App.AccountKeeper.GetAccount(ctx, toAddr.Bytes())
+=======
+				account := s.app.AccountKeeper.GetAccount(s.ctx, toAddr.Bytes())
+>>>>>>> main
 				_, ok := account.(*authtypes.BaseAccount)
 				s.Require().True(ok, "expected account to be a base account")
 

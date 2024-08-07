@@ -24,8 +24,12 @@ import (
 	"cosmossdk.io/math"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
+<<<<<<< HEAD
 	cmtclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
+=======
+	tmclient "github.com/cometbft/cometbft/rpc/client"
+>>>>>>> main
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -51,12 +55,18 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/crypto/hd"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/crypto/hd"
 
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v18/encoding"
 	"github.com/evmos/evmos/v18/server/config"
 	evmostypes "github.com/evmos/evmos/v18/types"
+=======
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/server/config"
+	evmostypes "github.com/evmos/evmos/v19/types"
+>>>>>>> main
 )
 
 // package-wide network lock to only allow one test network at a time
