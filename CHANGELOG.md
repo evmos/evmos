@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump cosmos-sdk version to `v0.50.8` and ibc-go version to `v8.4.0`.
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump cosmos-sdk version to `v0.50.9` and ibc-go version to `v8.4.0`.
 - (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
 - (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
