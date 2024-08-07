@@ -24,7 +24,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.5.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
-	github.com/cosmos/ibc-go/v8 v8.3.2
+	github.com/cosmos/ibc-go/v8 v8.4.0
 	github.com/cosmos/rosetta v0.50.2
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240722062311-8384cad72737
