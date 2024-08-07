@@ -68,7 +68,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2667](https://github.com/evmos/evmos/pull/2667) Modify activator maps and default extra EIP to use []string.
 - (erc20) [#2696](https://github.com/evmos/evmos/pull/2696) Consider EIP-55 in dynamic and native precompiles validations.
 - (auctions) [#2695] (https://github.com/evmos/evmos/pull/2695) Add core logic for `x/auctions` module
-
+- (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
+- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 
 ### Bug Fixes
 
@@ -126,6 +128,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
 - (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
+- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 
