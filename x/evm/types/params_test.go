@@ -44,15 +44,9 @@ func TestParamsValidate(t *testing.T) {
 			name: "invalid eip",
 			params: Params{
 				EvmDenom:  DefaultEVMDenom,
-<<<<<<< HEAD
-				ExtraEIPs: []int64{10000},
-			},
-			errContains: "EIP 10000 is not activateable, valid EIPs are",
-=======
 				ExtraEIPs: []string{"os_1000000"},
 			},
 			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
->>>>>>> main
 		},
 		{
 			name: "unsorted precompiles",
@@ -92,11 +86,7 @@ func TestParamsValidate(t *testing.T) {
 }
 
 func TestParamsEIPs(t *testing.T) {
-<<<<<<< HEAD
-	extraEips := []int64{2929, 1884, 1344}
-=======
 	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
->>>>>>> main
 	params := NewParams("ara", false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl)
 	actual := params.EIPs()
 

@@ -28,11 +28,8 @@ import (
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
@@ -637,7 +634,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			feemarkettypes.DefaultParams,
 			false,
 			false,
-<<<<<<< HEAD
 			params.TxGas,
 		},
 		{
@@ -650,32 +646,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 					Amount: big.NewInt(100),
 					Input:  []byte("contract_data"),
 				})
-=======
-		},
-		{
-			"call contract tx with config param EnableCall = false",
-			func() {
-				config.Params.AccessControl = evmtypes.AccessControl{
-					Call: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
-					},
-				}
-				msg, err = newNativeMessage(
-					vmdb.GetNonce(suite.address),
-					suite.ctx.BlockHeight(),
-					suite.address,
-					chainCfg,
-					suite.signer,
-					signer,
-					ethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
->>>>>>> main
 				suite.Require().NoError(err)
 				return msg
 			},
-<<<<<<< HEAD
 			func() types.Params {
 				defaultParams := types.DefaultParams()
 				defaultParams.AccessControl = types.AccessControl{
@@ -686,15 +659,12 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return defaultParams
 			},
 			feemarkettypes.DefaultParams,
-=======
->>>>>>> main
 			false,
 			true,
 			0,
 		},
 		{
 			"create contract tx with config param EnableCreate = false",
-<<<<<<< HEAD
 			func() core.Message {
 				sender := suite.keyring.GetKey(0)
 				msg, err := suite.factory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
@@ -714,17 +684,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return defaultParams
 			},
 			feemarkettypes.DefaultParams,
-=======
-			func() {
-				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
-				suite.Require().NoError(err)
-				config.Params.AccessControl = evmtypes.AccessControl{
-					Create: evmtypes.AccessControlType{
-						AccessType: evmtypes.AccessTypeRestricted,
-					},
-				}
-			},
->>>>>>> main
 			false,
 			true,
 			0,
@@ -751,10 +710,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			true,
 			false,
-<<<<<<< HEAD
 			0,
-=======
->>>>>>> main
 		},
 	}
 
@@ -820,36 +776,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 	}
 }
 
-<<<<<<< HEAD
-=======
-func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
-	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
-	if err != nil {
-		return nil, err
-	}
-
-	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(suite.ctx.BlockHeight()))
-	return ethMsg.AsMessage(msgSigner, nil)
-}
-
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
-	contractCreateTx := &ethtypes.AccessListTx{
-		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation + 1000, // account for data length
-		To:       nil,
-		Data:     []byte("contract_data"),
-		Nonce:    nonce,
-	}
-	ethTx := ethtypes.NewTx(contractCreateTx)
-	ethMsg := &evmtypes.MsgEthereumTx{}
-	err := ethMsg.FromEthereumTx(ethTx)
-	suite.Require().NoError(err)
-	ethMsg.From = suite.address.Hex()
-
-	return ethMsg, ethMsg.Sign(signer, suite.signer)
-}
-
->>>>>>> main
 func (suite *KeeperTestSuite) TestGetProposerAddress() {
 	suite.SetupTest()
 	address := sdk.ConsAddress(suite.keyring.GetAddr(0).Bytes())

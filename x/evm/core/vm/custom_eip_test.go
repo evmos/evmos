@@ -9,17 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-<<<<<<< HEAD
-func TestExtendActivators(t *testing.T) {
-	eips_snapshot := GetActivatorsEipNumbers()
-
-	testCases := []struct {
-		name           string
-		new_activators map[int]func(*JumpTable)
-		expPass        bool
-		errContains    string
-		postCheck      func()
-=======
 func TestValidEIPName(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -80,7 +69,6 @@ func TestExtendActivators(t *testing.T) {
 		expPass       bool
 		errContains   string
 		postCheck     func()
->>>>>>> main
 	}{
 		{
 			"success - nil new activators",
@@ -88,120 +76,67 @@ func TestExtendActivators(t *testing.T) {
 			true,
 			"",
 			func() {
-<<<<<<< HEAD
-				eips := GetActivatorsEipNumbers()
-=======
 				eips := GetActivatorsEipNames()
->>>>>>> main
 				require.ElementsMatch(t, eips_snapshot, eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"success - single new activator",
-<<<<<<< HEAD
-			map[int]func(*JumpTable){
-				0o000: func(jt *JumpTable) {},
-=======
 			map[string]func(*JumpTable){
 				"evmos_0": func(jt *JumpTable) {},
->>>>>>> main
 			},
 			true,
 			"",
 			func() {
-<<<<<<< HEAD
-				eips := GetActivatorsEipNumbers()
-				require.ElementsMatch(t, append(eips_snapshot, 0o000), eips, "expected eips number to be equal")
-=======
 				eips := GetActivatorsEipNames()
 				require.ElementsMatch(t, append(eips_snapshot, "evmos_0"), eips, "expected eips number to be equal")
->>>>>>> main
 			},
 		},
 		{
 			"success - multiple new activators",
-<<<<<<< HEAD
-			map[int]func(*JumpTable){
-				0o001: func(jt *JumpTable) {},
-				0o002: func(jt *JumpTable) {},
-=======
 			map[string]func(*JumpTable){
 				"evmos_1": func(jt *JumpTable) {},
 				"evmos_2": func(jt *JumpTable) {},
->>>>>>> main
 			},
 			true,
 			"",
 			func() {
-<<<<<<< HEAD
-				eips := GetActivatorsEipNumbers()
-				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
-=======
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
->>>>>>> main
 			},
 		},
 		{
 			"fail - repeated activator",
-<<<<<<< HEAD
-			map[int]func(*JumpTable){
-				3855: func(jt *JumpTable) {},
-=======
 			map[string]func(*JumpTable){
 				"ethereum_3855": func(jt *JumpTable) {},
->>>>>>> main
 			},
 			false,
 			"",
 			func() {
-<<<<<<< HEAD
-				eips := GetActivatorsEipNumbers()
-				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
-=======
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
->>>>>>> main
 			},
 		},
 		{
 			"fail - valid activator is not stored if a repeated is present",
-<<<<<<< HEAD
-			map[int]func(*JumpTable){
-				0o003: func(jt *JumpTable) {},
-				3855:  func(jt *JumpTable) {},
-=======
 			map[string]func(*JumpTable){
 				"evmos_3":       func(jt *JumpTable) {},
 				"ethereum_3855": func(jt *JumpTable) {},
->>>>>>> main
 			},
 			false,
 			"",
 			func() {
-<<<<<<< HEAD
-				eips := GetActivatorsEipNumbers()
-				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, 0o000, 0o001, 0o002), eips, "expected eips number to be equal")
-=======
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
 				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
->>>>>>> main
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-<<<<<<< HEAD
-		err := ExtendActivators(tc.new_activators)
-=======
 		err := ExtendActivators(tc.newActivators)
->>>>>>> main
 		if tc.expPass {
 			require.NoError(t, err)
 		} else {
@@ -212,8 +147,6 @@ func TestExtendActivators(t *testing.T) {
 		tc.postCheck()
 	}
 }
-<<<<<<< HEAD
-=======
 
 func TestAddOperation(t *testing.T) {
 	// Functions used to create an operation.
@@ -308,4 +241,3 @@ func TestAddOperation(t *testing.T) {
 		})
 	}
 }
->>>>>>> main

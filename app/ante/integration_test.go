@@ -1,8 +1,6 @@
 package ante_test
 
 import (
-	"testing"
-
 	sdkmath "cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,12 +26,6 @@ type IntegrationTestSuite struct {
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
-}
-
-func TestAnteTestSuite(t *testing.T) {
-	// Run ginko integration test
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Run AnteHandler Integration Tests")
 }
 
 var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Ordered, func() {

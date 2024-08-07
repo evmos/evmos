@@ -324,11 +324,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		}
 
 		senderKey := s.keyring.GetKey(contractCallParams.SignerIndex)
-<<<<<<< HEAD
-		contractAddress := common.HexToAddress(staking.PrecompileAddress)
-=======
 		contractAddress := common.HexToAddress(evmtypes.StakingPrecompileAddress)
->>>>>>> main
 		validatorAddress := s.network.GetValidators()[1].OperatorAddress
 		contractABI, err := staking.LoadABI()
 		Expect(err).To(BeNil())
@@ -474,7 +470,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	DescribeTable("Performs contract deployment and contract call with AccessControl", func(getTestParams func() evmtypes.Params, createParams, callParams PermissionsTableTest) {
 		params := getTestParams()
-<<<<<<< HEAD
 		err := integrationutils.UpdateEvmParams(
 			integrationutils.UpdateParamsInput{
 				Tf:      s.factory,
@@ -483,9 +478,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Params:  params,
 			},
 		)
-=======
-		err := s.network.UpdateEvmParams(params)
->>>>>>> main
 		Expect(err).To(BeNil())
 
 		err = s.network.NextBlock()
@@ -668,11 +660,7 @@ type PermissionsTableTest struct {
 	SignerIndex int
 }
 
-<<<<<<< HEAD
 func checkMintTopics(res abcitypes.ExecTxResult) error {
-=======
-func checkMintTopics(res abcitypes.ResponseDeliverTx) error {
->>>>>>> main
 	// Check contract call response has the expected topics for a mint
 	// call within an ERC20 contract
 	expectedTopics := []string{

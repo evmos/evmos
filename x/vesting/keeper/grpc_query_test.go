@@ -8,14 +8,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/vesting/types"
-=======
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 )
 
 func TestBalances(t *testing.T) {

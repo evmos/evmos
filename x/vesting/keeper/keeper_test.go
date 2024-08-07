@@ -5,7 +5,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
@@ -13,12 +12,6 @@ import (
 	"github.com/evmos/evmos/v19/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 	"github.com/stretchr/testify/require"
-=======
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
->>>>>>> main
 )
 
 func TestNewKeeper(t *testing.T) {
@@ -53,21 +46,12 @@ func TestNewKeeper(t *testing.T) {
 					storeKey,
 					tc.authority,
 					cdc,
-<<<<<<< HEAD
 					nw.App.AccountKeeper,
 					nw.App.BankKeeper,
 					nw.App.DistrKeeper,
 					nw.App.EvmKeeper,
 					nw.App.StakingKeeper,
 					nw.App.GovKeeper,
-=======
-					suite.app.AccountKeeper,
-					suite.app.BankKeeper,
-					suite.app.DistrKeeper,
-					suite.app.EvmKeeper,
-					suite.app.StakingKeeper,
-					suite.app.GovKeeper,
->>>>>>> main
 				)
 				require.NotNil(t, newKeeper)
 			} else {
@@ -76,21 +60,12 @@ func TestNewKeeper(t *testing.T) {
 						storeKey,
 						tc.authority,
 						cdc,
-<<<<<<< HEAD
 						nw.App.AccountKeeper,
 						nw.App.BankKeeper,
 						nw.App.DistrKeeper,
 						nw.App.EvmKeeper,
 						nw.App.StakingKeeper,
 						nw.App.GovKeeper,
-=======
-						suite.app.AccountKeeper,
-						suite.app.BankKeeper,
-						suite.app.DistrKeeper,
-						suite.app.EvmKeeper,
-						suite.app.StakingKeeper,
-						suite.app.GovKeeper,
->>>>>>> main
 					)
 				})
 			}

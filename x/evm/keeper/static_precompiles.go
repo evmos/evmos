@@ -5,16 +5,12 @@ package keeper
 
 import (
 	"fmt"
-<<<<<<< HEAD
 	"maps"
-=======
->>>>>>> main
 	"slices"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-<<<<<<< HEAD
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
@@ -30,24 +26,6 @@ import (
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
-=======
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
-	"github.com/ethereum/go-ethereum/common"
-	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
-	"github.com/evmos/evmos/v19/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
-	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/types"
-	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
-	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
-	"golang.org/x/exp/maps"
->>>>>>> main
 )
 
 const bech32PrecompileBaseGas = 6_000

@@ -4,29 +4,16 @@ import (
 	"encoding/json"
 	"math/big"
 
-<<<<<<< HEAD
-=======
-	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
-
-	"github.com/cosmos/cosmos-sdk/baseapp"
->>>>>>> main
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v19/server/config"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-=======
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
->>>>>>> main
 	"github.com/stretchr/testify/require"
 )
 
