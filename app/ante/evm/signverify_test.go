@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/testutil"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	ethante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/testutil"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
@@ -26,13 +26,13 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	err := signedTx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	uprotectedEthTxParams := &evmtypes.EvmTxArgs{
+	unprotectedEthTxParams := &evmtypes.EvmTxArgs{
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	unprotectedTx := evmtypes.NewTx(uprotectedEthTxParams)
+	unprotectedTx := evmtypes.NewTx(unprotectedEthTxParams)
 	unprotectedTx.From = addr.Hex()
 	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)

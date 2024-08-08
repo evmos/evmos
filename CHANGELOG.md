@@ -35,7 +35,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v19.1.0] - 2024-08-02
+
+### State Machine Breaking
+
+- (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (upgrade) [#2728](https://github.com/evmos/evmos/pull/2728) Add upgrade handler for v19.1.0.
+
+### Bug Fixes
+
+- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
+
+## [v19.0.0] - 2024-07-23
 
 ### State Machine Breaking
 
@@ -59,10 +70,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2609](https://github.com/evmos/evmos/pull/2609) Remove STRv2 tracking logic.
 - (distribution-precompile) [#2614](https://github.com/evmos/evmos/pull/2614) Add withdrawer address check in transactions.
 - (app) [#2631](https://github.com/evmos/evmos/pull/2631) Bump IBC-go to v7.6.0 and Cosmos-SDK to v0.47.12.
+- (distribution-precompile) [#2643](https://github.com/evmos/evmos/pull/2643) Improve efficiency of reward claiming with distribution precompile.
+- (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
+- (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496) Refactor precompiles to use journal entries.
+- (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf) Update vesting precompile authorization checks.
+- (erc20) [#2607](https://github.com/evmos/evmos/pull/2607) Implement Single Token Representation v2.
+- (evm) [#2679](https://github.com/evmos/evmos/pull/2679) Reverted PR #2633. Use `EthAccount` type instead of `BaseAccount`.
+- (distribution-precompile) [#2682](https://github.com/evmos/evmos/pull/2682) Fix `claimRewards` bug and add new test cases.
+- (evm) [#2667](https://github.com/evmos/evmos/pull/2667) Modify activator maps and default extra EIP to use []string.
+- (erc20) [#2696](https://github.com/evmos/evmos/pull/2696) Consider EIP-55 in dynamic and native precompiles validations.
 
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
+- (tests) [#2642](https://github.com/evmos/evmos/pull/2642) Fix Dockerfile by bumping dependency and fix E2E tests by adjusting used Docker image.
 
 ### Improvements
 
@@ -104,8 +125,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2594](https://github.com/evmos/evmos/pull/2594) Move `CallEVM` and `CallEVMWithData` to `x/evm` module.
 - (app) [#2597](https://github.com/evmos/evmos/pull/2597) Remove hardcoded Bech32 conversions for blocked precompile addresses.
 - (contracts) [#2613](https://github.com/evmos/evmos/pull/2613) Remove unused contract and make script useable with Python <3.12.
+- (evm) [#2663](https://github.com/evmos/evmos/pull/2663) Port Geth `core/vm` into Evmos `x/evm`.
 - (ante) [#2619](https://github.com/evmos/evmos/pull/2619) Change anteutils.TxFeeChecker to authante.TxFeeChecker.
 - (tests) [#2635](https://github.com/evmos/evmos/pull/2635) Add function to get ERC-20 balance to integration utils.
+- (ci) [#2630](https://github.com/evmos/evmos/pull/2630) Add PebbleDB image to docker-push workflow.
+- (ci) [#2639](https://github.com/evmos/evmos/pull/2639) Ignore Swagger JSON in CheckOV linter.
+- (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
+- (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
+- (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
+- (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 

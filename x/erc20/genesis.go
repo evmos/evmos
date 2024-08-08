@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/evmos/evmos/v18/x/erc20/keeper"
-	"github.com/evmos/evmos/v18/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/erc20/keeper"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
 // InitGenesis import module genesis
@@ -32,10 +32,7 @@ func InitGenesis(
 	}
 
 	for _, pair := range data.TokenPairs {
-		id := pair.GetID()
-		k.SetTokenPair(ctx, pair)
-		k.SetDenomMap(ctx, pair.Denom, id)
-		k.SetERC20Map(ctx, pair.GetERC20Contract(), id)
+		k.SetToken(ctx, pair)
 	}
 }
 

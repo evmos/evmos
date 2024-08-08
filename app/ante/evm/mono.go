@@ -14,9 +14,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
@@ -70,15 +70,23 @@ func NewMonoDecorator(
 	}
 }
 
-// NewUtils returns a new DecoratorUtils instance.
-func (md MonoDecorator) NewUtils(ctx sdk.Context) (*DecoratorUtils, error) {
-	evmParams := md.evmKeeper.GetParams(ctx)
+// NewMonoDecoratorUtils returns a new DecoratorUtils instance.
+//
+// These utilities are extracted once at the beginning of the ante handle process,
+// and are used throughout the entire decorator chain.
+// This avoids redundant calls to the keeper and thus improves speed of transaction processing.
+func NewMonoDecoratorUtils(
+	ctx sdk.Context,
+	ek EVMKeeper,
+	fmk FeeMarketKeeper,
+) (*DecoratorUtils, error) {
+	evmParams := ek.GetParams(ctx)
 	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(md.evmKeeper.ChainID())
+	ethCfg := chainCfg.EthereumConfig(ek.ChainID())
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
-	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
-	feeMarketParams := md.feeMarketKeeper.GetParams(ctx)
+	baseFee := ek.GetBaseFee(ctx, ethCfg)
+	feeMarketParams := fmk.GetParams(ctx)
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
@@ -96,7 +104,7 @@ func (md MonoDecorator) NewUtils(ctx sdk.Context) (*DecoratorUtils, error) {
 		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmParams.EvmDenom),
 		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
 		EvmDenom:           evmParams.EvmDenom,
-		BlockTxIndex:       md.evmKeeper.GetTxIndexTransient(ctx),
+		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
 		GasWanted:          0,
 		MinPriority:        int64(math.MaxInt64),
@@ -123,7 +131,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := md.NewUtils(ctx)
+	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper, md.feeMarketKeeper)
 	if err != nil {
 		return ctx, err
 	}
@@ -262,7 +270,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		gasWanted := UpdateComulativeGasWanted(
+		gasWanted := UpdateCumulativeGasWanted(
 			ctx,
 			txData.GetGas(),
 			md.maxGasWanted,

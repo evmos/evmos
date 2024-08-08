@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"sort"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -49,7 +50,7 @@ func (s Storage) SortedKeys() []common.Hash {
 	return keys
 }
 
-// stateObject is the state of an acount
+// stateObject is the state of an account
 type stateObject struct {
 	db *StateDB
 
@@ -59,10 +60,6 @@ type stateObject struct {
 	// state storage
 	originStorage Storage
 	dirtyStorage  Storage
-
-	// transientStorage is an in memory storage of the latest committed entries in the current transaction execution.
-	// It is only used when multiple commits are made within the same transaction execution.
-	transientStorage Storage
 
 	address common.Address
 
@@ -80,12 +77,11 @@ func newObject(db *StateDB, address common.Address, account Account) *stateObjec
 		account.CodeHash = emptyCodeHash
 	}
 	return &stateObject{
-		db:               db,
-		address:          address,
-		account:          account,
-		originStorage:    make(Storage),
-		dirtyStorage:     make(Storage),
-		transientStorage: make(Storage),
+		db:            db,
+		address:       address,
+		account:       account,
+		originStorage: make(Storage),
+		dirtyStorage:  make(Storage),
 	}
 }
 
@@ -123,6 +119,16 @@ func (s *stateObject) SetBalance(amount *big.Int) {
 		prev:    new(big.Int).Set(s.account.Balance),
 	})
 	s.setBalance(amount)
+}
+
+// AddPrecompileFn appends to the journal an entry
+// with a snapshot of the multi-store and events
+// previous to the precompile call
+func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events) {
+	s.db.journal.append(precompileCallChange{
+		multiStore: cms,
+		events:     events,
+	})
 }
 
 func (s *stateObject) setBalance(amount *big.Int) {

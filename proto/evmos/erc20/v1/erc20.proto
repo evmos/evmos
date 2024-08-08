@@ -5,7 +5,7 @@ package evmos.erc20.v1;
 
 import "cosmos/bank/v1beta1/bank.proto";
 import "gogoproto/gogo.proto";
-option go_package = "github.com/evmos/evmos/v18/x/erc20/types";
+option go_package = "github.com/evmos/evmos/v19/x/erc20/types";
 
 // Owner enumerates the ownership of a ERC20 contract.
 enum Owner {
@@ -14,7 +14,7 @@ enum Owner {
   OWNER_UNSPECIFIED = 0;
   // OWNER_MODULE - erc20 is owned by the erc20 module account.
   OWNER_MODULE = 1;
-  // OWNER_EXTERNAL - erc20 is owned by an external account.
+  // OWNER_EXTERNAL - erc20 is owned by an externally owned account.
   OWNER_EXTERNAL = 2;
 }
 
@@ -28,7 +28,7 @@ message TokenPair {
   string denom = 2;
   // enabled defines the token mapping enable status
   bool enabled = 3;
-  // contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
+  // contract_owner is an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
   Owner contract_owner = 4;
 }
 

@@ -107,6 +107,10 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
+	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
+
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
@@ -116,51 +120,53 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v18/client/docs/statik"
-	"github.com/evmos/evmos/v18/utils"
+	_ "github.com/evmos/evmos/v19/client/docs/statik"
+	"github.com/evmos/evmos/v19/utils"
 
-	"github.com/evmos/evmos/v18/app/ante"
-	ethante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/app/post"
-	v17 "github.com/evmos/evmos/v18/app/upgrades/v17"
-	v18 "github.com/evmos/evmos/v18/app/upgrades/v18"
-	v19 "github.com/evmos/evmos/v18/app/upgrades/v19"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/ethereum/eip712"
-	bankprecompile "github.com/evmos/evmos/v18/precompiles/bank"
-	bech32precompile "github.com/evmos/evmos/v18/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v18/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v18/precompiles/ics20"
-	p256precompile "github.com/evmos/evmos/v18/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v18/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v18/precompiles/vesting"
-	srvflags "github.com/evmos/evmos/v18/server/flags"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v18/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	"github.com/evmos/evmos/v18/x/erc20"
-	erc20client "github.com/evmos/evmos/v18/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	"github.com/evmos/evmos/v18/x/evm"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	"github.com/evmos/evmos/v18/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v18/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	"github.com/evmos/evmos/v18/x/incentives"
-	inflation "github.com/evmos/evmos/v18/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
-	"github.com/evmos/evmos/v18/x/vesting"
-	vestingclient "github.com/evmos/evmos/v18/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v18/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/app/ante"
+	ethante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/app/post"
+	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
+	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
+	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
+	v191 "github.com/evmos/evmos/v19/app/upgrades/v19_1"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
+	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
+	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
+	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
+	p256precompile "github.com/evmos/evmos/v19/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
+	srvflags "github.com/evmos/evmos/v19/server/flags"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v19/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/erc20"
+	erc20client "github.com/evmos/evmos/v19/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/evm"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v19/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v19/x/incentives"
+	inflation "github.com/evmos/evmos/v19/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/x/staking"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	"github.com/evmos/evmos/v19/x/vesting"
+	vestingclient "github.com/evmos/evmos/v19/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 
 	ccvdistr "github.com/cosmos/interchain-security/v4/x/ccv/democracy/distribution"
 	ccvgov "github.com/cosmos/interchain-security/v4/x/ccv/democracy/governance"
@@ -171,14 +177,14 @@ import (
 	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v18/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v19/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
-	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/js"
+	_ "github.com/evmos/evmos/v19/x/evm/core/tracers/native"
 )
 
 func init() {
@@ -245,7 +251,6 @@ var (
 		epochs.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		incentives.AppModuleBasic{},
-		ccvconsumer.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -262,6 +267,7 @@ var (
 		evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:                     {authtypes.Minter},
 		erc20types.ModuleName:                         {authtypes.Minter, authtypes.Burner},
+		ratelimittypes.ModuleName:      nil,
 	}
 )
 
@@ -307,6 +313,7 @@ type Evmos struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        transferkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	RateLimitKeeper       ratelimitkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
@@ -463,9 +470,11 @@ func NewEvmos(
 	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, stakingKeeper, app.FeeMarketKeeper,
+		// FIX: Temporary solution to solve keeper interdependency while new precompile module
+		// is being developed.
+		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
@@ -521,16 +530,28 @@ func NewEvmos(
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
+	// Create the rate limit keeper
+	app.RateLimitKeeper = *ratelimitkeeper.NewKeeper(
+		appCodec,
+		keys[ratelimittypes.StoreKey],
+		app.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
+
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.RateLimitKeeper, // ICS4 Wrapper: ratelimit IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -618,6 +639,7 @@ func NewEvmos(
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = ratelimit.NewIBCMiddleware(app.RateLimitKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -666,6 +688,7 @@ func NewEvmos(
 		ibc.NewAppModule(app.IBCKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		transferModule,
+		ratelimit.NewAppModule(appCodec, app.RateLimitKeeper),
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
@@ -710,7 +733,6 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
-		ccvconsumertypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -741,7 +763,6 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
-		ccvconsumertypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -778,7 +799,6 @@ func NewEvmos(
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		ccvconsumertypes.ModuleName,
 	)
 
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
@@ -1175,11 +1195,13 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck
+	// IBC subspaces
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(ratelimittypes.ModuleName)
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint:staticcheck
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
@@ -1209,6 +1231,23 @@ func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 		v19.UpgradeName,
 		v19.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
+	// v19.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v191.UpgradeName,
+		v191.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
 			app.EvmKeeper,
 		),
 	)
@@ -1244,8 +1283,21 @@ func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 	switch upgradeInfo.Name {
 	case v19.UpgradeName:
 		// revenue module is deprecated in v19
+		// This ran only on testnet
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
+		}
+	case v191.UpgradeName:
+		if utils.IsMainnet(app.ChainID()) {
+			// revenue module is deprecated in v19.1
+			storeUpgrades = &storetypes.StoreUpgrades{
+				Deleted: []string{"revenue"},
+				Added:   []string{ratelimittypes.ModuleName},
+			}
+		} else {
+			storeUpgrades = &storetypes.StoreUpgrades{
+				Added: []string{ratelimittypes.ModuleName},
+			}
 		}
 	default:
 		// no-op

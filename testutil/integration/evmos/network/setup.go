@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
 
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -29,12 +29,13 @@ import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
-	evmosutil "github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	evmosutil "github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -270,9 +271,11 @@ func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
-	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
-	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	authtypes.ModuleName:  genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
+	evmtypes.ModuleName:   genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	govtypes.ModuleName:   genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	infltypes.ModuleName:  genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	erc20types.ModuleName: genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
 }
 
 // setDefaultAuthGenesisState sets the default auth genesis state
@@ -297,6 +300,12 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisS
 	return genesisState
 }
 
+func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+	erc20Gen := erc20types.DefaultGenesisState()
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	return genesisState
+}
+
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) simapp.GenesisState {
@@ -307,6 +316,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) si
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
@@ -325,6 +335,8 @@ func customizeGenesis(
 			if err != nil {
 				return genesisState, err
 			}
+		} else {
+			panic(fmt.Sprintf("module %s not found in genesis setup functions", mod))
 		}
 	}
 	return genesisState, err

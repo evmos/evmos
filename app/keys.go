@@ -19,16 +19,17 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 // StoreKeys returns the application store keys,
@@ -49,6 +50,8 @@ func StoreKeys() (
 		ibcexported.StoreKey, ibctransfertypes.StoreKey,
 		// ica keys
 		icahosttypes.StoreKey,
+		// ibc rate-limit keys
+		ratelimittypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys

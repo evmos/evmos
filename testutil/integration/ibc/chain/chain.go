@@ -63,7 +63,7 @@ type Chain interface {
 	// ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
 	// light client on the source chain.
 	ConstructUpdateTMClientHeader(counterparty *ibctesting.TestChain, clientID string) (*ibctm.Header, error)
-	// ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
+	// ConstructUpdateTMClientHeaderWithTrustedHeight will construct a valid 07-tendermint Header to update the
 	ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty *ibctesting.TestChain, clientID string, trustedHeight clienttypes.Height) (*ibctm.Header, error) // light client on the source chain.
 	// ExpireClient fast forwards the chain's block time by the provided amount of time which will
 	// expire any clients with a trusting period less than or equal to this amount of time.

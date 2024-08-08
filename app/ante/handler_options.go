@@ -14,16 +14,15 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	consumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
-	evmante "github.com/evmos/evmos/v18/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v18/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
 // AnteHandler decorators.
 type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec
-	ConsumerKeeper         *consumerkeeper.Keeper
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
 	DistributionKeeper     anteutils.DistributionKeeper
@@ -62,7 +61,6 @@ func (options HandlerOptions) Validate() error {
 	if options.EvmKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
 	}
-
 	if options.SigGasConsumer == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")
 	}

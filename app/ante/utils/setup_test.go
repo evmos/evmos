@@ -16,14 +16,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/app/ante"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/ethereum/eip712"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/app/ante"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 )
 
 type AnteTestSuite struct {

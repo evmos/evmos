@@ -15,8 +15,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	rpctypes "github.com/evmos/evmos/v18/rpc/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v19/rpc/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/pkg/errors"
 )
 
