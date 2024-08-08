@@ -31,7 +31,7 @@ const (
 // EmitApprovalEvent creates a new approval event emitted on an Approve, IncreaseAllowance and DecreaseAllowance transactions.
 func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grantee, granter common.Address, typeURL string) error {
 	// Prepare the event topics
-	event := p.ABI.Events[authorization.EventTypeApproval]
+	event := p.Events[authorization.EventTypeApproval]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -73,7 +73,7 @@ func (p Precompile) EmitCreateClawbackVestingAccountEvent(
 	funderAddr, vestingAddr common.Address,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeCreateClawbackVestingAccount]
+	event := p.Events[EventTypeCreateClawbackVestingAccount]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -112,7 +112,7 @@ func (p Precompile) EmitFundVestingAccountEvent(
 	vestingPeriods *VestingPeriods,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeFundVestingAccount]
+	event := p.Events[EventTypeFundVestingAccount]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -156,7 +156,7 @@ func (p Precompile) EmitClawbackEvent(
 	funderAddr, accountAddr, destAddr common.Address,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeClawback]
+	event := p.Events[EventTypeClawback]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -200,7 +200,7 @@ func (p Precompile) EmitUpdateVestingFunderEvent(
 	funderAddr, newFunderAddr, vestingAddr common.Address,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeUpdateVestingFunder]
+	event := p.Events[EventTypeUpdateVestingFunder]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -238,7 +238,7 @@ func (p Precompile) EmitUpdateVestingFunderEvent(
 // EmitConvertVestingAccountEvent creates a new convert vesting account event emitted on a ConvertVestingAccount transaction.
 func (p Precompile) EmitConvertVestingAccountEvent(ctx sdk.Context, stateDB vm.StateDB, vestingAddr common.Address) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeConvertVestingAccount]
+	event := p.Events[EventTypeConvertVestingAccount]
 	topics := make([]common.Hash, 2)
 
 	// The first topic is always the signature of the event.

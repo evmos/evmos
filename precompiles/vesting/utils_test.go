@@ -178,23 +178,3 @@ func mergeEventMaps(map1, map2 map[string]abi.Event) map[string]abi.Event {
 
 	return mergedMap
 }
-
-// mergeEventMaps is a helper function to merge events maps from different contracts.
-// If duplicates events are present, map2 override map1 values.
-func mergeEventMaps(map1, map2 map[string]abi.Event) map[string]abi.Event {
-	// Create a new map to hold the merged result
-	mergedMap := make(map[string]abi.Event)
-
-	// Copy all key-value pairs from map1 to mergedMap
-	for k, v := range map1 {
-		mergedMap[k] = v
-	}
-
-	// Copy all key-value pairs from map2 to mergedMap
-	// If there are duplicate keys, values from map2 will overwrite those from map1
-	for k, v := range map2 {
-		mergedMap[k] = v
-	}
-
-	return mergedMap
-}

@@ -16,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
@@ -88,8 +89,17 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []string{}
-		err = in.UpdateEvmParams(defaultParams)
+
+		err := integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
 	It("should deploy the contract before enabling the IP", func() {
@@ -108,7 +118,17 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
-		err = in.UpdateEvmParams(qRes.Params)
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
+		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
@@ -175,8 +195,17 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []string{}
-		err = in.UpdateEvmParams(defaultParams)
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
 	It("should deploy the contract before enabling the IP", func() {
@@ -238,8 +267,18 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
-		err = in.UpdateEvmParams(qRes.Params)
+
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
@@ -338,8 +377,18 @@ var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
 		defaultParams.ExtraEIPs = []string{}
-		err = in.UpdateEvmParams(defaultParams)
+
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  defaultParams,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
 	It("should deploy the contract before enabling the IP", func() {
@@ -360,8 +409,17 @@ var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
 		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
-		err = in.UpdateEvmParams(qRes.Params)
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
+				Tf:      tf,
+				Network: in,
+				Pk:      senderPriv,
+				Params:  qRes.Params,
+			},
+		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
