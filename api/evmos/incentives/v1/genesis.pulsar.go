@@ -1549,7 +1549,6 @@ var (
 		(*GasMeter)(nil),     // 3: evmos.incentives.v1.GasMeter
 	}
 )
-
 var file_evmos_incentives_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: evmos.incentives.v1.GenesisState.params:type_name -> evmos.incentives.v1.Params
 	2, // 1: evmos.incentives.v1.GenesisState.incentives:type_name -> evmos.incentives.v1.Incentive
