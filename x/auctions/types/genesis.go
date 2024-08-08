@@ -38,9 +38,5 @@ func (gs GenesisState) Validate() error {
 		return errors.Wrapf(ErrNegativeBid, "bid amount should be positive")
 	}
 
-	if gs.Round < 0 {
-		return errors.Wrapf(ErrInvalidRound, "round should be positive")
-	}
-
 	return gs.Params.Validate()
 }
