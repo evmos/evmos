@@ -6,18 +6,21 @@ package cli
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
+
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
+	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	evmostypes "github.com/evmos/evmos/v19/types"
-
 	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
@@ -98,17 +101,17 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 				return err
 			}
 
-			title, err := cmd.Flags().GetString(cli.FlagTitle)
+			title, err := cmd.Flags().GetString(govcli.FlagTitle)
 			if err != nil {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
+			description, err := cmd.Flags().GetString(govcli.FlagDescription) //nolint:staticcheck
 			if err != nil {
 				return err
 			}
 
-			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
+			depositStr, err := cmd.Flags().GetString(govcli.FlagDeposit)
 			if err != nil {
 				return err
 			}
@@ -131,16 +134,16 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
-	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
-	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+	cmd.Flags().String(govcli.FlagTitle, "", "title of proposal")
+	cmd.Flags().String(govcli.FlagDescription, "", "description of proposal") //nolint:staticcheck
+	cmd.Flags().String(govcli.FlagDeposit, "1aevmos", "deposit of proposal")
+	if err := cmd.MarkFlagRequired(govcli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
+	if err := cmd.MarkFlagRequired(govcli.FlagDescription); err != nil { //nolint:staticcheck
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+	if err := cmd.MarkFlagRequired(govcli.FlagDeposit); err != nil {
 		panic(err)
 	}
 	return cmd
@@ -160,17 +163,17 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 				return err
 			}
 
-			title, err := cmd.Flags().GetString(cli.FlagTitle)
+			title, err := cmd.Flags().GetString(govcli.FlagTitle)
 			if err != nil {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
+			description, err := cmd.Flags().GetString(govcli.FlagDescription) //nolint:staticcheck
 			if err != nil {
 				return err
 			}
 
-			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
+			depositStr, err := cmd.Flags().GetString(govcli.FlagDeposit)
 			if err != nil {
 				return err
 			}
@@ -193,16 +196,16 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
-	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
-	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+	cmd.Flags().String(govcli.FlagTitle, "", "title of proposal")
+	cmd.Flags().String(govcli.FlagDescription, "", "description of proposal") //nolint:staticcheck
+	cmd.Flags().String(govcli.FlagDeposit, "1aevmos", "deposit of proposal")
+	if err := cmd.MarkFlagRequired(govcli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
+	if err := cmd.MarkFlagRequired(govcli.FlagDescription); err != nil { //nolint:staticcheck
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+	if err := cmd.MarkFlagRequired(govcli.FlagDeposit); err != nil {
 		panic(err)
 	}
 	return cmd

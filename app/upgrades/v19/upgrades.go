@@ -8,14 +8,16 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/ethereum/go-ethereum/common"
+
 	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
