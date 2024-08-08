@@ -26,6 +26,7 @@ type HandlerOptions struct {
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
 	DistributionKeeper     anteutils.DistributionKeeper
+	ConsumerKeeper         *consumerkeeper.Keeper
 	IBCKeeper              *ibckeeper.Keeper
 	StakingKeeper          anteutils.StakingKeeper
 	FeeMarketKeeper        evmante.FeeMarketKeeper

@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	v20 "github.com/evmos/evmos/v18/app/upgrades/v20"
+	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 	"io"
 	"net/http"
 	"os"
@@ -161,7 +161,6 @@ import (
 	inflation "github.com/evmos/evmos/v19/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
-	"github.com/evmos/evmos/v19/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	"github.com/evmos/evmos/v19/x/vesting"
 	vestingclient "github.com/evmos/evmos/v19/x/vesting/client"
@@ -267,7 +266,7 @@ var (
 		evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:                     {authtypes.Minter},
 		erc20types.ModuleName:                         {authtypes.Minter, authtypes.Burner},
-		ratelimittypes.ModuleName:      nil,
+		ratelimittypes.ModuleName:                     nil,
 	}
 )
 

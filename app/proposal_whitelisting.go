@@ -18,7 +18,7 @@ import (
 	ccvgov "github.com/cosmos/interchain-security/v4/x/ccv/democracy/governance"
 )
 
-// TODO: Whitelist more Evmos specific proposals here ?
+// WhiteListModule TODO: Whitelist more Evmos specific proposals here ?
 var WhiteListModule = map[string]struct{}{
 	"/cosmos.gov.v1.MsgUpdateParams":               {},
 	"/cosmos.bank.v1beta1.MsgUpdateParams":         {},

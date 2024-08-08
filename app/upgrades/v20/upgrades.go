@@ -12,11 +12,11 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	"github.com/evmos/evmos/v18/utils"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
+	"github.com/evmos/evmos/v19/utils"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/spf13/cast"
 
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v20
