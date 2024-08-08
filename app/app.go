@@ -152,7 +152,6 @@ import (
 	"github.com/evmos/evmos/v19/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-	"github.com/evmos/evmos/v19/x/incentives"
 	"github.com/evmos/evmos/v19/x/staking"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	"github.com/evmos/evmos/v19/x/vesting"
@@ -226,7 +225,6 @@ var (
 		erc20.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		consensus.AppModuleBasic{},
-		incentives.AppModuleBasic{},
 		ratelimit.AppModuleBasic{},
 	)
 
