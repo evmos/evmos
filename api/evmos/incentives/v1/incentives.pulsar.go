@@ -2,17 +2,19 @@
 package incentivesv1
 
 import (
-	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
+	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var _ protoreflect.List = (*_Incentive_2_list)(nil)
@@ -105,17 +107,21 @@ func (x *Incentive) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_Incentive_messageType fastReflection_Incentive_messageType
-var _ protoreflect.MessageType = fastReflection_Incentive_messageType{}
+var (
+	_fastReflection_Incentive_messageType fastReflection_Incentive_messageType
+	_                                     protoreflect.MessageType = fastReflection_Incentive_messageType{}
+)
 
 type fastReflection_Incentive_messageType struct{}
 
 func (x fastReflection_Incentive_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_Incentive)(nil)
 }
+
 func (x fastReflection_Incentive_messageType) New() protoreflect.Message {
 	return new(fastReflection_Incentive)
 }
+
 func (x fastReflection_Incentive_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_Incentive
 }
@@ -783,17 +789,21 @@ func (x *GasMeter) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_GasMeter_messageType fastReflection_GasMeter_messageType
-var _ protoreflect.MessageType = fastReflection_GasMeter_messageType{}
+var (
+	_fastReflection_GasMeter_messageType fastReflection_GasMeter_messageType
+	_                                    protoreflect.MessageType = fastReflection_GasMeter_messageType{}
+)
 
 type fastReflection_GasMeter_messageType struct{}
 
 func (x fastReflection_GasMeter_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_GasMeter)(nil)
 }
+
 func (x fastReflection_GasMeter_messageType) New() protoreflect.Message {
 	return new(fastReflection_GasMeter)
 }
+
 func (x fastReflection_GasMeter_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_GasMeter
 }
@@ -1370,17 +1380,21 @@ func (x *RegisterIncentiveProposal) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_RegisterIncentiveProposal_messageType fastReflection_RegisterIncentiveProposal_messageType
-var _ protoreflect.MessageType = fastReflection_RegisterIncentiveProposal_messageType{}
+var (
+	_fastReflection_RegisterIncentiveProposal_messageType fastReflection_RegisterIncentiveProposal_messageType
+	_                                                     protoreflect.MessageType = fastReflection_RegisterIncentiveProposal_messageType{}
+)
 
 type fastReflection_RegisterIncentiveProposal_messageType struct{}
 
 func (x fastReflection_RegisterIncentiveProposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_RegisterIncentiveProposal)(nil)
 }
+
 func (x fastReflection_RegisterIncentiveProposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_RegisterIncentiveProposal)
 }
+
 func (x fastReflection_RegisterIncentiveProposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_RegisterIncentiveProposal
 }
@@ -2049,17 +2063,21 @@ func (x *CancelIncentiveProposal) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_CancelIncentiveProposal_messageType fastReflection_CancelIncentiveProposal_messageType
-var _ protoreflect.MessageType = fastReflection_CancelIncentiveProposal_messageType{}
+var (
+	_fastReflection_CancelIncentiveProposal_messageType fastReflection_CancelIncentiveProposal_messageType
+	_                                                   protoreflect.MessageType = fastReflection_CancelIncentiveProposal_messageType{}
+)
 
 type fastReflection_CancelIncentiveProposal_messageType struct{}
 
 func (x fastReflection_CancelIncentiveProposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_CancelIncentiveProposal)(nil)
 }
+
 func (x fastReflection_CancelIncentiveProposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_CancelIncentiveProposal)
 }
+
 func (x fastReflection_CancelIncentiveProposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_CancelIncentiveProposal
 }
@@ -2923,15 +2941,17 @@ func file_evmos_incentives_v1_incentives_proto_rawDescGZIP() []byte {
 	return file_evmos_incentives_v1_incentives_proto_rawDescData
 }
 
-var file_evmos_incentives_v1_incentives_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_incentives_v1_incentives_proto_goTypes = []interface{}{
-	(*Incentive)(nil),                 // 0: evmos.incentives.v1.Incentive
-	(*GasMeter)(nil),                  // 1: evmos.incentives.v1.GasMeter
-	(*RegisterIncentiveProposal)(nil), // 2: evmos.incentives.v1.RegisterIncentiveProposal
-	(*CancelIncentiveProposal)(nil),   // 3: evmos.incentives.v1.CancelIncentiveProposal
-	(*v1beta1.DecCoin)(nil),           // 4: cosmos.base.v1beta1.DecCoin
-	(*timestamppb.Timestamp)(nil),     // 5: google.protobuf.Timestamp
-}
+var (
+	file_evmos_incentives_v1_incentives_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_evmos_incentives_v1_incentives_proto_goTypes  = []interface{}{
+		(*Incentive)(nil),                 // 0: evmos.incentives.v1.Incentive
+		(*GasMeter)(nil),                  // 1: evmos.incentives.v1.GasMeter
+		(*RegisterIncentiveProposal)(nil), // 2: evmos.incentives.v1.RegisterIncentiveProposal
+		(*CancelIncentiveProposal)(nil),   // 3: evmos.incentives.v1.CancelIncentiveProposal
+		(*v1beta1.DecCoin)(nil),           // 4: cosmos.base.v1beta1.DecCoin
+		(*timestamppb.Timestamp)(nil),     // 5: google.protobuf.Timestamp
+	}
+)
 var file_evmos_incentives_v1_incentives_proto_depIdxs = []int32{
 	4, // 0: evmos.incentives.v1.Incentive.allocations:type_name -> cosmos.base.v1beta1.DecCoin
 	5, // 1: evmos.incentives.v1.Incentive.start_time:type_name -> google.protobuf.Timestamp

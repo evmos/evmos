@@ -3,13 +3,14 @@ package erc20v1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -45,17 +46,21 @@ func (x *EventRegisterPair) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventRegisterPair_messageType fastReflection_EventRegisterPair_messageType
-var _ protoreflect.MessageType = fastReflection_EventRegisterPair_messageType{}
+var (
+	_fastReflection_EventRegisterPair_messageType fastReflection_EventRegisterPair_messageType
+	_                                             protoreflect.MessageType = fastReflection_EventRegisterPair_messageType{}
+)
 
 type fastReflection_EventRegisterPair_messageType struct{}
 
 func (x fastReflection_EventRegisterPair_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventRegisterPair)(nil)
 }
+
 func (x fastReflection_EventRegisterPair_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventRegisterPair)
 }
+
 func (x fastReflection_EventRegisterPair_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventRegisterPair
 }
@@ -529,17 +534,21 @@ func (x *EventToggleTokenConversion) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventToggleTokenConversion_messageType fastReflection_EventToggleTokenConversion_messageType
-var _ protoreflect.MessageType = fastReflection_EventToggleTokenConversion_messageType{}
+var (
+	_fastReflection_EventToggleTokenConversion_messageType fastReflection_EventToggleTokenConversion_messageType
+	_                                                      protoreflect.MessageType = fastReflection_EventToggleTokenConversion_messageType{}
+)
 
 type fastReflection_EventToggleTokenConversion_messageType struct{}
 
 func (x fastReflection_EventToggleTokenConversion_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventToggleTokenConversion)(nil)
 }
+
 func (x fastReflection_EventToggleTokenConversion_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventToggleTokenConversion)
 }
+
 func (x fastReflection_EventToggleTokenConversion_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventToggleTokenConversion
 }
@@ -1019,17 +1028,21 @@ func (x *EventConvertCoin) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventConvertCoin_messageType fastReflection_EventConvertCoin_messageType
-var _ protoreflect.MessageType = fastReflection_EventConvertCoin_messageType{}
+var (
+	_fastReflection_EventConvertCoin_messageType fastReflection_EventConvertCoin_messageType
+	_                                            protoreflect.MessageType = fastReflection_EventConvertCoin_messageType{}
+)
 
 type fastReflection_EventConvertCoin_messageType struct{}
 
 func (x fastReflection_EventConvertCoin_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventConvertCoin)(nil)
 }
+
 func (x fastReflection_EventConvertCoin_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventConvertCoin)
 }
+
 func (x fastReflection_EventConvertCoin_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventConvertCoin
 }
@@ -1695,17 +1708,21 @@ func (x *EventConvertERC20) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventConvertERC20_messageType fastReflection_EventConvertERC20_messageType
-var _ protoreflect.MessageType = fastReflection_EventConvertERC20_messageType{}
+var (
+	_fastReflection_EventConvertERC20_messageType fastReflection_EventConvertERC20_messageType
+	_                                             protoreflect.MessageType = fastReflection_EventConvertERC20_messageType{}
+)
 
 type fastReflection_EventConvertERC20_messageType struct{}
 
 func (x fastReflection_EventConvertERC20_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventConvertERC20)(nil)
 }
+
 func (x fastReflection_EventConvertERC20_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventConvertERC20)
 }
+
 func (x fastReflection_EventConvertERC20_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventConvertERC20
 }
@@ -2648,13 +2665,15 @@ func file_evmos_erc20_v1_events_proto_rawDescGZIP() []byte {
 	return file_evmos_erc20_v1_events_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_erc20_v1_events_proto_goTypes = []interface{}{
-	(*EventRegisterPair)(nil),          // 0: evmos.erc20.v1.EventRegisterPair
-	(*EventToggleTokenConversion)(nil), // 1: evmos.erc20.v1.EventToggleTokenConversion
-	(*EventConvertCoin)(nil),           // 2: evmos.erc20.v1.EventConvertCoin
-	(*EventConvertERC20)(nil),          // 3: evmos.erc20.v1.EventConvertERC20
-}
+var (
+	file_evmos_erc20_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_evmos_erc20_v1_events_proto_goTypes  = []interface{}{
+		(*EventRegisterPair)(nil),          // 0: evmos.erc20.v1.EventRegisterPair
+		(*EventToggleTokenConversion)(nil), // 1: evmos.erc20.v1.EventToggleTokenConversion
+		(*EventConvertCoin)(nil),           // 2: evmos.erc20.v1.EventConvertCoin
+		(*EventConvertERC20)(nil),          // 3: evmos.erc20.v1.EventConvertERC20
+	}
+)
 var file_evmos_erc20_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

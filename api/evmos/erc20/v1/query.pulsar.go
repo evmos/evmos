@@ -2,18 +2,20 @@
 package erc20v1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/query/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +49,21 @@ func (x *QueryTokenPairsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTokenPairsRequest_messageType fastReflection_QueryTokenPairsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTokenPairsRequest_messageType{}
+var (
+	_fastReflection_QueryTokenPairsRequest_messageType fastReflection_QueryTokenPairsRequest_messageType
+	_                                                  protoreflect.MessageType = fastReflection_QueryTokenPairsRequest_messageType{}
+)
 
 type fastReflection_QueryTokenPairsRequest_messageType struct{}
 
 func (x fastReflection_QueryTokenPairsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTokenPairsRequest)(nil)
 }
+
 func (x fastReflection_QueryTokenPairsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTokenPairsRequest)
 }
+
 func (x fastReflection_QueryTokenPairsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTokenPairsRequest
 }
@@ -535,17 +541,21 @@ func (x *QueryTokenPairsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTokenPairsResponse_messageType fastReflection_QueryTokenPairsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTokenPairsResponse_messageType{}
+var (
+	_fastReflection_QueryTokenPairsResponse_messageType fastReflection_QueryTokenPairsResponse_messageType
+	_                                                   protoreflect.MessageType = fastReflection_QueryTokenPairsResponse_messageType{}
+)
 
 type fastReflection_QueryTokenPairsResponse_messageType struct{}
 
 func (x fastReflection_QueryTokenPairsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTokenPairsResponse)(nil)
 }
+
 func (x fastReflection_QueryTokenPairsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTokenPairsResponse)
 }
+
 func (x fastReflection_QueryTokenPairsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTokenPairsResponse
 }
@@ -1055,17 +1065,21 @@ func (x *QueryTokenPairRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTokenPairRequest_messageType fastReflection_QueryTokenPairRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTokenPairRequest_messageType{}
+var (
+	_fastReflection_QueryTokenPairRequest_messageType fastReflection_QueryTokenPairRequest_messageType
+	_                                                 protoreflect.MessageType = fastReflection_QueryTokenPairRequest_messageType{}
+)
 
 type fastReflection_QueryTokenPairRequest_messageType struct{}
 
 func (x fastReflection_QueryTokenPairRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTokenPairRequest)(nil)
 }
+
 func (x fastReflection_QueryTokenPairRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTokenPairRequest)
 }
+
 func (x fastReflection_QueryTokenPairRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTokenPairRequest
 }
@@ -1475,17 +1489,21 @@ func (x *QueryTokenPairResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTokenPairResponse_messageType fastReflection_QueryTokenPairResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTokenPairResponse_messageType{}
+var (
+	_fastReflection_QueryTokenPairResponse_messageType fastReflection_QueryTokenPairResponse_messageType
+	_                                                  protoreflect.MessageType = fastReflection_QueryTokenPairResponse_messageType{}
+)
 
 type fastReflection_QueryTokenPairResponse_messageType struct{}
 
 func (x fastReflection_QueryTokenPairResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTokenPairResponse)(nil)
 }
+
 func (x fastReflection_QueryTokenPairResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTokenPairResponse)
 }
+
 func (x fastReflection_QueryTokenPairResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTokenPairResponse
 }
@@ -1879,9 +1897,7 @@ func (x *fastReflection_QueryTokenPairResponse) ProtoMethods() *protoiface.Metho
 	}
 }
 
-var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
+var md_QueryParamsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_query_proto_init()
@@ -1908,17 +1924,21 @@ func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+var (
+	_fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+)
 
 type fastReflection_QueryParamsRequest_messageType struct{}
 
 func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsRequest)(nil)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsRequest)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsRequest
 }
@@ -2266,17 +2286,21 @@ func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+var (
+	_fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+)
 
 type fastReflection_QueryParamsResponse_messageType struct{}
 
 func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsResponse)(nil)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsResponse)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsResponse
 }
@@ -3011,19 +3035,21 @@ func file_evmos_erc20_v1_query_proto_rawDescGZIP() []byte {
 	return file_evmos_erc20_v1_query_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_evmos_erc20_v1_query_proto_goTypes = []interface{}{
-	(*QueryTokenPairsRequest)(nil),  // 0: evmos.erc20.v1.QueryTokenPairsRequest
-	(*QueryTokenPairsResponse)(nil), // 1: evmos.erc20.v1.QueryTokenPairsResponse
-	(*QueryTokenPairRequest)(nil),   // 2: evmos.erc20.v1.QueryTokenPairRequest
-	(*QueryTokenPairResponse)(nil),  // 3: evmos.erc20.v1.QueryTokenPairResponse
-	(*QueryParamsRequest)(nil),      // 4: evmos.erc20.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),     // 5: evmos.erc20.v1.QueryParamsResponse
-	(*v1beta1.PageRequest)(nil),     // 6: cosmos.base.query.v1beta1.PageRequest
-	(*TokenPair)(nil),               // 7: evmos.erc20.v1.TokenPair
-	(*v1beta1.PageResponse)(nil),    // 8: cosmos.base.query.v1beta1.PageResponse
-	(*Params)(nil),                  // 9: evmos.erc20.v1.Params
-}
+var (
+	file_evmos_erc20_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_evmos_erc20_v1_query_proto_goTypes  = []interface{}{
+		(*QueryTokenPairsRequest)(nil),  // 0: evmos.erc20.v1.QueryTokenPairsRequest
+		(*QueryTokenPairsResponse)(nil), // 1: evmos.erc20.v1.QueryTokenPairsResponse
+		(*QueryTokenPairRequest)(nil),   // 2: evmos.erc20.v1.QueryTokenPairRequest
+		(*QueryTokenPairResponse)(nil),  // 3: evmos.erc20.v1.QueryTokenPairResponse
+		(*QueryParamsRequest)(nil),      // 4: evmos.erc20.v1.QueryParamsRequest
+		(*QueryParamsResponse)(nil),     // 5: evmos.erc20.v1.QueryParamsResponse
+		(*v1beta1.PageRequest)(nil),     // 6: cosmos.base.query.v1beta1.PageRequest
+		(*TokenPair)(nil),               // 7: evmos.erc20.v1.TokenPair
+		(*v1beta1.PageResponse)(nil),    // 8: cosmos.base.query.v1beta1.PageResponse
+		(*Params)(nil),                  // 9: evmos.erc20.v1.Params
+	}
+)
 var file_evmos_erc20_v1_query_proto_depIdxs = []int32{
 	6, // 0: evmos.erc20.v1.QueryTokenPairsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	7, // 1: evmos.erc20.v1.QueryTokenPairsResponse.token_pairs:type_name -> evmos.erc20.v1.TokenPair
