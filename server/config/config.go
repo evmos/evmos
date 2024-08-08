@@ -22,6 +22,8 @@ import (
 
 	"github.com/crypto-org-chain/cronos/memiavl"
 	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
+
+	_ "github.com/evmos/evmos/v18/server/config/migration" // Add this import to set up the proper app.toml migration logic for sdk v0.50
 )
 
 const (

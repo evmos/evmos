@@ -27,8 +27,8 @@ schema = 3
     hash = "sha256-zUiOF04lWHK8OZqGhwVuzKYfig5I0107D+8fWX5/pbQ="
     replaced = "cosmossdk.io/core"
   [mod."cosmossdk.io/depinject"]
-    version = "v1.0.0-alpha.4"
-    hash = "sha256-xpLH0K6ivQznFrLw2hmhWIIyYgqjstV47OhTEj/c1oQ="
+    version = "v1.0.0"
+    hash = "sha256-dtsNfj5zUlX6e4YslzyegrebztmlLiBFvqDb2IHV+Zc="
   [mod."cosmossdk.io/errors"]
     version = "v1.0.1"
     hash = "sha256-MgTocXkBzri9FKkNtkARJXPmxRrRO/diQJS5ZzvYrJY="
@@ -55,8 +55,8 @@ schema = 3
     version = "v0.1.0"
     hash = "sha256-/gWvrqvy6bW90+NU66T+9QysYgvG1VbwfYJZ8tkqpeA="
   [mod."cosmossdk.io/x/tx"]
-    version = "v0.13.3"
-    hash = "sha256-7xN5da7GZ47oAX2zGaLcIdA5zPCn9VDLfsJWtbm3VFY="
+    version = "v0.13.4"
+    hash = "sha256-he4CClUgFUAXoB826Pn7QMDW5sbVgXbngkdUYNu5keE="
   [mod."cosmossdk.io/x/upgrade"]
     version = "v0.1.0"
     hash = "sha256-G+7fbkBXSOsL1HFrfFDEx9LI53+xc6PLfa9kFhTx2Qo="
@@ -173,8 +173,8 @@ schema = 3
     version = "v1.0.0-beta.5"
     hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
   [mod."github.com/cosmos/cosmos-sdk"]
-    version = "v0.50.8-evmos.2"
-    hash = "sha256-RjmzS2PmnLaL7n8Neijm3QjtlbQIuEL375G9xiQYprY="
+    version = "v0.50.9-evmos"
+    hash = "sha256-rGMTd3gRSfFftK10S/QJAKq6dtnN6Si81KTJ1D6w8XY="
     replaced = "github.com/evmos/cosmos-sdk"
   [mod."github.com/cosmos/go-bip39"]
     version = "v1.0.0"
@@ -192,8 +192,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-xOeHJWUj6fTc2EUGiE4dgfY2WkvrqTg/FWewoUvQcvg="
   [mod."github.com/cosmos/ibc-go/v8"]
-    version = "v8.3.2"
-    hash = "sha256-uqt1GlZ1sQ7k5b3vGiRxawGp53yeAv0RjOotOIY7Z0E="
+    version = "v8.4.0"
+    hash = "sha256-c4EWR/F23cRc+mwdIZsjrxwyELGf82jKXfdUtxJIjSA="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
@@ -746,8 +746,8 @@ schema = 3
     version = "v0.0.0-20240528184218-531527333157"
     hash = "sha256-if1E4g6xCKqL43uyMiKC4C6qY1e/+T5yfp8DYvQ/HwE="
   [mod."google.golang.org/genproto/googleapis/rpc"]
-    version = "v0.0.0-20240528184218-531527333157"
-    hash = "sha256-hQjIHJdIBBAthdXMB19Xr3A2Wy6GV6Gjv4w4MZl7qy4="
+    version = "v0.0.0-20240709173604-40e1e62336c5"
+    hash = "sha256-ass/74EkCljwk7DaASDtK2zipn2cZv6tCLKvwONUWgY="
   [mod."google.golang.org/grpc"]
     version = "v1.65.0"
     hash = "sha256-YP4dewjs+YuTH7rD1p/AFNoKHlk037wbVvSLVAtewIA="
