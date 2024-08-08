@@ -622,6 +622,7 @@ var (
 		(*Params)(nil),       // 1: ethermint.feemarket.v1.Params
 	}
 )
+
 var file_ethermint_feemarket_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: ethermint.feemarket.v1.GenesisState.params:type_name -> ethermint.feemarket.v1.Params
 	1, // [1:1] is the sub-list for method output_type
