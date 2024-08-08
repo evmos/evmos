@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

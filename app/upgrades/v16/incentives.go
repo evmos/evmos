@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	inflationkeeper "github.com/evmos/evmos/v18/x/inflation/v1/keeper"
+	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
 )
 
 // BurnUsageIncentivesPool burns the entirety of the usage incentives pool

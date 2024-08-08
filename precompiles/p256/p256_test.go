@@ -9,14 +9,15 @@ import (
 
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/p256"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/precompiles/p256"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)
 
 func (s *PrecompileTestSuite) TestAddress() {
-	s.Require().Equal(p256.PrecompileAddress, s.precompile.Address().String())
+	s.Require().Equal(evmtypes.P256PrecompileAddress, s.precompile.Address().String())
 }
 
 func (s *PrecompileTestSuite) TestRequiredGas() {

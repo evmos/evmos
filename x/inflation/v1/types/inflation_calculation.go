@@ -6,7 +6,7 @@ package types
 import (
 	"cosmossdk.io/math"
 
-	evmostypes "github.com/evmos/evmos/v18/types"
+	evmostypes "github.com/evmos/evmos/v19/types"
 )
 
 const (

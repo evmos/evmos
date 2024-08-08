@@ -4,9 +4,9 @@
 package app
 
 import (
-	"github.com/evmos/evmos/v18/app/eips"
-	evmconfig "github.com/evmos/evmos/v18/x/evm/config"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/app/eips"
+	evmconfig "github.com/evmos/evmos/v19/x/evm/config"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 // The init function of the config file allows to setup the global
@@ -22,8 +22,8 @@ func init() {
 
 // EvmosActivators defines a map of opcode modifiers associated
 // with a key defining the corresponding EIP.
-var evmosActivators = map[int]func(*vm.JumpTable){
-	0o000: eips.Enable0000,
-	0o001: eips.Enable0001,
-	0o002: eips.Enable0002,
+var evmosActivators = map[string]func(*vm.JumpTable){
+	"evmos_0": eips.Enable0000,
+	"evmos_1": eips.Enable0001,
+	"evmos_2": eips.Enable0002,
 }

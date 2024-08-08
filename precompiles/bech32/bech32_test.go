@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/cmd/config"
-	"github.com/evmos/evmos/v18/precompiles/bech32"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/cmd/config"
+	"github.com/evmos/evmos/v19/precompiles/bech32"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestNewPrecompile() {

@@ -2,8 +2,8 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	"github.com/evmos/evmos/v18/x/evm/types"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 type mockSubspace struct {
@@ -27,8 +27,8 @@ func (suite *KeeperTestSuite) TestMigrations() {
 		migrateFunc func(ctx sdk.Context) error
 	}{
 		{
-			"Run Migrate3to4",
-			migrator.Migrate3to4,
+			"Run Migrate6to7",
+			migrator.Migrate6to7,
 		},
 	}
 

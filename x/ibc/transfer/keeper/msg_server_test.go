@@ -8,11 +8,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v18/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -242,13 +243,41 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		// STRV2
 		// native coin - perform normal ibc transfer
 		{
-			"no-op - transfer",
+			"no-op - fail transfer",
 			func() *types.MsgTransfer {
-				coin := sdk.NewCoin(suite.otherDenom, math.NewInt(10))
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				senderAcc := suite.keyring.GetAccAddr(0)
+
+				denom := "ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992"
+				coinMetadata := banktypes.Metadata{
+					Name:        "Generic IBC name",
+					Symbol:      "IBC",
+					Description: "Generic IBC token description",
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    denom,
+							Exponent: 0,
+							Aliases:  []string{denom},
+						},
+						{
+							Denom:    denom,
+							Exponent: 18,
+						},
+					},
+					Display: denom,
+					Base:    denom,
+				}
+
+				coin := sdk.NewCoin(denom, math.NewInt(10))
+
+				pair, err := suite.network.App.Erc20Keeper.RegisterERC20Extension(suite.network.GetContext(), coinMetadata.Base)
+				suite.Require().Equal(pair.Denom, denom)
+				suite.Require().NoError(err)
+
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0, "")
+
 				return transferMsg
 			},
-			true,
+			false,
 		},
 	}
 	for _, tc := range testCases {

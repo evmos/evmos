@@ -39,7 +39,7 @@ export GO111MODULE = on
 # Default target executed when no arguments are given to make.
 default_target: all
 
-.PHONY: default_target
+.PHONY: build, default_target
 
 # process build tags
 
@@ -467,7 +467,7 @@ proto-format:
 
 proto-lint:
 	@echo "Linting Protobuf files"
-	@$(protoImage) buf lint --error-format=json	
+	@$(protoImage) buf lint --error-format=json
 	@$(protoLinter) lint ./proto
 
 proto-check-breaking:
@@ -541,7 +541,7 @@ release-dry-run:
 		-v ${GOPATH}/pkg:/go/pkg \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--clean --skip-validate --skip-publish --snapshot
+		--clean --skip validate --skip publish --snapshot
 
 release:
 	@if [ ! -f ".release-env" ]; then \
@@ -557,7 +557,7 @@ release:
 		-v `pwd`:/go/src/$(PACKAGE_NAME) \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --clean --skip-validate
+		release --clean --skip validate
 
 .PHONY: release-dry-run release
 

@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	types "github.com/evmos/evmos/v18/x/erc20/types"
+	types "github.com/evmos/evmos/v19/x/erc20/types"
 	mock "github.com/stretchr/testify/mock"
 )
 

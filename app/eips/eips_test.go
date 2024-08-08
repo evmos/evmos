@@ -10,15 +10,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/app/eips"
-	"github.com/evmos/evmos/v18/app/eips/testdata"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/app/eips"
+	"github.com/evmos/evmos/v19/app/eips/testdata"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/params"
 
@@ -30,17 +30,17 @@ import (
 
 // Below tests are divided in 3 steps:
 //  1. Deploy and interact with contracts to compute the gas used BEFORE enabling
-//     the EIP.
-//  2. Activate the EIP under test.
+//     the IP.
+//  2. Activate the IP under test.
 //  3. Deploy and interact with contracts to compute the gas used AFTER enabling
-//     the EIP.
+//     the IP.
 
-func TestEIPs(t *testing.T) {
+func TestIPs(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "EIPs Suite")
+	RunSpecs(t, "EvmosIPs Suite")
 }
 
-var _ = Describe("EIP0000 - ", Ordered, func() {
+var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -48,16 +48,15 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		k  keyring.Keyring
 
 		senderPriv  types.PrivKey
-		senderAddr  common.Address
 		senderPriv2 types.PrivKey
 		senderAddr2 common.Address
 
-		// Gas used before enabling the EIP.
+		// Gas used before enabling the IP.
 		gasUsedPre int64
 	)
 
-	// Multiplier used to modify the opcodes associated with EIP 0000.
-	eipMultiplier := uint64(5)
+	// Multiplier used to modify the opcodes associated with evmos_0 IP.
+	ipMultiplier := uint64(5)
 
 	// The factory counter is used because it will create a new instance of
 	// the counter contract, allowing to test the CREATE opcode.
@@ -77,21 +76,20 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		gh = grpc.NewIntegrationHandler(in)
 		tf = factory.New(in, gh)
 
-		// Account used to deploy the contract before enabling the EIP.
+		// Account used to deploy the contract before enabling the IP.
 		senderPriv = k.GetPrivKey(0)
-		senderAddr = k.GetAddr(0)
-		// Account used to deploy the contract after enabling the EIP. A second
+		// Account used to deploy the contract after enabling the IP. A second
 		// account is used to avoid possible additional gas costs due to the change
 		// in the Nonce.
-		senderPriv2 = k.GetPrivKey(0)
-		senderAddr2 = k.GetAddr(0)
+		senderPriv2 = k.GetPrivKey(1)
+		senderAddr2 = k.GetAddr(1)
 
-		// Set extra EIPs to empty to allow testing a single modifier.
+		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
+		defaultParams.ExtraEIPs = []string{}
 
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		err := integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -99,28 +97,27 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 			},
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
-	})
-
-	It("should deploy the contract before enabling the EIP", func() {
-		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr, evmtypes.EvmTxArgs{}, deploymentData)
-		Expect(err).To(BeNil(), "failed to create deployment tx args")
-
-		res, err := tf.ExecuteEthTx(senderPriv, deploymentTxArgs)
-		Expect(err).To(BeNil(), "failed during contract deployment")
-		gasUsedPre = res.GasUsed
-		// commit block to update sender nonce
 		Expect(in.NextBlock()).To(BeNil())
 	})
 
-	It("should enable the new EIP", func() {
-		eips.Multiplier = eipMultiplier
-		newEIP := 0o000
+	It("should deploy the contract before enabling the IP", func() {
+		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr2, evmtypes.EvmTxArgs{}, deploymentData)
+		Expect(err).To(BeNil(), "failed to create deployment tx args")
+
+		res, err := tf.ExecuteEthTx(senderPriv2, deploymentTxArgs)
+		Expect(err).To(BeNil(), "failed during contract deployment")
+		gasUsedPre = res.GasUsed
+	})
+
+	It("should enable the new IP", func() {
+		eips.Multiplier = ipMultiplier
+		newIP := "evmos_0"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -129,12 +126,14 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
+		Expect(in.NextBlock()).To(BeNil())
+
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0000 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have IP evmos_0 in evm params")
 	})
 
-	It("should change CREATE opcode constant gas after enabling EIP", func() {
+	It("should change CREATE opcode constant gas after enabling evmos_0 IP", func() {
 		gasCostPre := params.CreateGas
 
 		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr2, evmtypes.EvmTxArgs{}, deploymentData)
@@ -149,13 +148,13 @@ var _ = Describe("EIP0000 - ", Ordered, func() {
 
 		// The difference in gas is the new cost of the opcode, minus the cost of the
 		// opcode before enabling the new eip.
-		gasUsedDiff := eipMultiplier*gasCostPre - gasCostPre
+		gasUsedDiff := ipMultiplier*gasCostPre - gasCostPre
 		expectedGas := gasUsedPre + int64(gasUsedDiff)
 		Expect(gasUsedPost).To(Equal(expectedGas))
 	})
 })
 
-var _ = Describe("EIP0001 - ", Ordered, func() {
+var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -164,14 +163,14 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 
 		senderPriv types.PrivKey
 
-		// Gas used before enabling the EIP.
+		// Gas used before enabling the IP.
 		gasUsedPre int64
 
 		// The address of the factory counter.
 		counterFactoryAddr common.Address
 	)
 
-	// Multiplier used to modify the opcodes associated with EIP 0001.
+	// Multiplier used to modify the opcodes associated with evmos_1.
 	eipMultiplier := uint64(5)
 	initialCounterValue := 1
 
@@ -190,11 +189,11 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 
 		senderPriv = k.GetPrivKey(0)
 
-		// Set extra EIPs to empty to allow testing a single modifier.
+		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		defaultParams.ExtraEIPs = []string{}
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -202,9 +201,11 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 			},
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
-	It("should deploy the contract before enabling the EIP", func() {
+	It("should deploy the contract before enabling the IP", func() {
 		counterFactoryAddr, err = tf.DeployContract(
 			senderPriv,
 			evmtypes.EvmTxArgs{},
@@ -256,15 +257,16 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		Expect(ok).To(BeTrue(), "failed to convert counter to big.Int")
 		Expect(counter.String()).To(Equal(fmt.Sprintf("%d", initialCounterValue+1)), "counter is not correct")
 	})
-	It("should enable the new EIP", func() {
+	It("should enable the new IP", func() {
 		eips.Multiplier = eipMultiplier
-		newEIP := 0o001
+		newIP := "evmos_1"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
+
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -273,12 +275,14 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
+		Expect(in.NextBlock()).To(BeNil())
+
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0001 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip evmos_1 in evm params")
 	})
-	It("should change CALL opcode constant gas after enabling EIP", func() {
-		// Constant gas cost used before enabling the new EIP.
+	It("should change CALL opcode constant gas after enabling IP", func() {
+		// Constant gas cost used before enabling the new IP.
 		gasCostPre := params.WarmStorageReadCostEIP2929
 
 		res, err := tf.ExecuteContractCall(
@@ -327,7 +331,7 @@ var _ = Describe("EIP0001 - ", Ordered, func() {
 	})
 })
 
-var _ = Describe("EIP0002 - ", Ordered, func() {
+var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -340,7 +344,7 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		senderAddr2 common.Address
 		gasUsedPre  int64
 	)
-	// Constant gas used to modify the opcodes associated with EIP 0002.
+	// Constant gas used to modify the opcodes associated with evmos_2.
 	constantGas := uint64(500)
 
 	counterContract, err := testdata.LoadCounterContract()
@@ -358,20 +362,21 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		gh = grpc.NewIntegrationHandler(in)
 		tf = factory.New(in, gh)
 
-		// Account used to deploy the contract before enabling the EIP.
+		// Account used to deploy the contract before enabling the IP.
 		senderPriv = k.GetPrivKey(0)
 		senderAddr = k.GetAddr(0)
-		// Account used to deploy the contract after enabling the EIP. A second
+		// Account used to deploy the contract after enabling the IP. A second
 		// account is used to avoid possible additional gas costs due to the change
 		// in the Nonce.
 		senderPriv2 = k.GetPrivKey(0)
 		senderAddr2 = k.GetAddr(0)
 
-		// Set extra EIPs to empty to allow testing a single modifier.
+		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
-		defaultParams.ExtraEIPs = []int64{}
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		defaultParams.ExtraEIPs = []string{}
+
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -379,9 +384,11 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 			},
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
+
+		Expect(in.NextBlock()).To(BeNil())
 	})
 
-	It("should deploy the contract before enabling the EIP", func() {
+	It("should deploy the contract before enabling the IP", func() {
 		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr, evmtypes.EvmTxArgs{}, deploymentData)
 		Expect(err).To(BeNil(), "failed to create deployment tx args")
 
@@ -392,15 +399,15 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		gasUsedPre = res.GasUsed
 	})
 
-	It("should enable the new EIP", func() {
+	It("should enable the new IP", func() {
 		eips.SstoreConstantGas = constantGas
-		newEIP := 0o002
+		newIP := "evmos_2"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, int64(newEIP))
-		err = utils.UpdateEvmParams(
-			utils.UpdateParamsInput{
+		qRes.Params.ExtraEIPs = append(qRes.Params.ExtraEIPs, newIP)
+		err = integrationutils.UpdateEvmParams(
+			integrationutils.UpdateParamsInput{
 				Tf:      tf,
 				Network: in,
 				Pk:      senderPriv,
@@ -409,12 +416,14 @@ var _ = Describe("EIP0002 - ", Ordered, func() {
 		)
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
+		Expect(in.NextBlock()).To(BeNil())
+
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(int64(newEIP)), "expected to have eip 0002 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip evmos_2 in evm params")
 	})
 
-	It("should change SSTORE opcode constant gas after enabling EIP", func() {
+	It("should change SSTORE opcode constant gas after enabling IP", func() {
 		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr2, evmtypes.EvmTxArgs{}, deploymentData)
 		Expect(err).To(BeNil(), "failed to create deployment tx args")
 

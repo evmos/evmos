@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/evmos/evmos/v18/x/evm/keeper/testdata"
+	"github.com/evmos/evmos/v19/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,21 +15,27 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	ethlogger "github.com/evmos/evmos/v18/x/evm/core/logger"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	ethlogger "github.com/evmos/evmos/v19/x/evm/core/logger"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v18/server/config"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/x/evm/statedb"
-	"github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
+	"github.com/evmos/evmos/v19/server/config"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 )
 
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
+
+// expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
+const expGasConsumed = 7475
+
+// expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
+const expGasConsumedWithFeeMkt = 7469
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	testCases := []struct {

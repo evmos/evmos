@@ -6,12 +6,12 @@ import (
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v18/app"
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/app"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
 )
 
 type deductFeeDecoratorTestCase struct {
@@ -67,14 +67,14 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			errContains: "must provide positive gas",
 		},
 		{
-			name:        "fail - checkTx - insufficient funds and no staking rewards",
+			name:        "fail - checkTx - insufficient funds",
 			balance:     zero,
 			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
-			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			errContains: "failed to deduct fee: spendable balance",
 			postCheck: func() {
 				// the balance should not have changed
 				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
@@ -117,7 +117,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			checkTx:     false,
 			simulate:    false,
 			expPass:     false,
-			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			errContains: "failed to deduct fee: spendable balance",
 			postCheck: func() {
 				// the balance should not have changed
 				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
