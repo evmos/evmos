@@ -138,8 +138,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // RegisterInvariants registers the auctions module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// InitGenesis performs the auctions module's genesis initialization It returns
-// no validator updates.
+// InitGenesis performs the auctions module's genesis initialization.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state

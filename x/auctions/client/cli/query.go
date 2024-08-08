@@ -21,14 +21,14 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetAuctionInfo(),
+		GetAuctionInfoCmd(),
 		GetParamsCmd(),
 	)
 	return cmd
 }
 
-// GetAuctionInfo queries the current auction information
-func GetAuctionInfo() *cobra.Command {
+// GetAuctionInfoCmd queries the current auction information
+func GetAuctionInfoCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "info",
 		Short: "Get current auction info",

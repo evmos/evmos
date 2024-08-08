@@ -26,7 +26,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 
 	lastBid := k.GetHighestBid(ctx)
 	if bid.Amount.Amount.LTE(lastBid.Amount.Amount) {
-		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than last bid %s", bid.Amount, lastBid.Amount)
+		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than or equal to the last bid %s", bid.Amount, lastBid.Amount)
 	}
 
 	senderAddr, err := sdk.AccAddressFromBech32(bid.Sender)

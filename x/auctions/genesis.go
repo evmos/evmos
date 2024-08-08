@@ -17,7 +17,9 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	}
 
 	// Set the highest bid
-	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
+	if data.Bid.Sender != "" && data.Bid.Amount.IsPositive() {
+		k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
+	}
 
 	// Set the current round
 	k.SetRound(ctx, data.Round)
