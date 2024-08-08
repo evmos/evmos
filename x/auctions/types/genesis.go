@@ -5,7 +5,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
-         sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/utils"
 )
 
