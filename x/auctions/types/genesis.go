@@ -5,6 +5,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
+         sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/utils"
 )
 
@@ -14,7 +15,10 @@ func DefaultGenesisState() *GenesisState {
 		Params: Params{
 			EnableAuction: true,
 		},
-		Bid:   Bid{},
+		Bid: Bid{
+			Sender: "",
+			Amount: sdk.NewCoin(utils.BaseDenom, sdk.ZeroInt()),
+		},
 		Round: 0,
 	}
 }
