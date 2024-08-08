@@ -12,6 +12,7 @@ import (
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
+	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
 	"github.com/evmos/evmos/v19/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
@@ -19,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v19/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
+	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"
 	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/types"
@@ -30,7 +32,7 @@ import (
 
 const bech32PrecompileBaseGas = 6_000
 
-// AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
+// NewAvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
@@ -41,6 +43,7 @@ func NewAvailableStaticPrecompiles(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
+	auctionsKeeper auctionskeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -87,6 +90,11 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
+	auctionsPrecompile, err := auctionsprecompile.NewPrecompile(auctionsKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate auctions precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -97,6 +105,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
+	precompiles[auctionsPrecompile.Address()] = auctionsPrecompile
 	return precompiles
 }
 

@@ -5,9 +5,11 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
 
 // BeforeEpochStart starts a new auction at the beginning of the epoch
@@ -53,6 +55,13 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 
 		// Send the remaining Coins from the module account to the auction winner
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, bidWinner, remainingCoins); err != nil {
+			return
+		}
+
+		// Emit an EVM event for the auction round completion
+		txConfig := k.evmKeeper.TxConfig(ctx, common.Hash{})
+		stateDB := statedb.New(ctx, &k.evmKeeper, txConfig)
+		if err := EmitRoundFinished(ctx, k.evmKeeper, stateDB, lastBid.Amount.Amount.BigInt()); err != nil {
 			return
 		}
 

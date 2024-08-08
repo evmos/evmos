@@ -20,6 +20,7 @@ type Keeper struct {
 	authority     sdk.AccAddress
 	bankKeeper    bankkeeper.Keeper
 	accountKeeper authkeeper.AccountKeeper
+	evmKeeper     types.EVMKeeper
 }
 
 // NewKeeper creates a new auction Keeper instance
@@ -29,6 +30,7 @@ func NewKeeper(
 	authority sdk.AccAddress,
 	bankKeeper bankkeeper.Keeper,
 	accountKeeper authkeeper.AccountKeeper,
+	evmKeeper types.EVMKeeper,
 ) Keeper {
 	return Keeper{
 		storeKey:      storeKey,
@@ -36,6 +38,7 @@ func NewKeeper(
 		authority:     authority,
 		bankKeeper:    bankKeeper,
 		accountKeeper: accountKeeper,
+		evmKeeper:     evmKeeper,
 	}
 }
 

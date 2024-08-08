@@ -548,12 +548,13 @@ func NewEvmos(
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
+			app.AuctionsKeeper,
 		),
 	)
 
 	app.AuctionsKeeper = auctionskeeper.NewKeeper(
 		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.AccountKeeper,
+		app.BankKeeper, app.AccountKeeper, app.EvmKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
