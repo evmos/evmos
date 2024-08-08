@@ -48,7 +48,6 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 		k  keyring.Keyring
 
 		senderPriv  types.PrivKey
-		senderAddr  common.Address
 		senderPriv2 types.PrivKey
 		senderAddr2 common.Address
 
@@ -79,12 +78,11 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 
 		// Account used to deploy the contract before enabling the IP.
 		senderPriv = k.GetPrivKey(0)
-		senderAddr = k.GetAddr(0)
 		// Account used to deploy the contract after enabling the IP. A second
 		// account is used to avoid possible additional gas costs due to the change
 		// in the Nonce.
-		senderPriv2 = k.GetPrivKey(0)
-		senderAddr2 = k.GetAddr(0)
+		senderPriv2 = k.GetPrivKey(1)
+		senderAddr2 = k.GetAddr(1)
 
 		// Set extra IPs to empty to allow testing a single modifier.
 		defaultParams := evmtypes.DefaultParams()
@@ -103,10 +101,10 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 	})
 
 	It("should deploy the contract before enabling the IP", func() {
-		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr, evmtypes.EvmTxArgs{}, deploymentData)
+		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr2, evmtypes.EvmTxArgs{}, deploymentData)
 		Expect(err).To(BeNil(), "failed to create deployment tx args")
 
-		res, err := tf.ExecuteEthTx(senderPriv, deploymentTxArgs)
+		res, err := tf.ExecuteEthTx(senderPriv2, deploymentTxArgs)
 		Expect(err).To(BeNil(), "failed during contract deployment")
 		gasUsedPre = res.GasUsed
 	})
@@ -129,7 +127,6 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		Expect(in.NextBlock()).To(BeNil())
-		Expect(err).To(BeNil(), "failed during update of evm params")
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
