@@ -2582,6 +2582,7 @@ var (
 		(*EventBlockBloom)(nil), // 3: ethermint.evm.v1.EventBlockBloom
 	}
 )
+
 var file_ethermint_evm_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

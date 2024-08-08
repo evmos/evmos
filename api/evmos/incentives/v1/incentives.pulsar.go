@@ -2952,6 +2952,7 @@ var (
 		(*timestamppb.Timestamp)(nil),     // 5: google.protobuf.Timestamp
 	}
 )
+
 var file_evmos_incentives_v1_incentives_proto_depIdxs = []int32{
 	4, // 0: evmos.incentives.v1.Incentive.allocations:type_name -> cosmos.base.v1beta1.DecCoin
 	5, // 1: evmos.incentives.v1.Incentive.start_time:type_name -> google.protobuf.Timestamp
