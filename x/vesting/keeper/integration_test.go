@@ -20,28 +20,15 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/contracts"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	evmosfactory "github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	"github.com/evmos/evmos/v18/x/vesting/types"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 type KeeperTestSuite struct {

@@ -3,12 +3,16 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) setupClawbackVestingAccount(vestingAccount, funder keyring.Key, vestingPeriods, lockupPeriods sdkvesting.Periods, enableGovClawback bool) *types.ClawbackVestingAccount {

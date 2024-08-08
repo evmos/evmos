@@ -15,13 +15,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v18/app"
-	cmnfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/app"
+	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func TestEvmosExport(t *testing.T) {
@@ -53,11 +53,11 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 	// For now there are no exceptions, so this slice is empty.
 	var precompilesAbleToReceiveFunds []ethcommon.Address
 
-	hexAvailablePrecompiles := network.App.EvmKeeper.GetParams(network.GetContext()).ActiveStaticPrecompiles
-	availablePrecompiles := make([]ethcommon.Address, len(hexAvailablePrecompiles))
-	for i, precompile := range hexAvailablePrecompiles {
+	availablePrecompiles := make([]ethcommon.Address, len(evmtypes.AvailableStaticPrecompiles))
+	for i, precompile := range evmtypes.AvailableStaticPrecompiles {
 		availablePrecompiles[i] = ethcommon.HexToAddress(precompile)
 	}
+
 	for _, precompileAddr := range availablePrecompiles {
 		t.Run(fmt.Sprintf("Cosmos Tx to %s\n", precompileAddr), func(t *testing.T) {
 			_, err := factory.ExecuteCosmosTx(signer.Priv, cmnfactory.CosmosTxArgs{

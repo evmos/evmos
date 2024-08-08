@@ -8,15 +8,15 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/evmos/evmos/v18/precompiles/authorization"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 const (

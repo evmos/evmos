@@ -33,6 +33,8 @@ BASECRO_IBC_DENOM = (
 )
 # uatom from cosmoshub-1 IBC representation on the Evmos chain and on Cosmos Hub 2 chain.
 ATOM_IBC_DENOM = "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+# basecro from chainmain to evmos via channel-0
+CRO_IBC_DENOM = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"
 
 RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests

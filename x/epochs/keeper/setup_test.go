@@ -3,11 +3,10 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-
-	"github.com/evmos/evmos/v18/x/epochs/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/x/epochs/types"
 )
 
 const (

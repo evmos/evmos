@@ -15,14 +15,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/encoding"
-	epochstypes "github.com/evmos/evmos/v18/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v18/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/encoding"
+	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {

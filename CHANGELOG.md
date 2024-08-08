@@ -64,11 +64,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [GHSA-68fc-7mhg-6f6c](https://github.com/evmos/evmos/commit/bb2d504eec9078d6eff6981fc0cb214e8a3ca496) Refactor precompiles to use journal entries.
 - (vesting-precompile) [GHSA-q6hg-6m9x-5g9c](https://github.com/evmos/evmos/commit/0a620e176617a835ac697eea494afea09185dfaf) Update vesting precompile authorization checks.
 - (erc20) [#2607](https://github.com/evmos/evmos/pull/2607) Implement Single Token Representation v2.
+- (distribution-precompile) [#2682](https://github.com/evmos/evmos/pull/2682) Fix `claimRewards` bug and add new test cases.
+- (evm) [#2667](https://github.com/evmos/evmos/pull/2667) Modify activator maps and default extra EIP to use []string.
+- (erc20) [#2696](https://github.com/evmos/evmos/pull/2696) Consider EIP-55 in dynamic and native precompiles validations.
+- (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
+- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 
 ### Bug Fixes
 
 - (inflation) [#2299](https://github.com/evmos/evmos/pull/2299) Fix emission function and tests.
 - (tests) [#2642](https://github.com/evmos/evmos/pull/2642) Fix Dockerfile by bumping dependency and fix E2E tests by adjusting used Docker image.
+- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
 
 ### Improvements
 
@@ -118,6 +125,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2644](https://github.com/evmos/evmos/pull/2644) Split full chain configuration template into EVM and MemIAVL templates.
 - (ante) [#2648](https://github.com/evmos/evmos/pull/2648) Decouple EVM mono decorator utilities from concrete decorator implementation.
 - (contracts) [#2650](https://github.com/evmos/evmos/pull/2650) Adjust contract compilation util to include `abi.json` files.
+- (evm) [#2672](https://github.com/evmos/evmos/pull/2672) Add setter for custom operations in the EVM.
+- (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
+- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
+- (cmd) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 
 ## [v18.1.0](https://github.com/evmos/evmos/releases/tag/v18.1.0) - 2024-05-31
 

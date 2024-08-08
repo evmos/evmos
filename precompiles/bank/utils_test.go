@@ -6,10 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/bank"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v18/x/inflation/v1/types"
+	"github.com/evmos/evmos/v19/precompiles/bank"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -75,7 +75,7 @@ type ContractData struct {
 	precompileABI  abi.ABI
 }
 
-// getCallArgs is a helper function to return the correct call arguments for a given call type.
+// getTxAndCallArgs is a helper function to return the correct call arguments for a given call type.
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise a caller contract is used.
 func getTxAndCallArgs(
 	callType int,

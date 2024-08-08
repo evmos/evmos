@@ -11,13 +11,11 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
-
-// PrecompileAddress of the distribution EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000801"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -56,9 +54,10 @@ func NewPrecompile(
 		stakingKeeper:      stakingKeeper,
 		distributionKeeper: distributionKeeper,
 	}
+
 	// SetAddress defines the address of the distribution compile contract.
-	// address: 0x0000000000000000000000000000000000000801
-	p.SetAddress(common.HexToAddress(PrecompileAddress))
+	p.SetAddress(common.HexToAddress(evmtypes.DistributionPrecompileAddress))
+
 	return p, nil
 }
 

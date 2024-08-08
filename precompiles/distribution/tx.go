@@ -6,16 +6,16 @@ package distribution
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v18/utils"
+	"github.com/evmos/evmos/v19/utils"
 
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 const (
@@ -35,7 +35,7 @@ const (
 )
 
 // ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
-func (p Precompile) ClaimRewards(
+func (p *Precompile) ClaimRewards(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,

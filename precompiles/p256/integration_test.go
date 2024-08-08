@@ -15,13 +15,13 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/evmos/v18/precompiles/p256"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/precompiles/p256"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 type IntegrationTestSuite struct {
@@ -138,7 +138,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 			}
 
 			_, err := s.factory.ExecuteEthTx(senderKey.Priv, args)
-			Expect(err).To(BeNil(), "expected no error since contract doesnt exists")
+			Expect(err).To(BeNil(), "expected no error since contract doesn't exists")
 		},
 			Entry(
 				"valid signature",

@@ -16,19 +16,21 @@ import (
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v18/types"
-	"github.com/evmos/evmos/v18/utils"
-	erc20keeper "github.com/evmos/evmos/v18/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v18/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
 
 const (
 	StrideOutpostAddress  = "0x0000000000000000000000000000000000000900"
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
+
+var newExtraEIPs = []string{"evmos_0", "evmos_1", "evmos_2"}
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19
 func CreateUpgradeHandler(
@@ -46,11 +48,6 @@ func CreateUpgradeHandler(
 		// revenue module is deprecated
 		logger.Debug("deleting revenue module from version map...")
 		delete(vm, "revenue")
-
-		ctxCache, writeFn := ctx.CacheContext()
-		if err := RemoveOutpostsFromEvmParams(ctxCache, ek); err == nil {
-			writeFn()
-		}
 
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
 
@@ -80,6 +77,12 @@ func CreateUpgradeHandler(
 			writeFn()
 		}
 
+		ctxCache, writeFn = ctx.CacheContext()
+		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
+			writeFn()
+		} else {
+			logger.Error("error setting new extra EIPs", "error", err)
+		}
 		return migrationRes, err
 	}
 }
@@ -206,4 +209,20 @@ func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeep
 
 		return false
 	})
+}
+
+func EnableCustomEIPs(ctx sdk.Context, logger log.Logger, ek *evmkeeper.Keeper) error {
+	params := ek.GetParams(ctx)
+	extraEIPs := params.ExtraEIPs
+
+	for _, eip := range newExtraEIPs {
+		if slices.Contains(extraEIPs, eip) {
+			logger.Debug("skipping duplicate EIP", "eip", eip)
+		} else {
+			extraEIPs = append(extraEIPs, eip)
+		}
+	}
+
+	params.ExtraEIPs = extraEIPs
+	return ek.SetParams(ctx, params)
 }

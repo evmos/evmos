@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/precompiles/vesting"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/vesting"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {

@@ -6,12 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/bank"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v19/precompiles/bank"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/suite"
 )
 

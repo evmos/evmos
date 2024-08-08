@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	cosmosante "github.com/evmos/evmos/v18/app/ante/cosmos"
-	"github.com/evmos/evmos/v18/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
+	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 )
 
 // This tests setup contains expensive operations.

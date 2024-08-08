@@ -14,17 +14,17 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	auth "github.com/evmos/evmos/v18/precompiles/authorization"
-	"github.com/evmos/evmos/v18/precompiles/erc20"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	commonfactory "github.com/evmos/evmos/v18/testutil/integration/common/factory"
-	commonnetwork "github.com/evmos/evmos/v18/testutil/integration/common/network"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	network "github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	erc20types "github.com/evmos/evmos/v18/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	auth "github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v19/precompiles/erc20"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	commonfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	commonnetwork "github.com/evmos/evmos/v19/testutil/integration/common/network"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	network "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Gomega
 	. "github.com/onsi/gomega"
@@ -337,7 +337,7 @@ var (
 	erc20CallTypes  = []CallType{erc20Call, erc20CallerCall, erc20V5Call, erc20V5CallerCall}
 )
 
-// getCallArgs is a helper function to return the correct call arguments for a given call type.
+// getTxAndCallArgs is a helper function to return the correct call arguments for a given call type.
 //
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
 // ERC20CallerContract's ABI is used and the given contract address.

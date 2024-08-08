@@ -9,17 +9,17 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v18/precompiles/bank"
-	"github.com/evmos/evmos/v18/precompiles/bank/testdata"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/precompiles/bank"
+	"github.com/evmos/evmos/v19/precompiles/bank/testdata"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

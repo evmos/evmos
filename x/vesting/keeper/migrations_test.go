@@ -7,13 +7,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/vesting/keeper"
-	v1vestingtypes "github.com/evmos/evmos/v18/x/vesting/migrations/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
-	"github.com/stretchr/testify/require"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/x/vesting/keeper"
+	v1vestingtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 func TestMigrate1to2(t *testing.T) {
