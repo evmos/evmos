@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -64,7 +63,6 @@ func (k Keeper) DepositCoin(goCtx context.Context, deposit *types.MsgDepositCoin
 	}
 
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.AuctionCollectorName, sdk.NewCoins(deposit.Amount)); err != nil {
-		fmt.Println("err deposit failed", err)
 		return nil, errors.Wrap(err, "deposit failed")
 	}
 

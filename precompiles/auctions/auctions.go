@@ -19,9 +19,7 @@ import (
 
 var _ vm.PrecompiledContract = &Precompile{}
 
-const (
-	PrecompileAddress string = "0x0000000000000000000000000000000000000805"
-)
+const PrecompileAddress string = "0x0000000000000000000000000000000000000805"
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //

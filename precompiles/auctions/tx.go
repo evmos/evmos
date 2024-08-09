@@ -54,7 +54,6 @@ func (p *Precompile) Bid(
 	// TODO: Do we need a generic Authz or a custom one here?
 
 	_, err := p.auctionsKeeper.Bid(ctx, msgBid)
-	fmt.Println("err here", err)
 	if err != nil {
 		return nil, err
 	}
@@ -103,9 +102,7 @@ func (p *Precompile) DepositCoin(
 		return nil, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
 
-	fmt.Println("msg Deposit Coin", msgDepositCoin)
 	_, err := p.auctionsKeeper.DepositCoin(ctx, msgDepositCoin)
-	fmt.Println("err here deposit", err)
 	if err != nil {
 		return nil, err
 	}
