@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
 	"io"
 	"net/http"
 	"os"
@@ -537,6 +538,11 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
+	app.AuctionsKeeper = auctionskeeper.NewKeeper(
+		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
+	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithStaticPrecompiles(
 		evmkeeper.NewAvailableStaticPrecompiles(
@@ -550,11 +556,6 @@ func NewEvmos(
 			app.IBCKeeper.ChannelKeeper,
 			app.AuctionsKeeper,
 		),
-	)
-
-	app.AuctionsKeeper = auctionskeeper.NewKeeper(
-		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.AccountKeeper, app.EvmKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
@@ -999,6 +1000,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		distprecompile.PrecompileAddress,
 		ics20precompile.PrecompileAddress,
 		vestingprecompile.PrecompileAddress,
+		auctionsprecompile.PrecompileAddress,
 	}
 	for _, addr := range vm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())

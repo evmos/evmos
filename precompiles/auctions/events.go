@@ -4,20 +4,21 @@
 package auctions
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"math/big"
 )
 
 const (
 	// EventTypeBid defines the event type for the auctions Bid transaction.
 	EventTypeBid = "Bid"
 	// EventTypeDepositCoin defines the event type for the auctions DepositCoin transaction.
-	EventTypeDepositCoin = "DepositCoin"
+	EventTypeDepositCoin = "CoinDeposit"
 	// EventTypeRoundFinished defines the event type for the auctions RoundFinished event.
 	EventTypeRoundFinished = "RoundFinished"
 )
@@ -25,7 +26,7 @@ const (
 // EmitBidEvent creates a new event emitted on a Bid transaction.
 func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, amount *big.Int) error {
 	// Prepare the event topics
-	event := p.Events[EventTypeBid]
+	event := p.ABI.Events[EventTypeBid]
 	topics := make([]common.Hash, 2)
 
 	// The first topic is always the signature of the event.
@@ -57,7 +58,7 @@ func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender com
 // EmitDepositCoinEvent creates a new event emitted on a DepositCoin transaction.
 func (p Precompile) EmitDepositCoinEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, denom string, amount *big.Int) error {
 	// Prepare the event topics
-	event := p.Events[EventTypeDepositCoin]
+	event := p.ABI.Events[EventTypeDepositCoin]
 	topics := make([]common.Hash, 2)
 
 	// The first topic is always the signature of the event.

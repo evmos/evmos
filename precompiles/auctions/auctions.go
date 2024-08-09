@@ -6,6 +6,7 @@ package auctions
 import (
 	"embed"
 	"fmt"
+
 	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -95,6 +96,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.DepositCoin(ctx, evm.Origin, contract, stateDB, method, args)
 	case BidMethod:
 		bz, err = p.Bid(ctx, evm.Origin, contract, stateDB, method, args)
+	case AuctionInfoMethod:
+		bz, err = p.AuctionInfo(ctx, contract, method, args)
 	}
 
 	if err != nil {
@@ -121,8 +124,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - DepositCoin
 func (Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
-	case BidMethod,
-		DepositCoinMethod:
+	case BidMethod, DepositCoinMethod:
 		return true
 	default:
 		return false
