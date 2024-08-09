@@ -73,7 +73,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 }
 
 // isValidBid checks if the bid is valid
-func isValidBid(lastBid *types.Bid) bool {
+func isValidBid(lastBid types.Bid) bool {
 	_, err := sdk.AccAddressFromBech32(lastBid.Sender)
 	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
 		return true
