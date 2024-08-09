@@ -125,6 +125,7 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 		Topics:      topics,
 		Data:        packed,
 		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockHash:   common.BytesToHash(ctx.HeaderHash()),
 	}
 	value, err := json.Marshal(ethLog)
 	if err != nil {
