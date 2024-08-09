@@ -2,7 +2,44 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "IAuctions",
   "sourceName": "solidity/precompiles/auctions/IAuctions.sol",
-  "abi" : [
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "denom",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct Coin[]",
+          "name": "coins",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "burned",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuctionEnd",
+      "type": "event"
+    },
     {
       "anonymous": false,
       "inputs": [
