@@ -8,6 +8,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
@@ -17,22 +18,41 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
+	// TODO: what happen if we have a bidder but amount is zero?
+	// We should add a check that the module has at least this amount.
+	//
 	// Bidder address should exists in the account keeper.
-	bidder, err := sdk.AccAddressFromBech32(data.Bid.Sender)
-	if err != nil {
-		panic(errorsmod.Wrap(err, "bidder address is not valid"))
+	var bidder sdk.AccAddress
+	if data.Bid.Sender != "" {
+		bidder, err = sdk.AccAddressFromBech32(data.Bid.Sender)
+		if err != nil {
+			panic(errorsmod.Wrap(err, "invalid bidder address"))
+		}
+		if found := k.accountKeeper.HasAccount(ctx, bidder); !found {
+			panic(fmt.Errorf("account associated with %s does not exist", data.Bid.Sender))
+		}
+
+		bidAmount := data.Bid.Amount.Amount
+		if !bidAmount.IsPositive() {
+			panic(fmt.Errorf("received a bid sender but zero amount"))
+		}
+
+		auctionModuleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
+		auctionModuleBalance := k.bankKeeper.GetBalance(ctx, auctionModuleAddress, utils.BaseDenom)
+
+		if auctionModuleBalance.Amount.LT(bidAmount) {
+			panic(fmt.Errorf("auction module account does not hold enough balance"))
+		}
+
+		// if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(bid.Amount)); err != nil {
+
+	} else {
+		if !data.Bid.Amount.Amount.IsZero() {
+			panic(fmt.Errorf("received a bid without sender but different than zero"))
+		}
 	}
 
-	if found := k.accountKeeper.HasAccount(ctx, bidder); !found {
-		panic(fmt.Errorf("account associated with %s does not exist", data.Bid.Sender))
-	}
-
-	// Set the highest bid
-	if data.Bid.Sender != "" && data.Bid.Amount.IsPositive() {
-		k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
-	}
-
-	// Set the current round
+	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
 	k.SetRound(ctx, data.Round)
 }
 

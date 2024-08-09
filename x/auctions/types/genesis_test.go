@@ -1,41 +1,40 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	"cosmossdk.io/math"
 
+	"github.com/evmos/evmos/v19/x/auctions/types"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGenesisStateValidate(t *testing.T) {
 	testCases := []struct {
 		name   string
-		mutate func(*GenesisState)
+		mutate func(*types.GenesisState)
 		expErr bool
 	}{
 		{
 			"valid default",
-			func(*GenesisState) {},
+			func(*types.GenesisState) {},
 			false,
 		},
 		{
 			"invalid wrong bid denom",
-			func(genesis *GenesisState) { genesis.Bid.Amount.Denom = "uatom" },
+			func(genesis *types.GenesisState) { genesis.Bid.Amount.Denom = "uatom" },
 			true,
 		},
 		{
 			"invalid negative amount",
-			func(genesis *GenesisState) { genesis.Bid.Amount.Amount = math.NewInt(-999) },
+			func(genesis *types.GenesisState) { genesis.Bid.Amount.Amount = math.NewInt(-999) },
 			true,
 		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
-			genesisState := DefaultGenesisState()
+			genesisState := types.DefaultGenesisState()
 
 			tc.mutate(genesisState)
 
