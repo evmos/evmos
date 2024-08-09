@@ -3,8 +3,9 @@
 package keeper
 
 import (
-	"github.com/evmos/evmos/v19/utils"
 	"math/big"
+
+	"github.com/evmos/evmos/v19/utils"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 

@@ -3,8 +3,9 @@
 package keeper
 
 import (
-	"github.com/evmos/evmos/v19/utils"
 	"math/big"
+
+	"github.com/evmos/evmos/v19/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
