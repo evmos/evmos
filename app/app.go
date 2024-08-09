@@ -7,13 +7,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
 	"sort"
+
+	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
 
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
 	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
