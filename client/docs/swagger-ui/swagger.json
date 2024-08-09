@@ -252,9 +252,19 @@
                       "type": "boolean",
                       "description": "enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens."
                     },
-                    "enable_evm_hook": {
-                      "type": "boolean",
-                      "description": "enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos\nCoin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address."
+                    "native_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "native_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with native staking coins as ERC20s"
+                    },
+                    "dynamic_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "dynamic_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with Bank coins as ERC20s"
                     }
                   }
                 }
@@ -1784,13 +1794,6 @@
                       "type": "boolean",
                       "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
                     },
-                    "active_precompiles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-                    },
                     "evm_channels": {
                       "type": "array",
                       "items": {
@@ -1851,6 +1854,13 @@
                           }
                         }
                       }
+                    },
+                    "active_static_precompiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
                     }
                   },
                   "title": "Params defines the EVM module parameters"
@@ -20892,9 +20902,19 @@
           "type": "boolean",
           "description": "enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens."
         },
-        "enable_evm_hook": {
-          "type": "boolean",
-          "description": "enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos\nCoin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address."
+        "native_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "native_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with native staking coins as ERC20s"
+        },
+        "dynamic_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "dynamic_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with Bank coins as ERC20s"
         }
       },
       "title": "Params defines the erc20 module params"
@@ -20910,9 +20930,19 @@
               "type": "boolean",
               "description": "enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens."
             },
-            "enable_evm_hook": {
-              "type": "boolean",
-              "description": "enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos\nCoin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address."
+            "native_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "native_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with native staking coins as ERC20s"
+            },
+            "dynamic_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "dynamic_precompiles defines the slice of hex addresses of the\nactive precompiles that are used to interact with Bank coins as ERC20s"
             }
           }
         }
@@ -21796,13 +21826,6 @@
           "type": "boolean",
           "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
         },
-        "active_precompiles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-        },
         "evm_channels": {
           "type": "array",
           "items": {
@@ -21863,6 +21886,13 @@
               }
             }
           }
+        },
+        "active_static_precompiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
         }
       },
       "title": "Params defines the EVM module parameters"
@@ -22042,13 +22072,6 @@
               "type": "boolean",
               "description": "allow_unprotected_txs defines if replay-protected (i.e non EIP155\nsigned) transactions can be executed on the state machine."
             },
-            "active_precompiles": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "title": "active_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
-            },
             "evm_channels": {
               "type": "array",
               "items": {
@@ -22109,6 +22132,13 @@
                   }
                 }
               }
+            },
+            "active_static_precompiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "title": "active_static_precompiles defines the slice of hex addresses of the precompiled\ncontracts that are active"
             }
           },
           "title": "Params defines the EVM module parameters"
