@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"github.com/evmos/evmos/v19/utils"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -294,7 +295,8 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 		return big.NewInt(-1)
 	}
 	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, evmDenom)
-	return coin.Amount.BigInt()
+
+	return utils.ConvertTo18Decimals(*coin.Amount.BigInt())
 }
 
 // GetBaseFee returns current base fee, return values:

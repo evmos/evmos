@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	"github.com/evmos/evmos/v19/utils"
 	"math/big"
 
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -310,15 +311,17 @@ func (k *Keeper) ApplyMessageWithConfig(
 		stateDB.PrepareAccessList(msg.From(), msg.To(), evm.ActivePrecompiles(rules), msg.AccessList())
 	}
 
+	scaledMsgValue := utils.ConvertTo6Decimals(*msg.Value())
+
 	if contractCreation {
 		// take over the nonce management from evm:
 		// - reset sender's nonce to msg.Nonce() before calling evm.
 		// - increase sender's nonce by one no matter the result.
 		stateDB.SetNonce(sender.Address(), msg.Nonce())
-		ret, _, leftoverGas, vmErr = evm.Create(sender, msg.Data(), leftoverGas, msg.Value())
+		ret, _, leftoverGas, vmErr = evm.Create(sender, msg.Data(), leftoverGas, scaledMsgValue)
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 	} else {
-		ret, leftoverGas, vmErr = evm.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
+		ret, leftoverGas, vmErr = evm.Call(sender, *msg.To(), msg.Data(), leftoverGas, scaledMsgValue)
 	}
 
 	refundQuotient := params.RefundQuotient

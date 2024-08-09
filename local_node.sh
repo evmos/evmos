@@ -15,7 +15,8 @@ HOMEDIR="$HOME/.tmp-evmosd"
 TRACE=""
 
 # feemarket params basefee
-BASEFEE=1000000000
+BASEFEE=20000000000
+MIN_GAS_PRICE=20000000000
 
 # Path variables
 CONFIG=$HOMEDIR/config/config.toml
@@ -130,6 +131,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	# Set base fee in genesis
 	jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["feemarket"]["params"]["min_gas_price"]="'${MIN_GAS_PRICE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	if [[ $1 == "pending" ]]; then
 		if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -181,7 +183,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	# Allocate genesis accounts (cosmos formatted addresses)
 	evmosd add-genesis-account "$(evmosd keys show "$VAL_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 100000000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	evmosd add-genesis-account "$(evmosd keys show "$USER1_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	evmosd add-genesis-account "$(evmosd keys show "$USER1_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 10000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 	evmosd add-genesis-account "$(evmosd keys show "$USER2_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 	evmosd add-genesis-account "$(evmosd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 	evmosd add-genesis-account "$(evmosd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
