@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v19/contracts/types"
 	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -129,7 +130,7 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				s.Require().Equal(s.address, transferAuthorizationEvent.Grantee)
 				s.Require().Equal("transfer", transferAuthorizationEvent.Allocations[0].SourcePort)
 				s.Require().Equal("channel-0", transferAuthorizationEvent.Allocations[0].SourceChannel)
-				abiCoins := cmn.NewCoinsResponse(defaultCoins)
+				abiCoins := types.NewCoinsResponse(defaultCoins)
 				s.Require().Equal(abiCoins, transferAuthorizationEvent.Allocations[0].SpendLimit)
 			},
 		},

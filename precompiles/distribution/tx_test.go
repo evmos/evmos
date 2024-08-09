@@ -5,13 +5,14 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/distribution"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
@@ -180,7 +181,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				}
 			},
 			func(data []byte) {
-				var coins []cmn.Coin
+				var coins []types.Coin
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawDelegatorRewardsMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
@@ -258,15 +259,15 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 				s.Require().NoError(err)
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
-				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
+				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, distrtypes.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
-				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, valAddr, distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
 				return []interface{}{
 					operatorAddress,
 				}
 			},
 			func(data []byte) {
-				var coins []cmn.Coin
+				var coins []types.Coin
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawValidatorCommissionMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)

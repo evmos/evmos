@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -127,9 +128,9 @@ func (p Precompile) Allowance(
 	// because ibc ICS20Allocation has sdkmath.Int
 	allocs := make([]cmn.ICS20Allocation, len(transferAuthz.Allocations))
 	for i, a := range transferAuthz.Allocations {
-		spendLimit := make([]cmn.Coin, len(a.SpendLimit))
+		spendLimit := make([]types.Coin, len(a.SpendLimit))
 		for j, c := range a.SpendLimit {
-			spendLimit[j] = cmn.Coin{
+			spendLimit[j] = types.Coin{
 				Denom:  c.Denom,
 				Amount: c.Amount.BigInt(),
 			}

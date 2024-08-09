@@ -8,7 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/evmos/evmos/v19/contracts/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
@@ -185,13 +186,13 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 			func() []interface{} {
 				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
-				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), types.ValidatorOutstandingRewards{Rewards: valRewards})
+				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 				}
 			},
 			func(bz []byte) {
-				var out []cmn.DecCoin
+				var out []types.DecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorOutstandingRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(1, len(out))
@@ -270,13 +271,13 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 			"success - with accumulated commission",
 			func() []interface{} {
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 				}
 			},
 			func(bz []byte) {
-				var out []cmn.DecCoin
+				var out []types.DecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorCommissionMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(1, len(out))
@@ -405,7 +406,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes",
 			func() []interface{} {
-				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 					uint64(1), uint64(5),
@@ -428,7 +429,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - with slashes w/pagination",
 			func() []interface{} {
-				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
 				return []interface{}{
 					s.validators[0].OperatorAddress,
 					uint64(1),
@@ -527,7 +528,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				}
 			},
 			func(bz []byte) {
-				var out []cmn.DecCoin
+				var out []types.DecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegationRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(0, len(out))
@@ -546,7 +547,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				}
 			},
 			func(bz []byte) {
-				var out []cmn.DecCoin
+				var out []types.DecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegationRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(1, len(out))

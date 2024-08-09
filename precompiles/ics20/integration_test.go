@@ -15,6 +15,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	evmoscontracts "github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/contracts/types"
 	evmostesting "github.com/evmos/evmos/v19/ibc/testing"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -1439,7 +1440,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 						{
 							SourcePort:        ibctesting.TransferPort,
 							SourceChannel:     s.transferPath.EndpointA.ChannelID,
-							SpendLimit:        []cmn.Coin{{Denom: ibcDenom, Amount: amt.BigInt()}},
+							SpendLimit:        []types.Coin{{Denom: ibcDenom, Amount: amt.BigInt()}},
 							AllowList:         []string{},
 							AllowedPacketData: []string{"memo"},
 						},
@@ -1547,7 +1548,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 							{
 								SourcePort:    ibctesting.TransferPort,
 								SourceChannel: s.transferPath.EndpointA.ChannelID,
-								SpendLimit:    []cmn.Coin{{Denom: teststypes.UosmoIbcdenom, Amount: big.NewInt(10000)}},
+								SpendLimit:    []types.Coin{{Denom: teststypes.UosmoIbcdenom, Amount: big.NewInt(10000)}},
 								AllowList:     []string{},
 							},
 						})
@@ -1567,7 +1568,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 						{
 							SourcePort:        ibctesting.TransferPort,
 							SourceChannel:     s.transferPath.EndpointA.ChannelID,
-							SpendLimit:        []cmn.Coin{{Denom: denom, Amount: sentAmount}},
+							SpendLimit:        []types.Coin{{Denom: denom, Amount: sentAmount}},
 							AllowList:         []string{},
 							AllowedPacketData: []string{"memo"},
 						},

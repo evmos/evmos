@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
@@ -22,8 +23,8 @@ import (
 )
 
 var (
-	balances         = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(1000)}}
-	quarter          = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(250)}}
+	balances         = []types.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(1000)}}
+	quarter          = []types.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(250)}}
 	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 1000))
 	toAddr           = evmosutiltx.GenerateAddress()
 	funderAddr       = evmosutiltx.GenerateAddress()
