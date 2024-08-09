@@ -40,6 +40,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
 		remainingCoins := sdk.NewCoins()
+		// TODO: check if evmos tokens are accumulated when the module has more than the bid.
 		for _, coin := range coins {
 			if coin.Denom != utils.BaseDenom {
 				remainingCoins = remainingCoins.Add(coin)
