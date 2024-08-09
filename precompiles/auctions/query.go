@@ -12,10 +12,8 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
-const (
-	// AuctionInfoMethod is the method name for the auction info query
-	AuctionInfoMethod = "auctionInfo"
-)
+// AuctionInfoMethod is the method name for the auction info query
+const AuctionInfoMethod = "auctionInfo"
 
 // AuctionInfo defines the query for information about the current auction.
 func (p Precompile) AuctionInfo(
@@ -29,9 +27,7 @@ func (p Precompile) AuctionInfo(
 	}
 
 	res, err := p.auctionsKeeper.AuctionInfo(ctx, &auctionstypes.QueryCurrentAuctionInfoRequest{})
-	fmt.Println("res", res, err)
 	if err != nil {
-		fmt.Println("the err", err)
 		return nil, err
 	}
 
