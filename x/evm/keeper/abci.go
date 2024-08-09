@@ -48,7 +48,6 @@ func (k *Keeper) updateBlockBloom(ctx sdk.Context) {
 		ls, err := parseLog(event)
 		if err != nil {
 			logger.Error("error when parsing logs", "error", err.Error())
-
 		} else {
 			logs = append(logs, ls...)
 		}
