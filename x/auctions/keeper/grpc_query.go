@@ -18,13 +18,9 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	fmt.Println("doesn't even reach here")
 	m := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-	fmt.Println("module", m)
 	moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	fmt.Println("moduleAddr", moduleAddress)
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
-	fmt.Println("reached here first")
 	// Filter out the coin with the specified denomination
 	filteredCoins := sdk.Coins{}
 	for _, coin := range coins {
