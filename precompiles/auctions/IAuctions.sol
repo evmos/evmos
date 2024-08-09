@@ -22,24 +22,22 @@ struct AuctionInfo {
 /// @dev The interface through which solidity contracts interacts with the burn auctions module
 /// @custom:address 0x0000000000000000000000000000000000000805
 interface IAuctions {
-
     // @dev Event emitted when a new bid is made for the basket of Coins.
     // @param sender - the hex address of the sender of the bid.
     // @param amount - the amount in Evmos tokens for the bid.
-    event Bid(
-        address indexed sender,
-        uint256 amount
-    );
+    event Bid(address indexed sender, uint256 amount);
 
     // @dev Event emitted when a new Coin deposit is made for the following burn auction.
     // @param sender - the hex address of the sender of the Coins.
     // @param denom - the denom of the Coin being sent.
     // @param amount - the amount of the Coin being sent.
-    event CoinDeposit(
-        address indexed sender,
-        string denom,
-        uint256 amount
-    );
+    event CoinDeposit(address indexed sender, string denom, uint256 amount);
+
+    // @dev Event emitted when a burn auction ends.
+    // @param winner - the hex address of the auction winner.
+    // @param coins - the Coins won in the auction.
+    // @param burned - the amount of tokens burned on the auction.
+    event AuctionEnd(address indexed winner, Coin[] coins, uint256 burned);
 
     // @dev Creates a bid for the basket of assets in the current auction.
     // @dev param sender - the hex address of the sender.

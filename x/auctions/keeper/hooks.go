@@ -58,6 +58,11 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 
 		// Clear up the bid in the store
 		k.deleteBid(ctx)
+
+		logger := ctx.Logger().With("hooks", "auction")
+		if err := EmitAuctionEndEvent(ctx, bidWinner, remainingCoins, lastBid.Amount.Amount); err != nil {
+			logger.Error("failed to emit AuctionEnd event", "error", err.Error())
+		}
 	}
 
 	// Advance the auction round
