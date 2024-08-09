@@ -17,10 +17,29 @@ import (
 // BeginBlock sets the sdk Context and EIP155 chain id to the Keeper.
 func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	k.WithChainID(ctx)
-	logger := ctx.Logger().With("begin_block", "evm")
 	// check for eth_tx_log events at BeginBlock
-	// only those on the modules BeginBlocker should be included (eg. epochs)
-	// and update block bloom filter with these
+	// and update block bloom filter with them (if any)
+	k.updateBlockBloom(ctx)
+}
+
+// EndBlock also retrieves the bloom filter value from the transient store and commits it to the
+// KVStore. The EVM end block logic doesn't update the validator set, thus it returns
+// an empty slice.
+func (k *Keeper) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	// Gas costs are handled within msg handler so costs should be ignored
+	infCtx := ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+
+	bloom := ethtypes.BytesToBloom(k.GetBlockBloomTransient(infCtx).Bytes())
+	k.EmitBlockBloomEvent(infCtx, bloom)
+
+	return []abci.ValidatorUpdate{}
+}
+
+// updateBlockBloom checks for eth_tx_log events at BeginBlock
+// only those on the modules BeginBlocker should be included (eg. epochs)
+// and update block bloom filter with these
+func (k *Keeper) updateBlockBloom(ctx sdk.Context) {
+	logger := ctx.Logger().With("begin_block", "evm")
 	var logs []*ethtypes.Log
 	for _, event := range ctx.EventManager().Events() {
 		if event.Type != types.EventTypeTxLog {
@@ -29,6 +48,7 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 		ls, err := parseLog(event)
 		if err != nil {
 			logger.Error("error when parsing logs", "error", err.Error())
+
 		} else {
 			logs = append(logs, ls...)
 		}
@@ -44,19 +64,6 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 		k.SetBlockBloomTransient(ctx, bloom)
 		k.SetLogSizeTransient(ctx, uint64(logsCount))
 	}
-}
-
-// EndBlock also retrieves the bloom filter value from the transient store and commits it to the
-// KVStore. The EVM end block logic doesn't update the validator set, thus it returns
-// an empty slice.
-func (k *Keeper) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	// Gas costs are handled within msg handler so costs should be ignored
-	infCtx := ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
-
-	bloom := ethtypes.BytesToBloom(k.GetBlockBloomTransient(infCtx).Bytes())
-	k.EmitBlockBloomEvent(infCtx, bloom)
-
-	return []abci.ValidatorUpdate{}
 }
 
 func parseLog(event sdk.Event) (logs []*ethtypes.Log, err error) {
