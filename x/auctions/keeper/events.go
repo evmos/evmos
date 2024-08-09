@@ -54,7 +54,7 @@ import (
 //	return nil
 //}
 
-var endAuctionAbiEvent = abi.Event{
+var EndAuctionEventABI = abi.Event{
 	Name:      "AuctionEnd",
 	RawName:   "AuctionEnd",
 	Anonymous: false,
@@ -102,11 +102,11 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 
 	// index the bidWinner address
 	topics := []common.Hash{
-		endAuctionAbiEvent.ID,
+		EndAuctionEventABI.ID,
 		winnerTopic,
 	}
 	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{endAuctionAbiEvent.Inputs[1], endAuctionAbiEvent.Inputs[2]}
+	arguments := abi.Arguments{EndAuctionEventABI.Inputs[1], EndAuctionEventABI.Inputs[2]}
 
 	// parse coins to use big int instead of sdkmath.Int
 	eventCoins := make([]cmn.Coin, coins.Len())
