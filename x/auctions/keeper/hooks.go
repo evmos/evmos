@@ -40,6 +40,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
 		remainingCoins := sdk.NewCoins()
+		// TODO: check if evmos tokens are accumulated when the module has more than the bid.
 		for _, coin := range coins {
 			if coin.Denom != utils.BaseDenom {
 				remainingCoins = remainingCoins.Add(coin)
@@ -73,6 +74,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 }
 
 // isValidBid checks if the bid is valid
+// TODO: what happen if this is the case?
 func isValidBid(lastBid *types.Bid) bool {
 	_, err := sdk.AccAddressFromBech32(lastBid.Sender)
 	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
