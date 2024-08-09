@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	democracyante "github.com/cosmos/interchain-security/v4/app/consumer-democracy/ante"
 	consumerante "github.com/cosmos/interchain-security/v4/app/consumer/ante"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
@@ -27,7 +28,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		consumerante.NewMsgFilterDecorator(options.ConsumerKeeper),
 		consumerante.NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
 		// TODO: Circular import need to move this
-		//democracyante.NewForbiddenProposalsDecorator(app.IsProposalWhitelisted, app.IsModuleWhiteList),
+		democracyante.NewForbiddenProposalsDecorator(IsProposalWhitelisted, IsModuleWhiteList),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),

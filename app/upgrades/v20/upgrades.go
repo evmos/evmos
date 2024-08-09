@@ -12,7 +12,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	"github.com/evmos/evmos/v19/utils"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/spf13/cast"
 
@@ -40,6 +39,7 @@ func CreateUpgradeHandler(
 
 		// Evm params change
 		evmParams := evmKeeper.GetParams(ctx)
+		// TODO: Change accordingly to testnet and mainnet ATOM voucher
 		evmParams.EvmDenom = "" // The EVM denom will now be the IBC voucher for ATOM
 
 		nodeHome := cast.ToString(appOpts.Get(flags.FlagHome))
@@ -55,7 +55,8 @@ func CreateUpgradeHandler(
 		consumerGenesis.PreCCV = true
 		consumerGenesis.Params.ConsumerRedistributionFraction = "0.75" // 25% of the rewards go towards the Hub
 		//consumerGenesis.Params.SoftOptOutThreshold = "0.05"
-		consumerGenesis.Params.RewardDenoms = []string{utils.BaseDenom, "uatom"} // Allow Evmos and ATOM rewards
+		// TODO: Replace uatom with the IBC voucher for ATOM
+		consumerGenesis.Params.RewardDenoms = []string{"uatom"} // Allow Evmos and ATOM rewards
 		consumerKeeper.InitGenesis(ctx, &consumerGenesis)
 		consumerKeeper.SetDistributionTransmissionChannel(ctx, "channel-3") // The Cosmos hub channel
 
