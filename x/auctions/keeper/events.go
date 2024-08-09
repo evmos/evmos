@@ -16,6 +16,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -95,7 +96,7 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 	bidWinnerHexAddr := common.BytesToAddress(winner.Bytes())
 
 	// event topics
-	winnerTopic, err := cmn.MakeTopic(bidWinnerHexAddr)
+	winnerTopic, err := contractutils.MakeTopic(bidWinnerHexAddr)
 	if err != nil {
 		return errorsmod.Wrapf(err, "failed make log topic")
 	}

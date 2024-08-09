@@ -31,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	evmosapp "github.com/evmos/evmos/v19/app"
 	evmoscontracts "github.com/evmos/evmos/v19/contracts"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	evmosibc "github.com/evmos/evmos/v19/ibc/testing"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -365,7 +366,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, amoun
 	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 	var approvalEvent ics20.EventTransferAuthorization
-	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeIBCTransferAuthorization, *log)
+	err := contractutils.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 	s.Require().NoError(err)
 	s.Require().Equal(s.address, approvalEvent.Grantee)
 	s.Require().Equal(s.address, approvalEvent.Granter)

@@ -14,6 +14,7 @@ import (
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
@@ -43,7 +44,7 @@ func NewPrecompile(
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	newAbi, err := cmn.LoadABI(f, "abi.json")
+	newAbi, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -38,7 +38,7 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(delegatorAddress)
+	topics[1], err = contractutils.MakeTopic(delegatorAddress)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.Stat
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(caller)
+	topics[1], err = contractutils.MakeTopic(caller)
 	if err != nil {
 		return err
 	}
@@ -107,19 +107,19 @@ func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB v
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
 
-	topics[1], err = cmn.MakeTopic(delegatorAddress)
+	topics[1], err = contractutils.MakeTopic(delegatorAddress)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(common.BytesToAddress(valAddr.Bytes()))
+	topics[2], err = contractutils.MakeTopic(common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -141,14 +141,14 @@ func (p Precompile) EmitWithdrawValidatorCommissionEvent(ctx sdk.Context, stateD
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(validatorAddress)
+	topics[1], err = contractutils.MakeTopic(validatorAddress)
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -170,14 +170,14 @@ func (p Precompile) EmitFundCommunityPoolEvent(ctx sdk.Context, stateDB vm.State
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(depositor)
+	topics[1], err = contractutils.MakeTopic(depositor)
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(coins[0].Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),

@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
@@ -58,12 +59,12 @@ func EmitRevocationEvent(args cmn.EmitEventArgs) error {
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(revocationEvent.Grantee)
+	topics[1], err = contractutils.MakeTopic(revocationEvent.Grantee)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(revocationEvent.Granter)
+	topics[2], err = contractutils.MakeTopic(revocationEvent.Granter)
 	if err != nil {
 		return err
 	}
@@ -99,12 +100,12 @@ func EmitIBCTransferAuthorizationEvent(
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(granteeAddr)
+	topics[1], err = contractutils.MakeTopic(granteeAddr)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(granterAddr)
+	topics[2], err = contractutils.MakeTopic(granterAddr)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -39,7 +40,7 @@ func NewPrecompile(
 	auctionsKeeper auctionskeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	newAbi, err := cmn.LoadABI(f, "abi.json")
+	newAbi, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading the auction ABI %s", err)
 	}
