@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/utils"
@@ -18,7 +17,6 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	m := k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 	// Filter out the coin with the specified denomination

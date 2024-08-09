@@ -28,7 +28,6 @@ func (p Precompile) AuctionInfo(
 
 	res, err := p.auctionsKeeper.AuctionInfo(ctx, &auctionstypes.QueryCurrentAuctionInfoRequest{})
 	if err != nil {
-		fmt.Println("the err", err)
 		return nil, err
 	}
 
