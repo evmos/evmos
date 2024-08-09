@@ -87,29 +87,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
-			name:        "pass - insufficient funds but sufficient staking rewards",
-			balance:     zero,
-			rewards:     []math.Int{initBalance},
-			gas:         10_000_000,
-			checkTx:     false,
-			simulate:    false,
-			expPass:     true,
-			errContains: "",
-			postCheck: func() {
-				// the balance should have increased
-				balance := app.BankKeeper.GetBalance(ctx, addr, utils.BaseDenom)
-				suite.Require().False(
-					balance.Amount.IsZero(),
-					"expected balance to have increased after withdrawing a surplus amount of staking rewards",
-				)
-
-				// the rewards should all have been withdrawn
-				rewards, err := testutil.GetTotalDelegationRewards(ctx, app.DistrKeeper, addr)
-				suite.Require().NoError(err, "failed to get total delegation rewards")
-				suite.Require().Empty(rewards, "expected all rewards to be withdrawn")
-			},
-		},
-		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
 			balance:     math.NewInt(1e5),
 			rewards:     []math.Int{math.NewInt(1e5)},

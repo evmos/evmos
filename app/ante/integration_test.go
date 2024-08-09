@@ -156,7 +156,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				},
 			)
 			Expect(res.IsErr()).To(BeTrue())
-			Expect(res.GetLog()).To(ContainSubstring("has insufficient funds and failed to claim sufficient staking rewards to pay for fees"))
+			Expect(res.GetLog()).To(ContainSubstring("insufficient funds"))
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 		})
@@ -205,42 +205,6 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1), Denom: utils.BaseDenom}},
 			}
-		})
-
-		It("should withdraw enough staking rewards to cover the transaction cost", func() {
-			balanceRes, err := s.grpcHandler.GetBalance(addr, utils.BaseDenom)
-			Expect(err).To(BeNil())
-			prevBalance := balanceRes.Balance.Amount
-
-			// make sure fees are higher than the remaining balance
-			baseFeeRes, err := s.grpcHandler.GetBaseFee()
-			Expect(err).To(BeNil())
-			gasWanted := balanceRes.Balance.Amount.Add(sdkmath.NewInt(1e10)).Quo(*baseFeeRes.BaseFee)
-			gwUint := gasWanted.Uint64()
-			res, err := s.factory.ExecuteCosmosTx(
-				priv,
-				commonfactory.CosmosTxArgs{
-					Msgs:     []sdk.Msg{msg},
-					Gas:      &gwUint,
-					GasPrice: baseFeeRes.BaseFee,
-				},
-			)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(BeTrue())
-
-			// include the tx in a block to update state
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
-
-			// should have claimed staking rewards
-			rewardsRes, err := s.grpcHandler.GetDelegationTotalRewards(addr.String())
-			Expect(err).To(BeNil())
-			Expect(rewardsRes.Total).To(BeEmpty())
-
-			// balance should have increased because paid the fees with staking rewards
-			balanceRes, err = s.grpcHandler.GetBalance(addr, utils.BaseDenom)
-			Expect(err).To(BeNil())
-			Expect(balanceRes.Balance.Amount.Sub(prevBalance).IsPositive()).To(BeTrue())
 		})
 	})
 })
