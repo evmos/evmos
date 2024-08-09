@@ -48,15 +48,13 @@ func (k *Keeper) updateBlockBloom(ctx sdk.Context) {
 		ls, err := parseLog(event)
 		if err != nil {
 			logger.Error("error when parsing logs", "error", err.Error())
-
-		} else {
-			logs = append(logs, ls...)
+			continue
 		}
+		logs = append(logs, ls...)
 	}
 
 	// Update block bloom filter
 	logsCount := len(logs)
-
 	if logsCount > 0 {
 		logger.Debug("updating block bloom filter", "logs_count", logsCount, "block_height", ctx.BlockHeight())
 		bloom := k.GetBlockBloomTransient(ctx)
