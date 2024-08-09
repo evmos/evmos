@@ -2131,9 +2131,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		Context("Table driven tests", func() {
-			var (
-				contractInitialBalance = math.NewInt(100)
-			)
+			contractInitialBalance := math.NewInt(100)
 			BeforeEach(func() {
 				callArgs.MethodName = "testClaimRewardsWithTransfer"
 
