@@ -10,12 +10,12 @@ import (
 )
 
 // GetHighestBid gets the highest bid
-func (k *Keeper) GetHighestBid(ctx sdk.Context) *types.Bid {
+func (k *Keeper) GetHighestBid(ctx sdk.Context) types.Bid {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.KeyPrefixBid)
 
 	if bz == nil {
-		return &types.Bid{
+		return types.Bid{
 			Sender: "",
 			Amount: sdk.NewCoin(utils.BaseDenom, sdk.ZeroInt()),
 		}
@@ -23,7 +23,7 @@ func (k *Keeper) GetHighestBid(ctx sdk.Context) *types.Bid {
 
 	var bid types.Bid
 	k.cdc.MustUnmarshal(bz, &bid)
-	return &bid
+	return bid
 }
 
 // SetHighestBid sets the highest bid
