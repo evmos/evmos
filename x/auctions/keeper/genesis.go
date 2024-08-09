@@ -59,7 +59,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
-		Bid:    *k.GetHighestBid(ctx),
+		Bid:    k.GetHighestBid(ctx),
 		Round:  k.GetRound(ctx),
 	}
 }

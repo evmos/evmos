@@ -14,22 +14,6 @@ import (
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
-type GenesisTestSuite struct {
-	keyring testkeyring.Keyring
-	network *testnetwork.UnitTestNetwork
-}
-
-func SetupTest() *GenesisTestSuite {
-	keyring := testkeyring.New(1)
-	network := testnetwork.NewUnitTestNetwork(
-		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
-	return &GenesisTestSuite{
-		keyring: keyring,
-		network: network,
-	}
-}
-
 func TestInitGenesis(t *testing.T) {
 	// Define var used in the mutation function
 	var existentAccAddress sdk.AccAddress
@@ -100,34 +84,38 @@ func TestInitGenesis(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ts := SetupTest()
-			existentAccAddress = ts.keyring.GetKey(0).AccAddr
+			keyring := testkeyring.New(1)
+			network := testnetwork.NewUnitTestNetwork(
+
+				testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			)
+			existentAccAddress = keyring.GetKey(0).AccAddr
 
 			genesis := types.DefaultGenesisState()
 			tc.mutation(genesis)
 
 			if tc.fundModuleAccount {
-				err := ts.network.App.BankKeeper.SendCoinsFromAccountToModule(ts.network.GetContext(), ts.keyring.GetKey(0).AccAddr, types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
+				err := network.App.BankKeeper.SendCoinsFromAccountToModule(network.GetContext(), keyring.GetKey(0).AccAddr, types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
 				require.NoError(t, err, "failed during sending coin to module account")
-				require.NoError(t, ts.network.NextBlock())
-				auctionModuleAddress := ts.network.App.AccountKeeper.GetModuleAddress(types.ModuleName)
-				auctionModuleBalance := ts.network.App.BankKeeper.GetBalance(ts.network.GetContext(), auctionModuleAddress, utils.BaseDenom)
+				require.NoError(t, network.NextBlock())
+				auctionModuleAddress := network.App.AccountKeeper.GetModuleAddress(types.ModuleName)
+				auctionModuleBalance := network.App.BankKeeper.GetBalance(network.GetContext(), auctionModuleAddress, utils.BaseDenom)
 				require.Equal(t, auctionModuleBalance.Amount, moduleAccountBalance)
 			}
 
 			if tc.expPanic {
 				require.Panics(t, func() {
 					keeper.InitGenesis(
-						ts.network.GetContext(),
-						ts.network.App.AuctionsKeeper,
+						network.GetContext(),
+						network.App.AuctionsKeeper,
 						*genesis,
 					)
 				})
 			} else {
 				require.NotPanics(t, func() {
 					keeper.InitGenesis(
-						ts.network.GetContext(),
-						ts.network.App.AuctionsKeeper,
+						network.GetContext(),
+						network.App.AuctionsKeeper,
 						*genesis,
 					)
 				})
@@ -137,9 +125,13 @@ func TestInitGenesis(t *testing.T) {
 }
 
 func TestExportGenesis(t *testing.T) {
-	ts := SetupTest()
+	keyring := testkeyring.New(1)
+	network := testnetwork.NewUnitTestNetwork(
 
-	exportedGenesis := keeper.ExportGenesis(ts.network.GetContext(), ts.network.App.AuctionsKeeper)
+		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	exportedGenesis := keeper.ExportGenesis(network.GetContext(), network.App.AuctionsKeeper)
 	defaultGenesis := types.DefaultGenesisState()
 
 	require.Equal(t, exportedGenesis.Bid, defaultGenesis.Bid, "expected a different bid")
