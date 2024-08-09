@@ -1,0 +1,71 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.auctions.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "evmos/auctions/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
+
+// Msg defines the auctions Msg service.
+service Msg {
+  // Bid defines a method for placing a bid for an auction
+  rpc Bid(MsgBid) returns (MsgBidResponse) {
+    option (google.api.http).get = "/evmos/auctions/v1/bid";
+  }
+
+  // DepositCoins defines a method for depositing coins to an auction
+  rpc DepositCoin(MsgDepositCoin) returns (MsgDepositCoinResponse) {
+    option (google.api.http).get = "/evmos/auctions/v1/deposit_coin";
+  }
+
+  // UpdateParams defines a method for updating the auction parameters
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
+    option (google.api.http).get = "/evmos/auctions/v1/update_params";
+  }
+}
+
+// MsgUpdateParams defines a message for updating the auction parameters
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/auctions parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
+// MsgBid is a message for placing a bid on an auction
+message MsgBid {
+  option (cosmos.msg.v1.signer) = "sender";
+  // sender is the address of the account that is bidding
+  string sender = 1;
+
+  // amount of tokens in EVMOS to bid
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgBidResponse is a response to a bid message
+message MsgBidResponse {}
+
+// MsgDepositCoin is a message for depositing coins to an auction
+message MsgDepositCoin {
+  option (cosmos.msg.v1.signer) = "sender";
+  // sender is the address of the account that is depositing coins
+  string sender = 1;
+
+  // amount to deposit into the auction
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgDepositCoinResponse is a response to a deposit coin message
+message MsgDepositCoinResponse {}
