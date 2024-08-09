@@ -2,6 +2,7 @@ package v20
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -49,12 +50,12 @@ func CreateUpgradeHandler(
 			return fromVM, fmt.Errorf("failed to unmarshal genesis state: %w", err)
 		}
 
-		var consumerGenesis = consumertypes.GenesisState{}
+		consumerGenesis := consumertypes.GenesisState{}
 		cdc.MustUnmarshalJSON(appState[consumertypes.ModuleName], &consumerGenesis)
 
 		consumerGenesis.PreCCV = true
 		consumerGenesis.Params.ConsumerRedistributionFraction = "0.75" // 25% of the rewards go towards the Hub
-		//consumerGenesis.Params.SoftOptOutThreshold = "0.05"
+		// consumerGenesis.Params.SoftOptOutThreshold = "0.05"
 		// TODO: Replace uatom with the IBC voucher for ATOM
 		consumerGenesis.Params.RewardDenoms = []string{"uatom"} // Allow Evmos and ATOM rewards
 		consumerKeeper.InitGenesis(ctx, &consumerGenesis)

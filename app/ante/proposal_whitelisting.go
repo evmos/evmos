@@ -72,28 +72,28 @@ func isParamChangeWhitelisted(paramChanges map[ccvgov.ParamChangeKey]struct{}) b
 }
 
 var WhitelistedParams = map[ccvgov.ParamChangeKey]struct{}{
-	//bank
+	// bank
 	{MsgType: banktypes.ModuleName, Key: string(banktypes.KeySendEnabled)}: {},
-	//governance
-	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyDepositParams)}: {}, //min_deposit, max_deposit_period
-	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyVotingParams)}:  {}, //voting_period
-	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyTallyParams)}:   {}, //quorum,threshold,veto_threshold
-	//staking
+	// governance
+	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyDepositParams)}: {}, // min_deposit, max_deposit_period
+	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyVotingParams)}:  {}, // voting_period
+	{MsgType: govtypes.ModuleName, Key: string(govv1.ParamStoreKeyTallyParams)}:   {}, // quorum,threshold,veto_threshold
+	// staking
 	{MsgType: stakingtypes.ModuleName, Key: string(stakingtypes.KeyUnbondingTime)}:     {},
 	{MsgType: stakingtypes.ModuleName, Key: string(stakingtypes.KeyMaxValidators)}:     {},
 	{MsgType: stakingtypes.ModuleName, Key: string(stakingtypes.KeyMaxEntries)}:        {},
 	{MsgType: stakingtypes.ModuleName, Key: string(stakingtypes.KeyHistoricalEntries)}: {},
 	{MsgType: stakingtypes.ModuleName, Key: string(stakingtypes.KeyBondDenom)}:         {},
-	//distribution
+	// distribution
 	{MsgType: distrtypes.ModuleName, Key: string(distrtypes.ParamStoreKeyCommunityTax)}:        {},
 	{MsgType: distrtypes.ModuleName, Key: string(distrtypes.ParamStoreKeyWithdrawAddrEnabled)}: {},
-	//mint
+	// mint
 	{MsgType: minttypes.ModuleName, Key: string(minttypes.KeyMintDenom)}: {},
-	//ibc transfer
+	// ibc transfer
 	{MsgType: ibctransfertypes.ModuleName, Key: string(ibctransfertypes.KeySendEnabled)}:    {},
 	{MsgType: ibctransfertypes.ModuleName, Key: string(ibctransfertypes.KeyReceiveEnabled)}: {},
 	// TODO: Add more params here that are Evmos specific and need to be whitelisted ?
-	//ica
+	// ica
 	{MsgType: icahosttypes.SubModuleName, Key: string(icahosttypes.KeyHostEnabled)}:   {},
 	{MsgType: icahosttypes.SubModuleName, Key: string(icahosttypes.KeyAllowMessages)}: {},
 }

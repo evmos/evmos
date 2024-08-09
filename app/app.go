@@ -7,13 +7,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
 	"sort"
+
+	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -221,8 +222,8 @@ var (
 		ccvstaking.AppModuleBasic{},
 		ccvdistr.AppModuleBasic{},
 		// TODO: How will this affect our staking wrapper and the precompile ?
-		//staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
-		//distr.AppModuleBasic{},
+		// staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
+		// distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
