@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
 // Keeper of the auction store
@@ -36,15 +35,4 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		accountKeeper: accountKeeper,
 	}
-}
-
-// refundLastBid refunds the last bid placed on an auction
-func (k Keeper) refundLastBid(ctx sdk.Context) error {
-	lastBid := k.GetHighestBid(ctx)
-	lastBidder, err := sdk.AccAddressFromBech32(lastBid.Sender)
-	if err != nil {
-		return err
-	}
-	bidAmount := sdk.NewCoins(lastBid.Amount)
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
 }
