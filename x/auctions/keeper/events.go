@@ -127,7 +127,10 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 		BlockNumber: uint64(ctx.BlockHeight()),
 		BlockHash:   common.BytesToHash(ctx.HeaderHash()),
 	}
-	value, err := json.Marshal(ethLog)
+	// convert the log to the proto representation
+	// to be consistent with the MsgEthTx response log type
+	log := evmtypes.NewLogFromEth(ethLog)
+	value, err := json.Marshal(log)
 	if err != nil {
 		return errorsmod.Wrapf(err, "failed to encode log")
 	}

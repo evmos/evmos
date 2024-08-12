@@ -248,7 +248,6 @@ func TxLogsFromEvents(events []abci.Event, msgIndex int) ([]*ethtypes.Log, error
 
 // ParseTxLogsFromEvent parse tx logs from one event
 func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
-	ethLogs := make([]*ethtypes.Log, 0, len(event.Attributes))
 	logs := make([]*evmtypes.Log, 0, len(event.Attributes))
 	for _, attr := range event.Attributes {
 		if attr.Key != evmtypes.AttributeKeyTxLog {
@@ -257,26 +256,13 @@ func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
 
 		var log evmtypes.Log
 		if err := json.Unmarshal([]byte(attr.Value), &log); err != nil {
-			// before returning an error,
-			// check if can unmarshal directly
-			// to geth Log type
-			var ethLog ethtypes.Log
-			err := json.Unmarshal([]byte(attr.Value), &ethLog)
-			if err != nil {
-				return nil, err
-			}
-			ethLogs = append(ethLogs, &ethLog)
-			continue
+			return nil, err
 		}
 
 		logs = append(logs, &log)
 	}
 
-	if len(logs) > 0 {
-		ethLogs = append(ethLogs, evmtypes.LogsToEthereum(logs)...)
-	}
-
-	return ethLogs, nil
+	return evmtypes.LogsToEthereum(logs), nil
 }
 
 // ShouldIgnoreGasUsed returns true if the gasUsed in result should be ignored

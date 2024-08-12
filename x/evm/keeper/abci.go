@@ -70,12 +70,13 @@ func parseLog(event sdk.Event) (logs []*ethtypes.Log, err error) {
 			continue
 		}
 
-		var log ethtypes.Log
+		var log types.Log
 		if err = json.Unmarshal([]byte(attr.Value), &log); err != nil {
 			return
 		}
 
-		logs = append(logs, &log)
+		ethLog := log.ToEthereum()
+		logs = append(logs, ethLog)
 	}
 	return
 }
