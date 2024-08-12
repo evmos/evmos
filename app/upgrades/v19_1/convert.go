@@ -4,8 +4,10 @@
 package v191
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
+	"os"
 	"time"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -133,7 +135,9 @@ func ConvertERC20Coins(
 	}
 
 	i := 0
-	// should ignore the xen token accounts
+
+	// Generate accounts
+	accounts := []string{}
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		i++
 		if i%100_000 == 0 {
@@ -147,14 +151,46 @@ func ConvertERC20Coins(
 			}
 		}
 
+		accounts = append(accounts, account.GetAddress().String())
 		addBalances(ctx, account.GetAddress(), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
 		return false
 	})
+	type temp struct {
+		Accounts []string `json:"accounts"`
+	}
+	var err error
+	var bytes []byte
+
+	// Backup
+	t := temp{Accounts: accounts}
+	bytes, err = json.Marshal(t)
+	if err != nil {
+		panic(err)
+	}
+	if err := os.WriteFile("/tmp/accounts.json", bytes, 0o600); err != nil {
+		panic(err)
+	}
+
+	// // Archive only
+	// file, err := os.Open("/tmp/accounts.json")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer file.Close()
+	// bytes, err := io.ReadAll(file)
+	// var t temp
+	// if err := json.Unmarshal(bytes, &t); err != nil {
+	// 	panic(err)
+	// }
+	//
+	// for _, v := range t.Accounts {
+	// 	addBalances(ctx, types.MustAccAddressFromBech32(v), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
+	// }
 
 	logger.Info(fmt.Sprint("Finalized results: ", len(finalizedResults)))
 
 	// execute the actual conversion.
-	err := executeConversion(ctx, finalizedResults, bankKeeper, wrappedAddr, nativeTokenPairs)
+	err = executeConversion(ctx, finalizedResults, bankKeeper, wrappedAddr, nativeTokenPairs)
 	if err != nil {
 		// panic(err)
 		return err
