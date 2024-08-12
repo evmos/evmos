@@ -149,7 +149,7 @@ func (p Precompile) EmitFundVestingAccountEvent(
 
 // EmitClawbackEvent creates a new clawback event emitted on a Clawback transaction.
 //
-//nolint:dupl
+
 func (p Precompile) EmitClawbackEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
@@ -193,7 +193,7 @@ func (p Precompile) EmitClawbackEvent(
 
 // EmitUpdateVestingFunderEvent creates a new update vesting funder event emitted on a UpdateVestingFunder transaction.
 //
-//nolint:dupl
+
 func (p Precompile) EmitUpdateVestingFunderEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,

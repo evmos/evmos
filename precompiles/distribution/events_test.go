@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
-//nolint:dupl
+
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	var (
 		ctx  sdk.Context
