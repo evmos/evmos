@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v20.0.0]
+
+### State Machine Breaking
+
+- (precompiles) [#2748](https://github.com/evmos/evmos/pull/2748) Burn auctions precompile boilerplate.
+
 ## [v19.1.0] - 2024-08-02
 
 ### State Machine Breaking

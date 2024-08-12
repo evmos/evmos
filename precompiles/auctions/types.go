@@ -4,6 +4,8 @@
 package auctions
 
 import (
+	"fmt"
+	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -26,19 +28,19 @@ type AuctionInfo struct {
 }
 
 // NewMsgBid creates a new MsgBid.
-func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid) {
+func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid, error) {
 	if len(args) != 2 {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 2)
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
 	}
 
 	amount, ok := args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[1])
 	}
 
 	msgBid := &auctionstypes.MsgBid{
@@ -46,28 +48,33 @@ func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid) {
 		Sender: sdk.AccAddress(sender.Bytes()).String(),
 	}
 
-	return sender, msgBid
+	return sender, msgBid, nil
 }
 
 // NewMsgDepositCoin creates a new MsgDepositCoin.
-func NewMsgDepositCoin(args []interface{}) (common.Address, *auctionstypes.MsgDepositCoin) {
+func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Keeper.Keeper) (common.Address, *auctionstypes.MsgDepositCoin, error) {
 	if len(args) != 3 {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 3)
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
 	}
 
-	denom, ok := args[1].(string)
+	tokenAddress, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, nil
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+	}
+
+	denom, err := erc20Keeper.GetTokenDenom(ctx, tokenAddress)
+	if err != nil {
+		return common.Address{}, nil, err
 	}
 
 	msgDepositCoin := &auctionstypes.MsgDepositCoin{
@@ -75,7 +82,7 @@ func NewMsgDepositCoin(args []interface{}) (common.Address, *auctionstypes.MsgDe
 		Sender: sdk.AccAddress(sender.Bytes()).String(),
 	}
 
-	return sender, msgDepositCoin
+	return sender, msgDepositCoin, nil
 }
 
 // FromResponse populates the AuctionInfoOutput from a QueryCurrentAuctionInfoResponse.

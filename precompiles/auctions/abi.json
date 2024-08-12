@@ -33,9 +33,9 @@
         },
         {
           "indexed": false,
-          "internalType": "string",
+          "internalType": "address",
           "name": "denom",
-          "type": "string"
+          "type": "address"
         },
         {
           "indexed": false,
@@ -138,9 +138,9 @@
           "type": "address"
         },
         {
-          "internalType": "string",
+          "internalType": "address",
           "name": "denom",
-          "type": "string"
+          "type": "address"
         },
         {
           "internalType": "uint256",

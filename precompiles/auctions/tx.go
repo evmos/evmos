@@ -31,7 +31,10 @@ func (p *Precompile) Bid(
 	_ *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, msgBid := NewMsgBid(args)
+	sender, msgBid, err := NewMsgBid(args)
+	if err != nil {
+		return nil, err
+	}
 
 	var (
 		// isCallerOrigin is true when the contract caller is the same as the origin
@@ -53,7 +56,8 @@ func (p *Precompile) Bid(
 
 	// TODO: Do we need a generic Authz or a custom one here?
 
-	_, err := p.auctionsKeeper.Bid(ctx, msgBid)
+	msgBid.Sender = sdk.AccAddress(sender.Bytes()).String()
+	_, err = p.auctionsKeeper.Bid(ctx, msgBid)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +86,11 @@ func (p *Precompile) DepositCoin(
 	_ *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, msgDepositCoin := NewMsgDepositCoin(args)
+
+	sender, msgDepositCoin, err := NewMsgDepositCoin(args, ctx, p.erc20Keeper)
+	if err != nil {
+		return nil, err
+	}
 
 	var (
 		// isCallerOrigin is true when the contract caller is the same as the origin
@@ -102,7 +110,8 @@ func (p *Precompile) DepositCoin(
 		return nil, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
 
-	_, err := p.auctionsKeeper.DepositCoin(ctx, msgDepositCoin)
+	msgDepositCoin.Sender = sdk.AccAddress(sender.Bytes()).String()
+	_, err = p.auctionsKeeper.DepositCoin(ctx, msgDepositCoin)
 	if err != nil {
 		return nil, err
 	}

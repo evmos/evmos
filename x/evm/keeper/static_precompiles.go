@@ -90,7 +90,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	auctionsPrecompile, err := auctionsprecompile.NewPrecompile(auctionsKeeper, authzKeeper)
+	auctionsPrecompile, err := auctionsprecompile.NewPrecompile(auctionsKeeper, erc20Keeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate auctions precompile: %w", err))
 	}
