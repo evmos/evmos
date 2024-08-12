@@ -7,6 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	testutil "github.com/evmos/evmos/v19/testutil"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/utils"
@@ -70,6 +73,25 @@ func TestAuctionInfo(t *testing.T) {
 			expPass:     true,
 			errContains: "",
 		},
+		{
+			name: "fail when auction module is not enabled",
+			malleate: func() {
+				// Update params to disable the auction.
+				params := network.App.AuctionsKeeper.GetParams(network.GetContext())
+				params.EnableAuction = false
+				updateParamsMsg := types.MsgUpdateParams{
+					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Params:    params,
+				}
+				_, err := network.App.AuctionsKeeper.UpdateParams(network.GetContext(), &updateParamsMsg)
+				assert.NoError(t, err, "failed to update auctions params")
+			},
+			expResp: func() *types.QueryCurrentAuctionInfoResponse {
+				return nil
+			},
+			expPass:     false,
+			errContains: types.ErrAuctionDisabled.Error(),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -83,13 +105,14 @@ func TestAuctionInfo(t *testing.T) {
 			resp, err := auctionQueryClient.AuctionInfo(network.GetContext(), &types.QueryCurrentAuctionInfoRequest{})
 
 			if tc.expPass {
+				assert.NoError(t, err, "expected no error during query execution")
 				expResp := tc.expResp()
 				assert.Equal(t, expResp.CurrentRound, resp.CurrentRound, "expected a different current round")
 				assert.Equal(t, expResp.HighestBid, resp.HighestBid, "expected a different highest bid")
 				assert.Equal(t, expResp.BidderAddress, resp.BidderAddress, "expected a different bidder address")
 				assert.Equal(t, expResp.Tokens, resp.Tokens, "expected a different tokens value")
 			} else {
-				assert.NoError(t, err, "expected no error during query execution")
+				assert.Error(t, err, "expected error during query execution")
 				assert.Contains(t, err.Error(), tc.errContains)
 			}
 		})
