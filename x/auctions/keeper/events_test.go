@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testtx "github.com/evmos/evmos/v19/testutil/tx"
@@ -68,9 +67,11 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			require.Equal(t, events[0].Type, evmtypes.EventTypeTxLog)
 			require.Len(t, events[0].Attributes, 1)
 
-			var ethLog ethtypes.Log
-			err = json.Unmarshal([]byte(events[0].Attributes[0].Value), &ethLog)
+			var log evmtypes.Log
+			err = json.Unmarshal([]byte(events[0].Attributes[0].Value), &log)
 			require.NoError(t, err)
+
+			ethLog := log.ToEthereum()
 			require.Equal(t, common.HexToAddress("0x0000000000000000000000000000000000000805"), ethLog.Address)
 
 			require.Len(t, ethLog.Topics, 2)

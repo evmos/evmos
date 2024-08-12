@@ -53,7 +53,7 @@ interface IAuctions {
     // @param amount - The amount to deposit.
     function depositCoin(
         address sender,
-        string memory denom,
+        address denom,
         uint256 amount
     ) external returns (bool success);
 
