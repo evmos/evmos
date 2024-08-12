@@ -86,7 +86,6 @@ func (p *Precompile) DepositCoin(
 	_ *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-
 	sender, msgDepositCoin, err := NewMsgDepositCoin(args, ctx, p.erc20Keeper)
 	if err != nil {
 		return nil, err

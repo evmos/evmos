@@ -6,6 +6,7 @@ package auctions
 import (
 	"embed"
 	"fmt"
+
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 
 	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"

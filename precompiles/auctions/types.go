@@ -5,8 +5,9 @@ package auctions
 
 import (
 	"fmt"
-	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"math/big"
+
+	erc20Keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
