@@ -17,6 +17,10 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if k.GetParams(ctx).EnableAuction == false {
+		return nil, types.ErrAuctionDisabled
+	}
+
 	moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
