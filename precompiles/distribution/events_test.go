@@ -243,7 +243,6 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}
 }
 
-
 func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	var (
 		ctx  sdk.Context
