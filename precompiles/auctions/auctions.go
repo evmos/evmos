@@ -7,6 +7,8 @@ import (
 	"embed"
 	"fmt"
 
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+
 	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -29,12 +31,14 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	auctionsKeeper auctionskeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
 }
 
 // NewPrecompile creates a new auctions Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	auctionsKeeper auctionskeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := cmn.LoadABI(f, "abi.json")
@@ -50,6 +54,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		erc20Keeper:    erc20Keeper,
 		auctionsKeeper: auctionsKeeper,
 	}
 
