@@ -2131,7 +2131,9 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		Context("Table driven tests", func() {
-			contractInitialBalance := math.NewInt(100)
+			var (
+				contractInitialBalance = math.NewInt(100)
+			)
 			BeforeEach(func() {
 				callArgs.MethodName = "testClaimRewardsWithTransfer"
 
@@ -2139,29 +2141,38 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), contractInitialBalance)
 				Expect(err).To(BeNil())
 				Expect(s.network.NextBlock()).To(BeNil())
+
+				// make a delegation with key 1
+				err = s.factory.Delegate(s.keyring.GetKey(1).Priv, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// wait to accrue some rewards for key 1
+				_, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(1).String(), minExpRewardOrCommission)
+				Expect(err).To(BeNil())
 			})
 
 			DescribeTable("claimRewards with transfer to withdrawer", func(tc testCase) {
-				initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(0), s.bondDenom)
+				initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(1), s.bondDenom)
 
 				// get the pending rewards to claim
-				res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(0).String())
+				res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(1).String())
 				Expect(err).To(BeNil())
 				expRewards := res.Total.AmountOf(s.bondDenom).TruncateInt()
 
-				callArgs.Args = []interface{}{s.keyring.GetAddr(0), uint32(1), tc.before, tc.after}
+				callArgs.Args = []interface{}{s.keyring.GetAddr(1), uint32(2), tc.before, tc.after}
 
 				logCheckArgs := passCheck.
 					WithExpEvents(distribution.EventTypeClaimRewards)
-				txArgs.GasLimit = 200_000 // set gas limit to avoid out of gas error
+				txArgs.GasLimit = 400_000 // set gas limit to avoid out of gas error
 				_, ethres, err := s.factory.CallContractAndCheckLogs(
-					s.keyring.GetPrivKey(0),
+					s.keyring.GetPrivKey(1),
 					txArgs,
 					callArgs,
 					logCheckArgs,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-				Expect(s.network.NextBlock()).To(BeNil())
+				s.network.NextBlock()
 
 				fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(int64(ethres.GasUsed))
 
@@ -2182,7 +2193,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				Expect(contractFinalBalance.Amount).To(Equal(expContractFinalBalance))
 
 				// delegator (and withdrawer) balance should be updated
-				finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(0), s.bondDenom)
+				finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(1), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after claiming rewards")
 			},
 				Entry("claim rewards with transfer to withdrawer before and after precompile call", testCase{
