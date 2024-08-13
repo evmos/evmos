@@ -131,5 +131,5 @@ func TestParams(t *testing.T) {
 	defaultParams := types.DefaultParams()
 	resp, err := auctionQueryClient.Params(network.GetContext(), &types.QueryParamsRequest{})
 	require.NoError(t, err)
-	require.Equal(t, defaultParams, resp.Params)
+	require.Equal(t, &defaultParams, resp.Params)
 }

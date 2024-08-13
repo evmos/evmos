@@ -32,7 +32,7 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name:              "valid default",
 			expPanic:          false,
-			mutation:          func(genesis *types.GenesisState) {},
+			mutation:          func(_ *types.GenesisState) {},
 			fundModuleAccount: true,
 			postCheck:         func() {},
 		},

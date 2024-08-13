@@ -127,7 +127,7 @@ func TestHookAfterEpochEnd(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.name, func(_ *testing.T) {
 			keyring := testkeyring.New(1)
 			network = testnetwork.NewUnitTestNetwork(
 				testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
