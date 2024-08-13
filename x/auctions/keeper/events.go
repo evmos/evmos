@@ -3,6 +3,23 @@
 
 package keeper
 
+import (
+	"encoding/json"
+	"reflect"
+
+	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+)
+
 //// EmitRoundFinished emits an event for the RoundFinished event.
 //func EmitRoundFinished(ctx sdk.Context, evmKeeper evmkeeper.Keeper, stateDB vm.StateDB, roundID *big.Int) error {
 //	// Get the precompile instance
@@ -36,3 +53,92 @@ package keeper
 //
 //	return nil
 //}
+
+var EndAuctionEventABI = abi.Event{
+	Name:      "AuctionEnd",
+	RawName:   "AuctionEnd",
+	Anonymous: false,
+	Inputs: abi.Arguments{
+		abi.Argument{
+			Name:    "winner",
+			Type:    abi.Type{Size: 20, T: 7},
+			Indexed: true,
+		},
+		abi.Argument{
+			Name: "coins",
+			Type: abi.Type{
+				Elem: &abi.Type{
+					T:            6,
+					TupleRawName: "Coin",
+					TupleElems: []*abi.Type{
+						{T: 3},
+						{Size: 256, T: 1},
+					},
+					TupleRawNames: []string{"denom", "amount"},
+					TupleType:     reflect.TypeOf(cmn.Coin{}),
+				},
+				T: 4,
+			},
+		},
+		abi.Argument{
+			Name: "burned",
+			Type: abi.Type{Size: 256, T: 1},
+		},
+	},
+	Sig: "AuctionEnd(address,(string,uint256)[],uint256)",
+	ID:  crypto.Keccak256Hash([]byte("AuctionEnd(address,(string,uint256)[],uint256)")),
+}
+
+// EmitAuctionEndEvent emits an event as an ethereum tx log to be able to filter
+// it via the JSON-RPC
+func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins, burnedAmt math.Int) error {
+	bidWinnerHexAddr := common.BytesToAddress(winner.Bytes())
+
+	// event topics
+	winnerTopic, err := cmn.MakeTopic(bidWinnerHexAddr)
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed make log topic")
+	}
+
+	// index the bidWinner address
+	topics := []common.Hash{
+		EndAuctionEventABI.ID,
+		winnerTopic,
+	}
+	// Pack the arguments to be used as the Data field
+	arguments := abi.Arguments{EndAuctionEventABI.Inputs[1], EndAuctionEventABI.Inputs[2]}
+
+	// parse coins to use big int instead of sdkmath.Int
+	eventCoins := make([]cmn.Coin, coins.Len())
+	for i, c := range coins {
+		eventCoins[i].Amount = c.Amount.BigInt()
+		eventCoins[i].Denom = c.Denom
+	}
+
+	packed, err := arguments.Pack(eventCoins, burnedAmt.BigInt())
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed to pack log data")
+	}
+
+	ethLog := &ethtypes.Log{
+		Address:     common.HexToAddress("0x0000000000000000000000000000000000000805"), // ?? set the auctions precompile address in the log. Or should we use the auctions mod address?  TODO: get it from a constaant instead of hardcoded
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockHash:   common.BytesToHash(ctx.HeaderHash()),
+	}
+	// convert the log to the proto representation
+	// to be consistent with the MsgEthTx response log type
+	log := evmtypes.NewLogFromEth(ethLog)
+	value, err := json.Marshal(log)
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed to encode log")
+	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{sdk.NewEvent(
+		evmtypes.EventTypeTxLog,
+		sdk.NewAttribute(evmtypes.AttributeKeyTxLog, string(value)),
+	)})
+
+	return nil
+}
