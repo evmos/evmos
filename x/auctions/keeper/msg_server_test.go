@@ -53,7 +53,7 @@ func TestBid(t *testing.T) {
 		{
 			name: "pass with previous bid present",
 			malleate: func() {
-				// Send coins from the valid sender to an empty account. In thsi
+				// Send coins from the valid sender to an empty account. In this
 				// way we can easily verify the expected final balance.
 				emptyAccountCoin := sdk.NewCoin(utils.BaseDenom, bidAmount.Sub(sdk.NewInt(1)))
 				err := network.App.BankKeeper.SendCoins(network.GetContext(), validSenderKey.AccAddr, emptyAddress, sdk.NewCoins(emptyAccountCoin))

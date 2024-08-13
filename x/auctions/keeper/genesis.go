@@ -44,12 +44,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 			panic(fmt.Errorf("auction module account does not hold enough balance"))
 		}
 
-		// if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(bid.Amount)); err != nil {
-
-	} else {
-		if !data.Bid.Amount.Amount.IsZero() {
-			panic(fmt.Errorf("received a bid without sender but different than zero"))
-		}
+	} else if !data.Bid.Amount.Amount.IsZero() {
+		panic(fmt.Errorf("received a bid without sender but different than zero"))
 	}
 
 	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
