@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testtx "github.com/evmos/evmos/v19/testutil/tx"

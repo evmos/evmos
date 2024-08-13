@@ -111,6 +111,7 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 
 	// parse coins to use big int instead of sdkmath.Int
 	eventCoins := contracttypes.NewCoinsResponse(coins)
+
 	packed, err := arguments.Pack(eventCoins, burnedAmt.BigInt())
 	if err != nil {
 		return errorsmod.Wrapf(err, "failed to pack log data")
