@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -43,7 +44,7 @@ func NewPrecompile(
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	newAbi, err := cmn.LoadABI(f, "abi.json")
+	newAbi, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}

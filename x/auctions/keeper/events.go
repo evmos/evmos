@@ -16,7 +16,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contracttypes "github.com/evmos/evmos/v19/contracts/types"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
@@ -75,7 +76,7 @@ var EndAuctionEventABI = abi.Event{
 						{Size: 256, T: 1},
 					},
 					TupleRawNames: []string{"denom", "amount"},
-					TupleType:     reflect.TypeOf(cmn.Coin{}),
+					TupleType:     reflect.TypeOf(contracttypes.Coin{}),
 				},
 				T: 4,
 			},
@@ -95,7 +96,7 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 	bidWinnerHexAddr := common.BytesToAddress(winner.Bytes())
 
 	// event topics
-	winnerTopic, err := cmn.MakeTopic(bidWinnerHexAddr)
+	winnerTopic, err := contractutils.MakeTopic(bidWinnerHexAddr)
 	if err != nil {
 		return errorsmod.Wrapf(err, "failed make log topic")
 	}
@@ -109,11 +110,7 @@ func EmitAuctionEndEvent(ctx sdk.Context, winner sdk.AccAddress, coins sdk.Coins
 	arguments := abi.Arguments{EndAuctionEventABI.Inputs[1], EndAuctionEventABI.Inputs[2]}
 
 	// parse coins to use big int instead of sdkmath.Int
-	eventCoins := make([]cmn.Coin, coins.Len())
-	for i, c := range coins {
-		eventCoins[i].Amount = c.Amount.BigInt()
-		eventCoins[i].Denom = c.Denom
-	}
+	eventCoins := contracttypes.NewCoinsResponse(coins)
 
 	packed, err := arguments.Pack(eventCoins, burnedAmt.BigInt())
 	if err != nil {

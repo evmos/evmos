@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -33,7 +33,7 @@ func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender com
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(sender)
+	topics[1], err = contractutils.MakeTopic(sender)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (p Precompile) EmitDepositCoinEvent(ctx sdk.Context, stateDB vm.StateDB, se
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(sender)
+	topics[1], err = contractutils.MakeTopic(sender)
 	if err != nil {
 		return err
 	}

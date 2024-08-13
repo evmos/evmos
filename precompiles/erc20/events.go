@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
 const (
@@ -32,12 +32,12 @@ func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from,
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(from)
+	topics[1], err = contractutils.MakeTopic(from)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(to)
+	topics[2], err = contractutils.MakeTopic(to)
 	if err != nil {
 		return err
 	}
@@ -69,12 +69,12 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(owner)
+	topics[1], err = contractutils.MakeTopic(owner)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(spender)
+	topics[2], err = contractutils.MakeTopic(spender)
 	if err != nil {
 		return err
 	}

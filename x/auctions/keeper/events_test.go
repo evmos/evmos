@@ -9,7 +9,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testtx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
@@ -84,7 +85,7 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			logData, err := keeper.EndAuctionEventABI.Inputs.Unpack(ethLog.Data)
 			require.NoError(t, err)
 			// first arg of log data should be the coins
-			coins, ok := logData[0].([]cmn.Coin)
+			coins, ok := logData[0].([]types.Coin)
 			require.True(t, ok)
 			for i, c := range coins {
 				require.Equal(t, *tc.coins[i].Amount.BigInt(), *c.Amount)

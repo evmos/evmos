@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -81,7 +81,7 @@ func (p Precompile) ValidatorOutstandingRewards(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(cmn.NewDecCoinsResponse(res.Rewards.Rewards))
+	return method.Outputs.Pack(types.NewDecCoinsResponse(res.Rewards.Rewards))
 }
 
 // ValidatorCommission returns the commission for a validator.
@@ -103,7 +103,7 @@ func (p Precompile) ValidatorCommission(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(cmn.NewDecCoinsResponse(res.Commission.Commission))
+	return method.Outputs.Pack(types.NewDecCoinsResponse(res.Commission.Commission))
 }
 
 // ValidatorSlashes returns the slashes for a validator.
@@ -148,7 +148,7 @@ func (p Precompile) DelegationRewards(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(cmn.NewDecCoinsResponse(res.Rewards))
+	return method.Outputs.Pack(types.NewDecCoinsResponse(res.Rewards))
 }
 
 // DelegationTotalRewards returns the total rewards accrued by a delegation.

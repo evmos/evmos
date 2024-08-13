@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/utils"
 	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
@@ -22,8 +23,8 @@ type AuctionInfoOutput struct {
 	AuctionInfo AuctionInfo
 }
 type AuctionInfo struct {
-	Tokens        []cmn.Coin
-	HighestBid    cmn.Coin
+	Tokens        []types.Coin
+	HighestBid    types.Coin
 	CurrentRound  uint64
 	BidderAddress common.Address
 }
@@ -91,14 +92,14 @@ func (ai *AuctionInfoOutput) FromResponse(res *auctionstypes.QueryCurrentAuction
 	senderBech := sdk.AccAddress(res.BidderAddress)
 	senderHex := common.BytesToAddress(senderBech.Bytes())
 	ai.AuctionInfo.BidderAddress = senderHex
-	ai.AuctionInfo.HighestBid = cmn.Coin{
+	ai.AuctionInfo.HighestBid = types.Coin{
 		Denom:  res.HighestBid.Denom,
 		Amount: res.HighestBid.Amount.BigInt(),
 	}
 	ai.AuctionInfo.CurrentRound = res.CurrentRound
-	ai.AuctionInfo.Tokens = make([]cmn.Coin, len(res.Tokens))
+	ai.AuctionInfo.Tokens = make([]types.Coin, len(res.Tokens))
 	for i, token := range res.Tokens {
-		ai.AuctionInfo.Tokens[i] = cmn.Coin{
+		ai.AuctionInfo.Tokens[i] = types.Coin{
 			Denom:  token.Denom,
 			Amount: token.Amount.BigInt(),
 		}

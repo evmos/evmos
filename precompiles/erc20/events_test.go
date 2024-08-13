@@ -5,8 +5,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	erc20precompile "github.com/evmos/evmos/v19/precompiles/erc20"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 )
@@ -48,7 +48,7 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 
 			// Check the fully unpacked event matches the one emitted
 			var transferEvent erc20precompile.EventTransfer
-			err = cmn.UnpackLog(s.precompile.ABI, &transferEvent, erc20precompile.EventTypeTransfer, *log)
+			err = contractutils.UnpackLog(s.precompile.ABI, &transferEvent, erc20precompile.EventTypeTransfer, *log)
 			s.Require().NoError(err, "unable to unpack log into transfer event")
 
 			s.Require().Equal(tc.from, transferEvent.From, "expected different from address")
@@ -96,7 +96,7 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 
 			// Check the fully unpacked event matches the one emitted
 			var approvalEvent erc20precompile.EventApproval
-			err = cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
+			err = contractutils.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
 			s.Require().NoError(err, "unable to unpack log into approval event")
 
 			s.Require().Equal(tc.owner, approvalEvent.Owner, "expected different owner address")
