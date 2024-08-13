@@ -111,14 +111,17 @@ schema = 3
     version = "v2.0.2"
     hash = "sha256-UrPHkvqVF8V78+kXKmjTHl79XsgDBnqFsje5BMYh0E4="
   [mod."github.com/cockroachdb/errors"]
-    version = "v1.11.1"
-    hash = "sha256-ufKtavyfW/i3ZemiqDqKGc0JM+f0IBi6bZWkZyb/jdc="
+    version = "v1.11.3"
+    hash = "sha256-kDiT0MVVRnnQ0ugZWVHcZmv3UgwnxEW6xzt+mV22dTI="
+  [mod."github.com/cockroachdb/fifo"]
+    version = "v0.0.0-20240606204812-0bbfbd93a7ce"
+    hash = "sha256-M/9/e4i7gXA2kYjSEMlQd94vijLLmWZVUXOKiFeINbk="
   [mod."github.com/cockroachdb/logtags"]
     version = "v0.0.0-20230118201751-21c54148d20b"
     hash = "sha256-7dQH6j1o99fuxHKkw0RhNC5wJKkvRLMDJpUiVnDx6h8="
   [mod."github.com/cockroachdb/pebble"]
-    version = "v1.1.0"
-    hash = "sha256-igtoXdKzENNqaL3mLSUzZvqaSAmkNlrWN/ZnVTwA7Bk="
+    version = "v1.1.1"
+    hash = "sha256-trb29HS9x1VrL1DoUVxCeAp92iyNdjNxaSSzSlcPVUE="
   [mod."github.com/cockroachdb/redact"]
     version = "v1.1.5"
     hash = "sha256-0rtT7LRO0wxf9XovOK8GXRrhmx8OcbdPK/mXOKbJdog="
@@ -132,8 +135,8 @@ schema = 3
     version = "v0.37.9"
     hash = "sha256-ObClwxeLbAIeN2e8l6RatRFD5M/6lamMQeQSjTQ6Ph0="
   [mod."github.com/cometbft/cometbft-db"]
-    version = "v0.12.0"
-    hash = "sha256-mfeUD8+V+xUzEhSOLgQQP0GFDWt7ch/TeBw9gnTJuHk="
+    version = "v0.14.0"
+    hash = "sha256-o/EcI11GrIUSeKMRJPu8P36NOiopVhgEYgsMQroLMQQ="
   [mod."github.com/confio/ics23/go"]
     version = "v0.9.0"
     hash = "sha256-guD8w7YygfUp7lpTAUyXQuCPx8F3lXkcg+yR5+JOCbk="
@@ -248,8 +251,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-MdT2rQyQHspPJcx6n9ozkLbsktIOJutOqDuKpNAtoZY="
   [mod."github.com/getsentry/sentry-go"]
-    version = "v0.23.0"
-    hash = "sha256-VR6IL+yIc+BV5xBGfPJ7ixsAVzJ/hzuvXmkkAn1cTk4="
+    version = "v0.27.0"
+    hash = "sha256-PTkTzVNogqFA/5rc6INLY6RxK5uR1AoJFOO+pOPdE7Q="
   [mod."github.com/gin-gonic/gin"]
     version = "v1.9.1"
     hash = "sha256-3FHywH5QuhTeQcdF8v06jt9vIkH0ON6ydpMYciAc8xQ="
