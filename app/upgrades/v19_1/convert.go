@@ -6,11 +6,13 @@ package v191
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
 	"os"
 	"time"
 
 	"github.com/cometbft/cometbft/libs/log"
+	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -128,33 +130,33 @@ func ConvertERC20Coins(
 	var finalizedResults []BalanceResult
 
 	missingAccounts := GetMissingWalletsFromAuthModule(ctx, accountKeeper)
-	filter := generateFilter(accountKeeper, ctx)
+	// filter := generateFilter(accountKeeper, ctx)
 
 	for _, account := range missingAccounts {
 		addBalances(ctx, account, evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
 	}
 
-	i := 0
+	// i := 0
 
-	// Generate accounts
-	accounts := []string{}
-	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
-		i++
-		if i%100_000 == 0 {
-			logger.Info(fmt.Sprintf("Processing account: %d", i))
-		}
-
-		ethAccount, ok := account.(*evmostypes.EthAccount)
-		if ok {
-			if !isAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
-				return false
-			}
-		}
-
-		accounts = append(accounts, account.GetAddress().String())
-		addBalances(ctx, account.GetAddress(), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
-		return false
-	})
+	// // Generate accounts
+	// accounts := []string{}
+	// accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
+	// 	i++
+	// 	if i%100_000 == 0 {
+	// 		logger.Info(fmt.Sprintf("Processing account: %d", i))
+	// 	}
+	//
+	// 	ethAccount, ok := account.(*evmostypes.EthAccount)
+	// 	if ok {
+	// 		if !isAccountValid(ethAccount.EthAddress().Hex(), ethAccount.GetCodeHash(), filter) {
+	// 			return false
+	// 		}
+	// 	}
+	//
+	// 	accounts = append(accounts, account.GetAddress().String())
+	// 	addBalances(ctx, account.GetAddress(), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
+	// 	return false
+	// })
 	type temp struct {
 		Accounts []string `json:"accounts"`
 	}
@@ -162,30 +164,35 @@ func ConvertERC20Coins(
 	var bytes []byte
 
 	// Backup
-	t := temp{Accounts: accounts}
-	bytes, err = json.Marshal(t)
-	if err != nil {
-		panic(err)
-	}
-	if err := os.WriteFile("/tmp/accounts.json", bytes, 0o600); err != nil {
-		panic(err)
-	}
-
-	// // Archive only
-	// file, err := os.Open("/tmp/accounts.json")
+	// t := temp{Accounts: accounts}
+	// bytes, err = json.Marshal(t)
 	// if err != nil {
 	// 	panic(err)
 	// }
-	// defer file.Close()
-	// bytes, err := io.ReadAll(file)
-	// var t temp
-	// if err := json.Unmarshal(bytes, &t); err != nil {
+	// if err := os.WriteFile("/tmp/accounts.json", bytes, 0o600); err != nil {
 	// 	panic(err)
 	// }
-	//
-	// for _, v := range t.Accounts {
-	// 	addBalances(ctx, types.MustAccAddressFromBech32(v), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
-	// }
+
+	// Archive only
+	file, err := os.Open("/tmp/accounts.json")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	bytes, err = io.ReadAll(file)
+	var t temp
+	if err := json.Unmarshal(bytes, &t); err != nil {
+		panic(err)
+	}
+
+	i := 0
+	for _, v := range t.Accounts {
+		i++
+		if i%100_000 == 0 {
+			logger.Info(fmt.Sprintf("Processing account: %d", i))
+		}
+		addBalances(ctx, types.MustAccAddressFromBech32(v), evmKeeper, wrappedAddr.Hex(), nativeTokenPairs, &finalizedResults)
+	}
 
 	logger.Info(fmt.Sprint("Finalized results: ", len(finalizedResults)))
 
