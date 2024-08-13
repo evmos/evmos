@@ -145,20 +145,6 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 	return nil
 }
 
-// deductFeesFromBalanceOrUnclaimedStakingRewards tries to deduct the fees from the account balance.
-// If the account balance is not enough, it tries to claim enough staking rewards to cover the fees.
-func deductFeesFromBalanceOrUnclaimedStakingRewards(
-	ctx sdk.Context, dfd DeductFeeDecorator, deductFeesFromAcc sdk.AccountI, fees sdk.Coins,
-) error {
-	if err := anteutils.ClaimStakingRewardsIfNecessary(
-		ctx, dfd.bankKeeper, dfd.distributionKeeper, dfd.stakingKeeper, deductFeesFromAcc.GetAddress(), fees,
-	); err != nil {
-		return err
-	}
-
-	return authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees)
-}
-
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
 // unit of gas is fixed and set by each validator, and the tx priority is computed from the gas price.
 func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {

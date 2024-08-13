@@ -28,7 +28,6 @@ import (
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 )
 
@@ -546,7 +545,7 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 		eip155ChainID,
 	)
 	suite.Require().NoError(err)
-	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
+	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)

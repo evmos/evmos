@@ -2170,7 +2170,8 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 					logCheckArgs,
 				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-				s.network.NextBlock()
+				err = s.network.NextBlock()
+				Expect(err).To(BeNil())
 
 				fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(int64(ethres.GasUsed))
 
