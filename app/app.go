@@ -1206,6 +1206,8 @@ func initParamsKeeper(
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	// ics subspaces
+	paramsKeeper.Subspace(ccvconsumertypes.ModuleName)
 	return paramsKeeper
 }
 
