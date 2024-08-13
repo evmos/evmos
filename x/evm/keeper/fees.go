@@ -61,8 +61,12 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 	signerBalance := k.bankKeeper.GetBalance(ctx, signerAcc.GetAddress(), utils.BaseDenom)
 	balanceIn18Decimals := utils.ConvertTo18Decimals(*signerBalance.Amount.BigInt())
 
+	found, feeToken := fees.Find(types.DefaultEVMDenom)
+	if !found {
+		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "fee token %s not found in the fees", types.DefaultEVMDenom)
+	}
 	// Perform fee deduction in 18 decimal scale
-	balanceAfterFees := new(big.Int).Sub(balanceIn18Decimals, fees[0].Amount.BigInt())
+	balanceAfterFees := new(big.Int).Sub(balanceIn18Decimals, feeToken.Amount.BigInt())
 
 	// Scale back down to 6 decimals
 	finalBalanceIn6Decimals := utils.ConvertTo6Decimals(*balanceAfterFees)
