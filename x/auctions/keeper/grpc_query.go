@@ -17,7 +17,7 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if k.GetParams(ctx).EnableAuction == false {
+	if !k.GetParams(ctx).EnableAuction {
 		return nil, types.ErrAuctionDisabled
 	}
 
