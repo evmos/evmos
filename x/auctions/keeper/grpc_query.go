@@ -7,7 +7,6 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
@@ -25,12 +24,7 @@ func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoR
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
 
 	// Filter out the coin with the specified denomination
-	filteredCoins := sdk.Coins{}
-	for _, coin := range coins {
-		if coin.Denom != utils.BaseDenom {
-			filteredCoins = append(filteredCoins, coin)
-		}
-	}
+	filteredCoins := removeBaseCoinFromCoins(coins)
 
 	currentRound := k.GetRound(ctx)
 	highestBid := k.GetHighestBid(ctx)

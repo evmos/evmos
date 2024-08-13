@@ -49,6 +49,8 @@ func TestAuctionInfo(t *testing.T) {
 			malleate: func() {
 				// Tokens to mint to the module account. We are mint both EVMOS coin, which
 				// should not appear in the response, and other coins which should appear.
+				// We have to mint tokens because the module accounts of x/auctions are blocked
+				// but it is acceptable in unit test.
 				coinsToMint := sdk.NewCoins(evmosCoin, ibcCoin, anotherNativeCoin)
 				err := testutil.FundModuleAccount(
 					network.GetContext(),
