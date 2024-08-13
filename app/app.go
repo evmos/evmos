@@ -733,6 +733,8 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
+		ccvconsumertypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -763,6 +765,8 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		consensusparamtypes.ModuleName,
+		ccvconsumertypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -799,6 +803,8 @@ func NewEvmos(
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		ccvconsumertypes.ModuleName,
+		ratelimittypes.ModuleName,
 	)
 
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
