@@ -9,17 +9,17 @@ let
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/d1c6a5decfd9ad4c84354612d418b2856a57be1d.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
   # the go_1_22 nixpkgs is v1.22.1
-  # but we need the v1.22.2.
+  # but we need the v1.22.6.
   # This overrides the pkg to use
-  # the v1.22.2 version
+  # the v1.22.6 version
   go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
     pname = "golang";
-    version = "go1.22.2";
+    version = "go1.22.6";
     src = nixpkgs.fetchFromGitHub {
       owner = "golang";
       repo = "go";
-      rev = "dddf0ae40fa0c1223aba191d73a44425a08e1035";
-      sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
+      rev = "cb4eee693c382bea4222f20837e26501d40ed892";
+      sha256 = "sha256-zWsI66LVc49m+rByVlZctZpg4YTQ9PxSYOIaxU+nV+Y=";
     };
   };
   # get the rustPlatform used to build the hermes relayer
