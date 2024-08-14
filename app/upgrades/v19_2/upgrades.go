@@ -18,11 +18,10 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v19
+// CreateUpgradeHandler creates an SDK upgrade handler for v19.2
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	bk bankkeeper.Keeper,
 	erc20k erc20keeper.Keeper,
 	ek *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
