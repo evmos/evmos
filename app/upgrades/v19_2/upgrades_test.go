@@ -81,5 +81,4 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 		require.True(t, ok)
 		require.Equal(t, ethAcct.CodeHash, expCodeHash)
 	}
-
 }
