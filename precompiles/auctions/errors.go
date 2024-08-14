@@ -4,7 +4,7 @@
 package auctions
 
 const (
-	// ErrDifferentOriginFromSender is raised when the origin address is not the same as the delegator address.
+	// ErrDifferentOriginFromSender is raised when the origin address is not the same as the sender address.
 	ErrDifferentOriginFromSender = "origin address %s is not the same as sender address %s"
 	// ErrInvalidInputLength is raised when the input length is invalid.
 	ErrInvalidInputLength = "invalid input length expected 0 got %d"
