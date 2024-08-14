@@ -33,6 +33,9 @@ func InitGenesis(
 
 	for _, pair := range data.TokenPairs {
 		k.SetToken(ctx, pair)
+		if pair.IsNativeCoin() {
+			k.RegisterERC20CodeHash(ctx, pair)
+		}
 	}
 }
 

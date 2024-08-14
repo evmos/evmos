@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
@@ -47,7 +48,14 @@ var tokenPairsSeed = []erc20types.TokenPair{
 }
 
 func TestAddCodeToERC20Extensions(t *testing.T) {
-	network := testnetwork.NewUnitTestNetwork()
+	// initialize network without wevmos
+	erc20GenesisState := erc20types.DefaultGenesisState()
+	erc20GenesisState.TokenPairs = []erc20types.TokenPair{}
+	genesis := network.CustomGenesisState{
+		erc20types.ModuleName: erc20GenesisState,
+	}
+	network := testnetwork.NewUnitTestNetwork(
+		testnetwork.WithCustomGenesis(genesis))
 	ctx := network.GetContext()
 
 	// check code does not exist
@@ -67,8 +75,7 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 	require.True(t, len(code) > 0)
 
 	pairs := network.App.Erc20Keeper.GetTokenPairs(ctx)
-	// we should expect to have the wevmos token pair too
-	require.Equal(t, len(tokenPairsSeed)+1, len(pairs))
+	require.Equal(t, len(tokenPairsSeed), len(pairs))
 	for _, p := range pairs {
 		contractAddr := common.HexToAddress(p.Erc20Address)
 		acc := network.App.AccountKeeper.GetAccount(ctx, contractAddr.Bytes())

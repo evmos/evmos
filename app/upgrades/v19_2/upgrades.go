@@ -9,12 +9,9 @@ import (
 
 	"github.com/cometbft/cometbft/libs/log"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19.2
@@ -43,12 +40,6 @@ func AddCodeToERC20Extensions(
 	evmKeeper *evmkeeper.Keeper,
 ) (err error) {
 	logger.Info("Adding code to erc20 extensions...")
-	var (
-		// bytecode and codeHash is the same for all IBC coins
-		// cause they're all using the same contract
-		bytecode = common.FromHex(erc20Bytecode)
-		codeHash = crypto.Keccak256(bytecode)
-	)
 
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
 		// Only need to add code to the IBC coins.
@@ -56,18 +47,7 @@ func AddCodeToERC20Extensions(
 			return false
 		}
 
-		contractAddr := common.HexToAddress(tokenPair.Erc20Address)
-		// check if code was already stored
-		code := evmKeeper.GetCode(ctx, common.Hash(codeHash))
-		if len(code) == 0 {
-			evmKeeper.SetCode(ctx, codeHash, bytecode)
-		}
-		err = evmKeeper.SetAccount(ctx, contractAddr, statedb.Account{
-			CodeHash: codeHash,
-			Nonce:    0,
-			Balance:  common.Big0,
-		})
-
+		err = erc20Keeper.RegisterERC20CodeHash(ctx, tokenPair)
 		return err != nil
 	})
 
