@@ -251,6 +251,7 @@ var (
 		epochs.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		incentives.AppModuleBasic{},
+		ratelimit.AppModuleBasic{},
 	)
 
 	// module account permissions

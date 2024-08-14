@@ -27,7 +27,6 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		// democracy ante handler
 		consumerante.NewMsgFilterDecorator(options.ConsumerKeeper),
 		consumerante.NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
-		// TODO: Circular import need to move this
 		democracyante.NewForbiddenProposalsDecorator(IsProposalWhitelisted, IsModuleWhiteList),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
