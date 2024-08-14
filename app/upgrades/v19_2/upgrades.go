@@ -6,7 +6,6 @@ package v19_2
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/cometbft/cometbft/libs/log"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
