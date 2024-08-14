@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0-rc1.
+
 ## [v19.1.0] - 2024-08-02
 
 ### State Machine Breaking
