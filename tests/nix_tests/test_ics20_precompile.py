@@ -936,31 +936,21 @@ def test_ibc_transfer_with_authorization(
     counter = eth_contract.functions.counter().call()
     assert counter == 0
 
-<<<<<<< HEAD
     # create the authorization for the deployed contract
     # based on the specific coins for each test case
     if auth_coins is not None:
+        # Approve the contract to spend the src_denom
         approve_tx = pc.functions.approve(
-            eth_contract.address, [["transfer", "channel-0", auth_coins, [], []]]
+            eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
         ).build_transaction(
             {
                 "from": ADDRS["signer2"],
                 "gasPrice": evmos_gas_price,
                 "gas": gas_limit,
             }
-=======
-    # Approve the contract to spend the src_denom
-    approve_tx = pc.functions.approve(
-        eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
-    ).build_transaction(
-        {
-            "from": ADDRS["signer2"],
-            "gasPrice": evmos_gas_price,
-            "gas": gas_limit,
-        }
-    )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
-    assert tx_receipt.status == 1
+        )
+        tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+        assert tx_receipt.status == 1
 
     def check_allowance_set():
         new_allowance = pc.functions.allowance(
@@ -1012,7 +1002,6 @@ def test_ibc_transfer_with_authorization(
         nonlocal final_dest_balance
         final_dest_balance = get_balance(
             ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
->>>>>>> main
         )
         receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
         assert receipt.status == 1, f"Failed: {name}"

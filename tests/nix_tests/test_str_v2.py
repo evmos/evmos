@@ -50,10 +50,7 @@ def test_str_v2_single_hop(ibc):
     evmos: Evmos = ibc.chains["evmos"]
     gaia: CosmosChain = ibc.chains["cosmoshub-1"]
 
-<<<<<<< HEAD
     w3 = evmos.w3
-=======
->>>>>>> main
     evmos_cli = evmos.cosmos_cli()
     evmos_addr = ADDRS["signer2"]
     bech_dst = eth_to_bech32(evmos_addr)
@@ -61,7 +58,6 @@ def test_str_v2_single_hop(ibc):
     gaia_cli = gaia.cosmos_cli()
     gaia_addr = gaia_cli.address("signer2")
 
-<<<<<<< HEAD
     # Before IBC transfer, check no dynamic precompiles available
     active_dynamic_precompiles = evmos_cli.erc20_params()["params"][
         "dynamic_precompiles"
@@ -73,8 +69,6 @@ def test_str_v2_single_hop(ibc):
     pairs = evmos_cli.get_token_pairs()
     assert len(pairs) == 1
 
-=======
->>>>>>> main
     old_dst_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
     rsp = gaia_cli.ibc_transfer(
         gaia_addr, bech_dst, "5000uatom", "channel-0", 1, fees="10000uatom"
@@ -83,11 +77,7 @@ def test_str_v2_single_hop(ibc):
 
     wait_for_ack(evmos_cli, "Evmos")
 
-<<<<<<< HEAD
     pairs = evmos_cli.get_token_pairs()
-=======
-    w3 = evmos.w3
->>>>>>> main
     active_dynamic_precompiles = evmos_cli.erc20_params()["params"][
         "dynamic_precompiles"
     ]
@@ -95,11 +85,8 @@ def test_str_v2_single_hop(ibc):
     erc_dest_balance = erc20_balance(w3, ATOM_1_ERC20_ADDRESS, evmos_addr)
 
     assert len(active_dynamic_precompiles) == 1
-<<<<<<< HEAD
     assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
     assert len(pairs) == 2
-=======
->>>>>>> main
     assert old_dst_balance + 5000 == new_dest_balance
     assert old_dst_balance + 5000 == erc_dest_balance
 

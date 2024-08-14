@@ -3,6 +3,7 @@ package bank_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -12,6 +13,7 @@ import (
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -72,10 +74,9 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 
 	s.evmosAddr = tokenPair.GetERC20Contract()
 
-	// FIXME: MERGE CONFLICT
 	// Mint and register a second coin for testing purposes
-	// err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
-	// s.Require().NoError(err)
+	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	s.Require().NoError(err)
 
 	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)
 	tokenPair, found = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)

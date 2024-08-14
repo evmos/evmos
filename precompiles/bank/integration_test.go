@@ -20,6 +20,7 @@ import (
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -77,10 +78,9 @@ func (is *IntegrationTestSuite) SetupTest() {
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
-	// FIXME: MERGE CONFLICT
 	// Mint and register a second coin for testing purposes
-	// err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
-	// Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
+	err = is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: math.NewInt(1e18)}})
+	Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
 
 	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
 	tokenPair, found = is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)

@@ -727,13 +727,7 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-<<<<<<< HEAD
-        with tempfile.NamedTemporaryFile("w") as fp:
-            json.dump(proposal, fp)
-            fp.flush()
-=======
         if kind == "register-erc20":
->>>>>>> main
             return json.loads(
                 self.raw(
                     "tx",
@@ -749,28 +743,6 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
-<<<<<<< HEAD
-=======
-        if kind == "register-coin":
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "gov",
-                    method,
-                    kind,
-                    proposal.get("metadata"),
-                    "-y",
-                    from_=proposer,
-                    # content
-                    title=proposal.get("title"),
-                    description=proposal.get("description"),
-                    deposit=proposal.get("deposit"),
-                    # basic
-                    home=self.data_dir,
-                    **kwargs,
-                )
-            )
-
         with tempfile.NamedTemporaryFile("w") as fp:
             json.dump(proposal, fp)
             fp.flush()
@@ -788,7 +760,6 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
->>>>>>> main
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
         kwargs.setdefault(
@@ -988,11 +959,7 @@ class CosmosCLI:
             )
         )
 
-<<<<<<< HEAD
     def denom_traces(self, **kwargs):
-=======
-    def rate_limits(self, **kwargs):
->>>>>>> main
         default_kwargs = {
             "node": self.node_rpc,
             "output": "json",
@@ -1000,15 +967,20 @@ class CosmosCLI:
         return json.loads(
             self.raw(
                 "q",
-<<<<<<< HEAD
                 "ibc-transfer",
                 "denom-traces",
                 **(default_kwargs | kwargs),
             )
         )
 
-    def denom_hash(self, trace, **kwargs):
-=======
+    def rate_limits(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
                 "ratelimit",
                 "list-rate-limits",
                 **(default_kwargs | kwargs),
@@ -1016,7 +988,6 @@ class CosmosCLI:
         )["rate_limits"]
 
     def rate_limit(self, channel, denom, **kwargs):
->>>>>>> main
         default_kwargs = {
             "node": self.node_rpc,
             "output": "json",
@@ -1024,16 +995,10 @@ class CosmosCLI:
         return json.loads(
             self.raw(
                 "q",
-<<<<<<< HEAD
-                "ibc-transfer",
-                "denom-hash",
-                trace,
-=======
                 "ratelimit",
                 "rate-limit",
                 channel,
                 denom=denom,
->>>>>>> main
                 **(default_kwargs | kwargs),
             )
         )
