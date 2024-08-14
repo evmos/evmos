@@ -43,7 +43,6 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 // RegisterERC20CodeHash sets the codehash for the erc20 precompile account
 // if the bytecode for the erc20 codehash does not exists, it stores it.
 func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, pair types.TokenPair) error {
-
 	contractAddr := common.HexToAddress(pair.Erc20Address)
 	var (
 		// bytecode and codeHash is the same for all IBC coins
