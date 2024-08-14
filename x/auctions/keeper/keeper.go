@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,4 +51,9 @@ func (k Keeper) refundLastBid(ctx sdk.Context) error {
 
 	bidAmount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, lastBidAmount))
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
+}
+
+// Logger returns a precompile-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("hooks", "auctions")
 }
