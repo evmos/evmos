@@ -107,11 +107,13 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 
 	sourcePort, ok := args[0].(string)
 	if !ok {
+		//nolint
 		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[1].(string)
 	if !ok {
+		//nolint
 		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourceChannel)
 	}
 
@@ -272,11 +274,13 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 
 	sourcePort, ok := args[1].(string)
 	if !ok {
+		//nolint
 		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[2].(string)
 	if !ok {
+		//nolint
 		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourceChannel)
 	}
 
