@@ -93,12 +93,18 @@ func IsModuleAccount(acc authtypes.AccountI) bool {
 	return isModuleAccount
 }
 
-func GetDisabledPrecompiles(oldDynamicPrecompiles, newDynamicPrecompiles []string) []string {
-	disabledPrecompiles := []string{}
+func GetDisabledAndEnabledPrecompiles(oldDynamicPrecompiles, newDynamicPrecompiles []string) (disabledPrecompiles, enabledPrecompiles []string) {
 	for _, precompile := range oldDynamicPrecompiles {
 		if !slices.Contains(newDynamicPrecompiles, precompile) {
 			disabledPrecompiles = append(disabledPrecompiles, precompile)
 		}
 	}
-	return disabledPrecompiles
+
+	for _, precompile := range newDynamicPrecompiles {
+		if !slices.Contains(oldDynamicPrecompiles, precompile) {
+			enabledPrecompiles = append(enabledPrecompiles, precompile)
+		}
+	}
+
+	return disabledPrecompiles, enabledPrecompiles
 }
