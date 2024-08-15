@@ -4,6 +4,7 @@
 package authorization
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"slices"
@@ -74,8 +75,12 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 		return common.Address{}, nil, nil, fmt.Errorf(ErrInvalidMethods, args[2])
 	}
 	if len(typeURLs) == 0 {
+<<<<<<< HEAD
 		//nolint
 		return common.Address{}, nil, nil, fmt.Errorf(ErrEmptyMethods)
+=======
+		return common.Address{}, nil, nil, errors.New(ErrEmptyMethods)
+>>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 	if slices.Contains(typeURLs, "") {
 		return common.Address{}, nil, nil, fmt.Errorf(ErrEmptyStringInMethods, typeURLs)
@@ -192,8 +197,12 @@ func validateMsgTypes(arg interface{}) ([]string, error) {
 		return nil, fmt.Errorf(ErrInvalidMethods, arg)
 	}
 	if len(typeURLs) == 0 {
+<<<<<<< HEAD
 		//nolint
 		return nil, fmt.Errorf(ErrEmptyMethods)
+=======
+		return nil, errors.New(ErrEmptyMethods)
+>>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	if slices.Contains(typeURLs, "") {

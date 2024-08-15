@@ -188,7 +188,7 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	res := app.BaseApp.DeliverTx(req)
 	//nolint
 	if res.Code != 0 {
-		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "log: %s", res.Log)
 	}
 
 	return res, nil
@@ -235,8 +235,12 @@ func checkTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.Resp
 	req := abci.RequestCheckTx{Tx: bz}
 	res := app.BaseApp.CheckTx(req)
 	if res.Code != 0 {
+<<<<<<< HEAD
 		//nolint
 		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+=======
+		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "log: %s", res.Log)
+>>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	return res, nil

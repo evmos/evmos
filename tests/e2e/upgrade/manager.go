@@ -314,8 +314,12 @@ func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
 
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
+<<<<<<< HEAD
 		//nolint
 		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
+=======
+		return common.Big0, fmt.Errorf("failed to execute command: %s", err.Error())
+>>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	if errBuff.String() != "" {
@@ -349,8 +353,12 @@ func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int
 
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
+<<<<<<< HEAD
 		//nolint
 		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
+=======
+		return common.Big0, fmt.Errorf("failed to execute command: %s", err.Error())
+>>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	if errBuff.String() != "" {
