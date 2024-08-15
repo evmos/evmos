@@ -167,6 +167,26 @@ func (_m *EVMKeeper) EstimateGasInternal(c context.Context, req *evmtypes.EthCal
 	return r0, r1
 }
 
+// GetAccount provides a mock function with given fields: ctx, address
+func (_m *EVMKeeper) GetAccount(ctx types.Context, address common.Address) *statedb.Account {
+	ret := _m.Called(ctx, address)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccount")
+	}
+
+	var r0 *statedb.Account
+	if rf, ok := ret.Get(0).(func(types.Context, common.Address) *statedb.Account); ok {
+		r0 = rf(ctx, address)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*statedb.Account)
+		}
+	}
+
+	return r0
+}
+
 // GetAccountWithoutBalance provides a mock function with given fields: ctx, addr
 func (_m *EVMKeeper) GetAccountWithoutBalance(ctx types.Context, addr common.Address) *statedb.Account {
 	ret := _m.Called(ctx, addr)
@@ -271,8 +291,7 @@ func (_m *EVMKeeper) SetCode(ctx types.Context, hash []byte, bytecode []byte) {
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *EVMKeeper {
+}) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 

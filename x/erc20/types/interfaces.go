@@ -43,6 +43,7 @@ type EVMKeeper interface {
 	GetCode(ctx sdk.Context, hash common.Hash) []byte
 	SetCode(ctx sdk.Context, hash []byte, bytecode []byte)
 	SetAccount(ctx sdk.Context, address common.Address, account statedb.Account) error
+	GetAccount(ctx sdk.Context, address common.Address) *statedb.Account
 }
 
 type (

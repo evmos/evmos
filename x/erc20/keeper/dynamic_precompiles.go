@@ -56,10 +56,20 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, pair types.TokenPair) err
 		k.evmKeeper.SetCode(ctx, codeHash, bytecode)
 	}
 
+	var (
+		nonce   uint64 = 0
+		balance        = common.Big0
+	)
+	// keep balance and nonce if account exists
+	if acc := k.evmKeeper.GetAccount(ctx, contractAddr); acc != nil {
+		nonce = acc.Nonce
+		balance = acc.Balance
+	}
+
 	return k.evmKeeper.SetAccount(ctx, contractAddr, statedb.Account{
 		CodeHash: codeHash,
-		Nonce:    0,
-		Balance:  common.Big0,
+		Nonce:    nonce,
+		Balance:  balance,
 	})
 }
 
