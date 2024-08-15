@@ -34,8 +34,7 @@ func InitGenesis(
 	for _, pair := range data.TokenPairs {
 		k.SetToken(ctx, pair)
 		if pair.IsNativeCoin() {
-			err = k.RegisterERC20CodeHash(ctx, pair)
-			if err != nil {
+			if err := k.RegisterERC20CodeHash(ctx, pair); err != nil {
 				panic(fmt.Errorf("error registering precompile accounts %s", err))
 			}
 		}

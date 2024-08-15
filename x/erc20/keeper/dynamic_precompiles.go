@@ -27,8 +27,7 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 		return nil, err
 	}
 
-	err = k.RegisterERC20CodeHash(ctx, pair)
-	if err != nil {
+	if err := k.RegisterERC20CodeHash(ctx, pair); err != nil {
 		return nil, err
 	}
 
@@ -75,11 +74,23 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, pair types.TokenPair) err
 
 // UnRegisterERC20CodeHash sets the codehash for the account to an empty one
 func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, erc20Address string) error {
+	var emptyCodeHash = crypto.Keccak256(nil)
 	contractAddr := common.HexToAddress(erc20Address)
+
+	var (
+		nonce   uint64 = 0
+		balance        = common.Big0
+	)
+	// keep balance and nonce if account exists
+	if acc := k.evmKeeper.GetAccount(ctx, contractAddr); acc != nil {
+		nonce = acc.Nonce
+		balance = acc.Balance
+	}
+
 	return k.evmKeeper.SetAccount(ctx, contractAddr, statedb.Account{
-		CodeHash: []byte{},
-		Nonce:    0,
-		Balance:  common.Big0,
+		CodeHash: emptyCodeHash,
+		Nonce:    nonce,
+		Balance:  balance,
 	})
 }
 
