@@ -4,6 +4,7 @@
 package authorization
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"slices"
@@ -74,7 +75,7 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 		return common.Address{}, nil, nil, fmt.Errorf(ErrInvalidMethods, args[2])
 	}
 	if len(typeURLs) == 0 {
-		return common.Address{}, nil, nil, fmt.Errorf(ErrEmptyMethods)
+		return common.Address{}, nil, nil, errors.New(ErrEmptyMethods)
 	}
 	if slices.Contains(typeURLs, "") {
 		return common.Address{}, nil, nil, fmt.Errorf(ErrEmptyStringInMethods, typeURLs)
@@ -191,7 +192,7 @@ func validateMsgTypes(arg interface{}) ([]string, error) {
 		return nil, fmt.Errorf(ErrInvalidMethods, arg)
 	}
 	if len(typeURLs) == 0 {
-		return nil, fmt.Errorf(ErrEmptyMethods)
+		return nil, errors.New(ErrEmptyMethods)
 	}
 
 	if slices.Contains(typeURLs, "") {
