@@ -1,17 +1,30 @@
 package v192_test
 
 import (
+	"math/big"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+
 	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/stretchr/testify/require"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
 
-const expCodeHash = "0x7b477c761b4d0469f03f27ba58d0a7eacbfdd62b69b82c6c683ae5f81c67fe80"
+const expNonce uint64 = 3
+
+var (
+	expCodeHash   = common.HexToHash("0x7b477c761b4d0469f03f27ba58d0a7eacbfdd62b69b82c6c683ae5f81c67fe80")
+	otherCodeHash = crypto.Keccak256([]byte("random"))
+	expBalance    = big.NewInt(10)
+)
 
 var tokenPairsSeed = []erc20types.TokenPair{
 	{
@@ -47,38 +60,108 @@ var tokenPairsSeed = []erc20types.TokenPair{
 }
 
 func TestAddCodeToERC20Extensions(t *testing.T) {
-	network := testnetwork.NewUnitTestNetwork()
-	ctx := network.GetContext()
+	var (
+		network *testnetwork.UnitTestNetwork
+		// address of an erc20 contract from a native ERC20
+		ibcCoinAddr = common.HexToAddress(tokenPairsSeed[1].Erc20Address)
+		// address of an erc20 contract from a IBC coin
+		er20Addr = common.HexToAddress(tokenPairsSeed[0].Erc20Address)
+	)
+	testCases := []struct {
+		name      string
+		malleate  func(ctx sdk.Context)
+		postCheck func(t *testing.T, ctx sdk.Context, tp erc20types.TokenPair)
+	}{
+		{
+			name:     "all non-existent accounts",
+			malleate: func(sdk.Context) {},
+			postCheck: func(t *testing.T, ctx sdk.Context, p erc20types.TokenPair) {
+				contractAddr := common.HexToAddress(p.Erc20Address)
+				acc := network.App.AccountKeeper.GetAccount(ctx, contractAddr.Bytes())
+				// no changes should be applied to native erc20s
+				if p.IsNativeERC20() {
+					require.Nil(t, acc)
+					return
+				}
+				ethAcct, ok := acc.(*types.EthAccount)
+				require.True(t, ok)
+				require.Equal(t, ethAcct.CodeHash, expCodeHash.String())
+			},
+		},
+		{
+			name: "all existent accounts",
+			malleate: func(ctx sdk.Context) {
+				// set existent account to native ERC20
+				network.App.EvmKeeper.SetAccount(ctx, er20Addr, statedb.Account{
+					Nonce:    expNonce,
+					Balance:  expBalance,
+					CodeHash: otherCodeHash,
+				})
 
-	// check code does not exist
-	code := network.App.EvmKeeper.GetCode(ctx, common.HexToHash(expCodeHash))
-	require.Len(t, code, 0)
-
-	// seed the token pairs
-	for _, p := range tokenPairsSeed {
-		network.App.Erc20Keeper.SetToken(ctx, p)
+				// set existent account to IBC coin
+				network.App.EvmKeeper.SetAccount(ctx, ibcCoinAddr, statedb.Account{
+					Nonce:    expNonce,
+					Balance:  expBalance,
+					CodeHash: otherCodeHash,
+				})
+			},
+			postCheck: func(t *testing.T, ctx sdk.Context, p erc20types.TokenPair) {
+				addr := common.HexToAddress(p.Erc20Address)
+				acct := network.App.EvmKeeper.GetAccount(ctx, addr)
+				switch common.HexToAddress(p.Erc20Address) {
+				case er20Addr:
+					require.NotNil(t, acct)
+					require.Equal(t, acct.Balance, expBalance)
+					require.Equal(t, acct.Nonce, expNonce)
+					require.Equal(t, acct.CodeHash, otherCodeHash)
+				case ibcCoinAddr:
+					require.NotNil(t, acct)
+					require.Equal(t, acct.Balance, expBalance)
+					require.Equal(t, acct.Nonce, expNonce)
+					// only code hash should be updated
+					require.Equal(t, acct.CodeHash, expCodeHash.Bytes())
+				default:
+					if p.IsNativeERC20() {
+						require.Nil(t, acct)
+						return
+					}
+					require.NotNil(t, acct)
+					require.Equal(t, acct.CodeHash, expCodeHash.Bytes())
+				}
+			},
+		},
 	}
 
-	logger := ctx.Logger()
-	err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper, network.App.EvmKeeper)
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			network = testnetwork.NewUnitTestNetwork()
+			ctx := network.GetContext()
 
-	code = network.App.EvmKeeper.GetCode(ctx, common.HexToHash(expCodeHash))
-	require.True(t, len(code) > 0)
+			// check code does not exist
+			code := network.App.EvmKeeper.GetCode(ctx, expCodeHash)
+			require.Len(t, code, 0)
 
-	pairs := network.App.Erc20Keeper.GetTokenPairs(ctx)
-	// we should expect to have the wevmos token pair too
-	require.Equal(t, len(tokenPairsSeed)+1, len(pairs))
-	for _, p := range pairs {
-		contractAddr := common.HexToAddress(p.Erc20Address)
-		acc := network.App.AccountKeeper.GetAccount(ctx, contractAddr.Bytes())
-		// no changes should be applied to native erc20s
-		if p.ContractOwner != erc20types.OWNER_MODULE {
-			require.Nil(t, acc)
-			continue
-		}
-		ethAcct, ok := acc.(*types.EthAccount)
-		require.True(t, ok)
-		require.Equal(t, ethAcct.CodeHash, expCodeHash)
+			// seed the token pairs
+			for _, p := range tokenPairsSeed {
+				network.App.Erc20Keeper.SetToken(ctx, p)
+			}
+
+			tc.malleate(ctx)
+
+			logger := ctx.Logger()
+			err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper, network.App.EvmKeeper)
+			require.NoError(t, err)
+
+			code = network.App.EvmKeeper.GetCode(ctx, expCodeHash)
+			require.True(t, len(code) > 0)
+
+			pairs := network.App.Erc20Keeper.GetTokenPairs(ctx)
+			// we should expect to have the wevmos token pair too
+			require.Equal(t, len(tokenPairsSeed)+1, len(pairs))
+			for _, p := range pairs {
+				tc.postCheck(t, ctx, p)
+			}
+
+		})
 	}
 }
