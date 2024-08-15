@@ -43,7 +43,7 @@ func AddCodeToERC20Extensions(
 
 	erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
 		// Only need to add code to the IBC coins.
-		if tokenPair.ContractOwner != erc20types.OWNER_MODULE {
+		if !tokenPair.IsNativeCoin() {
 			return false
 		}
 
