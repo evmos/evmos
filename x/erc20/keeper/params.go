@@ -23,10 +23,10 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
 }
 
-func (k Keeper) UpdateCodeHash(ctx sdk.Context, updatedParams types.Params) error {
+func (k Keeper) UpdateCodeHash(ctx sdk.Context, updatedDynamicPrecompiles []string) error {
 	// if a precompile is disabled or deleted in the params, we should remove the codehash
 	oldDynamicPrecompiles := k.getDynamicPrecompiles(ctx)
-	disabledPrecompiles, enabledPrecompiles := types.GetDisabledAndEnabledPrecompiles(oldDynamicPrecompiles, updatedParams.DynamicPrecompiles)
+	disabledPrecompiles, enabledPrecompiles := types.GetDisabledAndEnabledPrecompiles(oldDynamicPrecompiles, updatedDynamicPrecompiles)
 	for _, precompile := range disabledPrecompiles {
 		if err := k.UnRegisterERC20CodeHash(ctx, precompile); err != nil {
 			return err
@@ -52,7 +52,11 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 		return err
 	}
 
-	k.UpdateCodeHash(ctx, params)
+	// update the codehash for enabled or disabled dynamic precompiles
+	if err := k.UpdateCodeHash(ctx, params.DynamicPrecompiles); err != nil {
+		return err
+	}
+
 	k.setERC20Enabled(ctx, params.EnableErc20)
 	k.setDynamicPrecompiles(ctx, params.DynamicPrecompiles)
 	k.setNativePrecompiles(ctx, params.NativePrecompiles)
