@@ -651,6 +651,8 @@ class CosmosCLI:
     #         GOV module
     # ==========================
     def gov_proposal(self, proposer, proposal_file_name, **kwargs):
+        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas", DEFAULT_GAS)
         return json.loads(
             self.raw(
                 "tx",
