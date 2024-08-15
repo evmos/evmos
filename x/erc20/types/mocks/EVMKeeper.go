@@ -291,7 +291,8 @@ func (_m *EVMKeeper) SetCode(ctx types.Context, hash []byte, bytecode []byte) {
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMKeeper {
+},
+) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 

@@ -74,7 +74,7 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, pair types.TokenPair) err
 
 // UnRegisterERC20CodeHash sets the codehash for the account to an empty one
 func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, erc20Address string) error {
-	var emptyCodeHash = crypto.Keccak256(nil)
+	emptyCodeHash := crypto.Keccak256(nil)
 	contractAddr := common.HexToAddress(erc20Address)
 
 	var (

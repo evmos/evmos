@@ -79,7 +79,8 @@ func (_m *MsgServer) UpdateParams(_a0 context.Context, _a1 *types.MsgUpdateParam
 func NewMsgServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MsgServer {
+},
+) *MsgServer {
 	mock := &MsgServer{}
 	mock.Mock.Test(t)
 
