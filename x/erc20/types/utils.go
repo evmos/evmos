@@ -6,6 +6,7 @@ package types
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -90,4 +91,14 @@ func EqualStringSlice(aliasesA, aliasesB []string) bool {
 func IsModuleAccount(acc authtypes.AccountI) bool {
 	_, isModuleAccount := acc.(authtypes.ModuleAccountI)
 	return isModuleAccount
+}
+
+func GetDisabledPrecompiles(oldDynamicPrecompiles, newDynamicPrecompiles []string) []string {
+	disabledPrecompiles := []string{}
+	for _, precompile := range oldDynamicPrecompiles {
+		if !slices.Contains(newDynamicPrecompiles, precompile) {
+			disabledPrecompiles = append(disabledPrecompiles, precompile)
+		}
+	}
+	return disabledPrecompiles
 }

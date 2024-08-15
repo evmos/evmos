@@ -24,6 +24,15 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
+	// if a precompile is disabled or deleted in the params, we should remove the codehash
+	oldDynamicPrecompiles := k.getDynamicPrecompiles(ctx)
+	disabledPrecompiles := types.GetDisabledPrecompiles(oldDynamicPrecompiles, params.DynamicPrecompiles)
+	for _, precompile := range disabledPrecompiles {
+		if err := k.UnRegisterERC20CodeHash(ctx, precompile); err != nil {
+			return err
+		}
+	}
+
 	// and keep params equal between different executions
 	slices.Sort(params.DynamicPrecompiles)
 	slices.Sort(params.NativePrecompiles)

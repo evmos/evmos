@@ -63,6 +63,16 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, pair types.TokenPair) err
 	})
 }
 
+// UnRegisterERC20CodeHash sets the codehash for the account to an empty one
+func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, erc20Address string) error {
+	contractAddr := common.HexToAddress(erc20Address)
+	return k.evmKeeper.SetAccount(ctx, contractAddr, statedb.Account{
+		CodeHash: []byte{},
+		Nonce:    0,
+		Balance:  common.Big0,
+	})
+}
+
 // EnableDynamicPrecompiles appends the addresses of the given Precompiles to the list
 // of active dynamic precompiles.
 func (k Keeper) EnableDynamicPrecompiles(ctx sdk.Context, addresses ...common.Address) error {

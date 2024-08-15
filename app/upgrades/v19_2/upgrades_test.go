@@ -68,7 +68,7 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 	}
 
 	logger := ctx.Logger()
-	err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper, network.App.EvmKeeper)
+	err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper)
 	require.NoError(t, err)
 
 	code = network.App.EvmKeeper.GetCode(ctx, common.HexToHash(expCodeHash))

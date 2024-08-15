@@ -11,7 +11,6 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19.2
@@ -19,12 +18,11 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	erc20k erc20keeper.Keeper,
-	ek *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		if err := AddCodeToERC20Extensions(ctx, logger, erc20k, ek); err == nil {
+		if err := AddCodeToERC20Extensions(ctx, logger, erc20k); err == nil {
 			return nil, err
 		}
 
@@ -37,7 +35,6 @@ func AddCodeToERC20Extensions(
 	ctx sdk.Context,
 	logger log.Logger,
 	erc20Keeper erc20keeper.Keeper,
-	evmKeeper *evmkeeper.Keeper,
 ) (err error) {
 	logger.Info("Adding code to erc20 extensions...")
 
