@@ -44,7 +44,7 @@ func AddCodeToERC20Extensions(
 			return false
 		}
 
-		err = erc20Keeper.RegisterERC20CodeHash(ctx, tokenPair)
+		err = erc20Keeper.RegisterERC20CodeHash(ctx, tokenPair.GetERC20Contract())
 		return err != nil
 	})
 
