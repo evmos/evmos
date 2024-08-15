@@ -16,11 +16,11 @@ import (
 
 // setHighestBid is an util function to call SetHighestBid to store a bid and
 // vefiy that it has correctly be inserted.
-func setHighestBid(t *testing.T, network *testnetwork.UnitTestNetwork, bidSender sdk.AccAddress, bidAmount sdk.Coin) {
-	network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), bidSender.String(), bidAmount)
+func setHighestBid(t *testing.T, network *testnetwork.UnitTestNetwork, bidSender string, bidAmount sdk.Coin) {
+	network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), bidSender, bidAmount)
 
 	bid := network.App.AuctionsKeeper.GetHighestBid(network.GetContext())
-	assert.Equal(t, bidSender.String(), bid.Sender, "expected a different bid sender")
+	assert.Equal(t, bidSender, bid.Sender, "expected a different bid sender")
 	assert.Equal(t, bidAmount, bid.Amount, "expected a different bid amount")
 }
 

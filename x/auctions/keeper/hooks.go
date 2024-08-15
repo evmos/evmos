@@ -18,20 +18,21 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 
 // AfterEpochEnd ends the current auction and distributes the rewards to the winner
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
-	logger := k.Logger(ctx)
-	logger.Error("failed sending coins to module account", "method", "AfterEpochEnd", "error", "err")
+	// Create a cached context that is committed only
+	// if not errors happen.
+	ctxCache, writeFn := ctx.CacheContext()
 
 	// If it's not the weekly epoch, no-op
 	if epochIdentifier != epochstypes.WeekEpochID {
 		return
 	}
 
-	params := k.GetParams(ctx)
+	params := k.GetParams(ctxCache)
 	if !params.EnableAuction {
 		return
 	}
 
-	lastBid := k.GetHighestBid(ctx)
+	lastBid := k.GetHighestBid(ctxCache)
 
 	// Distribute the awards from the last auction
 
@@ -40,26 +41,27 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 
 	// A valid bid is one in which lastBid.Sender is "validBech32" and the
 	// bid.Amount.Amount is positvie.
-	if err == nil || lastBid.Amount.Amount.IsPositive() {
+	if err == nil && lastBid.Amount.Amount.IsPositive() {
 		moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
-		coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
+		coins := k.bankKeeper.GetAllBalances(ctxCache, moduleAddress)
 
 		remainingCoins := removeBaseCoinFromCoins(coins)
 
 		// Burn the Evmos Coins from the module account.
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.Amount)); err != nil {
-			logger.Error("failed burning coins in after epoch end", "method", "AfterEpochEnd", "error", err)
+		if err := k.bankKeeper.BurnCoins(ctxCache, types.ModuleName, sdk.NewCoins(lastBid.Amount)); err != nil {
 			return
 		}
 
 		// Send the remaining Coins from the module account to the auction winner.
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, bidWinner, remainingCoins); err != nil {
-			logger.Error(fmt.Sprintf("failed sending coins to %s in after epoch end", bidWinner.String()), "method", "AfterEpochEnd", "error", err)
+		fmt.Println("Try to send")
+		fmt.Println(len(remainingCoins))
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctxCache, types.ModuleName, bidWinner, remainingCoins); err != nil {
+			fmt.Println("Error in sending coins")
 			return
 		}
 
 		// Clear up the bid in the store
-		k.deleteBid(ctx)
+		k.deleteBid(ctxCache)
 	}
 
 	// If the bid is not valid, we still have to advance round and send funds between the modules.
@@ -70,9 +72,9 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	// Send the entire balance from the Auctions Collector module account to the current Auctions account
 	accumulatedCoins := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.AuctionCollectorName))
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.AuctionCollectorName, types.ModuleName, accumulatedCoins); err != nil {
-		k.Logger(ctx).Error("failed sending coins to module account", "method", "AfterEpochEnd", "error", err)
 		return
 	}
+	writeFn()
 }
 
 // Hooks wrapper struct for incentives keeper
