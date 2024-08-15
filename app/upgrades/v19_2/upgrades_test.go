@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/stretchr/testify/require"
@@ -54,8 +53,8 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 	genesis := network.CustomGenesisState{
 		erc20types.ModuleName: erc20GenesisState,
 	}
-	network := testnetwork.NewUnitTestNetwork(
-		testnetwork.WithCustomGenesis(genesis))
+	network := network.NewUnitTestNetwork(
+		network.WithCustomGenesis(genesis))
 	ctx := network.GetContext()
 
 	// check code does not exist
