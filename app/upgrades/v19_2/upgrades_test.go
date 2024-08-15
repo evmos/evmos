@@ -161,7 +161,6 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 			for _, p := range pairs {
 				tc.postCheck(t, ctx, p)
 			}
-
 		})
 	}
 }
