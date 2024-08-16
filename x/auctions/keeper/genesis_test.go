@@ -4,9 +4,11 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -19,7 +21,10 @@ import (
 
 func TestInitGenesis(t *testing.T) {
 	// Define var used in the mutation function
-	var existentAccAddress sdk.AccAddress
+	var (
+		existentAccAddress sdk.AccAddress
+		network            *testnetwork.UnitTestNetwork
+	)
 	moduleAccountBalance := sdk.NewInt(1)
 
 	testCases := []struct {
@@ -34,7 +39,17 @@ func TestInitGenesis(t *testing.T) {
 			expPanic:          false,
 			mutation:          func(_ *types.GenesisState) {},
 			fundModuleAccount: true,
-			postCheck:         func() {},
+			postCheck: func() {
+				genesis := types.DefaultGenesisState()
+				ctx := network.GetContext()
+
+				params := network.App.AuctionsKeeper.GetParams(ctx)
+				assert.Equal(t, genesis.Params, params, "expected different params")
+				bid := network.App.AuctionsKeeper.GetHighestBid(ctx)
+				assert.Equal(t, genesis.Bid, bid, "expected a different bid")
+				round := network.App.AuctionsKeeper.GetRound(ctx)
+				assert.Equal(t, genesis.Round, round, "expected a different round")
+			},
 		},
 		{
 			name:     "valid with non empty bidder",
@@ -44,7 +59,21 @@ func TestInitGenesis(t *testing.T) {
 				genesis.Bid.Amount.Amount = moduleAccountBalance
 			},
 			fundModuleAccount: true,
-			postCheck:         func() {},
+			postCheck: func() {
+				genesis := types.DefaultGenesisState()
+				ctx := network.GetContext()
+
+				params := network.App.AuctionsKeeper.GetParams(ctx)
+				assert.Equal(t, genesis.Params, params, "expected different params")
+				bid := network.App.AuctionsKeeper.GetHighestBid(ctx)
+				expBid := types.Bid{
+					Sender: existentAccAddress.String(),
+					Amount: sdk.NewCoin(utils.BaseDenom, moduleAccountBalance),
+				}
+				assert.Equal(t, expBid, bid, "expected a different bid")
+				round := network.App.AuctionsKeeper.GetRound(ctx)
+				assert.Equal(t, genesis.Round, round, "expected a different round")
+			},
 		},
 		{
 			name:     "invalid non enough balance on auctions module",
@@ -88,13 +117,14 @@ func TestInitGenesis(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			keyring := testkeyring.New(1)
-			network := testnetwork.NewUnitTestNetwork(
+			network = testnetwork.NewUnitTestNetwork(
 				testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			)
 			existentAccAddress = keyring.GetKey(0).AccAddr
 
 			genesis := types.DefaultGenesisState()
 			tc.mutation(genesis)
+			fmt.Println(genesis.Bid.Sender)
 
 			if tc.fundModuleAccount {
 				err := network.App.BankKeeper.SendCoinsFromAccountToModule(network.GetContext(), keyring.GetKey(0).AccAddr, types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
@@ -122,6 +152,8 @@ func TestInitGenesis(t *testing.T) {
 					)
 				})
 			}
+
+			tc.postCheck()
 		})
 	}
 }
