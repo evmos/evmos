@@ -1214,7 +1214,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v192.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.Erc20Keeper,
-			app.EvmKeeper,
 		),
 	)
 
