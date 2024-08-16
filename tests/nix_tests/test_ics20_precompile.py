@@ -941,7 +941,8 @@ def test_ibc_transfer_with_authorization(
     if auth_coins is not None:
         # Approve the contract to spend the src_denom
         approve_tx = pc.functions.approve(
-            eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
+            eth_contract.address,
+            [["transfer", "channel-0", [[src_denom, amt]], [], []]],
         ).build_transaction(
             {
                 "from": ADDRS["signer2"],
@@ -949,7 +950,9 @@ def test_ibc_transfer_with_authorization(
                 "gas": gas_limit,
             }
         )
-        tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+        tx_receipt = send_transaction(
+            ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"]
+        )
         assert tx_receipt.status == 1
 
     def check_allowance_set():
