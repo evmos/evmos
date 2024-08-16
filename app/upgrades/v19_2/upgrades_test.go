@@ -98,7 +98,6 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 					CodeHash: otherCodeHash,
 				})
 				require.NoError(t, err)
-
 				// set existent account to IBC coin
 				err = network.App.EvmKeeper.SetAccount(ctx, ibcCoinAddr, statedb.Account{
 					Nonce:    expNonce,
