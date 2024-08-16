@@ -314,6 +314,7 @@ func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
 
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
+		//nolint
 		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
 	}
 
@@ -348,6 +349,7 @@ func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int
 
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
+		//nolint
 		return common.Big0, fmt.Errorf("failed to execute command: " + err.Error())
 	}
 

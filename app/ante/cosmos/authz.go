@@ -30,6 +30,7 @@ func NewAuthzLimiterDecorator(disabledMsgTypes ...string) AuthzLimiterDecorator 
 
 func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if err := ald.checkDisabledMsgs(tx.GetMsgs(), false, 1); err != nil {
+		//nolint
 		return ctx, errorsmod.Wrapf(errortypes.ErrUnauthorized, err.Error())
 	}
 	return next(ctx, tx, simulate)

@@ -7,7 +7,7 @@ const (
 	// ErrInvalidSourcePort is raised when the source port is invalid.
 	ErrInvalidSourcePort = "invalid source port"
 	// ErrInvalidSourceChannel is raised when the source channel is invalid.
-	ErrInvalidSourceChannel = "invalid source port"
+	ErrInvalidSourceChannel = "invalid source channel"
 	// ErrInvalidSender is raised when the sender is invalid.
 	ErrInvalidSender = "invalid sender: %s"
 	// ErrInvalidReceiver is raised when the receiver is invalid.
