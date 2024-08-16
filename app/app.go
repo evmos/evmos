@@ -108,7 +108,7 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
-	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
 
@@ -134,6 +134,7 @@ import (
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
 	v191 "github.com/evmos/evmos/v19/app/upgrades/v19_1"
+	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
@@ -1202,6 +1203,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.AccountKeeper,
 			app.BankKeeper,
 			app.StakingKeeper,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
+	// v19.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v192.UpgradeName,
+		v192.CreateUpgradeHandler(
+			app.mm, app.configurator,
 			app.Erc20Keeper,
 			app.EvmKeeper,
 		),
