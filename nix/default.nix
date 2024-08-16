@@ -77,7 +77,7 @@ import sources.nixpkgs {
         appName = "gaiad";
         version = "v11.0.0";
         binUrl = gaiadBinUrl;
-        sha256 =gaiadSha256;
+        sha256 = gaiadSha256;
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
