@@ -108,7 +108,7 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
-	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
 
@@ -133,6 +133,11 @@ import (
 	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
+<<<<<<< HEAD
+=======
+	v191 "github.com/evmos/evmos/v19/app/upgrades/v19_1"
+	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
+>>>>>>> 0fb0ffc2 (add upgrade logic to add code to erc20 prec addrs (#2759))
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
@@ -1183,6 +1188,32 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+<<<<<<< HEAD
+=======
+	// v19.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v191.UpgradeName,
+		v191.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
+	// v19.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v192.UpgradeName,
+		v192.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
+>>>>>>> 0fb0ffc2 (add upgrade logic to add code to erc20 prec addrs (#2759))
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
