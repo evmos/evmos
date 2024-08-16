@@ -28,7 +28,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 			panic(fmt.Errorf("account associated with %s does not exist", data.Bid.Sender))
 		}
 
-		bidAmount := data.Bid.Amount.Amount
+		bidAmount := data.Bid.BidValue.Amount
 		if !bidAmount.IsPositive() {
 			panic(fmt.Errorf("received a bid sender but zero amount"))
 		}
@@ -40,11 +40,11 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 			panic(fmt.Errorf("auction module account does not hold enough balance"))
 		}
 
-	} else if !data.Bid.Amount.Amount.IsZero() {
+	} else if !data.Bid.BidValue.Amount.IsZero() {
 		panic(fmt.Errorf("received a bid without sender but different than zero"))
 	}
 
-	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
+	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.BidValue)
 	k.SetRound(ctx, data.Round)
 }
 

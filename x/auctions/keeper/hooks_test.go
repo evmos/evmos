@@ -75,7 +75,7 @@ func TestHookAfterEpochEnd(t *testing.T) {
 				// Check that the bid has been removed.
 				bid := network.App.AuctionsKeeper.GetHighestBid(network.GetContext())
 				assert.Equal(t, "", bid.Sender, "expected a different bid sender")
-				assert.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), bid.Amount, "expected a different bid amount")
+				assert.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), bid.BidValue, "expected a different bid amount")
 			},
 		},
 		{
@@ -105,7 +105,7 @@ func TestHookAfterEpochEnd(t *testing.T) {
 				// Check that the bid has been removed.
 				bid := network.App.AuctionsKeeper.GetHighestBid(network.GetContext())
 				assert.Equal(t, "", bid.Sender, "expected a different bid sender")
-				assert.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), bid.Amount, "expected a different bid amount")
+				assert.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), bid.BidValue, "expected a different bid amount")
 			},
 		},
 		{

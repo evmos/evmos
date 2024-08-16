@@ -22,12 +22,12 @@ func TestGenesisStateValidate(t *testing.T) {
 		},
 		{
 			"invalid wrong bid denom",
-			func(genesis *types.GenesisState) { genesis.Bid.Amount.Denom = "uatom" },
+			func(genesis *types.GenesisState) { genesis.Bid.BidValue.Denom = "uatom" },
 			true,
 		},
 		{
 			"invalid negative amount",
-			func(genesis *types.GenesisState) { genesis.Bid.Amount.Amount = math.NewInt(-999) },
+			func(genesis *types.GenesisState) { genesis.Bid.BidValue.Amount = math.NewInt(-999) },
 			true,
 		},
 	}

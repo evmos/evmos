@@ -55,7 +55,7 @@ func TestInitGenesis(t *testing.T) {
 			expPanic: false,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()
-				genesis.Bid.Amount.Amount = moduleAccountBalance
+				genesis.Bid.BidValue.Amount = moduleAccountBalance
 			},
 			fundModuleAccount: true,
 			postCheck: func() {
@@ -66,8 +66,8 @@ func TestInitGenesis(t *testing.T) {
 				assert.Equal(t, genesis.Params, params, "expected different params")
 				bid := network.App.AuctionsKeeper.GetHighestBid(ctx)
 				expBid := types.Bid{
-					Sender: existentAccAddress.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, moduleAccountBalance),
+					Sender:   existentAccAddress.String(),
+					BidValue: sdk.NewCoin(utils.BaseDenom, moduleAccountBalance),
 				}
 				assert.Equal(t, expBid, bid, "expected a different bid")
 				round := network.App.AuctionsKeeper.GetRound(ctx)
@@ -79,7 +79,7 @@ func TestInitGenesis(t *testing.T) {
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()
-				genesis.Bid.Amount.Amount = sdk.NewInt(1)
+				genesis.Bid.BidValue.Amount = sdk.NewInt(1)
 			},
 			fundModuleAccount: false,
 			postCheck:         func() {},
@@ -106,7 +106,7 @@ func TestInitGenesis(t *testing.T) {
 			name:     "invalid empty sender but bid amount not zero",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
-				genesis.Bid.Amount.Amount = sdk.NewInt(1)
+				genesis.Bid.BidValue.Amount = sdk.NewInt(1)
 			},
 			fundModuleAccount: false,
 			postCheck:         func() {},

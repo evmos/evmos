@@ -50,6 +50,6 @@ func (k Keeper) refundLastBid(ctx sdk.Context) error {
 	if err != nil {
 		return err
 	}
-	bidAmount := sdk.NewCoins(lastBid.Amount)
+	bidAmount := sdk.NewCoins(lastBid.BidValue)
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
 }

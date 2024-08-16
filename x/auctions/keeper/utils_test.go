@@ -21,7 +21,7 @@ func setHighestBid(t *testing.T, network *testnetwork.UnitTestNetwork, bidSender
 
 	bid := network.App.AuctionsKeeper.GetHighestBid(network.GetContext())
 	assert.Equal(t, bidSender, bid.Sender, "expected a different bid sender")
-	assert.Equal(t, bidAmount, bid.Amount, "expected a different bid amount")
+	assert.Equal(t, bidAmount, bid.BidValue, "expected a different bid value")
 }
 
 // mintCoinsToModuleAccount is an util function to mint coins to the module account
