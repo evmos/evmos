@@ -15,7 +15,6 @@ import (
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/auctions/keeper"
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
@@ -137,17 +136,15 @@ func TestInitGenesis(t *testing.T) {
 
 			if tc.expPanic {
 				require.Panics(t, func() {
-					keeper.InitGenesis(
+					network.App.AuctionsKeeper.InitGenesis(
 						network.GetContext(),
-						network.App.AuctionsKeeper,
 						*genesis,
 					)
 				})
 			} else {
 				require.NotPanics(t, func() {
-					keeper.InitGenesis(
+					network.App.AuctionsKeeper.InitGenesis(
 						network.GetContext(),
-						network.App.AuctionsKeeper,
 						*genesis,
 					)
 				})
@@ -164,7 +161,7 @@ func TestExportGenesis(t *testing.T) {
 		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
-	exportedGenesis := keeper.ExportGenesis(network.GetContext(), network.App.AuctionsKeeper)
+	exportedGenesis := network.App.AuctionsKeeper.ExportGenesis(network.GetContext())
 	defaultGenesis := types.DefaultGenesisState()
 
 	require.Equal(t, exportedGenesis.Bid, defaultGenesis.Bid, "expected a different bid")

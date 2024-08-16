@@ -12,7 +12,7 @@ import (
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
-func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
@@ -48,7 +48,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 	k.SetRound(ctx, data.Round)
 }
 
-func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
+func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
 		Bid:    k.GetHighestBid(ctx),
