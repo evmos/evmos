@@ -130,7 +130,6 @@ func TestInitGenesis(t *testing.T) {
 func TestExportGenesis(t *testing.T) {
 	keyring := testkeyring.New(1)
 	network := testnetwork.NewUnitTestNetwork(
-
 		testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
