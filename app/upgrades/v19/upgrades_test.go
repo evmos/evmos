@@ -193,7 +193,7 @@ func TestEnableCustomEIPs(t *testing.T) {
 
 			oldParams := network.App.EvmKeeper.GetParams(network.GetContext())
 			oldParams.ExtraEIPs = tc.activeEIPs
-			err := network.UpdateEvmParams(oldParams)
+			err := network.App.EvmKeeper.SetParams(network.GetContext(), oldParams)
 			require.NoError(t, err, "failed to update EVM params")
 
 			logger := network.GetContext().Logger()
