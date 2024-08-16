@@ -47,7 +47,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		}
 
 		// Burn the Evmos Coins from the module account
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.Amount)); err != nil {
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.BidValue)); err != nil {
 			k.Logger(ctx).Error("failed to burn coins from Auctions module account", "error", err.Error())
 			return
 		}
@@ -78,7 +78,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 // isValidBid checks if the bid is valid
 func isValidBid(lastBid types.Bid) bool {
 	_, err := sdk.AccAddressFromBech32(lastBid.Sender)
-	if lastBid.Amount.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
+	if lastBid.BidValue.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
 		return true
 	}
 	return false
