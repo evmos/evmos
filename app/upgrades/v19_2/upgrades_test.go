@@ -92,18 +92,19 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 			name: "all existent accounts",
 			malleate: func(ctx sdk.Context) {
 				// set existent account to native ERC20
-				network.App.EvmKeeper.SetAccount(ctx, er20Addr, statedb.Account{
+				err := network.App.EvmKeeper.SetAccount(ctx, er20Addr, statedb.Account{
 					Nonce:    expNonce,
 					Balance:  expBalance,
 					CodeHash: otherCodeHash,
 				})
-
+				require.NoError(t, err)
 				// set existent account to IBC coin
-				network.App.EvmKeeper.SetAccount(ctx, ibcCoinAddr, statedb.Account{
+				err = network.App.EvmKeeper.SetAccount(ctx, ibcCoinAddr, statedb.Account{
 					Nonce:    expNonce,
 					Balance:  expBalance,
 					CodeHash: otherCodeHash,
 				})
+				require.NoError(t, err)
 			},
 			postCheck: func(t *testing.T, ctx sdk.Context, p erc20types.TokenPair) {
 				addr := common.HexToAddress(p.Erc20Address)

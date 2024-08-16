@@ -64,8 +64,8 @@ func AddCodeToERC20Extensions(
 		}
 
 		var (
-			nonce   uint64 = 0
-			balance        = common.Big0
+			nonce   uint64
+			balance = common.Big0
 		)
 		// keep balance and nonce if account exists
 		if acc := evmKeeper.GetAccount(ctx, contractAddr); acc != nil {
