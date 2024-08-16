@@ -4,8 +4,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
@@ -53,10 +51,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		}
 
 		// Send the remaining Coins from the module account to the auction winner.
-		fmt.Println("Try to send")
-		fmt.Println(len(remainingCoins))
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctxCache, types.ModuleName, bidWinner, remainingCoins); err != nil {
-			fmt.Println("Error in sending coins")
 			return
 		}
 
