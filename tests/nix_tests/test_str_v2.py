@@ -1,3 +1,6 @@
+import json
+import tempfile
+
 import pytest
 from web3 import Web3
 
@@ -7,11 +10,13 @@ from .utils import (
     ADDRS,
     KEYS,
     WEVMOS_ADDRESS,
+    approve_proposal,
     erc20_balance,
     erc20_transfer,
     eth_to_bech32,
     wait_for_ack,
     wait_for_fn,
+    wait_for_new_blocks,
 )
 
 # uatom from cosmoshub-2 -> cosmoshub-1 IBC representation on the Evmos chain.
@@ -27,8 +32,26 @@ ATOM_1_ERC20_ADDRESS = Web3.toChecksumAddress(
     "0xf36e4C1F926001CEaDa9cA97ea622B25f41e5eB2"
 )
 
+UPDATE_PARAMS_PROP = {
+    "messages": [
+        {
+            "@type": "/evmos.erc20.v1.MsgUpdateParams",
+            "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+            "params": {
+                "enable_erc20": True,
+                "native_precompiles": [],
+                "dynamic_precompiles": [],
+            },
+        }
+    ],
+    "metadata": "ipfs://CID",
+    "deposit": "1aevmos",
+    "title": "update erc20 mod params",
+    "summary": "update erc20 mod params",
+}
 
-@pytest.fixture(scope="module", params=["evmos"])
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """Prepare the network"""
     name = "str-v2"
@@ -172,3 +195,91 @@ def test_wevmos_precompile_transfer(ibc):
 
     evmos_balance_after = get_balance(evmos, bech_dst, src_denom)
     assert evmos_balance_after == evmos_balance + 1000000
+
+
+def test_toggle_erc20_precompile(ibc):
+    """
+    Test Enabling/Disabling an ERC20 precompile
+    for an IBC coin (single hop).
+    It should automatically update the code hash and code
+    to empty when disabled, and should add the code hash when enabling.
+    NOTE: This test relies on the IBC coins transferred in a previous test
+    """
+    assert_ready(ibc)
+
+    evmos: Evmos = ibc.chains["evmos"]
+
+    # this is the code hash of the ERC20 contract deployed previous to the STRv2 upgrade
+    erc20_code_hash = (
+        "0x7b477c761b4d0469f03f27ba58d0a7eacbfdd62b69b82c6c683ae5f81c67fe80"
+    )
+    # this is the code hash resulting from the keccak256(nil)
+    empty_code_hash = (
+        "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    )
+    evmos_cli = evmos.cosmos_cli()
+    w3 = evmos.w3
+
+    # assert that there's code and code hash
+    # on the erc20 contract address
+    contract_bech32_addr = eth_to_bech32(ATOM_1_ERC20_ADDRESS)
+    acc = evmos_cli.account(contract_bech32_addr)
+    assert acc["code_hash"] == erc20_code_hash
+
+    code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
+    assert len(code) > 0
+
+    # get the initial params to use them later
+    initial_params = evmos_cli.erc20_params()
+
+    # update params via gov proposal to disable all the erc20 precompile
+    update_erc20_params(evmos)
+
+    # check that code and code hash were updated
+    acc = evmos_cli.account(contract_bech32_addr)
+    assert acc["code_hash"] == empty_code_hash
+
+    code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
+    assert len(code) == 0
+
+    # enable back the erc20 precompiles
+    update_erc20_params(
+        evmos,
+        initial_params["params"]["native_precompiles"],
+        initial_params["params"]["dynamic_precompiles"],
+    )
+
+    # check that code and code hash were restored
+    acc = evmos_cli.account(contract_bech32_addr)
+    assert acc["code_hash"] == erc20_code_hash
+
+    code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
+    assert len(code) > 0
+
+
+def update_erc20_params(evmos: Evmos, native_precomiles=[], dynamic_precompiles=[]):
+    cli = evmos.cosmos_cli()
+    with tempfile.NamedTemporaryFile("w") as fp:
+        UPDATE_PARAMS_PROP["messages"][0]["params"][
+            "native_precompiles"
+        ] = native_precomiles
+        UPDATE_PARAMS_PROP["messages"][0]["params"][
+            "dynamic_precompiles"
+        ] = dynamic_precompiles
+        json.dump(UPDATE_PARAMS_PROP, fp)
+        fp.flush()
+        rsp = cli.gov_proposal("signer2", fp.name)
+        assert rsp["code"] == 0, rsp["raw_log"]
+        txhash = rsp["txhash"]
+
+        wait_for_new_blocks(cli, 2)
+        receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        assert receipt["tx_result"]["code"] == 0, receipt["tx_result"]["log"]
+
+    res = cli.query_proposals()
+    props = res["proposals"]
+    props_count = len(props)
+    assert props_count >= 1
+
+    approve_proposal(evmos, props[props_count - 1]["id"])
+    wait_for_new_blocks(cli, 2)
