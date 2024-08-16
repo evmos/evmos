@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0-rc1.
+- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
 - (erc20) [#2763](https://github.com/evmos/evmos/pull/2763) Added register/unregister erc20 codehash on the dynamic precompile accounts when updating the `x/erc20` params
 
 ## [v19.1.0] - 2024-08-02
