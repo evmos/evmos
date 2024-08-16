@@ -4,6 +4,7 @@
 package ics20
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -107,12 +108,12 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 
 	sourcePort, ok := args[0].(string)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourcePort)
+		return nil, common.Address{}, errors.New(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[1].(string)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourceChannel)
+		return nil, common.Address{}, errors.New(ErrInvalidSourceChannel)
 	}
 
 	denom, ok := args[2].(string)
@@ -272,12 +273,12 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 
 	sourcePort, ok := args[1].(string)
 	if !ok {
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourcePort)
+		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[2].(string)
 	if !ok {
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourceChannel)
+		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourceChannel)
 	}
 
 	denom, ok := args[3].(string)
