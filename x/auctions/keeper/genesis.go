@@ -18,10 +18,6 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
-	// TODO: what happen if we have a bidder but amount is zero?
-	// We should add a check that the module has at least this amount.
-	//
-	// Bidder address should exists in the account keeper.
 	var bidder sdk.AccAddress
 	if data.Bid.Sender != "" {
 		bidder, err = sdk.AccAddressFromBech32(data.Bid.Sender)
