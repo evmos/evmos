@@ -39,6 +39,31 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+<<<<<<< HEAD
+=======
+- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
+- (erc20) [#2763](https://github.com/evmos/evmos/pull/2763) Added register/unregister erc20 codehash on the dynamic precompile accounts when updating the `x/erc20` params.
+
+### Bug Fixes
+
+- (rpc) [#2765](https://github.com/evmos/evmos/pull/2765) Fix EIP parsing for archive queries.
+
+## [v19.1.0] - 2024-08-02
+
+### State Machine Breaking
+
+- (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (upgrade) [#2728](https://github.com/evmos/evmos/pull/2728) Add upgrade handler for v19.1.0.
+
+### Bug Fixes
+
+- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
+
+## [v19.0.0] - 2024-07-23
+
+### State Machine Breaking
+
+>>>>>>> 24266c93 (chore(erc20): add codehash on erc20 precompile register  (#2763))
 - (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
 - (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.

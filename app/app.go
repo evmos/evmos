@@ -1183,6 +1183,31 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+<<<<<<< HEAD
+=======
+	// v19.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v191.UpgradeName,
+		v191.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+
+	// v19.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v192.UpgradeName,
+		v192.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.Erc20Keeper,
+		),
+	)
+
+>>>>>>> 24266c93 (chore(erc20): add codehash on erc20 precompile register  (#2763))
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
