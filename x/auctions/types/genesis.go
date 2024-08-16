@@ -16,8 +16,8 @@ func DefaultGenesisState() *GenesisState {
 			EnableAuction: true,
 		},
 		Bid: Bid{
-			Sender: "",
-			Amount: sdk.NewCoin(utils.BaseDenom, sdk.ZeroInt()),
+			Sender:   "",
+			BidValue: sdk.NewCoin(utils.BaseDenom, sdk.ZeroInt()),
 		},
 		Round: 0,
 	}
@@ -34,11 +34,11 @@ func NewGenesisState(params Params, bid Bid, round uint64) *GenesisState {
 
 // Validate performs basic genesis state validation returning an error upon any failure.
 func (gs GenesisState) Validate() error {
-	if gs.Bid.Amount.Denom != utils.BaseDenom {
+	if gs.Bid.BidValue.Denom != utils.BaseDenom {
 		return errors.Wrapf(ErrInvalidDenom, "bid denom should be %s", utils.BaseDenom)
 	}
 
-	if gs.Bid.Amount.IsNegative() {
+	if gs.Bid.BidValue.IsNegative() {
 		return errors.Wrapf(ErrNegativeBid, "bid amount should be positive")
 	}
 

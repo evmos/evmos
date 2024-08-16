@@ -31,7 +31,7 @@ func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoR
 	return &types.QueryCurrentAuctionInfoResponse{
 		Tokens:        filteredCoins,
 		CurrentRound:  currentRound,
-		HighestBid:    highestBid.Amount,
+		HighestBid:    highestBid.BidValue,
 		BidderAddress: highestBid.Sender,
 	}, nil
 }

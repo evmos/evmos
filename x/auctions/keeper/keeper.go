@@ -4,7 +4,6 @@
 package keeper
 
 import (
-	"fmt"
 
 	// TODO: replace in sdk50
 	"github.com/cometbft/cometbft/libs/log"
@@ -14,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
 // Keeper of the auction store
@@ -43,6 +41,7 @@ func NewKeeper(
 	}
 }
 
+// Logger returns a auctions-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+	return ctx.Logger().With("hooks", "auctions")
 }

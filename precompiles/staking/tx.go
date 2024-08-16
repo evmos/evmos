@@ -76,6 +76,7 @@ func (p Precompile) CreateValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
+		//nolint
 		return nil, fmt.Errorf(ErrCannotCallFromContract)
 	}
 
@@ -127,6 +128,7 @@ func (p Precompile) EditValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
+		//nolint
 		return nil, fmt.Errorf(ErrCannotCallFromContract)
 	}
 

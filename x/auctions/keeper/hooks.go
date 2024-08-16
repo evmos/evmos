@@ -39,19 +39,21 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 
 	// A valid bid is one in which lastBid.Sender is "validBech32" and the
 	// bid.Amount.Amount is positvie.
-	if err == nil && lastBid.Amount.Amount.IsPositive() {
+	if err == nil && lastBid.BidValue.Amount.IsPositive() {
 		moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
 		coins := k.bankKeeper.GetAllBalances(ctxCache, moduleAddress)
 
 		remainingCoins := removeBaseCoinFromCoins(coins)
 
-		// Burn the Evmos Coins from the module account.
-		if err := k.bankKeeper.BurnCoins(ctxCache, types.ModuleName, sdk.NewCoins(lastBid.Amount)); err != nil {
+		// Burn the Evmos Coins from the module account
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.BidValue)); err != nil {
+			k.Logger(ctx).Error("failed to burn coins from Auctions module account", "error", err.Error())
 			return
 		}
 
-		// Send the remaining Coins from the module account to the auction winner.
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctxCache, types.ModuleName, bidWinner, remainingCoins); err != nil {
+		// Send the remaining Coins from the module account to the auction winner
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, bidWinner, remainingCoins); err != nil {
+			k.Logger(ctx).Error("failed to send coins from Auctions module account to the winner", "error", err.Error())
 			return
 		}
 
@@ -67,6 +69,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	// Send the entire balance from the Auctions Collector module account to the current Auctions account
 	accumulatedCoins := k.bankKeeper.GetAllBalances(ctx, k.accountKeeper.GetModuleAddress(types.AuctionCollectorName))
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.AuctionCollectorName, types.ModuleName, accumulatedCoins); err != nil {
+		k.Logger(ctx).Error("failed to send coins from Auctions Collector to Auctions module account", "error", err)
 		return
 	}
 	writeFn()
