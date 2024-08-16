@@ -16,26 +16,26 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 
 // AfterEpochEnd ends the current auction and distributes the rewards to the winner
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
-	// Create a cached context that is committed only
-	// if not errors happen.
-	ctxCache, writeFn := ctx.CacheContext()
-
 	// If it's not the weekly epoch, no-op
 	if epochIdentifier != epochstypes.WeekEpochID {
 		return
 	}
 
-	params := k.GetParams(ctxCache)
+	params := k.GetParams(ctx)
 	if !params.EnableAuction {
 		return
 	}
 
-	lastBid := k.GetHighestBid(ctxCache)
+	lastBid := k.GetHighestBid(ctx)
 
 	// Distribute the awards from the last auction
 
 	// lastBid.Sender can be "", "invalidBech32" or "validBech32".
 	bidWinner, err := sdk.AccAddressFromBech32(lastBid.Sender)
+
+	// Create a cached context that is committed only
+	// if not errors happen.
+	ctxCache, writeFn := ctx.CacheContext()
 
 	// A valid bid is one in which lastBid.Sender is "validBech32" and the
 	// bid.Amount.Amount is positvie.
