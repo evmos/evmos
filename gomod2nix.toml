@@ -96,8 +96,8 @@ schema = 3
     version = "v2.3.2"
     hash = "sha256-natWs+yIAuD1UI07iZtjPilroQLfXizFn3lNOiOT83U="
   [mod."github.com/btcsuite/btcd/btcutil"]
-    version = "v1.1.5"
-    hash = "sha256-eLIT+g0bkwBiy0MGU//lH+Iw4OffxVe0ZW8WoMFM+Ds="
+    version = "v1.1.6"
+    hash = "sha256-TYbwJLNX/+63nm+b3RqPH3ZIvTBnsm9peqJP05v9Z90="
   [mod."github.com/btcsuite/btcd/chaincfg/chainhash"]
     version = "v1.1.0"
     hash = "sha256-F+EqvufC+KBslZV/vL8ph6MqDoVD5ic5rVaM27reDqo="
