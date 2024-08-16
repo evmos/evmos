@@ -763,7 +763,8 @@ class CosmosCLI:
             )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE+1000000000000)
+        kwargs.setdefault("gas", DEFAULT_GAS+100000)
         return json.loads(
             self.raw(
                 "tx",
