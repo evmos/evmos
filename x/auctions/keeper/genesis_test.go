@@ -89,7 +89,6 @@ func TestInitGenesis(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			keyring := testkeyring.New(1)
 			network := testnetwork.NewUnitTestNetwork(
-
 				testnetwork.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			)
 			existentAccAddress = keyring.GetKey(0).AccAddr
