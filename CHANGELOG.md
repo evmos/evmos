@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (rpc) [#2765](https://github.com/evmos/evmos/pull/2765) Fix EIP parsing for archive queries.
+
 ## [v19.1.0] - 2024-08-02
 
 ### State Machine Breaking
