@@ -36,6 +36,26 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
+<<<<<<< HEAD
+=======
+
+### Bug Fixes
+
+- (rpc) [#2765](https://github.com/evmos/evmos/pull/2765) Fix EIP parsing for archive queries.
+
+## [v19.1.0] - 2024-08-02
+
+### State Machine Breaking
+
+- (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
+- (upgrade) [#2728](https://github.com/evmos/evmos/pull/2728) Add upgrade handler for v19.1.0.
+
+### Bug Fixes
+
+- (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
+
+## [v19.0.0] - 2024-07-23
+>>>>>>> 20d2955a (fix: EIP for archive queries (#2765))
 
 ### State Machine Breaking
 
