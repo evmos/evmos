@@ -13,6 +13,12 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "uint64",
+          "name": "round",
+          "type": "uint64"
+        },
+        {
           "components": [
             {
               "internalType": "string",
@@ -50,6 +56,12 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "uint64",
+          "name": "round",
+          "type": "uint64"
+        },
+        {
           "indexed": false,
           "internalType": "uint256",
           "name": "amount",
@@ -69,10 +81,16 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "uint64",
+          "name": "round",
+          "type": "uint64"
+        },
+        {
           "indexed": false,
-          "internalType": "address",
+          "internalType": "string",
           "name": "denom",
-          "type": "address"
+          "type": "string"
         },
         {
           "indexed": false,

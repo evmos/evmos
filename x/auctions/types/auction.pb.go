@@ -24,7 +24,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-
 // Bid is a message type for submitting a bid
 type Bid struct {
 	// sender is the address of the bidder

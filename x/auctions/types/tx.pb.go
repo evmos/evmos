@@ -32,7 +32,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-
 // MsgUpdateParams defines a message for updating the auction parameters
 type MsgUpdateParams struct {
 	// authority is the address of the governance account.
@@ -127,7 +126,6 @@ func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 
-
 // MsgBid is a message for placing a bid on an auction
 type MsgBid struct {
 	// sender is the address of the account that is bidding
@@ -183,7 +181,6 @@ func (m *MsgBid) GetAmount() types.Coin {
 	return types.Coin{}
 }
 
-
 // MsgBidResponse is a response to a bid message
 type MsgBidResponse struct {
 }
@@ -220,7 +217,6 @@ func (m *MsgBidResponse) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_MsgBidResponse proto.InternalMessageInfo
-
 
 // MsgDepositCoin is a message for depositing coins to an auction
 type MsgDepositCoin struct {
@@ -276,7 +272,6 @@ func (m *MsgDepositCoin) GetAmount() types.Coin {
 	}
 	return types.Coin{}
 }
-
 
 // MsgDepositCoinResponse is a response to a deposit coin message
 type MsgDepositCoinResponse struct {

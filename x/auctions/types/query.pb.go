@@ -31,7 +31,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-
 // QueryParamsRequest is the request type for the Query/Params RPC method
 type QueryParamsRequest struct {
 }
@@ -151,7 +150,6 @@ func (m *QueryCurrentAuctionInfoRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_QueryCurrentAuctionInfoRequest proto.InternalMessageInfo
-
 
 // QueryCurrentAuctionInfoResponse is the response type for the Query/AuctionInfo RPC method
 type QueryCurrentAuctionInfoResponse struct {
