@@ -29,7 +29,8 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-// NewBidCmd returns a CLI command handler for converting a Cosmos coin
+
+// NewBidCmd returns a CLI command handler for Biding Evmos coins
 func NewBidCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bid COIN",
@@ -65,7 +66,8 @@ func NewBidCmd() *cobra.Command {
 	return cmd
 }
 
-// NewDepositCmd returns a CLI command handler for converting a Cosmos coin
+
+// NewDepositCmd returns a CLI command handler for depositing coins for the next auction
 func NewDepositCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit COIN",

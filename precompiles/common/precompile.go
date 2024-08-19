@@ -78,6 +78,7 @@ func (p Precompile) RunSetup(
 ) (ctx sdk.Context, stateDB *statedb.StateDB, s snapshot, method *abi.Method, gasConfig storetypes.Gas, args []interface{}, err error) { //nolint:revive
 	stateDB, ok := evm.StateDB.(*statedb.StateDB)
 	if !ok {
+		//nolint
 		return sdk.Context{}, nil, s, nil, uint64(0), nil, fmt.Errorf(ErrNotRunInEvm)
 	}
 

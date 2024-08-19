@@ -49,11 +49,11 @@ func (k Keeper) refundLastBid(ctx sdk.Context) error {
 		return err
 	}
 
-	bidAmount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, lastBidAmount))
+	bidAmount := sdk.NewCoins(lastBid.BidValue)
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
 }
 
-// Logger returns a precompile-specific logger.
+
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("hooks", "auctions")
 }
