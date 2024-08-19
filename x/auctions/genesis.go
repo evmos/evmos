@@ -16,7 +16,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
-
 	if data.Bid.Sender != "" && data.Bid.BidValue.IsPositive() {
 		k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.BidValue)
 	}

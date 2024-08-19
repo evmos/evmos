@@ -27,7 +27,6 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-
 // GetAuctionInfoCmd queries the current auction information
 func GetAuctionInfoCmd() *cobra.Command {
 	cmd := &cobra.Command{

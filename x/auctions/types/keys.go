@@ -17,7 +17,6 @@ const (
 	AuctionCollectorName = "auction_collector"
 )
 
-
 // prefix bytes for the auctions persistent store
 const (
 	prefixAuctionRound = iota + 1

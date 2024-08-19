@@ -29,7 +29,6 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-
 // NewBidCmd returns a CLI command handler for Biding Evmos coins
 func NewBidCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -65,7 +64,6 @@ func NewBidCmd() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
-
 
 // NewDepositCmd returns a CLI command handler for depositing coins for the next auction
 func NewDepositCmd() *cobra.Command {

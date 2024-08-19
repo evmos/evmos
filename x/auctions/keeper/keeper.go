@@ -53,7 +53,6 @@ func (k Keeper) refundLastBid(ctx sdk.Context) error {
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
 }
 
-
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("hooks", "auctions")
 }
