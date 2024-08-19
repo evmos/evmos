@@ -4,7 +4,7 @@ import tempfile
 import pytest
 
 from .ibc_utils import (
-    CRO_IBC_DENOM,
+    BASECRO_IBC_DENOM,
     EVMOS_IBC_DENOM,
     assert_ready,
     get_balance,
@@ -168,7 +168,7 @@ def test_evmos_ibc_transfer_ibc_denom(
 
     cli = evmos.cosmos_cli()
     src_addr = cli.address("signer2")
-    src_denom = CRO_IBC_DENOM
+    src_denom = BASECRO_IBC_DENOM
 
     old_dst_balance = get_balance(evmos, src_addr, src_denom)
 
