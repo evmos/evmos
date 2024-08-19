@@ -94,7 +94,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	fmt.Println("msg", method.Name)
 	switch method.Name {
 	// Auction transactions
 	case DepositCoinMethod:

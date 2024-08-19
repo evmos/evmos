@@ -59,8 +59,6 @@ func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Kee
 		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 3)
 	}
 
-	fmt.Println("args", args)
-
 	sender, ok := args[0].(common.Address)
 	if !ok {
 		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])

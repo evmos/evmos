@@ -88,7 +88,6 @@ func (p *Precompile) DepositCoin(
 	args []interface{},
 ) ([]byte, error) {
 	sender, tokenAddress, msgDepositCoin, err := NewMsgDepositCoin(args, ctx, p.erc20Keeper)
-	fmt.Println("msgDeposit", msgDepositCoin)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +119,6 @@ func (p *Precompile) DepositCoin(
 	currentRound := p.auctionsKeeper.GetRound(ctx)
 	// emits an event for the DepositCoin transaction.
 	if err := p.EmitDepositCoinEvent(ctx, stateDB, sender, currentRound, tokenAddress, msgDepositCoin.Amount.Amount.BigInt()); err != nil {
-		fmt.Println("err", err)
 		return nil, err
 	}
 
