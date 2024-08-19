@@ -25,6 +25,18 @@ let
   # get the rustPlatform used to build the hermes relayer
   # This rustPlatform uses rust v1.77
   rustPlatform = nixpkgs.pkgs.rustPlatform;
+  gaiadBinUrl = if system == "x86_64-linux" then
+      "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-linux-amd64"
+    else if system == "aarch64-darwin" then
+      "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-darwin-arm64"
+    else
+      throw "Unsupported architecture: ${system}";
+  gaiadSha256 = if system == "x86_64-linux" then
+      "sha256-JY3y7sWyL4uq3JiOGE+/0q5vn4iOn0RhoRDMNl/oYwA="
+    else if system == "aarch64-darwin" then
+      "sha256-U9D/5Ng1PlHQvlQ+33ZN4DPiTXA9TECCRKFB5jWydig="
+    else
+      throw "Unsupported architecture: ${system}";
 in
 import sources.nixpkgs {
   overlays = [
@@ -64,8 +76,8 @@ import sources.nixpkgs {
       gaiad = pkgs.callPackage ./bin.nix {
         appName = "gaiad";
         version = "v11.0.0";
-        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-linux-amd64";
-        sha256 = "sha256-JY3y7sWyL4uq3JiOGE+/0q5vn4iOn0RhoRDMNl/oYwA=";
+        binUrl = gaiadBinUrl;
+        sha256 = gaiadSha256;
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622

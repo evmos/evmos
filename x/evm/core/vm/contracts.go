@@ -39,7 +39,7 @@ import (
 // contract.
 type PrecompiledContract interface {
 	ContractRef
-	// RequiredPrice calculates the contract gas used
+	// RequiredGas calculates the contract gas used
 	RequiredGas(input []byte) uint64
 	// Run runs the precompiled contract
 	Run(evm *EVM, contract *Contract, readonly bool) ([]byte, error)

@@ -5,11 +5,10 @@ package evm_test
 import (
 	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	evmante "github.com/evmos/evmos/v18/app/ante/evm"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/network"
+	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
@@ -93,22 +92,20 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 
 	testCases := []struct {
 		name          string
-		expectedError error
+		expectedError string
 		fees          sdktypes.Coins
 		getSender     func() sdktypes.AccAddress
 	}{
 		{
-			name:          "success: fees are zero and event emitted",
-			expectedError: nil,
-			fees:          sdktypes.Coins{},
+			name: "success: fees are zero and event emitted",
+			fees: sdktypes.Coins{},
 			getSender: func() sdktypes.AccAddress {
 				// Return prefunded sender
 				return keyring.GetKey(0).AccAddr
 			},
 		},
 		{
-			name:          "success: there are non zero fees, user has sufficient bank balances and event emitted",
-			expectedError: nil,
+			name: "success: there are non zero fees, user has sufficient bank balances and event emitted",
 			fees: sdktypes.Coins{
 				sdktypes.NewCoin(unitNetwork.GetDenom(), math.NewInt(1000)),
 			},
@@ -119,7 +116,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		},
 		{
 			name:          "fail: insufficient user balance, event is NOT emitted",
-			expectedError: sdkerrors.ErrInsufficientFee,
+			expectedError: "failed to deduct transaction costs from user balance",
 			fees: sdktypes.Coins{
 				sdktypes.NewCoin(unitNetwork.GetDenom(), math.NewInt(1000)),
 			},
@@ -153,9 +150,9 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				sender,
 			)
 
-			if tc.expectedError != nil {
+			if tc.expectedError != "" {
 				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				suite.Contains(err.Error(), tc.expectedError)
 
 				// Check events are not present
 				events := unitNetwork.GetContext().EventManager().Events()

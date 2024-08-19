@@ -568,3 +568,4 @@ contract StakingCaller {
         staking.STAKING_CONTRACT.delegate(msg.sender, _validatorAddr, _amount);
     }
 }
+

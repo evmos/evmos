@@ -13,19 +13,19 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v18/precompiles/vesting"
-	"github.com/evmos/evmos/v18/precompiles/vesting/testdata"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/keyring"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v19/precompiles/vesting"
+	"github.com/evmos/evmos/v19/precompiles/vesting/testdata"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v18/x/vesting/types"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -1112,7 +1112,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 	Context("to claw back from a vesting account", func() {
 		// clawbackReceiver common.Address
 		// var differentAddr common.Address
-		expClawbackAmt := math.NewInt(1000)
+		expClawbackAmt := math.NewInt(1_000)
 		var destinationAddrKey keyring.Key
 
 		BeforeEach(func() {

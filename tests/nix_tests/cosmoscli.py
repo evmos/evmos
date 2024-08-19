@@ -727,6 +727,22 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
+        if kind == "register-erc20":
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    fp.name,
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    node=self.node_rpc,
+                    **kwargs,
+                )
+            )
         with tempfile.NamedTemporaryFile("w") as fp:
             json.dump(proposal, fp)
             fp.flush()
@@ -969,6 +985,36 @@ class CosmosCLI:
                 "ibc-transfer",
                 "denom-hash",
                 trace,
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def rate_limits(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ratelimit",
+                "list-rate-limits",
+                **(default_kwargs | kwargs),
+            )
+        )["rate_limits"]
+
+    def rate_limit(self, channel, denom, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ratelimit",
+                "rate-limit",
+                channel,
+                denom=denom,
                 **(default_kwargs | kwargs),
             )
         )

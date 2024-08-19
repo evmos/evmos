@@ -11,12 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	"github.com/evmos/evmos/v18/app"
-	"github.com/evmos/evmos/v18/crypto/hd"
-	"github.com/evmos/evmos/v18/encoding"
-	"github.com/evmos/evmos/v18/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v18/testutil"
-	utiltx "github.com/evmos/evmos/v18/testutil/tx"
+	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/crypto/hd"
+	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 
 	"github.com/spf13/cobra"
 
@@ -149,7 +149,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					msg := []byte("test message")
 
 					signed, _, err := kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
-					s.Require().NoError(err, "failed to sign messsage")
+					s.Require().NoError(err, "failed to sign message")
 
 					valid := s.pubKey.VerifySignature(msg, signed)
 					s.Require().True(valid, "invalid signature returned")

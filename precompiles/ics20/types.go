@@ -4,13 +4,14 @@
 package ics20
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -20,8 +21,8 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
 )
 
 const (
@@ -107,12 +108,12 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 
 	sourcePort, ok := args[0].(string)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourcePort)
+		return nil, common.Address{}, errors.New(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[1].(string)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourceChannel)
+		return nil, common.Address{}, errors.New(ErrInvalidSourceChannel)
 	}
 
 	denom, ok := args[2].(string)
@@ -272,12 +273,12 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 
 	sourcePort, ok := args[1].(string)
 	if !ok {
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourcePort)
+		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourcePort)
 	}
 
 	sourceChannel, ok := args[2].(string)
 	if !ok {
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourceChannel)
+		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourceChannel)
 	}
 
 	denom, ok := args[3].(string)

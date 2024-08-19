@@ -4,6 +4,7 @@
 package staking
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,11 +12,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v18/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
-	stakingkeeper "github.com/evmos/evmos/v18/x/staking/keeper"
+	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
 
 const (
@@ -80,7 +81,7 @@ func (p Precompile) CreateValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to create their own validator.
@@ -131,7 +132,7 @@ func (p Precompile) EditValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to edit their own validator.

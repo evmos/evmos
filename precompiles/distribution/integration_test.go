@@ -11,18 +11,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v18/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v18/precompiles/common"
-	"github.com/evmos/evmos/v18/precompiles/distribution"
-	"github.com/evmos/evmos/v18/precompiles/staking"
-	"github.com/evmos/evmos/v18/precompiles/testutil"
-	"github.com/evmos/evmos/v18/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v18/testutil/integration/evmos/factory"
-	testutils "github.com/evmos/evmos/v18/testutil/integration/evmos/utils"
-	testutiltx "github.com/evmos/evmos/v18/testutil/tx"
-	"github.com/evmos/evmos/v18/utils"
-	"github.com/evmos/evmos/v18/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v18/x/evm/types"
+	"github.com/evmos/evmos/v19/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/precompiles/distribution"
+	"github.com/evmos/evmos/v19/precompiles/staking"
+	"github.com/evmos/evmos/v19/precompiles/testutil"
+	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -2128,6 +2128,86 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after claiming rewards")
+		})
+
+		Context("Table driven tests", func() {
+			contractInitialBalance := math.NewInt(100)
+			BeforeEach(func() {
+				callArgs.MethodName = "testClaimRewardsWithTransfer"
+
+				// send some funds to the contract
+				err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), contractInitialBalance)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// make a delegation with key 1
+				err = s.factory.Delegate(s.keyring.GetKey(1).Priv, s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// wait to accrue some rewards for key 1
+				_, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(1).String(), minExpRewardOrCommission)
+				Expect(err).To(BeNil())
+			})
+
+			DescribeTable("claimRewards with transfer to withdrawer", func(tc testCase) {
+				initialBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(1), s.bondDenom)
+
+				// get the pending rewards to claim
+				res, err := s.grpcHandler.GetDelegationTotalRewards(s.keyring.GetAccAddr(1).String())
+				Expect(err).To(BeNil())
+				expRewards := res.Total.AmountOf(s.bondDenom).TruncateInt()
+
+				callArgs.Args = []interface{}{s.keyring.GetAddr(1), uint32(2), tc.before, tc.after}
+
+				logCheckArgs := passCheck.
+					WithExpEvents(distribution.EventTypeClaimRewards)
+				txArgs.GasLimit = 400_000 // set gas limit to avoid out of gas error
+				_, ethres, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(1),
+					txArgs,
+					callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				err = s.network.NextBlock()
+				Expect(err).To(BeNil())
+
+				fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(int64(ethres.GasUsed))
+
+				// calculate the transferred amt during the call
+				contractTransferredAmt := math.ZeroInt()
+				for _, transferred := range []bool{tc.before, tc.after} {
+					if transferred {
+						contractTransferredAmt = contractTransferredAmt.AddRaw(15)
+					}
+				}
+
+				// check balances
+				expContractFinalBalance := contractInitialBalance.Sub(contractTransferredAmt)
+				expDelFinalBalance := initialBalance.Amount.Sub(fees).Add(contractTransferredAmt).Add(expRewards)
+
+				// contract balance be updated according to the transferred amount
+				contractFinalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAddr.Bytes(), s.bondDenom)
+				Expect(contractFinalBalance.Amount).To(Equal(expContractFinalBalance))
+
+				// delegator (and withdrawer) balance should be updated
+				finalBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), s.keyring.GetAccAddr(1), s.bondDenom)
+				Expect(finalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after claiming rewards")
+			},
+				Entry("claim rewards with transfer to withdrawer before and after precompile call", testCase{
+					before: true,
+					after:  true,
+				}),
+				Entry("claim rewards with transfer to withdrawer before precompile call", testCase{
+					before: true,
+					after:  false,
+				}),
+				Entry("claim rewards with transfer to withdrawer after precompile call", testCase{
+					before: false,
+					after:  true,
+				}),
+			)
 		})
 	})
 

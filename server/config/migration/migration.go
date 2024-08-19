@@ -25,11 +25,11 @@ func init() {
 }
 
 // PlanBuilder is a function that returns a transformation plan for a given diff between two files.
-func PlanBuilder(from *tomledit.Document, to string) transform.Plan {
+func PlanBuilder(from *tomledit.Document, _ string) transform.Plan {
 	plan := transform.Plan{}
 	deletedSections := map[string]bool{}
 
-	target, err := LoadLocalConfig(to)
+	target, err := LoadLocalConfig()
 	if err != nil {
 		panic(fmt.Errorf("failed to parse file: %w. This file should have been valid", err))
 	}
@@ -112,7 +112,7 @@ func PlanBuilder(from *tomledit.Document, to string) transform.Plan {
 }
 
 // LoadConfig loads and parses the TOML document from confix data
-func LoadLocalConfig(name string) (*tomledit.Document, error) {
+func LoadLocalConfig() (*tomledit.Document, error) {
 	f, err := f.Open("v0.50-app.toml")
 	if err != nil {
 		panic(fmt.Errorf("failed to read file: %w. This file should have been included in confix", err))
