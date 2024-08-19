@@ -40,7 +40,7 @@ func CheckLogs(logArgs LogCheckArgs) error {
 		)
 	}
 
-	if err := CheckVMError(logArgs.Res, logArgs.ErrContains); err != nil {
+	if err := CheckVMError(logArgs.Res, logArgs.ErrContains); err != nil { //nolint:govet
 		return err
 	}
 

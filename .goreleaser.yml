@@ -1,3 +1,4 @@
+version: 2
 before:
   hooks:
     - go mod download
@@ -81,7 +82,7 @@ builds:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
 
 archives:
-  - name_template: '{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}'
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
@@ -91,14 +92,14 @@ archives:
       - evmosd-windows
       - evmosd-linux
       - evmosd-linux-arm64
-  
+
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 snapshot:
   name_template: "{{ .Tag }}-next"
