@@ -4,8 +4,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/auctions/types"
@@ -64,7 +62,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		k.deleteBid(ctx)
 		currentRound := k.GetRound(ctx)
 		if err := EmitAuctionEndEvent(ctx, bidWinner, currentRound, remainingCoins, lastBid.BidValue.Amount); err != nil {
-			fmt.Println("failed to emit AuctionEnd event", "error", err.Error())
 			k.Logger(ctx).Error("failed to emit AuctionEnd event", "error", err.Error())
 		}
 	}
