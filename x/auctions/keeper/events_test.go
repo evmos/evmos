@@ -26,24 +26,28 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 	testCases := []struct {
 		name    string
 		coins   sdk.Coins
+		round   uint64
 		burnAmt math.Int
 		expPass bool
 	}{
 		{
 			name:    "success - one coin",
 			coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, amt)},
+			round:   1,
 			burnAmt: amt,
 			expPass: true,
 		},
 		{
 			name:    "success - many coins",
 			coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, amt), sdk.NewCoin("atest", amt.SubRaw(5e5)), sdk.NewCoin("axmpl", amt.SubRaw(2e12))},
+			round:   1,
 			burnAmt: amt,
 			expPass: true,
 		},
 		{
 			name:    "success - no coins",
 			coins:   nil,
+			round:   1,
 			burnAmt: amt,
 			expPass: true,
 		},
@@ -56,7 +60,7 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			winner, _ := testtx.NewAccAddressAndKey()
 			bidWinnerHexAddr := common.BytesToAddress(winner.Bytes())
 
-			err := keeper.EmitAuctionEndEvent(ctx, winner, tc.coins, tc.burnAmt)
+			err := keeper.EmitAuctionEndEvent(ctx, winner, tc.round, tc.coins, tc.burnAmt)
 			events := ctx.EventManager().Events()
 			if !tc.expPass {
 				require.Error(t, err)
@@ -73,11 +77,13 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			require.NoError(t, err)
 
 			ethLog := log.ToEthereum()
-			require.Equal(t, common.HexToAddress("0x0000000000000000000000000000000000000805"), ethLog.Address)
+			require.Equal(t, common.HexToAddress(keeper.PrecompileAddress), ethLog.Address)
 
-			require.Len(t, ethLog.Topics, 2)
+			fmt.Println(ethLog.Topics)
+			require.Len(t, ethLog.Topics, 3)
 			require.Equal(t, keeper.EndAuctionEventABI.ID, ethLog.Topics[0])
 			require.Equal(t, common.LeftPadBytes(bidWinnerHexAddr.Bytes(), 32), ethLog.Topics[1].Bytes())
+			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big())
 
 			require.Equal(t, uint64(ctx.BlockHeight()), ethLog.BlockNumber)
 			require.Equal(t, common.BytesToHash(ctx.HeaderHash()), ethLog.BlockHash)

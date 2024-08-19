@@ -62,8 +62,9 @@ func (p *Precompile) Bid(
 		return nil, err
 	}
 
+	currentRound := p.auctionsKeeper.GetRound(ctx)
 	// emits an event for the Bid transaction.
-	if err := p.EmitBidEvent(ctx, stateDB, sender, msgBid.Amount.Amount.BigInt()); err != nil {
+	if err := p.EmitBidEvent(ctx, stateDB, sender, currentRound, msgBid.Amount.Amount.BigInt()); err != nil {
 		return nil, err
 	}
 
@@ -86,7 +87,8 @@ func (p *Precompile) DepositCoin(
 	_ *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, msgDepositCoin, err := NewMsgDepositCoin(args, ctx, p.erc20Keeper)
+	sender, tokenAddress, msgDepositCoin, err := NewMsgDepositCoin(args, ctx, p.erc20Keeper)
+	fmt.Println("msgDeposit", msgDepositCoin)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +117,10 @@ func (p *Precompile) DepositCoin(
 		return nil, err
 	}
 
+	currentRound := p.auctionsKeeper.GetRound(ctx)
 	// emits an event for the DepositCoin transaction.
-	if err := p.EmitDepositCoinEvent(ctx, stateDB, sender, msgDepositCoin.Amount.Denom, msgDepositCoin.Amount.Amount.BigInt()); err != nil {
+	if err := p.EmitDepositCoinEvent(ctx, stateDB, sender, currentRound, tokenAddress, msgDepositCoin.Amount.Amount.BigInt()); err != nil {
+		fmt.Println("err", err)
 		return nil, err
 	}
 
