@@ -757,6 +757,7 @@ class CosmosCLI:
                     from_=proposer,
                     # basic
                     home=self.data_dir,
+                    node=self.node_rpc,
                     **kwargs,
                 )
             )
@@ -969,6 +970,21 @@ class CosmosCLI:
                 "q",
                 "ibc-transfer",
                 "denom-traces",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def denom_hash(self, trace, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc-transfer",
+                "denom-hash",
+                trace,
                 **(default_kwargs | kwargs),
             )
         )
