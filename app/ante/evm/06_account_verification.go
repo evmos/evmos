@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -40,9 +39,7 @@ func VerifyAccountBalance(
 		account = statedb.NewEmptyAccount()
 	}
 
-	adjustedBalance := utils.Convert6To18Decimals(*account.Balance)
-	// Converts the balance to 18 decimals
-	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(adjustedBalance), txData); err != nil {
+	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(account.Balance), txData); err != nil {
 		return errorsmod.Wrap(err, "failed to check sender balance")
 	}
 
