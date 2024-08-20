@@ -261,6 +261,7 @@ func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
 
 		logs = append(logs, &log)
 	}
+
 	return evmtypes.LogsToEthereum(logs), nil
 }
 
@@ -273,6 +274,15 @@ func ShouldIgnoreGasUsed(res *abci.ResponseDeliverTx) bool {
 // GetLogsFromBlockResults returns the list of event logs from the tendermint block result response
 func GetLogsFromBlockResults(blockRes *tmrpctypes.ResultBlockResults) ([][]*ethtypes.Log, error) {
 	blockLogs := [][]*ethtypes.Log{}
+	// get beginBlocker events too
+	// (related to epochs hooks, e.g. auctions)
+	logs, err := AllTxLogsFromEvents(blockRes.BeginBlockEvents)
+	if err != nil {
+		return nil, err
+	}
+	blockLogs = append(blockLogs, logs...)
+
+	// get events from txs
 	for _, txResult := range blockRes.TxsResults {
 		logs, err := AllTxLogsFromEvents(txResult.Events)
 		if err != nil {

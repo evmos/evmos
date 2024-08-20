@@ -6,6 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v19/contracts/types"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/ics20"
@@ -52,7 +54,7 @@ func (s *PrecompileTestSuite) TestTransferEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var ibcTransferEvent ics20.EventIBCTransfer
-				err := cmn.UnpackLog(s.precompile.ABI, &ibcTransferEvent, ics20.EventTypeIBCTransfer, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &ibcTransferEvent, ics20.EventTypeIBCTransfer, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(common.BytesToAddress(sender.Bytes()), ibcTransferEvent.Sender)
 				s.Require().Equal(crypto.Keccak256Hash([]byte(receiver.String())), ibcTransferEvent.Receiver)
@@ -122,13 +124,13 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var transferAuthorizationEvent ics20.EventTransferAuthorization
-				err := cmn.UnpackLog(s.precompile.ABI, &transferAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &transferAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, transferAuthorizationEvent.Granter)
 				s.Require().Equal(s.address, transferAuthorizationEvent.Grantee)
 				s.Require().Equal("transfer", transferAuthorizationEvent.Allocations[0].SourcePort)
 				s.Require().Equal("channel-0", transferAuthorizationEvent.Allocations[0].SourceChannel)
-				abiCoins := cmn.NewCoinsResponse(defaultCoins)
+				abiCoins := types.NewCoinsResponse(defaultCoins)
 				s.Require().Equal(abiCoins, transferAuthorizationEvent.Allocations[0].SpendLimit)
 			},
 		},
@@ -182,7 +184,7 @@ func (s *PrecompileTestSuite) TestRevokeTransferAuthorizationEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var transferRevokeAuthorizationEvent ics20.EventTransferAuthorization
-				err := cmn.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Grantee)
 				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Granter)

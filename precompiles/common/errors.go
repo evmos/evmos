@@ -10,8 +10,6 @@ const (
 	ErrDelegatorDifferentOrigin = "tx origin address %s does not match the delegator address %s"
 	// ErrSpenderDifferentOrigin is raised when the origin address is not the same as the spender.
 	ErrSpenderDifferentOrigin = "tx origin address %s does not match the spender address %s"
-	// ErrInvalidABI is raised when the ABI cannot be parsed.
-	ErrInvalidABI = "invalid ABI: %w"
 	// ErrInvalidAmount is raised when the amount cannot be cast to a big.Int.
 	ErrInvalidAmount = "invalid amount: %v"
 	// ErrInvalidHexAddress is raised when the hex address is not valid.

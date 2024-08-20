@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
@@ -40,7 +41,7 @@ func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	newAbi, err := cmn.LoadABI(f, "abi.json")
+	newAbi, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading the distribution ABI %s", err)
 	}

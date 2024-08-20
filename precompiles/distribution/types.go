@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/utils"
 
 	"cosmossdk.io/math"
@@ -145,7 +146,7 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 		return nil, common.Address{}, err
 	}
 
-	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)
+	validatorHexAddr, err := types.HexAddressFromBech32String(msg.ValidatorAddress)
 	if err != nil {
 		return nil, common.Address{}, err
 	}
@@ -324,9 +325,9 @@ func NewDelegatorWithdrawAddressRequest(args []interface{}) (*distributiontypes.
 // ValidatorDistributionInfo is a struct to represent the key information from
 // a ValidatorDistributionInfoResponse.
 type ValidatorDistributionInfo struct {
-	OperatorAddress string        `abi:"operatorAddress"`
-	SelfBondRewards []cmn.DecCoin `abi:"selfBondRewards"`
-	Commission      []cmn.DecCoin `abi:"commission"`
+	OperatorAddress string          `abi:"operatorAddress"`
+	SelfBondRewards []types.DecCoin `abi:"selfBondRewards"`
+	Commission      []types.DecCoin `abi:"commission"`
 }
 
 // ValidatorDistributionInfoOutput is a wrapper for ValidatorDistributionInfo to return in the response.
@@ -339,8 +340,8 @@ func (o *ValidatorDistributionInfoOutput) FromResponse(res *distributiontypes.Qu
 	return ValidatorDistributionInfoOutput{
 		DistributionInfo: ValidatorDistributionInfo{
 			OperatorAddress: res.OperatorAddress,
-			SelfBondRewards: cmn.NewDecCoinsResponse(res.SelfBondRewards),
-			Commission:      cmn.NewDecCoinsResponse(res.Commission),
+			SelfBondRewards: types.NewDecCoinsResponse(res.SelfBondRewards),
+			Commission:      types.NewDecCoinsResponse(res.Commission),
 		},
 	}
 }
@@ -348,8 +349,8 @@ func (o *ValidatorDistributionInfoOutput) FromResponse(res *distributiontypes.Qu
 // ValidatorSlashEvent is a struct to represent the key information from
 // a ValidatorSlashEvent response.
 type ValidatorSlashEvent struct {
-	ValidatorPeriod uint64  `abi:"validatorPeriod"`
-	Fraction        cmn.Dec `abi:"fraction"`
+	ValidatorPeriod uint64    `abi:"validatorPeriod"`
+	Fraction        types.Dec `abi:"fraction"`
 }
 
 // ValidatorSlashesInput is a struct to represent the key information
@@ -374,7 +375,7 @@ func (vs *ValidatorSlashesOutput) FromResponse(res *distributiontypes.QueryValid
 	for i, s := range res.Slashes {
 		vs.Slashes[i] = ValidatorSlashEvent{
 			ValidatorPeriod: s.ValidatorPeriod,
-			Fraction: cmn.Dec{
+			Fraction: types.Dec{
 				Value:     s.Fraction.BigInt(),
 				Precision: math.LegacyPrecision,
 			},
@@ -398,14 +399,14 @@ func (vs *ValidatorSlashesOutput) Pack(args abi.Arguments) ([]byte, error) {
 // a query for the rewards of a delegation to a given validator.
 type DelegationDelegatorReward struct {
 	ValidatorAddress string
-	Reward           []cmn.DecCoin
+	Reward           []types.DecCoin
 }
 
 // DelegationTotalRewardsOutput is a struct to represent the key information from
 // a DelegationTotalRewards response.
 type DelegationTotalRewardsOutput struct {
 	Rewards []DelegationDelegatorReward
-	Total   []cmn.DecCoin
+	Total   []types.DecCoin
 }
 
 // FromResponse populates the DelegationTotalRewardsOutput from a QueryDelegationTotalRewardsResponse.
@@ -414,10 +415,10 @@ func (dtr *DelegationTotalRewardsOutput) FromResponse(res *distributiontypes.Que
 	for i, r := range res.Rewards {
 		dtr.Rewards[i] = DelegationDelegatorReward{
 			ValidatorAddress: r.ValidatorAddress,
-			Reward:           cmn.NewDecCoinsResponse(r.Reward),
+			Reward:           types.NewDecCoinsResponse(r.Reward),
 		}
 	}
-	dtr.Total = cmn.NewDecCoinsResponse(res.Total)
+	dtr.Total = types.NewDecCoinsResponse(res.Total)
 	return dtr
 }
 

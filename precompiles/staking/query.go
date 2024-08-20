@@ -12,6 +12,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -56,7 +57,7 @@ func (p Precompile) Delegation(
 	if err != nil {
 		// If there is no delegation found, return the response with zero values.
 		if strings.Contains(err.Error(), fmt.Sprintf(ErrNoDelegationFound, req.DelegatorAddr, req.ValidatorAddr)) {
-			return method.Outputs.Pack(big.NewInt(0), cmn.Coin{Denom: p.stakingKeeper.BondDenom(ctx), Amount: big.NewInt(0)})
+			return method.Outputs.Pack(big.NewInt(0), types.Coin{Denom: p.stakingKeeper.BondDenom(ctx), Amount: big.NewInt(0)})
 		}
 
 		return nil, err
