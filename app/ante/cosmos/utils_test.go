@@ -8,19 +8,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/evmos/evmos/v19/app"
-	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	"github.com/evmos/evmos/v19/app/ante/testutils"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v19/encoding"
-	testutil "github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
 )
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
@@ -136,44 +132,4 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 	}
 
 	return txBuilder.GetTx(), nil
-}
-
-// setupDeductFeeDecoratorTestCase instantiates a new DeductFeeDecorator
-// and prepares the accounts with corresponding balance and staking rewards
-// Returns the decorator and the tx arguments to use on the test case
-func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress, _ *ethsecp256k1.PrivKey, tc deductFeeDecoratorTestCase) (sdk.Context, cosmosante.DeductFeeDecorator, factory.CosmosTxArgs) {
-	suite.SetupTest()
-	nw := suite.GetNetwork()
-	ctx := nw.GetContext()
-
-	// Create a new DeductFeeDecorator
-	dfd := cosmosante.NewDeductFeeDecorator(
-		nw.App.AccountKeeper, nw.App.BankKeeper, nw.App.DistrKeeper, nw.App.FeeGrantKeeper, nw.App.StakingKeeper, nil,
-	)
-
-	// prepare the testcase
-	var err error
-	ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), ctx, nw.App, addr, tc.balance, tc.rewards...)
-	suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-
-	// Create an arbitrary message for testing purposes
-	msg := sdktestutil.NewTestMsg(addr)
-
-	// Set up the transaction arguments
-	return ctx, dfd, factory.CosmosTxArgs{
-		ChainID:    suite.GetNetwork().GetChainID(),
-		Gas:        &tc.gas,
-		GasPrice:   tc.gasPrice,
-		FeeGranter: tc.feeGranter,
-		Msgs:       []sdk.Msg{msg},
-	}
-}
-
-// intSlice creates a slice of sdkmath.Int with the specified size and same value
-func intSlice(size int, value sdkmath.Int) []sdkmath.Int {
-	slc := make([]sdkmath.Int, size)
-	for i := 0; i < len(slc); i++ {
-		slc[i] = value
-	}
-	return slc
 }
