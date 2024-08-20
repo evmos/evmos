@@ -59,11 +59,11 @@ type BankWrapper interface {
 	// MintCoinsToAccount scales down (if applies)
 	// from 18 decimals to 6 decimals the coins amount provided
 	// and mints that to the provided account
-	MintCoinsToAccount(ctx sdk.Context, moduleName string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	// BurnAccountCoins scales down (if applies)
 	// from 18 decimals to 6 decimals the coins amount provided
 	// and burns that coins of the provided account
-	BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, burningModule string, amt sdk.Coins) error
+	BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, amt sdk.Coins) error
 }
 
 // StakingKeeper returns the historical headers kept in store.

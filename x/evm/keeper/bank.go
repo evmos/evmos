@@ -67,30 +67,30 @@ func (w BankWrapper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom stri
 
 // MintCoinsToAccount scales down from 18 decimals to 6 decimals the coins amount provided
 // and mints that to the provided account
-func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, moduleName string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
+func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
 	if w.decimals == denom6Dec {
 		for i := range amt {
 			amt[i] = convert18To6DecimalsCoin(amt[i])
 		}
 	}
-	if err := w.bk.MintCoins(ctx, moduleName, amt); err != nil {
+	if err := w.bk.MintCoins(ctx, types.ModuleName, amt); err != nil {
 		return err
 	}
-	return w.bk.SendCoinsFromModuleToAccount(ctx, moduleName, recipientAddr, amt)
+	return w.bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, amt)
 }
 
 // BurnAccountCoins scales down from 18 decimals to 6 decimals the coins amount provided
 // and burns that coins of the provided account
-func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, burningModule string, amt sdk.Coins) error {
+func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, amt sdk.Coins) error {
 	if w.decimals == denom6Dec {
 		for i := range amt {
 			amt[i] = convert18To6DecimalsCoin(amt[i])
 		}
 	}
-	if err := w.bk.SendCoinsFromAccountToModule(ctx, account, burningModule, amt); err != nil {
+	if err := w.bk.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, amt); err != nil {
 		return err
 	}
-	return w.bk.BurnCoins(ctx, burningModule, amt)
+	return w.bk.BurnCoins(ctx, types.ModuleName, amt)
 }
 
 // SendCoinsFromAccountToModule scales down
