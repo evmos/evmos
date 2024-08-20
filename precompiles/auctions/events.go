@@ -14,6 +14,9 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
+// NOTE: The AuctionEnd event is emitted when the auction ends which happens in the epoch hooks
+// within the auctions module. The event is added manually to the logs and not emitted by the
+// precompile directly as the auction end is not triggered by a transaction.
 const (
 	// EventTypeBid defines the event type for the auctions Bid transaction.
 	EventTypeBid = "Bid"
