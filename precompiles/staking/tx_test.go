@@ -11,6 +11,7 @@ import (
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v19/cmd/config"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/staking"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
@@ -270,7 +271,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 
 				// Check the fully unpacked event matches the one emitted
 				var createValidatorEvent staking.EventCreateValidator
-				err = cmn.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, createValidatorEvent.ValidatorAddress)
 				s.Require().Equal(value, createValidatorEvent.Value)
@@ -540,7 +541,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
-				err = cmn.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(validatorAddress, editValidatorEvent.ValidatorAddress)
 				s.Require().Equal(commissionRate, editValidatorEvent.CommissionRate)
@@ -578,7 +579,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
-				err = cmn.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(validatorAddress, editValidatorEvent.ValidatorAddress)
 			},
@@ -614,7 +615,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
-				err = cmn.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(validatorAddress, editValidatorEvent.ValidatorAddress)
 			},

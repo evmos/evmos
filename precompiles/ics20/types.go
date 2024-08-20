@@ -10,6 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
@@ -362,9 +363,9 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocatio
 	// Convert to Allocations to emit the IBC transfer authorization event
 	allocations := make([]cmn.ICS20Allocation, len(allocs))
 	for i, allocation := range allocs {
-		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
+		spendLimit := make([]types.Coin, len(allocation.SpendLimit))
 		for j, coin := range allocation.SpendLimit {
-			spendLimit[j] = cmn.Coin{
+			spendLimit[j] = types.Coin{
 				Denom:  coin.Denom,
 				Amount: coin.Amount.BigInt(),
 			}

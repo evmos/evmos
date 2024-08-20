@@ -20,6 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	compiledcontracts "github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -1329,7 +1330,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Shares).To(Equal(big.NewInt(1e18)), "expected different shares")
-			Expect(delOut.Balance).To(Equal(cmn.Coin{Denom: s.bondDenom, Amount: big.NewInt(1e18)}), "expected different shares")
+			Expect(delOut.Balance).To(Equal(types.Coin{Denom: s.bondDenom, Amount: big.NewInt(1e18)}), "expected different shares")
 		})
 
 		It("should return an empty delegation if it is not found", func() {
@@ -3208,7 +3209,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance).To(Equal(
-				cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
+				types.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
 				"expected a different delegation balance",
 			)
 		})

@@ -13,6 +13,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -38,7 +39,7 @@ type Precompile struct {
 // LoadABI loads the staking ABI from the embedded abi.json file
 // for the staking precompile.
 func LoadABI() (abi.ABI, error) {
-	return cmn.LoadABI(f, "abi.json")
+	return contractutils.LoadABI(f, "abi.json")
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
