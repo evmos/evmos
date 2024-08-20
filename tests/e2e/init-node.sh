@@ -67,16 +67,10 @@ echo "$USER4_MNEMONIC" | evmosd keys add "$USER4_KEY" --recover --keyring-backen
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 evmosd init "$MONIKER" --chain-id "$CHAINID"
 
-# Change parameter token denominations to aevmos
-jq '.app_state.staking.params.bond_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.crisis.constant_fee.denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.gov.deposit_params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.evm.params.evm_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.inflation.params.mint_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
 # set gov proposing && voting period
 jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "5s"/g' "$GENESIS"
 
 # When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
 # check if the 'params' field exists in the genesis file
@@ -137,9 +131,12 @@ evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevm
 
 # Enable the APIs for the tests to be successful
 sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
-
+# Don't enable Rosetta API by default
+grep -q -F '[rosetta]' "$APP_TOML" && sed -i.bak '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"	
 # Don't enable memiavl by default
 grep -q -F '[memiavl]' "$APP_TOML" && sed -i.bak '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
+# Don't enable versionDB by default
+grep -q -F '[versiondb]' "$APP_TOML" && sed -i.bak '/\[versiondb\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 
 # Collect genesis tx
 evmosd collect-gentxs
