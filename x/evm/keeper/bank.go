@@ -19,9 +19,9 @@ const (
 // BankWrapper is a wrapper around the Cosmos SDK bank keeper
 // that is used to manage an evm denom with 6 or 18 decimals.
 // The wrapper makes the corresponding conversions to achieve:
-// - With the EVM, the wrapper works always with 18 decimals.
-// - With the Cosmos bank module, the wrapper works always 
-//   with the bank module decimals (either 6 or 18).
+//   - With the EVM, the wrapper works always with 18 decimals.
+//   - With the Cosmos bank module, the wrapper works always
+//     with the bank module decimals (either 6 or 18).
 type BankWrapper struct {
 	bk       types.BankKeeper
 	decimals int8
@@ -45,14 +45,14 @@ func NewBankWrapper(
 // IsSendEnabledCoins implements types.BankWrapper.
 // This is not used. Is needed to fulfill the interface required for the
 // deduct fee ante handler
-func (w BankWrapper) IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error {
+func (w BankWrapper) IsSendEnabledCoins(sdk.Context, ...sdk.Coin) error {
 	panic("unimplemented")
 }
 
 // SendCoins implements types.BankWrapper.
 // This is not used. Is needed to fulfill the interface required for the
 // deduct fee ante handler
-func (w BankWrapper) SendCoins(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, amt sdk.Coins) error {
+func (w BankWrapper) SendCoins(sdk.Context, sdk.AccAddress, sdk.AccAddress, sdk.Coins) error {
 	panic("unimplemented")
 }
 
