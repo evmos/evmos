@@ -313,7 +313,6 @@ func (k *Keeper) ApplyMessageWithConfig(
 	}
 
 	scaledMsgValue := utils.Convert18To6Decimals(*msg.Value())
-
 	if contractCreation {
 		// take over the nonce management from evm:
 		// - reset sender's nonce to msg.Nonce() before calling evm.

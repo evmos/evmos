@@ -4,6 +4,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -14,6 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -86,7 +88,8 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 	params := k.GetParams(ctx)
 	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, params.EvmDenom)
 	balance := coin.Amount.BigInt()
-	delta := new(big.Int).Sub(amount, balance)
+	scaledUpBalance := utils.Convert6To18Decimals(*balance)
+	delta := new(big.Int).Sub(amount, scaledUpBalance)
 	switch delta.Sign() {
 	case 1:
 		// mint
