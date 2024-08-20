@@ -4,7 +4,6 @@ package keeper
 
 import (
 	"fmt"
-
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
