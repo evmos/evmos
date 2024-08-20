@@ -1,10 +1,9 @@
 package keeper_test
 
 import (
+	"math/big"
 	"strings"
 	"time"
-
-	"github.com/evmos/evmos/v19/utils"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -100,7 +99,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	db := s.app.BankKeeper.GetBalance(s.ctx, dest, denom)
 
 	s.Require().Equal(funderBalance, fb)
-	newAmount := sdk.NewIntFromBigInt(utils.Convert18To6Decimals(*amount.BigInt()))
+	newAmount := sdk.NewIntFromBigInt(convert18To6Decimals(*amount.BigInt()))
 	s.Require().Equal(destBalance.AddAmount(newAmount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
 
 	for i, account := range testAccounts {
@@ -117,4 +116,9 @@ func validateEthVestingTransactionDecorator(msgs ...sdk.Msg) error {
 	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
 	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msgs...)
 	return err
+}
+
+// convert18To6Decimals converts a big.Int to 6 decimals from 18
+func convert18To6Decimals(amount big.Int) *big.Int {
+	return new(big.Int).Div(&amount, big.NewInt(1e12))
 }

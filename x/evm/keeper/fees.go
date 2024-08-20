@@ -5,8 +5,6 @@ package keeper
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v19/utils"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -58,26 +56,17 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 	}
 
 	evmDenom := k.GetParams(ctx).EvmDenom
-	// Convert the balance to 18 decimals
-	signerBalance := k.bankKeeper.GetBalance(ctx, signerAcc.GetAddress(), evmDenom)
-	balanceIn18Decimals := utils.Convert6To18Decimals(*signerBalance.Amount.BigInt())
-
-	found, feeToken := fees.Find(evmDenom)
-	if !found {
+	if found, _ := fees.Find(evmDenom); !found {
 		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "fee token %s not found in the fees", evmDenom)
 	}
-	// Perform fee deduction in 18 decimal scale
-	balanceAfterFees := new(big.Int).Sub(balanceIn18Decimals, feeToken.Amount.BigInt())
 
-	// Scale back down to 6 decimals
-	finalBalanceIn6Decimals := utils.Convert18To6Decimals(*balanceAfterFees)
-
-	// Calculate the actual fees deducted in 6 decimals
-	feesPaid := new(big.Int).Sub(signerBalance.Amount.BigInt(), finalBalanceIn6Decimals)
-	finalFees := sdk.NewCoins(sdk.NewCoin(evmDenom, sdk.NewIntFromBigInt(feesPaid)))
+	// only evmDenom is allowed on fee coins
+	if fees.Len() > 1 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "fee token can only be %s", evmDenom)
+	}
 
 	// deduct the full gas cost from the user balance
-	if err := authante.DeductFees(k.bankKeeper, ctx, signerAcc, finalFees); err != nil {
+	if err := authante.DeductFees(k.bankWrapper, ctx, signerAcc, fees); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct full gas cost %s from the user %s balance", fees, from)
 	}
 

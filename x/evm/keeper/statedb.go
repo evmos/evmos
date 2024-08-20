@@ -14,7 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -85,27 +84,19 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
 	params := k.GetParams(ctx)
-	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, params.EvmDenom)
-	balance := coin.Amount.BigInt()
-	scaledUpBalance := utils.Convert6To18Decimals(*balance)
-	delta := new(big.Int).Sub(amount, scaledUpBalance)
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, params.EvmDenom)
+	delta := new(big.Int).Sub(amount, coin.Amount.BigInt())
 	switch delta.Sign() {
 	case 1:
 		// mint
 		coins := sdk.NewCoins(sdk.NewCoin(params.EvmDenom, sdkmath.NewIntFromBigInt(delta)))
-		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-			return err
-		}
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cosmosAddr, coins); err != nil {
+		if err := k.bankWrapper.MintCoinsToAccount(ctx, types.ModuleName, cosmosAddr, coins); err != nil {
 			return err
 		}
 	case -1:
 		// burn
 		coins := sdk.NewCoins(sdk.NewCoin(params.EvmDenom, sdkmath.NewIntFromBigInt(new(big.Int).Neg(delta))))
-		if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, cosmosAddr, types.ModuleName, coins); err != nil {
-			return err
-		}
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+		if err := k.bankWrapper.BurnAccountCoins(ctx, cosmosAddr, types.ModuleName, coins); err != nil {
 			return err
 		}
 	default:
