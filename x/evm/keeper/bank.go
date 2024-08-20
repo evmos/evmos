@@ -19,9 +19,9 @@ const (
 // BankWrapper is a wrapper around the Cosmos SDK bank keeper
 // that is used to manage an evm denom with 6 or 18 decimals.
 // The wrapper makes the corresponding conversions to achieve:
-// - With the EVM, the wrapper works always with 18 decimals.
-// - With the Cosmos bank module, the wrapper works always 
-//   with the bank module decimals (either 6 or 18).
+//   - With the EVM, the wrapper works always with 18 decimals.
+//   - With the Cosmos bank module, the wrapper works always
+//     with the bank module decimals (either 6 or 18).
 type BankWrapper struct {
 	bk       types.BankKeeper
 	decimals int8
