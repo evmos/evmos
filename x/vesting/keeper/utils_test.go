@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
-	"github.com/evmos/evmos/v19/utils"
 	"strings"
 	"time"
+
+	"github.com/evmos/evmos/v19/utils"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -105,7 +106,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	for i, account := range testAccounts {
 		gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, denom)
 		// Use GreaterOrEqual because the gas fee is non-recoverable
-		//fmt.Println("balance", gb.Amount, granteeBalances[i].SubAmount(newAmount).Amount)
+		// fmt.Println("balance", gb.Amount, granteeBalances[i].SubAmount(newAmount).Amount)
 		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(newAmount).Amount.Uint64(), gb.Amount.Uint64())
 	}
 }

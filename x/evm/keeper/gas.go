@@ -3,8 +3,9 @@
 package keeper
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"math/big"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/evmos/evmos/v19/utils"
 
