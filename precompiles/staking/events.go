@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -44,12 +44,12 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grant
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(grantee)
+	topics[1], err = contractutils.MakeTopic(grantee)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(granter)
+	topics[2], err = contractutils.MakeTopic(granter)
 	if err != nil {
 		return err
 	}
@@ -87,12 +87,12 @@ func (p Precompile) EmitAllowanceChangeEvent(ctx sdk.Context, stateDB vm.StateDB
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(grantee)
+	topics[1], err = contractutils.MakeTopic(grantee)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(granter)
+	topics[2], err = contractutils.MakeTopic(granter)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -172,8 +172,8 @@ func (p Precompile) EmitEditValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, 
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(commissionRate)))
-	b.Write(cmn.PackNum(reflect.ValueOf(minSelfDelegation)))
+	b.Write(contractutils.PackNum(reflect.ValueOf(commissionRate)))
+	b.Write(contractutils.PackNum(reflect.ValueOf(minSelfDelegation)))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -211,8 +211,8 @@ func (p Precompile) EmitDelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(newShares.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(newShares.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -240,8 +240,8 @@ func (p Precompile) EmitUnbondEvent(ctx sdk.Context, stateDB vm.StateDB, msg *st
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(big.NewInt(completionTime))))
+	b.Write(contractutils.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(big.NewInt(completionTime))))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -272,15 +272,15 @@ func (p Precompile) EmitRedelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg
 		return err
 	}
 
-	topics[3], err = cmn.MakeTopic(common.BytesToAddress(valDstAddr.Bytes()))
+	topics[3], err = contractutils.MakeTopic(common.BytesToAddress(valDstAddr.Bytes()))
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(big.NewInt(completionTime))))
+	b.Write(contractutils.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(big.NewInt(completionTime))))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -308,8 +308,8 @@ func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB 
 
 	// Prepare the event data
 	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(big.NewInt(msg.CreationHeight))))
+	b.Write(contractutils.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
+	b.Write(contractutils.PackNum(reflect.ValueOf(big.NewInt(msg.CreationHeight))))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
@@ -331,12 +331,12 @@ func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, del
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(delegatorAddr)
+	topics[1], err = contractutils.MakeTopic(delegatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	topics[2], err = cmn.MakeTopic(validatorAddr)
+	topics[2], err = contractutils.MakeTopic(validatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +354,7 @@ func (p Precompile) createEditValidatorTxTopics(topicsLen uint64, event abi.Even
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(validatorAddr)
+	topics[1], err = contractutils.MakeTopic(validatorAddr)
 	if err != nil {
 		return nil, err
 	}

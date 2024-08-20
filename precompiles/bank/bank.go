@@ -10,6 +10,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -49,7 +50,7 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, "abi.json")
+	newABI, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}

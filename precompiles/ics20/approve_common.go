@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 
 	errorsmod "cosmossdk.io/errors"
@@ -130,7 +131,7 @@ func IncreaseAllowance(
 	}
 
 	allowance := math.NewIntFromBigInt(amount)
-	if _, overflow := cmn.SafeAdd(spendLimit.Amount, allowance); overflow {
+	if _, overflow := types.SafeAdd(spendLimit.Amount, allowance); overflow {
 		return errors.New(cmn.ErrIntegerOverflow)
 	}
 

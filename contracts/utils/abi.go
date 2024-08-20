@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package common
+package utils
 
 import (
 	"embed"
@@ -14,8 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 )
+
+// ErrInvalidABI is raised when the ABI cannot be parsed.
+const ErrInvalidABI = "invalid ABI: %w"
 
 // MakeTopic converts a filter query argument into a filter topic.
 // NOTE: This was copied from accounts/abi/topics.go
@@ -138,7 +140,7 @@ func LoadABI(fs embed.FS, path string) (abi.ABI, error) {
 		return abi.ABI{}, fmt.Errorf("error loading the ABI %s", err)
 	}
 
-	contract, err := contractutils.ConvertPrecompileHardhatBytesToCompiledContract(abiBz)
+	contract, err := convertPrecompileHardhatBytesToCompiledContract(abiBz)
 	if err != nil {
 		return abi.ABI{}, fmt.Errorf(ErrInvalidABI, err)
 	}

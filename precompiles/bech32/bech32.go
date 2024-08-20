@@ -9,7 +9,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -34,7 +34,7 @@ type Precompile struct {
 // NewPrecompile creates a new bech32 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(baseGas uint64) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, "abi.json")
+	newABI, err := contractutils.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}

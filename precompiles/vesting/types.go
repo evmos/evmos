@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -36,7 +37,7 @@ type VestingPeriods struct {
 // Period represents a period of time with a specific amount of coins
 type Period struct {
 	Length int64
-	Amount []cmn.Coin
+	Amount []types.Coin
 }
 
 // CheckApprovalArgs checks the arguments passed to the approve function as well as
@@ -269,26 +270,26 @@ func createCosmosPeriodsFromPeriod(inputPeriods []Period) cosmosvestingtypes.Per
 
 // BalancesOutput represents the balances of a ClawbackVestingAccount
 type BalancesOutput struct {
-	Locked   []cmn.Coin
-	Unvested []cmn.Coin
-	Vested   []cmn.Coin
+	Locked   []types.Coin
+	Unvested []types.Coin
+	Vested   []types.Coin
 }
 
 // FromResponse populates the BalancesOutput from a QueryBalancesResponse.
 func (bo *BalancesOutput) FromResponse(res *vestingtypes.QueryBalancesResponse) *BalancesOutput {
-	bo.Locked = cmn.NewCoinsResponse(res.Locked)
-	bo.Unvested = cmn.NewCoinsResponse(res.Unvested)
-	bo.Vested = cmn.NewCoinsResponse(res.Vested)
+	bo.Locked = types.NewCoinsResponse(res.Locked)
+	bo.Unvested = types.NewCoinsResponse(res.Unvested)
+	bo.Vested = types.NewCoinsResponse(res.Vested)
 	return bo
 }
 
 // ClawbackOutput represents the clawed back coins from a Clawback transaction.
 type ClawbackOutput struct {
-	Coins []cmn.Coin
+	Coins []types.Coin
 }
 
 // FromResponse populates the ClawbackOutput from a QueryClawbackResponse.
 func (co *ClawbackOutput) FromResponse(res *vestingtypes.MsgClawbackResponse) *ClawbackOutput {
-	co.Coins = cmn.NewCoinsResponse(res.Coins)
+	co.Coins = types.NewCoinsResponse(res.Coins)
 	return co
 }
