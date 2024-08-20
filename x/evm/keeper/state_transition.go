@@ -312,7 +312,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		stateDB.PrepareAccessList(msg.From(), msg.To(), evm.ActivePrecompiles(rules), msg.AccessList())
 	}
 
-	scaledMsgValue := utils.ConvertTo6Decimals(*msg.Value())
+	scaledMsgValue := utils.Convert18To6Decimals(*msg.Value())
 
 	if contractCreation {
 		// take over the nonce management from evm:

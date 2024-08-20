@@ -180,12 +180,12 @@ func SortSlice[T constraints.Ordered](slice []T) {
 	})
 }
 
-// ConvertTo18Decimals converts a big.Int to 18 decimals from 6
-func ConvertTo18Decimals(amount big.Int) *big.Int {
+// Convert6To18Decimals converts a big.Int to 18 decimals from 6
+func Convert6To18Decimals(amount big.Int) *big.Int {
 	return new(big.Int).Mul(&amount, big.NewInt(1e12))
 }
 
-// ConvertTo6Decimals converts a big.Int to 6 decimals from 18
-func ConvertTo6Decimals(amount big.Int) *big.Int {
+// Convert18To6Decimals converts a big.Int to 6 decimals from 18
+func Convert18To6Decimals(amount big.Int) *big.Int {
 	return new(big.Int).Div(&amount, big.NewInt(1e12))
 }

@@ -44,10 +44,10 @@ func (k *Keeper) RefundGas(ctx sdk.Context, msg core.Message, leftoverGas uint64
 		// positive amount refund
 		feeCollectorAccount := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 		feeCollectorBalance := k.bankKeeper.GetBalance(ctx, feeCollectorAccount, denom).Amount.BigInt()
-		scaledBalance := utils.ConvertTo18Decimals(*feeCollectorBalance)
+		scaledBalance := utils.Convert6To18Decimals(*feeCollectorBalance)
 		refundedAmount := new(big.Int).Sub(scaledBalance, remaining)
 
-		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(utils.ConvertTo6Decimals(*refundedAmount)))}
+		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(utils.Convert18To6Decimals(*refundedAmount)))}
 		// refund to sender from the fee collector module account, which is the escrow account in charge of collecting tx fees
 
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, msg.From().Bytes(), refundedCoins)

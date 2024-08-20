@@ -40,7 +40,7 @@ func VerifyAccountBalance(
 		account = statedb.NewEmptyAccount()
 	}
 
-	adjustedBalance := utils.ConvertTo18Decimals(*account.Balance)
+	adjustedBalance := utils.Convert6To18Decimals(*account.Balance)
 	// Converts the balance to 18 decimals
 	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(adjustedBalance), txData); err != nil {
 		return errorsmod.Wrap(err, "failed to check sender balance")

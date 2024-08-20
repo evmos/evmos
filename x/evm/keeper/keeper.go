@@ -297,7 +297,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	}
 	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, evmDenom)
 
-	return utils.ConvertTo18Decimals(*coin.Amount.BigInt())
+	return utils.Convert6To18Decimals(*coin.Amount.BigInt())
 }
 
 // GetBaseFee returns current base fee, return values:
