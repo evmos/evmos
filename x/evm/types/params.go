@@ -20,6 +20,13 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
+const (
+	// Denom18Dec specifies that the evm denomination has 18 decimals
+	Denom18Dec = 18
+	// Denom6Dec specifies that the evm denomination has 6 decimals
+	Denom6Dec = 6
+)
+
 var (
 	// DefaultEVMDenom defines the default EVM denomination on Evmos
 	DefaultEVMDenom = utils.BaseDenom

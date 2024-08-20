@@ -79,6 +79,7 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
+	denomDecimals int8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -95,7 +96,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper, denom6Dec),
+		bankWrapper:     NewBankWrapper(bankKeeper, denomDecimals),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
