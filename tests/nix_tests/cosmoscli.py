@@ -359,6 +359,7 @@ class CosmosCLI:
                 "-y",
                 "--generate-only" if generate_only else None,
                 home=self.data_dir,
+                node=self.node_rpc,
                 **kwargs,
             )
         )
