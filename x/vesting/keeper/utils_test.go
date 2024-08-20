@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"github.com/evmos/evmos/v19/utils"
 	"strings"
 	"time"
 
@@ -98,12 +99,14 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	db := s.app.BankKeeper.GetBalance(s.ctx, dest, denom)
 
 	s.Require().Equal(funderBalance, fb)
-	s.Require().Equal(destBalance.AddAmount(amount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
+	newAmount := sdk.NewIntFromBigInt(utils.Convert18To6Decimals(*amount.BigInt()))
+	s.Require().Equal(destBalance.AddAmount(newAmount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
 
 	for i, account := range testAccounts {
 		gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, denom)
 		// Use GreaterOrEqual because the gas fee is non-recoverable
-		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(amount).Amount.Uint64(), gb.Amount.Uint64())
+		//fmt.Println("balance", gb.Amount, granteeBalances[i].SubAmount(newAmount).Amount)
+		s.Require().GreaterOrEqual(granteeBalances[i].SubAmount(newAmount).Amount.Uint64(), gb.Amount.Uint64())
 	}
 }
 

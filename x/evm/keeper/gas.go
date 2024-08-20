@@ -3,6 +3,7 @@
 package keeper
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"math/big"
 
 	"github.com/evmos/evmos/v19/utils"
@@ -11,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -42,14 +42,8 @@ func (k *Keeper) RefundGas(ctx sdk.Context, msg core.Message, leftoverGas uint64
 		return errorsmod.Wrapf(types.ErrInvalidRefund, "refunded amount value cannot be negative %d", remaining.Int64())
 	case 1:
 		// positive amount refund
-		feeCollectorAccount := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-		feeCollectorBalance := k.bankKeeper.GetBalance(ctx, feeCollectorAccount, denom).Amount.BigInt()
-		scaledBalance := utils.Convert6To18Decimals(*feeCollectorBalance)
-		refundedAmount := new(big.Int).Sub(scaledBalance, remaining)
-
-		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(utils.Convert18To6Decimals(*refundedAmount)))}
+		refundedCoins := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(utils.Convert18To6Decimals(*remaining)))}
 		// refund to sender from the fee collector module account, which is the escrow account in charge of collecting tx fees
-
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, msg.From().Bytes(), refundedCoins)
 		if err != nil {
 			err = errorsmod.Wrapf(errortypes.ErrInsufficientFunds, "fee collector account failed to refund fees: %s", err.Error())
