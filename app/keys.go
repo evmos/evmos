@@ -57,6 +57,7 @@ func StoreKeys() (
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey,
 		epochstypes.StoreKey, vestingtypes.StoreKey,
+		// auctions keys
 		auctionstypes.StoreKey,
 	}
 

@@ -7,8 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
@@ -38,12 +38,12 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grant
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(grantee)
+	topics[1], err = contractutils.MakeTopic(grantee)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(granter)
+	topics[2], err = contractutils.MakeTopic(granter)
 	if err != nil {
 		return err
 	}
@@ -80,12 +80,12 @@ func (p Precompile) EmitCreateClawbackVestingAccountEvent(
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(funderAddr)
+	topics[1], err = contractutils.MakeTopic(funderAddr)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(vestingAddr)
+	topics[2], err = contractutils.MakeTopic(vestingAddr)
 	if err != nil {
 		return err
 	}
@@ -119,12 +119,12 @@ func (p Precompile) EmitFundVestingAccountEvent(
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(funderAddr)
+	topics[1], err = contractutils.MakeTopic(funderAddr)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(vestingAddr)
+	topics[2], err = contractutils.MakeTopic(vestingAddr)
 	if err != nil {
 		return err
 	}
@@ -163,12 +163,12 @@ func (p Precompile) EmitClawbackEvent(
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(funderAddr)
+	topics[1], err = contractutils.MakeTopic(funderAddr)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(accountAddr)
+	topics[2], err = contractutils.MakeTopic(accountAddr)
 	if err != nil {
 		return err
 	}
@@ -207,12 +207,12 @@ func (p Precompile) EmitUpdateVestingFunderEvent(
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(funderAddr)
+	topics[1], err = contractutils.MakeTopic(funderAddr)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(vestingAddr)
+	topics[2], err = contractutils.MakeTopic(vestingAddr)
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func (p Precompile) EmitConvertVestingAccountEvent(ctx sdk.Context, stateDB vm.S
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(vestingAddr)
+	topics[1], err = contractutils.MakeTopic(vestingAddr)
 	if err != nil {
 		return err
 	}

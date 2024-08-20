@@ -85,11 +85,11 @@ func ConvertHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract
 	return compiledContract, nil
 }
 
-// ConvertPrecompileHardhatBytesToCompiledContract is a helper method to convert the embedded bytes from a
+// convertPrecompileHardhatBytesToCompiledContract is a helper method to convert the embedded bytes from a
 // Hardhat JSON file into an instance of the CompiledContract type.
 //
 // NOTE: The precompile implementations have to special property that the binary data is empty.
-func ConvertPrecompileHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
+func convertPrecompileHardhatBytesToCompiledContract(bz []byte) (evmtypes.CompiledContract, error) {
 	compiledContract, err := convertHardhatBzToCompiledContract(bz)
 	if err != nil {
 		return evmtypes.CompiledContract{}, err

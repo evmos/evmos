@@ -6,6 +6,7 @@ package distribution
 import (
 	"fmt"
 
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/utils"
 
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -167,7 +168,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
+	return method.Outputs.Pack(types.NewCoinsResponse(res.Amount))
 }
 
 // WithdrawValidatorCommission withdraws the rewards of a validator.
@@ -210,7 +211,7 @@ func (p *Precompile) WithdrawValidatorCommission(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(cmn.NewCoinsResponse(res.Amount))
+	return method.Outputs.Pack(types.NewCoinsResponse(res.Amount))
 }
 
 // FundCommunityPool directly fund the community pool

@@ -16,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
@@ -60,7 +61,7 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	newABI, err := cmn.LoadABI(f, abiPath)
+	newABI, err := contractutils.LoadABI(f, abiPath)
 	if err != nil {
 		return nil, err
 	}
