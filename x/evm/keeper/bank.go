@@ -1,11 +1,20 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var _ types.BankWrapper = BankWrapper{}
+
+const (
+	// denom18Dec specifies that the evm denomination has 18 decimals
+	denom18Dec = 18
+	// denom6Dec specifies that the evm denomination has 6 decimals
+	denom6Dec = 6
+)
 
 // BankWrapper is a wrapper around the Cosmos SDK bank keeper
 // that is used to manage an evm denom with 6 decimals.
@@ -13,16 +22,22 @@ var _ types.BankWrapper = BankWrapper{}
 // - With the EVM, the wrapper works always with 18 decimals.
 // - With the Cosmos bank module, the wrapper works always with 6 decimals.
 type BankWrapper struct {
-	bk types.BankKeeper
+	bk       types.BankKeeper
+	decimals int8
 }
 
 // NewBankWrapper creates a new bank Keeper wrapper instance.
-// The BankWrapper is used to manage an evm denom with 6 decimals
+// The BankWrapper is used to manage an evm denom with 6 or 18 decimals
 func NewBankWrapper(
 	bk types.BankKeeper,
+	decimals int8,
 ) *BankWrapper {
+	if decimals != denom18Dec && decimals != denom6Dec {
+		panic(fmt.Sprintf("decimals = %d not supported. Valid values are %d and %d", decimals, denom18Dec, denom6Dec))
+	}
 	return &BankWrapper{
 		bk,
+		decimals,
 	}
 }
 
@@ -43,14 +58,19 @@ func (w BankWrapper) SendCoins(ctx sdk.Context, from sdk.AccAddress, to sdk.AccA
 // GetBalance returns the balance converted to 18 decimals
 func (w BankWrapper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin {
 	coin := w.bk.GetBalance(ctx, addr, denom)
+	if w.decimals == denom18Dec {
+		return coin
+	}
 	return convert6To18DecimalsCoin(coin)
 }
 
 // MintCoinsToAccount scales down from 18 decimals to 6 decimals the coins amount provided
 // and mints that to the provided account
 func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, moduleName string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	for i := range amt {
-		amt[i] = convert18To6DecimalsCoin(amt[i])
+	if w.decimals == denom6Dec {
+		for i := range amt {
+			amt[i] = convert18To6DecimalsCoin(amt[i])
+		}
 	}
 	if err := w.bk.MintCoins(ctx, moduleName, amt); err != nil {
 		return err
@@ -61,8 +81,10 @@ func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, moduleName string, reci
 // BurnAccountCoins scales down from 18 decimals to 6 decimals the coins amount provided
 // and burns that coins of the provided account
 func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, burningModule string, amt sdk.Coins) error {
-	for i := range amt {
-		amt[i] = convert18To6DecimalsCoin(amt[i])
+	if w.decimals == denom6Dec {
+		for i := range amt {
+			amt[i] = convert18To6DecimalsCoin(amt[i])
+		}
 	}
 	if err := w.bk.SendCoinsFromAccountToModule(ctx, account, burningModule, amt); err != nil {
 		return err
@@ -74,8 +96,10 @@ func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, b
 // from 18 decimals to 6 decimals the coins amount provided
 // and sends the coins
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error {
-	for i := range amt {
-		amt[i] = convert18To6DecimalsCoin(amt[i])
+	if w.decimals == denom6Dec {
+		for i := range amt {
+			amt[i] = convert18To6DecimalsCoin(amt[i])
+		}
 	}
 	return w.bk.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
 }
@@ -84,8 +108,10 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sd
 // from 18 decimals to 6 decimals the coins amount provided
 // and sends the coins from the module to the account
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	for i := range amt {
-		amt[i] = convert18To6DecimalsCoin(amt[i])
+	if w.decimals == denom6Dec {
+		for i := range amt {
+			amt[i] = convert18To6DecimalsCoin(amt[i])
+		}
 	}
 	return w.bk.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt)
 }

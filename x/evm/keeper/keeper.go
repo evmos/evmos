@@ -95,7 +95,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper),
+		bankWrapper:     NewBankWrapper(bankKeeper, denom6Dec),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
