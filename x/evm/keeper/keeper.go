@@ -44,7 +44,7 @@ type Keeper struct {
 	// access to account state
 	accountKeeper types.AccountKeeper
 	// update balance and accounting operations with coins
-	bankWrapper types.BankWrapper
+	bankWrapper *BankWrapper
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
@@ -79,7 +79,6 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
-	denomDecimals int8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -96,7 +95,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper, denomDecimals),
+		bankWrapper:     NewBankWrapper(bankKeeper, types.DefaultDenomDecimals),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,

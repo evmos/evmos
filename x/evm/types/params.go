@@ -25,6 +25,8 @@ const (
 	Denom18Dec = 18
 	// Denom6Dec specifies that the evm denomination has 6 decimals
 	Denom6Dec = 6
+	// DefaultDenomDecimals defines the default EVM denom decimals (6 decimals)
+	DefaultDenomDecimals = Denom6Dec
 )
 
 var (
@@ -74,6 +76,7 @@ func NewParams(
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	denomDec uint32,
 ) Params {
 	return Params{
 		EvmDenom:                evmDenom,
@@ -83,6 +86,7 @@ func NewParams(
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
+		DenomDecimals:           denomDec,
 	}
 }
 
@@ -96,6 +100,7 @@ func DefaultParams() Params {
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
+		DenomDecimals:           DefaultDenomDecimals,
 	}
 }
 
