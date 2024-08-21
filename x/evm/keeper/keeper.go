@@ -79,6 +79,7 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
+	denomDecimals uint8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
