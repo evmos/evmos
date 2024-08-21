@@ -44,6 +44,7 @@ func (m MockEVMKeeper) ChainID() *big.Int {
 func (m MockEVMKeeper) GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error) {
 	return math.LegacyZeroDec(), nil
 }
+
 func TestSDKTxFeeChecker(t *testing.T) {
 	// testCases:
 	//   fallback
