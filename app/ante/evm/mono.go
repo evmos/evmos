@@ -95,8 +95,7 @@ func NewMonoDecoratorUtils(
 
 	mempoolMinGasPrices := ctx.MinGasPrices().AmountOf(evmParams.EvmDenom)
 	if evmParams.DenomDecimals == evmtypes.Denom6Dec {
-		convertedMinGasPrice := evmtypes.Convert6To18DecimalsBigInt(mempoolMinGasPrices.TruncateInt().BigInt())
-		mempoolMinGasPrices = sdkmath.LegacyNewDecFromBigInt(convertedMinGasPrice)
+		mempoolMinGasPrices = evmtypes.Convert6To18DecimalsLegacyDec(mempoolMinGasPrices)
 	}
 
 	if rules.IsLondon && baseFee == nil {

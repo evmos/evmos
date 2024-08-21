@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v19/x/evm/types"
@@ -70,8 +69,7 @@ func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	if w.decimals == types.Denom6Dec {
 		convertedBaseFee := types.Convert6To18DecimalsBigInt(params.BaseFee.BigInt())
 		params.BaseFee = sdk.NewIntFromBigInt(convertedBaseFee)
-		convertedMinGasPrice := types.Convert6To18DecimalsBigInt(params.MinGasPrice.TruncateInt().BigInt())
-		params.MinGasPrice = math.LegacyNewDecFromBigInt(convertedMinGasPrice)
+		params.MinGasPrice = types.Convert6To18DecimalsLegacyDec(params.MinGasPrice)
 	}
 	return params
 }
