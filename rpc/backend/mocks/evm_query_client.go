@@ -227,6 +227,36 @@ func (_m *EVMQueryClient) EthCall(ctx context.Context, in *types.EthCallRequest,
 	return r0, r1
 }
 
+// GlobalMinGasPrice provides a mock function with given fields: ctx, in, opts
+func (_m *EVMQueryClient) GlobalMinGasPrice(ctx context.Context, in *types.QueryGlobalMinGasPriceRequest, opts ...grpc.CallOption) (*types.QueryGlobalMinGasPriceResponse, error) {
+    _va := make([]interface{}, len(opts))
+    for _i := range opts {
+        _va[_i] = opts[_i]
+    }
+    var _ca []interface{}
+    _ca = append(_ca, ctx, in)
+    _ca = append(_ca, _va...)
+    ret := _m.Called(_ca...)
+
+    var r0 *types.QueryGlobalMinGasPriceResponse
+    if rf, ok := ret.Get(0).(func(context.Context, *types.QueryGlobalMinGasPriceRequest, ...grpc.CallOption) *types.QueryGlobalMinGasPriceResponse); ok {
+        r0 = rf(ctx, in, opts...)
+    } else {
+        if ret.Get(0) != nil {
+            r0 = ret.Get(0).(*types.QueryGlobalMinGasPriceResponse)
+        }
+    }
+
+    var r1 error
+    if rf, ok := ret.Get(1).(func(context.Context, *types.QueryGlobalMinGasPriceRequest, ...grpc.CallOption) error); ok {
+        r1 = rf(ctx, in, opts...)
+    } else {
+        r1 = ret.Error(1)
+    }
+
+    return r0, r1
+}
+
 // Params provides a mock function with given fields: ctx, in, opts
 func (_m *EVMQueryClient) Params(ctx context.Context, in *types.QueryParamsRequest, opts ...grpc.CallOption) (*types.QueryParamsResponse, error) {
 	_va := make([]interface{}, len(opts))
