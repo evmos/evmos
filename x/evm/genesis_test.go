@@ -55,7 +55,7 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "valid account",
 			malleate: func(_ *testnetwork.UnitTestNetwork) {
-				vmdb.AddBalance(address, big.NewInt(1))
+				vmdb.AddBalance(address, big.NewInt(1e18))
 			},
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
