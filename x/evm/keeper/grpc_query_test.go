@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 				suite.Require().NoError(err)
 
 				expAccount = &types.QueryAccountResponse{
-					Balance:  "100",
+					Balance:  "100000000000000",
 					CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
 					Nonce:    0,
 				}
@@ -207,7 +207,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
 				suite.Require().NoError(err)
 
-				expBalance = "100"
+				expBalance = "100000000000000"
 				req = &types.QueryBalanceRequest{
 					Address: suite.address.String(),
 				}

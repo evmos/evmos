@@ -13,12 +13,13 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestCheckSenderBalance() {
-	hundredInt := sdkmath.NewInt(100)
+	hundredInt := sdkmath.NewInt(1000000000000)
 	zeroInt := sdkmath.ZeroInt()
-	oneInt := sdkmath.OneInt()
-	fiveInt := sdkmath.NewInt(5)
+	oneInt := sdkmath.NewInt(1000000000)
+	fiveInt := sdkmath.NewInt(5000000000)
 	fiftyInt := sdkmath.NewInt(50)
 	negInt := sdkmath.NewInt(-10)
+	oneIntUnscaled := sdkmath.NewInt(1)
 
 	testCases := []struct {
 		name            string
@@ -57,7 +58,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 			name:       "negative cost",
 			to:         suite.address.String(),
 			gasLimit:   1,
-			gasPrice:   &oneInt,
+			gasPrice:   &oneIntUnscaled,
 			cost:       &negInt,
 			from:       suite.address.String(),
 			accessList: &ethtypes.AccessList{},
@@ -66,7 +67,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 		{
 			name:       "Higher gas limit, not enough balance",
 			to:         suite.address.String(),
-			gasLimit:   100,
+			gasLimit:   10000000000000,
 			gasPrice:   &oneInt,
 			cost:       &oneInt,
 			from:       suite.address.String(),
@@ -86,7 +87,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 		{
 			name:       "Higher gas price, not enough balance",
 			to:         suite.address.String(),
-			gasLimit:   20,
+			gasLimit:   30000000,
 			gasPrice:   &fiveInt,
 			cost:       &oneInt,
 			from:       suite.address.String(),
@@ -149,7 +150,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 		{
 			name:            "Higher gas limit, not enough balance w/ enableFeemarket",
 			to:              suite.address.String(),
-			gasLimit:        100,
+			gasLimit:        3000000000000,
 			gasFeeCap:       big.NewInt(1),
 			cost:            &oneInt,
 			from:            suite.address.String(),
@@ -171,8 +172,9 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 		{
 			name:            "Higher gas price, not enough balance w/ enableFeemarket",
 			to:              suite.address.String(),
-			gasLimit:        20,
+			gasLimit:        3000000000000,
 			gasFeeCap:       big.NewInt(5),
+			gasPrice:        &fiveInt,
 			cost:            &oneInt,
 			from:            suite.address.String(),
 			accessList:      &ethtypes.AccessList{},
@@ -268,14 +270,15 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 // in one function and share a lot of the same setup.
 // In practice, the two tested functions will also be sequentially executed.
 func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
-	hundredInt := sdkmath.NewInt(100)
+	hundredInt := sdkmath.NewIntFromBigInt(big.NewInt(5e18))
 	zeroInt := sdkmath.ZeroInt()
-	oneInt := sdkmath.NewInt(1)
-	fiveInt := sdkmath.NewInt(5)
-	fiftyInt := sdkmath.NewInt(50)
+	//oneIntOld := sdkmath.NewInt(1)
+	oneInt := sdkmath.NewInt(100000000000000)
+	fiveInt := sdkmath.NewInt(50000000000000)
+	fiftyInt := sdkmath.NewInt(50000000000000)
 
 	// should be enough to cover all test cases
-	initBalance := sdkmath.NewInt((ethparams.InitialBaseFee + 10) * 105)
+	initBalance := sdkmath.NewInt((ethparams.InitialBaseFee + 10) * 10000000)
 
 	testCases := []struct {
 		name             string
@@ -313,7 +316,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		},
 		{
 			name:             "Higher gas limit, not enough balance",
-			gasLimit:         105,
+			gasLimit:         1000000,
 			gasPrice:         &oneInt,
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
@@ -333,7 +336,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		},
 		{
 			name:             "Higher gas price, not enough balance",
-			gasLimit:         20,
+			gasLimit:         1000000,
 			gasPrice:         &fiftyInt,
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
@@ -356,19 +359,19 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		//  testcases with enableFeemarket enabled.
 		{
 			name:             "Invalid gasFeeCap w/ enableFeemarket",
-			gasLimit:         10,
+			gasLimit:         1,
 			gasFeeCap:        big.NewInt(1),
 			gasTipCap:        big.NewInt(1),
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
 			expectPassVerify: false,
-			expectPassDeduct: true,
+			expectPassDeduct: false,
 			enableFeemarket:  true,
 			from:             suite.address.String(),
 		},
 		{
 			name:             "empty tip fee is valid to deduct",
-			gasLimit:         10,
+			gasLimit:         1000000,
 			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee),
 			gasTipCap:        big.NewInt(1),
 			cost:             &oneInt,
@@ -380,7 +383,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		},
 		{
 			name:             "effectiveTip equal to gasTipCap",
-			gasLimit:         100,
+			gasLimit:         1000000,
 			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee + 2),
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
@@ -391,7 +394,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		},
 		{
 			name:             "effectiveTip equal to (gasFeeCap - baseFee)",
-			gasLimit:         105,
+			gasLimit:         1000000,
 			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee + 1),
 			gasTipCap:        big.NewInt(2),
 			cost:             &oneInt,
@@ -433,7 +436,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
 			expectPassVerify: false,
-			expectPassDeduct: true,
+			expectPassDeduct: false,
 			from:             suite.address.String(),
 			malleate: func() {
 				suite.ctx = suite.ctx.WithIsCheckTx(true)

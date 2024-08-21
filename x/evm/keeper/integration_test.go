@@ -3,6 +3,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -90,7 +91,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
 
-			transferAmount := int64(1000)
+			transferAmount := int64(10000000000000000)
 
 			// Taking custom args from the table entry
 			txArgs := getTxArgs()
@@ -108,6 +109,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
 			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
+			fmt.Println(senderAfterBalance.GetBalance().Amount, senderBalanceResultBeforeFees)
 			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
 
 			// Check receiver balance after transaction
@@ -116,7 +118,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		},
-			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
+			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs {
+				return evmtypes.EvmTxArgs{}
+			}),
 			Entry("as an AccessListTx",
 				func() evmtypes.EvmTxArgs {
 					return evmtypes.EvmTxArgs{

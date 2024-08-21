@@ -390,14 +390,14 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			leftoverGas:    0,
 			refundQuotient: params.RefundQuotient,
 			noError:        true,
-			expGasRefund:   params.TxGas / params.RefundQuotient,
+			expGasRefund:   (params.TxGas / params.RefundQuotient) * 1e12,
 		},
 		{
 			name:           "invalid Gas value in msg",
 			leftoverGas:    0,
 			refundQuotient: params.RefundQuotient,
 			noError:        false,
-			expGasRefund:   params.TxGas,
+			expGasRefund:   params.TxGas * 1e12,
 			malleate: func() {
 				keeperParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 				m, err = suite.createContractGethMsg(
@@ -446,9 +446,10 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 
 			gasUsed := m.Gas() - tc.leftoverGas
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
-			suite.Require().Equal(tc.expGasRefund, refund)
+			scaledRefund := refund * 1e12
+			suite.Require().Equal(tc.expGasRefund, scaledRefund)
 
-			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom)
+			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, scaledRefund, evmtypes.DefaultEVMDenom)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {

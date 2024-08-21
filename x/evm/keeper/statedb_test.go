@@ -897,7 +897,7 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 			"mint to address",
 			suite.address,
 			func() {
-				amount = big.NewInt(100)
+				amount = big.NewInt(100000000000000)
 			},
 			false,
 		},
@@ -905,7 +905,7 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 			"burn from address",
 			suite.address,
 			func() {
-				amount = big.NewInt(60)
+				amount = big.NewInt(60000000000000)
 			},
 			false,
 		},
