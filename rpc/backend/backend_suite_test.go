@@ -26,6 +26,7 @@ import (
 	rpctypes "github.com/evmos/evmos/v19/rpc/types"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
@@ -185,7 +186,7 @@ func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEth
 	err := msgEthereumTx.Sign(ethSigner, signer)
 	suite.Require().NoError(err)
 
-	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), utils.BaseDenom)
+	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), utils.BaseDenom, types.DefaultDenomDecimals)
 	suite.Require().NoError(err)
 
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()

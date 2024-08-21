@@ -95,7 +95,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper, types.DefaultDenomDecimals),
+		bankWrapper:     NewBankWrapper(bankKeeper),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
@@ -292,6 +292,9 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	// if node is pruned, params is empty. Return invalid value
 	if evmDenom == "" {
 		return big.NewInt(-1)
+	}
+	if err := k.bankWrapper.WithDecimals(evmParams.DenomDecimals); err != nil {
+		panic(err)
 	}
 	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
 
