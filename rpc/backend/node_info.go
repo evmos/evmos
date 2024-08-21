@@ -342,15 +342,21 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 // the node config. If set value is 0, it will default to 20.
 
 func (b *Backend) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
+	res, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
 		return types.DefaultGasPrice
 	}
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
+	amt := minGasPrice.AmountOf(res.Params.EvmDenom).TruncateInt64()
+
 	if amt == 0 {
-		return types.DefaultGasPrice
+		amt = types.DefaultGasPrice
+	}
+
+	if res.Params.DenomDecimals == evmtypes.Denom6Dec {
+		convertedAmt := evmtypes.Convert6To18DecimalsBigInt(big.NewInt(amt))
+		amt = convertedAmt.Int64()
 	}
 
 	return amt
