@@ -63,7 +63,7 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	return types.Convert6To18DecimalsBigInt(baseFee)
 }
 
-// GetBaseFee returns the base fee converted to 18 decimals
+// GetParams returns the params converted to 18 decimals
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
 	if w.decimals == types.Denom6Dec {
