@@ -44,18 +44,7 @@ type BankKeeper interface {
 //   - With the Cosmos bank module, the wrapper works always
 //     with the bank module decimals (either 6 or 18).
 type BankWrapper interface {
-	IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error
-	SendCoins(ctx sdk.Context, from, to sdk.AccAddress, amt sdk.Coins) error
-	// GetBalance returns the balance converted to 18 decimals (if applies)
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	// SendCoinsFromModuleToAccount scales down (if applies)
-	// from 18 decimals to 6 decimals the coins amount provided
-	// and sends the coins from the module to the account
-	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	// SendCoinsFromAccountToModule scales down (if applies)
-	// from 18 decimals to 6 decimals the coins amount provided
-	// and sends the coins
-	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	BankKeeper
 	// MintCoinsToAccount scales down (if applies)
 	// from 18 decimals to 6 decimals the coins amount provided
 	// and mints that to the provided account
