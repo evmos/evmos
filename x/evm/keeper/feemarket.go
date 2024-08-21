@@ -29,7 +29,7 @@ func NewFeeMarketWrapper(
 ) *FeeMarketWrapper {
 	return &FeeMarketWrapper{
 		fk,
-		types.DefaultDenomDecimals,
+		types.Denom18Dec, // default to 18 decimals for archive queries
 	}
 }
 
@@ -37,6 +37,9 @@ func NewFeeMarketWrapper(
 // This function is useful when updating the evm params (denomDecimals)
 func (w *FeeMarketWrapper) WithDecimals(decimals uint32) error {
 	if decimals != types.Denom18Dec && decimals != types.Denom6Dec {
+		// In historical queries, this will fail
+		// So set 18 decimals as default
+		w.decimals = types.Denom18Dec
 		return fmt.Errorf("decimals = %d not supported. Valid values are %d and %d", decimals, types.Denom18Dec, types.Denom6Dec)
 	}
 	w.decimals = decimals

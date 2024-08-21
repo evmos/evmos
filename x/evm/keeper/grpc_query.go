@@ -450,8 +450,10 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
 
+	// if fails defaults to 18 decimals
+	// This will happen in historical queries
 	if err = k.feeMarketWrapper.WithDecimals(cfg.Params.DenomDecimals); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to set denom decimals: %s", err.Error())
+		ctx.Logger().Error("failed to set denom decimals: %s. Using default 18 decimals", err.Error())
 	}
 	// compute and use base fee of the height that is being traced
 	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
@@ -552,8 +554,10 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 		return nil, status.Error(codes.Internal, "failed to load evm config")
 	}
 
+	// if fails defaults to 18 decimals
+	// This will happen in historical queries
 	if err = k.feeMarketWrapper.WithDecimals(cfg.Params.DenomDecimals); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to set denom decimals: %s", err.Error())
+		ctx.Logger().Error("failed to set denom decimals: %s. Using default 18 decimals", err.Error())
 	}
 
 	// compute and use base fee of height that is being traced

@@ -336,7 +336,7 @@ func (k Keeper) GetMinGasMultiplier(ctx sdk.Context) math.LegacyDec {
 func (k Keeper) GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error) {
 	params := k.GetParams(ctx)
 	if err := k.feeMarketWrapper.WithDecimals(params.DenomDecimals); err != nil {
-		return math.LegacyZeroDec(), err
+		k.Logger(ctx).Error("error while setting feemarket wrapper decimals", "error", err)
 	}
 	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice, nil
 }
