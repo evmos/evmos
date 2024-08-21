@@ -67,11 +67,6 @@ var (
 	}
 )
 
-type Denom struct {
-	Name     string
-	Decimals uint32
-}
-
 // NewParams creates a new Params instance
 func NewParams(
 	evmDenom string,
