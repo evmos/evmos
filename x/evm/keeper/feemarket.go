@@ -32,7 +32,7 @@ func NewFeeMarketWrapper(
 	}
 }
 
-// WithDecimals function updates the decimals on the bank wrapper
+// WithDecimals function updates the decimals on the feemarket wrapper
 // This function is useful when updating the evm params (denomDecimals)
 func (w *FeeMarketWrapper) WithDecimals(decimals uint32) error {
 	if decimals != types.Denom18Dec && decimals != types.Denom6Dec {
