@@ -139,3 +139,8 @@ func Convert18To6DecimalsCoin(coin sdk.Coin) sdk.Coin {
 	coin.Amount = coin.Amount.QuoRaw(1e12)
 	return coin
 }
+
+// Convert6To18DecimalsBigInt converts a big Int to 18 decimals from 6
+func Convert6To18DecimalsBigInt(amt *big.Int) *big.Int {
+	return new(big.Int).Mul(amt, big.NewInt(1e12))
+}

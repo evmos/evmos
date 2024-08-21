@@ -78,7 +78,6 @@ func NewMonoDecorator(
 func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek EVMKeeper,
-	fmk FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
 	chainCfg := evmParams.GetChainConfig()
@@ -86,7 +85,19 @@ func NewMonoDecoratorUtils(
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)
-	feeMarketParams := fmk.GetParams(ctx)
+
+	// get the gas prices adapted accordingly
+	// to the evm denom decimals
+	minGasPrice, err := ek.GetMinGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	mempoolMinGasPrices := ctx.MinGasPrices().AmountOf(evmParams.EvmDenom)
+	if evmParams.DenomDecimals == evmtypes.Denom6Dec {
+		convertedMinGasPrice := evmtypes.Convert6To18DecimalsBigInt(mempoolMinGasPrices.BigInt())
+		mempoolMinGasPrices = sdkmath.LegacyNewDecFromBigInt(convertedMinGasPrice)
+	}
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
@@ -101,8 +112,8 @@ func NewMonoDecoratorUtils(
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
-		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmParams.EvmDenom),
-		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
+		MempoolMinGasPrice: mempoolMinGasPrices,
+		GlobalMinGasPrice:  minGasPrice,
 		EvmDenom:           evmParams.EvmDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
@@ -131,7 +142,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper, md.feeMarketKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}

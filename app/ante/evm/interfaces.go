@@ -5,6 +5,7 @@ package evm
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
@@ -41,6 +42,9 @@ type DynamicFeeEVMKeeper interface {
 	ChainID() *big.Int
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
+	// GetMinGasPrice returns the MinGasPrice param from the fee market module
+	// adapted according to the evm denom decimals
+	GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error)
 }
 
 type protoTxProvider interface {
