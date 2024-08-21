@@ -5,8 +5,6 @@ package keeper
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v19/utils"
-
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/log"
@@ -46,7 +44,7 @@ type Keeper struct {
 	// access to account state
 	accountKeeper types.AccountKeeper
 	// update balance and accounting operations with coins
-	bankKeeper types.BankKeeper
+	bankWrapper types.BankWrapper
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
@@ -81,6 +79,7 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
+	denomDecimals uint8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -97,7 +96,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankKeeper:      bankKeeper,
+		bankWrapper:     NewBankWrapper(bankKeeper, denomDecimals),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
@@ -295,9 +294,9 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	if evmDenom == "" {
 		return big.NewInt(-1)
 	}
-	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, evmDenom)
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
 
-	return utils.Convert6To18Decimals(*coin.Amount.BigInt())
+	return coin.Amount.BigInt()
 }
 
 // GetBaseFee returns current base fee, return values:
