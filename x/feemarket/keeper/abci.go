@@ -18,7 +18,7 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	baseFee := k.CalculateBaseFee(ctx)
 
 	// return immediately if base fee is nil
-	if baseFee.IsZero() {
+	if baseFee.IsNil() {
 		return
 	}
 

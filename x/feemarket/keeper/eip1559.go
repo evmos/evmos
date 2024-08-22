@@ -18,7 +18,7 @@ func (k Keeper) CalculateBaseFee(ctx sdk.Context) sdkmath.LegacyDec {
 
 	// Ignore the calculation if not enabled
 	if !params.IsBaseFeeEnabled(ctx.BlockHeight()) {
-		return sdkmath.LegacyZeroDec()
+		return sdkmath.LegacyDec{}
 	}
 
 	consParams := ctx.ConsensusParams()
@@ -35,8 +35,8 @@ func (k Keeper) CalculateBaseFee(ctx sdk.Context) sdkmath.LegacyDec {
 	// as it is retrieved from the transient store, which is committed to the
 	// persistent KVStore after EndBlock (ABCI Commit).
 	parentBaseFee := params.BaseFee
-	if parentBaseFee.IsZero() {
-		return sdkmath.LegacyZeroDec()
+	if parentBaseFee.IsNil() {
+		return sdkmath.LegacyDec{}
 	}
 
 	parentGasUsed := k.GetBlockGasWanted(ctx)
@@ -52,7 +52,7 @@ func (k Keeper) CalculateBaseFee(ctx sdk.Context) sdkmath.LegacyDec {
 	// validation
 	parentGasTargetInt := gasLimit.Quo(sdkmath.NewIntFromUint64(uint64(params.ElasticityMultiplier)))
 	if !parentGasTargetInt.IsUint64() {
-		return sdkmath.LegacyZeroDec()
+		return sdkmath.LegacyDec{}
 	}
 
 	parentGasTarget := parentGasTargetInt.Uint64()

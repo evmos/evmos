@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
@@ -60,6 +62,9 @@ func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 // CalculateBaseFee returns the calculated base fee converted to 18 decimals
 func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.CalculateBaseFee(ctx)
+	if baseFee.IsNil() {
+		return nil
+	}
 	if w.decimals == types.Denom18Dec {
 		return baseFee.TruncateInt().BigInt()
 	}
