@@ -285,7 +285,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 
 	res, err := suite.app.EvmKeeper.BaseFee(suite.ctx, &evmtypes.QueryBaseFeeRequest{})
 	suite.Require().NoError(err)
-	
+
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
