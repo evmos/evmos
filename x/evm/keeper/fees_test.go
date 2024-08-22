@@ -272,7 +272,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 	hundredInt := sdkmath.NewIntFromBigInt(big.NewInt(5e18))
 	zeroInt := sdkmath.ZeroInt()
-	//oneIntOld := sdkmath.NewInt(1)
+	// oneIntOld := sdkmath.NewInt(1)
 	oneInt := sdkmath.NewInt(100000000000000)
 	fiveInt := sdkmath.NewInt(50000000000000)
 	fiftyInt := sdkmath.NewInt(50000000000000)

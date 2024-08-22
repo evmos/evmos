@@ -7,7 +7,6 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
-
 // BankWrapper is a wrapper around the Cosmos SDK bank keeper
 // that is used to manage an evm denom with 6 or 18 decimals.
 // The wrapper makes the corresponding conversions to achieve:
