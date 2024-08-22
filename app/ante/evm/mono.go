@@ -308,7 +308,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
 	}
 
-	if err := CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
+	if err := CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit, decUtils.EvmDenom, decUtils.EvmParams.DenomDecimals); err != nil {
 		return ctx, err
 	}
 

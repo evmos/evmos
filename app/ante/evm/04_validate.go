@@ -97,9 +97,21 @@ func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	return authInfo.Fee, nil
 }
 
-func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) error {
+func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64, evmDenom string, denomDecimals uint32) error {
 	if txFeeInfo == nil {
 		return nil
+	}
+
+	// in case the evm has 6 decimals denom, we need to make the corresponding conversion
+	// before checking equality. The conversion rounds down, so we have to
+	// convert the txFee amt to 6 decimals
+	if denomDecimals == evmtypes.Denom6Dec {
+		for i := range txFee {
+			if txFee[i].Denom != evmDenom {
+				continue
+			}
+			txFee[i] = evmtypes.Convert18To6DecimalsCoin(txFee[i])
+		}
 	}
 
 	if !txFeeInfo.Amount.IsEqual(txFee) {

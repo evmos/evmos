@@ -55,7 +55,12 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 		return errorsmod.Wrapf(err, "account not found for sender %s", from)
 	}
 
-	evmDenom := k.GetParams(ctx).EvmDenom
+	var (
+		params   = k.GetParams(ctx)
+		evmDenom = params.EvmDenom
+		denomDec = params.DenomDecimals
+	)
+
 	if found, _ := fees.Find(evmDenom); !found {
 		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "fee token %s not found in the fees", evmDenom)
 	}
@@ -63,6 +68,11 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 	// only evmDenom is allowed on fee coins
 	if fees.Len() > 1 {
 		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "fee token can only be %s", evmDenom)
+	}
+
+	// set the corresponding decimals on the EVM bank keeper
+	if err = k.bankWrapper.WithDecimals(denomDec); err != nil {
+		return err
 	}
 
 	// deduct the full gas cost from the user balance

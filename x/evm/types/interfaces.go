@@ -37,24 +37,6 @@ type BankKeeper interface {
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 }
 
-// BankWrapper is a wrapper around the Cosmos SDK bank keeper
-// that is used to manage an evm denom with 6 or 18 decimals.
-// The wrapper makes the corresponding conversions to achieve:
-//   - With the EVM, the wrapper works always with 18 decimals.
-//   - With the Cosmos bank module, the wrapper works always
-//     with the bank module decimals (either 6 or 18).
-type BankWrapper interface {
-	BankKeeper
-	// MintCoinsToAccount scales down (if applies)
-	// from 18 decimals to 6 decimals the coins amount provided
-	// and mints that to the provided account
-	MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	// BurnAccountCoins scales down (if applies)
-	// from 18 decimals to 6 decimals the coins amount provided
-	// and burns that coins of the provided account
-	BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, amt sdk.Coins) error
-}
-
 // StakingKeeper returns the historical headers kept in store.
 type StakingKeeper interface {
 	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
