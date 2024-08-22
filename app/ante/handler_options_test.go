@@ -166,7 +166,7 @@ func (suite *AnteTestSuite) TestValidateHandlerOptions() {
 				SignModeHandler:        encoding.MakeConfig(app.ModuleBasics).TxConfig.SignModeHandler(),
 				SigGasConsumer:         ante.SigVerificationGasConsumer,
 				MaxTxGasWanted:         40000000,
-				TxFeeChecker:           ethante.NewDynamicFeeChecker(suite.app.EvmKeeper),
+				TxFeeChecker:           ethante.NewDynamicFeeChecker(suite.app.EvmKeeper, suite.app.FeeMarketKeeper),
 			},
 			true,
 		},

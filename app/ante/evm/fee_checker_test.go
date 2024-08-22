@@ -197,7 +197,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
 
 				option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionDynamicFeeTx{
-					MaxPriorityPrice: math.NewInt(5).Mul(evmtypes.DefaultPriorityReduction),
+					MaxPriorityPrice: math.LegacyNewDec(5).MulInt(evmtypes.DefaultPriorityReduction),
 				})
 				require.NoError(t, err)
 				txBuilder.SetExtensionOptions(option)
@@ -220,7 +220,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 
 				// set negative priority fee
 				option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionDynamicFeeTx{
-					MaxPriorityPrice: math.NewInt(-5).Mul(evmtypes.DefaultPriorityReduction),
+					MaxPriorityPrice: math.LegacyNewDec(-5).MulInt(evmtypes.DefaultPriorityReduction),
 				})
 				require.NoError(t, err)
 				txBuilder.SetExtensionOptions(option)
