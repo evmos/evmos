@@ -446,9 +446,10 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 
 			gasUsed := m.Gas() - tc.leftoverGas
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
-			suite.Require().Equal(tc.expGasRefund, refund)
+			scaledRefund := refund * 1e12
+			suite.Require().Equal(tc.expGasRefund, scaledRefund)
 
-			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
+			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, scaledRefund, evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {

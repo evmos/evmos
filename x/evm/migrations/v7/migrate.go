@@ -57,6 +57,7 @@ func MigrateStore(
 	params.AllowUnprotectedTxs = paramsV6.AllowUnprotectedTxs
 	params.ActiveStaticPrecompiles = paramsV6.ActivePrecompiles
 	params.EVMChannels = paramsV6.EVMChannels
+	params.DenomDecimals = types.DefaultDenomDecimals
 
 	// set the default access control configuration
 	params.AccessControl = types.DefaultAccessControl
