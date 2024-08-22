@@ -11,7 +11,7 @@ import (
 	v5 "github.com/evmos/evmos/v19/x/feemarket/migrations/v5"
 	typesV4 "github.com/evmos/evmos/v19/x/feemarket/migrations/v5/types"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
-	
+
 	"github.com/test-go/testify/require"
 )
 
