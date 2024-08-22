@@ -68,8 +68,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	})
 	require.NoError(t, err)
 
-
-	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	baseFeeRes, err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	require.NoError(t, err)
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
@@ -123,8 +122,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-
-	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	baseFeeRes, err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	require.NoError(t, err)
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
@@ -184,7 +182,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	baseFeeRes, err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	require.NoError(t, err)
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
