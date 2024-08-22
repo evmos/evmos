@@ -127,3 +127,15 @@ func BinSearch(lo, hi uint64, executable func(uint64) (bool, *MsgEthereumTxRespo
 func EffectiveGasPrice(baseFee, feeCap, tipCap *big.Int) *big.Int {
 	return math.BigMin(new(big.Int).Add(tipCap, baseFee), feeCap)
 }
+
+// Convert6To18DecimalsCoin converts the coin amount to 18 decimals from 6
+func Convert6To18DecimalsCoin(coin sdk.Coin) sdk.Coin {
+	coin.Amount = coin.Amount.MulRaw(1e12)
+	return coin
+}
+
+// Convert18To6DecimalsCoin converts the coin amount to 6 decimals from 18
+func Convert18To6DecimalsCoin(coin sdk.Coin) sdk.Coin {
+	coin.Amount = coin.Amount.QuoRaw(1e12)
+	return coin
+}

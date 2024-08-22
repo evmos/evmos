@@ -25,7 +25,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			name:    "valid",
-			params:  NewParams(DefaultEVMDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
+			params:  NewParams(DefaultEVMDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl, DefaultDenomDecimals),
 			expPass: true,
 		},
 		{
@@ -87,7 +87,7 @@ func TestParamsValidate(t *testing.T) {
 
 func TestParamsEIPs(t *testing.T) {
 	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
-	params := NewParams("ara", false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl)
+	params := NewParams("ara", false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl, DefaultDenomDecimals)
 	actual := params.EIPs()
 
 	require.Equal(t, []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}, actual)

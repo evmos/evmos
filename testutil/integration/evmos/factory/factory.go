@@ -161,7 +161,7 @@ func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
 func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signing.Tx, error) {
 	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
-	return msg.BuildTx(txBuilder, tf.network.GetDenom())
+	return msg.BuildTx(txBuilder, tf.network.GetDenom(), evmtypes.DefaultDenomDecimals)
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse

@@ -25,6 +25,8 @@ const (
 	Denom18Dec = 18
 	// Denom6Dec specifies that the evm denomination has 6 decimals
 	Denom6Dec = 6
+	// DefaultDenomDecimals defines the default EVM denom decimals (6 decimals)
+	DefaultDenomDecimals = Denom6Dec
 )
 
 var (
@@ -74,6 +76,7 @@ func NewParams(
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
+	denomDec uint32,
 ) Params {
 	return Params{
 		EvmDenom:                evmDenom,
@@ -83,6 +86,7 @@ func NewParams(
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
+		DenomDecimals:           denomDec,
 	}
 }
 
@@ -96,6 +100,7 @@ func DefaultParams() Params {
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
+		DenomDecimals:           DefaultDenomDecimals,
 	}
 }
 
@@ -120,6 +125,10 @@ func validateChannels(i interface{}) error {
 // Validate performs basic validation on evm parameters.
 func (p Params) Validate() error {
 	if err := validateEVMDenom(p.EvmDenom); err != nil {
+		return err
+	}
+
+	if err := validateDenomDecimals(p.DenomDecimals); err != nil {
 		return err
 	}
 
@@ -227,6 +236,19 @@ func validateEVMDenom(i interface{}) error {
 	}
 
 	return sdk.ValidateDenom(denom)
+}
+
+func validateDenomDecimals(i interface{}) error {
+	decimals, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter denom decimals: %T", i)
+	}
+
+	if decimals != Denom18Dec && decimals != Denom6Dec {
+		return fmt.Errorf("decimals = %d not supported. Valid values are %d and %d", decimals, Denom18Dec, Denom6Dec)
+	}
+
+	return nil
 }
 
 func validateBool(i interface{}) error {

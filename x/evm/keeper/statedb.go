@@ -84,6 +84,12 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
 	params := k.GetParams(ctx)
+
+	// set the corresponding decimals for the EVM keeper bank module wrapper
+	if err := k.bankWrapper.WithDecimals(params.DenomDecimals); err != nil {
+		return err
+	}
+
 	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, params.EvmDenom)
 	delta := new(big.Int).Sub(amount, coin.Amount.BigInt())
 	switch delta.Sign() {

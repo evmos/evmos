@@ -332,7 +332,7 @@ func (msg *MsgEthereumTx) UnmarshalBinary(b []byte) error {
 }
 
 // BuildTx builds the canonical cosmos tx from ethereum msg
-func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.Tx, error) {
+func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string, denomDec uint32) (signing.Tx, error) {
 	builder, ok := b.(authtx.ExtensionOptionsTxBuilder)
 	if !ok {
 		return nil, errors.New("unsupported builder")
@@ -350,7 +350,11 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 	fees := make(sdk.Coins, 0)
 	feeAmt := sdkmath.NewIntFromBigInt(txData.Fee())
 	if feeAmt.Sign() > 0 {
-		fees = append(fees, sdk.NewCoin(evmDenom, feeAmt))
+		feeCoin := sdk.NewCoin(evmDenom, feeAmt)
+		if denomDec == Denom6Dec {
+			feeCoin = Convert18To6DecimalsCoin(feeCoin)
+		}
+		fees = append(fees, feeCoin)
 	}
 
 	builder.SetExtensionOptions(option)

@@ -30,6 +30,9 @@ message Params {
   // active_static_precompiles defines the slice of hex addresses of the precompiled
   // contracts that are active
   repeated string active_static_precompiles = 10;
+  // denom_decimals defines the amount of decimals of the evm denom
+  uint32 denom_decimals = 11
+      [(gogoproto.customname) = "DenomDecimals", (gogoproto.moretags) = "yaml:\"denom_decimals\""];
 }
 
 // AccessControl defines the permission policy of the EVM

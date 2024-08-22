@@ -11,7 +11,8 @@ message Bid {
   // sender is the address of the bidder
   string sender = 1;
   // bid_value is the amount of the bid
-  string bid_value = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin", (gogoproto.nullable) = false];
+  string bid_value = 2
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin", (gogoproto.nullable) = false];
 }
 
 // Deposit is a message type for deposits

@@ -44,7 +44,7 @@ type Keeper struct {
 	// access to account state
 	accountKeeper types.AccountKeeper
 	// update balance and accounting operations with coins
-	bankWrapper types.BankWrapper
+	bankWrapper *BankWrapper
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
@@ -79,7 +79,7 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
-	denomDecimals int8,
+	denomDecimals uint8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -96,7 +96,7 @@ func NewKeeper(
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper, denomDecimals),
+		bankWrapper:     NewBankWrapper(bankKeeper),
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
@@ -293,6 +293,9 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	// if node is pruned, params is empty. Return invalid value
 	if evmDenom == "" {
 		return big.NewInt(-1)
+	}
+	if err := k.bankWrapper.WithDecimals(evmParams.DenomDecimals); err != nil {
+		panic(err)
 	}
 	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
 
