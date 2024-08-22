@@ -35,7 +35,7 @@ func (k Keeper) CalculateBaseFee(ctx sdk.Context) sdkmath.LegacyDec {
 	// as it is retrieved from the transient store, which is committed to the
 	// persistent KVStore after EndBlock (ABCI Commit).
 	parentBaseFee := params.BaseFee
-	if parentBaseFee == sdkmath.LegacyZeroDec() {
+	if parentBaseFee.IsZero() {
 		return sdkmath.LegacyZeroDec()
 	}
 

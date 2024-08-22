@@ -63,7 +63,7 @@ func (k Keeper) GetBaseFee(ctx sdk.Context) math.LegacyDec {
 	}
 
 	baseFee := params.BaseFee
-	if baseFee == math.LegacyZeroDec() {
+	if baseFee.IsZero() {
 		// try v1 format
 		return math.LegacyNewDecFromBigInt(k.GetBaseFeeV1(ctx))
 	}

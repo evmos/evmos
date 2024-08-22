@@ -704,7 +704,7 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 	return res, nil
 }
 
-// BaseFee implements the Query/BaseFee gRPC method
+// BaseFee implements the Query/GlobalMinGasPrice gRPC method
 func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasPriceRequest) (*types.QueryGlobalMinGasPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	minGasPrice, err := k.GetMinGasPrice(ctx)
