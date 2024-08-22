@@ -17,7 +17,6 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
@@ -86,7 +85,7 @@ func (s *PostTestSuite) BuildEthTx() sdk.Tx {
 
 	msgEthereumTx := evmtypes.NewTx(ethTxParams)
 	msgEthereumTx.From = s.from.String()
-	tx, err := msgEthereumTx.BuildTx(s.txBuilder, "evmos", types.DefaultDenomDecimals)
+	tx, err := msgEthereumTx.BuildTx(s.txBuilder, "evmos", evmtypes.DefaultDenomDecimals)
 	s.Require().NoError(err)
 	return tx
 }

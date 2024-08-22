@@ -41,7 +41,7 @@ func (m MockEVMKeeper) ChainID() *big.Int {
 	return big.NewInt(9000)
 }
 
-func (m MockEVMKeeper) GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error) {
+func (m MockEVMKeeper) GetMinGasPrice(sdk.Context) (math.LegacyDec, error) {
 	return math.LegacyZeroDec(), nil
 }
 
