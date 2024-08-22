@@ -87,7 +87,6 @@ func FeeChecker(
 	// calculate the effective gas price using the EIP-1559 logic.
 	effectivePrice := effectiveGasPriceLegacyDec(baseFee, feeCap, maxPriorityPrice)
 
-
 	// NOTE: create a new coins slice without having to validate the denom
 	effectiveFee := sdk.Coins{
 		{
