@@ -49,26 +49,25 @@ func (w *FeeMarketWrapper) WithDecimals(decimals uint32) error {
 func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.GetBaseFee(ctx)
 	if w.decimals == types.Denom18Dec {
-		return baseFee
+		return baseFee.TruncateInt().BigInt()
 	}
-	return types.Convert6To18DecimalsBigInt(baseFee)
+	return types.Convert6To18DecimalsLegacyDec(baseFee).TruncateInt().BigInt()
 }
 
 // CalculateBaseFee returns the calculated base fee converted to 18 decimals
 func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.CalculateBaseFee(ctx)
 	if w.decimals == types.Denom18Dec {
-		return baseFee
+		return baseFee.TruncateInt().BigInt()
 	}
-	return types.Convert6To18DecimalsBigInt(baseFee)
+	return types.Convert6To18DecimalsLegacyDec(baseFee).TruncateInt().BigInt()
 }
 
 // GetParams returns the params converted to 18 decimals
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
 	if w.decimals == types.Denom6Dec {
-		convertedBaseFee := types.Convert6To18DecimalsBigInt(params.BaseFee.BigInt())
-		params.BaseFee = sdk.NewIntFromBigInt(convertedBaseFee)
+		params.BaseFee = types.Convert6To18DecimalsLegacyDec(params.BaseFee)
 		params.MinGasPrice = types.Convert6To18DecimalsLegacyDec(params.MinGasPrice)
 	}
 	return params

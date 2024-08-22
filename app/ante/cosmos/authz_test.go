@@ -289,7 +289,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		ChainID:   big.NewInt(9000),
 		Nonce:     0,
 		GasLimit:  1000000,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).TruncateInt().BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},

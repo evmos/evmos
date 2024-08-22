@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,7 +38,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt(10000000000))
 		suite.Require().NoError(err)
 
-		suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
+		suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, math.LegacyNewDec(100))
 	}
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{

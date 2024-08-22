@@ -3,8 +3,6 @@
 package keeper
 
 import (
-	"math/big"
-
 	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
 
@@ -58,24 +56,24 @@ func (k Keeper) GetBaseFeeEnabled(ctx sdk.Context) bool {
 }
 
 // GetBaseFee gets the base fee from the store
-func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
+func (k Keeper) GetBaseFee(ctx sdk.Context) math.LegacyDec {
 	params := k.GetParams(ctx)
 	if params.NoBaseFee {
-		return nil
+		return math.LegacyZeroDec()
 	}
 
-	baseFee := params.BaseFee.BigInt()
-	if baseFee == nil || baseFee.Sign() == 0 {
+	baseFee := params.BaseFee
+	if baseFee == math.LegacyZeroDec() {
 		// try v1 format
-		return k.GetBaseFeeV1(ctx)
+		return math.LegacyNewDecFromBigInt(k.GetBaseFeeV1(ctx))
 	}
 	return baseFee
 }
 
 // SetBaseFee set's the base fee in the store
-func (k Keeper) SetBaseFee(ctx sdk.Context, baseFee *big.Int) {
+func (k Keeper) SetBaseFee(ctx sdk.Context, baseFee math.LegacyDec) {
 	params := k.GetParams(ctx)
-	params.BaseFee = math.NewIntFromBigInt(baseFee)
+	params.BaseFee = baseFee
 	err := k.SetParams(ctx, params)
 	if err != nil {
 		return

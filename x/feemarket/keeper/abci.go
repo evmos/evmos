@@ -18,14 +18,19 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	baseFee := k.CalculateBaseFee(ctx)
 
 	// return immediately if base fee is nil
-	if baseFee == nil {
+	if baseFee == math.LegacyZeroDec() {
 		return
 	}
 
 	k.SetBaseFee(ctx, baseFee)
 
 	defer func() {
-		telemetry.SetGauge(float32(baseFee.Int64()), "feemarket", "base_fee")
+		floatBaseFee, err := baseFee.Float64()
+		if err != nil {
+			ctx.Logger().Error("error converting base fee to float64", "error", err.Error())
+			return
+		}
+		telemetry.SetGauge(float32(floatBaseFee), "feemarket", "base_fee")
 	}()
 
 	// Store current base fee in event
