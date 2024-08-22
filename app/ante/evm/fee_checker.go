@@ -24,7 +24,7 @@ import (
 // - when `ExtensionOptionDynamicFeeTx` is omitted, `tipFeeCap` defaults to `MaxInt64`.
 // - when london hardfork is not enabled, it falls back to SDK default behavior (validator min-gas-prices).
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
-func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
+func NewDynamicFeeChecker(k DynamicFeeEVMKeeper, fmk FeeMarketKeeper) authante.TxFeeChecker {
 	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 		feeTx, ok := tx.(sdk.FeeTx)
 		if !ok {
@@ -39,26 +39,25 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 		denom := params.EvmDenom
 		ethCfg := params.ChainConfig.EthereumConfig(k.ChainID())
 
-		return FeeChecker(ctx, k, denom, ethCfg, feeTx)
+		return FeeChecker(ctx, fmk, denom, ethCfg, feeTx)
 	}
 }
 
 // FeeChecker returns the effective fee and priority for a given transaction.
 func FeeChecker(
 	ctx sdk.Context,
-	k DynamicFeeEVMKeeper,
+	k FeeMarketKeeper,
 	denom string,
 	ethConfig *params.ChainConfig,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
-	baseFee := k.GetBaseFee(ctx, ethConfig)
-	if baseFee == nil {
+	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
 		// london hardfork is not enabled: fallback to min-gas-prices logic
 		return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 	}
-
+	baseFee := k.GetBaseFee(ctx)
 	// default to `MaxInt64` when there's no extension option.
-	maxPriorityPrice := sdkmath.NewInt(math.MaxInt64)
+	maxPriorityPrice := sdkmath.LegacyNewDec(math.MaxInt64)
 
 	// get the priority tip cap from the extension option.
 	if hasExtOptsTx, ok := feeTx.(authante.HasExtensionOptionsTx); ok {
@@ -75,33 +74,33 @@ func FeeChecker(
 		return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "max priority price cannot be negative")
 	}
 
-	gas := feeTx.GetGas()
+	gas := sdkmath.NewIntFromUint64(feeTx.GetGas())
 	feeCoins := feeTx.GetFee()
-	fee := feeCoins.AmountOfNoDenomValidation(denom)
+	feeAmtDec := sdkmath.LegacyNewDecFromInt(feeCoins.AmountOfNoDenomValidation(denom))
 
-	feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
-	baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
+	feeCap := feeAmtDec.QuoInt(gas)
 
-	if feeCap.LT(baseFeeInt) {
-		return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFeeInt, denom)
+	if feeCap.LT(baseFee) {
+		return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFee, denom)
 	}
 
 	// calculate the effective gas price using the EIP-1559 logic.
-	effectivePrice := sdkmath.NewIntFromBigInt(types.EffectiveGasPrice(baseFeeInt.BigInt(), feeCap.BigInt(), maxPriorityPrice.BigInt()))
+	effectivePrice := effectiveGasPriceLegacyDec(baseFee, feeCap, maxPriorityPrice)
+
 
 	// NOTE: create a new coins slice without having to validate the denom
 	effectiveFee := sdk.Coins{
 		{
 			Denom:  denom,
-			Amount: effectivePrice.Mul(sdkmath.NewIntFromUint64(gas)),
+			Amount: effectivePrice.MulInt(gas).Ceil().RoundInt(),
 		},
 	}
 
-	bigPriority := effectivePrice.Sub(baseFeeInt).Quo(types.DefaultPriorityReduction)
+	priorityInt := effectivePrice.Sub(baseFee).QuoInt(types.DefaultPriorityReduction).TruncateInt()
 	priority := int64(math.MaxInt64)
 
-	if bigPriority.IsInt64() {
-		priority = bigPriority.Int64()
+	if priorityInt.IsInt64() {
+		priority = priorityInt.Int64()
 	}
 
 	return effectiveFee, priority, nil
@@ -157,4 +156,10 @@ func getTxPriority(fees sdk.Coins, gas int64) int64 {
 	}
 
 	return priority
+}
+
+// effectiveGasPriceLegacyDec computes the effective gas price based on eip-1559 rules
+// `effectiveGasPrice = min(baseFee + tipCap, feeCap)` using decimals
+func effectiveGasPriceLegacyDec(baseFee, feeCap, tipCap sdkmath.LegacyDec) sdkmath.LegacyDec {
+	return sdkmath.LegacyMinDec(tipCap.Add(baseFee), feeCap)
 }

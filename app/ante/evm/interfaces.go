@@ -29,22 +29,25 @@ type EVMKeeper interface { //nolint: revive
 	ResetTransientGasUsed(ctx sdk.Context)
 	GetTxIndexTransient(ctx sdk.Context) uint64
 	GetParams(ctx sdk.Context) evmtypes.Params
+	// GetBaseFee returns the BaseFee param from the fee market module
+	// adapted according to the evm denom decimals
+	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
+	// GetMinGasPrice returns the MinGasPrice param from the fee market module
+	// adapted according to the evm denom decimals
+	GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error)
 }
 
 type FeeMarketKeeper interface {
 	GetParams(ctx sdk.Context) (params feemarkettypes.Params)
 	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	GetBaseFeeEnabled(ctx sdk.Context) bool
+	GetBaseFee(ctx sdk.Context) math.LegacyDec
 }
 
 // DynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
 type DynamicFeeEVMKeeper interface {
 	ChainID() *big.Int
 	GetParams(ctx sdk.Context) evmtypes.Params
-	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
-	// GetMinGasPrice returns the MinGasPrice param from the fee market module
-	// adapted according to the evm denom decimals
-	GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error)
 }
 
 type protoTxProvider interface {
