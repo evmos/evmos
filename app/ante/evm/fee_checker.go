@@ -64,6 +64,9 @@ func FeeChecker(
 		for _, opt := range hasExtOptsTx.GetExtensionOptions() {
 			if extOpt, ok := opt.GetCachedValue().(*evmostypes.ExtensionOptionDynamicFeeTx); ok {
 				maxPriorityPrice = extOpt.MaxPriorityPrice
+				if maxPriorityPrice.IsNil() {
+					maxPriorityPrice = sdkmath.LegacyZeroDec()
+				}
 				break
 			}
 		}
