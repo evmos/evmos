@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) TestSetGetGasFee() {
 		{
 			"with last block given",
 			func() {
-				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, math.LegacyOneDec().BigInt())
+				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, math.LegacyOneDec())
 			},
 			math.LegacyOneDec().BigInt(),
 		},

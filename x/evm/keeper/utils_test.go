@@ -68,13 +68,17 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	})
 	require.NoError(t, err)
 
+
+	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
+
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
 		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:   chainID,
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			GasTipCap: big.NewInt(1),
 			Input:     data,
 			Accesses:  &ethtypes.AccessList{},
@@ -119,6 +123,10 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
+
+	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
+
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
 		ethTxParams := &evmtypes.EvmTxArgs{
@@ -126,7 +134,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 			Nonce:     nonce,
 			To:        &contractAddr,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			GasTipCap: big.NewInt(1),
 			Input:     transferData,
 			Accesses:  &ethtypes.AccessList{},
@@ -176,6 +184,9 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
+	baseFeeRes , err := suite.queryClient.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
+
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
 		ethTxParams := &evmtypes.EvmTxArgs{
@@ -183,7 +194,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
 			Input:     data,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			Accesses:  &ethtypes.AccessList{},
 			GasTipCap: big.NewInt(1),
 		}
