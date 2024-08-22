@@ -91,8 +91,8 @@ func (p Params) Validate() error {
 		return fmt.Errorf("base fee change denominator cannot be 0")
 	}
 
-	if p.BaseFee.IsNegative() {
-		return fmt.Errorf("initial base fee cannot be negative: %s", p.BaseFee)
+	if err := validateBaseFee(p.BaseFee); err != nil {
+		return err
 	}
 
 	if p.EnableHeight < 0 {
