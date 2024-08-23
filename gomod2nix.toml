@@ -585,6 +585,9 @@ schema = 3
   [mod."github.com/tendermint/go-amino"]
     version = "v0.16.0"
     hash = "sha256-JW4zO/0vMzf1dXLePOqaMtiLUZgNbuIseh9GV+jQlf0="
+  [mod."github.com/test-go/testify"]
+    version = "v1.1.4"
+    hash = "sha256-8xygO1Rd4eTrmRe/g7zaifpNkeb6EmjNfUvTWbjDtPg="
   [mod."github.com/tidwall/btree"]
     version = "v1.6.0"
     hash = "sha256-H4S46Yk3tVfOtrEhVWUrF4S1yWYmzU43W80HlzS9rcY="

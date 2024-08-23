@@ -82,6 +82,7 @@ func DeployContract(
 	if baseFee.Uint64() == 0 {
 		baseFee = big.NewInt(1)
 	}
+
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
