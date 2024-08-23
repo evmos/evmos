@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/testutil"
