@@ -549,7 +549,7 @@ func DeployContract(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := evmosutil.DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := evmosutil.DeliverEthTx(ctx, evmosApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, err
 	}

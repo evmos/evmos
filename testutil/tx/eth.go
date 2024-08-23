@@ -21,12 +21,14 @@ import (
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/server/config"
 	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // PrepareEthTx creates an ethereum tx and signs it with the provided messages and private key.
 // It returns the signed transaction and an error
 func PrepareEthTx(
+	ctx sdk.Context,
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
 	priv cryptotypes.PrivKey,
@@ -37,6 +39,8 @@ func PrepareEthTx(
 	signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
+
+	evmParams := appEvmos.EvmKeeper.GetParams(ctx)
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -56,6 +60,13 @@ func PrepareEthTx(
 
 		txGasLimit += msg.GetGas()
 		txFee = txFee.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+	}
+
+	// check denom decimals and adjust txFee on authInfo if corresponds
+	if evmParams.DenomDecimals == types.Denom6Dec {
+		for i := range txFee {
+			txFee[i] = types.Convert18To6DecimalsCoin(txFee[i])
+		}
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {

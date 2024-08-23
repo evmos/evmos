@@ -56,6 +56,12 @@ func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAd
 	if w.decimals == types.Denom6Dec {
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
 		}
 	}
 	if err := w.BankKeeper.MintCoins(ctx, types.ModuleName, amt); err != nil {
@@ -70,6 +76,12 @@ func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, a
 	if w.decimals == types.Denom6Dec {
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
 		}
 	}
 	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, amt); err != nil {
@@ -86,6 +98,12 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sd
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
 		}
+		// can happen that after the conversion, the amt is zero
+		// In such case, we just return nil to avoid error on
+		// bank keeper call
+		if amt.IsZero() {
+			return nil
+		}
 	}
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
 }
@@ -97,6 +115,12 @@ func (w BankWrapper) SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule 
 	if w.decimals == types.Denom6Dec {
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
 		}
 	}
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt)
