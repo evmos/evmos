@@ -360,6 +360,7 @@ class CosmosCLI:
                 "--generate-only" if generate_only else None,
                 home=self.data_dir,
                 node=self.node_rpc,
+                chain_id=self.chain_id,
                 **kwargs,
             )
         )
