@@ -49,7 +49,7 @@ func (k *Keeper) TxConfig(ctx sdk.Context, txHash common.Hash) statedb.TxConfig 
 func (k Keeper) VMConfig(ctx sdk.Context, _ core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger) vm.Config {
 	noBaseFee := true
 	if types.IsLondon(cfg.ChainConfig, ctx.BlockHeight()) {
-		noBaseFee = k.feeMarketKeeper.GetParams(ctx).NoBaseFee
+		noBaseFee = k.feeMarketWrapper.GetParams(ctx).NoBaseFee
 	}
 
 	var debug bool

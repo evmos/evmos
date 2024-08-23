@@ -271,7 +271,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
 	// Setting up the fee market to 0 so the transactions don't fail in IBC testing
-	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, big.NewInt(0))
+	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, math.LegacyZeroDec())
 	s.app.FeeMarketKeeper.SetBlockGasWanted(s.ctx, 0)
 	s.app.FeeMarketKeeper.SetTransientBlockGasWanted(s.ctx, 0)
 
@@ -532,11 +532,16 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
+	baseFeeRes, err := evmosApp.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gas,
-		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		GasPrice:  gasPrice,
 		Input:     data,

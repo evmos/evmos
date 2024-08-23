@@ -56,7 +56,7 @@ func NewParams(
 	noBaseFee bool,
 	baseFeeChangeDenom,
 	elasticityMultiplier uint32,
-	baseFee uint64,
+	baseFee math.LegacyDec,
 	enableHeight int64,
 	minGasPrice math.LegacyDec,
 	minGasPriceMultiplier math.LegacyDec,
@@ -65,7 +65,7 @@ func NewParams(
 		NoBaseFee:                noBaseFee,
 		BaseFeeChangeDenominator: baseFeeChangeDenom,
 		ElasticityMultiplier:     elasticityMultiplier,
-		BaseFee:                  math.NewIntFromUint64(baseFee),
+		BaseFee:                  baseFee,
 		EnableHeight:             enableHeight,
 		MinGasPrice:              minGasPrice,
 		MinGasMultiplier:         minGasPriceMultiplier,
@@ -78,7 +78,7 @@ func DefaultParams() Params {
 		NoBaseFee:                DefaultNoBaseFee,
 		BaseFeeChangeDenominator: params.BaseFeeChangeDenominator,
 		ElasticityMultiplier:     params.ElasticityMultiplier,
-		BaseFee:                  math.NewIntFromUint64(params.InitialBaseFee),
+		BaseFee:                  math.LegacyNewDec(params.InitialBaseFee),
 		EnableHeight:             DefaultEnableHeight,
 		MinGasPrice:              DefaultMinGasPrice,
 		MinGasMultiplier:         DefaultMinGasMultiplier,
@@ -91,8 +91,8 @@ func (p Params) Validate() error {
 		return fmt.Errorf("base fee change denominator cannot be 0")
 	}
 
-	if p.BaseFee.IsNegative() {
-		return fmt.Errorf("initial base fee cannot be negative: %s", p.BaseFee)
+	if err := validateBaseFee(p.BaseFee); err != nil {
+		return err
 	}
 
 	if p.EnableHeight < 0 {
@@ -158,9 +158,13 @@ func validateElasticityMultiplier(i interface{}) error {
 }
 
 func validateBaseFee(i interface{}) error {
-	value, ok := i.(math.Int)
+	value, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if value.IsNil() {
+		return fmt.Errorf("base fee cannot be nil")
 	}
 
 	if value.IsNegative() {

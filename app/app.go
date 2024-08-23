@@ -462,7 +462,6 @@ func NewEvmos(
 		// is being developed.
 		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
-		evmtypes.Denom6Dec, // the evm denom has 6 decimals
 	)
 	app.EvmKeeper = evmKeeper
 
@@ -900,7 +899,7 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper, app.FeeMarketKeeper),
 	}
 
 	if err := options.Validate(); err != nil {

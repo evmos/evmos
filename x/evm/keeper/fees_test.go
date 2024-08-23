@@ -504,11 +504,12 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			if tc.expectPassVerify {
 				suite.Require().NoError(err, "valid test %d failed - '%s'", i, tc.name)
 				if tc.enableFeemarket {
-					baseFee := suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx)
+					baseFeeRes, err := suite.app.EvmKeeper.BaseFee(suite.ctx, &evmtypes.QueryBaseFeeRequest{})
+					suite.Require().NoError(err)
 					suite.Require().Equal(
 						fees,
 						sdk.NewCoins(
-							sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewIntFromBigInt(txData.EffectiveFee(baseFee))),
+							sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewIntFromBigInt(txData.EffectiveFee(baseFeeRes.BaseFee.BigInt()))),
 						),
 						"valid test %d failed, fee value is wrong  - '%s'", i, tc.name,
 					)

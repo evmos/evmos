@@ -15,8 +15,8 @@ HOMEDIR="$HOME/.tmp-evmosd"
 TRACE=""
 
 # feemarket params basefee
-BASEFEE=20000000000
-MIN_GAS_PRICE=20000000000
+BASEFEE=0.1
+MIN_GAS_PRICE=0.005
 
 # Path variables
 CONFIG=$HOMEDIR/config/config.toml

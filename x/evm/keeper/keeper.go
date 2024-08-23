@@ -48,7 +48,7 @@ type Keeper struct {
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
-	feeMarketKeeper types.FeeMarketKeeper
+	feeMarketWrapper *FeeMarketWrapper
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
 
@@ -79,7 +79,6 @@ func NewKeeper(
 	erc20Keeper types.Erc20Keeper,
 	tracer string,
 	ss paramstypes.Subspace,
-	denomDecimals uint8,
 ) *Keeper {
 	// ensure evm module account is set
 	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
@@ -93,17 +92,17 @@ func NewKeeper(
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
-		cdc:             cdc,
-		authority:       authority,
-		accountKeeper:   ak,
-		bankWrapper:     NewBankWrapper(bankKeeper),
-		stakingKeeper:   sk,
-		feeMarketKeeper: fmk,
-		storeKey:        storeKey,
-		transientKey:    transientKey,
-		tracer:          tracer,
-		erc20Keeper:     erc20Keeper,
-		ss:              ss,
+		cdc:              cdc,
+		authority:        authority,
+		accountKeeper:    ak,
+		bankWrapper:      NewBankWrapper(bankKeeper),
+		stakingKeeper:    sk,
+		feeMarketWrapper: NewFeeMarketWrapper(fmk),
+		storeKey:         storeKey,
+		transientKey:     transientKey,
+		tracer:           tracer,
+		erc20Keeper:      erc20Keeper,
+		ss:               ss,
 	}
 }
 
@@ -314,7 +313,11 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 	if !london {
 		return nil
 	}
-	baseFee := k.feeMarketKeeper.GetBaseFee(ctx)
+	params := k.GetParams(ctx)
+	if err := k.feeMarketWrapper.WithDecimals(params.DenomDecimals); err != nil {
+		k.Logger(ctx).Error("error while setting feemarket wrapper decimals", "error", err)
+	}
+	baseFee := k.feeMarketWrapper.GetBaseFee(ctx)
 	if baseFee == nil {
 		// return 0 if feemarket not enabled.
 		baseFee = big.NewInt(0)
@@ -324,7 +327,17 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 
 // GetMinGasMultiplier returns the MinGasMultiplier param from the fee market module
 func (k Keeper) GetMinGasMultiplier(ctx sdk.Context) math.LegacyDec {
-	return k.feeMarketKeeper.GetParams(ctx).MinGasMultiplier
+	return k.feeMarketWrapper.GetParams(ctx).MinGasMultiplier
+}
+
+// GetMinGasPrice returns the MinGasPrice param from the fee market module
+// adapted according to the evm denom decimals
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error) {
+	params := k.GetParams(ctx)
+	if err := k.feeMarketWrapper.WithDecimals(params.DenomDecimals); err != nil {
+		k.Logger(ctx).Error("error while setting feemarket wrapper decimals", "error", err)
+	}
+	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice, nil
 }
 
 // ResetTransientGasUsed reset gas used to prepare for execution of current cosmos tx, called in ante handler.

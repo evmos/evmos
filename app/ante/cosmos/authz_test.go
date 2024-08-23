@@ -283,13 +283,16 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
+	res, err := suite.app.EvmKeeper.BaseFee(suite.ctx, &evmtypes.QueryBaseFeeRequest{})
+	suite.Require().NoError(err)
+
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   big.NewInt(9000),
 		Nonce:     0,
 		GasLimit:  1000000,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasFeeCap: res.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},

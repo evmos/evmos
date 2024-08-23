@@ -53,12 +53,13 @@ func (b *Backend) ChainConfig() *params.ChainConfig {
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket
+// adapted depending on the evm denom decimals
 func (b *Backend) GlobalMinGasPrice() (math.LegacyDec, error) {
-	res, err := b.queryClient.FeeMarket.Params(b.ctx, &feemarkettypes.QueryParamsRequest{})
+	res, err := b.queryClient.GlobalMinGasPrice(b.ctx, &evmtypes.QueryGlobalMinGasPriceRequest{})
 	if err != nil {
 		return math.LegacyZeroDec(), err
 	}
-	return res.Params.MinGasPrice, nil
+	return res.MinGasPrice, nil
 }
 
 // BaseFee returns the base fee tracked by the Fee Market module.
