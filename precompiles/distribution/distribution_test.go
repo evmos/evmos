@@ -178,7 +178,9 @@ func (s *PrecompileTestSuite) TestRun() {
 			// setup basic test suite
 			s.SetupTest()
 
-			baseFee := s.app.FeeMarketKeeper.GetBaseFee(s.ctx)
+			res, err := s.app.EvmKeeper.BaseFee(s.ctx, &evmtypes.QueryBaseFeeRequest{})
+			s.Require().NoError(err)
+			baseFee := res.BaseFee.BigInt()
 
 			// malleate testcase
 			caller, input := tc.malleate()
@@ -202,7 +204,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			msgEthereumTx := evmtypes.NewTx(&txArgs)
 
 			msgEthereumTx.From = s.address.String()
-			err := msgEthereumTx.Sign(s.ethSigner, s.signer)
+			err = msgEthereumTx.Sign(s.ethSigner, s.signer)
 			s.Require().NoError(err, "failed to sign Ethereum message")
 
 			// Instantiate config

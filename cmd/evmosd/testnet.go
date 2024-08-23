@@ -77,7 +77,7 @@ type initArgs struct {
 	numValidators     int
 	outputDir         string
 	startingIPAddress string
-	baseFee           math.Int
+	baseFee           math.LegacyDec
 	minGasPrice       math.LegacyDec
 }
 
@@ -163,17 +163,19 @@ Example:
 			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
-			var ok bool
-			args.baseFee, ok = math.NewIntFromString(baseFee)
-			if !ok || args.baseFee.LT(math.ZeroInt()) {
-				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
+			args.baseFee, err = math.LegacyNewDecFromStr(baseFee)
+			if err != nil {
+				return fmt.Errorf("invalid value for --base-fee. expected a int or decimal number greater than or equal to 0 but got %s and err %s", baseFee, err.Error())
+			}
+			if args.baseFee.IsNil() || args.baseFee.IsNegative() {
+				return fmt.Errorf("invalid value for --base-fee. expected a int or decimal number greater than or equal to 0 but got %s", baseFee)
 			}
 
 			args.minGasPrice, err = math.LegacyNewDecFromStr(minGasPrice)
 			if err != nil {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got %s and err %s", minGasPrice, err.Error())
 			}
-			if args.minGasPrice.LT(math.LegacyZeroDec()) {
+			if args.minGasPrice.IsNil() || args.minGasPrice.IsNegative() {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got an negative number %s", minGasPrice)
 			}
 
@@ -353,8 +355,8 @@ func initTestnetFiles(
 		}
 
 		minGasPrice := args.minGasPrice
-		if math.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
-			minGasPrice = math.LegacyNewDecFromInt(args.baseFee)
+		if args.baseFee.GT(args.minGasPrice) {
+			minGasPrice = args.baseFee
 		}
 
 		txBuilder.SetMemo(memo)
@@ -417,7 +419,7 @@ func initGenFiles(
 	genBalances []banktypes.Balance,
 	genFiles []string,
 	numValidators int,
-	baseFee math.Int,
+	baseFee math.LegacyDec,
 	minGasPrice math.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)

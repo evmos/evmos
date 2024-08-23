@@ -155,6 +155,6 @@ func (s *benchmarkSuite) generateHandlerOptions() ante.HandlerOptions {
 		SignModeHandler:        encCfg.TxConfig.SignModeHandler(),
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         1_000_000_000,
-		TxFeeChecker:           ethante.NewDynamicFeeChecker(s.network.App.EvmKeeper),
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(s.network.App.EvmKeeper, s.network.App.FeeMarketKeeper),
 	}
 }

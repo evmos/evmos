@@ -450,8 +450,13 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
 
+	// if fails defaults to 18 decimals
+	// This will happen in historical queries
+	if err = k.feeMarketWrapper.WithDecimals(cfg.Params.DenomDecimals); err != nil {
+		ctx.Logger().Error("failed to set denom decimals: %s. Using default 18 decimals", err.Error())
+	}
 	// compute and use base fee of the height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -549,8 +554,14 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 		return nil, status.Error(codes.Internal, "failed to load evm config")
 	}
 
+	// if fails defaults to 18 decimals
+	// This will happen in historical queries
+	if err = k.feeMarketWrapper.WithDecimals(cfg.Params.DenomDecimals); err != nil {
+		ctx.Logger().Error("failed to set denom decimals: %s. Using default 18 decimals", err.Error())
+	}
+
 	// compute and use base fee of height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -691,6 +702,16 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 	}
 
 	return res, nil
+}
+
+// BaseFee implements the Query/GlobalMinGasPrice gRPC method
+func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasPriceRequest) (*types.QueryGlobalMinGasPriceResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minGasPrice, err := k.GetMinGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryGlobalMinGasPriceResponse{MinGasPrice: minGasPrice}, err
 }
 
 // getChainID parse chainID from current context if not provided

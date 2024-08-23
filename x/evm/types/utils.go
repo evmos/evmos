@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -138,4 +139,14 @@ func Convert6To18DecimalsCoin(coin sdk.Coin) sdk.Coin {
 func Convert18To6DecimalsCoin(coin sdk.Coin) sdk.Coin {
 	coin.Amount = coin.Amount.QuoRaw(1e12)
 	return coin
+}
+
+// Convert6To18DecimalsBigInt converts a big Int to 18 decimals from 6
+func Convert6To18DecimalsBigInt(amt *big.Int) *big.Int {
+	return new(big.Int).Mul(amt, big.NewInt(1e12))
+}
+
+// Convert6To18DecimalsBigInt converts a math.LegacyDec to 18 decimals from 6
+func Convert6To18DecimalsLegacyDec(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
+	return amt.MulInt64(1e12)
 }

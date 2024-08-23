@@ -24,7 +24,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{"default", DefaultParams(), false},
 		{
 			"valid",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), DefaultMinGasMultiplier),
+			NewParams(true, 7, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), DefaultMinGasMultiplier),
 			false,
 		},
 		{
@@ -34,27 +34,27 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		},
 		{
 			"base fee change denominator is 0 ",
-			NewParams(true, 0, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), DefaultMinGasMultiplier),
+			NewParams(true, 0, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), DefaultMinGasMultiplier),
 			true,
 		},
 		{
 			"invalid: min gas price negative",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecFromInt(math.NewInt(-1)), DefaultMinGasMultiplier),
+			NewParams(true, 7, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), math.LegacyNewDecFromInt(math.NewInt(-1)), DefaultMinGasMultiplier),
 			true,
 		},
 		{
 			"valid: min gas multiplier zero",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), DefaultMinGasPrice, math.LegacyZeroDec()),
+			NewParams(true, 7, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), DefaultMinGasPrice, math.LegacyZeroDec()),
 			false,
 		},
 		{
 			"invalid: min gas multiplier is negative",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), DefaultMinGasPrice, math.LegacyNewDecWithPrec(-5, 1)),
+			NewParams(true, 7, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), DefaultMinGasPrice, math.LegacyNewDecWithPrec(-5, 1)),
 			true,
 		},
 		{
 			"invalid: min gas multiplier bigger than 1",
-			NewParams(true, 7, 3, 2000000000, int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), math.LegacyNewDec(2)),
+			NewParams(true, 7, 3, math.LegacyNewDec(2000000000), int64(544435345345435345), math.LegacyNewDecWithPrec(20, 4), math.LegacyNewDec(2)),
 			true,
 		},
 	}
@@ -81,7 +81,9 @@ func (suite *ParamsTestSuite) TestParamsValidatePriv() {
 	suite.Require().Error(validateBaseFee(""))
 	suite.Require().Error(validateBaseFee(int64(2000000000)))
 	suite.Require().Error(validateBaseFee(math.NewInt(-2000000000)))
-	suite.Require().NoError(validateBaseFee(math.NewInt(2000000000)))
+	suite.Require().Error(validateBaseFee(math.NewInt(2000000000)))
+	suite.Require().Error(validateBaseFee(math.LegacyNewDec(-2000000000)))
+	suite.Require().NoError(validateBaseFee(math.LegacyNewDec(2000000000)))
 	suite.Require().Error(validateEnableHeight(""))
 	suite.Require().Error(validateEnableHeight(int64(-544435345345435345)))
 	suite.Require().NoError(validateEnableHeight(int64(544435345345435345)))

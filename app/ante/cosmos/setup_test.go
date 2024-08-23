@@ -122,7 +122,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.app.EvmKeeper),
+		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.app.EvmKeeper, suite.app.FeeMarketKeeper),
 	})
 
 	suite.anteHandler = anteHandler

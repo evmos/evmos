@@ -31,7 +31,7 @@ var _ = Describe("Feemarket", func() {
 	Describe("Performing Cosmos transactions", func() {
 		Context("with min-gas-prices (local) < MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "1", math.LegacyNewDec(3), math.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "1", math.LegacyNewDec(3), math.LegacyZeroDec())
 			})
 
 			Context("during CheckTx", func() {
@@ -75,7 +75,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with min-gas-prices (local) == MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "3", math.LegacyNewDec(3), math.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "3", math.LegacyNewDec(3), math.LegacyZeroDec())
 			})
 
 			Context("during CheckTx", func() {
@@ -119,7 +119,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with MinGasPrices (feemarket param) < min-gas-prices (local)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "5", math.LegacyNewDec(3), math.NewInt(5))
+				privKey, msg = setupTestWithContext(chainID, "5", math.LegacyNewDec(3), math.LegacyNewDec(5))
 			})
 
 			//nolint
@@ -206,7 +206,7 @@ var _ = Describe("Feemarket", func() {
 				// 100000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 				// a `minGasPrices = 40_000_000_000` results in `minGlobalFee =
 				// 4000000000000000`
-				privKey, _ = setupTestWithContext(chainID, "1", math.LegacyNewDec(minGasPrices), math.NewInt(baseFee))
+				privKey, _ = setupTestWithContext(chainID, "1", math.LegacyNewDec(minGasPrices), math.LegacyNewDec(baseFee))
 			})
 
 			Context("during CheckTx", func() {
@@ -316,7 +316,7 @@ var _ = Describe("Feemarket", func() {
 				// 100_000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 				// a `minGasPrices = 5_000_000_000` results in `minGlobalFee =
 				// 500_000_000_000_000`
-				privKey, _ = setupTestWithContext(chainID, "1", math.LegacyNewDec(minGasPrices), math.NewInt(baseFee))
+				privKey, _ = setupTestWithContext(chainID, "1", math.LegacyNewDec(minGasPrices), math.LegacyNewDec(baseFee))
 			})
 
 			Context("during CheckTx", func() {

@@ -56,7 +56,11 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 	// if gas price not provided
 	var gasPrice *big.Int
 	if args.GasPrice == nil {
-		gasPrice = app.FeeMarketKeeper.GetBaseFee(ctx) // default gas price == block base fee
+		baseFeeRes, err := app.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+		if err != nil {
+			return abci.ResponseDeliverTx{}, nil, err
+		}
+		gasPrice = baseFeeRes.BaseFee.BigInt() // default gas price == block base fee
 	} else {
 		gasPrice = args.GasPrice
 	}

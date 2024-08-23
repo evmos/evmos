@@ -102,6 +102,12 @@ func CreateEthTx(
 	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := appEvmos.EvmKeeper.ChainID()
 
+	baseFeeRes, err := appEvmos.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return nil, err
+	}
+	baseFee := baseFeeRes.BaseFee.BigInt()
+
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
 	nonce := appEvmos.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement)
 	evmTxParams := &evmtypes.EvmTxArgs{
@@ -110,7 +116,7 @@ func CreateEthTx(
 		To:        &toAddr,
 		Amount:    amount,
 		GasLimit:  100000,
-		GasFeeCap: appEvmos.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFee,
 		GasTipCap: big.NewInt(1),
 		Accesses:  &ethtypes.AccessList{},
 	}
