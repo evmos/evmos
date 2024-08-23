@@ -11,10 +11,12 @@ import (
 )
 
 var (
+	// DefaultBaseFee is 0.1 for the ICS Evmos chain
+	DefaultBaseFee = math.LegacyNewDecWithPrec(10, 2)
 	// DefaultMinGasMultiplier is 0.5 or 50%
 	DefaultMinGasMultiplier = math.LegacyNewDecWithPrec(50, 2)
-	// DefaultMinGasPrice is 0 (i.e disabled)
-	DefaultMinGasPrice = math.LegacyZeroDec()
+	// DefaultMinGasPrice is 0.1 for the ICS Evmos chain
+	DefaultMinGasPrice = math.LegacyNewDecWithPrec(10, 2)
 	// DefaultEnableHeight is 0 (i.e disabled)
 	DefaultEnableHeight = int64(0)
 	// DefaultNoBaseFee is false
@@ -78,7 +80,7 @@ func DefaultParams() Params {
 		NoBaseFee:                DefaultNoBaseFee,
 		BaseFeeChangeDenominator: params.BaseFeeChangeDenominator,
 		ElasticityMultiplier:     params.ElasticityMultiplier,
-		BaseFee:                  math.LegacyNewDec(params.InitialBaseFee),
+		BaseFee:                  DefaultBaseFee,
 		EnableHeight:             DefaultEnableHeight,
 		MinGasPrice:              DefaultMinGasPrice,
 		MinGasMultiplier:         DefaultMinGasMultiplier,

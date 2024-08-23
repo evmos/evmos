@@ -134,9 +134,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				},
 			),
 			Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
-				return evmtypes.EvmTxArgs{
-					GasPrice: big.NewInt(1e9),
-				}
+				return evmtypes.EvmTxArgs{}
 			}),
 		)
 
@@ -180,9 +178,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				},
 			),
 			Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
-				return evmtypes.EvmTxArgs{
-					GasPrice: big.NewInt(1e9),
-				}
+				return evmtypes.EvmTxArgs{}
 			}),
 		)
 
@@ -267,9 +263,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 					},
 				),
 				Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
-					return evmtypes.EvmTxArgs{
-						GasPrice: big.NewInt(1e9),
-					}
+					return evmtypes.EvmTxArgs{}
 				}),
 			)
 		})

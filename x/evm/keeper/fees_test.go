@@ -278,7 +278,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 	fiftyInt := sdkmath.NewInt(50000000000000)
 
 	// should be enough to cover all test cases
-	initBalance := sdkmath.NewInt((ethparams.InitialBaseFee + 10) * 10000000)
+	initBalance := sdkmath.NewInt((ethparams.InitialBaseFee + 10) * 100000000)
 
 	testCases := []struct {
 		name             string
@@ -372,7 +372,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		{
 			name:             "empty tip fee is valid to deduct",
 			gasLimit:         1000000,
-			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee),
+			gasFeeCap:        big.NewInt(100000000000),
 			gasTipCap:        big.NewInt(1),
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
@@ -384,7 +384,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		{
 			name:             "effectiveTip equal to gasTipCap",
 			gasLimit:         1000000,
-			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee + 2),
+			gasFeeCap:        big.NewInt(100000000000 + 2),
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},
 			expectPassVerify: true,
@@ -395,7 +395,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		{
 			name:             "effectiveTip equal to (gasFeeCap - baseFee)",
 			gasLimit:         1000000,
-			gasFeeCap:        big.NewInt(ethparams.InitialBaseFee + 1),
+			gasFeeCap:        big.NewInt(100000000000 + 1),
 			gasTipCap:        big.NewInt(2),
 			cost:             &oneInt,
 			accessList:       &ethtypes.AccessList{},

@@ -462,6 +462,7 @@ func NewEvmos(
 		// is being developed.
 		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
+		evmtypes.DefaultDenomDecimals,
 	)
 	app.EvmKeeper = evmKeeper
 

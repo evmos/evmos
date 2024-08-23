@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/testutil"
@@ -53,7 +52,8 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.Require().NoError(err)
 		account := utiltx.GenerateAddress()
 
-		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
+		acc := common.BytesToAddress(suite.priv.PubKey().Bytes())
+		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, acc, contract, true, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
