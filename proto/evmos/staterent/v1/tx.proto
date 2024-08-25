@@ -39,8 +39,7 @@ message MsgFlagContractParams {
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   string address = 2;
+  string total_entires = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
 }
 
-// MsgUpdateParamsResponse defines the response structure for executing a
-// MsgUpdateParams message.
 message MsgFlagContractResponse {}

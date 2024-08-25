@@ -44,6 +44,7 @@ func (k Keeper) FlagContract(goCtx context.Context, req *types.MsgFlagContractPa
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	info := types.FlaggedInfo{
 		Contract:              req.Address,
+		TotalEntries:          req.TotalEntires,
 		PaymentDeposit:        math.NewInt(0),
 		IsInactive:            false,
 		StartDeletionTic:      stdmath.MaxUint64,
