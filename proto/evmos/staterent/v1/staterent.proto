@@ -1,0 +1,34 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.staterent.v1;
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v19/x/staterent/types";
+
+// Params defines the module parameters
+message Params {
+  int64 amount_of_entries_needed_to_be_flagged = 1;
+  string current_price = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  string next_price = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  int64 entries_to_delete_per_block = 4;
+
+  // Blocks counter
+  uint64 current_tic = 5;
+  uint64 blocks_per_tic = 6;
+  // Using int instead of uint to match the blocks data
+  int64 current_tic_block = 7;
+
+}
+
+// FlaggedInfo defines the data needed to clean up the state
+message FlaggedInfo {
+  string contract = 1;
+  string payment_deposit = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  bool is_inactive = 3;
+
+  uint64 start_deletion_tic = 4;
+  string current_deleted_entries = 5 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+}

@@ -1,0 +1,17 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.staterent.v1;
+
+import "gogoproto/gogo.proto";
+import "evmos/staterent/v1/staterent.proto";
+
+option go_package = "github.com/evmos/evmos/v19/x/staterent/types";
+
+// GenesisState defines the staterents module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  repeated FlaggedInfo flagged_data = 2 [(gogoproto.nullable) = false];
+}
+
+
