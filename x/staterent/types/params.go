@@ -13,7 +13,7 @@ var (
 	DefaultEntriesToDeletePerBlock          = int64(1000)
 	DefaultCurrentTic                       = uint64(0)
 	DefaultBlocksPerTic                     = uint64(1000)
-	DefaultCurrentTicBlock                  = uint64(0)
+	DefaultCurrentTicBlock                  = int64(0)
 )
 
 // NewParams creates a new Params instance
@@ -24,7 +24,7 @@ func NewParams(
 	deletePerTick int64,
 	currentTic uint64,
 	blocksPerTic uint64,
-	currentTicBlock uint64,
+	currentTicBlock int64,
 
 ) Params {
 	return Params{

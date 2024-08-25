@@ -14,7 +14,7 @@ import (
 	"github.com/evmos/evmos/v19/x/staterent/types"
 )
 
-// BeginBlocker of epochs module
+// BeginBlocker of staterent module
 func (k Keeper) BeginBlocker(ctx sdk.Context) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	logger := k.Logger(ctx)
@@ -70,7 +70,16 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 
 	// Logic for evey tic
 	if nextTic == ctx.BlockHeight() {
-		// TODO: find a fast to get storage usage by contract
+		// TODO: find a fast to get storage usage by contract, in the meanwhile we add via governance the contracts with high usage of storage
+		// TODO: until we have a good way to read the amount of entries of a contract, the amount of entries must be updated via governance
+		k.IterateFlaggedInfo(ctx, func(_ int64, info types.FlaggedInfo) bool {
+			// TODO: if the state was paid, keep the FlaggedInfo as active and burn the payment
+
+			// TODO: if the state was not paid, mark the contract as inactive and mark the deleting tic as current + 1
+
+			// TODO: emit event
+			return false
+		})
 
 		// Update for next tic
 		p.CurrentTic = p.CurrentTic + 1

@@ -20,14 +20,22 @@ type Keeper struct {
 	cdc       codec.Codec
 	storeKey  storetypes.StoreKey
 	evmKeeper *evmkeeper.Keeper
+	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
+	authority sdk.AccAddress
 }
 
 // NewKeeper returns a new instance of staterent Keeper
-func NewKeeper(cdc codec.Codec, storeKey storetypes.StoreKey, evmKeeper *evmkeeper.Keeper) *Keeper {
+func NewKeeper(cdc codec.Codec, storeKey storetypes.StoreKey, evmKeeper *evmkeeper.Keeper, authority sdk.AccAddress) *Keeper {
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
+	}
+
 	return &Keeper{
 		cdc:       cdc,
 		storeKey:  storeKey,
 		evmKeeper: evmKeeper,
+		authority: authority,
 	}
 }
 
