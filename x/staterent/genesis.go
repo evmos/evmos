@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v19/x/staterent/types"
 )
 
-// InitGenesis initializes the epochs module's state from a provided genesis
+// InitGenesis initializes the staterent module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	err := k.SetParams(ctx, data.Params)
@@ -28,7 +28,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 
 }
 
-// ExportGenesis returns the epochs module's exported genesis.
+// ExportGenesis returns the staterent module's exported genesis.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	flaggedContracts := []types.FlaggedInfo{}
 

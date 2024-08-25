@@ -27,8 +27,9 @@ message Params {
 message FlaggedInfo {
   string contract = 1;
   string payment_deposit = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
-  bool is_inactive = 3;
+  string total_entries = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  bool is_inactive = 4;
 
-  uint64 start_deletion_tic = 4;
-  string current_deleted_entries = 5 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  uint64 start_deletion_tic = 5;
+  string current_deleted_entries = 6 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
 }

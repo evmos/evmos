@@ -1,0 +1,46 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.staterent.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "evmos/staterent/v1/staterent.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v19/x/staterent/types";
+
+// Msg defines the evm Msg service.
+service Msg {
+  // UpdateParams defined a governance operation for updating the x/staterent module parameters.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  rpc FlagContract(MsgFlagContractParams) returns (MsgFlagContractResponse);
+}
+
+// MsgUpdateParams defines a Msg for updating the x/staterent module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/staterent parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
+// Flag a contract
+message MsgFlagContractParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  string address = 2;
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgFlagContractResponse {}
