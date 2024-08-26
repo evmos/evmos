@@ -219,7 +219,7 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom6Dec)
 				RegisterUnconfirmedTxsError(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -249,7 +249,7 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom6Dec)
 				RegisterUnconfirmedTxsEmpty(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -285,104 +285,121 @@ func (suite *BackendTestSuite) TestResend() {
 }
 
 func (suite *BackendTestSuite) TestSendRawTransaction() {
-	ethTx, bz := suite.buildEthereumTx()
-
-	// Sign the ethTx
-	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
-	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
-	err := ethTx.Sign(ethSigner, suite.signer)
-	suite.Require().NoError(err)
-
-	rlpEncodedBz, _ := rlp.EncodeToBytes(ethTx.AsTransaction())
-	cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
-	txBytes, _ := suite.backend.clientCtx.TxConfig.TxEncoder()(cosmosTx)
-
-	testCases := []struct {
-		name         string
-		registerMock func()
-		rawTx        []byte
-		expHash      common.Hash
-		expPass      bool
+	testSetup := []struct {
+		name     string
+		decimals uint32
 	}{
 		{
-			"fail - empty bytes",
-			func() {},
-			[]byte{},
-			common.Hash{},
-			false,
+			name:     "6 decimals",
+			decimals: evmtypes.Denom6Dec,
 		},
 		{
-			"fail - no RLP encoded bytes",
-			func() {},
-			bz,
-			common.Hash{},
-			false,
-		},
-		{
-			"fail - unprotected transactions",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = false
-				RegisterParamsWithoutHeaderError(queryClient, 1)
-			},
-			rlpEncodedBz,
-			common.Hash{},
-			false,
-		},
-		{
-			"fail - failed to get evm params",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeaderError(queryClient, 1)
-			},
-			rlpEncodedBz,
-			common.Hash{},
-			false,
-		},
-		{
-			"fail - failed to broadcast transaction",
-			func() {
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
-				RegisterBroadcastTxError(client, txBytes)
-			},
-			rlpEncodedBz,
-			common.HexToHash(ethTx.Hash),
-			false,
-		},
-		{
-			"pass - Gets the correct transaction hash of the eth transaction",
-			func() {
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
-				RegisterBroadcastTx(client, txBytes)
-			},
-			rlpEncodedBz,
-			common.HexToHash(ethTx.Hash),
-			true,
+			name:     "18 decimals",
+			decimals: evmtypes.Denom18Dec,
 		},
 	}
 
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
-			suite.SetupTest() // reset test and queries
-			tc.registerMock()
+	for _, setup := range testSetup {
+		ethTx, bz := suite.buildEthereumTx()
 
-			hash, err := suite.backend.SendRawTransaction(tc.rawTx)
+		// Sign the ethTx
+		queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+		RegisterParamsWithoutHeader(queryClient, 1, setup.decimals)
+		ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
+		err := ethTx.Sign(ethSigner, suite.signer)
+		suite.Require().NoError(err)
 
-			if tc.expPass {
-				suite.Require().Equal(tc.expHash, hash)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
+		rlpEncodedBz, _ := rlp.EncodeToBytes(ethTx.AsTransaction())
+		cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom, setup.decimals)
+		txBytes, _ := suite.backend.clientCtx.TxConfig.TxEncoder()(cosmosTx)
+
+		testCases := []struct {
+			name         string
+			registerMock func()
+			rawTx        []byte
+			expHash      common.Hash
+			expPass      bool
+		}{
+			{
+				"fail - empty bytes",
+				func() {},
+				[]byte{},
+				common.Hash{},
+				false,
+			},
+			{
+				"fail - no RLP encoded bytes",
+				func() {},
+				bz,
+				common.Hash{},
+				false,
+			},
+			{
+				"fail - unprotected transactions",
+				func() {
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					suite.backend.allowUnprotectedTxs = false
+					RegisterParamsWithoutHeaderError(queryClient, 1)
+				},
+				rlpEncodedBz,
+				common.Hash{},
+				false,
+			},
+			{
+				"fail - failed to get evm params",
+				func() {
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					suite.backend.allowUnprotectedTxs = true
+					RegisterParamsWithoutHeaderError(queryClient, 1)
+				},
+				rlpEncodedBz,
+				common.Hash{},
+				false,
+			},
+			{
+				"fail - failed to broadcast transaction",
+				func() {
+					client := suite.backend.clientCtx.Client.(*mocks.Client)
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					suite.backend.allowUnprotectedTxs = true
+					RegisterParamsWithoutHeader(queryClient, 1, setup.decimals)
+					RegisterBroadcastTxError(client, txBytes)
+				},
+				rlpEncodedBz,
+				common.HexToHash(ethTx.Hash),
+				false,
+			},
+			{
+				"pass - Gets the correct transaction hash of the eth transaction",
+				func() {
+					client := suite.backend.clientCtx.Client.(*mocks.Client)
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					suite.backend.allowUnprotectedTxs = true
+					RegisterParamsWithoutHeader(queryClient, 1, setup.decimals)
+					RegisterBroadcastTx(client, txBytes)
+				},
+				rlpEncodedBz,
+				common.HexToHash(ethTx.Hash),
+				true,
+			},
+		}
+
+		for _, tc := range testCases {
+			suite.Run(fmt.Sprintf("case %s", tc.name), func() {
+				suite.SetupTest() // reset test and queries
+				tc.registerMock()
+
+				hash, err := suite.backend.SendRawTransaction(tc.rawTx)
+
+				if tc.expPass {
+					suite.Require().Equal(tc.expHash, hash)
+				} else {
+					suite.Require().Error(err)
+				}
+			})
+		}
 	}
+
 }
 
 func (suite *BackendTestSuite) TestDoCall() {
@@ -478,6 +495,7 @@ func (suite *BackendTestSuite) TestGasPrice() {
 				feeMarketClient := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
 				RegisterFeeMarketParams(feeMarketClient, 1)
 				RegisterParams(queryClient, &header, 1)
+				RegisterGlobalMinGasPrice(queryClient, 1)
 				_, err := RegisterBlock(client, 1, nil)
 				suite.Require().NoError(err)
 				_, err = RegisterBlockResults(client, 1)
@@ -486,24 +504,6 @@ func (suite *BackendTestSuite) TestGasPrice() {
 			},
 			defaultGasPrice,
 			true,
-		},
-		{
-			"fail - can't get gasFee, FeeMarketParams error",
-			func() {
-				var header metadata.MD
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				feeMarketClient := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
-				RegisterFeeMarketParamsError(feeMarketClient, 1)
-				RegisterParams(queryClient, &header, 1)
-				_, err := RegisterBlock(client, 1, nil)
-				suite.Require().NoError(err)
-				_, err = RegisterBlockResults(client, 1)
-				suite.Require().NoError(err)
-				RegisterBaseFee(queryClient, math.NewInt(1))
-			},
-			defaultGasPrice,
-			false,
 		},
 	}
 
