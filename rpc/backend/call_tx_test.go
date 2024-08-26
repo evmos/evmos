@@ -399,7 +399,6 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 			})
 		}
 	}
-
 }
 
 func (suite *BackendTestSuite) TestDoCall() {
