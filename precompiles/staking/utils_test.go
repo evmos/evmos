@@ -427,7 +427,7 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 		j := valOrder[i]
 
 		s.Require().Equal(s.validators[j].OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
-		s.Require().Equal(uint8(s.validators[j].Status), validators[i].Status)
+		s.Require().Equal(uint8(s.validators[j].Status), validators[i].Status) //#nosec G115
 		s.Require().Equal(s.validators[j].Tokens.Uint64(), validators[i].Tokens.Uint64())
 		s.Require().Equal(s.validators[j].DelegatorShares.BigInt(), validators[i].DelegatorShares)
 		s.Require().Equal(s.validators[j].Jailed, validators[i].Jailed)

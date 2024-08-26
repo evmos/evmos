@@ -636,7 +636,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()).String(),
 			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
-			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
+			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]), //#nosec G115
 			Tokens:          res.Validator.Tokens.BigInt(),
 			DelegatorShares: res.Validator.DelegatorShares.BigInt(), // TODO: Decimal
 			// TODO: create description type,
@@ -675,7 +675,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
 				ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 				Jailed:            v.Jailed,
-				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
+				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]), //#nosec G115
 				Tokens:            v.Tokens.BigInt(),
 				DelegatorShares:   v.DelegatorShares.BigInt(),
 				Description:       v.Description.Details,

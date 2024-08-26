@@ -100,7 +100,7 @@ func NewMsgFundVestingAccount(args []interface{}, method *abi.Method) (*vestingt
 		return nil, common.Address{}, common.Address{}, nil, nil, fmt.Errorf(cmn.ErrInvalidType, "startTime", uint64(0), args[2])
 	}
 
-	startTimeTimestamp := time.Unix(int64(startTime), 0)
+	startTimeTimestamp := time.Unix(int64(startTime), 0) //#nosec G115
 
 	var lockupPeriodsInput LockupPeriods
 	lockupPeriod := abi.Arguments{method.Inputs[3]}
