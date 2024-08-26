@@ -5,6 +5,8 @@ package distribution
 
 import (
 	"context"
+	"time"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,7 +20,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
-	"time"
 
 	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 )
