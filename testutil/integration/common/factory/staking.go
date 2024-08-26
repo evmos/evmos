@@ -44,7 +44,7 @@ func (tf *stakingTxFactory) Delegate(delegatorPriv cryptotypes.PrivKey, validato
 	// every time this function is called
 	feesToPay := math.NewInt(1e16)
 	gas := uint64(400_000)
-	gasPrice := feesToPay.QuoRaw(int64(gas))
+	gasPrice := feesToPay.QuoRaw(int64(gas)) //#nosec G115 -- gas will not exceed int64
 
 	res, err := tf.CommitCosmosTx(delegatorPriv, CosmosTxArgs{
 		Msgs:     []sdk.Msg{msgDelegate},

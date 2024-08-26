@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package migration
 
 import (
@@ -12,6 +13,8 @@ import (
 	"github.com/creachadair/tomledit"
 	"github.com/creachadair/tomledit/parser"
 	"github.com/creachadair/tomledit/transform"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // This package includes the logic to migrate the app.toml file with the
@@ -48,7 +51,8 @@ func PlanBuilder(from *tomledit.Document, _ string) transform.Plan {
 				step = transform.Step{
 					Desc: fmt.Sprintf("add %s section", kv.Key),
 					T: transform.Func(func(_ context.Context, doc *tomledit.Document) error {
-						title := fmt.Sprintf("###                    %s Configuration                    ###", strings.Title(kv.Key))
+						americanTitle := cases.Title(language.AmericanEnglish).String(kv.Key)
+						title := fmt.Sprintf("###                    %s Configuration                    ###", americanTitle)
 						doc.Sections = append(doc.Sections, &tomledit.Section{
 							Heading: &parser.Heading{
 								Block: parser.Comments{
