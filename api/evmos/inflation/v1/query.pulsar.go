@@ -5302,6 +5302,7 @@ var (
 		(*Params)(nil),                          // 13: evmos.inflation.v1.Params
 	}
 )
+
 var file_evmos_inflation_v1_query_proto_depIdxs = []int32{
 	12, // 0: evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
 	12, // 1: evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin

@@ -1011,6 +1011,7 @@ var (
 		(*PrivKey)(nil), // 1: ethermint.crypto.v1.ethsecp256k1.PrivKey
 	}
 )
+
 var file_ethermint_crypto_v1_ethsecp256k1_keys_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

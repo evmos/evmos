@@ -950,6 +950,7 @@ var (
 		(*Params)(nil), // 0: ethermint.feemarket.v1.Params
 	}
 )
+
 var file_ethermint_feemarket_v1_feemarket_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

@@ -9179,6 +9179,7 @@ var (
 		(*TraceConfig)(nil),       // 10: ethermint.evm.v1.TraceConfig
 	}
 )
+
 var file_ethermint_evm_v1_evm_proto_depIdxs = []int32{
 	4, // 0: ethermint.evm.v1.Params.chain_config:type_name -> ethermint.evm.v1.ChainConfig
 	2, // 1: ethermint.evm.v1.Params.access_control:type_name -> ethermint.evm.v1.AccessControl
