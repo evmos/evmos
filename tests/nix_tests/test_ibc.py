@@ -56,7 +56,8 @@ def test_ibc_transfer_with_hermes(ibc):
     gas = int(tx["gas_wanted"])
     # the effective fee is decided by the max_priority_fee (base fee is zero)
     # rather than the normal gas price
-    assert fee == gas * 1000000
+    # gas price used is the one from the relayer config
+    assert fee == gas * 40000000000
 
 
 def test_evmos_ibc_transfer(ibc):
