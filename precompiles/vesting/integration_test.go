@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v19/precompiles/vesting"
@@ -69,7 +69,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 		// Set the default value for the vesting or lockup periods
 		defaultPeriod := vesting.Period{
 			Length: 10,
-			Amount: []cmn.Coin{{Denom: s.bondDenom, Amount: big.NewInt(100)}},
+			Amount: []types.Coin{{Denom: s.bondDenom, Amount: big.NewInt(100)}},
 		}
 		instantPeriod := defaultPeriod
 		instantPeriod.Length = 0
@@ -785,7 +785,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				exceedingVesting := []vesting.Period{{
 					Length: 10,
-					Amount: []cmn.Coin{{Denom: s.bondDenom, Amount: exceededBalance}},
+					Amount: []types.Coin{{Denom: s.bondDenom, Amount: exceededBalance}},
 				}}
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -1798,7 +1798,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				err = s.precompile.UnpackIntoInterface(&res, vesting.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "error while unpacking response: %v", err)
 
-				expectedCoins := []cmn.Coin{{Denom: s.bondDenom, Amount: big.NewInt(1000)}}
+				expectedCoins := []types.Coin{{Denom: s.bondDenom, Amount: big.NewInt(1000)}}
 				Expect(res.Locked).To(Equal(expectedCoins), "expected different locked coins")
 				Expect(res.Unvested).To(Equal(expectedCoins), "expected different unvested coins")
 				Expect(res.Vested).To(BeEmpty(), "expected different vested coins")
@@ -1814,7 +1814,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				err = s.precompile.UnpackIntoInterface(&res, vesting.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "error while unpacking response: %v", err)
 
-				halfCoins := []cmn.Coin{{Denom: s.bondDenom, Amount: big.NewInt(500)}}
+				halfCoins := []types.Coin{{Denom: s.bondDenom, Amount: big.NewInt(500)}}
 				Expect(res.Locked).To(BeEmpty(), "expected no coins to be locked anymore")
 				Expect(res.Unvested).To(Equal(halfCoins), "expected different unvested coins")
 				Expect(res.Vested).To(Equal(halfCoins), "expected different vested coins")

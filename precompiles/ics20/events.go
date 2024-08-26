@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -36,11 +36,11 @@ func EmitIBCTransferEvent(
 
 	var err error
 	// sender and receiver are indexed
-	topics[1], err = cmn.MakeTopic(senderAddr)
+	topics[1], err = contractutils.MakeTopic(senderAddr)
 	if err != nil {
 		return err
 	}
-	topics[2], err = cmn.MakeTopic(receiver)
+	topics[2], err = contractutils.MakeTopic(receiver)
 	if err != nil {
 		return err
 	}

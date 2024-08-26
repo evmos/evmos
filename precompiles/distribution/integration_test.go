@@ -13,6 +13,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/distribution"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
@@ -163,7 +164,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			res, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var rewards []cmn.Coin
+			var rewards []types.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
@@ -205,7 +206,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			res, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var rewards []cmn.Coin
+			var rewards []types.Coin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.WithdrawDelegatorRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
@@ -295,7 +296,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			res, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, withdrawalCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var comm []cmn.Coin
+			var comm []types.Coin
 			err = s.precompile.UnpackIntoInterface(&comm, distribution.WithdrawValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(comm)).To(Equal(1))
@@ -336,7 +337,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			res, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, withdrawalCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var comm []cmn.Coin
+			var comm []types.Coin
 			err = s.precompile.UnpackIntoInterface(&comm, distribution.WithdrawValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(comm)).To(Equal(1))
@@ -439,7 +440,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, valOutRewardsArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var rewards []cmn.DecCoin
+			var rewards []types.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
@@ -460,7 +461,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, valCommArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var commission []cmn.DecCoin
+			var commission []types.DecCoin
 			err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(commission)).To(Equal(1))
@@ -536,7 +537,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delRewardsArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var rewards []cmn.DecCoin
+			var rewards []types.DecCoin
 			err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(len(rewards)).To(Equal(1))
@@ -1685,7 +1686,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValOutRewardsArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var rewards []cmn.DecCoin
+				var rewards []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(rewards)).To(Equal(0))
@@ -1699,7 +1700,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValOutRewardsArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var rewards []cmn.DecCoin
+				var rewards []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.ValidatorOutstandingRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(rewards)).To(Equal(1))
@@ -1725,7 +1726,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValCommArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var commission []cmn.DecCoin
+				var commission []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(commission)).To(Equal(0))
@@ -1739,7 +1740,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValCommArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var commission []cmn.DecCoin
+				var commission []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&commission, distribution.ValidatorCommissionMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(commission)).To(Equal(1))
@@ -1836,7 +1837,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultDelRewardsArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var rewards []cmn.DecCoin
+				var rewards []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(rewards)).To(Equal(0))
@@ -1847,7 +1848,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultDelRewardsArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var rewards []cmn.DecCoin
+				var rewards []types.DecCoin
 				err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 				Expect(len(rewards)).To(Equal(1))

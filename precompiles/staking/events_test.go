@@ -9,8 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/staking"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
@@ -49,7 +49,7 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var approvalEvent authorization.EventApproval
-				err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, approvalEvent.Grantee)
 				s.Require().Equal(s.address, approvalEvent.Granter)
@@ -273,7 +273,7 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var createValidatorEvent staking.EventCreateValidator
-				err := cmn.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, createValidatorEvent.ValidatorAddress)
 				s.Require().Equal(delegationValue, createValidatorEvent.Value)
@@ -341,7 +341,7 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
-				err := cmn.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &editValidatorEvent, staking.EventTypeEditValidator, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(valOperAddr, editValidatorEvent.ValidatorAddress)
 				s.Require().Equal(minSelfDel, editValidatorEvent.MinSelfDelegation)
@@ -408,7 +408,7 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var delegationEvent staking.EventDelegate
-				err = cmn.UnpackLog(s.precompile.ABI, &delegationEvent, staking.EventTypeDelegate, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &delegationEvent, staking.EventTypeDelegate, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, delegationEvent.DelegatorAddress)
 				s.Require().Equal(optHexAddr, delegationEvent.ValidatorAddress)
@@ -473,7 +473,7 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var unbondEvent staking.EventUnbond
-				err = cmn.UnpackLog(s.precompile.ABI, &unbondEvent, staking.EventTypeUnbond, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &unbondEvent, staking.EventTypeUnbond, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, unbondEvent.DelegatorAddress)
 				s.Require().Equal(optHexAddr, unbondEvent.ValidatorAddress)
@@ -541,7 +541,7 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 				optDstHexAddr := common.BytesToAddress(optDstAddr)
 
 				var redelegateEvent staking.EventRedelegate
-				err = cmn.UnpackLog(s.precompile.ABI, &redelegateEvent, staking.EventTypeRedelegate, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &redelegateEvent, staking.EventTypeRedelegate, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, redelegateEvent.DelegatorAddress)
 				s.Require().Equal(optSrcHexAddr, redelegateEvent.ValidatorSrcAddress)
@@ -619,7 +619,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 
 				// Check event fields match the ones emitted
 				var cancelUnbondEvent staking.EventCancelUnbonding
-				err = cmn.UnpackLog(s.precompile.ABI, &cancelUnbondEvent, staking.EventTypeCancelUnbondingDelegation, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &cancelUnbondEvent, staking.EventTypeCancelUnbondingDelegation, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, cancelUnbondEvent.DelegatorAddress)
 				s.Require().Equal(optHexAddr, cancelUnbondEvent.ValidatorAddress)

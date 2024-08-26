@@ -5,6 +5,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/evmos/evmos/v19/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 )
@@ -58,10 +59,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		}
 
 		// Clear up the bid in the store
-		k.deleteBid(ctxCache)
+		k.deleteBid(ctx)
+		currentRound := k.GetRound(ctx)
+		if err := EmitAuctionEndEvent(ctx, bidWinner, currentRound, remainingCoins, lastBid.BidValue.Amount); err != nil {
+			k.Logger(ctx).Error("failed to emit AuctionEnd event", "error", err.Error())
+		}
 	}
 
-	// If the bid is not valid, we still have to advance round and send funds between the modules.
+	// Advance the auction round
 	currentRound := k.GetRound(ctx)
 	nextRound := currentRound + 1
 	k.SetRound(ctx, nextRound)

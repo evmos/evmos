@@ -1,11 +1,11 @@
-package common_test
+package types_test
 
 import (
 	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestNewCoinsResponse(t *testing.T) {
 	for _, tc := range testCases {
 		coin := sdk.NewCoin(utils.BaseDenom, tc.amount)
 		coins := sdk.NewCoins(coin)
-		res := common.NewCoinsResponse(coins)
+		res := types.NewCoinsResponse(coins)
 		require.Equal(t, 1, len(res))
 		require.Equal(t, tc.amount.BigInt(), res[0].Amount)
 	}
@@ -40,7 +40,7 @@ func TestNewDecCoinsResponse(t *testing.T) {
 	for _, tc := range testCases {
 		coin := sdk.NewDecCoin(utils.BaseDenom, tc.amount)
 		coins := sdk.NewDecCoins(coin)
-		res := common.NewDecCoinsResponse(coins)
+		res := types.NewDecCoinsResponse(coins)
 		require.Equal(t, 1, len(res))
 		require.Equal(t, tc.amount.BigInt(), res[0].Amount)
 	}
