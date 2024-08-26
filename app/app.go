@@ -174,9 +174,9 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 
-	ccvdistr "github.com/cosmos/interchain-security/v4/x/ccv/democracy/distribution"
 	ccvgov "github.com/cosmos/interchain-security/v4/x/ccv/democracy/governance"
 	ccvstaking "github.com/cosmos/interchain-security/v4/x/ccv/democracy/staking"
+	distrwrapper "github.com/evmos/evmos/v19/x/distribution"
 
 	ccvconsumer "github.com/cosmos/interchain-security/v4/x/ccv/consumer"
 	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
@@ -226,7 +226,7 @@ var (
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
 		ccvstaking.AppModuleBasic{},
-		ccvdistr.AppModuleBasic{},
+		distrwrapper.AppModuleBasic{},
 		// TODO: How will this affect our staking wrapper and the precompile ?
 		// staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
 		// distr.AppModuleBasic{},
@@ -275,8 +275,8 @@ var (
 		evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:                     {authtypes.Minter},
 		erc20types.ModuleName:                         {authtypes.Minter, authtypes.Burner},
-		auctionstypes.ModuleName:           {authtypes.Burner},
-		auctionstypes.AuctionCollectorName: nil,ratelimittypes.ModuleName:                     nil,
+		auctionstypes.ModuleName:                      {authtypes.Burner},
+		auctionstypes.AuctionCollectorName:            nil, ratelimittypes.ModuleName: nil,
 	}
 )
 
@@ -690,7 +690,7 @@ func NewEvmos(
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
 		ccvgov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, ante.IsProposalWhitelisted, app.GetSubspace(govtypes.ModuleName), ante.IsModuleWhiteList),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.ConsumerKeeper, app.GetSubspace(slashingtypes.ModuleName)),
-		ccvdistr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper, authtypes.FeeCollectorName, app.GetSubspace(distrtypes.ModuleName)),
+		distrwrapper.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper, authtypes.FeeCollectorName, app.GetSubspace(distrtypes.ModuleName)),
 		ccvstaking.NewAppModule(appCodec, *app.StakingKeeper.Keeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(&app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
