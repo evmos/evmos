@@ -32,7 +32,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/holiman/uint256 v1.3.1
 	github.com/improbable-eng/grpc-web v0.15.0
-	github.com/linxGnu/grocksdb v1.9.2
+	github.com/linxGnu/grocksdb v1.9.3
 	github.com/onsi/ginkgo/v2 v2.19.1
 	github.com/onsi/gomega v1.34.0
 	github.com/ory/dockertest/v3 v3.11.0
