@@ -80,6 +80,7 @@ func (b *Backend) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, er
 				if err == nil {
 					return big.NewInt(baseFee), nil
 				}
+				break
 			}
 		}
 		return nil, err
