@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v19/x/staking"
 	"io"
 	"net/http"
 	"os"
@@ -224,11 +225,10 @@ var (
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		ccvstaking.AppModuleBasic{},
+		//ccvstaking.AppModuleBasic{},
 		distrwrapper.AppModuleBasic{},
 		// TODO: How will this affect our staking wrapper and the precompile ?
-		// staking.AppModuleBasic{AppModuleBasic: &sdkstaking.AppModuleBasic{}},
-		// distr.AppModuleBasic{},
+		staking.AppModuleBasic{AppModuleBasic: &ccvstaking.AppModuleBasic{}},
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
@@ -695,7 +695,7 @@ func NewEvmos(
 		ccvgov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, ante.IsProposalWhitelisted, app.GetSubspace(govtypes.ModuleName), ante.IsModuleWhiteList),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.ConsumerKeeper, app.GetSubspace(slashingtypes.ModuleName)),
 		distrwrapper.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper, authtypes.FeeCollectorName, app.GetSubspace(distrtypes.ModuleName)),
-		ccvstaking.NewAppModule(appCodec, *app.StakingKeeper.Keeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
+		staking.NewAppModule(appCodec, stakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(&app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),

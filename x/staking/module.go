@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/exported"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	ccvstaking "github.com/cosmos/interchain-security/v4/x/ccv/democracy/staking"
 
 	"github.com/evmos/evmos/v19/x/staking/keeper"
 )
@@ -23,13 +23,13 @@ var (
 
 // AppModuleBasic defines the basic application module used by the staking module.
 type AppModuleBasic struct {
-	*staking.AppModuleBasic
+	*ccvstaking.AppModuleBasic
 }
 
 // AppModule represents a wrapper around the Cosmos SDK staking module AppModule and
 // the Evmos custom staking module keeper.
 type AppModule struct {
-	*staking.AppModule
+	*ccvstaking.AppModule
 	keeper *keeper.Keeper
 }
 
@@ -41,7 +41,7 @@ func NewAppModule(
 	bk types.BankKeeper,
 	ls exported.Subspace,
 ) AppModule {
-	am := staking.NewAppModule(cdc, k.Keeper, ak, bk, ls)
+	am := ccvstaking.NewAppModule(cdc, *k.Keeper, ak, bk, ls)
 	return AppModule{
 		AppModule: &am,
 		keeper:    k,
