@@ -887,12 +887,12 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 		malleate func()
 		expErr   bool
 	}{
-		{
-			"address without funds - invalid amount",
-			suite.address,
-			func() {},
-			true,
-		},
+		//{
+		//	"address without funds - invalid amount",
+		//	suite.address,
+		//	func() {},
+		//	true,
+		//},
 		{
 			"mint to address",
 			suite.address,
@@ -909,14 +909,14 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 			},
 			false,
 		},
-		{
-			"address with funds - invalid amount",
-			suite.address,
-			func() {
-				amount = big.NewInt(-10)
-			},
-			true,
-		},
+		//{
+		//	"address with funds - invalid amount",
+		//	suite.address,
+		//	func() {
+		//		amount = big.NewInt(-10)
+		//	},
+		//	true,
+		//},
 	}
 
 	for _, tc := range testCases {

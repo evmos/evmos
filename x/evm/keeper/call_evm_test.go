@@ -155,6 +155,11 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
+			evmDenom := suite.app.EvmKeeper.GetParams(suite.ctx).EvmDenom
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, suite.address.Bytes(), sdk.Coins{sdk.NewCoin(evmDenom, math.OneInt())})
+			suite.Require().NoError(err)
+			suite.Commit()
+
 			data, contract := tc.malleate()
 
 			res, err := suite.app.EvmKeeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
