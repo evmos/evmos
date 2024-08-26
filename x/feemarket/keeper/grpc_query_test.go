@@ -87,7 +87,7 @@ func (suite *KeeperTestSuite) TestQueryBlockGas() {
 	}
 	for _, tc := range testCases {
 		gas := suite.app.FeeMarketKeeper.GetBlockGasWanted(suite.ctx)
-		exp := &types.QueryBlockGasResponse{Gas: int64(gas)}
+		exp := &types.QueryBlockGasResponse{Gas: int64(gas)} //#nosec G115
 
 		res, err := suite.queryClient.BlockGas(suite.ctx.Context(), &types.QueryBlockGasRequest{})
 		if tc.expPass {

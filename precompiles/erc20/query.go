@@ -140,7 +140,7 @@ func (p Precompile) Decimals(
 		))
 	}
 
-	return method.Outputs.Pack(uint8(decimals)) //#nosec G701 // we are checking for overflow above
+	return method.Outputs.Pack(uint8(decimals)) //#nosec G115 G701 // we are checking for overflow above
 }
 
 // TotalSupply returns the amount of tokens in existence. It fetches the supply
