@@ -2,16 +2,18 @@
 package inflationv1
 
 import (
-	_ "cosmossdk.io/api/amino"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
+	_ "cosmossdk.io/api/amino"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -49,17 +51,21 @@ func (x *InflationDistribution) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_InflationDistribution_messageType fastReflection_InflationDistribution_messageType
-var _ protoreflect.MessageType = fastReflection_InflationDistribution_messageType{}
+var (
+	_fastReflection_InflationDistribution_messageType fastReflection_InflationDistribution_messageType
+	_                                                 protoreflect.MessageType = fastReflection_InflationDistribution_messageType{}
+)
 
 type fastReflection_InflationDistribution_messageType struct{}
 
 func (x fastReflection_InflationDistribution_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_InflationDistribution)(nil)
 }
+
 func (x fastReflection_InflationDistribution_messageType) New() protoreflect.Message {
 	return new(fastReflection_InflationDistribution)
 }
+
 func (x fastReflection_InflationDistribution_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_InflationDistribution
 }
@@ -601,17 +607,21 @@ func (x *ExponentialCalculation) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ExponentialCalculation_messageType fastReflection_ExponentialCalculation_messageType
-var _ protoreflect.MessageType = fastReflection_ExponentialCalculation_messageType{}
+var (
+	_fastReflection_ExponentialCalculation_messageType fastReflection_ExponentialCalculation_messageType
+	_                                                  protoreflect.MessageType = fastReflection_ExponentialCalculation_messageType{}
+)
 
 type fastReflection_ExponentialCalculation_messageType struct{}
 
 func (x fastReflection_ExponentialCalculation_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ExponentialCalculation)(nil)
 }
+
 func (x fastReflection_ExponentialCalculation_messageType) New() protoreflect.Message {
 	return new(fastReflection_ExponentialCalculation)
 }
+
 func (x fastReflection_ExponentialCalculation_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ExponentialCalculation
 }
@@ -1474,11 +1484,13 @@ func file_evmos_inflation_v1_inflation_proto_rawDescGZIP() []byte {
 	return file_evmos_inflation_v1_inflation_proto_rawDescData
 }
 
-var file_evmos_inflation_v1_inflation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_inflation_v1_inflation_proto_goTypes = []interface{}{
-	(*InflationDistribution)(nil),  // 0: evmos.inflation.v1.InflationDistribution
-	(*ExponentialCalculation)(nil), // 1: evmos.inflation.v1.ExponentialCalculation
-}
+var (
+	file_evmos_inflation_v1_inflation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_evmos_inflation_v1_inflation_proto_goTypes  = []interface{}{
+		(*InflationDistribution)(nil),  // 0: evmos.inflation.v1.InflationDistribution
+		(*ExponentialCalculation)(nil), // 1: evmos.inflation.v1.ExponentialCalculation
+	}
+)
 var file_evmos_inflation_v1_inflation_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

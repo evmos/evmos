@@ -3,13 +3,14 @@ package feemarketv1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -43,17 +44,21 @@ func (x *EventFeeMarket) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventFeeMarket_messageType fastReflection_EventFeeMarket_messageType
-var _ protoreflect.MessageType = fastReflection_EventFeeMarket_messageType{}
+var (
+	_fastReflection_EventFeeMarket_messageType fastReflection_EventFeeMarket_messageType
+	_                                          protoreflect.MessageType = fastReflection_EventFeeMarket_messageType{}
+)
 
 type fastReflection_EventFeeMarket_messageType struct{}
 
 func (x fastReflection_EventFeeMarket_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventFeeMarket)(nil)
 }
+
 func (x fastReflection_EventFeeMarket_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventFeeMarket)
 }
+
 func (x fastReflection_EventFeeMarket_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventFeeMarket
 }
@@ -465,17 +470,21 @@ func (x *EventBlockGas) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventBlockGas_messageType fastReflection_EventBlockGas_messageType
-var _ protoreflect.MessageType = fastReflection_EventBlockGas_messageType{}
+var (
+	_fastReflection_EventBlockGas_messageType fastReflection_EventBlockGas_messageType
+	_                                         protoreflect.MessageType = fastReflection_EventBlockGas_messageType{}
+)
 
 type fastReflection_EventBlockGas_messageType struct{}
 
 func (x fastReflection_EventBlockGas_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventBlockGas)(nil)
 }
+
 func (x fastReflection_EventBlockGas_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventBlockGas)
 }
+
 func (x fastReflection_EventBlockGas_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventBlockGas
 }
@@ -1057,11 +1066,13 @@ func file_ethermint_feemarket_v1_events_proto_rawDescGZIP() []byte {
 	return file_ethermint_feemarket_v1_events_proto_rawDescData
 }
 
-var file_ethermint_feemarket_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_ethermint_feemarket_v1_events_proto_goTypes = []interface{}{
-	(*EventFeeMarket)(nil), // 0: ethermint.feemarket.v1.EventFeeMarket
-	(*EventBlockGas)(nil),  // 1: ethermint.feemarket.v1.EventBlockGas
-}
+var (
+	file_ethermint_feemarket_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_ethermint_feemarket_v1_events_proto_goTypes  = []interface{}{
+		(*EventFeeMarket)(nil), // 0: ethermint.feemarket.v1.EventFeeMarket
+		(*EventBlockGas)(nil),  // 1: ethermint.feemarket.v1.EventBlockGas
+	}
+)
 var file_ethermint_feemarket_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

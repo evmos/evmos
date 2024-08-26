@@ -3,13 +3,14 @@ package evmv1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -55,17 +56,21 @@ func (x *EventEthereumTx) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventEthereumTx_messageType fastReflection_EventEthereumTx_messageType
-var _ protoreflect.MessageType = fastReflection_EventEthereumTx_messageType{}
+var (
+	_fastReflection_EventEthereumTx_messageType fastReflection_EventEthereumTx_messageType
+	_                                           protoreflect.MessageType = fastReflection_EventEthereumTx_messageType{}
+)
 
 type fastReflection_EventEthereumTx_messageType struct{}
 
 func (x fastReflection_EventEthereumTx_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventEthereumTx)(nil)
 }
+
 func (x fastReflection_EventEthereumTx_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventEthereumTx)
 }
+
 func (x fastReflection_EventEthereumTx_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventEthereumTx
 }
@@ -893,17 +898,21 @@ func (x *EventTxLog) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventTxLog_messageType fastReflection_EventTxLog_messageType
-var _ protoreflect.MessageType = fastReflection_EventTxLog_messageType{}
+var (
+	_fastReflection_EventTxLog_messageType fastReflection_EventTxLog_messageType
+	_                                      protoreflect.MessageType = fastReflection_EventTxLog_messageType{}
+)
 
 type fastReflection_EventTxLog_messageType struct{}
 
 func (x fastReflection_EventTxLog_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventTxLog)(nil)
 }
+
 func (x fastReflection_EventTxLog_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventTxLog)
 }
+
 func (x fastReflection_EventTxLog_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventTxLog
 }
@@ -1331,17 +1340,21 @@ func (x *EventMessage) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventMessage_messageType fastReflection_EventMessage_messageType
-var _ protoreflect.MessageType = fastReflection_EventMessage_messageType{}
+var (
+	_fastReflection_EventMessage_messageType fastReflection_EventMessage_messageType
+	_                                        protoreflect.MessageType = fastReflection_EventMessage_messageType{}
+)
 
 type fastReflection_EventMessage_messageType struct{}
 
 func (x fastReflection_EventMessage_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventMessage)(nil)
 }
+
 func (x fastReflection_EventMessage_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventMessage)
 }
+
 func (x fastReflection_EventMessage_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventMessage
 }
@@ -1875,17 +1888,21 @@ func (x *EventBlockBloom) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventBlockBloom_messageType fastReflection_EventBlockBloom_messageType
-var _ protoreflect.MessageType = fastReflection_EventBlockBloom_messageType{}
+var (
+	_fastReflection_EventBlockBloom_messageType fastReflection_EventBlockBloom_messageType
+	_                                           protoreflect.MessageType = fastReflection_EventBlockBloom_messageType{}
+)
 
 type fastReflection_EventBlockBloom_messageType struct{}
 
 func (x fastReflection_EventBlockBloom_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventBlockBloom)(nil)
 }
+
 func (x fastReflection_EventBlockBloom_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventBlockBloom)
 }
+
 func (x fastReflection_EventBlockBloom_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventBlockBloom
 }
@@ -2556,13 +2573,15 @@ func file_ethermint_evm_v1_events_proto_rawDescGZIP() []byte {
 	return file_ethermint_evm_v1_events_proto_rawDescData
 }
 
-var file_ethermint_evm_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_ethermint_evm_v1_events_proto_goTypes = []interface{}{
-	(*EventEthereumTx)(nil), // 0: ethermint.evm.v1.EventEthereumTx
-	(*EventTxLog)(nil),      // 1: ethermint.evm.v1.EventTxLog
-	(*EventMessage)(nil),    // 2: ethermint.evm.v1.EventMessage
-	(*EventBlockBloom)(nil), // 3: ethermint.evm.v1.EventBlockBloom
-}
+var (
+	file_ethermint_evm_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_ethermint_evm_v1_events_proto_goTypes  = []interface{}{
+		(*EventEthereumTx)(nil), // 0: ethermint.evm.v1.EventEthereumTx
+		(*EventTxLog)(nil),      // 1: ethermint.evm.v1.EventTxLog
+		(*EventMessage)(nil),    // 2: ethermint.evm.v1.EventMessage
+		(*EventBlockBloom)(nil), // 3: ethermint.evm.v1.EventBlockBloom
+	}
+)
 var file_ethermint_evm_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

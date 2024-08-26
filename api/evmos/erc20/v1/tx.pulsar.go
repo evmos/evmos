@@ -2,10 +2,15 @@
 package erc20v1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
 	_ "cosmossdk.io/api/cosmos/msg/v1"
-	fmt "fmt"
+
 	_ "github.com/cosmos/cosmos-proto"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -13,9 +18,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -55,17 +57,21 @@ func (x *MsgConvertERC20) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertERC20_messageType fastReflection_MsgConvertERC20_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertERC20_messageType{}
+var (
+	_fastReflection_MsgConvertERC20_messageType fastReflection_MsgConvertERC20_messageType
+	_                                           protoreflect.MessageType = fastReflection_MsgConvertERC20_messageType{}
+)
 
 type fastReflection_MsgConvertERC20_messageType struct{}
 
 func (x fastReflection_MsgConvertERC20_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertERC20)(nil)
 }
+
 func (x fastReflection_MsgConvertERC20_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertERC20)
 }
+
 func (x fastReflection_MsgConvertERC20_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertERC20
 }
@@ -630,9 +636,7 @@ func (x *fastReflection_MsgConvertERC20) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgConvertERC20Response protoreflect.MessageDescriptor
-)
+var md_MsgConvertERC20Response protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_tx_proto_init()
@@ -659,17 +663,21 @@ func (x *MsgConvertERC20Response) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertERC20Response_messageType fastReflection_MsgConvertERC20Response_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertERC20Response_messageType{}
+var (
+	_fastReflection_MsgConvertERC20Response_messageType fastReflection_MsgConvertERC20Response_messageType
+	_                                                   protoreflect.MessageType = fastReflection_MsgConvertERC20Response_messageType{}
+)
 
 type fastReflection_MsgConvertERC20Response_messageType struct{}
 
 func (x fastReflection_MsgConvertERC20Response_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertERC20Response)(nil)
 }
+
 func (x fastReflection_MsgConvertERC20Response_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertERC20Response)
 }
+
 func (x fastReflection_MsgConvertERC20Response_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertERC20Response
 }
@@ -1021,17 +1029,21 @@ func (x *MsgConvertCoin) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertCoin_messageType fastReflection_MsgConvertCoin_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertCoin_messageType{}
+var (
+	_fastReflection_MsgConvertCoin_messageType fastReflection_MsgConvertCoin_messageType
+	_                                          protoreflect.MessageType = fastReflection_MsgConvertCoin_messageType{}
+)
 
 type fastReflection_MsgConvertCoin_messageType struct{}
 
 func (x fastReflection_MsgConvertCoin_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertCoin)(nil)
 }
+
 func (x fastReflection_MsgConvertCoin_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertCoin)
 }
+
 func (x fastReflection_MsgConvertCoin_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertCoin
 }
@@ -1549,9 +1561,7 @@ func (x *fastReflection_MsgConvertCoin) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgConvertCoinResponse protoreflect.MessageDescriptor
-)
+var md_MsgConvertCoinResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_tx_proto_init()
@@ -1578,17 +1588,21 @@ func (x *MsgConvertCoinResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertCoinResponse_messageType fastReflection_MsgConvertCoinResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertCoinResponse_messageType{}
+var (
+	_fastReflection_MsgConvertCoinResponse_messageType fastReflection_MsgConvertCoinResponse_messageType
+	_                                                  protoreflect.MessageType = fastReflection_MsgConvertCoinResponse_messageType{}
+)
 
 type fastReflection_MsgConvertCoinResponse_messageType struct{}
 
 func (x fastReflection_MsgConvertCoinResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertCoinResponse)(nil)
 }
+
 func (x fastReflection_MsgConvertCoinResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertCoinResponse)
 }
+
 func (x fastReflection_MsgConvertCoinResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertCoinResponse
 }
@@ -1938,17 +1952,21 @@ func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateParams_messageType fastReflection_MsgUpdateParams_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateParams_messageType{}
+var (
+	_fastReflection_MsgUpdateParams_messageType fastReflection_MsgUpdateParams_messageType
+	_                                           protoreflect.MessageType = fastReflection_MsgUpdateParams_messageType{}
+)
 
 type fastReflection_MsgUpdateParams_messageType struct{}
 
 func (x fastReflection_MsgUpdateParams_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateParams)(nil)
 }
+
 func (x fastReflection_MsgUpdateParams_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateParams)
 }
+
 func (x fastReflection_MsgUpdateParams_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateParams
 }
@@ -2404,9 +2422,7 @@ func (x *fastReflection_MsgUpdateParams) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgUpdateParamsResponse protoreflect.MessageDescriptor
-)
+var md_MsgUpdateParamsResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_tx_proto_init()
@@ -2433,17 +2449,21 @@ func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateParamsResponse_messageType fastReflection_MsgUpdateParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateParamsResponse_messageType{}
+var (
+	_fastReflection_MsgUpdateParamsResponse_messageType fastReflection_MsgUpdateParamsResponse_messageType
+	_                                                   protoreflect.MessageType = fastReflection_MsgUpdateParamsResponse_messageType{}
+)
 
 type fastReflection_MsgUpdateParamsResponse_messageType struct{}
 
 func (x fastReflection_MsgUpdateParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateParamsResponse)(nil)
 }
+
 func (x fastReflection_MsgUpdateParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateParamsResponse)
 }
+
 func (x fastReflection_MsgUpdateParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateParamsResponse
 }
@@ -2839,17 +2859,21 @@ func (x *MsgRegisterERC20) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgRegisterERC20_messageType fastReflection_MsgRegisterERC20_messageType
-var _ protoreflect.MessageType = fastReflection_MsgRegisterERC20_messageType{}
+var (
+	_fastReflection_MsgRegisterERC20_messageType fastReflection_MsgRegisterERC20_messageType
+	_                                            protoreflect.MessageType = fastReflection_MsgRegisterERC20_messageType{}
+)
 
 type fastReflection_MsgRegisterERC20_messageType struct{}
 
 func (x fastReflection_MsgRegisterERC20_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgRegisterERC20)(nil)
 }
+
 func (x fastReflection_MsgRegisterERC20_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgRegisterERC20)
 }
+
 func (x fastReflection_MsgRegisterERC20_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgRegisterERC20
 }
@@ -3304,9 +3328,7 @@ func (x *fastReflection_MsgRegisterERC20) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgRegisterERC20Response protoreflect.MessageDescriptor
-)
+var md_MsgRegisterERC20Response protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_tx_proto_init()
@@ -3333,17 +3355,21 @@ func (x *MsgRegisterERC20Response) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgRegisterERC20Response_messageType fastReflection_MsgRegisterERC20Response_messageType
-var _ protoreflect.MessageType = fastReflection_MsgRegisterERC20Response_messageType{}
+var (
+	_fastReflection_MsgRegisterERC20Response_messageType fastReflection_MsgRegisterERC20Response_messageType
+	_                                                    protoreflect.MessageType = fastReflection_MsgRegisterERC20Response_messageType{}
+)
 
 type fastReflection_MsgRegisterERC20Response_messageType struct{}
 
 func (x fastReflection_MsgRegisterERC20Response_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgRegisterERC20Response)(nil)
 }
+
 func (x fastReflection_MsgRegisterERC20Response_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgRegisterERC20Response)
 }
+
 func (x fastReflection_MsgRegisterERC20Response_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgRegisterERC20Response
 }
@@ -3693,17 +3719,21 @@ func (x *MsgToggleConversion) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgToggleConversion_messageType fastReflection_MsgToggleConversion_messageType
-var _ protoreflect.MessageType = fastReflection_MsgToggleConversion_messageType{}
+var (
+	_fastReflection_MsgToggleConversion_messageType fastReflection_MsgToggleConversion_messageType
+	_                                               protoreflect.MessageType = fastReflection_MsgToggleConversion_messageType{}
+)
 
 type fastReflection_MsgToggleConversion_messageType struct{}
 
 func (x fastReflection_MsgToggleConversion_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgToggleConversion)(nil)
 }
+
 func (x fastReflection_MsgToggleConversion_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgToggleConversion)
 }
+
 func (x fastReflection_MsgToggleConversion_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgToggleConversion
 }
@@ -4144,9 +4174,7 @@ func (x *fastReflection_MsgToggleConversion) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-var (
-	md_MsgToggleConversionResponse protoreflect.MessageDescriptor
-)
+var md_MsgToggleConversionResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_erc20_v1_tx_proto_init()
@@ -4173,17 +4201,21 @@ func (x *MsgToggleConversionResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgToggleConversionResponse_messageType fastReflection_MsgToggleConversionResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgToggleConversionResponse_messageType{}
+var (
+	_fastReflection_MsgToggleConversionResponse_messageType fastReflection_MsgToggleConversionResponse_messageType
+	_                                                       protoreflect.MessageType = fastReflection_MsgToggleConversionResponse_messageType{}
+)
 
 type fastReflection_MsgToggleConversionResponse_messageType struct{}
 
 func (x fastReflection_MsgToggleConversionResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgToggleConversionResponse)(nil)
 }
+
 func (x fastReflection_MsgToggleConversionResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgToggleConversionResponse)
 }
+
 func (x fastReflection_MsgToggleConversionResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgToggleConversionResponse
 }
@@ -5050,21 +5082,23 @@ func file_evmos_erc20_v1_tx_proto_rawDescGZIP() []byte {
 	return file_evmos_erc20_v1_tx_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_evmos_erc20_v1_tx_proto_goTypes = []interface{}{
-	(*MsgConvertERC20)(nil),             // 0: evmos.erc20.v1.MsgConvertERC20
-	(*MsgConvertERC20Response)(nil),     // 1: evmos.erc20.v1.MsgConvertERC20Response
-	(*MsgConvertCoin)(nil),              // 2: evmos.erc20.v1.MsgConvertCoin
-	(*MsgConvertCoinResponse)(nil),      // 3: evmos.erc20.v1.MsgConvertCoinResponse
-	(*MsgUpdateParams)(nil),             // 4: evmos.erc20.v1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),     // 5: evmos.erc20.v1.MsgUpdateParamsResponse
-	(*MsgRegisterERC20)(nil),            // 6: evmos.erc20.v1.MsgRegisterERC20
-	(*MsgRegisterERC20Response)(nil),    // 7: evmos.erc20.v1.MsgRegisterERC20Response
-	(*MsgToggleConversion)(nil),         // 8: evmos.erc20.v1.MsgToggleConversion
-	(*MsgToggleConversionResponse)(nil), // 9: evmos.erc20.v1.MsgToggleConversionResponse
-	(*v1beta1.Coin)(nil),                // 10: cosmos.base.v1beta1.Coin
-	(*Params)(nil),                      // 11: evmos.erc20.v1.Params
-}
+var (
+	file_evmos_erc20_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+	file_evmos_erc20_v1_tx_proto_goTypes  = []interface{}{
+		(*MsgConvertERC20)(nil),             // 0: evmos.erc20.v1.MsgConvertERC20
+		(*MsgConvertERC20Response)(nil),     // 1: evmos.erc20.v1.MsgConvertERC20Response
+		(*MsgConvertCoin)(nil),              // 2: evmos.erc20.v1.MsgConvertCoin
+		(*MsgConvertCoinResponse)(nil),      // 3: evmos.erc20.v1.MsgConvertCoinResponse
+		(*MsgUpdateParams)(nil),             // 4: evmos.erc20.v1.MsgUpdateParams
+		(*MsgUpdateParamsResponse)(nil),     // 5: evmos.erc20.v1.MsgUpdateParamsResponse
+		(*MsgRegisterERC20)(nil),            // 6: evmos.erc20.v1.MsgRegisterERC20
+		(*MsgRegisterERC20Response)(nil),    // 7: evmos.erc20.v1.MsgRegisterERC20Response
+		(*MsgToggleConversion)(nil),         // 8: evmos.erc20.v1.MsgToggleConversion
+		(*MsgToggleConversionResponse)(nil), // 9: evmos.erc20.v1.MsgToggleConversionResponse
+		(*v1beta1.Coin)(nil),                // 10: cosmos.base.v1beta1.Coin
+		(*Params)(nil),                      // 11: evmos.erc20.v1.Params
+	}
+)
 var file_evmos_erc20_v1_tx_proto_depIdxs = []int32{
 	10, // 0: evmos.erc20.v1.MsgConvertCoin.coin:type_name -> cosmos.base.v1beta1.Coin
 	11, // 1: evmos.erc20.v1.MsgUpdateParams.params:type_name -> evmos.erc20.v1.Params

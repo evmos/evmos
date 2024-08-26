@@ -2,16 +2,18 @@
 package feemarketv1
 
 import (
-	_ "cosmossdk.io/api/amino"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
+	_ "cosmossdk.io/api/amino"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +49,21 @@ func (x *GenesisState) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
-var _ protoreflect.MessageType = fastReflection_GenesisState_messageType{}
+var (
+	_fastReflection_GenesisState_messageType fastReflection_GenesisState_messageType
+	_                                        protoreflect.MessageType = fastReflection_GenesisState_messageType{}
+)
 
 type fastReflection_GenesisState_messageType struct{}
 
 func (x fastReflection_GenesisState_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_GenesisState)(nil)
 }
+
 func (x fastReflection_GenesisState_messageType) New() protoreflect.Message {
 	return new(fastReflection_GenesisState)
 }
+
 func (x fastReflection_GenesisState_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_GenesisState
 }
@@ -609,11 +615,13 @@ func file_ethermint_feemarket_v1_genesis_proto_rawDescGZIP() []byte {
 	return file_ethermint_feemarket_v1_genesis_proto_rawDescData
 }
 
-var file_ethermint_feemarket_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_ethermint_feemarket_v1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil), // 0: ethermint.feemarket.v1.GenesisState
-	(*Params)(nil),       // 1: ethermint.feemarket.v1.Params
-}
+var (
+	file_ethermint_feemarket_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_ethermint_feemarket_v1_genesis_proto_goTypes  = []interface{}{
+		(*GenesisState)(nil), // 0: ethermint.feemarket.v1.GenesisState
+		(*Params)(nil),       // 1: ethermint.feemarket.v1.Params
+	}
+)
 var file_ethermint_feemarket_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: ethermint.feemarket.v1.GenesisState.params:type_name -> ethermint.feemarket.v1.Params
 	1, // [1:1] is the sub-list for method output_type
