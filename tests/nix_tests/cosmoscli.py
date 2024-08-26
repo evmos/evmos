@@ -1028,7 +1028,7 @@ class CosmosCLI:
 
     def query_base_fee(self, **kwargs):
         default_kwargs = {"home": self.data_dir}
-        return int(
+        return float(
             json.loads(
                 self.raw(
                     "q",
