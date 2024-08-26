@@ -7,13 +7,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v19/x/staking"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
 	"sort"
+
+	"github.com/evmos/evmos/v19/x/staking"
 
 	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
@@ -225,7 +226,7 @@ var (
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		//ccvstaking.AppModuleBasic{},
+		// ccvstaking.AppModuleBasic{},
 		distrwrapper.AppModuleBasic{},
 		// TODO: How will this affect our staking wrapper and the precompile ?
 		staking.AppModuleBasic{AppModuleBasic: &ccvstaking.AppModuleBasic{}},
