@@ -17,6 +17,7 @@ import (
 //     with the bank module decimals (either 6 or 18).
 type BankWrapper struct {
 	types.BankKeeper
+	// decimals is the number of decimals used by the bank module
 	decimals uint32
 }
 
@@ -97,12 +98,12 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sd
 	if w.decimals == types.Denom6Dec {
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
-		}
-		// can happen that after the conversion, the amt is zero
-		// In such case, we just return nil to avoid error on
-		// bank keeper call
-		if amt.IsZero() {
-			return nil
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
 		}
 	}
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
