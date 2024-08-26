@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (auctions) [#2747](https://github.com/evmos/evmos/pull/2747) Add unit tests for auctions module.
 - (precompiles) [#2748](https://github.com/evmos/evmos/pull/2748) Burn auctions precompile boilerplate.
 - (auctions) [#2745](https://github.com/evmos/evmos/pull/2745) Add boilerplate for new auctions module.
 
