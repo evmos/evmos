@@ -61,13 +61,13 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 		denomDec = params.DenomDecimals
 	)
 
-	if found, _ := fees.Find(evmDenom); !found {
-		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "fee token %s not found in the fees", evmDenom)
-	}
-
 	// only evmDenom is allowed on fee coins
 	if fees.Len() > 1 {
 		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "fee token can only be %s", evmDenom)
+	}
+
+	if found, _ := fees.Find(evmDenom); !found {
+		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "fee token %s not found in the fees", evmDenom)
 	}
 
 	// set the corresponding decimals on the EVM bank keeper
