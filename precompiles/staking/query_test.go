@@ -356,7 +356,7 @@ func (s *PrecompileTestSuite) TestValidators() {
 
 				s.Require().Len(valOut.Validators, expLen)
 				// passed CountTotal = true
-				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total))
+				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total)) //nolint:gosec
 				s.Require().NotEmpty(valOut.PageResponse.NextKey)
 				s.assertValidatorsResponse(valOut.Validators, expLen)
 			},
@@ -384,7 +384,7 @@ func (s *PrecompileTestSuite) TestValidators() {
 
 				s.Require().Len(valOut.Validators, expLen)
 				// passed CountTotal = true
-				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total))
+				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total)) //nolint:gosec
 				s.Require().NotEmpty(valOut.PageResponse.NextKey)
 				s.assertValidatorsResponse(valOut.Validators, expLen)
 			},

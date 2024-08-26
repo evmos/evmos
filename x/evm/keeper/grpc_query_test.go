@@ -910,7 +910,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(int64(tc.expGas), int64(rsp.Gas))
+				suite.Require().Equal(int64(tc.expGas), int64(rsp.Gas)) //#nosec G115
 			} else {
 				suite.Require().Error(err)
 			}

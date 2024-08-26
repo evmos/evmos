@@ -171,7 +171,7 @@ func (b *Backend) TendermintBlockByNumber(blockNum rpctypes.BlockNumber) (*tmrpc
 		if err != nil {
 			return nil, err
 		}
-		height = int64(n) //#nosec G701 -- checked for int overflow already
+		height = int64(n) //#nosec G701 G115 -- checked for int overflow already
 	}
 	resBlock, err := b.clientCtx.Client.Block(b.ctx, &height)
 	if err != nil {

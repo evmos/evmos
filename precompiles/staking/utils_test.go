@@ -299,7 +299,7 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 
 		val := s.network.GetValidators()[j]
 		s.Require().Equal(val.OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
-		s.Require().Equal(uint8(val.Status), validators[i].Status)
+		s.Require().Equal(uint8(val.Status), validators[i].Status) //#nosec G115
 		s.Require().Equal(val.Tokens.Uint64(), validators[i].Tokens.Uint64())
 		s.Require().Equal(val.DelegatorShares.BigInt(), validators[i].DelegatorShares)
 		s.Require().Equal(val.Jailed, validators[i].Jailed)

@@ -260,7 +260,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
@@ -271,7 +271,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))) //#nosec G115
 				amount := sdk.NewCoins(coinAmount)
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgDelegate(from, privKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
@@ -511,7 +511,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9002-1", gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
@@ -522,7 +522,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				txBuilder.SetGasLimit(uint64(300000))
@@ -535,7 +535,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9000-1", gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
@@ -546,7 +546,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
@@ -569,7 +569,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
+				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
 				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, ctx.ChainID(), gas, amount)
 				suite.Require().NoError(err)
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))

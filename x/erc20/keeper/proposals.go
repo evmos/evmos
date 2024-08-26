@@ -92,7 +92,7 @@ func (k Keeper) CreateCoinMetadata(
 			metadata.DenomUnits,
 			&banktypes.DenomUnit{
 				Denom:    nameSanitized,
-				Exponent: uint32(erc20Data.Decimals),
+				Exponent: uint32(erc20Data.Decimals), //#nosec G115
 			},
 		)
 		metadata.Display = nameSanitized
