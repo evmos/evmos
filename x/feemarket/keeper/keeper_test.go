@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"math/big"
-
 	"cosmossdk.io/math"
 )
 
@@ -32,14 +30,14 @@ func (suite *KeeperTestSuite) TestSetGetGasFee() {
 	testCases := []struct {
 		name     string
 		malleate func()
-		expFee   *big.Int
+		expFee   math.LegacyDec
 	}{
 		{
 			"with last block given",
 			func() {
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, math.LegacyOneDec())
 			},
-			math.LegacyOneDec().BigInt(),
+			math.LegacyOneDec(),
 		},
 	}
 

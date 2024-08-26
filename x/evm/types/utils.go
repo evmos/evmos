@@ -146,7 +146,7 @@ func Convert6To18DecimalsBigInt(amt *big.Int) *big.Int {
 	return new(big.Int).Mul(amt, big.NewInt(1e12))
 }
 
-// Convert6To18DecimalsBigInt converts a math.LegacyDec to 18 decimals from 6
+// Convert6To18DecimalsLegacyDec converts a math.LegacyDec to 18 decimals from 6
 func Convert6To18DecimalsLegacyDec(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 	return amt.MulInt64(1e12)
 }
