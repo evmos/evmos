@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (precompiles) [#2748](https://github.com/evmos/evmos/pull/2748) Burn auctions precompile boilerplate.
+- (auctions) [#2745](https://github.com/evmos/evmos/pull/2745) Add boilerplate for new auctions module.
 
 ## [v19.1.0] - 2024-08-02
 

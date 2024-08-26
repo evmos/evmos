@@ -54,29 +54,29 @@ func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid, error
 }
 
 // NewMsgDepositCoin creates a new MsgDepositCoin.
-func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Keeper.Keeper) (common.Address, *auctionstypes.MsgDepositCoin, error) {
+func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Keeper.Keeper) (common.Address, common.Address, *auctionstypes.MsgDepositCoin, error) {
 	if len(args) != 3 {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 3)
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 3)
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[0])
 	}
 
 	tokenAddress, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[1])
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidHexAddress, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
 	denom, err := erc20Keeper.GetTokenDenom(ctx, tokenAddress)
 	if err != nil {
-		return common.Address{}, nil, err
+		return common.Address{}, common.Address{}, nil, err
 	}
 
 	msgDepositCoin := &auctionstypes.MsgDepositCoin{
@@ -84,7 +84,7 @@ func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Kee
 		Sender: sdk.AccAddress(sender.Bytes()).String(),
 	}
 
-	return sender, msgDepositCoin, nil
+	return sender, tokenAddress, msgDepositCoin, nil
 }
 
 // FromResponse populates the AuctionInfoOutput from a QueryCurrentAuctionInfoResponse.

@@ -14,20 +14,21 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
+// NOTE: The AuctionEnd event is emitted when the auction ends which happens in the epoch hooks
+// within the auctions module. The event is added manually to the logs and not emitted by the
+// precompile directly as the auction end is not triggered by a transaction.
 const (
 	// EventTypeBid defines the event type for the auctions Bid transaction.
 	EventTypeBid = "Bid"
 	// EventTypeDepositCoin defines the event type for the auctions DepositCoin transaction.
 	EventTypeDepositCoin = "CoinDeposit"
-	// EventTypeRoundFinished defines the event type for the auctions RoundFinished event.
-	EventTypeRoundFinished = "RoundFinished"
 )
 
 // EmitBidEvent creates a new event emitted on a Bid transaction.
-func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, amount *big.Int) error {
+func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, round uint64, amount *big.Int) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeBid]
-	topics := make([]common.Hash, 2)
+	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
@@ -38,8 +39,13 @@ func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender com
 		return err
 	}
 
+	topics[2], err = contractutils.MakeTopic(round)
+	if err != nil {
+		return err
+	}
+
 	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{event.Inputs[1]}
+	arguments := abi.Arguments{event.Inputs[2]}
 	packed, err := arguments.Pack(amount)
 	if err != nil {
 		return err
@@ -56,10 +62,10 @@ func (p Precompile) EmitBidEvent(ctx sdk.Context, stateDB vm.StateDB, sender com
 }
 
 // EmitDepositCoinEvent creates a new event emitted on a DepositCoin transaction.
-func (p Precompile) EmitDepositCoinEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, denom string, amount *big.Int) error {
+func (p Precompile) EmitDepositCoinEvent(ctx sdk.Context, stateDB vm.StateDB, sender common.Address, round uint64, denom common.Address, amount *big.Int) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeDepositCoin]
-	topics := make([]common.Hash, 2)
+	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
@@ -70,8 +76,13 @@ func (p Precompile) EmitDepositCoinEvent(ctx sdk.Context, stateDB vm.StateDB, se
 		return err
 	}
 
+	topics[2], err = contractutils.MakeTopic(round)
+	if err != nil {
+		return err
+	}
+
 	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{event.Inputs[1], event.Inputs[2]}
+	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
 	packed, err := arguments.Pack(denom, amount)
 	if err != nil {
 		return err

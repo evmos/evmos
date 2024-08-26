@@ -16,8 +16,9 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
-	// Set the highest bid
-	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.Amount)
+	if data.Bid.Sender != "" && data.Bid.BidValue.IsPositive() {
+		k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.BidValue)
+	}
 
 	// Set the current round
 	k.SetRound(ctx, data.Round)
@@ -26,7 +27,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
-		Bid:    *k.GetHighestBid(ctx),
+		Bid:    k.GetHighestBid(ctx),
 		Round:  k.GetRound(ctx),
 	}
 }

@@ -25,8 +25,8 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 	}
 
 	lastBid := k.GetHighestBid(ctx)
-	if bid.Amount.Amount.LTE(lastBid.Amount.Amount) {
-		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than last bid %s", bid.Amount, lastBid.Amount)
+	if bid.Amount.Amount.LTE(lastBid.BidValue.Amount) {
+		return nil, errors.Wrapf(types.ErrBidMustBeHigherThanCurrent, "bid amount %s is less than or equal to the last bid %s", bid.Amount, lastBid.BidValue)
 	}
 
 	senderAddr, err := sdk.AccAddressFromBech32(bid.Sender)
@@ -39,7 +39,7 @@ func (k Keeper) Bid(goCtx context.Context, bid *types.MsgBid) (*types.MsgBidResp
 	}
 
 	// If there is a last bid, refund it
-	if !lastBid.Amount.IsZero() {
+	if !lastBid.BidValue.IsZero() {
 		if err := k.refundLastBid(ctx); err != nil {
 			return nil, errors.Wrap(err, "refund failed")
 		}

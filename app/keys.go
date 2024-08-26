@@ -24,7 +24,6 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
-	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -60,8 +59,6 @@ func StoreKeys() (
 		epochstypes.StoreKey, vestingtypes.StoreKey,
 		// auctions keys
 		auctionstypes.StoreKey,
-		// consumer keys
-		ccvconsumertypes.StoreKey,
 	}
 
 	keys := sdk.NewKVStoreKeys(storeKeys...)

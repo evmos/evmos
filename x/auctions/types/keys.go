@@ -17,7 +17,7 @@ const (
 	AuctionCollectorName = "auction_collector"
 )
 
-// prefix bytes for the inflation persistent store
+// prefix bytes for the auctions persistent store
 const (
 	prefixAuctionRound = iota + 1
 	prefixBid

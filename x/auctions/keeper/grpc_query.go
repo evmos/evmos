@@ -17,8 +17,13 @@ var _ types.QueryServer = Keeper{}
 func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoRequest) (*types.QueryCurrentAuctionInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if !k.GetParams(ctx).EnableAuction {
+		return nil, types.ErrAuctionDisabled
+	}
+
 	moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
+
 	// Filter out the coin with the specified denomination
 	filteredCoins := sdk.Coins{}
 	for _, coin := range coins {
@@ -32,7 +37,7 @@ func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoR
 	return &types.QueryCurrentAuctionInfoResponse{
 		Tokens:        filteredCoins,
 		CurrentRound:  currentRound,
-		HighestBid:    highestBid.Amount,
+		HighestBid:    highestBid.BidValue,
 		BidderAddress: highestBid.Sender,
 	}, nil
 }

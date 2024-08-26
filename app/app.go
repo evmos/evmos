@@ -15,7 +15,6 @@ import (
 	"sort"
 
 	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
-
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
 	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
@@ -577,6 +576,11 @@ func NewEvmos(
 			app.IBCKeeper.ChannelKeeper,
 			app.AuctionsKeeper,
 		),
+	)
+
+	app.AuctionsKeeper = auctionskeeper.NewKeeper(
+		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
