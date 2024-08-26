@@ -2,18 +2,16 @@
 package erc20v1
 
 import (
-	fmt "fmt"
-	io "io"
-	reflect "reflect"
-	sync "sync"
-
 	v1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
-
+	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	io "io"
+	reflect "reflect"
+	sync "sync"
 )
 
 var (
@@ -53,21 +51,17 @@ func (x *TokenPair) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_TokenPair_messageType fastReflection_TokenPair_messageType
-	_                                     protoreflect.MessageType = fastReflection_TokenPair_messageType{}
-)
+var _fastReflection_TokenPair_messageType fastReflection_TokenPair_messageType
+var _ protoreflect.MessageType = fastReflection_TokenPair_messageType{}
 
 type fastReflection_TokenPair_messageType struct{}
 
 func (x fastReflection_TokenPair_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_TokenPair)(nil)
 }
-
 func (x fastReflection_TokenPair_messageType) New() protoreflect.Message {
 	return new(fastReflection_TokenPair)
 }
-
 func (x fastReflection_TokenPair_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_TokenPair
 }
@@ -692,21 +686,17 @@ func (x *RegisterCoinProposal) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_RegisterCoinProposal_messageType fastReflection_RegisterCoinProposal_messageType
-	_                                                protoreflect.MessageType = fastReflection_RegisterCoinProposal_messageType{}
-)
+var _fastReflection_RegisterCoinProposal_messageType fastReflection_RegisterCoinProposal_messageType
+var _ protoreflect.MessageType = fastReflection_RegisterCoinProposal_messageType{}
 
 type fastReflection_RegisterCoinProposal_messageType struct{}
 
 func (x fastReflection_RegisterCoinProposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_RegisterCoinProposal)(nil)
 }
-
 func (x fastReflection_RegisterCoinProposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_RegisterCoinProposal)
 }
-
 func (x fastReflection_RegisterCoinProposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_RegisterCoinProposal
 }
@@ -1314,21 +1304,17 @@ func (x *ProposalMetadata) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_ProposalMetadata_messageType fastReflection_ProposalMetadata_messageType
-	_                                            protoreflect.MessageType = fastReflection_ProposalMetadata_messageType{}
-)
+var _fastReflection_ProposalMetadata_messageType fastReflection_ProposalMetadata_messageType
+var _ protoreflect.MessageType = fastReflection_ProposalMetadata_messageType{}
 
 type fastReflection_ProposalMetadata_messageType struct{}
 
 func (x fastReflection_ProposalMetadata_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ProposalMetadata)(nil)
 }
-
 func (x fastReflection_ProposalMetadata_messageType) New() protoreflect.Message {
 	return new(fastReflection_ProposalMetadata)
 }
-
 func (x fastReflection_ProposalMetadata_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ProposalMetadata
 }
@@ -1811,21 +1797,17 @@ func (x *RegisterERC20Proposal) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_RegisterERC20Proposal_messageType fastReflection_RegisterERC20Proposal_messageType
-	_                                                 protoreflect.MessageType = fastReflection_RegisterERC20Proposal_messageType{}
-)
+var _fastReflection_RegisterERC20Proposal_messageType fastReflection_RegisterERC20Proposal_messageType
+var _ protoreflect.MessageType = fastReflection_RegisterERC20Proposal_messageType{}
 
 type fastReflection_RegisterERC20Proposal_messageType struct{}
 
 func (x fastReflection_RegisterERC20Proposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_RegisterERC20Proposal)(nil)
 }
-
 func (x fastReflection_RegisterERC20Proposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_RegisterERC20Proposal)
 }
-
 func (x fastReflection_RegisterERC20Proposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_RegisterERC20Proposal
 }
@@ -2377,21 +2359,17 @@ func (x *ToggleTokenConversionProposal) slowProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-var (
-	_fastReflection_ToggleTokenConversionProposal_messageType fastReflection_ToggleTokenConversionProposal_messageType
-	_                                                         protoreflect.MessageType = fastReflection_ToggleTokenConversionProposal_messageType{}
-)
+var _fastReflection_ToggleTokenConversionProposal_messageType fastReflection_ToggleTokenConversionProposal_messageType
+var _ protoreflect.MessageType = fastReflection_ToggleTokenConversionProposal_messageType{}
 
 type fastReflection_ToggleTokenConversionProposal_messageType struct{}
 
 func (x fastReflection_ToggleTokenConversionProposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ToggleTokenConversionProposal)(nil)
 }
-
 func (x fastReflection_ToggleTokenConversionProposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_ToggleTokenConversionProposal)
 }
-
 func (x fastReflection_ToggleTokenConversionProposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ToggleTokenConversionProposal
 }
@@ -3320,20 +3298,17 @@ func file_evmos_erc20_v1_erc20_proto_rawDescGZIP() []byte {
 	return file_evmos_erc20_v1_erc20_proto_rawDescData
 }
 
-var (
-	file_evmos_erc20_v1_erc20_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_evmos_erc20_v1_erc20_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
-	file_evmos_erc20_v1_erc20_proto_goTypes   = []interface{}{
-		(Owner)(0),                            // 0: evmos.erc20.v1.Owner
-		(*TokenPair)(nil),                     // 1: evmos.erc20.v1.TokenPair
-		(*RegisterCoinProposal)(nil),          // 2: evmos.erc20.v1.RegisterCoinProposal
-		(*ProposalMetadata)(nil),              // 3: evmos.erc20.v1.ProposalMetadata
-		(*RegisterERC20Proposal)(nil),         // 4: evmos.erc20.v1.RegisterERC20Proposal
-		(*ToggleTokenConversionProposal)(nil), // 5: evmos.erc20.v1.ToggleTokenConversionProposal
-		(*v1beta1.Metadata)(nil),              // 6: cosmos.bank.v1beta1.Metadata
-	}
-)
-
+var file_evmos_erc20_v1_erc20_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_evmos_erc20_v1_erc20_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_evmos_erc20_v1_erc20_proto_goTypes = []interface{}{
+	(Owner)(0),                            // 0: evmos.erc20.v1.Owner
+	(*TokenPair)(nil),                     // 1: evmos.erc20.v1.TokenPair
+	(*RegisterCoinProposal)(nil),          // 2: evmos.erc20.v1.RegisterCoinProposal
+	(*ProposalMetadata)(nil),              // 3: evmos.erc20.v1.ProposalMetadata
+	(*RegisterERC20Proposal)(nil),         // 4: evmos.erc20.v1.RegisterERC20Proposal
+	(*ToggleTokenConversionProposal)(nil), // 5: evmos.erc20.v1.ToggleTokenConversionProposal
+	(*v1beta1.Metadata)(nil),              // 6: cosmos.bank.v1beta1.Metadata
+}
 var file_evmos_erc20_v1_erc20_proto_depIdxs = []int32{
 	0, // 0: evmos.erc20.v1.TokenPair.contract_owner:type_name -> evmos.erc20.v1.Owner
 	6, // 1: evmos.erc20.v1.RegisterCoinProposal.metadata:type_name -> cosmos.bank.v1beta1.Metadata
