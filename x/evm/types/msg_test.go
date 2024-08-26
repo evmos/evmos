@@ -88,7 +88,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 	evmTx := &types.EvmTxArgs{
 		Nonce:     0,
 		To:        &suite.to,
-		GasLimit:  100000,
+		GasLimit:  1000000000000,
 		GasPrice:  big.NewInt(1),
 		GasFeeCap: big.NewInt(1),
 		GasTipCap: big.NewInt(0),
@@ -124,8 +124,9 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 
 			suite.Require().Empty(tx.GetMemo())
 			suite.Require().Empty(tx.GetTimeoutHeight())
-			suite.Require().Equal(uint64(100000), tx.GetGas())
-			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(types.DefaultEVMDenom, sdkmath.NewInt(100000))), tx.GetFee())
+			suite.Require().Equal(uint64(1000000000000), tx.GetGas())
+			// 1000000000000 aevmos is technically 1uatom
+			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(types.DefaultEVMDenom, sdkmath.NewInt(1))), tx.GetFee())
 		}
 	}
 }

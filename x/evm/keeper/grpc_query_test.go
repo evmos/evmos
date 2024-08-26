@@ -27,10 +27,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7607
+const expGasConsumed = 10308
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7601
+const expGasConsumedWithFeeMkt = 10302
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 				suite.Require().NoError(err)
 
 				expAccount = &types.QueryAccountResponse{
-					Balance:  "100",
+					Balance:  "100000000000000",
 					CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
 					Nonce:    0,
 				}
@@ -207,7 +207,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
 				suite.Require().NoError(err)
 
-				expBalance = "100"
+				expBalance = "100000000000000"
 				req = &types.QueryBalanceRequest{
 					Address: suite.address.String(),
 				}
@@ -954,7 +954,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   28724, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   31497, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
@@ -1255,7 +1255,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - default Base Fee",
 			func() {
-				initialBaseFee := sdkmath.NewInt(ethparams.InitialBaseFee)
+				initialBaseFee := sdkmath.NewInt(100000000000)
 				expRes = &types.QueryBaseFeeResponse{BaseFee: &initialBaseFee}
 			},
 			true, true, true,
@@ -1263,10 +1263,11 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdkmath.LegacyOneDec()
+				baseFee := sdkmath.LegacyNewDecWithPrec(10, 2)
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
-				aux = baseFee.TruncateInt()
+				scaledBaseFee := types.Convert6To18DecimalsLegacyDec(baseFee)
+				aux = sdk.NewIntFromBigInt(scaledBaseFee.TruncateInt().BigInt())
 				expRes = &types.QueryBaseFeeResponse{BaseFee: &aux}
 			},
 			true, true, true,

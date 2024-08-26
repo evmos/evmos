@@ -51,11 +51,11 @@ func FeeChecker(
 	ethConfig *params.ChainConfig,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
-	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
+	baseFee := k.GetBaseFee(ctx)
+	if !types.IsLondon(ethConfig, ctx.BlockHeight()) || baseFee.IsNil() {
 		// london hardfork is not enabled: fallback to min-gas-prices logic
 		return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 	}
-	baseFee := k.GetBaseFee(ctx)
 	// default to `MaxInt64` when there's no extension option.
 	maxPriorityPrice := sdkmath.LegacyNewDec(math.MaxInt64)
 

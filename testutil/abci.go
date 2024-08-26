@@ -87,13 +87,14 @@ func DeliverTx(
 // If a private key is provided, it will attempt to sign all messages with the given private key,
 // otherwise, it will assume the messages have already been signed.
 func DeliverEthTx(
+	ctx sdk.Context,
 	appEvmos *app.Evmos,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
-	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
+	tx, err := tx.PrepareEthTx(ctx, txConfig, appEvmos, priv, msgs...)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
@@ -114,13 +115,14 @@ func DeliverEthTx(
 // otherwise, it will assume the messages have already been signed. It does not check if the Eth tx is
 // successful or not.
 func DeliverEthTxWithoutCheck(
+	ctx sdk.Context,
 	appEvmos *app.Evmos,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
-	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
+	tx, err := tx.PrepareEthTx(ctx, txConfig, appEvmos, priv, msgs...)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
@@ -163,13 +165,14 @@ func CheckTx(
 
 // CheckEthTx checks a Ethereum tx for a given set of msgs
 func CheckEthTx(
+	ctx sdk.Context,
 	appEvmos *app.Evmos,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
-	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
+	tx, err := tx.PrepareEthTx(ctx, txConfig, appEvmos, priv, msgs...)
 	if err != nil {
 		return abci.ResponseCheckTx{}, err
 	}

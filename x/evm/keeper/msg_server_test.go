@@ -32,8 +32,10 @@ func (suite *KeeperTestSuite) TestEthereumTx() {
 				msg, err = suite.createContractMsgTx(
 					vmdb.GetNonce(suite.address),
 					signer,
+					1000,
 					big.NewInt(1),
 				)
+
 				suite.Require().NoError(err)
 			},
 			true,

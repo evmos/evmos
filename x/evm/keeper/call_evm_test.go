@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/testutil"
@@ -48,12 +50,18 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 
+		// Fund the sender account to pay for fees
+		evmDenom := suite.app.EvmKeeper.GetParams(suite.ctx).EvmDenom
+		err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, suite.address.Bytes(), sdk.Coins{sdk.NewCoin(evmDenom, math.OneInt())})
+		suite.Require().NoError(err)
+		suite.Commit()
+
 		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 		contract, err := suite.DeployContract("coin", "token", erc20Decimals)
 		suite.Require().NoError(err)
 		account := utiltx.GenerateAddress()
 
-		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
+		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, suite.address, contract, true, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
@@ -146,6 +154,11 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+
+			evmDenom := suite.app.EvmKeeper.GetParams(suite.ctx).EvmDenom
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, suite.address.Bytes(), sdk.Coins{sdk.NewCoin(evmDenom, math.OneInt())})
+			suite.Require().NoError(err)
+			suite.Commit()
 
 			data, contract := tc.malleate()
 

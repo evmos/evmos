@@ -54,7 +54,17 @@ func (w BankWrapper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom stri
 // MintCoinsToAccount scales down from 18 decimals to 6 decimals the coins amount provided
 // and mints that to the provided account
 func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	convertAmtTo18Decimals(w.decimals, amt)
+	if w.decimals == types.Denom6Dec {
+		for i := range amt {
+			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
+		}
+	}
 	if err := w.BankKeeper.MintCoins(ctx, types.ModuleName, amt); err != nil {
 		return err
 	}
@@ -64,7 +74,17 @@ func (w BankWrapper) MintCoinsToAccount(ctx sdk.Context, recipientAddr sdk.AccAd
 // BurnAccountCoins scales down from 18 decimals to 6 decimals the coins amount provided
 // and burns that coins of the provided account
 func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, amt sdk.Coins) error {
-	convertAmtTo18Decimals(w.decimals, amt)
+	if w.decimals == types.Denom6Dec {
+		for i := range amt {
+			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
+		}
+	}
 	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, amt); err != nil {
 		return err
 	}
@@ -75,7 +95,17 @@ func (w BankWrapper) BurnAccountCoins(ctx sdk.Context, account sdk.AccAddress, a
 // from 18 decimals to 6 decimals the coins amount provided
 // and sends the coins
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error {
-	convertAmtTo18Decimals(w.decimals, amt)
+	if w.decimals == types.Denom6Dec {
+		for i := range amt {
+			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
+		}
+	}
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
 }
 
@@ -83,15 +113,16 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sd
 // from 18 decimals to 6 decimals the coins amount provided
 // and sends the coins from the module to the account
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	convertAmtTo18Decimals(w.decimals, amt)
-	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt)
-}
-
-// convertAmtTo18Decimals is a helper function to convert the amount of coins
-func convertAmtTo18Decimals(decimals uint32, amt sdk.Coins) {
-	if decimals == types.Denom6Dec {
+	if w.decimals == types.Denom6Dec {
 		for i := range amt {
 			amt[i] = types.Convert18To6DecimalsCoin(amt[i])
+			// can happen that after the conversion, the amt is zero
+			// In such case, we just return nil to avoid error on
+			// bank keeper call
+			if amt.IsZero() {
+				return nil
+			}
 		}
 	}
+	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt)
 }

@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 
 func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := math.NewInt(1000100000000000000)
+	bondedAmt := math.NewInt(1010000000000000000)
 	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
 
 	testCases := []struct {
@@ -158,7 +158,7 @@ func (suite *KeeperTestSuite) TestBondedRatio() {
 			"not mainnet",
 			false,
 			func() {},
-			math.LegacyMustNewDecFromStr("0.999900009999000099"),
+			math.LegacyMustNewDecFromStr("0.990099009900990099"),
 		},
 	}
 	for _, tc := range testCases {

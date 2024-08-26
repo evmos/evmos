@@ -390,20 +390,21 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			leftoverGas:    0,
 			refundQuotient: params.RefundQuotient,
 			noError:        true,
-			expGasRefund:   params.TxGas / params.RefundQuotient,
+			expGasRefund:   (params.TxGas / params.RefundQuotient) * 1e12,
 		},
 		{
 			name:           "invalid Gas value in msg",
 			leftoverGas:    0,
 			refundQuotient: params.RefundQuotient,
 			noError:        false,
-			expGasRefund:   params.TxGas,
+			expGasRefund:   params.TxGas * 1e12,
 			malleate: func() {
 				keeperParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 				m, err = suite.createContractGethMsg(
 					suite.StateDB().GetNonce(suite.address),
 					ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID()),
 					keeperParams.ChainConfig.EthereumConfig(suite.app.EvmKeeper.ChainID()),
+					params.TxGasContractCreation+1000,
 					big.NewInt(-100),
 				)
 				suite.Require().NoError(err)
@@ -446,9 +447,10 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 
 			gasUsed := m.Gas() - tc.leftoverGas
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
-			suite.Require().Equal(tc.expGasRefund, refund)
+			scaledRefund := refund * 1e12
+			suite.Require().Equal(tc.expGasRefund, scaledRefund)
 
-			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
+			err = suite.app.EvmKeeper.RefundGas(suite.ctx, m, scaledRefund, evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {
@@ -634,7 +636,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		{
 			"create contract tx with config param EnableCreate = false",
 			func() {
-				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, big.NewInt(2))
+				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.address), signer, chainCfg, params.TxGasContractCreation+1000, big.NewInt(2))
 				suite.Require().NoError(err)
 				config.Params.AccessControl = evmtypes.AccessControl{
 					Create: evmtypes.AccessControlType{
@@ -705,8 +707,8 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 	}
 }
 
-func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
-	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
+func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gas uint64, gasPrice *big.Int) (core.Message, error) {
+	ethMsg, err := suite.createContractMsgTx(nonce, signer, gas, gasPrice)
 	if err != nil {
 		return nil, err
 	}
@@ -715,10 +717,10 @@ func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtype
 	return ethMsg.AsMessage(msgSigner, nil)
 }
 
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gas uint64, gasPrice *big.Int) (*evmtypes.MsgEthereumTx, error) {
 	contractCreateTx := &ethtypes.AccessListTx{
 		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation + 1000, // account for data length
+		Gas:      gas, // account for data length
 		To:       nil,
 		Data:     []byte("contract_data"),
 		Nonce:    nonce,

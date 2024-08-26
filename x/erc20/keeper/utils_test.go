@@ -152,8 +152,6 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err := s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
 	suite.Require().NoError(err)
 
-	// s.app.FeeMarketKeeper.SetBaseFee(s.EvmosChain.GetContext(), big.NewInt(1))
-
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
 	validators := s.app.StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
 	cons, err := validators[0].GetConsAddr()
@@ -260,8 +258,9 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	})
 	suite.Require().NoError(err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, sdkmath.LegacyNewDecFromBigInt(big.NewInt(1)))
 
+	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 	baseFeeRes, err := s.app.EvmKeeper.BaseFee(s.ctx, &evm.QueryBaseFeeRequest{})
 	s.Require().NoError(err)
 	baseFee := baseFeeRes.BaseFee.BigInt()
@@ -279,6 +278,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 		Input:     transferData,
 		Accesses:  &ethtypes.AccessList{},
 	}
+
 	ercTransferTx := evm.NewTx(ercTransferTxParams)
 
 	ercTransferTx.From = suite.address.Hex()

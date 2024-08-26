@@ -171,7 +171,7 @@ func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
 	expCirculatingSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction))
 
 	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := sdk.NewInt64DecCoin(evmostypes.AttoEvmos, 1000100000000000000)
+	bondedAmt := sdk.NewInt64DecCoin(evmostypes.AttoEvmos, 1010000000000000000)
 
 	res, err := suite.queryClient.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	suite.Require().NoError(err)
@@ -190,7 +190,7 @@ func (suite *KeeperTestSuite) TestQueryInflationRate() {
 	err := suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
 	suite.Require().NoError(err)
 
-	expInflationRate := math.LegacyMustNewDecFromStr("51.562500000000000000")
+	expInflationRate := math.LegacyMustNewDecFromStr("51.562499997447656300")
 	res, err := suite.queryClient.InflationRate(ctx, &types.QueryInflationRateRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(expInflationRate, res.InflationRate)

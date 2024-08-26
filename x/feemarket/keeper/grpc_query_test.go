@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	sdkmath "cosmossdk.io/math"
-	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
 )
 
@@ -39,17 +38,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		expPass  bool
 	}{
 		{
-			"pass - default Base Fee",
-			func() {
-				initialBaseFee := sdkmath.LegacyNewDec(ethparams.InitialBaseFee)
-				expRes = &types.QueryBaseFeeResponse{BaseFee: &initialBaseFee}
-			},
-			true,
-		},
-		{
 			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdkmath.LegacyOneDec()
+				baseFee := sdkmath.LegacyNewDecWithPrec(10, 2)
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
 				expRes = &types.QueryBaseFeeResponse{BaseFee: &baseFee}

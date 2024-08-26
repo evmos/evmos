@@ -240,9 +240,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		_, err := factory.ExecuteContractCall(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{
-				To:       &flashLoanAddr,
-				GasPrice: big.NewInt(900_000_000),
-				GasLimit: 400_000,
+				To: &flashLoanAddr,
 			},
 			testfactory.CallArgs{
 				ContractABI: flashLoanContract.ABI,
