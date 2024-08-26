@@ -79,8 +79,8 @@ func (am AppModule) AllocateTokens(
 	feesCollectedInt := am.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())
 	feesCollected := sdk.NewDecCoinsFromCoins(feesCollectedInt...)
 
-	// transfer collected fees to the distribution module account
-	err := am.bankKeeper.SendCoinsFromModuleToModule(ctx, consumertypes.ConsumerRedistributeName, auctionstypes.ModuleName, feesCollectedInt)
+	// transfer collected fees to the auctions module account
+	err := am.bankKeeper.SendCoinsFromModuleToModule(ctx, consumertypes.ConsumerRedistributeName, auctionstypes.AuctionCollectorName, feesCollectedInt)
 	if err != nil {
 		return err
 	}
