@@ -31,7 +31,7 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	if err != nil {
 		logger.Error("error when getting base fee", "error", err.Error())
 	}
-	if !res.BaseFee.IsNil() {
+	if res != nil && !res.BaseFee.IsNil() {
 		// Store current base fee in event
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent(
