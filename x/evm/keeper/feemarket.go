@@ -51,6 +51,9 @@ func (w *FeeMarketWrapper) WithDecimals(decimals uint32) error {
 // GetBaseFee returns the base fee converted to 18 decimals
 func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.GetBaseFee(ctx)
+	if baseFee.IsNil() {
+		return nil
+	}
 	if w.decimals == types.Denom18Dec {
 		return baseFee.TruncateInt().BigInt()
 	}

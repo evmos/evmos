@@ -109,13 +109,17 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 // given a local (validator config) and a global (feemarket param) minGasPrice
 //
 //nolint:unparam
-func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice math.LegacyDec, baseFee math.LegacyDec) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
+func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice math.LegacyDec, baseFee math.LegacyDec, denomDecimals uint32) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	privKey, msg := setupTest(valMinGasPrice+s.denom, chainID)
 	params := types.DefaultParams()
 	params.MinGasPrice = minGasPrice
 	err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
 	s.Require().NoError(err)
 	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, baseFee)
+
+	evmParams := s.app.EvmKeeper.GetParams(s.ctx)
+	evmParams.DenomDecimals = denomDecimals
+	s.app.EvmKeeper.SetParams(s.ctx, evmParams)
 	s.Commit()
 
 	return privKey, msg
