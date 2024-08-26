@@ -19,6 +19,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v19/contracts/types"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 )
 
@@ -567,13 +568,13 @@ func (do *UnbondingDelegationOutput) FromResponse(res *stakingtypes.QueryUnbondi
 // a delegation response.
 type DelegationOutput struct {
 	Shares  *big.Int
-	Balance cmn.Coin
+	Balance types.Coin
 }
 
 // FromResponse populates the DelegationOutput from a QueryDelegationResponse.
 func (do *DelegationOutput) FromResponse(res *stakingtypes.QueryDelegationResponse) *DelegationOutput {
 	do.Shares = res.DelegationResponse.Delegation.Shares.BigInt()
-	do.Balance = cmn.Coin{
+	do.Balance = types.Coin{
 		Denom:  res.DelegationResponse.Balance.Denom,
 		Amount: res.DelegationResponse.Balance.Amount.BigInt(),
 	}

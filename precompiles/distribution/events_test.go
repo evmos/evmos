@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v19/cmd/config"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	"github.com/evmos/evmos/v19/precompiles/distribution"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -44,7 +44,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var setWithdrawerAddrEvent distribution.EventSetWithdrawAddress
-				err := cmn.UnpackLog(s.precompile.ABI, &setWithdrawerAddrEvent, distribution.EventTypeSetWithdrawAddress, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &setWithdrawerAddrEvent, distribution.EventTypeSetWithdrawAddress, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, setWithdrawerAddrEvent.Caller)
 				s.Require().Equal(sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, s.address.Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
@@ -113,7 +113,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var delegatorRewards distribution.EventWithdrawDelegatorRewards
-				err = cmn.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
+				err = contractutils.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, delegatorRewards.DelegatorAddress)
 				s.Require().Equal(optHexAddr, delegatorRewards.ValidatorAddress)
@@ -180,7 +180,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 
 				// Check the fully unpacked event matches the one emitted
 				var validatorRewards distribution.EventWithdrawValidatorRewards
-				err := cmn.UnpackLog(s.precompile.ABI, &validatorRewards, distribution.EventTypeWithdrawValidatorCommission, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &validatorRewards, distribution.EventTypeWithdrawValidatorCommission, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(crypto.Keccak256Hash([]byte(s.validators[0].OperatorAddress)), validatorRewards.ValidatorAddress)
 				s.Require().Equal(big.NewInt(100000000000000000), validatorRewards.Commission)
@@ -231,7 +231,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var claimRewardsEvent distribution.EventClaimRewards
-				err := cmn.UnpackLog(s.precompile.ABI, &claimRewardsEvent, distribution.EventTypeClaimRewards, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &claimRewardsEvent, distribution.EventTypeClaimRewards, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), claimRewardsEvent.DelegatorAddress)
 				s.Require().Equal(big.NewInt(1e18), claimRewardsEvent.Amount)
@@ -269,7 +269,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var fundCommunityPoolEvent distribution.EventFundCommunityPool
-				err := cmn.UnpackLog(s.precompile.ABI, &fundCommunityPoolEvent, distribution.EventTypeFundCommunityPool, *log)
+				err := contractutils.UnpackLog(s.precompile.ABI, &fundCommunityPoolEvent, distribution.EventTypeFundCommunityPool, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), fundCommunityPoolEvent.Depositor)
 				s.Require().Equal(big.NewInt(1e18), fundCommunityPoolEvent.Amount)

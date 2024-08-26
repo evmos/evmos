@@ -14,6 +14,20 @@ import (
 	"slices"
 	"sort"
 
+	auctionsprecompile "github.com/evmos/evmos/v19/precompiles/auctions"
+
+	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
+	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
+	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
+	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
+	p256precompile "github.com/evmos/evmos/v19/precompiles/p256"
+	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
+
+	"github.com/evmos/evmos/v19/x/auctions"
+	auctionskeeper "github.com/evmos/evmos/v19/x/auctions/keeper"
+	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
+
 	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
@@ -133,16 +147,8 @@ import (
 	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
-	v191 "github.com/evmos/evmos/v19/app/upgrades/v19_1"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
-	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
-	bech32precompile "github.com/evmos/evmos/v19/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v19/precompiles/distribution"
-	ics20precompile "github.com/evmos/evmos/v19/precompiles/ics20"
-	p256precompile "github.com/evmos/evmos/v19/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v19/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v19/precompiles/vesting"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/epochs"
@@ -244,6 +250,7 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		vesting.AppModuleBasic{},
+		auctions.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
@@ -268,7 +275,8 @@ var (
 		evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:                     {authtypes.Minter},
 		erc20types.ModuleName:                         {authtypes.Minter, authtypes.Burner},
-		ratelimittypes.ModuleName:                     nil,
+		auctionstypes.ModuleName:           {authtypes.Burner},
+		auctionstypes.AuctionCollectorName: nil,ratelimittypes.ModuleName:                     nil,
 	}
 )
 
@@ -328,6 +336,7 @@ type Evmos struct {
 	// Evmos keepers
 	InflationKeeper inflationkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
+	AuctionsKeeper  auctionskeeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
 	VestingKeeper   vestingkeeper.Keeper
 
@@ -550,6 +559,11 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
+	app.AuctionsKeeper = auctionskeeper.NewKeeper(
+		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
+	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithStaticPrecompiles(
 		evmkeeper.NewAvailableStaticPrecompiles(
@@ -561,6 +575,7 @@ func NewEvmos(
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
+			app.AuctionsKeeper,
 		),
 	)
 
@@ -569,6 +584,7 @@ func NewEvmos(
 		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			app.InflationKeeper.Hooks(),
+			app.AuctionsKeeper.Hooks(),
 		),
 	)
 
@@ -699,6 +715,7 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
+		auctions.NewAppModule(appCodec, app.AuctionsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, *app.StakingKeeper.Keeper),
 	)
 
@@ -713,6 +730,7 @@ func NewEvmos(
 		capabilitytypes.ModuleName,
 		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
 		epochstypes.ModuleName,
+		auctionstypes.ModuleName,
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 		distrtypes.ModuleName,
@@ -747,6 +765,7 @@ func NewEvmos(
 		feemarkettypes.ModuleName,
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
+		auctionstypes.ModuleName,
 		// no-op modules
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -803,6 +822,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
+		auctionstypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		ccvconsumertypes.ModuleName,
 		ratelimittypes.ModuleName,
@@ -1032,6 +1052,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		distprecompile.PrecompileAddress,
 		ics20precompile.PrecompileAddress,
 		vestingprecompile.PrecompileAddress,
+		auctionsprecompile.PrecompileAddress,
 	}
 	for _, addr := range vm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
@@ -1248,19 +1269,6 @@ func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 		),
 	)
 
-	// v19.1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v191.UpgradeName,
-		v191.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.Erc20Keeper,
-			app.EvmKeeper,
-		),
-	)
-
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v20.UpgradeName,
 		v20.CreateUpgradeHandler(
@@ -1292,21 +1300,9 @@ func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 	switch upgradeInfo.Name {
 	case v19.UpgradeName:
 		// revenue module is deprecated in v19
-		// This ran only on testnet
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
-		}
-	case v191.UpgradeName:
-		if utils.IsMainnet(app.ChainID()) {
-			// revenue module is deprecated in v19.1
-			storeUpgrades = &storetypes.StoreUpgrades{
-				Deleted: []string{"revenue"},
-				Added:   []string{ratelimittypes.ModuleName},
-			}
-		} else {
-			storeUpgrades = &storetypes.StoreUpgrades{
-				Added: []string{ratelimittypes.ModuleName},
-			}
+			Added:   []string{ratelimittypes.ModuleName},
 		}
 	default:
 		// no-op

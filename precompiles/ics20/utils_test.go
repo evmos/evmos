@@ -31,6 +31,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	evmosapp "github.com/evmos/evmos/v19/app"
 	evmoscontracts "github.com/evmos/evmos/v19/contracts"
+	"github.com/evmos/evmos/v19/contracts/types"
+	contractutils "github.com/evmos/evmos/v19/contracts/utils"
 	evmosibc "github.com/evmos/evmos/v19/ibc/testing"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -60,14 +62,14 @@ type erc20Meta struct {
 
 var (
 	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(abi.MaxUint256)}}
-	maxUint256CmnCoins = []cmn.Coin{{Denom: utils.BaseDenom, Amount: abi.MaxUint256}}
+	maxUint256CmnCoins = []types.Coin{{Denom: utils.BaseDenom, Amount: abi.MaxUint256}}
 	defaultCoins       = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}}
-	baseDenomCmnCoin   = cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}
-	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
+	baseDenomCmnCoin   = types.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}
+	defaultCmnCoins    = []types.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
-	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
+	atomCmnCoin        = types.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
 	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
-	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
+	mutliCmnCoins      = []types.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
 		Name:     "TestCoin",
 		Symbol:   "TC",
@@ -365,7 +367,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, amoun
 	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 	var approvalEvent ics20.EventTransferAuthorization
-	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeIBCTransferAuthorization, *log)
+	err := contractutils.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 	s.Require().NoError(err)
 	s.Require().Equal(s.address, approvalEvent.Grantee)
 	s.Require().Equal(s.address, approvalEvent.Granter)
