@@ -81,7 +81,8 @@ func TestHookAfterEpochEnd(t *testing.T) {
 		{
 			name: "pass if bidded against no funds to receive",
 			malleate: func() {
-				network.App.BankKeeper.BurnCoins(network.GetContext(), types.ModuleName, additionalCoins)
+				err := network.App.BankKeeper.BurnCoins(network.GetContext(), types.ModuleName, additionalCoins)
+				assert.NoError(t, err, "failed to burn coins in malleate")
 			},
 			expUpdate: true,
 			postCheck: func() {
@@ -150,7 +151,8 @@ func TestHookAfterEpochEnd(t *testing.T) {
 		{
 			name: "no op if auctions module does not holds the bid amount",
 			malleate: func() {
-				network.App.BankKeeper.BurnCoins(network.GetContext(), types.ModuleName, sdk.NewCoins(bidAmount))
+				err := network.App.BankKeeper.BurnCoins(network.GetContext(), types.ModuleName, sdk.NewCoins(bidAmount))
+				assert.NoError(t, err, "failed to burn coins in malleate")
 			},
 			expUpdate: false,
 			postCheck: func() {},
