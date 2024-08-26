@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/evmos/evmos/v19/x/evm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,10 +17,29 @@ import (
 
 // BeginBlock sets the sdk Context and EIP155 chain id to the Keeper.
 func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+	logger := ctx.Logger().With("begin_block", "evm")
 	k.WithChainID(ctx)
 	// check for eth_tx_log events at BeginBlock
 	// and update block bloom filter with them (if any)
-	k.updateBlockBloom(ctx)
+	k.updateBlockBloom(ctx, logger)
+
+	// Base fee is already set on FeeMarket BeginBlock
+	// that runs before this one
+	// We emit this event on the EVM and FeeMarket modules
+	// because they can be different if the evm denom has 6 decimals
+	res, err := k.BaseFee(ctx, &types.QueryBaseFeeRequest{})
+	if err != nil {
+		logger.Error("error when getting base fee", "error", err.Error())
+	}
+	if !res.BaseFee.IsNil() {
+		// Store current base fee in event
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeFeeMarket,
+				sdk.NewAttribute(types.AttributeKeyBaseFee, res.BaseFee.String()),
+			),
+		})
+	}
 }
 
 // EndBlock also retrieves the bloom filter value from the transient store and commits it to the
@@ -38,8 +58,7 @@ func (k *Keeper) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Valida
 // updateBlockBloom checks for eth_tx_log events at BeginBlock
 // only those on the modules BeginBlocker should be included (eg. epochs)
 // and update block bloom filter with these
-func (k *Keeper) updateBlockBloom(ctx sdk.Context) {
-	logger := ctx.Logger().With("begin_block", "evm")
+func (k *Keeper) updateBlockBloom(ctx sdk.Context, logger log.Logger) {
 	var logs []*ethtypes.Log
 	for _, event := range ctx.EventManager().Events() {
 		if event.Type != types.EventTypeTxLog {
