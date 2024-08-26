@@ -4,7 +4,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -123,7 +122,6 @@ func TestInitGenesis(t *testing.T) {
 
 			genesis := types.DefaultGenesisState()
 			tc.mutation(genesis)
-			fmt.Println(genesis.Bid.Sender)
 
 			if tc.fundModuleAccount {
 				err := network.App.BankKeeper.SendCoinsFromAccountToModule(network.GetContext(), keyring.GetKey(0).AccAddr, types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))

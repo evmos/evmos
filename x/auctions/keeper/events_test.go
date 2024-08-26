@@ -79,8 +79,6 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			ethLog := log.ToEthereum()
 			require.Equal(t, common.HexToAddress(keeper.PrecompileAddress), ethLog.Address)
 
-			fmt.Println(ethLog.Topics)
-			require.Len(t, ethLog.Topics, 3)
 			require.Equal(t, keeper.EndAuctionEventABI.ID, ethLog.Topics[0])
 			require.Equal(t, common.LeftPadBytes(bidWinnerHexAddr.Bytes(), 32), ethLog.Topics[1].Bytes())
 			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big())
