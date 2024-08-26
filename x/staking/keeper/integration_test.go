@@ -90,7 +90,7 @@ var _ = Describe("Staking module tests", func() {
 
 			// setup vesting account
 			createAccMsg := vestingtypes.NewMsgCreateClawbackVestingAccount(funder.AccAddr, vestingAccount.AccAddr, false)
-			res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}})
+			res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}, GasPrice: &gasPrice})
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(BeTrue())
 			Expect(nw.NextBlock()).To(BeNil())
@@ -103,7 +103,10 @@ var _ = Describe("Staking module tests", func() {
 			// Fund the clawback vesting accounts
 			vestingStart := nw.GetContext().BlockTime()
 			fundMsg := vestingtypes.NewMsgFundVestingAccount(funder.AccAddr, vestingAccount.AccAddr, vestingStart, testutil.TestVestingSchedule.LockupPeriods, testutil.TestVestingSchedule.VestingPeriods)
-			res, err = tf.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{fundMsg}})
+			res, err = tf.ExecuteCosmosTx(funder.Priv, factory.CosmosTxArgs{
+				Msgs:     []sdk.Msg{fundMsg},
+				GasPrice: &gasPrice,
+			})
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(BeTrue())
 			Expect(nw.NextBlock()).To(BeNil())
@@ -223,7 +226,7 @@ var _ = Describe("Staking module tests", func() {
 					// to send a MsgDelegate
 					grantMsg, err := authz.NewMsgGrant(vestingAccount.AccAddr, otherAccount.AccAddr, authz.NewGenericAuthorization("/cosmos.staking.v1beta1.MsgDelegate"), &expiration)
 					Expect(err).To(BeNil())
-					res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{grantMsg}})
+					res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{grantMsg}, GasPrice: &gasPrice})
 					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(BeTrue())
 					Expect(nw.NextBlock()).To(BeNil())
@@ -288,7 +291,7 @@ var _ = Describe("Staking module tests", func() {
 					Expect(vestedCoins).To(Equal(expVested))
 
 					execMsg := authz.NewMsgExec(otherAccount.AccAddr, []sdk.Msg{delMsg})
-					res, err := tf.ExecuteCosmosTx(otherAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{&execMsg}, Gas: gas})
+					res, err := tf.ExecuteCosmosTx(otherAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{&execMsg}, Gas: gas, GasPrice: &gasPrice})
 					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(BeTrue())
 					Expect(nw.NextBlock()).To(BeNil())
@@ -379,7 +382,7 @@ var _ = Describe("Staking module tests", func() {
 				vestedCoins := clawbackAccount.GetVestedCoins(nw.GetContext().BlockTime())
 				Expect(vestedCoins).To(Equal(expVested))
 
-				res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createValMsg}, Gas: 500_000})
+				res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createValMsg}, Gas: 500_000, GasPrice: &gasPrice})
 				Expect(err).To(BeNil())
 				Expect(res.IsOK()).To(BeTrue())
 				Expect(nw.NextBlock()).To(BeNil())
