@@ -13,6 +13,7 @@ import (
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	"github.com/evmos/evmos/v19/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
@@ -34,10 +35,19 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 			true,
 		},
 		{
-			"pass - min gas price is 0",
+			"pass (6 dec denom) - min gas price is 0",
 			func() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom6Dec)
+			},
+			types.DefaultGasPrice * 1e12,
+			true,
+		},
+		{
+			"pass (18 dec denom) - min gas price is 0",
+			func() {
+				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom18Dec)
 			},
 			types.DefaultGasPrice,
 			true,

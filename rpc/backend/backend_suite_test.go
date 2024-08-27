@@ -178,7 +178,7 @@ func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEth
 	signer := utiltx.NewSigner(priv)
 
 	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
+	RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom6Dec)
 
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msgEthereumTx.From = from.String()
