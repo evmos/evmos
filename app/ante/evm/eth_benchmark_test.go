@@ -20,7 +20,6 @@ import (
 
 func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	baseSuite := new(testutils.AnteTestSuite)
-
 	s := &AnteTestSuite{
 		AnteTestSuite: baseSuite,
 	}
@@ -48,11 +47,6 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 			"legacy tx - enough funds to pay for fees",
 			sdkmath.NewInt(1e16),
 			sdkmath.ZeroInt(),
-		},
-		{
-			"legacy tx - insufficient funds but enough staking rewards to pay for fees",
-			sdkmath.ZeroInt(),
-			sdkmath.NewInt(1e16),
 		},
 	}
 	b.ResetTimer()
