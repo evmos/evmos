@@ -44,7 +44,7 @@ func TestAuctionInfo(t *testing.T) {
 					BidderAddress: "",
 				}
 			},
-			expPass:     true,
+			expPass: true,
 		},
 		{
 			name: "pass with non empty bid",
