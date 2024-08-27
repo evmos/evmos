@@ -30,19 +30,19 @@ func TestAuctionInfo(t *testing.T) {
 	testCases := []struct {
 		name        string
 		malleate    func()
-		expResp     func() *types.QueryCurrentAuctionInfoResponse
+		expResp     types.QueryCurrentAuctionInfoResponse
 		expPass     bool
 		errContains string
 	}{
 		{
 			name: "pass with default genesis state",
-			expResp: func() *types.QueryCurrentAuctionInfoResponse {
-				return &types.QueryCurrentAuctionInfoResponse{
-					Tokens:        nil,
-					CurrentRound:  0,
-					HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(0)),
-					BidderAddress: "",
-				}
+			malleate: func() {
+			},
+			expResp: types.QueryCurrentAuctionInfoResponse{
+				Tokens:        nil,
+				CurrentRound:  0,
+				HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(0)),
+				BidderAddress: "",
 			},
 			expPass: true,
 		},
@@ -51,13 +51,11 @@ func TestAuctionInfo(t *testing.T) {
 			malleate: func() {
 				network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), validBidderAddr.String(), sdk.NewInt64Coin(utils.BaseDenom, 1))
 			},
-			expResp: func() *types.QueryCurrentAuctionInfoResponse {
-				return &types.QueryCurrentAuctionInfoResponse{
-					Tokens:        nil,
-					CurrentRound:  0,
-					HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1)),
-					BidderAddress: validBidderAddr.String(),
-				}
+			expResp: types.QueryCurrentAuctionInfoResponse{
+				Tokens:        nil,
+				CurrentRound:  0,
+				HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1)),
+				BidderAddress: validBidderAddr.String(),
 			},
 			expPass:     true,
 			errContains: "",
@@ -82,13 +80,11 @@ func TestAuctionInfo(t *testing.T) {
 				bal := network.App.BankKeeper.GetAllBalances(network.GetContext(), auctionModuleAddress)
 				require.Equal(t, bal, coinsToMint, "expected a different balance for auctions module after minting tokens")
 			},
-			expResp: func() *types.QueryCurrentAuctionInfoResponse {
-				return &types.QueryCurrentAuctionInfoResponse{
-					Tokens:        sdk.NewCoins(ibcCoin, anotherNativeCoin),
-					CurrentRound:  0,
-					HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(0)),
-					BidderAddress: "",
-				}
+			expResp: types.QueryCurrentAuctionInfoResponse{
+				Tokens:        sdk.NewCoins(ibcCoin, anotherNativeCoin),
+				CurrentRound:  0,
+				HighestBid:    sdk.NewCoin(utils.BaseDenom, sdk.NewInt(0)),
+				BidderAddress: "",
 			},
 			expPass:     true,
 			errContains: "",
@@ -106,9 +102,7 @@ func TestAuctionInfo(t *testing.T) {
 				_, err := network.App.AuctionsKeeper.UpdateParams(network.GetContext(), &updateParamsMsg)
 				assert.NoError(t, err, "failed to update auctions params")
 			},
-			expResp: func() *types.QueryCurrentAuctionInfoResponse {
-				return nil
-			},
+			expResp:     types.QueryCurrentAuctionInfoResponse{},
 			expPass:     false,
 			errContains: types.ErrAuctionDisabled.Error(),
 		},
@@ -126,7 +120,7 @@ func TestAuctionInfo(t *testing.T) {
 
 			if tc.expPass {
 				assert.NoError(t, err, "expected no error during query execution")
-				expResp := tc.expResp()
+				expResp := tc.expResp
 				assert.Equal(t, expResp.CurrentRound, resp.CurrentRound, "expected a different current round")
 				assert.Equal(t, expResp.HighestBid, resp.HighestBid, "expected a different highest bid")
 				assert.Equal(t, expResp.BidderAddress, resp.BidderAddress, "expected a different bidder address")
