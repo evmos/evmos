@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var (
@@ -49,6 +50,10 @@ func (k MockKeeper) GetState(_ sdk.Context, addr common.Address, key common.Hash
 
 func (k MockKeeper) GetCode(_ sdk.Context, codeHash common.Hash) []byte {
 	return k.codes[codeHash]
+}
+
+func (k MockKeeper) GetParams(_ sdk.Context) evmtypes.Params {
+	return evmtypes.DefaultParams()
 }
 
 func (k MockKeeper) ForEachStorage(_ sdk.Context, addr common.Address, cb func(key, value common.Hash) bool) {

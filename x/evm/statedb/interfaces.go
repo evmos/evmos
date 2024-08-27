@@ -5,7 +5,9 @@ package statedb
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // ExtStateDB defines an extension to the interface provided by the go-ethereum
@@ -24,6 +26,7 @@ type Keeper interface {
 	GetAccount(ctx sdk.Context, addr common.Address) *Account
 	GetState(ctx sdk.Context, addr common.Address, key common.Hash) common.Hash
 	GetCode(ctx sdk.Context, codeHash common.Hash) []byte
+	GetParams(ctx sdk.Context) evmtypes.Params
 	// the callback returns false to break early
 	ForEachStorage(ctx sdk.Context, addr common.Address, cb func(key, value common.Hash) bool)
 

@@ -10,6 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var emptyCodeHash = crypto.Keccak256(nil)
@@ -100,6 +102,10 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
+	// if evm denom has 6 decimals, zero the extra decimals
+	if s.db.denomDecimals == evmtypes.Denom6Dec {
+		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
+	}
 	s.SetBalance(new(big.Int).Add(s.Balance(), amount))
 }
 
@@ -108,6 +114,10 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 func (s *stateObject) SubBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
+	}
+	// if evm denom has 6 decimals, zero the extra decimals
+	if s.db.denomDecimals == evmtypes.Denom6Dec {
+		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
 	}
 	s.SetBalance(new(big.Int).Sub(s.Balance(), amount))
 }

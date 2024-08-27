@@ -62,10 +62,14 @@ type StateDB struct {
 
 	// The count of calls to precompiles
 	precompileCallsCounter uint8
+
+	// The decimals of the EVM denom
+	denomDecimals uint32
 }
 
 // New creates a new state from a given trie.
 func New(ctx sdk.Context, keeper Keeper, txConfig TxConfig) *StateDB {
+	params := keeper.GetParams(ctx)
 	return &StateDB{
 		keeper:       keeper,
 		ctx:          ctx,
@@ -73,7 +77,8 @@ func New(ctx sdk.Context, keeper Keeper, txConfig TxConfig) *StateDB {
 		journal:      newJournal(),
 		accessList:   newAccessList(),
 
-		txConfig: txConfig,
+		txConfig:      txConfig,
+		denomDecimals: params.DenomDecimals,
 	}
 }
 

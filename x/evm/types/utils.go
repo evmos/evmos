@@ -129,24 +129,38 @@ func EffectiveGasPrice(baseFee, feeCap, tipCap *big.Int) *big.Int {
 	return math.BigMin(new(big.Int).Add(tipCap, baseFee), feeCap)
 }
 
+// scaleFactor constant for scaling 18 decimals <-> 6 decimals
+const scaleFactor = 1e12
+
 // Convert6To18DecimalsCoin converts the coin amount to 18 decimals from 6
 func Convert6To18DecimalsCoin(coin sdk.Coin) sdk.Coin {
-	coin.Amount = coin.Amount.MulRaw(1e12)
+	coin.Amount = coin.Amount.MulRaw(scaleFactor)
 	return coin
 }
 
 // Convert18To6DecimalsCoin converts the coin amount to 6 decimals from 18
 func Convert18To6DecimalsCoin(coin sdk.Coin) sdk.Coin {
-	coin.Amount = coin.Amount.QuoRaw(1e12)
+	coin.Amount = coin.Amount.QuoRaw(scaleFactor)
 	return coin
 }
 
 // Convert6To18DecimalsBigInt converts a big Int to 18 decimals from 6
 func Convert6To18DecimalsBigInt(amt *big.Int) *big.Int {
-	return new(big.Int).Mul(amt, big.NewInt(1e12))
+	return new(big.Int).Mul(amt, big.NewInt(scaleFactor))
+}
+
+// Convert18To6DecimalsBigInt converts a big Int to 6 decimals from 18
+func Convert18To6DecimalsBigInt(amt *big.Int) *big.Int {
+	return new(big.Int).Quo(amt, big.NewInt(scaleFactor))
 }
 
 // Convert6To18DecimalsLegacyDec converts a math.LegacyDec to 18 decimals from 6
 func Convert6To18DecimalsLegacyDec(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
-	return amt.MulInt64(1e12)
+	return amt.MulInt64(scaleFactor)
+}
+
+// ZeroExtraDecimalsBigInt replaces all extra decimals by zero of an amount with 18 decimals in big.Int.
+func ZeroExtraDecimalsBigInt(amt *big.Int) *big.Int {
+	scaledDown := Convert18To6DecimalsBigInt(amt)
+	return Convert6To18DecimalsBigInt(scaledDown)
 }
