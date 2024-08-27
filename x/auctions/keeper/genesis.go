@@ -41,7 +41,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		}
 
 	} else if !data.Bid.BidValue.Amount.IsZero() {
-		panic(fmt.Errorf("received a bid without sender but different than zero"))
+		panic(errors.New("received a bid without sender but amount is non-zero"))
 	}
 
 	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.BidValue)
