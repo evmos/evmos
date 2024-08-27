@@ -30,7 +30,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 
 		bidAmount := data.Bid.BidValue.Amount
 		if !bidAmount.IsPositive() {
-			panic(fmt.Errorf("received a bid sender but zero amount"))
+			panic(errors.New("received a bid sender but zero amount"))
 		}
 
 		auctionModuleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
