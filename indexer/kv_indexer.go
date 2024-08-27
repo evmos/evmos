@@ -84,7 +84,7 @@ func (kv *KVIndexer) IndexBlock(block *cmttypes.Block, txResults []*abci.ExecTxR
 
 			txResult := evmostypes.TxResult{
 				Height:     height,
-				TxIndex:    uint32(txIndex),
+				TxIndex:    uint32(txIndex),  //nolint:gosec
 				MsgIndex:   uint32(msgIndex), //nolint:gosec
 				EthTxIndex: ethTxIndex,
 			}

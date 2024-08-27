@@ -56,6 +56,9 @@ evmosd config set client keyring-backend "$KEYRING"
 # Import keys from mnemonics
 echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 
+# Store the validator address in a variable to use it later
+export NODE_ADDRESS=$(evmosd keys show -a "$VAL_KEY")
+
 echo "$USER1_MNEMONIC" | evmosd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 echo "$USER2_MNEMONIC" | evmosd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 echo "$USER3_MNEMONIC" | evmosd keys add "$USER3_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
