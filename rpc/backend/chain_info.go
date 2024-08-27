@@ -5,7 +5,6 @@ package backend
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 
 	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -75,10 +74,10 @@ func (b *Backend) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, er
 		// faster to iterate reversely
 		for i := len(blockRes.BeginBlockEvents) - 1; i >= 0; i-- {
 			evt := blockRes.BeginBlockEvents[i]
-			if evt.Type == feemarkettypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
-				baseFee, err := strconv.ParseInt(evt.Attributes[0].Value, 10, 64)
-				if err == nil {
-					return big.NewInt(baseFee), nil
+			if evt.Type == evmtypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
+				baseFee, ok := math.NewIntFromString(evt.Attributes[0].Value)
+				if ok {
+					return baseFee.BigInt(), nil
 				}
 				break
 			}
