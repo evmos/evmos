@@ -18,9 +18,9 @@ func InitGenesis(
 	ctx sdk.Context,
 	k keeper.Keeper,
 	accountKeeper authkeeper.AccountKeeper,
-	data types.GenesisState,
+	genesisState types.GenesisState,
 ) {
-	err := k.SetParams(ctx, data.Params)
+	err := k.SetParams(ctx, genesisState.Params)
 	if err != nil {
 		panic(fmt.Errorf("error setting params %s", err))
 	}
@@ -31,7 +31,7 @@ func InitGenesis(
 		panic("the erc20 module account has not been set")
 	}
 
-	for _, pair := range data.TokenPairs {
+	for _, pair := range genesisState.TokenPairs {
 		k.SetToken(ctx, pair)
 	}
 }

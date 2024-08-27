@@ -13,23 +13,23 @@ import (
 	"github.com/evmos/evmos/v19/x/auctions/types"
 )
 
-func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
-	err := k.SetParams(ctx, data.Params)
+func (k Keeper) InitGenesis(ctx sdk.Context, genesisState types.GenesisState) {
+	err := k.SetParams(ctx, genesisState.Params)
 	if err != nil {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
 	var bidder sdk.AccAddress
-	if data.Bid.Sender != "" {
-		bidder, err = sdk.AccAddressFromBech32(data.Bid.Sender)
+	if genesisState.Bid.Sender != "" {
+		bidder, err = sdk.AccAddressFromBech32(genesisState.Bid.Sender)
 		if err != nil {
 			panic(errorsmod.Wrap(err, "invalid bidder address"))
 		}
 		if found := k.accountKeeper.HasAccount(ctx, bidder); !found {
-			panic(fmt.Errorf("account associated with %s does not exist", data.Bid.Sender))
+			panic(fmt.Errorf("account associated with %s does not exist", genesisState.Bid.Sender))
 		}
 
-		bidAmount := data.Bid.BidValue.Amount
+		bidAmount := genesisState.Bid.BidValue.Amount
 		if !bidAmount.IsPositive() {
 			panic(errors.New("received a bid sender but zero amount"))
 		}
@@ -41,12 +41,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 			panic(errors.New("auction module account does not hold enough balance"))
 		}
 
-	} else if !data.Bid.BidValue.Amount.IsZero() {
+	} else if !genesisState.Bid.BidValue.Amount.IsZero() {
 		panic(errors.New("received a bid without sender but amount is non-zero"))
 	}
 
-	k.SetHighestBid(ctx, data.Bid.Sender, data.Bid.BidValue)
-	k.SetRound(ctx, data.Round)
+	k.SetHighestBid(ctx, genesisState.Bid.Sender, genesisState.Bid.BidValue)
+	k.SetRound(ctx, genesisState.Round)
 }
 
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
