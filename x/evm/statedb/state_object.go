@@ -102,10 +102,6 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	// if evm denom has 6 decimals, zero the extra decimals
-	if s.db.denomDecimals == evmtypes.Denom6Dec {
-		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
-	}
 	s.SetBalance(new(big.Int).Add(s.Balance(), amount))
 }
 
@@ -114,10 +110,6 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 func (s *stateObject) SubBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
-	}
-	// if evm denom has 6 decimals, zero the extra decimals
-	if s.db.denomDecimals == evmtypes.Denom6Dec {
-		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
 	}
 	s.SetBalance(new(big.Int).Sub(s.Balance(), amount))
 }
@@ -142,6 +134,10 @@ func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events
 }
 
 func (s *stateObject) setBalance(amount *big.Int) {
+	// if evm denom has 6 decimals, zero the extra decimals
+	if s.db.denomDecimals == evmtypes.Denom6Dec {
+		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
+	}
 	s.account.Balance = amount
 }
 
