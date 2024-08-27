@@ -82,8 +82,7 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.SetupTest()
 			suite.app.EvmKeeper.BeginBlock(suite.ctx, abci.RequestBeginBlock{})
 			params := suite.app.EvmKeeper.GetParams(suite.ctx)
-			ethCfg := params.ChainConfig.EthereumConfig(suite.app.EvmKeeper.ChainID())
-			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
+			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, params)
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})
 	}

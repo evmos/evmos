@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 
 	"github.com/evmos/evmos/v19/x/evm/statedb"
@@ -31,7 +30,7 @@ type EVMKeeper interface { //nolint: revive
 	GetParams(ctx sdk.Context) evmtypes.Params
 	// GetBaseFee returns the BaseFee param from the fee market module
 	// adapted according to the evm denom decimals
-	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
+	GetBaseFee(ctx sdk.Context, params evmtypes.Params) *big.Int
 	// GetMinGasPrice returns the MinGasPrice param from the fee market module
 	// adapted according to the evm denom decimals
 	GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error)
