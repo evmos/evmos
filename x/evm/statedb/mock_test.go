@@ -27,6 +27,7 @@ type MockAcount struct {
 type MockKeeper struct {
 	accounts map[common.Address]MockAcount
 	codes    map[common.Hash][]byte
+	params   *evmtypes.Params
 }
 
 func NewMockKeeper() *MockKeeper {
@@ -34,6 +35,10 @@ func NewMockKeeper() *MockKeeper {
 		accounts: make(map[common.Address]MockAcount),
 		codes:    make(map[common.Hash][]byte),
 	}
+}
+
+func (k *MockKeeper) WithParams(params evmtypes.Params) {
+	k.params = &params
 }
 
 func (k MockKeeper) GetAccount(_ sdk.Context, addr common.Address) *statedb.Account {
@@ -53,6 +58,9 @@ func (k MockKeeper) GetCode(_ sdk.Context, codeHash common.Hash) []byte {
 }
 
 func (k MockKeeper) GetParams(_ sdk.Context) evmtypes.Params {
+	if k.params != nil {
+		return *k.params
+	}
 	return evmtypes.DefaultParams()
 }
 
@@ -110,5 +118,5 @@ func (k MockKeeper) DeleteAccount(_ sdk.Context, addr common.Address) error {
 func (k MockKeeper) Clone() *MockKeeper {
 	accounts := maps.Clone(k.accounts)
 	codes := maps.Clone(k.codes)
-	return &MockKeeper{accounts, codes}
+	return &MockKeeper{accounts, codes, k.params}
 }
