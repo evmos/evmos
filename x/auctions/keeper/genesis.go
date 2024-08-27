@@ -37,7 +37,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		auctionModuleBalance := k.bankKeeper.GetBalance(ctx, auctionModuleAddress, utils.BaseDenom)
 
 		if auctionModuleBalance.Amount.LT(bidAmount) {
-			panic(fmt.Errorf("auction module account does not hold enough balance"))
+			panic(errors.New("auction module account does not hold enough balance"))
 		}
 
 	} else if !data.Bid.BidValue.Amount.IsZero() {
