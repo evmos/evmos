@@ -192,11 +192,11 @@ def test_evmos_ibc_transfer_ibc_denom(
         assert new_dst_balance == old_dst_balance
         return
 
-    def check_balance_change():
+    def check_balance_change_src():
         new_dst_balance = get_balance(evmos, src_addr, src_denom)
         return old_dst_balance < new_dst_balance
 
-    wait_for_fn("balance change", check_balance_change)
+    wait_for_fn("balance change", check_balance_change_src)
 
     # submit proposal if limit was not set
     limits = cli.rate_limits()
@@ -233,12 +233,12 @@ def test_evmos_ibc_transfer_ibc_denom(
 
     new_dst_balance = 0
 
-    def check_balance_change():
+    def check_balance_change_dst():
         nonlocal new_dst_balance
         new_dst_balance = get_balance(ibc.chains["chainmain"], dst_addr, "basecro")
         return old_dst_balance < new_dst_balance
 
-    wait_for_fn("balance change", check_balance_change)
+    wait_for_fn("balance change", check_balance_change_dst)
 
     # check rate limit updated the inflow amount
     wait_for_new_blocks(cli, 2)
