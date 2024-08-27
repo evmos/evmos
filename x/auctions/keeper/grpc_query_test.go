@@ -36,8 +36,6 @@ func TestAuctionInfo(t *testing.T) {
 	}{
 		{
 			name: "pass with default genesis state",
-			malleate: func() {
-			},
 			expResp: func() *types.QueryCurrentAuctionInfoResponse {
 				return &types.QueryCurrentAuctionInfoResponse{
 					Tokens:        nil,
@@ -47,7 +45,6 @@ func TestAuctionInfo(t *testing.T) {
 				}
 			},
 			expPass:     true,
-			errContains: "",
 		},
 		{
 			name: "pass with non empty bid",
