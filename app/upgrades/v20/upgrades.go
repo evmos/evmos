@@ -54,13 +54,10 @@ func CreateUpgradeHandler(
 		cdc.MustUnmarshalJSON(appState[consumertypes.ModuleName], &consumerGenesis)
 
 		consumerGenesis.PreCCV = true
-		consumerGenesis.Params.ConsumerRedistributionFraction = "0.75" // 25% of the rewards go towards the Hub
-		// consumerGenesis.Params.SoftOptOutThreshold = "0.05"
+
 		// TODO: Replace uatom with the IBC voucher for ATOM
 		consumerGenesis.Params.RewardDenoms = []string{"uatom"} // Allow Evmos and ATOM rewards
 		consumerKeeper.InitGenesis(ctx, &consumerGenesis)
-		consumerKeeper.SetDistributionTransmissionChannel(ctx, "channel-3") // The Cosmos hub channel
-
 		return fromVM, nil
 	}
 }
