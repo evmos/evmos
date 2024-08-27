@@ -161,6 +161,9 @@ func Convert6To18DecimalsLegacyDec(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 
 // ZeroExtraDecimalsBigInt replaces all extra decimals by zero of an amount with 18 decimals in big.Int.
 func ZeroExtraDecimalsBigInt(amt *big.Int) *big.Int {
+	if amt.Sign() == 0 {
+		return amt
+	}
 	scaledDown := Convert18To6DecimalsBigInt(amt)
 	return Convert6To18DecimalsBigInt(scaledDown)
 }
