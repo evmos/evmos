@@ -39,108 +39,125 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 
 	hash := common.Hash{}
 
-	testCases := []struct {
-		name         string
-		registerMock func()
-		args         evmtypes.TransactionArgs
-		expHash      common.Hash
-		expPass      bool
+	testSetup := []struct {
+		name     string
+		decimals uint32
 	}{
 		{
-			"fail - Can't find account in Keyring",
-			func() {},
-			evmtypes.TransactionArgs{},
-			hash,
-			false,
+			name:     "6 decimals",
+			decimals: evmtypes.Denom6Dec,
 		},
 		{
-			"fail - Block error can't set Tx defaults",
-			func() {
-				var header metadata.MD
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
-				suite.Require().NoError(err)
-				RegisterParams(queryClient, &header, 1)
-				RegisterBlockError(client, 1)
-			},
-			callArgsDefault,
-			hash,
-			false,
-		},
-		{
-			"fail - Cannot validate transaction gas set to 0",
-			func() {
-				var header metadata.MD
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
-				suite.Require().NoError(err)
-				RegisterParams(queryClient, &header, 1)
-				_, err = RegisterBlock(client, 1, nil)
-				suite.Require().NoError(err)
-				_, err = RegisterBlockResults(client, 1)
-				suite.Require().NoError(err)
-				RegisterBaseFee(queryClient, baseFee)
-				RegisterParamsWithoutHeader(queryClient, 1)
-			},
-			evmtypes.TransactionArgs{
-				From:     &from,
-				To:       &toAddr,
-				GasPrice: gasPrice,
-				Gas:      &zeroGas,
-				Nonce:    &nonce,
-			},
-			hash,
-			false,
-		},
-		{
-			"fail - Cannot broadcast transaction",
-			func() {
-				client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault)
-				RegisterBroadcastTxError(client, txBytes)
-			},
-			callArgsDefault,
-			common.Hash{},
-			false,
-		},
-		{
-			"pass - Return the transaction hash",
-			func() {
-				client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault)
-				RegisterBroadcastTx(client, txBytes)
-			},
-			callArgsDefault,
-			hash,
-			true,
+			name:     "18 decimals",
+			decimals: evmtypes.Denom18Dec,
 		},
 	}
 
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
-			suite.SetupTest() // reset test and queries
-			tc.registerMock()
+	// Run the tests with 6 and 18 decimals
+	for _, setup := range testSetup {
+		testCases := []struct {
+			name         string
+			registerMock func()
+			args         evmtypes.TransactionArgs
+			expHash      common.Hash
+			expPass      bool
+		}{
+			{
+				"fail - Can't find account in Keyring",
+				func() {},
+				evmtypes.TransactionArgs{},
+				hash,
+				false,
+			},
+			{
+				"fail - Block error can't set Tx defaults",
+				func() {
+					var header metadata.MD
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					client := suite.backend.clientCtx.Client.(*mocks.Client)
+					armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
+					err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+					suite.Require().NoError(err)
+					RegisterParams(queryClient, &header, 1)
+					RegisterBlockError(client, 1)
+				},
+				callArgsDefault,
+				hash,
+				false,
+			},
+			{
+				"fail - Cannot validate transaction gas set to 0",
+				func() {
+					var header metadata.MD
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					client := suite.backend.clientCtx.Client.(*mocks.Client)
+					armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
+					err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+					suite.Require().NoError(err)
+					RegisterParams(queryClient, &header, 1)
+					_, err = RegisterBlock(client, 1, nil)
+					suite.Require().NoError(err)
+					_, err = RegisterBlockResults(client, 1)
+					suite.Require().NoError(err)
+					RegisterBaseFee(queryClient, baseFee)
+					RegisterParamsWithoutHeader(queryClient, 1, setup.decimals)
+				},
+				evmtypes.TransactionArgs{
+					From:     &from,
+					To:       &toAddr,
+					GasPrice: gasPrice,
+					Gas:      &zeroGas,
+					Nonce:    &nonce,
+				},
+				hash,
+				false,
+			},
+			{
+				"fail - Cannot broadcast transaction",
+				func() {
+					client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault, setup.decimals)
+					RegisterBroadcastTxError(client, txBytes)
+				},
+				callArgsDefault,
+				common.Hash{},
+				false,
+			},
+			{
+				"pass - Return the transaction hash",
+				func() {
+					client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault, setup.decimals)
+					RegisterBroadcastTx(client, txBytes)
+				},
+				callArgsDefault,
+				hash,
+				true,
+			},
+		}
 
-			if tc.expPass {
-				// Sign the transaction and get the hash
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeader(queryClient, 1)
-				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
-				msg := callArgsDefault.ToTransaction()
-				err := msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
-				suite.Require().NoError(err)
-				tc.expHash = msg.AsTransaction().Hash()
-			}
-			responseHash, err := suite.backend.SendTransaction(tc.args)
-			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(tc.expHash, responseHash)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
+		for _, tc := range testCases {
+			suite.Run(fmt.Sprintf("case %s", tc.name), func() {
+				suite.SetupTest() // reset test and queries
+				tc.registerMock()
+
+				if tc.expPass {
+					// Sign the transaction and get the hash
+					queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+					RegisterParamsWithoutHeader(queryClient, 1, setup.decimals)
+					ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
+					msg := callArgsDefault.ToTransaction()
+					err := msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
+					suite.Require().NoError(err)
+					tc.expHash = msg.AsTransaction().Hash()
+				}
+				responseHash, err := suite.backend.SendTransaction(tc.args)
+				if tc.expPass {
+					suite.Require().NoError(err)
+					suite.Require().Equal(tc.expHash, responseHash)
+				} else {
+					suite.Require().Error(err)
+				}
+			})
+		}
 	}
 }
 
@@ -241,7 +258,7 @@ func (suite *BackendTestSuite) TestSignTypedData() {
 	}
 }
 
-func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee math.Int, callArgsDefault evmtypes.TransactionArgs) (client *mocks.Client, txBytes []byte) {
+func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee math.Int, callArgsDefault evmtypes.TransactionArgs, decimals uint32) (client *mocks.Client, txBytes []byte) {
 	var header metadata.MD
 	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 	client = suite.backend.clientCtx.Client.(*mocks.Client)
@@ -253,12 +270,12 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	_, err = RegisterBlockResults(client, 1)
 	suite.Require().NoError(err)
 	RegisterBaseFee(queryClient, baseFee)
-	RegisterParamsWithoutHeader(queryClient, 1)
+	RegisterParamsWithoutHeader(queryClient, 1, decimals)
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom, evmtypes.DefaultDenomDecimals)
+	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom, decimals)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)
 	return client, txBytes
