@@ -294,13 +294,13 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 		expPass        bool
 	}{
 		{
-			"fail - Can't get FeeMarket params",
+			"pass - get GlobalMinGasPrice",
 			func() {
-				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
-				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
+				qc := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				RegisterGlobalMinGasPrice(qc, 1)
 			},
-			math.LegacyZeroDec(),
-			false,
+			math.LegacyOneDec(),
+			true,
 		},
 	}
 
@@ -408,7 +408,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 			false,
 		},
 		{
-			"pass - Valid FeeHistoryResults object",
+			"pass (6 dec denom) - Valid FeeHistoryResults object",
 			func(validator sdk.AccAddress) {
 				var header metadata.MD
 				baseFee := math.NewInt(1)
@@ -423,7 +423,36 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				RegisterValidatorAccount(queryClient, validator)
 				RegisterConsensusParams(client, 1)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom6Dec)
+			},
+			1,
+			1,
+			&rpc.FeeHistoryResult{
+				OldestBlock:  (*hexutil.Big)(big.NewInt(1)),
+				BaseFee:      []*hexutil.Big{(*hexutil.Big)(big.NewInt(1)), (*hexutil.Big)(big.NewInt(1))},
+				GasUsedRatio: []float64{0},
+				Reward:       [][]*hexutil.Big{{(*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0))}},
+			},
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+			true,
+		},
+		{
+			"pass (18 dec denom) - Valid FeeHistoryResults object",
+			func(validator sdk.AccAddress) {
+				var header metadata.MD
+				baseFee := math.NewInt(1)
+				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				client := suite.backend.clientCtx.Client.(*mocks.Client)
+				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
+				_, err := RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
+				suite.Require().NoError(err)
+				_, err = RegisterBlockResults(client, 1)
+				suite.Require().NoError(err)
+				RegisterBaseFee(queryClient, baseFee)
+				RegisterValidatorAccount(queryClient, validator)
+				RegisterConsensusParams(client, 1)
+				RegisterParams(queryClient, &header, 1)
+				RegisterParamsWithoutHeader(queryClient, 1, evmtypes.Denom18Dec)
 			},
 			1,
 			1,
