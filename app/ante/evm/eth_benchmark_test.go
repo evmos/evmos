@@ -14,10 +14,17 @@ import (
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+
+	"github.com/evmos/evmos/v19/app/ante/testutils"
 )
 
 func BenchmarkEthGasConsumeDecorator(b *testing.B) {
-	s := new(AnteTestSuite)
+	baseSuite := new(testutils.AnteTestSuite)
+
+	s := &AnteTestSuite{
+		AnteTestSuite: baseSuite,
+	}
+
 	s.SetT(&testing.T{})
 	s.SetupTest()
 	ctx := s.GetNetwork().GetContext()
@@ -26,8 +33,8 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 		ChainID:  s.GetNetwork().App.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
-		GasLimit: uint64(1000000),
-		GasPrice: big.NewInt(1000000),
+		GasLimit: uint64(1_000_000),
+		GasPrice: big.NewInt(1_000_000),
 	}
 
 	var vmdb *statedb.StateDB
