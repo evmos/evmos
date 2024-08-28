@@ -305,15 +305,12 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 // - `nil`: london hardfork not enabled.
 // - `0`: london hardfork enabled but feemarket is not enabled.
 // - `n`: both london hardfork and feemarket are enabled.
-func (k Keeper) GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int {
-	return k.getBaseFee(ctx, types.IsLondon(ethCfg, ctx.BlockHeight()))
-}
-
-func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
-	if !london {
+func (k Keeper) GetBaseFee(ctx sdk.Context, params types.Params) *big.Int {
+	chainCfg := params.GetChainConfig()
+	ethCfg := chainCfg.EthereumConfig(k.ChainID())
+	if !types.IsLondon(ethCfg, ctx.BlockHeight()) {
 		return nil
 	}
-	params := k.GetParams(ctx)
 	if err := k.feeMarketWrapper.WithDecimals(params.DenomDecimals); err != nil {
 		k.Logger(ctx).Error("error while setting feemarket wrapper decimals", "error", err)
 	}

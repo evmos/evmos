@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +18,8 @@ import (
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v19/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	"github.com/stretchr/testify/require"
@@ -125,4 +128,81 @@ func TestTransactionLogsEncodeDecode(t *testing.T) {
 	txLogsEncodedDecoded, decodeErr := evmtypes.DecodeTransactionLogs(txLogsEncoded)
 	require.Nil(t, decodeErr)
 	require.Equal(t, txLogs, txLogsEncodedDecoded)
+}
+
+func TestConvert18To6DecimalsCoin(t *testing.T) {
+	testCases := []struct {
+		name string
+		coin sdk.Coin
+		exp  sdk.Coin
+	}{
+		{
+			name: "decimal < 5: 1.4",
+			coin: sdk.NewCoin(utils.BaseDenom, math.NewInt(14e11)),
+			exp:  sdk.NewCoin(utils.BaseDenom, math.NewInt(1)),
+		},
+		{
+			name: "decimal == 5: 1.5",
+			coin: sdk.NewCoin(utils.BaseDenom, math.NewInt(15e11)),
+			exp:  sdk.NewCoin(utils.BaseDenom, math.NewInt(1)),
+		},
+		{
+			name: "decimal > 5: 1.9",
+			coin: sdk.NewCoin(utils.BaseDenom, math.NewInt(19e11)),
+			exp:  sdk.NewCoin(utils.BaseDenom, math.NewInt(1)),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := types.Convert18To6DecimalsCoin(tc.coin)
+			require.Equal(t, tc.exp, res)
+		})
+	}
+}
+
+func TestZeroExtraDecimalsBigInt(t *testing.T) {
+	testCases := []struct {
+		name string
+		amt  *big.Int
+		exp  *big.Int
+	}{
+		{
+			name: "almost 1: 0.99999...",
+			amt:  big.NewInt(999999999999),
+			exp:  big.NewInt(0),
+		},
+		{
+			name: "decimal < 5: 1.4",
+			amt:  big.NewInt(14e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal < 5: 1.499999999999",
+			amt:  big.NewInt(1499999999999),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal == 5: 1.5",
+			amt:  big.NewInt(15e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal > 5: 1.9",
+			amt:  big.NewInt(19e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "1 wei",
+			amt:  big.NewInt(1),
+			exp:  big.NewInt(0),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := types.ZeroExtraDecimalsBigInt(tc.amt)
+			require.Equal(t, tc.exp, res)
+		})
+	}
 }

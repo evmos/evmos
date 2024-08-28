@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -109,21 +110,52 @@ func (suite *StateDBTestSuite) TestAccount() {
 
 func (suite *StateDBTestSuite) TestAccountOverride() {
 	keeper := NewMockKeeper()
-	db := statedb.New(sdk.Context{}, keeper, emptyTxConfig)
-	// test balance carry over when overwritten
-	amount := big.NewInt(1)
+	testCases := []struct {
+		name          string
+		denomDecimals uint32
+		amt           *big.Int
+		finalBalance  *big.Int
+	}{
+		{
+			name:          "with 6 dec denom - should carry over balance",
+			denomDecimals: evmtypes.Denom6Dec,
+			amt:           big.NewInt(1e12),
+			finalBalance:  big.NewInt(1e12),
+		},
+		{
+			name:          "with 6 dec denom - should carry over balance (rounding to 6 dec)",
+			denomDecimals: evmtypes.Denom6Dec,
+			amt:           big.NewInt(1999999999999),
+			finalBalance:  big.NewInt(1e12),
+		},
+		{
+			name:          "with 18 dec denom - should carry over balance",
+			denomDecimals: evmtypes.Denom18Dec,
+			amt:           big.NewInt(1),
+			finalBalance:  big.NewInt(1),
+		},
+	}
 
-	// init an EOA account, account overridden only happens on EOA account.
-	db.AddBalance(address, amount)
-	db.SetNonce(address, 1)
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			keeper.WithParams(params)
+			db := statedb.New(sdk.Context{}, keeper, emptyTxConfig)
+			// test balance carry over when overwritten
+			// init an EOA account, account overridden only happens on EOA account.
+			db.AddBalance(address, tc.amt)
+			db.SetNonce(address, 1)
 
-	// override
-	db.CreateAccount(address)
+			// override
+			db.CreateAccount(address)
 
-	// check balance is not lost
-	suite.Require().Equal(amount, db.GetBalance(address))
-	// but nonce is reset
-	suite.Require().Equal(uint64(0), db.GetNonce(address))
+			// check balance is not lost
+			suite.Require().Equal(tc.finalBalance, db.GetBalance(address))
+			// but nonce is reset
+			suite.Require().Equal(uint64(0), db.GetNonce(address))
+		})
+	}
 }
 
 func (suite *StateDBTestSuite) TestDBError() {
@@ -149,30 +181,135 @@ func (suite *StateDBTestSuite) TestDBError() {
 func (suite *StateDBTestSuite) TestBalance() {
 	// NOTE: no need to test overflow/underflow, that is guaranteed by evm implementation.
 	testCases := []struct {
-		name       string
-		malleate   func(*statedb.StateDB)
-		expBalance *big.Int
+		name          string
+		malleate      func(*statedb.StateDB)
+		expBalance    *big.Int
+		denomDecimals uint32
 	}{
-		{"add balance", func(db *statedb.StateDB) {
-			db.AddBalance(address, big.NewInt(10))
-		}, big.NewInt(10)},
-		{"sub balance", func(db *statedb.StateDB) {
-			db.AddBalance(address, big.NewInt(10))
-			// get dirty balance
-			suite.Require().Equal(big.NewInt(10), db.GetBalance(address))
-			db.SubBalance(address, big.NewInt(2))
-		}, big.NewInt(8)},
-		{"add zero balance", func(db *statedb.StateDB) {
-			db.AddBalance(address, big.NewInt(0))
-		}, big.NewInt(0)},
-		{"sub zero balance", func(db *statedb.StateDB) {
-			db.SubBalance(address, big.NewInt(0))
-		}, big.NewInt(0)},
+		{
+			"18dec - add balance",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(10))
+			},
+			big.NewInt(10),
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - add balance below 6 decimals (should remain as zero)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(999999999999))
+			},
+			big.NewInt(0),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - add balance with 6 decimals (should round down)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(1999999999999))
+			},
+			big.NewInt(1e12),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - add balance with 6 decimals (no rounding)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(1e13))
+			},
+			big.NewInt(1e13),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - sub balance",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(10))
+				// get dirty balance
+				suite.Require().Equal(big.NewInt(10), db.GetBalance(address))
+				db.SubBalance(address, big.NewInt(2))
+			},
+			big.NewInt(8),
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - sub balance below 6 decimals (no-op)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(1e13))
+				// get dirty balance
+				suite.Require().Equal(big.NewInt(1e13), db.GetBalance(address))
+				db.SubBalance(address, big.NewInt(999999999999))
+			},
+			big.NewInt(1e13),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - sub balance with 6 decimals (should round down)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(1e13))
+				// get dirty balance
+				suite.Require().Equal(big.NewInt(1e13), db.GetBalance(address))
+				db.SubBalance(address, big.NewInt(2999999999999))
+			},
+			big.NewInt(8e12),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - sub balance with 6 decimals (no rounding)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(1e13))
+				// get dirty balance
+				suite.Require().Equal(big.NewInt(1e13), db.GetBalance(address))
+				db.SubBalance(address, big.NewInt(2e12))
+			},
+			big.NewInt(8e12),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - add zero balance",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(0))
+			},
+			big.NewInt(0),
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - add zero balance",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(0))
+			},
+			big.NewInt(0),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - add zero balance (having decimals < than 6)",
+			func(db *statedb.StateDB) {
+				db.AddBalance(address, big.NewInt(999999999999))
+			},
+			big.NewInt(0),
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - sub zero balance",
+			func(db *statedb.StateDB) {
+				db.SubBalance(address, big.NewInt(0))
+			},
+			big.NewInt(0),
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - sub zero balance",
+			func(db *statedb.StateDB) {
+				db.SubBalance(address, big.NewInt(0))
+			},
+			big.NewInt(0),
+			evmtypes.Denom6Dec,
+		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			keeper := NewMockKeeper()
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			keeper.WithParams(params)
 			db := statedb.New(sdk.Context{}, keeper, emptyTxConfig)
 			tc.malleate(db)
 

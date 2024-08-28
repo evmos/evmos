@@ -10,6 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 var emptyCodeHash = crypto.Keccak256(nil)
@@ -97,6 +99,10 @@ func (s *stateObject) markSuicided() {
 // AddBalance adds amount to s's balance.
 // It is used to add funds to the destination account of a transfer.
 func (s *stateObject) AddBalance(amount *big.Int) {
+	// if evm denom has 6 decimals, zero the extra decimals
+	if s.db.denomDecimals == evmtypes.Denom6Dec {
+		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
+	}
 	if amount.Sign() == 0 {
 		return
 	}
@@ -106,6 +112,10 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 // SubBalance removes amount from s's balance.
 // It is used to remove funds from the origin account of a transfer.
 func (s *stateObject) SubBalance(amount *big.Int) {
+	// if evm denom has 6 decimals, zero the extra decimals
+	if s.db.denomDecimals == evmtypes.Denom6Dec {
+		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
+	}
 	if amount.Sign() == 0 {
 		return
 	}
