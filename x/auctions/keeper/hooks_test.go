@@ -163,7 +163,7 @@ func TestHookAfterEpochEnd(t *testing.T) {
 			roundPre := network.App.AuctionsKeeper.GetRound(network.GetContext())
 			assert.Equal(t, uint64(0), roundPre, "round different than initial one")
 
-			// Inflation should be enabled.
+			// Auctions should be enabled.
 			params := network.App.AuctionsKeeper.GetParams(network.GetContext())
 			params.EnableAuction = true
 			updateParamsMsg := types.MsgUpdateParams{
