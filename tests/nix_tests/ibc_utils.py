@@ -137,6 +137,10 @@ def prepare_network(
     custom_scenario=None,
 ):
     chains_to_connect = []
+    chains = {}
+
+    # setup relayer
+    hermes = Hermes(tmp_path / "relayer.toml")
 
     # set up the chains
     for chain in chain_names:
@@ -156,12 +160,10 @@ def prepare_network(
                 "stride" in chain_names,
                 custom_scenario,
             )
-            evmos = next(gen)
+            evmos = next(gen)  # pylint: disable=stop-iteration-return
             # wait for grpc ready
             wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
-            # setup relayer
-            hermes = Hermes(tmp_path / "relayer.toml")
-            chains = {"evmos": evmos}
+            chains["evmos"] = evmos
             continue
 
         chain_instance = CosmosChain(tmp_path / chain_name, meta["bin"])

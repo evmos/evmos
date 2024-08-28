@@ -126,5 +126,3 @@ def test_block_gas_limit(evmos_cluster):
         (evmos_cluster.w3.eth.wait_for_transaction_receipt(evmos_txhash))
     except Exception as error:
         assert "exceeds block gas limit" in error.args[0]["message"]
-
-    return

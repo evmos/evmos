@@ -1004,6 +1004,7 @@ def test_ibc_transfer_with_authorization(
 
     final_dest_balance = 0
 
+    # TODO: this is unused - can we remove it or should we check it somewhere?
     def check_dest_balance():
         nonlocal final_dest_balance
         final_dest_balance = get_balance(

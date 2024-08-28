@@ -41,7 +41,8 @@ def test_block_cmd(evmos_cluster):
             "flags": ["--height", last_block + 10],
             "exp_out": None,
             "exp_err": True,
-            "err_msg": f"invalid height, the latest height found in the db is {last_block}, and you asked for {last_block+10}",  # noqa: E501 - ignore line too long linter
+            "err_msg": f"invalid height, the latest height found in the db is {last_block}, "
+            f"and you asked for {last_block+10}",
         },
     ]
     for tc in test_cases:
@@ -52,9 +53,9 @@ def test_block_cmd(evmos_cluster):
             if tc["exp_err"] is True:
                 assert tc["err_msg"] in err.args[0]
                 continue
-            else:
-                print(f"Unexpected {err=}, {type(err)=}")
-                raise
+
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
 
     # start node1 again
     supervisorctl(
