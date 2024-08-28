@@ -58,7 +58,7 @@ def ibc(request, tmp_path_factory):
         ),
     ],
 )
-def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):
+def test_ibc_callbacks(ibc, convert_amt, transfer_amt):
     """Test ibc precompile denom trace query"""
     assert_ready(ibc)
 

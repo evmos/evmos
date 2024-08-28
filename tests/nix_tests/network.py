@@ -28,17 +28,17 @@ class Evmos:
         return Evmos(self.base_dir)
 
     @property
-    def w3_http_endpoint(self, i=0):
-        port = ports.evmrpc_port(self.base_port(i))
+    def w3_http_endpoint(self):  # pylint: disable=property-with-parameters
+        port = ports.evmrpc_port(self.base_port(0))
         return f"http://localhost:{port}"
 
     @property
-    def w3_ws_endpoint(self, i=0):
-        port = ports.evmrpc_ws_port(self.base_port(i))
+    def w3_ws_endpoint(self):
+        port = ports.evmrpc_ws_port(self.base_port(0))
         return f"ws://localhost:{port}"
 
     @property
-    def w3(self, i=0):
+    def w3(self):
         if self._w3 is None:
             if self._use_websockets:
                 self._w3 = web3.Web3(
@@ -48,7 +48,7 @@ class Evmos:
                 self._w3 = web3.Web3(web3.providers.HTTPProvider(self.w3_http_endpoint))
         return self._w3
 
-    def base_port(self, i=0):
+    def base_port(self, i=0):  # pylint: disable=property-with-parameters
         return self.config["validators"][i]["base_port"]
 
     def node_rpc(self, i):
@@ -129,7 +129,9 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
 
 # for memiavl need to create the data/snapshots dir
 # for the nodes
-def create_snapshots_dir(path, base_port, config, n_nodes=2):
+def create_snapshots_dir(
+    path, base_port, config, n_nodes=2
+):  # pylint: disable=unused-argument
     for idx in range(n_nodes):
         data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
         os.makedirs(data_snapshots_dir, exist_ok=True)
@@ -166,7 +168,7 @@ def setup_geth(path, base_port):
             "eth,net,web3,debug",
         ]
         print(*cmd)
-        proc = subprocess.Popen(
+        proc = subprocess.Popen(  # pylint: disable=consider-using-with,subprocess-popen-preexec-fn
             cmd,
             preexec_fn=os.setsid,
             stdout=logfile,
@@ -201,7 +203,7 @@ def setup_custom_evmos(
     subprocess.run(cmd, check=True)
     if post_init is not None:
         post_init(path, base_port, config)
-    proc = subprocess.Popen(
+    proc = subprocess.Popen(  # pylint: disable=consider-using-with,subprocess-popen-preexec-fn
         ["pystarport", "start", "--data", path, "--quiet"],
         preexec_fn=os.setsid,
     )

@@ -58,7 +58,7 @@ def check_licenses_in_path(
     n_files_encl = 0
 
     for root, _, files in os.walk(path):
-        if any([re.search(folder, root) for folder in IGNORED_FOLDERS]):
+        if any(re.search(folder, root) for folder in IGNORED_FOLDERS):
             continue
         for file in files:
             full_path = os.path.join(root, file)
@@ -97,8 +97,9 @@ def check_licenses_in_path(
     if len(files_with_wrong_license) > 0:
         print("---------------------------")
         print(
-            f""" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!
-    Please check the output above."""
+            f" -> {len(files_with_wrong_license)} files have the wrong license "
+            "or are missing a license altogether!\n"
+            "Please check the output above."
         )
 
     return {
@@ -146,7 +147,8 @@ def check_license_in_file(file: str, checked_license: List[str]) -> bool | str:
 
         if "generated" in lines[0].lower() or "do not edit" in lines[0].lower():
             return "generated"
-        elif "ethereum" in lines[0].lower():
+
+        if "ethereum" in lines[0].lower():
             return "geth"
 
         for expected_line, line in zip(checked_license, lines[: len(checked_license)]):

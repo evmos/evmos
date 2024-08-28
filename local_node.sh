@@ -152,7 +152,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		sed -i '' 's/enabled = false/enabled = true/g' "$APP_TOML"
 		sed -i '' 's/enable = false/enable = true/g' "$APP_TOML"
 		# Don't enable Rosetta API by default
-		grep -q -F '[rosetta]' "$APP_TOML" && sed -i '' '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"		
+		grep -q -F '[rosetta]' "$APP_TOML" && sed -i '' '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 		# Don't enable memiavl by default
 		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '' '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 		# Don't enable versionDB by default
@@ -163,7 +163,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		sed -i 's/enabled = false/enabled = true/g' "$APP_TOML"
 		sed -i 's/enable = false/enable = true/g' "$APP_TOML"
 		# Don't enable Rosetta API by default
-		grep -q -F '[rosetta]' "$APP_TOML" && sed -i '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"		
+		grep -q -F '[rosetta]' "$APP_TOML" && sed -i '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 		# Don't enable memiavl by default
 		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 		# Don't enable versionDB by default

@@ -37,10 +37,11 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
-    elif provider == "evmos-rocksdb":
+
+    if provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
-    else:
-        raise NotImplementedError
+
+    raise NotImplementedError
 
 
 def test_gas_eth_tx(evmos_cluster):
@@ -50,8 +51,10 @@ def test_gas_eth_tx(evmos_cluster):
     """
     wait_for_block(evmos_cluster.cosmos_cli(), 3)
     try:
-        evmos_cluster.w3.eth.gas_price
-        raise Exception("This query should have failed")
+        evmos_cluster.w3.eth.gas_price  # pylint: disable=pointless-statement
+        raise Exception(  # pylint: disable=broad-exception-raised
+            "This query should have failed"
+        )
     except Exception as error:
         assert (
             "node is not persisting finalize block responses"

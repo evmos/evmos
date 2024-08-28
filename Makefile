@@ -399,31 +399,36 @@ benchmark:
 ###                                Linting                                  ###
 ###############################################################################
 
-lint:
+lint: lint-go lint-python lint-contracts
+
+lint-go:
+	gofumpt -l .
 	golangci-lint run --out-format=tab
-	solhint contracts/**/*.sol
+
+lint-python:
+	find . -name "*.py" -type f -not -path "*/node_modules/*" | xargs pylint
+	flake8
 
 lint-contracts:
-	@cd contracts && \
-	npm i && \
-	npm run lint
+	solhint contracts/**/*.sol
 
 lint-fix:
 	golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 lint-fix-contracts:
-	@cd contracts && \
-	npm i && \
-	npm run lint-fix
 	solhint --fix contracts/**/*.sol
 
-.PHONY: lint lint-fix
+.PHONY: lint lint-fix lint-contracts lint-go lint-python
 
 format:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' | xargs gofumpt -w -l
 
-.PHONY: format
+.PHONY: format format-python format-black format-isort format-go
 
+format: format-go format-python format-shell
+
+format-go:
+	gofumpt -l -w .
 
 format-python: format-isort format-black
 
@@ -433,6 +438,8 @@ format-black:
 format-isort:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
 
+format-shell:
+	shfmt -l -w .
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################

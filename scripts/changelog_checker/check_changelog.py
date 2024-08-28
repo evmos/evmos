@@ -64,7 +64,7 @@ class Changelog:
         seen_prs: List[int] = []
 
         if fix:
-            f = open(self.filename, "w")
+            f = open(self.filename, "w")  # pylint: disable=consider-using-with
 
         try:
             for line in self.contents:
@@ -153,12 +153,12 @@ class Changelog:
 if __name__ == "__main__":
     changelog = Changelog(sys.argv[1])
 
-    fix_mode = False
+    FIX_MODE = False
     if len(sys.argv) > 2 and sys.argv[2] == "--fix":
-        fix_mode = True
+        FIX_MODE = True
 
-    passed = changelog.parse(fix=fix_mode)
-    if passed:
+    PASSED = changelog.parse(fix=FIX_MODE)
+    if PASSED:
         print(" -> Changelog is valid.")
     else:
         print(

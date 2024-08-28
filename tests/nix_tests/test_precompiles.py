@@ -113,7 +113,7 @@ def test_ibc_transfer_invalid_packet(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501
+    exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501 # pylint: disable=line-too-long
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -156,7 +156,7 @@ def test_ibc_transfer_timeout(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = r"rpc error: code = Unknown desc = invalid packet timeout: current timestamp: \d+, timeout timestamp \d+: timeout elapsed"  # noqa: E501
+    exp_err = r"rpc error: code = Unknown desc = invalid packet timeout: current timestamp: \d+, timeout timestamp \d+: timeout elapsed"  # noqa: E501 # pylint: disable=line-too-long
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000

@@ -32,6 +32,7 @@ jobs:
           VALIDATE_OPENAPI: false
           VALIDATE_JSCPD: false
           VALIDATE_GO: false
+          VALIDATE_GO_MODULES: false
           PYTHON_PYLINT_CONFIG_FILE: .pylintrc
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

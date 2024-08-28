@@ -225,7 +225,7 @@ def wait_for_block_time(cli, t):
 
 
 def wait_for_fn(name, fn, *, timeout=240, interval=1):
-    for i in range(int(timeout / interval)):
+    for _ in range(int(timeout / interval)):
         result = fn()
         print("check", name, result)
         if result:
@@ -321,6 +321,8 @@ def wait_for_ack(cli, chain):
     if txs_res is None:
         wait_for_new_blocks(cli, 1)
         return wait_for_ack(cli, chain)
+
+    return None
 
 
 def register_host_zone(
@@ -433,7 +435,7 @@ def parse_events_rpc(events):
             if attr["key"] is None:
                 continue
             # after sdk v0.47, key and value are strings instead of byte arrays
-            if type(attr["key"]) is str:
+            if isinstance(attr["key"], str):
                 result[ev["type"]][attr["key"]] = attr["value"]
             else:
                 key = base64.b64decode(attr["key"].encode()).decode()
@@ -540,14 +542,16 @@ def update_node_cmd(path, cmd, i):
 
 
 def update_evmosd_and_setup_stride(modified_bin):
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         update_evmos_bin(modified_bin)(path, base_port, config)
         setup_stride()(path, base_port, config)
 
     return inner
 
 
-def update_evmos_bin(modified_bin, nodes=[0, 1]):
+def update_evmos_bin(
+    modified_bin, nodes=[0, 1]
+):  # pylint: disable=dangerous-default-value
     """
     updates the evmos binary with a patched binary.
     Input parameters are the modified binary (modified_bin)
@@ -557,7 +561,7 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
     so nodes should be an array containing only 0 and/or 1
     """
 
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "evmos_9000-1"
         # by default, there're 2 nodes
         # need to update the bin in all these
@@ -568,7 +572,7 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
 
 
 def setup_stride():
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "stride-1"
         base_dir = Path(path / chain_id)
         os.environ["BASE_DIR"] = str(base_dir)
@@ -604,7 +608,7 @@ def check_error(err: Exception, err_contains):
         assert err_contains in err_msg
     else:
         print(f"Unexpected {err=}, {type(err)=}")
-        raise
+        raise err
 
 
 def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
