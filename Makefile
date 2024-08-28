@@ -402,6 +402,7 @@ benchmark:
 lint: lint-go lint-python lint-contracts
 
 lint-go:
+	gofumpt -l .
 	golangci-lint run --out-format=tab
 
 lint-python:
@@ -422,8 +423,12 @@ lint-fix-contracts:
 format:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' | xargs gofumpt -w -l
 
-.PHONY: format
+.PHONY: format format-python format-black format-isort format-go
 
+format: format-go format-python
+
+format-go:
+	gofumpt -l -w .
 
 format-python: format-isort format-black
 
