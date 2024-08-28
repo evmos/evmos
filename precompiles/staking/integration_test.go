@@ -66,6 +66,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
+		params := s.app.EvmKeeper.GetParams(s.ctx)
+		params.EvmDenom = "uatom"
+		err := s.app.EvmKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
 		s.NextBlock()
 
 		valAddr = s.validators[0].GetOperator()
@@ -1671,6 +1675,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
+		params := s.app.EvmKeeper.GetParams(s.ctx)
+		params.EvmDenom = "uatom"
+		err := s.app.EvmKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
+		s.NextBlock()
+
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()
 		Expect(err).To(BeNil(), "error while loading the staking caller contract: %v", err)
 
@@ -2149,6 +2159,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			prevDelegation, _ = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 
 			defaultDelegateArgs = defaultCallArgs.WithMethodName("testDelegate")
+
 		})
 
 		Context("without approval set", func() {
@@ -2201,7 +2212,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				var (
 					txSenderInitialBal     sdk.Coin
 					contractInitialBalance sdk.Coin
-					gasPrice               = math.NewInt(1e9)
+					gasPrice               = math.NewInt(1e18)
 					delAmt                 = math.NewInt(1e18)
 				)
 
@@ -2225,6 +2236,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 						GasPrice: gasPrice.BigInt(),
 					}
 
+					fmt.Println("params", s.app.EvmKeeper.GetParams(s.ctx).EvmDenom)
 					// Tx should be successful, but no state changes happened
 					res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, callArgs, passCheck)
 					Expect(err).To(BeNil())
@@ -2283,7 +2295,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					contractInitialBalance         sdk.Coin
 					bondedTokensPoolInitialBalance sdk.Coin
 					delAmt                         = math.NewInt(1e18)
-					gasPrice                       = math.NewInt(1e9)
+					gasPrice                       = math.NewInt(1e12)
 					bondedTokensPoolAccAddr        = authtypes.NewModuleAddress("bonded_tokens_pool")
 				)
 
@@ -3679,6 +3691,12 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
+
+		params := s.app.EvmKeeper.GetParams(s.ctx)
+		params.EvmDenom = "uatom"
+		err = s.app.EvmKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
+
 		s.NextBlock()
 
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()

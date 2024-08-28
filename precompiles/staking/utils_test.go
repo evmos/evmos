@@ -184,7 +184,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount), sdk.NewCoin("uatom", amount)),
 	}
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -208,8 +208,14 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
 	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+
+	atomCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
+	atomDistrCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
+	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, atomCoins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
+	s.Require().NoError(err)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, atomDistrCoins)
 	s.Require().NoError(err)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
