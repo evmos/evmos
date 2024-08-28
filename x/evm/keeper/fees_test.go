@@ -483,7 +483,8 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 				initialBaseFee = setup.initialBaseFee.BigInt()
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.BaseFee = setup.initialBaseFee
-				suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				vmdb := suite.StateDB()
 
@@ -534,7 +535,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 				balance := vmdb.GetBalance(suite.address)
 				suite.Require().Equal(balance, initBal)
 
-				err := vmdb.Commit()
+				err = vmdb.Commit()
 				suite.Require().NoError(err, "Unexpected error while committing to vmdb: %d", err)
 
 				ethTxParams := &evmtypes.EvmTxArgs{
