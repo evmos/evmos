@@ -157,9 +157,9 @@ def test_create_invalid_vesting_acc(evmos_cluster):
     )
     try:
         tx = cli.sign_tx_json(tx, eth_to_bech32(ADDRS["signer1"]), max_priority_price=0)
-        raise Exception(
+        raise Exception(  # pylint: disable=broad-exception-raised
             "This command should have failed"
-        )  # pylint: disable=broad-exception-raised
+        )
     except Exception as error:
         assert "tx intended signer does not match the given signer" in error.args[0]
 
@@ -262,9 +262,9 @@ def test_vesting_acc_schedule(evmos_cluster):
                         lockup_file.name,
                         vesting_file.name,
                     )
-                    raise Exception(
+                    raise Exception(  # pylint: disable=broad-exception-raised
                         "This command should have failed"
-                    )  # pylint: disable=broad-exception-raised
+                    )
                 except Exception as error:
                     assert tc["exp_err"] in error.args[0]
 

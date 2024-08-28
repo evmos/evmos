@@ -52,9 +52,9 @@ def test_gas_eth_tx(evmos_cluster):
     wait_for_block(evmos_cluster.cosmos_cli(), 3)
     try:
         evmos_cluster.w3.eth.gas_price  # pylint: disable=pointless-statement
-        raise Exception(
+        raise Exception(  # pylint: disable=broad-exception-raised
             "This query should have failed"
-        )  # pylint: disable=broad-exception-raised
+        )
     except Exception as error:
         assert (
             "node is not persisting finalize block responses"
