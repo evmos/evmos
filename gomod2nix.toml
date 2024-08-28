@@ -674,8 +674,8 @@ schema = 3
     version = "v0.28.0"
     hash = "sha256-WdH/mgsX/CB+CiYtXEwJAXHN8FgtW2YhFcWwrrHNBLo="
   [mod."golang.org/x/oauth2"]
-    version = "v0.20.0"
-    hash = "sha256-A/xfMmGvwqE94IZliqnzi76rAH2UwnMWcSlHQK6VnuE="
+    version = "v0.21.0"
+    hash = "sha256-0xgi5k7fxMScMH+rDwXhDqe8raTFHh5ih727jGVS918="
   [mod."golang.org/x/sync"]
     version = "v0.8.0"
     hash = "sha256-usvF0z7gq1vsX58p4orX+8WHlv52pdXgaueXlwj2Wss="
@@ -701,14 +701,14 @@ schema = 3
     version = "v0.0.0-20240227224415-6ceb2ff114de"
     hash = "sha256-G+tvsCTXxzk3sS6HbBxPN1DYaN1tPOqKsa60mI05Feg="
   [mod."google.golang.org/genproto/googleapis/api"]
-    version = "v0.0.0-20240528184218-531527333157"
-    hash = "sha256-if1E4g6xCKqL43uyMiKC4C6qY1e/+T5yfp8DYvQ/HwE="
+    version = "v0.0.0-20240604185151-ef581f913117"
+    hash = "sha256-iWxu3H8SXu5Ihr4X7139ez60w2sV97dl0FV4BeMykzY="
   [mod."google.golang.org/genproto/googleapis/rpc"]
-    version = "v0.0.0-20240528184218-531527333157"
+    version = "v0.0.0-20240604185151-ef581f913117"
     hash = "sha256-hQjIHJdIBBAthdXMB19Xr3A2Wy6GV6Gjv4w4MZl7qy4="
   [mod."google.golang.org/grpc"]
-    version = "v1.65.0"
-    hash = "sha256-YP4dewjs+YuTH7rD1p/AFNoKHlk037wbVvSLVAtewIA="
+    version = "v1.66.0"
+    hash = "sha256-uFX1JsW1lx+CFLmj0B8wA8iE7ijaWMTNufBvMPMa0P0="
   [mod."google.golang.org/protobuf"]
     version = "v1.34.2"
     hash = "sha256-nMTlrDEE2dbpWz50eQMPBQXCyQh4IdjrTIccaU0F3m0="
