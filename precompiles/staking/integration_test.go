@@ -66,10 +66,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-		params := s.app.EvmKeeper.GetParams(s.ctx)
-		params.EvmDenom = "uatom"
-		err := s.app.EvmKeeper.SetParams(s.ctx, params)
-		s.Require().NoError(err)
 		s.NextBlock()
 
 		valAddr = s.validators[0].GetOperator()
@@ -1674,11 +1670,6 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-
-		params := s.app.EvmKeeper.GetParams(s.ctx)
-		params.EvmDenom = "uatom"
-		err := s.app.EvmKeeper.SetParams(s.ctx, params)
-		s.Require().NoError(err)
 		s.NextBlock()
 
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()
@@ -1742,6 +1733,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		It("should return an error", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
+			fmt.Println("new params", params)
 			var activePrecompiles []string
 			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
@@ -3691,12 +3683,6 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-
-		params := s.app.EvmKeeper.GetParams(s.ctx)
-		params.EvmDenom = "uatom"
-		err = s.app.EvmKeeper.SetParams(s.ctx, params)
-		s.Require().NoError(err)
-
 		s.NextBlock()
 
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()

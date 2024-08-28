@@ -99,6 +99,11 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
+	evmParams := evmtypes.DefaultParams()
+	evmParams.EvmDenom = "uatom"
+	evmGenesis := evmtypes.NewGenesisState(evmParams, nil)
+	genesisState[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
+
 	totalBondAmt := math.ZeroInt()
 	for range validators {
 		totalBondAmt = totalBondAmt.Add(bondAmt)
@@ -143,6 +148,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 
 	// create Context
 	s.ctx = app.BaseApp.NewContext(false, header)
+	s.ctx = s.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoinFromCoin(sdk.NewCoin("uatom", sdk.NewInt(2)))))
 
 	// commit genesis changes
 	app.Commit()
@@ -221,6 +227,11 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	params := s.app.EvmKeeper.GetParams(s.ctx)
+	params.EvmDenom = "uatom"
+	err = s.app.EvmKeeper.SetParams(s.ctx, params)
+	s.Require().NoError(err)
 }
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
