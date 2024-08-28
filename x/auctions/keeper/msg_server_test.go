@@ -6,6 +6,8 @@ package keeper_test
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
+
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
@@ -32,25 +34,25 @@ func TestBid(t *testing.T) {
 	previousBidAmount := sdk.NewInt(1)
 
 	testCases := []struct {
-		name        string
-		malleate    func()               // used to modify the initial conditions of the test
-		input       func() *types.MsgBid // return the message used for the bid
-		postCheck   func()
-		expErr      bool
-		errContains string
+		name                    string
+		malleate                func()               // used to modify the initial conditions of the test
+		input                   func() *types.MsgBid // return the message used for the bid
+		expPreviousBidderAmount sdkmath.Int
+		postCheck               func()
+		expErr                  bool
+		errContains             string
 	}{
 		{
-			name: "success - no previous bid",
-			malleate: func() {
-			},
+			name:     "success - no previous bid",
+			malleate: func() {},
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck: func() {},
-			expErr:    false,
+			expPreviousBidderAmount: sdk.ZeroInt(),
+			expErr:                  false,
 		},
 		{
 			name: "success - with previous bid present",
@@ -77,7 +79,8 @@ func TestBid(t *testing.T) {
 				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, utils.BaseDenom)
 				assert.Equal(t, resp.Amount, bidAmount.Sub(previousBidAmount))
 			},
-			expErr: false,
+			expPreviousBidderAmount: bidAmount.Sub(previousBidAmount),
+			expErr:                  false,
 		},
 		{
 			name: "fail - auction not enabled",
@@ -98,7 +101,6 @@ func TestBid(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: types.ErrAuctionDisabled.Error(),
 		},
@@ -118,7 +120,6 @@ func TestBid(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: types.ErrBidMustBeHigherThanCurrent.Error(),
 		},
@@ -138,35 +139,30 @@ func TestBid(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: types.ErrBidMustBeHigherThanCurrent.Error(),
 		},
 		{
-			name: "fail - sender is not valid bech32",
-			malleate: func() {
-			},
+			name:     "fail - sender is not valid bech32",
+			malleate: func() {},
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: "",
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: "invalid sender address",
 		},
 		{
-			name: "fail - sender does not have enough funds",
-			malleate: func() {
-			},
+			name:     "fail - sender does not have enough funds",
+			malleate: func() {},
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: emptyAddress.String(),
 					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: "transfer bid coins failed",
 		},
@@ -190,9 +186,10 @@ func TestBid(t *testing.T) {
 				assert.Contains(t, err.Error(), tc.errContains, "expected different error for test case: %s", tc.name)
 			} else {
 				assert.NoError(t, err, "error not expected")
-			}
 
-			tc.postCheck()
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, utils.BaseDenom)
+				assert.Equal(t, resp.Amount, tc.expPreviousBidderAmount)
+			}
 		})
 	}
 }
@@ -207,12 +204,12 @@ func TestDepositCoin(t *testing.T) {
 	emptyAddress, _ := testutiltx.NewAccAddressAndKey()
 
 	testCases := []struct {
-		name        string
-		malleate    func()                       // used to modify the initial conditions of the test or for pre test checks
-		input       func() *types.MsgDepositCoin // return the message used for the bid
-		postCheck   func()
-		expErr      bool
-		errContains string
+		name             string
+		malleate         func()                       // used to modify the initial conditions of the test or for pre test checks
+		input            func() *types.MsgDepositCoin // return the message used for the bid
+		expDepositAmount sdkmath.Int
+		expErr           bool
+		errContains      string
 	}{
 		{
 			name: "pass",
@@ -227,12 +224,8 @@ func TestDepositCoin(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
 				}
 			},
-			postCheck: func() {
-				auctionCollectorAddress := network.App.AccountKeeper.GetModuleAddress(types.AuctionCollectorName)
-				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, utils.BaseDenom)
-				assert.Equal(t, resp.Amount, depositAmount, "expected the auction collector to have the deposit")
-			},
-			expErr: false,
+			expDepositAmount: depositAmount,
+			expErr:           false,
 		},
 		{
 			name: "fail - auction not enabled",
@@ -253,7 +246,6 @@ func TestDepositCoin(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: types.ErrAuctionDisabled.Error(),
 		},
@@ -267,7 +259,6 @@ func TestDepositCoin(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: "invalid sender address",
 		},
@@ -281,7 +272,6 @@ func TestDepositCoin(t *testing.T) {
 					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: "transfer of deposit failed",
 		},
@@ -305,9 +295,11 @@ func TestDepositCoin(t *testing.T) {
 				assert.Contains(t, err.Error(), tc.errContains, "expected different error for test case: %s", tc.name)
 			} else {
 				assert.NoError(t, err, "error not expected")
-			}
 
-			tc.postCheck()
+				auctionCollectorAddress := network.App.AccountKeeper.GetModuleAddress(types.AuctionCollectorName)
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, utils.BaseDenom)
+				assert.Equal(t, resp.Amount, tc.expDepositAmount, "expected the auction collector to have the deposit")
+			}
 		})
 	}
 }
@@ -319,12 +311,12 @@ func TestUpdateParams(t *testing.T) {
 	authorityAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	testCases := []struct {
-		name        string
-		preCheck    func()                        // used to modify the initial conditions of the test or for pre test checks
-		input       func() *types.MsgUpdateParams // return the message used for the bid
-		postCheck   func()
-		expErr      bool
-		errContains string
+		name              string
+		preCheck          func()                        // used to modify the initial conditions of the test or for pre test checks
+		input             func() *types.MsgUpdateParams // return the message used for the bid
+		expErr            bool
+		expAuctionEnabled bool
+		errContains       string
 	}{
 		{
 			name: "pass",
@@ -340,11 +332,8 @@ func TestUpdateParams(t *testing.T) {
 					Params:    params,
 				}
 			},
-			postCheck: func() {
-				params := network.App.AuctionsKeeper.GetParams(network.GetContext())
-				assert.Equal(t, params.EnableAuction, false, "expected params to be updated")
-			},
-			expErr: false,
+			expAuctionEnabled: false,
+			expErr:            false,
 		},
 		{
 			name:     "fail - wrong authority",
@@ -357,7 +346,6 @@ func TestUpdateParams(t *testing.T) {
 					Params:    params,
 				}
 			},
-			postCheck:   func() {},
 			expErr:      true,
 			errContains: govtypes.ErrInvalidSigner.Error(),
 		},
@@ -381,9 +369,10 @@ func TestUpdateParams(t *testing.T) {
 				assert.Contains(t, err.Error(), tc.errContains, "expected different error for test case: %s", tc.name)
 			} else {
 				assert.NoError(t, err, "error not expected")
-			}
 
-			tc.postCheck()
+				params := network.App.AuctionsKeeper.GetParams(network.GetContext())
+				assert.Equal(t, params.EnableAuction, tc.expAuctionEnabled, "expected params to be updated")
+			}
 		})
 	}
 }
