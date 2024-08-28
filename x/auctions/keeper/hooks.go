@@ -35,7 +35,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	bidWinner, err := sdk.AccAddressFromBech32(lastBid.Sender)
 
 	// Create a cached context that is committed only
-	// if not errors happen.
+	// if not errors happen handling a valid bid.
 	ctxCache, writeFn := ctx.CacheContext()
 
 	// A valid bid is one in which lastBid.Sender is "validBech32" and the
