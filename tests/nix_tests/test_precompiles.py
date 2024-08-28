@@ -15,7 +15,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -73,6 +73,14 @@ def test_ibc_transfer(ibc):
     assert receipt.gasUsed == gas_estimation
 
     fee = receipt.gasUsed * evmos_gas_price
+
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    params = cli.evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fee = int(fee / int(1e12))
 
     new_dst_balance = 0
 
@@ -203,6 +211,14 @@ def test_staking(ibc):
 
     fee = receipt.gasUsed * evmos_gas_price
 
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    params = cli.evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fee = int(fee / int(1e12))
+
     delegations = cli.get_delegated_amount(del_addr)["delegation_responses"]
     assert len(delegations) == 1
     assert delegations[0]["delegation"]["validator_address"] == validator_addr
@@ -264,6 +280,14 @@ def test_staking_via_sc(ibc):
     # assert receipt.gasUsed == gas_estimation
 
     fee += receipt.gasUsed * evmos_gas_price
+
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    params = cli.evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fee = int(fee / int(1e12))
 
     delegations = cli.get_delegated_amount(del_addr)["delegation_responses"]
     assert len(delegations) == 1
