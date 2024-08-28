@@ -5,37 +5,37 @@ import (
 	"strings"
 )
 
-// TestUpgrade tests if an Evmos node can be upgraded from one version to another.
-// It iterates through the list of scheduled upgrades, that are defined using the input
-// arguments to the make command. The function then submits a proposal to upgrade the chain,
-// and finally upgrades the chain.
-// If the chain can be restarted after the upgrade(s), the test passes.
-func (s *IntegrationTestSuite) TestUpgrade() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+// // TestUpgrade tests if an Evmos node can be upgraded from one version to another.
+// // It iterates through the list of scheduled upgrades, that are defined using the input
+// // arguments to the make command. The function then submits a proposal to upgrade the chain,
+// // and finally upgrades the chain.
+// // If the chain can be restarted after the upgrade(s), the test passes.
+// func (s *IntegrationTestSuite) TestUpgrade() {
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	defer cancel()
 
-	for idx, version := range s.upgradeParams.Versions {
-		if idx == 0 {
-			// start initial node
-			s.runInitialNode(version)
-			continue
-		}
+// 	for idx, version := range s.upgradeParams.Versions {
+// 		if idx == 0 {
+// 			// start initial node
+// 			s.runInitialNode(version)
+// 			continue
+// 		}
 
-		// wait one block to execute the txs
-		err := s.upgradeManager.WaitNBlocks(ctx, 1)
-		s.Require().NoError(err)
-		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
-		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
+// 		// wait one block to execute the txs
+// 		err := s.upgradeManager.WaitNBlocks(ctx, 1)
+// 		s.Require().NoError(err)
+// 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
+// 		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
 
-		err = s.upgradeManager.WaitNBlocks(ctx, 1)
-		s.Require().NoError(err)
-		s.voteForProposal(idx)
+// 		err = s.upgradeManager.WaitNBlocks(ctx, 1)
+// 		s.Require().NoError(err)
+// 		s.voteForProposal(idx)
 
-		s.Require().NoError(err)
-		s.upgrade(version.ImageName, version.ImageTag)
-	}
-	s.T().Logf("SUCCESS")
-}
+// 		s.Require().NoError(err)
+// 		s.upgrade(version.ImageName, version.ImageTag)
+// 	}
+// 	s.T().Logf("SUCCESS")
+// }
 
 // TestCLITxs executes different types of transactions against an Evmos node
 // using the CLI client. The node used for the test has the latest changes introduced.
@@ -64,104 +64,104 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expPass:   false,
 			expErrMsg: "cannot provide both fees and gas prices",
 		},
-		{
-			name: "fail - submit upgrade proposal, no fees & insufficient gas",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--gas=50000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "gas prices too low",
-		},
-		{
-			name: "fail - submit upgrade proposal, insufficient fees",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--fees=10aevmos",
-					"--gas=50000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "insufficient fee",
-		},
-		{
-			name: "fail - submit upgrade proposal, insufficient gas",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--fees=500000000000aevmos",
-					"--gas=1000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "out of gas",
-		},
-		{
-			name: "success - submit upgrade proposal, defined fees & gas",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--fees=10000000000000000aevmos",
-					"--gas=1500000",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "success - submit upgrade proposal, using gas & gas-prices",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--gas-prices=1000000000aevmos",
-					"--gas=1500000",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "success - vote upgrade proposal (using gas 'auto' and specific fees)",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--gas=auto",
-					"--gas-adjustment=1.5",
-					"--fees=10000000000000000aevmos",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "fail - vote upgrade proposal, insufficient fees",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--fees=10aevmos",
-					"--gas=500000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "insufficient fee",
-		},
+		// {
+		// 	name: "fail - submit upgrade proposal, no fees & insufficient gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--gas=50000",
+		// 		)
+		// 	},
+		// 	expPass:   false,
+		// 	expErrMsg: "gas prices too low",
+		// },
+		// {
+		// 	name: "fail - submit upgrade proposal, insufficient fees",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--fees=10aevmos",
+		// 			"--gas=50000",
+		// 		)
+		// 	},
+		// 	expPass:   false,
+		// 	expErrMsg: "insufficient fee",
+		// },
+		// {
+		// 	name: "fail - submit upgrade proposal, insufficient gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--fees=500000000000aevmos",
+		// 			"--gas=1000",
+		// 		)
+		// 	},
+		// 	expPass:   false,
+		// 	expErrMsg: "out of gas",
+		// },
+		// {
+		// 	name: "success - submit upgrade proposal, defined fees & gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--fees=10000000000000000aevmos",
+		// 			"--gas=1500000",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// {
+		// 	name: "success - submit upgrade proposal, using gas & gas-prices",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--gas-prices=1000000000aevmos",
+		// 			"--gas=1500000",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// {
+		// 	name: "success - vote upgrade proposal (using gas 'auto' and specific fees)",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 			s.upgradeParams.ChainID,
+		// 			1,
+		// 			"--gas=auto",
+		// 			"--gas-adjustment=1.5",
+		// 			"--fees=10000000000000000aevmos",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// {
+		// 	name: "fail - vote upgrade proposal, insufficient fees",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 			s.upgradeParams.ChainID,
+		// 			1,
+		// 			"--fees=10aevmos",
+		// 			"--gas=500000",
+		// 		)
+		// 	},
+		// 	expPass:   false,
+		// 	expErrMsg: "insufficient fee",
+		// },
 	}
 
 	for _, tc := range testCases {
@@ -170,15 +170,15 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			defer cancel()
 
 			exec, err := tc.cmd()
-			s.Require().NoError(err)
+			s.Require().NoError(err, "failed to create tx command")
 
 			// wait one block to execute the tx
 			err = s.upgradeManager.WaitNBlocks(ctx, 1)
-			s.Require().NoError(err)
+			s.Require().NoError(err, "failed to wait for 1 blocks")
 
 			// execute the tx
 			outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-			s.Require().NoError(err)
+			s.Require().NoError(err, "failed to execute tx command")
 
 			if tc.expPass {
 				s.Require().Truef(

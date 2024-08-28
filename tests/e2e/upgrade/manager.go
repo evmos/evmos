@@ -6,6 +6,7 @@ package upgrade
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
@@ -229,21 +230,34 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error)
 
 // GetNodeHeight calls the Evmos CLI in the current node container to get the current block height
 func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
-	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
+	exec, err := m.CreateExec([]string{"evmosd", "q", "block", "--output=json"}, m.ContainerID())
 	if err != nil {
 		return 0, fmt.Errorf("create exec error: %w", err)
 	}
+
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
 		return 0, fmt.Errorf("run exec error: %w", err)
 	}
-	outStr := outBuff.String()
+
+	// NOTE: we're splitting the output because it has the first line saying "falling back to latest height"
+	outStr := strings.Split(outBuff.String(), "\n")[1]
 	var h int
 	// parse current height number from block info
 	if outStr != "<nil>" && outStr != "" {
-		index := strings.Index(outBuff.String(), "\"height\":")
-		qq := outStr[index+10 : index+12]
-		h, err = strconv.Atoi(qq)
+		type BlockHeader struct {
+			Header struct {
+				Height string `json:"height"`
+			} `json:"header"`
+		}
+
+		var block BlockHeader
+		err := json.Unmarshal([]byte(outStr), &block)
+		if err != nil {
+			return 0, fmt.Errorf("failed to unmarshal JSON: %v", err)
+		}
+
+		h, err = strconv.Atoi(block.Header.Height)
 		// check if the conversion was possible
 		if err == nil {
 			// if conversion was possible but the errBuff is not empty, return the height along with an error
