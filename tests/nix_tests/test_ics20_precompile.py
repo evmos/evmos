@@ -1322,16 +1322,12 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     exp_amt_tranferred_internally = (
         30
         if transfer_after and transfer_before
-        else 0
-        if not transfer_after and not transfer_before
-        else 15
+        else 0 if not transfer_after and not transfer_before else 15
     )
     exp_counter_after = (
         2
         if transfer_after and transfer_before
-        else 0
-        if not transfer_after and not transfer_before
-        else 1
+        else 0 if not transfer_after and not transfer_before else 1
     )
 
     exp_src_final_bal = src_starting_balance - amt - fees
