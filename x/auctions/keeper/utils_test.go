@@ -39,21 +39,6 @@ func mintCoinsToModuleAccount(t *testing.T, network *testnetwork.UnitTestNetwork
 	moduleAddress := network.App.AccountKeeper.GetModuleAddress(moduleName)
 	balance := network.App.BankKeeper.GetAllBalances(network.GetContext(), moduleAddress)
 
-	found := assertCoinSetCointainCoinsSet(balance, coins)
+	found := balance.IsAllGTE(coins)
 	assert.True(t, found, "expected a different balance for auctions module after minting tokens")
-}
-
-// assertCoinSetCointainsCoinSet check if coin set A contains coin set B.
-func assertCoinSetCointainCoinsSet(coinSetA, coinSetB sdk.Coins) bool {
-	expFound := len(coinSetB)
-	var currFound int
-	for _, coinA := range coinSetA {
-		for _, coinB := range coinSetB {
-			if coinA.Denom == coinB.Denom && coinA.Amount.GTE(coinB.Amount) {
-				currFound++
-			}
-		}
-	}
-
-	return currFound == expFound
 }

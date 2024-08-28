@@ -74,7 +74,7 @@ func TestInitGenesis(t *testing.T) {
 			},
 		},
 		{
-			name:     "invalid non enough balance on auctions module",
+			name:     "invalid not enough balance on auctions module",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()

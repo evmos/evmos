@@ -29,6 +29,8 @@ func TestBid(t *testing.T) {
 	bidAmount := sdk.NewInt(5)
 	emptyAddress, _ := testutiltx.NewAccAddressAndKey()
 
+	previousBidAmount := sdk.NewInt(1)
+
 	testCases := []struct {
 		name        string
 		malleate    func()               // used to modify the initial conditions of the test
@@ -55,7 +57,7 @@ func TestBid(t *testing.T) {
 			malleate: func() {
 				// Send coins from the valid sender to an empty account. In this
 				// way we can easily verify the expected final balance.
-				emptyAccountCoin := sdk.NewCoin(utils.BaseDenom, bidAmount.Sub(sdk.NewInt(1)))
+				emptyAccountCoin := sdk.NewCoin(utils.BaseDenom, bidAmount.Sub(previousBidAmount))
 				err := network.App.BankKeeper.SendCoins(network.GetContext(), validSenderKey.AccAddr, emptyAddress, sdk.NewCoins(emptyAccountCoin))
 				assert.NoError(t, err, "failed to send coins from valid sender to empty account")
 				bigMsg := &types.MsgBid{
@@ -73,7 +75,7 @@ func TestBid(t *testing.T) {
 			},
 			postCheck: func() {
 				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, utils.BaseDenom)
-				assert.Equal(t, resp.Amount, bidAmount.Sub(sdk.NewInt(1)))
+				assert.Equal(t, resp.Amount, bidAmount.Sub(previousBidAmount))
 			},
 			expErr: false,
 		},

@@ -83,6 +83,8 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			require.Equal(t, common.LeftPadBytes(bidWinnerHexAddr.Bytes(), 32), ethLog.Topics[1].Bytes())
 			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big())
 
+			require.Len(t, ethLog.Topics, 3)
+
 			require.Equal(t, uint64(ctx.BlockHeight()), ethLog.BlockNumber)
 			require.Equal(t, common.BytesToHash(ctx.HeaderHash()), ethLog.BlockHash)
 
