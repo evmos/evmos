@@ -7,7 +7,7 @@ set -uxe
 export GOPATH=~/go
 export PATH=$PATH:~/go/bin
 
-# Install with pebbledb 
+# Install with pebbledb
 #go mod edit -replace github.com/tendermint/tm-db=github.com/notional-labs/tm-db@136c7b6
 #go mod tidy
 #go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb' -tags pebbledb ./...
@@ -28,7 +28,7 @@ wget -O ~/.evmosd/config/adrbook.json https://snapshot.notional.ventures/evmos/a
 # Get "trust_hash" and "trust_height".
 INTERVAL=1000
 LATEST_HEIGHT=$(curl -s https://evmos-rpc.polkachu.com/block | jq -r .result.block.header.height)
-BLOCK_HEIGHT=$(($LATEST_HEIGHT-$INTERVAL)) 
+BLOCK_HEIGHT=$(($LATEST_HEIGHT - $INTERVAL))
 TRUST_HASH=$(curl -s "https://evmos-rpc.polkachu.com/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
 
 # Print out block and transaction hash from which to sync state.
