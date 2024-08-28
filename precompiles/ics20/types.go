@@ -109,22 +109,12 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 
 	sourcePort, ok := args[0].(string)
 	if !ok {
-<<<<<<< HEAD
-		//nolint
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourcePort)
-=======
 		return nil, common.Address{}, errors.New(ErrInvalidSourcePort)
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	sourceChannel, ok := args[1].(string)
 	if !ok {
-<<<<<<< HEAD
-		//nolint
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidSourceChannel)
-=======
 		return nil, common.Address{}, errors.New(ErrInvalidSourceChannel)
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	denom, ok := args[2].(string)
@@ -284,22 +274,12 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 
 	sourcePort, ok := args[1].(string)
 	if !ok {
-<<<<<<< HEAD
-		//nolint
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourcePort)
-=======
 		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourcePort)
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	sourceChannel, ok := args[2].(string)
 	if !ok {
-<<<<<<< HEAD
-		//nolint
-		return common.Address{}, "", "", "", nil, fmt.Errorf(ErrInvalidSourceChannel)
-=======
 		return common.Address{}, "", "", "", nil, errors.New(ErrInvalidSourceChannel)
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	denom, ok := args[3].(string)

@@ -97,12 +97,7 @@ func (p *Precompile) transfer(
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
-<<<<<<< HEAD
-			//nolint
-			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
-=======
 			return nil, ConvertErrToERC20Error(errorsmod.Wrap(authz.ErrNoAuthorizationFound, err.Error()))
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 		}
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})

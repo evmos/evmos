@@ -40,12 +40,7 @@ func CheckLogs(logArgs LogCheckArgs) error {
 		)
 	}
 
-<<<<<<< HEAD
-	//nolint
-	if err := CheckVMError(logArgs.Res, logArgs.ErrContains); err != nil {
-=======
-	if err := CheckVMError(logArgs.Res, logArgs.ErrContains); err != nil { //nolint:govet
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
+	if err = CheckVMError(logArgs.Res, logArgs.ErrContains); err != nil { //nolint:govet // fmt string is okay to be passed to this function
 		return err
 	}
 

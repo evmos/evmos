@@ -144,12 +144,8 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-<<<<<<< HEAD
-		//nolint
-		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
-=======
+
 		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, "denom: %s", denom)
->>>>>>> 8ad527d9 (chore(go-lint): fix linter errors (#2764))
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
