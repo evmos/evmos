@@ -192,7 +192,7 @@ def prepare_network(
 
     # Nested loop to connect all chains with each other
     for i, chain_a in enumerate(chains_to_connect):
-        for chain_b in chains_to_connect[i + 1 :]:
+        for chain_b in chains_to_connect[i+1:]:
             subprocess.check_call(
                 [
                     "hermes",

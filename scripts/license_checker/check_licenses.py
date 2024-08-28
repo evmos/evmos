@@ -97,8 +97,9 @@ def check_licenses_in_path(
     if len(files_with_wrong_license) > 0:
         print("---------------------------")
         print(
-            f""" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether! # pylint: disable=C0301
-    Please check the output above."""
+            f" -> {len(files_with_wrong_license)} files have the wrong license "
+            "or are missing a license altogether!\n"
+            "Please check the output above."
         )
 
     return {

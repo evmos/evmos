@@ -736,7 +736,6 @@ class CosmosCLI:
                     "gov",
                     method,
                     kind,
-                    fp.name,
                     "-y",
                     from_=proposer,
                     # basic

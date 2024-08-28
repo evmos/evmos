@@ -558,7 +558,8 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             False,
             "",
             json.loads(
-                """[{"denom": "aevmos", "amount": "1000000000000000000"},{"denom": "uatom", "amount": "2000000000000000000"}]"""
+                """[{"denom": "aevmos", "amount": "1000000000000000000"},"""
+                """{"denom": "uatom", "amount": "2000000000000000000"}]"""
             ),
         ),
     ],
@@ -741,7 +742,8 @@ def test_increase_allowance(
             False,
             "",
             json.loads(
-                """[{"denom": "aevmos", "amount": "1000000000000000000"},{"denom": "uatom", "amount": "500000000000000000"}]"""
+                """[{"denom": "aevmos", "amount": "1000000000000000000"},"""
+                """{"denom": "uatom", "amount": "500000000000000000"}]"""
             ),
         ),
     ],
@@ -923,6 +925,7 @@ def test_ibc_transfer_with_authorization(
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
     gas_limit = 200_000
     src_denom = "aevmos"
+    amount = args[3]
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
     src_address = ibc.chains["evmos"].cosmos_cli().address("signer2")
     dst_address = ibc.chains["chainmain"].cosmos_cli().address("signer2")
@@ -942,7 +945,7 @@ def test_ibc_transfer_with_authorization(
         # Approve the contract to spend the src_denom
         approve_tx = pc.functions.approve(
             eth_contract.address,
-            [["transfer", "channel-0", [[src_denom, amt]], [], []]],
+            [["transfer", "channel-0", auth_coins, [], []]],
         ).build_transaction(
             {
                 "from": ADDRS["signer2"],
@@ -963,12 +966,12 @@ def test_ibc_transfer_with_authorization(
 
     wait_for_fn("allowance has changed", check_allowance_set)
 
-    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_adr, src_denom)
+    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_address, src_denom)
     # Deposit into the contract
     deposit_tx = eth_contract.functions.deposit().build_transaction(
         {
             "from": ADDRS["signer2"],
-            "value": amt,
+            "value": amount,
             "gas": gas_limit,
             "gasPrice": evmos_gas_price,
         }
@@ -987,7 +990,7 @@ def test_ibc_transfer_with_authorization(
 
     # Calling the actual transfer function on the custom contract
     send_tx = eth_contract.functions.transfer(
-        "transfer", "channel-0", src_denom, amt, dst_addr
+        "transfer", "channel-0", src_denom, amount, dst_address
     ).build_transaction(
         {
             "from": ADDRS["signer2"],
@@ -1004,7 +1007,7 @@ def test_ibc_transfer_with_authorization(
     def check_dest_balance():
         nonlocal final_dest_balance
         final_dest_balance = get_balance(
-            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+            ibc.chains["chainmain"], dst_address, EVMOS_IBC_DENOM
         )
         receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
         assert receipt.status == 1, f"Failed: {name}"
