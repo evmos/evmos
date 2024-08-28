@@ -4,7 +4,7 @@ import pytest
 from web3 import Web3
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_fn
+from .utils import ADDRS, eth_to_bech32, evm6dec_config, memiavl_config, wait_for_fn
 
 
 @pytest.fixture(scope="module")
@@ -13,6 +13,20 @@ def custom_evmos(tmp_path_factory):
         tmp_path_factory.mktemp("zero-fee"),
         26900,
         Path(__file__).parent / "configs/zero-fee.jsonnet",
+    )
+
+
+@pytest.fixture(scope="module")
+def custom_evmos_6dec(tmp_path_factory):
+    """
+    Setup an evmos chain with
+    an evm denom with 6 decimals
+    """
+    path = tmp_path_factory.mktemp("zero-fee-6dec")
+    yield from setup_custom_evmos(
+        path,
+        46900,
+        evm6dec_config(path, "zero-fee"),
     )
 
 
@@ -28,8 +42,8 @@ def custom_evmos_rocksdb(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -37,6 +51,8 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-6dec":
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     else:
@@ -92,7 +108,7 @@ def test_eth_tx(evmos_cluster):
 
     sender = ADDRS["signer1"]
     receiver = ADDRS["signer2"]
-    amt = 1000
+    amt = int(1e18)
 
     old_src_balance = w3.eth.get_balance(sender)
     old_dst_balance = w3.eth.get_balance(receiver)
