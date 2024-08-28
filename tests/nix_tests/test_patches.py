@@ -90,7 +90,7 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
         {
             "from": sender,
             "to": receiver,
-            "value": 1000,
+            "value": int(1e18),
         }
     )
     receipt = w3.eth.wait_for_transaction_receipt(txhash)
@@ -99,6 +99,14 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     wait_for_new_blocks(cli, 2)
     # only fees should be deducted from sender balance
     fees = receipt["gasUsed"] * receipt["effectiveGasPrice"]
+
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    params = cli.evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
     assert fees > 0
 
     new_src_balance = cli.balance(eth_to_bech32(sender))
