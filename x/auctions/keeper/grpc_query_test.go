@@ -35,7 +35,7 @@ func TestAuctionInfo(t *testing.T) {
 		errContains string
 	}{
 		{
-			name: "pass with default genesis state",
+			name: "success - with default genesis state",
 			malleate: func() {
 			},
 			expResp: types.QueryCurrentAuctionInfoResponse{
@@ -47,7 +47,7 @@ func TestAuctionInfo(t *testing.T) {
 			expPass: true,
 		},
 		{
-			name: "pass with non empty bid",
+			name: "success - with non empty bid",
 			malleate: func() {
 				network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), validBidderAddr.String(), sdk.NewInt64Coin(utils.BaseDenom, 1))
 			},
@@ -61,7 +61,7 @@ func TestAuctionInfo(t *testing.T) {
 			errContains: "",
 		},
 		{
-			name: "pass module with tokens",
+			name: "success - module with tokens",
 			malleate: func() {
 				// Tokens to mint to the module account. We mint both EVMOS coin, which
 				// should not appear in the response, and other coins which should appear.
@@ -90,7 +90,7 @@ func TestAuctionInfo(t *testing.T) {
 			errContains: "",
 		},
 		{
-			name: "fail when auction module is not enabled",
+			name: "fail - auction module is not enabled",
 			malleate: func() {
 				// Update params to disable the auction.
 				params := network.App.AuctionsKeeper.GetParams(network.GetContext())

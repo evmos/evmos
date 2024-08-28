@@ -40,7 +40,7 @@ func TestBid(t *testing.T) {
 		errContains string
 	}{
 		{
-			name: "pass with no previous bid",
+			name: "success - no previous bid",
 			malleate: func() {
 			},
 			input: func() *types.MsgBid {
@@ -53,7 +53,7 @@ func TestBid(t *testing.T) {
 			expErr:    false,
 		},
 		{
-			name: "pass with previous bid present",
+			name: "success - with previous bid present",
 			malleate: func() {
 				// Send coins from the valid sender to an empty account. In this
 				// way we can easily verify the expected final balance.
@@ -80,7 +80,7 @@ func TestBid(t *testing.T) {
 			expErr: false,
 		},
 		{
-			name: "fail auction not enabled",
+			name: "fail - auction not enabled",
 			malleate: func() {
 				// Update params to disable the auction.
 				params := network.App.AuctionsKeeper.GetParams(network.GetContext())
@@ -103,7 +103,7 @@ func TestBid(t *testing.T) {
 			errContains: types.ErrAuctionDisabled.Error(),
 		},
 		{
-			name: "fail when an higher bid is already present",
+			name: "fail - higher bid is already present",
 			malleate: func() {
 				bigMsg := &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
@@ -123,7 +123,7 @@ func TestBid(t *testing.T) {
 			errContains: types.ErrBidMustBeHigherThanCurrent.Error(),
 		},
 		{
-			name: "fail when a bid with same amount is already present",
+			name: "fail - bid with same amount is already present",
 			malleate: func() {
 				bigMsg := &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
@@ -143,7 +143,7 @@ func TestBid(t *testing.T) {
 			errContains: types.ErrBidMustBeHigherThanCurrent.Error(),
 		},
 		{
-			name: "fail when sender is not valid bech32",
+			name: "fail - sender is not valid bech32",
 			malleate: func() {
 			},
 			input: func() *types.MsgBid {
@@ -157,7 +157,7 @@ func TestBid(t *testing.T) {
 			errContains: "invalid sender address",
 		},
 		{
-			name: "fail when sender does not have enough funds",
+			name: "fail - sender does not have enough funds",
 			malleate: func() {
 			},
 			input: func() *types.MsgBid {
@@ -235,7 +235,7 @@ func TestDepositCoin(t *testing.T) {
 			expErr: false,
 		},
 		{
-			name: "fail auction not enabled",
+			name: "fail - auction not enabled",
 			malleate: func() {
 				// Update params to disable the auction.
 				params := network.App.AuctionsKeeper.GetParams(network.GetContext())
@@ -258,7 +258,7 @@ func TestDepositCoin(t *testing.T) {
 			errContains: types.ErrAuctionDisabled.Error(),
 		},
 		{
-			name: "fail when sender is not valid bech32",
+			name: "fail - sender is not valid bech32",
 			malleate: func() {
 			},
 			input: func() *types.MsgDepositCoin {
@@ -272,7 +272,7 @@ func TestDepositCoin(t *testing.T) {
 			errContains: "invalid sender address",
 		},
 		{
-			name: "fail when sender does not have enough funds",
+			name: "fail - sender does not have enough funds",
 			malleate: func() {
 			},
 			input: func() *types.MsgDepositCoin {
@@ -347,7 +347,7 @@ func TestUpdateParams(t *testing.T) {
 			expErr: false,
 		},
 		{
-			name:     "fail when wrong authority",
+			name:     "fail - wrong authority",
 			preCheck: func() {},
 			input: func() *types.MsgUpdateParams {
 				params := network.App.AuctionsKeeper.GetParams(network.GetContext())

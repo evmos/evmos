@@ -33,7 +33,7 @@ func TestInitGenesis(t *testing.T) {
 		postCheck         func()
 	}{
 		{
-			name:              "valid default",
+			name:              "success - default",
 			expPanic:          false,
 			mutation:          func(_ *types.GenesisState) {},
 			fundModuleAccount: true,
@@ -50,7 +50,7 @@ func TestInitGenesis(t *testing.T) {
 			},
 		},
 		{
-			name:     "valid with non empty bidder",
+			name:     "success - non empty bidder",
 			expPanic: false,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()
@@ -74,7 +74,7 @@ func TestInitGenesis(t *testing.T) {
 			},
 		},
 		{
-			name:     "invalid not enough balance on auctions module",
+			name:     "fail - not enough balance on auctions module",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()
@@ -84,7 +84,7 @@ func TestInitGenesis(t *testing.T) {
 			postCheck:         func() {},
 		},
 		{
-			name:     "invalid non empty bidder but zero amount",
+			name:     "fail - non empty bidder but zero amount",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = existentAccAddress.String()
@@ -93,7 +93,7 @@ func TestInitGenesis(t *testing.T) {
 			postCheck:         func() {},
 		},
 		{
-			name:     "invalid sender does not exist",
+			name:     "fail - sender does not exist",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.Sender = sdk.AccAddress(testutiltx.GenerateAddress().Bytes()).String()
@@ -102,7 +102,7 @@ func TestInitGenesis(t *testing.T) {
 			postCheck:         func() {},
 		},
 		{
-			name:     "invalid empty sender but bid amount not zero",
+			name:     "fail - empty sender but bid amount not zero",
 			expPanic: true,
 			mutation: func(genesis *types.GenesisState) {
 				genesis.Bid.BidValue.Amount = sdk.NewInt(1)
