@@ -41,7 +41,7 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 	if len(blk.Block.Txs) > math.MaxUint32 {
 		return nil, fmt.Errorf("tx count %d is overfloing", len(blk.Block.Txs))
 	}
-	txsLen := uint32(len(blk.Block.Txs)) // #nosec G701 -- checked for int overflow already
+	txsLen := uint32(len(blk.Block.Txs)) // #nosec G701 G115 -- checked for int overflow already
 	if txsLen < transaction.TxIndex {
 		b.logger.Debug("tx index out of bounds", "index", transaction.TxIndex, "hash", hash.String(), "height", blk.Block.Height)
 		return nil, fmt.Errorf("transaction not included in block %v", blk.Block.Height)

@@ -150,7 +150,7 @@ func ParseTxIndexerResult(txResult *tmrpctypes.ResultTx, tx sdk.Tx, getter func(
 	if parsedTx == nil {
 		return nil, fmt.Errorf("ethereum tx not found in msgs: block %d, index %d", txResult.Height, txResult.Index)
 	}
-	index := uint32(parsedTx.MsgIndex) // #nosec G701
+	index := uint32(parsedTx.MsgIndex) // #nosec G701 G115
 	return &types.TxResult{
 		Height:            txResult.Height,
 		TxIndex:           txResult.Index,
@@ -239,7 +239,7 @@ func fillTxAttribute(tx *ParsedTx, key string, value string) error {
 		if err != nil {
 			return err
 		}
-		tx.EthTxIndex = int32(txIndex) // #nosec G701
+		tx.EthTxIndex = int32(txIndex) // #nosec G701 G115
 	case evmtypes.AttributeKeyTxGasUsed:
 		gasUsed, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
