@@ -15,6 +15,7 @@ from .network import (
 from .utils import (
     ADDRS,
     eth_to_bech32,
+    evm6dec_config,
     memiavl_config,
     setup_stride,
     update_evmos_bin,
@@ -35,6 +36,11 @@ RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
 IBC_CHAINS_META = {
     "evmos": {
+        "chain_name": "evmos_9000-1",
+        "bin": "evmosd",
+        "denom": "aevmos",
+    },
+    "evmos-6dec": {
         "chain_name": "evmos_9000-1",
         "bin": "evmosd",
         "denom": "aevmos",
@@ -82,6 +88,7 @@ def get_evmos_generator(
     tmp_path: Path,
     file: str,
     is_rocksdb: bool = False,
+    is_6dec: bool = False,
     stride_included: bool = False,
     custom_scenario: str | None = None,
 ):
@@ -98,6 +105,13 @@ def get_evmos_generator(
             Path(__file__).parent / file,
             chain_binary="evmosd-rocksdb",
             post_init=create_snapshots_dir,
+        )
+    elif is_6dec:
+        file = evm6dec_config(tmp_path, file)
+        gen = setup_custom_evmos(
+            tmp_path,
+            46710,
+            Path(__file__).parent / file,
         )
     else:
         file = f"configs/{file}.jsonnet"
@@ -150,6 +164,7 @@ def prepare_network(
                 tmp_path,
                 file,
                 "-rocksdb" in chain,
+                "-6dec" in chain,
                 "stride" in chain_names,
                 custom_scenario,
             )

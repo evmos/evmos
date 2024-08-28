@@ -450,6 +450,46 @@ default {{
     return file_path
 
 
+def evm6dec_config(tmp_path: Path, file_name):
+    """
+    Creates a new JSONnet config file with an EVM with 6 decimals.
+    It takes as base the provided JSONnet file
+    """
+    tests_dir = str(Path(__file__).parent)
+    root_dir = os.path.join(tests_dir, "..", "..")
+    jsonnet_content = f"""
+local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+
+default {{
+  dotenv: '{root_dir}/scripts/.env',
+  'evmos_9000-1'+: {{
+    'genesis'+: {{
+      'app_state'+: {{
+        'evm'+:{{
+          'params'+: {{
+              'denom_decimals': 6,
+          }},
+        }},
+        'feemarket'+:{{
+          'params'+: {{ 
+              base_fee: "0.1",
+          }},
+        }},
+      }},
+    }},
+  }},
+}}
+    """
+
+    # Write the JSONnet content to the file
+    file_path = tmp_path / "configs" / f"{file_name}-6dec.jsonnet"
+    os.makedirs(file_path.parent, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(jsonnet_content)
+
+    return file_path
+
+
 def get_event_attribute_value(events, _type, attribute):
     for event in events:
         if event["type"] == _type:

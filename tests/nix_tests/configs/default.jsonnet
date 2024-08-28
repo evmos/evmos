@@ -56,6 +56,7 @@
         evm: {
           params: {
             evm_denom: 'aevmos',
+            denom_decimals: 18,
           },
         },
         crisis: {
