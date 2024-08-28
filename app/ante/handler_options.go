@@ -13,7 +13,7 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-
+	consumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
 	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -26,6 +26,7 @@ type HandlerOptions struct {
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
 	DistributionKeeper     anteutils.DistributionKeeper
+	ConsumerKeeper         *consumerkeeper.Keeper
 	IBCKeeper              *ibckeeper.Keeper
 	StakingKeeper          anteutils.StakingKeeper
 	FeeMarketKeeper        evmante.FeeMarketKeeper
@@ -72,6 +73,9 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.TxFeeChecker == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "tx fee checker is required for AnteHandler")
+	}
+	if options.ConsumerKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "consumer keeper is required for AnteHandler")
 	}
 	return nil
 }
