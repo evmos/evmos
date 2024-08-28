@@ -371,7 +371,7 @@ func (w *ledgerDriver) ledgerExchange(opcode ledgerOpcode, p1 ledgerParam1, p2 l
 	apdu := make([]byte, 2, 7+len(data))
 
 	//#nosec G701 -- gosec will raise a warning on this integer conversion for potential overflow
-	binary.BigEndian.PutUint16(apdu, uint16(5+len(data)))
+	binary.BigEndian.PutUint16(apdu, uint16(5+len(data))) //nolint:gosec
 	apdu = append(apdu, []byte{0xe0, byte(opcode), byte(p1), byte(p2), byte(len(data))}...)
 	apdu = append(apdu, data...)
 
@@ -384,7 +384,7 @@ func (w *ledgerDriver) ledgerExchange(opcode ledgerOpcode, p1 ledgerParam1, p2 l
 		// Construct the new message to stream
 		chunk = append(chunk[:0], header...)
 		//#nosec G701 -- gosec will raise a warning on this integer conversion for potential overflow
-		binary.BigEndian.PutUint16(chunk[3:], uint16(i))
+		binary.BigEndian.PutUint16(chunk[3:], uint16(i)) //nolint:gosec
 
 		if len(apdu) > space {
 			chunk = append(chunk, apdu[:space]...)
