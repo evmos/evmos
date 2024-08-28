@@ -81,7 +81,7 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 
 			require.Equal(t, keeper.EndAuctionEventABI.ID, ethLog.Topics[0])
 			require.Equal(t, common.LeftPadBytes(bidWinnerHexAddr.Bytes(), 32), ethLog.Topics[1].Bytes())
-			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big())
+			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big()) //#nosec G115 -- gosec warning about integer overflow is not relevant here
 
 			require.Len(t, ethLog.Topics, 3)
 
