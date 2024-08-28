@@ -253,7 +253,7 @@ def test_evmos_ibc_transfer_ibc_denom(
 def add_rate_limit(evmos: Evmos, denom: str = "aevmos"):
     cli = evmos.cosmos_cli()
     with tempfile.NamedTemporaryFile("w") as fp:
-        RATE_LIMIT_PROP["messages"][0]["denom"] = denom
+        RATE_LIMIT_PROP["messages"][0]["denom"] = denom  # type: ignore
         json.dump(RATE_LIMIT_PROP, fp)
         fp.flush()
         rsp = cli.gov_proposal("signer2", fp.name)
