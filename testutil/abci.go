@@ -186,7 +186,6 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := app.BaseApp.DeliverTx(req)
-	//nolint
 	if res.Code != 0 {
 		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "log: %s", res.Log)
 	}
