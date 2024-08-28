@@ -425,7 +425,7 @@ format:
 
 .PHONY: format format-python format-black format-isort format-go
 
-format: format-go format-python
+format: format-go format-python format-shell
 
 format-go:
 	gofumpt -l -w .
@@ -438,6 +438,8 @@ format-black:
 format-isort:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
 
+format-shell:
+	shfmt -l -w .
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
