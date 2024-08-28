@@ -463,11 +463,7 @@ def compare_fields(a, b, fields):
 # from the events contained in the tx_result of a cosmos transaction.
 def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
     return int(
-        get_event_attribute_value(
-            tx_result["events"],
-            "tx",
-            "fee",
-        ).split(
+        get_event_attribute_value(tx_result["events"], "tx", "fee",).split(
             denom
         )[0]
     )
