@@ -76,7 +76,6 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 	}
 	if len(typeURLs) == 0 {
 		return common.Address{}, nil, nil, errors.New(ErrEmptyMethods)
-
 	}
 	if slices.Contains(typeURLs, "") {
 		return common.Address{}, nil, nil, fmt.Errorf(ErrEmptyStringInMethods, typeURLs)
