@@ -212,7 +212,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
+- (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [RIP-7212](https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md) `secp256r1` curve precompile.
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
 - (bech32-precompile) [#2124](https://github.com/evmos/evmos/pull/2124) Activate `bech32` precompile.
