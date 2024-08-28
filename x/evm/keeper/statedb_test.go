@@ -20,17 +20,19 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestCreateAccount() {
 	testCases := []struct {
-		name     string
-		addr     common.Address
-		malleate func(vm.StateDB, common.Address)
-		callback func(vm.StateDB, common.Address)
+		name          string
+		addr          common.Address
+		malleate      func(vm.StateDB, common.Address)
+		callback      func(vm.StateDB, common.Address)
+		denomDecimals uint32
 	}{
 		{
-			"reset account (keep balance)",
+			"18dec - reset account (keep balance)",
 			suite.address,
 			func(vmdb vm.StateDB, addr common.Address) {
 				vmdb.AddBalance(addr, big.NewInt(100))
@@ -39,9 +41,22 @@ func (suite *KeeperTestSuite) TestCreateAccount() {
 			func(vmdb vm.StateDB, addr common.Address) {
 				suite.Require().Equal(vmdb.GetBalance(addr).Int64(), int64(100))
 			},
+			evmtypes.Denom18Dec,
 		},
 		{
-			"create account",
+			"6dec - reset account (keep balance)",
+			suite.address,
+			func(vmdb vm.StateDB, addr common.Address) {
+				vmdb.AddBalance(addr, big.NewInt(1e13))
+				suite.Require().NotZero(vmdb.GetBalance(addr).Int64())
+			},
+			func(vmdb vm.StateDB, addr common.Address) {
+				suite.Require().Equal(vmdb.GetBalance(addr).Int64(), int64(1e13))
+			},
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - create account",
 			utiltx.GenerateAddress(),
 			func(vmdb vm.StateDB, addr common.Address) {
 				suite.Require().False(vmdb.Exist(addr))
@@ -49,12 +64,28 @@ func (suite *KeeperTestSuite) TestCreateAccount() {
 			func(vmdb vm.StateDB, addr common.Address) {
 				suite.Require().True(vmdb.Exist(addr))
 			},
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - create account",
+			utiltx.GenerateAddress(),
+			func(vmdb vm.StateDB, addr common.Address) {
+				suite.Require().False(vmdb.Exist(addr))
+			},
+			func(vmdb vm.StateDB, addr common.Address) {
+				suite.Require().True(vmdb.Exist(addr))
+			},
+			evmtypes.Denom6Dec,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			suite.app.EvmKeeper.SetParams(suite.ctx, params)
 			vmdb := suite.StateDB()
+
 			tc.malleate(vmdb, tc.addr)
 			vmdb.CreateAccount(tc.addr)
 			tc.callback(vmdb, tc.addr)
@@ -64,30 +95,91 @@ func (suite *KeeperTestSuite) TestCreateAccount() {
 
 func (suite *KeeperTestSuite) TestAddBalance() {
 	testCases := []struct {
-		name   string
-		amount *big.Int
-		isNoOp bool
+		name          string
+		amount        *big.Int
+		effectiveAmt  *big.Int // is the amt the application should use when having 6 decimal denomination (remove the trailing decimals)
+		isNoOp        bool
+		denomDecimals uint32
 	}{
 		{
-			"positive amount",
+			"18dec - positive amount",
 			big.NewInt(100),
+			nil,
 			false,
+			evmtypes.Denom18Dec,
 		},
 		{
-			"zero amount",
-			big.NewInt(0),
+			"6dec - positive amount (rounds down)",
+			big.NewInt(1999999999999),
+			big.NewInt(1e12),
+			false,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - positive amount (no rounding)",
+			big.NewInt(1e14),
+			big.NewInt(1e14),
+			false,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - positive amount but rounds down to zero (no-op)",
+			big.NewInt(999999999999),
+			nil,
 			true,
+			evmtypes.Denom6Dec,
 		},
 		{
-			"negative amount",
+			"18dec - zero amount",
+			big.NewInt(0),
+			nil,
+			true,
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - zero amount",
+			big.NewInt(0),
+			nil,
+			true,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - negative amount",
 			big.NewInt(-1),
+			nil,
 			false, // seems to be consistent with go-ethereum's implementation
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - negative amount (rounds down to 0 - no-op)",
+			big.NewInt(-1),
+			nil,
+			true, // seems to be consistent with go-ethereum's implementation
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - negative amount with 6 decimals (rounding)",
+			big.NewInt(-1999999999999),
+			big.NewInt(-1e12),
+			false, // seems to be consistent with go-ethereum's implementation
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - negative amount with 6 decimals (no rounding)",
+			big.NewInt(-1e13),
+			big.NewInt(-1e13),
+			false, // seems to be consistent with go-ethereum's implementation
+			evmtypes.Denom6Dec,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			suite.app.EvmKeeper.SetParams(suite.ctx, params)
 			vmdb := suite.StateDB()
+
 			prev := vmdb.GetBalance(suite.address)
 			vmdb.AddBalance(suite.address, tc.amount)
 			post := vmdb.GetBalance(suite.address)
@@ -95,6 +187,10 @@ func (suite *KeeperTestSuite) TestAddBalance() {
 			if tc.isNoOp {
 				suite.Require().Equal(prev.Int64(), post.Int64())
 			} else {
+				if tc.denomDecimals == evmtypes.Denom6Dec {
+					suite.Require().Equal(new(big.Int).Add(prev, tc.effectiveAmt).Int64(), post.Int64())
+					return
+				}
 				suite.Require().Equal(new(big.Int).Add(prev, tc.amount).Int64(), post.Int64())
 			}
 		})
@@ -103,41 +199,93 @@ func (suite *KeeperTestSuite) TestAddBalance() {
 
 func (suite *KeeperTestSuite) TestSubBalance() {
 	testCases := []struct {
-		name     string
-		amount   *big.Int
-		malleate func(vm.StateDB)
-		isNoOp   bool
+		name          string
+		amount        *big.Int
+		malleate      func(vm.StateDB)
+		isNoOp        bool
+		denomDecimals uint32
 	}{
 		{
-			"positive amount, below zero",
+			"18dec - positive amount, below zero",
 			big.NewInt(100),
 			func(vm.StateDB) {},
 			false,
+			evmtypes.Denom18Dec,
 		},
 		{
-			"positive amount, above zero",
+			"6dec - positive amount, below zero",
+			big.NewInt(1e13),
+			func(vm.StateDB) {},
+			false,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - positive amount, above zero",
 			big.NewInt(50),
 			func(vmdb vm.StateDB) {
 				vmdb.AddBalance(suite.address, big.NewInt(100))
 			},
 			false,
+			evmtypes.Denom18Dec,
 		},
 		{
-			"zero amount",
+			"6dec - positive amount, above zero",
+			big.NewInt(5e13),
+			func(vmdb vm.StateDB) {
+				vmdb.AddBalance(suite.address, big.NewInt(1e14))
+			},
+			false,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - zero amount",
 			big.NewInt(0),
 			func(vm.StateDB) {},
 			true,
+			evmtypes.Denom18Dec,
 		},
 		{
-			"negative amount",
+			"6dec - zero amount",
+			big.NewInt(0),
+			func(vm.StateDB) {},
+			true,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - amount below 6 decimals (no-op)",
+			big.NewInt(99999999999),
+			func(vm.StateDB) {},
+			true,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"6dec - negative amount below 6 decimals (no-op)",
+			big.NewInt(-99999999999),
+			func(vm.StateDB) {},
+			true,
+			evmtypes.Denom6Dec,
+		},
+		{
+			"18dec - negative amount",
 			big.NewInt(-1),
 			func(vm.StateDB) {},
 			false,
+			evmtypes.Denom18Dec,
+		},
+		{
+			"6dec - negative amount",
+			big.NewInt(-1e13),
+			func(vm.StateDB) {},
+			false,
+			evmtypes.Denom6Dec,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			suite.app.EvmKeeper.SetParams(suite.ctx, params)
 			vmdb := suite.StateDB()
 			tc.malleate(vmdb)
 
@@ -523,25 +671,40 @@ func (suite *KeeperTestSuite) TestExist() {
 
 func (suite *KeeperTestSuite) TestEmpty() {
 	testCases := []struct {
-		name     string
-		address  common.Address
-		malleate func(vm.StateDB)
-		empty    bool
+		name          string
+		address       common.Address
+		malleate      func(vm.StateDB)
+		empty         bool
+		denomDecimals uint32
 	}{
-		{"empty, account exists", suite.address, func(vm.StateDB) {}, true},
+		{"18dec - empty, account exists", suite.address, func(vm.StateDB) {}, true, evmtypes.Denom18Dec},
+		{"6dec - empty, account exists", suite.address, func(vm.StateDB) {}, true, evmtypes.Denom6Dec},
 		{
-			"not empty, positive balance",
+			"18dec - not empty, positive balance",
 			suite.address,
 			func(vmdb vm.StateDB) { vmdb.AddBalance(suite.address, big.NewInt(100)) },
 			false,
+			evmtypes.Denom18Dec,
 		},
-		{"empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, true},
+		{
+			"6dec - not empty, positive balance",
+			suite.address,
+			func(vmdb vm.StateDB) { vmdb.AddBalance(suite.address, big.NewInt(1e15)) },
+			false,
+			evmtypes.Denom6Dec,
+		},
+		{"18dec - empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, true, evmtypes.Denom18Dec},
+		{"6dec - empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, true, evmtypes.Denom6Dec},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+			params := evmtypes.DefaultParams()
+			params.DenomDecimals = tc.denomDecimals
+			suite.app.EvmKeeper.SetParams(suite.ctx, params)
 			vmdb := suite.StateDB()
+
 			tc.malleate(vmdb)
 
 			suite.Require().Equal(tc.empty, vmdb.Empty(tc.address))
