@@ -542,10 +542,9 @@ def update_node_cmd(path, cmd, i):
 
 
 def update_evmosd_and_setup_stride(modified_bin):
-    def inner(path, base_port):
-        update_evmos_bin(modified_bin)(path)
-        # TODO: correct to remove config here from setup_stride? Because it was not used within
-        setup_stride()(path, base_port)
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
+        update_evmos_bin(modified_bin)(path, base_port, config)
+        setup_stride()(path, base_port, config)
 
     return inner
 
@@ -562,8 +561,7 @@ def update_evmos_bin(
     so nodes should be an array containing only 0 and/or 1
     """
 
-    # TODO: correct to remove arguments here from inner? Because it was not used within
-    def inner(path):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "evmos_9000-1"
         # by default, there're 2 nodes
         # need to update the bin in all these
@@ -574,7 +572,7 @@ def update_evmos_bin(
 
 
 def setup_stride():
-    def inner(path, base_port):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "stride-1"
         base_dir = Path(path / chain_id)
         os.environ["BASE_DIR"] = str(base_dir)
