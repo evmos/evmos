@@ -25,7 +25,7 @@ def test_block_cmd(evmos_cluster):
         {
             "name": "success - get latest block",
             "flags": [],
-            "exp_out": f'"last_commit":{{"height":{last_block-1}',
+            "exp_out": f'"last_commit":{{"height":{last_block - 1}',
             "exp_err": False,
             "err_msg": None,
         },
@@ -42,7 +42,7 @@ def test_block_cmd(evmos_cluster):
             "exp_out": None,
             "exp_err": True,
             "err_msg": f"invalid height, the latest height found in the db is {last_block}, "
-            f"and you asked for {last_block+10}",
+            f"and you asked for {last_block + 10}",
         },
     ]
     for tc in test_cases:
