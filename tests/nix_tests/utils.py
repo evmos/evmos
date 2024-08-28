@@ -550,7 +550,9 @@ def update_evmosd_and_setup_stride(modified_bin):
     return inner
 
 
-def update_evmos_bin(modified_bin, nodes=[0, 1]):  # pylint: disable=dangerous-default-value
+def update_evmos_bin(
+    modified_bin, nodes=[0, 1]
+):  # pylint: disable=dangerous-default-value
     """
     updates the evmos binary with a patched binary.
     Input parameters are the modified binary (modified_bin)

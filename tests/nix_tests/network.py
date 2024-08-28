@@ -129,7 +129,9 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
 
 # for memiavl need to create the data/snapshots dir
 # for the nodes
-def create_snapshots_dir(path, base_port, config, n_nodes=2):  # pylint: disable=unused-argument
+def create_snapshots_dir(
+    path, base_port, config, n_nodes=2
+):  # pylint: disable=unused-argument
     for idx in range(n_nodes):
         data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
         os.makedirs(data_snapshots_dir, exist_ok=True)
