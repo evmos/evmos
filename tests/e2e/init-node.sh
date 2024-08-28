@@ -129,7 +129,7 @@ evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevm
 # Enable the APIs for the tests to be successful
 sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
 # Don't enable Rosetta API by default
-grep -q -F '[rosetta]' "$APP_TOML" && sed -i.bak '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"	
+grep -q -F '[rosetta]' "$APP_TOML" && sed -i.bak '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 # Don't enable memiavl by default
 grep -q -F '[memiavl]' "$APP_TOML" && sed -i.bak '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 # Don't enable versionDB by default
