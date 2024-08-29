@@ -321,8 +321,8 @@ schema = 3
     version = "v0.0.1"
     hash = "sha256-KrExYovtUQrHGI1mPQf57jGw8soz7eWOC2xqEaV0uGk="
   [mod."github.com/google/pprof"]
-    version = "v0.0.0-20240424215950-a892ee059fd6"
-    hash = "sha256-j3nKXUZtSbCVR+/UcMhB8VpgV11ZAf7lpVj1dgn0LSY="
+    version = "v0.0.0-20240827171923-fa2c70bbbfe5"
+    hash = "sha256-vOIHm1QA0wMX5ecg60cKT/ia/KNRy0MZPYbqFvHtFg4="
   [mod."github.com/google/s2a-go"]
     version = "v0.1.7"
     hash = "sha256-E+SX/3VmRI5qN7SbnRP4Tt+gQTq93pScpY9U2tTmIU0="
@@ -474,11 +474,11 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.19.1"
-    hash = "sha256-fF95Tv54nT14mUfM0GP3HDE5k6eqTdui7FAjQHZCqhM="
+    version = "v2.20.2"
+    hash = "sha256-cWSrkASwco0tpynwHGiLvS4nZQCjk+eIvX/B9ohURqI="
   [mod."github.com/onsi/gomega"]
-    version = "v1.34.0"
-    hash = "sha256-1XPAyzQkQ9n4VVRFX60aIdMwWt/6RqVYHIyBDRnMLxQ="
+    version = "v1.34.2"
+    hash = "sha256-4QHv+D8hTc7y26LIkjn/SSQkT5bvwpYBGyzQIoV185g="
   [mod."github.com/opencontainers/go-digest"]
     version = "v1.0.0"
     hash = "sha256-cfVDjHyWItmUGZ2dzQhCHgmOmou8v7N+itDkLZVkqkQ="
@@ -680,8 +680,8 @@ schema = 3
     version = "v0.8.0"
     hash = "sha256-usvF0z7gq1vsX58p4orX+8WHlv52pdXgaueXlwj2Wss="
   [mod."golang.org/x/sys"]
-    version = "v0.23.0"
-    hash = "sha256-tC6QVLu72bADgINz26FUGdmYqKgsU45bHPg7sa0ZV7w="
+    version = "v0.24.0"
+    hash = "sha256-P0fsA+qy9taYHWPTtCs5XmrJ1i8tWfvkno+PNuc2elw="
   [mod."golang.org/x/term"]
     version = "v0.23.0"
     hash = "sha256-ECmmK3Wc0g/zUy5wAokj7ItRsUi6eoqSe9s9Uhcwu90="
@@ -692,8 +692,8 @@ schema = 3
     version = "v0.5.0"
     hash = "sha256-W6RgwgdYTO3byIPOFxrP2IpAZdgaGowAaVfYby7AULU="
   [mod."golang.org/x/tools"]
-    version = "v0.21.1-0.20240508182429-e35e4ccd0d2d"
-    hash = "sha256-KfnS+3fREPAWQUBoUedPupQp9yLrugxMmmEoHvyzKNE="
+    version = "v0.24.0"
+    hash = "sha256-2LBEW//aW8qrHc26F6Ma7CsYJRaCALfi0xQl2KgWems="
   [mod."google.golang.org/api"]
     version = "v0.169.0"
     hash = "sha256-7+EAvbTTnUutkXpQBbxPSmZTS5P0mrKTiFooMI81w0k="
