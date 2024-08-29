@@ -49,9 +49,17 @@ command -v jq >/dev/null 2>&1 || {
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Set client config
-evmosd config set client chain-id "$CHAINID"
-evmosd config set client keyring-backend "$KEYRING"
+# Check evmosd version to decide how to set the client configuration
+# the older versions of evmosd accept less arguments
+version=$(evmosd version | cut -d ' ' -f 3)
+CUTOFF_VERSION="v18.1.0"
+if [[ $(echo -e "${version}\nv${CUTOFF_VERSION}" | sort -V | head -n1) == "${version}" && "${version}" != "${CUTOFF_VERSION}" ]]; then
+    evmosd config chain-id "$CHAINID"
+    evmosd config keyring-backend "$KEYRING"
+else
+    evmosd config set client chain-id "$CHAINID"
+    evmosd config set client keyring-backend "$KEYRING"
+fi
 
 # Import keys from mnemonics
 echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
@@ -63,6 +71,14 @@ echo "$USER4_MNEMONIC" | evmosd keys add "$USER4_KEY" --recover --keyring-backen
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 evmosd init "$MONIKER" --chain-id "$CHAINID"
+
+# Change parameter token denominations to aevmos
+jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
+jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # set gov proposing && voting period
 jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
