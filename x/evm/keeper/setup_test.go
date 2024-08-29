@@ -62,6 +62,7 @@ type KeeperTestSuite struct {
 	enableLondonHF   bool
 	mintFeeCollector bool
 	denom            string
+	denomDecimals    uint32
 }
 
 type UnitTestSuite struct {
@@ -74,6 +75,7 @@ func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
 	s.enableFeemarket = false
 	s.enableLondonHF = true
+	s.denomDecimals = evmtypes.DefaultDenomDecimals
 	suite.Run(t, s)
 
 	// Run UnitTestSuite
@@ -122,6 +124,10 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 
 	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
 		feemarketGenesis := feemarkettypes.DefaultGenesisState()
+		if suite.denomDecimals == evmtypes.Denom18Dec {
+			// set a valid default base fee when having 18 decimals
+			feemarketGenesis.Params.BaseFee = sdkmath.LegacyNewDec(params.InitialBaseFee)
+		}
 		if suite.enableFeemarket {
 			feemarketGenesis.Params.EnableHeight = 1
 			feemarketGenesis.Params.NoBaseFee = false
@@ -129,8 +135,9 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 			feemarketGenesis.Params.NoBaseFee = true
 		}
 		genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
+		evmGenesis := evmtypes.DefaultGenesisState()
+		evmGenesis.Params.DenomDecimals = s.denomDecimals
 		if !suite.enableLondonHF {
-			evmGenesis := evmtypes.DefaultGenesisState()
 			maxInt := sdkmath.NewInt(math.MaxInt64)
 			evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
 			evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
@@ -138,8 +145,8 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 			evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
 			evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
 			evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-			genesis[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
 		}
+		genesis[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
 		return genesis
 	})
 
