@@ -13,6 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
+	auctionstypes "github.com/evmos/evmos/v19/x/auctions/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
@@ -80,4 +81,10 @@ func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper.Keeper})
 	return stakingtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetAuctionsClient() auctionstypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	auctionstypes.RegisterQueryServer(queryHelper, n.app.AuctionsKeeper)
+	return auctionstypes.NewQueryClient(queryHelper)
 }
