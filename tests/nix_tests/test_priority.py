@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos, setup_evmos_6dec, setup_evmos_rocksdb
 from .utils import ADDRS, KEYS, eth_to_bech32, sign_transaction, wait_for_new_blocks
 
 PRIORITY_REDUCTION = 1000000
@@ -17,6 +17,14 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
+def custom_evmos_6dec(tmp_path_factory):
+    path = tmp_path_factory.mktemp("priority-6dec")
+    # run with long timeout commit to ensure all
+    # txs are included in the same block
+    yield from setup_evmos_6dec(path, 46810, long_timeout_commit=True)
+
+
+@pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority-rocksdb")
     # run with long timeout commit to ensure all
@@ -24,8 +32,8 @@ def custom_evmos_rocksdb(tmp_path_factory):
     yield from setup_evmos_rocksdb(path, 26810, long_timeout_commit=True)
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -33,6 +41,8 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-6dec":
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     else:

@@ -20,7 +20,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -113,6 +113,15 @@ def test_ibc_transfer_from_contract(ibc):
     assert receipt.status == 1
     fees += receipt.gasUsed * evmos_gas_price
 
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
+        amt = int(amt / int(1e12))
+
     final_dest_balance = 0
 
     def check_dest_balance():
@@ -195,6 +204,15 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1
     fees = receipt.gasUsed * evmos_gas_price
+
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
+        amt = int(amt / int(1e12))
 
     final_dest_balance = dest_starting_balance
 
@@ -352,6 +370,15 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
         if transfer_after and transfer_before
         else 0 if not transfer_after and not transfer_before else 1
     )
+
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
+        amt = int(amt / int(1e12))
 
     exp_src_final_bal = src_starting_balance - amt - fees
     exp_escrow_final_bal = escrow_initial_balance + amt
@@ -552,6 +579,14 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
     )
     fees = receipt.gasUsed * evmos_gas_price
 
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
+
     final_dest_balance = dest_starting_balance
 
     def check_dest_balance():
@@ -663,6 +698,14 @@ def test_multi_ibc_transfers_with_revert(ibc):
         ibc.chains["evmos"], receipt.transactionHash.hex()
     )
     fees = receipt.gasUsed * evmos_gas_price
+
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
 
     final_dest_balance = dest_starting_balance
 
@@ -780,6 +823,13 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
         ibc.chains["evmos"], receipt.transactionHash.hex()
     )
     fees = receipt.gasUsed * evmos_gas_price
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    params = evmos.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
 
     final_dest_balance = dest_starting_balance
 

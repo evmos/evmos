@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_evmos, setup_evmos_6dec, setup_evmos_rocksdb
 from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
 
 
@@ -13,6 +13,15 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
+def custom_evmos_6dec(tmp_path_factory):
+    path = tmp_path_factory.mktemp("account-6dec")
+    yield from setup_evmos_6dec(
+        path,
+        46777,
+    )
+
+
+@pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("account-rocksdb")
     yield from setup_evmos_rocksdb(
@@ -21,8 +30,10 @@ def custom_evmos_rocksdb(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-ws", "evmos-rocksdb", "geth"])
-def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
+@pytest.fixture(
+    scope="module", params=["evmos", "evmos-ws", "evmos-6dec", "evmos-rocksdb", "geth"]
+)
+def cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb, geth):
     """
     run on evmos, evmos websocket,
     evmos built with rocksdb (memIAVL + versionDB)
@@ -35,6 +46,8 @@ def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
         evmos_ws = custom_evmos.copy()
         evmos_ws.use_websocket()
         yield evmos_ws
+    elif provider == "evmos-6dec":
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     elif provider == "geth":
