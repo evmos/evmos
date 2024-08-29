@@ -58,7 +58,9 @@ def ibc(request, tmp_path_factory):
         ),
     ],
 )
-def test_ibc_callbacks(ibc, name, convert_amt, transfer_amt):  # pylint: disable=unused-argument
+def test_ibc_callbacks(
+    ibc, name, convert_amt, transfer_amt
+):  # pylint: disable=unused-argument
     """Test ibc precompile denom trace query"""
     assert_ready(ibc)
 

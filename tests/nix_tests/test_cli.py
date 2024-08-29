@@ -117,20 +117,27 @@ def test_tx_flags(evmos_cluster):
             "flags": ["--gas=auto", "--fees=10000000000000000aevmos"],
             "exp_err": False,
             "err_msg": None,
-        }
+        },
     ]
 
     for tc in test_cases:
         try:
             node.raw(
-                "tx", "bank", "send", "signer1", "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky", "100000000000000aevmos",
+                "tx",
+                "bank",
+                "send",
+                "signer1",
+                "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
+                "100000000000000aevmos",
                 *tc["flags"],
                 home=node.data_dir,
             )
             assert not tc["exp_err"], "expected error to be found; got none"
         except Exception as err:
             if tc["exp_err"] is True:
-                assert tc["err_msg"] in err.args[0], "expected different error to be found"
+                assert (
+                    tc["err_msg"] in err.args[0]
+                ), "expected different error to be found"
                 continue
 
             print(f"Unexpected {err=}, {type(err)=}")
