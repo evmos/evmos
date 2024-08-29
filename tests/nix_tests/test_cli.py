@@ -1,3 +1,4 @@
+from typing import Any
 from .utils import get_current_height, supervisorctl, wait_for_block
 
 
@@ -78,59 +79,83 @@ def test_tx_flags(evmos_cluster):
     test_cases = [
         {
             "name": "fail - invalid flags combination (gas-prices & fees)",
-            "flags": ["--fees=5000000000aevmos", "--gas-prices=50000aevmos"],
+            "flags": {"fees": "5000000000aevmos", "gas_prices": "50000aevmos"},
             "exp_err": True,
             "err_msg": "cannot provide both fees and gas prices",
         },
         {
             "name": "fail - no fees & insufficient gas",
-            "flags": ["--gas=50000"],
+            "flags": {"gas": 50000, "gas_prices": None},
             "exp_err": True,
             "err_msg": "gas prices too low",
         },
         {
             "name": "fail - insufficient fees",
-            "flags": ["--fees=10aevmos", "--gas=50000"],
+            "flags": {"fees": "10aevmos", "gas": 50000, "gas_prices": None},
             "exp_err": True,
             "err_msg": "insufficient fee",
         },
         {
             "name": "fail - insufficient gas",
-            "flags": ["--fees=500000000000aevmos", "--gas=1000"],
+            "flags": {"fees": "500000000000aevmos", "gas": 1, "gas_prices": None},
             "exp_err": True,
             "err_msg": "out of gas",
         },
         {
             "name": "success - defined fees & gas",
-            "flags": ["--fees=10000000000000000aevmos", "--gas=1500000"],
+            "flags": {
+                "fees": "10000000000000000000aevmos",
+                "gas": 1500000,
+                "gas_prices": None,
+            },
             "exp_err": False,
             "err_msg": None,
         },
         {
             "name": "success - using gas & gas-prices",
-            "flags": ["--gas-prices=1000000000aevmos", "--gas=1500000"],
+            "flags": {"gas_prices": "100000000000aevmos", "gas": 1500000},
             "exp_err": False,
             "err_msg": None,
         },
         {
             "name": "success - using gas 'auto' and specific fees",
-            "flags": ["--gas=auto", "--fees=10000000000000000aevmos"],
+            "flags": {
+                "gas": "auto",
+                "fees": "10000000000000000000aevmos",
+                "gas_prices": None,
+            },
             "exp_err": False,
             "err_msg": None,
-        }
+        },
     ]
 
     for tc in test_cases:
+
         try:
-            node.raw(
-                "tx", "bank", "send", "signer1", "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky", "100000000000000aevmos",
-                *tc["flags"],
-                home=node.data_dir,
+            res = node.transfer(
+                "signer1",
+                "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
+                "100000000000000aevmos",
+                False,
+                **tc["flags"],
             )
-            assert not tc["exp_err"], "expected error to be found; got none"
+            if not tc["exp_err"]:
+                assert res["code"] == 0, (
+                    tc["name"] + ". expected tx to be successful " + res["raw_log"]
+                )
+                # wait for block to update nonce
+                current_height = get_current_height(node)
+                wait_for_block(node, current_height + 1)
+            else:
+                assert res["code"] != 0, tc["name"] + ". expected tx to fail"
+                assert tc["err_msg"] in res["raw_log"]
         except Exception as err:
             if tc["exp_err"] is True:
-                assert tc["err_msg"] in err.args[0], "expected different error to be found"
+                assert tc["err_msg"] in err.args[0], (
+                    tc["name"]
+                    + ". expected different error to be found. got "
+                    + err.args[0]
+                )
                 continue
 
             print(f"Unexpected {err=}, {type(err)=}")

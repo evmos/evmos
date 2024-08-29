@@ -348,22 +348,30 @@ class CosmosCLI:
 
     def transfer(self, from_, to, coins, generate_only=False, **kwargs):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
-        return json.loads(
-            self.raw(
-                "tx",
-                "bank",
-                "send",
-                from_,
-                to,
-                coins,
-                "-y",
-                "--generate-only" if generate_only else None,
-                home=self.data_dir,
-                node=self.node_rpc,
-                chain_id=self.chain_id,
-                **kwargs,
-            )
+        res = self.raw(
+            "tx",
+            "bank",
+            "send",
+            from_,
+            to,
+            coins,
+            "-y",
+            "--generate-only" if generate_only else None,
+            home=self.data_dir,
+            node=self.node_rpc,
+            output="json",
+            chain_id=self.chain_id,
+            **kwargs,
         )
+        try:
+            return json.loads(res)
+        except Exception:
+            # when the tx is successful, the first line
+            # of the output is a gas estimate that is not a json
+            # we'll try to parse the json skipping this line
+            res_str = res.decode("utf-8")
+            lines = res_str.split("\n")
+            return json.loads(lines[1])
 
     def balances(self, addr):
         return json.loads(
