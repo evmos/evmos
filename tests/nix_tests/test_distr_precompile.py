@@ -35,7 +35,10 @@ from .utils import (
         (
             "fund from contract (deposit first)",
             int(1e18),
-            ["CONTRACT_ADDR", int(1e18)],
+            [
+                "CONTRACT_ADDR",
+                int(1e18),
+            ],  # FIXME: On 6dec setup, the tx fails because the cosmos msg has an amt of 1e18, however, the effective balance change is 1e6 due to the decimals conversion. Fails for insufficient funds because the actual deposited amount in the contract is 1e6. We need to decide which approach we'll take on the precompile.
             None,
         ),
     ],
@@ -110,7 +113,9 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
         assert err_contains in trace_str, f"Failed: {name}"
         return
 
-    assert receipt.status == 1, f"Failed: {name}"
+    assert receipt.status == 1, debug_trace_tx(
+        evmos_cluster, receipt.transactionHash.hex()
+    )
     fees = receipt.gasUsed * gas_price
 
     # check that contract's balance is 0
@@ -123,6 +128,19 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
 
     # check that community pool balance increased
     funds_sent_amt = args[1]
+
+    # sent amount and fees are within the EVM 18 decimals
+    # If the evm denom has 6 decimals, we need to scale this
+    # when comparing with cosmos balances.
+    # Check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18, same for the funds sent
+    params = evmos_cluster.cosmos_cli().evm_params()
+    decimals = params["params"]["denom_decimals"]
+    if decimals == 6:
+        fees = int(fees / int(1e12))
+        funds_sent_amt = int(funds_sent_amt / int(1e12))
+
     community_final_balance = evmos_cluster.cosmos_cli().distribution_community()
     assert (
         community_final_balance >= community_prev_balance + funds_sent_amt
