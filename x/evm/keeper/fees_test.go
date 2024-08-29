@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -274,17 +273,16 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 	var initialBaseFee *big.Int
 	hundredInt := sdkmath.NewInt(100)
-	zeroInt := sdkmath.ZeroInt()
 	oneInt := sdkmath.OneInt()
 	fiveInt := sdkmath.NewInt(5)
 	fiftyInt := sdkmath.NewInt(50)
 
-	// should be enough to cover all test cases
+	// initial balance enough to cover all test cases that have feemarket enabled
 	initBalance := func() sdkmath.Int { return (sdkmath.NewIntFromBigInt(initialBaseFee).AddRaw(10)).MulRaw(105) }
 
 	testSetup := []struct {
 		decimals       uint32
-		initialBaseFee math.LegacyDec
+		initialBaseFee sdkmath.LegacyDec
 	}{
 		{evmtypes.Denom18Dec, sdkmath.LegacyNewDec(params.InitialBaseFee)},
 		{evmtypes.Denom6Dec, sdkmath.LegacyNewDec(1e13)},
@@ -295,7 +293,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 		gasPrice         *sdkmath.Int
 		gasFeeCap        func() *big.Int
 		gasTipCap        *big.Int
-		initialBalance   func() sdkmath.Int
+		initialBalance   func() sdkmath.Int // initial balance when feemarket is enabled
 		cost             *sdkmath.Int
 		accessList       *ethtypes.AccessList
 		expectPassVerify bool
@@ -539,7 +537,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 				suite.Require().NoError(err, "Unexpected error while committing to vmdb: %d", err)
 
 				ethTxParams := &evmtypes.EvmTxArgs{
-					ChainID:   zeroInt.BigInt(),
+					ChainID:   big.NewInt(9000),
 					Nonce:     1,
 					To:        &suite.address,
 					Amount:    amount,
