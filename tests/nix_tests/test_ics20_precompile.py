@@ -39,6 +39,9 @@ def test_ibc_transfer_from_contract(ibc):
     evmos: Evmos = ibc.chains["evmos"]
     w3 = evmos.w3
 
+    # get the evm params
+    params = evmos.cosmos_cli().evm_params()["params"]
+
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000000000000000
     src_denom = "aevmos"
@@ -79,6 +82,8 @@ def test_ibc_transfer_from_contract(ibc):
 
     src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_adr, src_denom)
     # Deposit into the contract
+    # FIXME: for the 6dec case, here we're depositing the evm_denom,
+    # which is not 'aevmos'. Refactor this once we fix precompiles
     deposit_tx = eth_contract.functions.deposit().build_transaction(
         {
             "from": ADDRS["signer2"],
@@ -116,11 +121,12 @@ def test_ibc_transfer_from_contract(ibc):
     # check if evm has 6 dec,
     # actual fees and amt will have 6 dec
     # instead of 18
-    params = evmos.cosmos_cli().evm_params()
-    decimals = params["params"]["denom_decimals"]
+    decimals = params["denom_decimals"]
     if decimals == 6:
         fees = int(fees / int(1e12))
-        amt = int(amt / int(1e12))
+        amt = int(
+            amt / int(1e12)
+        )  # this will depend on what the amt denom is. Also will depend on the changes on precompiles to adapt to 6dec
 
     final_dest_balance = 0
 
