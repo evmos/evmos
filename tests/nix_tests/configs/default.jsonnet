@@ -59,11 +59,6 @@
             denom_decimals: 18,
           },
         },
-        crisis: {
-          constant_fee: {
-            denom: 'aevmos',
-          },
-        },
         staking: {
           params: {
             bond_denom: 'aevmos',

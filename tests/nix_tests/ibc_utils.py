@@ -15,7 +15,7 @@ from .network import (
 from .utils import (
     ADDRS,
     eth_to_bech32,
-    evm6dec_config,
+    evm6dec_ibc_config,
     memiavl_config,
     setup_stride,
     update_evmos_bin,
@@ -107,7 +107,7 @@ def get_evmos_generator(
             post_init=create_snapshots_dir,
         )
     elif is_6dec:
-        file = evm6dec_config(tmp_path, file)
+        file = evm6dec_ibc_config(tmp_path, file)
         gen = setup_custom_evmos(
             tmp_path,
             46710,

@@ -2,11 +2,12 @@ import json
 
 import pytest
 
-from .ibc_utils import get_balance
+from .ibc_utils import get_balances
 from .utils import (
     ADDRS,
     CONTRACTS,
     KEYS,
+    amount_of,
     debug_trace_tx,
     deploy_contract,
     send_transaction,
@@ -34,7 +35,9 @@ from .utils import (
         ),
         (
             "fund from contract (deposit first)",
-            int(1e18),
+            int(
+                1e18
+            ),  # FIXME: the precompile uses 'aevmos' to fund the community pool. And this deposit is on the evm_denom. So for 6dec setup, this will not work. Before skipping or refactoring this case for the 6dec setup, we'll wait for the changes in precompile
             [
                 "CONTRACT_ADDR",
                 int(1e18),
@@ -48,9 +51,12 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     Test the fundCommunityPool function of the distribution
     precompile calling it from another precompile
     """
-    denom = "aevmos"
     gas_limit = 200_000
     gas_price = evmos_cluster.w3.eth.gas_price
+    params = evmos_cluster.cosmos_cli().evm_params()
+
+    fee_denom = params["params"]["evm_denom"]
+    sent_denom = "aevmos"
 
     # Deployment of distr precompile caller and initial checks
     eth_contract, tx_receipt = deploy_contract(
@@ -84,11 +90,11 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
 
         wait_for_fn("contract balance change", check_contract_balance)
 
-    signer1_prev_balance = get_balance(
-        evmos_cluster, evmos_cluster.cosmos_cli().address("signer1"), denom
+    signer1_prev_balances = get_balances(
+        evmos_cluster, evmos_cluster.cosmos_cli().address("signer1")
     )
-    signer2_prev_balance = get_balance(
-        evmos_cluster, evmos_cluster.cosmos_cli().address("signer2"), denom
+    signer2_prev_balances = get_balances(
+        evmos_cluster, evmos_cluster.cosmos_cli().address("signer2")
     )
 
     community_prev_balance = evmos_cluster.cosmos_cli().distribution_community()
@@ -134,12 +140,10 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     # when comparing with cosmos balances.
     # Check if evm has 6 dec,
     # actual fees will have 6 dec
-    # instead of 18, same for the funds sent
-    params = evmos_cluster.cosmos_cli().evm_params()
+    # instead of 18
     decimals = params["params"]["denom_decimals"]
     if decimals == 6:
         fees = int(fees / int(1e12))
-        funds_sent_amt = int(funds_sent_amt / int(1e12))
 
     community_final_balance = evmos_cluster.cosmos_cli().distribution_community()
     assert (
@@ -147,23 +151,32 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     ), f"Failed: {name}"
 
     # signer2 balance should remain unchanged
-    signer2_final_balance = get_balance(
-        evmos_cluster, evmos_cluster.cosmos_cli().address("signer2"), denom
+    signer2_final_balances = get_balances(
+        evmos_cluster, evmos_cluster.cosmos_cli().address("signer2")
     )
 
-    assert signer2_final_balance == signer2_prev_balance, f"Failed: {name}"
+    assert signer2_final_balances == signer2_prev_balances, f"Failed: {name}"
 
-    signer1_final_balance = get_balance(
-        evmos_cluster, evmos_cluster.cosmos_cli().address("signer1"), denom
+    signer1_final_balances = get_balances(
+        evmos_cluster, evmos_cluster.cosmos_cli().address("signer1")
     )
     # if there was a deposit in the contract
     # the community pool was funded by the contract
     # and the tx sender (signer1) only paid the fees
+    fee_denom_amt_initial = amount_of(signer1_prev_balances, fee_denom)
+    fee_denom_amt_final = amount_of(signer1_final_balances, fee_denom)
     if deposit_amt is not None:
-        assert signer1_final_balance == signer1_prev_balance - fees, f"Failed: {name}"
+        assert fee_denom_amt_final == fee_denom_amt_initial - fees, f"Failed: {name}"
+        return
+
+    sent_denom_amt_initial = amount_of(signer1_prev_balances, sent_denom)
+    sent_denom_amt_final = amount_of(signer1_final_balances, sent_denom)
+    if sent_denom != fee_denom:
+        assert fee_denom_amt_final == fee_denom_amt_initial - fees, f"Failed: {name}"
+        assert sent_denom_amt_final == sent_denom_amt_initial - funds_sent_amt
         return
 
     # signer1 account sent the funds to the community pool
     assert (
-        signer1_final_balance == signer1_prev_balance - funds_sent_amt - fees
+        sent_denom_amt_final == sent_denom_amt_initial - funds_sent_amt - fees
     ), f"Failed: {name}"

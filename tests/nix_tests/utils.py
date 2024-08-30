@@ -67,6 +67,50 @@ WASM_BINARIES = {
 }
 
 
+EVM_6DEC_CONF = """'evmos_9000-1'+: {
+    'app-config'+:{
+      'minimum-gas-prices': '0ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    },
+    'validators':[{
+      coins: '10001000000000000000000aevmos,100000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      staked: '1000000000000000000aevmos',
+      mnemonic: '${VALIDATOR1_MNEMONIC}',
+    },{
+      coins: '10001000000000000000000aevmos,100000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      staked: '1000000000000000000aevmos',
+      mnemonic: '${VALIDATOR2_MNEMONIC}',
+    }],
+    'accounts':[{
+      name: 'community',
+      coins: '10000000000000000000000aevmos,100000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${COMMUNITY_MNEMONIC}',
+    },{
+      name: 'signer1',
+      coins: '20000000000000000000000aevmos,200000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${SIGNER1_MNEMONIC}',
+    },{
+      name: 'signer2',
+      coins: '30000000000000000000000aevmos,300000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${SIGNER2_MNEMONIC}',
+    }],
+    'genesis'+: {
+      'app_state'+: {
+        'evm'+:{
+          'params'+: {
+              'evm_denom': 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+              'denom_decimals': 6,
+          },
+        },
+        'feemarket'+:{
+          'params'+: { 
+              base_fee: "0.1",
+          },
+        },
+      },
+    },
+  },"""
+
+
 def wasm_binaries_path(filename):
     return Path(__file__).parent / "cosmwasm/artifacts/" / filename
 
@@ -452,7 +496,8 @@ default {{
 
 def evm6dec_config(tmp_path: Path, file_name):
     """
-    Creates a new JSONnet config file with an EVM with 6 decimals.
+    Creates a new JSONnet config file with IBC uatom as the EVM denom
+    and with 6 decimals.
     It takes as base the provided JSONnet file
     """
     tests_dir = str(Path(__file__).parent)
@@ -462,21 +507,46 @@ local default = import '{tests_dir}/configs/{file_name}.jsonnet';
 
 default {{
   dotenv: '{root_dir}/scripts/.env',
-  'evmos_9000-1'+: {{
-    'genesis'+: {{
-      'app_state'+: {{
-        'evm'+:{{
-          'params'+: {{
-              'denom_decimals': 6,
-          }},
-        }},
-        'feemarket'+:{{
-          'params'+: {{ 
-              base_fee: "0.1",
-          }},
-        }},
-      }},
-    }},
+  {EVM_6DEC_CONF}
+}}
+    """
+
+    # Write the JSONnet content to the file
+    file_path = tmp_path / "configs" / f"{file_name}-6dec.jsonnet"
+    os.makedirs(file_path.parent, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(jsonnet_content)
+
+    return file_path
+
+
+def evm6dec_ibc_config(tmp_path: Path, file_name):
+    """
+    Creates a new JSONnet IBC config file with IBC uatom as the EVM denom
+    and with 6 decimals.
+    It takes as base the provided JSONnet file
+    """
+    tests_dir = str(Path(__file__).parent)
+    root_dir = os.path.join(tests_dir, "..", "..")
+    jsonnet_content = f"""
+local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+
+default {{
+  dotenv: '{root_dir}/scripts/.env',
+  {EVM_6DEC_CONF}
+  relayer: default.relayer + {{
+    chains: std.map(
+      function(chain)
+        if chain.id == 'evmos_9000-1' then
+          chain + {{
+            gas_price: {{
+              price: 200000,
+              denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+            }},
+          }}
+        else chain,
+      default.relayer.chains
+    ),
   }},
 }}
     """
@@ -584,3 +654,14 @@ def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
         {"from": from_addr}
     )
     return send_transaction(w3, tx, key)
+
+
+def amount_of(balances, denom):
+    """
+    Takes a []sdk.Balance as input and
+    returns the amount of the specified denom
+    """
+    for balance in balances:
+        if balance["denom"] != denom:
+            continue
+        return int(balance["amount"])
