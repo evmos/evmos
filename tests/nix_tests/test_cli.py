@@ -1,5 +1,3 @@
-from typing import Any
-
 from .utils import get_current_height, supervisorctl, wait_for_block
 
 
