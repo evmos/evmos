@@ -1,6 +1,5 @@
 import json
 import tempfile
-from typing import Any
 
 import pytest
 
