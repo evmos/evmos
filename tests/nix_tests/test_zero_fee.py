@@ -63,8 +63,8 @@ def test_cosmos_tx(evmos_cluster):
     """
     test basic cosmos transaction works with zero fees
     """
-    denom = "aevmos"
     cli = evmos_cluster.cosmos_cli()
+    denom = cli.evm_denom()
     sender = eth_to_bech32(ADDRS["signer1"])
     receiver = eth_to_bech32(ADDRS["signer2"])
     amt = 1000
