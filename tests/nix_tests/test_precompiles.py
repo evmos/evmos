@@ -2,12 +2,19 @@ import re
 
 import pytest
 
-from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
+from .ibc_utils import (
+    EVMOS_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    get_balances,
+    prepare_network,
+)
 from .network import Evmos
 from .utils import (
     ADDRS,
     CONTRACTS,
     KEYS,
+    amount_of,
     deploy_contract,
     get_precompile_contract,
     send_transaction,
@@ -40,8 +47,8 @@ def test_ibc_transfer(ibc):
     src_addr = cli.address("signer2")
     src_denom = "aevmos"
 
-    old_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
-    old_dst_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+    old_src_balances = get_balances(ibc.chains["evmos"], src_addr)
+    old_dst_balances = get_balances(ibc.chains["chainmain"], dst_addr)
 
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
@@ -77,24 +84,37 @@ def test_ibc_transfer(ibc):
     # check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    params = cli.evm_params()
-    decimals = params["params"]["denom_decimals"]
+    params = cli.evm_params()["params"]
+    decimals = params["denom_decimals"]
+    fee_denom = params["evm_denom"]
     if decimals == 6:
         fee = int(fee / int(1e12))
 
-    new_dst_balance = 0
+    new_dst_balances = []
 
     def check_balance_change():
-        nonlocal new_dst_balance
-        new_dst_balance = get_balance(
-            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        nonlocal new_dst_balances
+        new_dst_balances = get_balances(ibc.chains["chainmain"], dst_addr)
+        return amount_of(old_dst_balances, EVMOS_IBC_DENOM) != amount_of(
+            new_dst_balances, EVMOS_IBC_DENOM
         )
-        return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
-    assert old_dst_balance + amt == new_dst_balance
-    new_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
-    assert old_src_balance - amt - fee == new_src_balance
+    assert amount_of(old_dst_balances, EVMOS_IBC_DENOM) + amt == amount_of(
+        new_dst_balances, EVMOS_IBC_DENOM
+    )
+    new_src_balances = get_balances(ibc.chains["evmos"], src_addr)
+    old_src_denom_amt = amount_of(old_src_balances, src_denom)
+    new_src_denom_amt = amount_of(new_src_balances, src_denom)
+    if fee_denom == src_denom:
+        assert old_src_denom_amt - amt - fee == new_src_denom_amt
+        return
+
+    assert old_src_denom_amt - amt == new_src_denom_amt
+
+    old_src_fee_denom_amt = amount_of(old_src_balances, fee_denom)
+    new_src_fee_denom_amt = amount_of(new_src_balances, fee_denom)
+    assert old_src_fee_denom_amt - fee == new_src_fee_denom_amt
 
 
 def test_ibc_transfer_invalid_packet(ibc):
@@ -194,7 +214,7 @@ def test_staking(ibc):
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
 
-    old_src_balance = get_balance(evmos, del_addr, src_denom)
+    old_src_balances = get_balances(evmos, del_addr)
 
     pc = get_precompile_contract(w3, "StakingI")
     evmos_gas_price = w3.eth.gas_price
@@ -214,8 +234,9 @@ def test_staking(ibc):
     # check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    params = cli.evm_params()
-    decimals = params["params"]["denom_decimals"]
+    params = cli.evm_params()["params"]
+    decimals = params["denom_decimals"]
+    fee_denom = params["evm_denom"]
     if decimals == 6:
         fee = int(fee / int(1e12))
 
@@ -224,8 +245,19 @@ def test_staking(ibc):
     assert delegations[0]["delegation"]["validator_address"] == validator_addr
     assert int(delegations[0]["balance"]["amount"]) == amt
 
-    new_src_balance = get_balance(evmos, del_addr, src_denom)
-    assert old_src_balance - amt - fee == new_src_balance
+    new_src_balances = get_balances(evmos, del_addr)
+
+    old_src_denom_amt = amount_of(old_src_balances, src_denom)
+    new_src_denom_amt = amount_of(new_src_balances, src_denom)
+    if fee_denom == src_denom:
+        assert old_src_denom_amt - amt - fee == new_src_denom_amt
+        return
+
+    assert old_src_denom_amt - amt == new_src_denom_amt
+
+    old_src_fee_denom_amt = amount_of(old_src_balances, fee_denom)
+    new_src_fee_denom_amt = amount_of(new_src_balances, fee_denom)
+    assert old_src_fee_denom_amt - fee == new_src_fee_denom_amt
 
 
 def test_staking_via_sc(ibc):
@@ -239,10 +271,14 @@ def test_staking_via_sc(ibc):
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
 
-    old_src_balance = get_balance(evmos, del_addr, src_denom)
+    params = cli.evm_params()["params"]
+    decimals = params["denom_decimals"]
+    fee_denom = params["evm_denom"]
 
     contract, receipt = deploy_contract(w3, CONTRACTS["StakingCaller"])
     evmos_gas_price = w3.eth.gas_price
+
+    old_src_balances = get_balances(evmos, del_addr)
 
     # create grant - need to specify gas otherwise will fail with out of gas
     approve_tx = contract.functions.testApprove(
@@ -261,7 +297,13 @@ def test_staking_via_sc(ibc):
     # FIXME gas estimation > than gasUsed. Should be equal
     # assert receipt.gasUsed == gas_estimation
 
-    fee = receipt.gasUsed * evmos_gas_price
+    fee1 = receipt.gasUsed * evmos_gas_price
+
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    if decimals == 6:
+        fee1 = int(fee1 / int(1e12))
 
     # delegate - need to specify gas otherwise will fail with out of gas
     delegate_tx = contract.functions.testDelegate(
@@ -279,20 +321,31 @@ def test_staking_via_sc(ibc):
     # FIXME gas estimation > than gasUsed. Should be equal
     # assert receipt.gasUsed == gas_estimation
 
-    fee += receipt.gasUsed * evmos_gas_price
+    fee2 = receipt.gasUsed * evmos_gas_price
 
     # check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    params = cli.evm_params()
-    decimals = params["params"]["denom_decimals"]
     if decimals == 6:
-        fee = int(fee / int(1e12))
+        fee2 = int(fee2 / int(1e12))
+
+    fees = fee1 + fee2
 
     delegations = cli.get_delegated_amount(del_addr)["delegation_responses"]
     assert len(delegations) == 1
     assert delegations[0]["delegation"]["validator_address"] == validator_addr
     assert int(delegations[0]["balance"]["amount"]) == amt
 
-    new_src_balance = get_balance(evmos, del_addr, src_denom)
-    assert old_src_balance - amt - fee == new_src_balance
+    new_src_balances = get_balances(evmos, del_addr)
+
+    old_src_denom_amt = amount_of(old_src_balances, src_denom)
+    new_src_denom_amt = amount_of(new_src_balances, src_denom)
+    if fee_denom == src_denom:
+        assert old_src_denom_amt - amt - fees == new_src_denom_amt
+        return
+
+    assert old_src_denom_amt - amt == new_src_denom_amt
+
+    old_src_fee_denom_amt = amount_of(old_src_balances, fee_denom)
+    new_src_fee_denom_amt = amount_of(new_src_balances, fee_denom)
+    assert old_src_fee_denom_amt - fees == new_src_fee_denom_amt
