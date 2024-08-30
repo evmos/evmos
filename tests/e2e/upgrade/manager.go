@@ -237,7 +237,7 @@ func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 	splitIdx := 0 // split index for the lines in the output - in newer versions the output is in the second line
 	useV50 := false
 
-	// if the version is higher than v20.0.0 (i.e. using Evmos v20.0.0 or higher), we need to use the json output flag
+	// if the version is higher than v20.0.0, we need to use the json output flag
 	if !EvmosVersions([]string{m.CurrentVersion, "v20.0.0"}).Less(0, 1) {
 		cmd = append(cmd, "--output=json")
 		splitIdx = 1

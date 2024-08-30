@@ -63,13 +63,15 @@ func getProposalCmd(legacy ProposalVersion, targetVersion string, upgradeHeight 
 		}
 	} else {
 		var upgradeInfo, proposalType string
-		if legacy == LegacyProposalPreV50 {
+
+		switch legacy {
+		case LegacyProposalPreV50:
 			upgradeInfo = "--no-validate"
 			proposalType = "submit-legacy-proposal"
-		} else if legacy == LegacyProposalPreV46 {
+		case LegacyProposalPreV46:
 			upgradeInfo = "--upgrade-info=\"\""
 			proposalType = "submit-proposal"
-		} else {
+		default:
 			panic(fmt.Sprintf("invalid legacy proposal version: %v", legacy))
 		}
 

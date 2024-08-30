@@ -33,9 +33,6 @@ const (
 
 	// registryDockerFile builds the image using the docker image registry
 	registryDockerFile = "./upgrade/Dockerfile.init"
-
-	// repoDockerFile builds the image from the repository (used when the images are not pushed to the registry, e.g. main)
-	repoDockerFile = "./Dockerfile.repo"
 )
 
 type IntegrationTestSuite struct {
@@ -90,36 +87,6 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	s.Require().NoError(err)
 
 	s.T().Logf("successfully started node with version: [%s]", version.ImageTag)
-}
-
-// runNodeWithCurrentChanges builds a docker image using the current branch of the Evmos repository.
-// Before running the node, runs a script to modify some configurations for the tests
-// (e.g.: gov proposal voting period, setup accounts, balances, etc..)
-// After a successful build, runs the container.
-func (s *IntegrationTestSuite) runNodeWithCurrentChanges() {
-	const (
-		name    = "e2e-test/evmos"
-		version = "latest"
-	)
-	// get the current branch name
-	// to run the tests against the last changes
-	branch, err := getCurrentBranch()
-	s.Require().NoError(err)
-
-	err = s.upgradeManager.BuildImage(
-		name,
-		version,
-		repoDockerFile,
-		".",
-		map[string]string{"BRANCH_NAME": branch},
-	)
-	s.Require().NoError(err, "can't build container for e2e test")
-
-	node := upgrade.NewNode(name, version)
-	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
-
-	err = s.upgradeManager.RunNode(node)
-	s.Require().NoError(err, "can't run node Evmos using branch %s", branch)
 }
 
 // proposeUpgrade submits an upgrade proposal to the chain that schedules an upgrade to
@@ -194,7 +161,7 @@ func (s *IntegrationTestSuite) voteForProposal(id int) {
 
 // upgrade upgrades the node to the given version using the given repo. The repository
 // can either be a local path or a remote repository.
-func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
+func (s *IntegrationTestSuite) upgrade(targetVersion upgrade.VersionConfig) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -220,7 +187,18 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	s.T().Logf("starting upgraded node with version: [%s]", targetVersion)
 
-	node := upgrade.NewNode(targetRepo, targetVersion)
+	// NOTE: after the upgrade, the current version needs to be updated to make sure that the correct CLI commands
+	// for the given version are used.
+	//
+	// this is e.g. relevant for retrieving the current node height from the block header
+	if targetVersion.ImageTag == upgrade.LocalVersionTag {
+		// NOTE: the upgrade name is the latest version from the app/upgrades folder to upgrade to
+		s.upgradeManager.CurrentVersion = targetVersion.UpgradeName
+	} else {
+		s.upgradeManager.CurrentVersion = targetVersion.ImageTag
+	}
+
+	node := upgrade.NewNode(targetVersion.ImageName, targetVersion.ImageTag)
 	node.Mount(s.upgradeParams.MountPath)
 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID), fmt.Sprintf("--home=%s.evmosd", rootDir)})
 	err = s.upgradeManager.RunNode(node)
@@ -246,13 +224,13 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	}
 	s.Require().NoError(err, "node does not produce blocks after upgrade")
 
-	if targetVersion != upgrade.LocalVersionTag {
+	if targetVersion.ImageTag != upgrade.LocalVersionTag {
 		s.T().Log("checking node version...")
 		version, err := s.upgradeManager.GetNodeVersion(ctx)
 		s.Require().NoError(err, "can't get node version")
 
 		version = strings.TrimSpace(version)
-		targetVersion = strings.TrimPrefix(targetVersion, "v")
+		targetVersion.ImageTag = strings.TrimPrefix(targetVersion.ImageTag, "v")
 		s.Require().Equal(targetVersion, version,
 			"unexpected node version after upgrade:\nexpected: %s\nactual: %s",
 			targetVersion, version,

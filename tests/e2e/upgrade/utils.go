@@ -60,7 +60,7 @@ func CheckUpgradeProposalVersion(version string) ProposalVersion {
 
 	// if version is lower than v10.x.x, then it's using SDK v0.46
 	cmp := EvmosVersions([]string{version, "v10.0.0", "v20.0.0"})
-	proposalVersion := UpgradeProposalV50
+	var proposalVersion ProposalVersion
 	switch {
 	case cmp.Less(0, 1):
 		proposalVersion = LegacyProposalPreV46
