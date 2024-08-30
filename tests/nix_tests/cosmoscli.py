@@ -1086,14 +1086,16 @@ class CosmosCLI:
 
         # TODO: is this assumption correct? Having the base fee turned off has caused some test failures
         # because it was returning `null` and not an `int(...)` -> we'll return 0 here.
-        params = json.loads(self.raw(
-            "q",
-            "feemarket",
-            "params",
-            output="json",
-            node=self.node_rpc,
-            **(default_kwargs | kwargs),
-        ))
+        params = json.loads(
+            self.raw(
+                "q",
+                "feemarket",
+                "params",
+                output="json",
+                node=self.node_rpc,
+                **(default_kwargs | kwargs),
+            )
+        )
         no_base_fee = params["params"]["no_base_fee"]
         if no_base_fee:
             return 0
