@@ -1083,18 +1083,39 @@ class CosmosCLI:
 
     def query_base_fee(self, **kwargs):
         default_kwargs = {"home": self.data_dir}
-        return int(
-            json.loads(
-                self.raw(
-                    "q",
-                    "feemarket",
-                    "base-fee",
-                    output="json",
-                    node=self.node_rpc,
-                    **(default_kwargs | kwargs),
-                )
-            )["base_fee"]
+
+        # TODO: is this assumption correct? Having the base fee turned off has caused some test failures
+        # because it was returning `null` and not an `int(...)` -> we'll return 0 here.
+        params = json.loads(self.raw(
+            "q",
+            "feemarket",
+            "params",
+            output="json",
+            node=self.node_rpc,
+            **(default_kwargs | kwargs),
+        ))
+        no_base_fee = params["params"]["no_base_fee"]
+        if no_base_fee:
+            return 0
+
+        base_fee_out = self.raw(
+            "q",
+            "feemarket",
+            "base-fee",
+            output="json",
+            node=self.node_rpc,
+            **(default_kwargs | kwargs),
         )
+
+        out_dict = json.loads(base_fee_out)
+        if not out_dict:
+            raise ValueError(f"failed to return base fee: {out_dict}")
+
+        base_fee = out_dict["base_fee"]
+        if not base_fee:
+            raise ValueError(f"failed to return base fee: {out_dict}")
+
+        return int(base_fee)
 
     # ==========================
     #        AUTHZ Module
