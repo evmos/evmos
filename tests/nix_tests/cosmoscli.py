@@ -1,6 +1,6 @@
-from decimal import ROUND_UP, Decimal
 import json
 import tempfile
+from decimal import ROUND_UP, Decimal
 
 import requests
 from dateutil.parser import isoparse
