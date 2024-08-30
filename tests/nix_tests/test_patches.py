@@ -23,8 +23,11 @@ def test_send_funds_to_distr_mod(evmos_cluster):
     which should be forbidden, since this is a blocked address.
     """
     cli = evmos_cluster.cosmos_cli()
+    params = cli.evm_params()["params"]
+
     sender = eth_to_bech32(ADDRS["signer1"])
     amt = 1000
+    denom = params["evm_denom"]
 
     mod_accs = cli.query_module_accounts()
 
@@ -35,13 +38,12 @@ def test_send_funds_to_distr_mod(evmos_cluster):
 
     assert receiver is not None
 
-    old_src_balance = cli.balance(sender)
+    old_src_balance = cli.balance(sender, denom)
 
     tx = cli.transfer(
         sender,
         receiver,
-        f"{amt}{DEFAULT_DENOM}",
-        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        f"{amt}{denom}",
         generate_only=True,
     )
 
@@ -59,10 +61,10 @@ def test_send_funds_to_distr_mod(evmos_cluster):
         f"{receiver} is not allowed to receive funds: unauthorized"
         in receipt["tx_result"]["log"]
     )
-    fees = get_fees_from_tx_result(receipt["tx_result"])
+    fees = get_fees_from_tx_result(receipt["tx_result"], denom)
 
     # only fees should be deducted from sender balance
-    new_src_balance = cli.balance(sender)
+    new_src_balance = cli.balance(sender, denom)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -74,10 +76,13 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     """
     cli = evmos_cluster.cosmos_cli()
     w3 = evmos_cluster.w3
+    params = cli.evm_params()["params"]
+    decimals = params["denom_decimals"]
+    denom = params["evm_denom"]
 
     sender = ADDRS["signer1"]
     mod_accs = cli.query_module_accounts()
-    old_src_balance = cli.balance(eth_to_bech32(sender))
+    old_src_balance = cli.balance(eth_to_bech32(sender), denom)
 
     for acc in mod_accs:
         if acc["name"] != "distribution":
@@ -103,13 +108,11 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     # check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    params = cli.evm_params()
-    decimals = params["params"]["denom_decimals"]
     if decimals == 6:
         fees = int(fees / int(1e12))
     assert fees > 0
 
-    new_src_balance = cli.balance(eth_to_bech32(sender))
+    new_src_balance = cli.balance(eth_to_bech32(sender), denom)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -282,14 +285,19 @@ def test_unvested_token_delegation(evmos_cluster):
     # add a new key that will be the vesting account
     acc = cli.create_account("vesting_acc")
     address = acc["address"]
+    params = cli.evm_params()["params"]
+    fee_denom = params["evm_denom"]
+    decimals = params["denom_decimals"]
 
     # transfer some funds to pay for tx fees
     # when creating the vesting account
+    vest_acc_funds = 7000000000000000
+    if decimals == 6:
+        vest_acc_funds = 5000000
     tx = cli.transfer(
         funder,
         address,
-        f"{7000000000000000}{DEFAULT_DENOM}",
-        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        f"{vest_acc_funds}{fee_denom}",
         generate_only=True,
     )
 
