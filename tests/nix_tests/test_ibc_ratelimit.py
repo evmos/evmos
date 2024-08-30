@@ -1,5 +1,6 @@
 import json
 import tempfile
+from typing import Any
 
 import pytest
 
@@ -269,7 +270,13 @@ def add_rate_limit(evmos: Evmos, denom: str = "aevmos"):
     props_count = len(props)
     assert props_count >= 1
 
-    approve_proposal(evmos, props[props_count - 1]["id"])
+    # set gas prices based on evm_denom (fee denom)
+    kwargs = {}
+    params = cli.evm_params()["params"]
+    if params["denom_decimals"] == 6:
+        kwargs = {"gas_prices": "50000" + params["evm_denom"]}
+
+    approve_proposal(evmos, props[props_count - 1]["id"], **kwargs)
     wait_for_new_blocks(cli, 2)
 
     limits = cli.rate_limits()
