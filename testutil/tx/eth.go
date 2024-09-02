@@ -3,10 +3,12 @@
 package tx
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"encoding/json"
-	"github.com/evmos/evmos/v19/utils"
 	"math/big"
+
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/evmos/evmos/v19/utils"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
