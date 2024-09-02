@@ -441,6 +441,9 @@ func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int
 
 // ContainerID returns the docker container ID of the currently running Node
 func (m *Manager) ContainerID() string {
+	if m.CurrentNode == nil || m.CurrentNode.Container == nil {
+		return ""
+	}
 	return m.CurrentNode.Container.ID
 }
 
