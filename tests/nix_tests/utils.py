@@ -259,7 +259,10 @@ def approve_proposal(n, proposal_id, **kwargs):
     proposal = cli.query_proposal(proposal_id)
     wait_for_block_time(cli, isoparse(proposal["voting_end_time"]))
     proposal = cli.query_proposal(proposal_id)
-    assert int(proposal["status"]) == int(PROPOSAL_STATUS_PASSED), proposal
+    if isinstance(proposal["status"], int):
+        assert int(proposal["status"]) == int(PROPOSAL_STATUS_PASSED), proposal
+        return
+    assert proposal["status"] == "PROPOSAL_STATUS_PASSED", proposal
 
 
 def get_precompile_contract(w3, name):
