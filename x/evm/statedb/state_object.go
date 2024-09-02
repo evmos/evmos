@@ -100,7 +100,7 @@ func (s *stateObject) markSuicided() {
 // It is used to add funds to the destination account of a transfer.
 func (s *stateObject) AddBalance(amount *big.Int) {
 	// if evm denom has 6 decimals, zero the extra decimals
-	if s.db.denomDecimals == evmtypes.Denom6Dec {
+	if s.db.denom.decimals == evmtypes.Denom6Dec {
 		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
 	}
 	if amount.Sign() == 0 {
@@ -113,7 +113,7 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 // It is used to remove funds from the origin account of a transfer.
 func (s *stateObject) SubBalance(amount *big.Int) {
 	// if evm denom has 6 decimals, zero the extra decimals
-	if s.db.denomDecimals == evmtypes.Denom6Dec {
+	if s.db.denom.decimals == evmtypes.Denom6Dec {
 		amount = evmtypes.ZeroExtraDecimalsBigInt(amount)
 	}
 	if amount.Sign() == 0 {
