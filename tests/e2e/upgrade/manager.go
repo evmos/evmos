@@ -123,6 +123,12 @@ func (m *Manager) RunNode(node *Node) error {
 	}
 
 	if err != nil {
+		if resource == nil || resource.Container == nil {
+			return fmt.Errorf(
+				"can't run container\n[error]: %s",
+				err.Error(),
+			)
+		}
 		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 		return fmt.Errorf(
 			"can't run container\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
