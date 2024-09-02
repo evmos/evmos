@@ -33,11 +33,10 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
-
-    if provider == "evmos-rocksdb":
+    elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
-
-    raise NotImplementedError
+    else:
+        raise NotImplementedError
 
 
 def effective_gas_price(tx, base_fee):
