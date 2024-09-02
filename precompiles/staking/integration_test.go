@@ -2368,7 +2368,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 					delegatorFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), UatomDenom)
 					feeScaled := evmtypes.Convert18To6DecimalsBigInt(fees.BigInt())
-					Expect(delegatorFinalBal.Amount).To(Equal(delegatorInitialBal.Amount.Sub(sdk.NewIntFromBigInt(feeScaled)).Add(transferToDelAmt).Sub(sdk.NewInt(1e6))))
+					Expect(delegatorFinalBal.Amount).To(Equal(delegatorInitialBal.Amount.Sub(sdk.NewIntFromBigInt(feeScaled)).Add(transferToDelAmt)))
 
 					// check the bondedTokenPool is updated with the delegated tokens
 					bondedTokensPoolFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
