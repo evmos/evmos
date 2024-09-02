@@ -52,7 +52,7 @@ set -e
 # Check evmosd version to decide how to set the client configuration
 # the older versions of evmosd accept less arguments
 version=$(evmosd version | cut -d ' ' -f 3)
-CUTOFF_VERSION="v18.1.0"
+CUTOFF_VERSION="v19.2.0"
 if [[ $(echo -e "${version}\nv${CUTOFF_VERSION}" | sort -V | head -n1) == "${version}" && "${version}" != "${CUTOFF_VERSION}" ]]; then
     evmosd config chain-id "$CHAINID"
     evmosd config keyring-backend "$KEYRING"
