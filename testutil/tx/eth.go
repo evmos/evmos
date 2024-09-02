@@ -3,11 +3,12 @@
 package tx
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"encoding/json"
+	"github.com/evmos/evmos/v19/utils"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -59,7 +59,13 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		// NOTE: This is not always going be true, but we assume 6 decimals
+		// for the Evmos chain is always going to be uatom
+		if evmParams.DenomDecimals == types.Denom6Dec {
+			txFee = txFee.Add(sdk.Coin{Denom: "uatom", Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		} else {
+			txFee = txFee.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		}
 	}
 
 	// check denom decimals and adjust txFee on authInfo if corresponds

@@ -148,7 +148,6 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 
 	// create Context
 	s.ctx = app.BaseApp.NewContext(false, header)
-	s.ctx = s.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoinFromCoin(sdk.NewCoin("uatom", sdk.NewInt(2)))))
 
 	// commit genesis changes
 	app.Commit()
