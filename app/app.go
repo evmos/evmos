@@ -123,7 +123,7 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
-	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
 

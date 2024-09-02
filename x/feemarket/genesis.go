@@ -15,14 +15,14 @@ import (
 func InitGenesis(
 	ctx sdk.Context,
 	k keeper.Keeper,
-	data types.GenesisState,
+	genesisState types.GenesisState,
 ) []abci.ValidatorUpdate {
-	err := k.SetParams(ctx, data.Params)
+	err := k.SetParams(ctx, genesisState.Params)
 	if err != nil {
 		panic(errorsmod.Wrap(err, "could not set parameters at genesis"))
 	}
 
-	k.SetBlockGasWanted(ctx, data.BlockGas)
+	k.SetBlockGasWanted(ctx, genesisState.BlockGas)
 
 	return []abci.ValidatorUpdate{}
 }

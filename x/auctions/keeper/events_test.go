@@ -79,11 +79,11 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 			ethLog := log.ToEthereum()
 			require.Equal(t, common.HexToAddress(keeper.PrecompileAddress), ethLog.Address)
 
-			fmt.Println(ethLog.Topics)
-			require.Len(t, ethLog.Topics, 3)
 			require.Equal(t, keeper.EndAuctionEventABI.ID, ethLog.Topics[0])
 			require.Equal(t, common.LeftPadBytes(bidWinnerHexAddr.Bytes(), 32), ethLog.Topics[1].Bytes())
-			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big())
+			require.Equal(t, big.NewInt(int64(tc.round)), ethLog.Topics[2].Big()) //#nosec G115 -- gosec warning about integer overflow is not relevant here
+
+			require.Len(t, ethLog.Topics, 3)
 
 			require.Equal(t, uint64(ctx.BlockHeight()), ethLog.BlockNumber)
 			require.Equal(t, common.BytesToHash(ctx.HeaderHash()), ethLog.BlockHash)
