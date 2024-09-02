@@ -41,6 +41,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (precompiles) [#2748](https://github.com/evmos/evmos/pull/2748) Burn auctions precompile boilerplate.
 - (auctions) [#2745](https://github.com/evmos/evmos/pull/2745) Add boilerplate for new auctions module.
+- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 
 ## [v19.1.0] - 2024-08-02
 
