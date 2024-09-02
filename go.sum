@@ -381,8 +381,8 @@ github.com/cosmos/iavl v0.21.0-alpha.1.0.20230904092046-df3db2d96583 h1:3Matt7/L
 github.com/cosmos/iavl v0.21.0-alpha.1.0.20230904092046-df3db2d96583/go.mod h1:WO7FyvaZJoH65+HFOsDir7xU9FWk2w9cHXNW1XHcl7A=
 github.com/cosmos/ibc-apps/modules/rate-limiting/v7 v7.0.0 h1:+j6/+Oge8wlRSTbqgh2EfSq4Bz6/ql4sB/2ZMpMXwPU=
 github.com/cosmos/ibc-apps/modules/rate-limiting/v7 v7.0.0/go.mod h1:FkPfcczYKy4QXGHbeuqAjTDwzs5nsdryy7+YmQ37wGI=
-github.com/cosmos/ibc-go/v7 v7.7.0 h1:/ndLv4GiAkOaHQKpcoQyoGIZpGpT4d+9kjl5n3DsaVQ=
-github.com/cosmos/ibc-go/v7 v7.7.0/go.mod h1:zzFhtp9g9RrN/UxXWrdUu5VyonBALCAHujXQCzrZSu8=
+github.com/cosmos/ibc-go/v7 v7.8.0 h1:hvnQRejkMoGiM4v2r6Va5UefNeMU3V+ooIWdG96SYoU=
+github.com/cosmos/ibc-go/v7 v7.8.0/go.mod h1:zzFhtp9g9RrN/UxXWrdUu5VyonBALCAHujXQCzrZSu8=
 github.com/cosmos/ics23/go v0.10.0 h1:iXqLLgp2Lp+EdpIuwXTYIQU+AiHj9mOC2X9ab++bZDM=
 github.com/cosmos/ics23/go v0.10.0/go.mod h1:ZfJSmng/TBNTBkFemHHHj5YY7VAU/MBU980F4VU1NG0=
 github.com/cosmos/keyring v1.2.0 h1:8C1lBP9xhImmIabyXW4c3vFjjLiBdGCmfLUfeZlV1Yo=
