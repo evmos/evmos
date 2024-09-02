@@ -213,6 +213,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
 	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+	s.Require().NoError(err)
 
 	atomCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
 	atomDistrCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
