@@ -38,10 +38,11 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     if provider == "evmos":
         yield custom_evmos
 
-    if provider == "evmos-rocksdb":
+    elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
 
-    raise NotImplementedError
+    else:
+        raise NotImplementedError
 
 
 def test_gas_eth_tx(evmos_cluster):
