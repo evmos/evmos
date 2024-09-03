@@ -53,6 +53,9 @@ schema = 3
   [mod."github.com/Azure/go-ansiterm"]
     version = "v0.0.0-20230124172434-306776ec8161"
     hash = "sha256-17hCoOE3HBv6cjpcukfBS6/ULgTuoUZ7RNbi5korH2M="
+  [mod."github.com/ChainSafe/go-schnorrkel"]
+    version = "v1.1.0"
+    hash = "sha256-LC/4aePK7MhxgYeq91DjhCehYvKtC+9ePU9WHP22mpI="
   [mod."github.com/DataDog/zstd"]
     version = "v1.5.2"
     hash = "sha256-LVkZHLG8O4CzmqyQVbGn+0r6AKIMABej8a4HKMFw/xo="
@@ -132,8 +135,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.38.12"
-    hash = "sha256-xJNCwjaxXzJTXygfRZFqkESl8YsgfZyHfGy5XRYKJ2c="
+    version = "v0.37.11"
+    hash = "sha256-dafRz1C7risR7lGPr6dK+dYUmUgt0BFHsA1hB/MThEI="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.12.0"
     hash = "sha256-mfeUD8+V+xUzEhSOLgQQP0GFDWt7ch/TeBw9gnTJuHk="
@@ -180,6 +183,9 @@ schema = 3
   [mod."github.com/cosmos/rosetta-sdk-go"]
     version = "v0.10.0"
     hash = "sha256-WmLq9E9mYV+ms6Tdb43lCoAy6cowkDnK4bvX/ApDzLY="
+  [mod."github.com/creachadair/taskgroup"]
+    version = "v0.4.2"
+    hash = "sha256-AjtQRoLKLSAbyKd8YlaXcYn0pek6oo5U3R28dvtKv14="
   [mod."github.com/crypto-org-chain/cronos/memiavl"]
     version = "v0.0.5-0.20240129013154-12efd9b7643f"
     hash = "sha256-9YpEfHwpr7MsJ38fSlqxOnbFd6GEkBHOEVPYI2Chm9w="
@@ -353,6 +359,12 @@ schema = 3
   [mod."github.com/gsterjov/go-libsecret"]
     version = "v0.0.0-20161001094733-a6f4afe4910c"
     hash = "sha256-Z5upjItPU9onq5t7VzhdQFp13lMJrSiE3gNRapuK6ic="
+  [mod."github.com/gtank/merlin"]
+    version = "v0.1.1"
+    hash = "sha256-tfP9DFdPIfAt29pCta6dObAABCbZt4y3ZActH6ERkr0="
+  [mod."github.com/gtank/ristretto255"]
+    version = "v0.1.2"
+    hash = "sha256-fAoVTP1s5+f7/YtnzI+gaEz1MS+FuCgy3sT19ZHIxE4="
   [mod."github.com/hashicorp/go-cleanhttp"]
     version = "v0.5.2"
     hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
@@ -434,9 +446,12 @@ schema = 3
   [mod."github.com/mattn/go-runewidth"]
     version = "v0.0.9"
     hash = "sha256-dK/kIPe1tcxEubwI4CWfov/HWRBgD/fqlPC3d5i30CY="
+  [mod."github.com/mimoo/StrobeGo"]
+    version = "v0.0.0-20210601165009-122bf33a46e0"
+    hash = "sha256-rmw70RHsbeOnema++aFCPdswADMVKtb7KGF3msOI7ak="
   [mod."github.com/minio/highwayhash"]
-    version = "v1.0.2"
-    hash = "sha256-UeHeepKtToyA5e/w3KdmpbCn+4medesZG0cAcU6P2cY="
+    version = "v1.0.3"
+    hash = "sha256-5M2Y3d0hnvo8JHz6910upUNbRRaUVes90F0jaIzo4pE="
   [mod."github.com/mitchellh/go-homedir"]
     version = "v1.1.0"
     hash = "sha256-oduBKXHAQG8X6aqLEpqZHs5DOKe84u6WkBwi4W6cv3k="
@@ -458,9 +473,6 @@ schema = 3
   [mod."github.com/munnerz/goautoneg"]
     version = "v0.0.0-20191010083416-a7dc8b61c822"
     hash = "sha256-79URDDFenmGc9JZu+5AXHToMrtTREHb3BC84b/gym9Q="
-  [mod."github.com/oasisprotocol/curve25519-voi"]
-    version = "v0.0.0-20220708102147-0a8a51822cae"
-    hash = "sha256-XHZK3rVJiA2weQgc+WC9ZvwDf/yaC0GVFqQUC2TDm30="
   [mod."github.com/olekukonko/tablewriter"]
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
