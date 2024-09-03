@@ -51,9 +51,8 @@ set -e
 
 # Check evmosd version to decide how to set the client configuration
 # the older versions of evmosd accept less arguments
-version=$(evmosd version | cut -d ' ' -f 3)
-CUTOFF_VERSION="v19.2.0"
-if [[ $(echo -e "${version}\nv${CUTOFF_VERSION}" | sort -V | head -n1) == "${version}" && "${version}" != "${CUTOFF_VERSION}" ]]; then
+sdk_version=$(evmosd version --long | grep 'cosmos_sdk_version' | awk '{print $2}')
+if [[ $sdk_version == *v0.4* ]]; then
     evmosd config chain-id "$CHAINID"
     evmosd config keyring-backend "$KEYRING"
 else
