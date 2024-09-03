@@ -276,7 +276,6 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	baseFeeRes, err := suite.app.EvmKeeper.BaseFee(suite.ctx, &evm.QueryBaseFeeRequest{})
 	suite.Require().NoError(err)
 
-
 	ethTxParams := evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
