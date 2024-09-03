@@ -18,6 +18,14 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
+
+	ibctypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+
+	ccvprovidertypes "github.com/cosmos/interchain-security/v4/x/ccv/provider/types"
+	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -126,6 +134,8 @@ func genesisStateWithValSet(codec codec.Codec, genesisState simapp.GenesisState,
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
+	// Initial validator powers is required to start the consumer chain InitGenesis.
+	initValPowers := []abci.ValidatorUpdate{}
 
 	bondAmt := sdk.DefaultPowerReduction
 
@@ -153,6 +163,12 @@ func genesisStateWithValSet(codec codec.Codec, genesisState simapp.GenesisState,
 		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+
+		protoVal, _ := val.ToProto()
+		initValPowers = append(initValPowers, abci.ValidatorUpdate{
+			Power:  val.VotingPower,
+			PubKey: protoVal.PubKey,
+		})
 	}
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
@@ -178,6 +194,46 @@ func genesisStateWithValSet(codec codec.Codec, genesisState simapp.GenesisState,
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
+
+	vals, err := cmtypes.PB2TM.ValidatorUpdates(initValPowers)
+	if err != nil {
+		panic("failed to get vals")
+	}
+
+	// Define the cross-chain validation module genesis.
+	// Ref: https://github.com/Stride-Labs/stride/blob/4cfda614e8fb9664ce72861d32824d72430d4436/app/test_setup.go#L171-L175
+	consumerGenesisState := createMinimalConsumerTestGenesis()
+	consumerGenesisState.Provider.InitialValSet = initValPowers
+	consumerGenesisState.Provider.ConsensusState.NextValidatorsHash = cmtypes.NewValidatorSet(vals).Hash()
+	consumerGenesisState.Params.Enabled = true
+	genesisState[consumertypes.ModuleName] = codec.MustMarshalJSON(consumerGenesisState)
+
+	return genesisState
+}
+
+// This function creates consumer module genesis state that is used as starting point for modifications
+// that allow Evmos chain to be started locally without having to start the provider chain and the relayer.
+// Ref: https://github.com/Stride-Labs/stride/blob/4cfda614e8fb9664ce72861d32824d72430d4436/testutil/consumer.go#L16-L36
+func createMinimalConsumerTestGenesis() *ccvtypes.ConsumerGenesisState {
+	genesisState := ccvtypes.DefaultConsumerGenesisState()
+	genesisState.Params.Enabled = true
+	genesisState.NewChain = true
+	genesisState.Provider.ClientState = ccvprovidertypes.DefaultParams().TemplateClient
+	genesisState.Provider.ClientState.ChainId = "evmos"
+	genesisState.Provider.ClientState.LatestHeight = ibctypes.Height{RevisionNumber: 0, RevisionHeight: 1}
+	genesisState.Params.UnbondingPeriod = stakingtypes.DefaultUnbondingTime
+	unbondingPeriod := genesisState.Params.UnbondingPeriod
+	trustPeriod, err := ccvtypes.CalculateTrustPeriod(unbondingPeriod, ccvprovidertypes.DefaultTrustingPeriodFraction)
+	if err != nil {
+		panic("provider client trusting period error")
+	}
+	genesisState.Provider.ClientState.TrustingPeriod = trustPeriod
+	genesisState.Provider.ClientState.UnbondingPeriod = unbondingPeriod
+	genesisState.Provider.ClientState.MaxClockDrift = ccvprovidertypes.DefaultMaxClockDrift
+	genesisState.Provider.ConsensusState = &ibctmtypes.ConsensusState{
+		Timestamp: time.Now().UTC(),
+		Root:      types.MerkleRoot{Hash: []byte("dummy")},
+	}
 
 	return genesisState
 }
