@@ -128,7 +128,7 @@ def test_ibc_transfer_invalid_packet(ibc):
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
-        pc.functions.transfer(
+        tx = pc.functions.transfer(
             "transfer",
             "channel-0",
             src_denom,
@@ -138,7 +138,8 @@ def test_ibc_transfer_invalid_packet(ibc):
             [0, 0],
             0,
             "",
-        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
     except Exception as error:
         assert error.args[0]["message"] == f"rpc error: code = Unknown desc = {exp_err}"
 
@@ -171,7 +172,7 @@ def test_ibc_transfer_timeout(ibc):
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
-        pc.functions.transfer(
+        tx = pc.functions.transfer(
             "transfer",
             "channel-0",
             src_denom,
@@ -181,7 +182,8 @@ def test_ibc_transfer_timeout(ibc):
             [0, 0],
             1000,
             "",
-        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
     except Exception as error:
         assert re.search(exp_err, error.args[0]["message"]) is not None
 
