@@ -8,10 +8,12 @@ from .utils import (
     ADDRS,
     CONTRACTS,
     DEFAULT_DENOM,
+    KEYS,
     decode_bech32,
     deploy_contract,
     eth_to_bech32,
     get_fees_from_tx_result,
+    send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_new_blocks,
 )
@@ -86,14 +88,15 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
 
     assert receiver is not None
 
-    txhash = w3.eth.send_transaction(
+    receipt = send_transaction(
+        w3,
         {
             "from": sender,
             "to": receiver,
             "value": 1000,
-        }
+        },
+        KEYS["signer1"],
     )
-    receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 0  # failed status expected
 
     wait_for_new_blocks(cli, 2)

@@ -2,7 +2,13 @@ import pytest
 from web3 import Web3
 
 from .network import setup_evmos, setup_evmos_rocksdb
-from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
+from .utils import (
+    ADDRS,
+    KEYS,
+    derive_new_account,
+    send_transaction,
+    w3_wait_for_new_blocks,
+)
 
 
 # start a brand new chain for this test
@@ -56,14 +62,15 @@ def test_get_transaction_count(cluster):
     n0 = w3.eth.get_transaction_count(receiver, blk)
     # ensure transaction send in new block
     w3_wait_for_new_blocks(w3, 1, sleep=0.1)
-    txhash = w3.eth.send_transaction(
+    receipt = send_transaction(
+        w3,
         {
             "from": sender,
             "to": receiver,
             "value": 1000,
-        }
+        },
+        KEYS["validator"],
     )
-    receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
     [n1, n2] = [w3.eth.get_transaction_count(receiver, b) for b in [blk, "latest"]]
     assert n0 == n1
