@@ -59,13 +59,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		// NOTE: This is not always going be true, but we assume 6 decimals
-		// for the Evmos chain is always going to be uatom
-		if evmParams.DenomDecimals == types.Denom6Dec {
-			txFee = txFee.Add(sdk.Coin{Denom: evmParams.EvmDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
-		} else {
-			txFee = txFee.Add(sdk.Coin{Denom: evmParams.EvmDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
-		}
+		txFee = txFee.Add(sdk.Coin{Denom: evmParams.EvmDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	// check denom decimals and adjust txFee on authInfo if corresponds
