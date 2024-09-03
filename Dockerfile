@@ -41,7 +41,7 @@ COPY --from=build-env /target/usr/lib /usr/lib
 COPY --from=build-env /target/usr/local/lib /usr/local/lib
 COPY --from=build-env /target/usr/include /usr/include
 
-RUN apk add --no-cache ca-certificates=20240705-r0 jq=1.7.1-r0 curl=8.9.0-r0 bash=5.2.26-r0 vim=9.1.0414-r0 lz4=1.9.4-r5 rclone=1.66.0-r4 \
+RUN apk add --no-cache ca-certificates=20240705-r0 jq=1.7.1-r0 curl=8.9.1-r0 bash=5.2.26-r0 vim=9.1.0414-r0 lz4=1.9.4-r5 rclone=1.66.0-r4 \
     && addgroup -g 1000 evmos \
     && adduser -S -h /home/evmos -D evmos -u 1000 -G evmos
 

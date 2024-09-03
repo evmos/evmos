@@ -16,7 +16,7 @@ func InitGenesis(
 	k keeper.Keeper,
 	ak types.AccountKeeper,
 	_ types.StakingKeeper,
-	data types.GenesisState,
+	genesisState types.GenesisState,
 ) {
 	// Ensure inflation module account is set on genesis
 	if acc := ak.GetModuleAccount(ctx, types.ModuleName); acc == nil {
@@ -24,22 +24,22 @@ func InitGenesis(
 	}
 
 	// Set genesis state
-	params := data.Params
+	params := genesisState.Params
 	err := k.SetParams(ctx, params)
 	if err != nil {
 		panic(errorsmod.Wrapf(err, "error setting params"))
 	}
 
-	period := data.Period
+	period := genesisState.Period
 	k.SetPeriod(ctx, period)
 
-	epochIdentifier := data.EpochIdentifier
+	epochIdentifier := genesisState.EpochIdentifier
 	k.SetEpochIdentifier(ctx, epochIdentifier)
 
-	epochsPerPeriod := data.EpochsPerPeriod
+	epochsPerPeriod := genesisState.EpochsPerPeriod
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
-	skippedEpochs := data.SkippedEpochs
+	skippedEpochs := genesisState.SkippedEpochs
 	k.SetSkippedEpochs(ctx, skippedEpochs)
 }
 

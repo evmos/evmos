@@ -26,9 +26,9 @@ var _ types.MsgServer = msgServer{}
 
 // NewMsgServerImpl returns an implementation of the staking MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
+func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	baseMsgServer := sdkstakingkeeper.NewMsgServerImpl(keeper.Keeper)
-	return &msgServer{baseMsgServer, keeper}
+	return &msgServer{baseMsgServer, &keeper}
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator.

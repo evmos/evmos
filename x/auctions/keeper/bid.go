@@ -42,3 +42,14 @@ func (k *Keeper) deleteBid(ctx sdk.Context) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.KeyPrefixBid)
 }
+
+// refundLastBid refunds the last bid placed on an auction
+func (k Keeper) refundLastBid(ctx sdk.Context) error {
+	lastBid := k.GetHighestBid(ctx)
+	lastBidder, err := sdk.AccAddressFromBech32(lastBid.Sender)
+	if err != nil {
+		return err
+	}
+	bidAmount := sdk.NewCoins(lastBid.BidValue)
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lastBidder, bidAmount)
+}
