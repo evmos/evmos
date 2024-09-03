@@ -86,6 +86,7 @@ func deductFees(
 	); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
+
 	return nil
 }
 

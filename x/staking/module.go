@@ -26,27 +26,27 @@ var (
 
 // AppModuleBasic defines the basic application module used by the staking module.
 type AppModuleBasic struct {
-	*staking.AppModuleBasic
+	staking.AppModuleBasic
 }
 
 // AppModule represents a wrapper around the Cosmos SDK staking module AppModule and
 // the Evmos custom staking module keeper.
 type AppModule struct {
-	*staking.AppModule
-	keeper *keeper.Keeper
+	staking.AppModule
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a wrapper for the staking module.
 func NewAppModule(
 	cdc codec.Codec,
-	k *keeper.Keeper,
+	k keeper.Keeper,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ls exported.Subspace,
 ) AppModule {
 	am := staking.NewAppModule(cdc, k.Keeper, ak, bk, ls)
 	return AppModule{
-		AppModule: &am,
+		AppModule: am,
 		keeper:    k,
 	}
 }

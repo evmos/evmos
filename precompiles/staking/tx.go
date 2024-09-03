@@ -4,6 +4,7 @@
 package staking
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -75,8 +76,7 @@ func (p Precompile) CreateValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		//nolint
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to create their own validator.
@@ -85,7 +85,7 @@ func (p Precompile) CreateValidator(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
@@ -127,8 +127,7 @@ func (p Precompile) EditValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		//nolint
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to edit their own validator.
@@ -137,7 +136,7 @@ func (p Precompile) EditValidator(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	if _, err = msgSrv.EditValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
@@ -208,7 +207,7 @@ func (p *Precompile) Delegate(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	if _, err = msgSrv.Delegate(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
@@ -287,7 +286,7 @@ func (p Precompile) Undelegate(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	res, err := msgSrv.Undelegate(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
@@ -368,7 +367,7 @@ func (p Precompile) Redelegate(
 		}
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	res, err := msgSrv.BeginRedelegate(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
@@ -448,7 +447,7 @@ func (p Precompile) CancelUnbondingDelegation(
 		}
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
 	if _, err = msgSrv.CancelUnbondingDelegation(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
