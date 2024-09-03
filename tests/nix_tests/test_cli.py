@@ -65,7 +65,6 @@ def test_block_cmd(evmos_cluster):
     wait_for_block(node1, last_block + 3)
 
 
-# TODO: why is the signer1 account not found?
 def test_tx_flags(evmos_cluster):
     """
     Tests the expected responses for common fee and gas related CLI flags.
