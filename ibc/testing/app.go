@@ -13,6 +13,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
+	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,6 +26,7 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 
 	evmosapp "github.com/evmos/evmos/v19/app"
+	evmosutil "github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 )
@@ -45,6 +48,8 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
+	// Initial validator powers is required to start the consumer chain InitGenesis.
+	initValPowers := []abci.ValidatorUpdate{}
 
 	bondAmt := sdk.TokensFromConsensusPower(1, types.PowerReduction)
 
@@ -68,6 +73,12 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+
+		protoVal, _ := val.ToProto()
+		initValPowers = append(initValPowers, abci.ValidatorUpdate{
+			Power:  val.VotingPower,
+			PubKey: protoVal.PubKey,
+		})
 	}
 
 	// set validators and delegations
@@ -92,6 +103,19 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
+
+	vals, err := tmtypes.PB2TM.ValidatorUpdates(initValPowers)
+	if err != nil {
+		panic("failed to get vals")
+	}
+
+	// Define the cross-chain validation module genesis.
+	// Ref: https://github.com/Stride-Labs/stride/blob/4cfda614e8fb9664ce72861d32824d72430d4436/app/test_setup.go#L171-L175
+	consumerGenesisState := evmosutil.CreateMinimalConsumerTestGenesis()
+	consumerGenesisState.Provider.InitialValSet = initValPowers
+	consumerGenesisState.Provider.ConsensusState.NextValidatorsHash = tmtypes.NewValidatorSet(vals).Hash()
+	consumerGenesisState.Params.Enabled = true
+	genesisState[consumertypes.ModuleName] = app.AppCodec().MustMarshalJSON(consumerGenesisState)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
