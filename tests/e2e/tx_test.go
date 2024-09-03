@@ -6,6 +6,7 @@ package e2e
 import (
 	"context"
 	"regexp"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
@@ -40,9 +41,11 @@ func (s *IntegrationTestSuite) sendBankTransfer(ctx context.Context) {
 
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoError(err, "failed to execute bank send tx")
+	s.Require().Truef(
+		strings.Contains(outBuf.String(), "code: 0"),
+		"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
+	)
 	// NOTE: The only message in the errBuf that is allowed is `gas estimate: ...`
-	s.T().Log("bank transfer output")
-	s.T().Log(outBuf.String())
 	gasEstimateMatch, err := regexp.MatchString(`^\s*gas estimate: \d+\s*$`, errBuf.String())
 	s.Require().NoError(err, "failed to match gas estimate message")
 	s.Require().True(

@@ -104,14 +104,6 @@ def test_eth_tx(evmos_cluster):
     old_src_balance = w3.eth.get_balance(sender)
     old_dst_balance = w3.eth.get_balance(receiver)
 
-    # txhash = w3.eth.send_transaction(
-    #     {
-    #         "from": sender,
-    #         "to": receiver,
-    #         "value": amt,
-    #         "gasPrice": 0,
-    #     }
-    # )
     receipt = send_transaction(
         w3,
         {
