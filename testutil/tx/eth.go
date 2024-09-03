@@ -8,8 +8,6 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/evmos/evmos/v19/utils"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
