@@ -3,7 +3,6 @@
 package testutil
 
 import (
-	"fmt"
 	"time"
 
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -28,7 +27,6 @@ func CreateMinimalConsumerTestGenesis() *ccvtypes.ConsumerGenesisState {
 	genesisState.Provider.ClientState.LatestHeight = ibctypes.Height{RevisionNumber: 0, RevisionHeight: 1}
 	genesisState.Params.UnbondingPeriod = stakingtypes.DefaultUnbondingTime
 	unbondingPeriod := genesisState.Params.UnbondingPeriod
-	fmt.Printf("HEEEEEERE %s", unbondingPeriod)
 	trustPeriod, err := ccvtypes.CalculateTrustPeriod(unbondingPeriod, ccvprovidertypes.DefaultTrustingPeriodFraction)
 	if err != nil {
 		panic("provider client trusting period error")
