@@ -3,11 +3,14 @@
 package testutil
 
 import (
+	"fmt"
 	"time"
 
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ccvprovidertypes "github.com/cosmos/interchain-security/v4/x/ccv/provider/types"
 	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
@@ -23,7 +26,9 @@ func CreateMinimalConsumerTestGenesis() *ccvtypes.ConsumerGenesisState {
 	genesisState.Provider.ClientState = ccvprovidertypes.DefaultParams().TemplateClient
 	genesisState.Provider.ClientState.ChainId = "evmos"
 	genesisState.Provider.ClientState.LatestHeight = ibctypes.Height{RevisionNumber: 0, RevisionHeight: 1}
+	genesisState.Params.UnbondingPeriod = stakingtypes.DefaultUnbondingTime
 	unbondingPeriod := genesisState.Params.UnbondingPeriod
+	fmt.Printf("HEEEEEERE %s", unbondingPeriod)
 	trustPeriod, err := ccvtypes.CalculateTrustPeriod(unbondingPeriod, ccvprovidertypes.DefaultTrustingPeriodFraction)
 	if err != nil {
 		panic("provider client trusting period error")
