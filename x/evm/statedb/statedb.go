@@ -84,7 +84,8 @@ func New(ctx sdk.Context, keeper Keeper, txConfig TxConfig) *StateDB {
 		accessList:   newAccessList(),
 
 		txConfig: txConfig,
-		denom: evmdenom{params.EvmDenom,
+		denom: evmdenom{
+			params.EvmDenom,
 			params.DenomDecimals,
 		},
 	}
