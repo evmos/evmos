@@ -48,6 +48,8 @@ import (
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
+const EvmDenom = "uatom"
+
 // stipend to pay EVM tx fees
 var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
 
@@ -100,7 +102,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	evmParams := evmtypes.DefaultParams()
-	evmParams.EvmDenom = "uatom"
+	evmParams.EvmDenom = EvmDenom
 	evmGenesis := evmtypes.NewGenesisState(evmParams, nil)
 	genesisState[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
 
@@ -189,7 +191,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount), sdk.NewCoin("uatom", amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount), sdk.NewCoin(EvmDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -215,8 +217,8 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 
-	atomCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
-	atomDistrCoins := sdk.NewCoins(sdk.NewCoin("uatom", math.NewInt(50000000)))
+	atomCoins := sdk.NewCoins(sdk.NewCoin(EvmDenom, math.NewInt(50000000)))
+	atomDistrCoins := sdk.NewCoins(sdk.NewCoin(EvmDenom, math.NewInt(50000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, atomCoins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
@@ -229,7 +231,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
 	params := s.app.EvmKeeper.GetParams(s.ctx)
-	params.EvmDenom = "uatom"
+	params.EvmDenom = EvmDenom
 	err = s.app.EvmKeeper.SetParams(s.ctx, params)
 	s.Require().NoError(err)
 }
