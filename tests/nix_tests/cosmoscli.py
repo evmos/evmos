@@ -362,6 +362,7 @@ class CosmosCLI:
             node=self.node_rpc,
             output="json",
             chain_id=self.chain_id,
+            keyring_backend="test",
             **kwargs,
         )
         try:
@@ -544,6 +545,7 @@ class CosmosCLI:
                 "--from",
                 from_addr,
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -697,6 +699,7 @@ class CosmosCLI:
                 output="json",
                 home=self.data_dir,
                 node=self.node_rpc,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -724,6 +727,7 @@ class CosmosCLI:
                     # basic
                     home=self.data_dir,
                     node=self.node_rpc,
+                    keyring_backend="test",
                     **kwargs,
                 )
             )
@@ -743,6 +747,7 @@ class CosmosCLI:
                     # basic
                     home=self.data_dir,
                     node=self.node_rpc,
+                    keyring_backend="test",
                     **kwargs,
                 )
             )
@@ -758,6 +763,7 @@ class CosmosCLI:
                     # basic
                     home=self.data_dir,
                     node=self.node_rpc,
+                    keyring_backend="test",
                     **kwargs,
                 )
             )
@@ -776,6 +782,7 @@ class CosmosCLI:
                     # basic
                     home=self.data_dir,
                     node=self.node_rpc,
+                    keyring_backend="test",
                     **kwargs,
                 )
             )
@@ -798,6 +805,7 @@ class CosmosCLI:
                 output="json",
                 home=self.data_dir,
                 node=self.node_rpc,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -939,6 +947,7 @@ class CosmosCLI:
                 relayer,
                 counterparty_payee,
                 "-y",
+                keyring_backend="test",
                 **(default_kwargs | kwargs),
             )
         )
@@ -957,6 +966,7 @@ class CosmosCLI:
                 relayer,
                 payee,
                 "-y",
+                keyring_backend="test",
                 **(default_kwargs | kwargs),
             )
         )
@@ -974,6 +984,7 @@ class CosmosCLI:
                 channel_id,
                 str(packet_seq),
                 "-y",
+                keyring_backend="test",
                 **(default_kwargs | kwargs),
             )
         )
@@ -1050,6 +1061,7 @@ class CosmosCLI:
                 raw_tx,
                 "--generate-only",
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1143,6 +1155,7 @@ class CosmosCLI:
                 "--from",
                 grantee,
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1159,6 +1172,7 @@ class CosmosCLI:
                 granter,
                 "--generate-only",
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1237,6 +1251,7 @@ class CosmosCLI:
                 address,
                 "--generate-only",
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1261,6 +1276,7 @@ class CosmosCLI:
                 "--vesting",
                 vesting_file,
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1282,6 +1298,7 @@ class CosmosCLI:
                 from_=account,
                 node=self.node_rpc,
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
@@ -1304,6 +1321,7 @@ class CosmosCLI:
                 output="json",
                 node=self.node_rpc,
                 home=self.data_dir,
+                keyring_backend="test",
                 **kwargs,
             )
         )
