@@ -44,13 +44,13 @@ contract StakingCallerTwo {
     ) public {
         if (_before) {
             counter++;
-            (bool sent, ) = _delegator.call{value: 15}("");
+            (bool sent, ) = _delegator.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         staking.STAKING_CONTRACT.delegate(_delegator, _validatorAddr, _amount);
         if (_after) {
             counter++;
-            (bool sent, ) = _delegator.call{value: 15}("");
+            (bool sent, ) = _delegator.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }
@@ -74,13 +74,13 @@ contract StakingCallerTwo {
     ) public {
         if (_before) {
             counter++;
-            (bool sent, ) = _dest.call{value: 15}("");
+            (bool sent, ) = _dest.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         staking.STAKING_CONTRACT.delegate(_delegator, _validatorAddr, _amount);
         if (_after) {
             counter++;
-            (bool sent, ) = _dest.call{value: 15}("");
+            (bool sent, ) = _dest.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }    
@@ -107,7 +107,7 @@ contract StakingCallerTwo {
     ) public {
         if (_before) {
             counter++;
-            (bool sent, ) = _validator.call{value: 15}("");
+            (bool sent, ) = _validator.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         bool success = staking.STAKING_CONTRACT.createValidator(
@@ -121,7 +121,7 @@ contract StakingCallerTwo {
         require(success, "Failed to create the validator");
         if (_after) {
             counter++;
-            (bool sent, ) = _validator.call{value: 15}("");
+            (bool sent, ) = _validator.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }
