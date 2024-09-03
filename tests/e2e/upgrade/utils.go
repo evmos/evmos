@@ -38,18 +38,39 @@ func (v EvmosVersions) Less(i, j int) bool {
 	return v1.LessThan(v2)
 }
 
-// CheckLegacyProposal checks if the running node requires a legacy proposal
-func CheckLegacyProposal(version string) bool {
+// ProposalVersion is an enum to represent the type of upgrade proposal to be used
+// based on the Evmos version.
+//
+// This is required since the way to submit an upgrade proposal has changed between
+// different SDK versions.
+type ProposalVersion uint8
+
+const (
+	LegacyProposalPreV46 ProposalVersion = iota
+	LegacyProposalPreV50
+	UpgradeProposalV50
+)
+
+// CheckUpgradeProposalVersion checks if the running node requires a legacy proposal
+func CheckUpgradeProposalVersion(version string) ProposalVersion {
 	version = strings.TrimSpace(version)
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
 
-	// check if the version is lower than v10.x.x
-	cmp := EvmosVersions([]string{version, "v10.0.0"})
-	isLegacyProposal := !cmp.Less(0, 1)
+	// if version is lower than v10.x.x, then it's using SDK v0.46
+	cmp := EvmosVersions([]string{version, "v10.0.0", "v20.0.0"})
+	var proposalVersion ProposalVersion
+	switch {
+	case cmp.Less(0, 1):
+		proposalVersion = LegacyProposalPreV46
+	case cmp.Less(0, 2):
+		proposalVersion = LegacyProposalPreV50
+	default:
+		proposalVersion = UpgradeProposalV50
+	}
 
-	return isLegacyProposal
+	return proposalVersion
 }
 
 // RetrieveUpgradesList parses the app/upgrades folder and returns a slice of semver upgrade versions

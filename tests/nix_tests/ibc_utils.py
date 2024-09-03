@@ -139,8 +139,8 @@ def prepare_network(
     chains_to_connect = []
     chains = {}
 
-    # setup relayer
-    hermes = Hermes(tmp_path / "relayer.toml")
+    # initialize name here
+    hermes = None
 
     # set up the chains
     for chain in chain_names:
@@ -161,6 +161,10 @@ def prepare_network(
                 custom_scenario,
             )
             evmos = next(gen)  # pylint: disable=stop-iteration-return
+
+            # setup relayer
+            hermes = Hermes(tmp_path / "relayer.toml")
+
             # wait for grpc ready
             wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
             chains["evmos"] = evmos

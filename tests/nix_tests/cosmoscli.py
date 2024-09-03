@@ -1,4 +1,5 @@
 import json
+import re
 import tempfile
 
 import requests
@@ -348,22 +349,30 @@ class CosmosCLI:
 
     def transfer(self, from_, to, coins, generate_only=False, **kwargs):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
-        return json.loads(
-            self.raw(
-                "tx",
-                "bank",
-                "send",
-                from_,
-                to,
-                coins,
-                "-y",
-                "--generate-only" if generate_only else None,
-                home=self.data_dir,
-                node=self.node_rpc,
-                chain_id=self.chain_id,
-                **kwargs,
-            )
+        res = self.raw(
+            "tx",
+            "bank",
+            "send",
+            from_,
+            to,
+            coins,
+            "-y",
+            "--generate-only" if generate_only else None,
+            home=self.data_dir,
+            node=self.node_rpc,
+            output="json",
+            chain_id=self.chain_id,
+            **kwargs,
         )
+        try:
+            return json.loads(res)
+        except Exception:
+            # when the tx is successful, the first line
+            # of the output is a gas estimate that is not a json
+            # we'll try to parse the json skipping this line
+            res_str = res.decode("utf-8")
+            lines = res_str.split("\n")
+            return json.loads(lines[1])
 
     def balances(self, addr):
         return json.loads(
@@ -400,7 +409,7 @@ class CosmosCLI:
         return float(coin["amount"])
 
     def distribution_community(self):
-        coin = json.loads(
+        res = json.loads(
             self.raw(
                 "query",
                 "distribution",
@@ -409,11 +418,19 @@ class CosmosCLI:
                 node=self.node_rpc,
             )
         )
-        if "pool" not in coin:
+        if "pool" not in res:
             return 0
-        if len(coin["pool"]) == 0:
+        if res["pool"] is None or len(res["pool"]) == 0:
             return 0
-        return float(coin["pool"][0]["amount"])
+        if "amount" in res["pool"][0]:
+            return float(res["pool"][0]["amount"])
+        # the amount is returned in a string with
+        # the amount and denom, e.g. '10aevmos'
+        numbers = re.findall(r"\d+", res["pool"][0])
+        if numbers:
+            amount = numbers[0]
+            return float(amount)
+        return 0
 
     def distribution_reward(self, delegator_addr):
         coin = json.loads(
@@ -1075,18 +1092,41 @@ class CosmosCLI:
 
     def query_base_fee(self, **kwargs):
         default_kwargs = {"home": self.data_dir}
-        return int(
-            json.loads(
-                self.raw(
-                    "q",
-                    "feemarket",
-                    "base-fee",
-                    output="json",
-                    node=self.node_rpc,
-                    **(default_kwargs | kwargs),
-                )
-            )["base_fee"]
+
+        # TODO: is this assumption correct? Having the base fee turned off has caused some test failures
+        # because it was returning `null` and not an `int(...)` -> we'll return 0 here.
+        params = json.loads(
+            self.raw(
+                "q",
+                "feemarket",
+                "params",
+                output="json",
+                node=self.node_rpc,
+                **(default_kwargs | kwargs),
+            )
         )
+        no_base_fee = params["params"]["no_base_fee"]
+        if no_base_fee:
+            return 0
+
+        base_fee_out = self.raw(
+            "q",
+            "feemarket",
+            "base-fee",
+            output="json",
+            node=self.node_rpc,
+            **(default_kwargs | kwargs),
+        )
+
+        out_dict = json.loads(base_fee_out)
+        if not out_dict:
+            raise ValueError(f"failed to return base fee: {out_dict}")
+
+        base_fee = out_dict["base_fee"]
+        if not base_fee:
+            raise ValueError(f"failed to return base fee: {out_dict}")
+
+        return int(base_fee)
 
     # ==========================
     #        AUTHZ Module

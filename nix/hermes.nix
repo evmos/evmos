@@ -14,6 +14,7 @@ platform.buildRustPackage rec {
   cargoBuildFlags = "--no-default-features --bin hermes";
   buildInputs = lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
     darwin.libiconv
   ];
   doCheck = false;
