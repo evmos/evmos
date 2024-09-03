@@ -206,10 +206,10 @@ func (s *IntegrationTestSuite) upgrade(targetVersion upgrade.VersionConfig) {
 
 	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
 
-	s.T().Logf("executing all module queries")
+	s.T().Log("executing all module queries")
 	s.executeQueries()
 
-	s.T().Logf("executing sample transactions")
+	s.T().Log("executing sample transactions")
 	s.executeTransactions()
 
 	// make sure node produce blocks after upgrade

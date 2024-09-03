@@ -28,7 +28,7 @@ func (m *Manager) CreateModuleTxExec(txArgs E2ETxArgs) (string, error) {
 	cmd = append(cmd,
 		fmt.Sprintf("--chain-id=%s", txArgs.ChainID),
 		"--keyring-backend=test",
-		"--output=json",
+		"--output=text",
 		"--fees=500000000000aevmos",
 		"--gas=auto",
 		fmt.Sprintf("--from=%s", txArgs.From),

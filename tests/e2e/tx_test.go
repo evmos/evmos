@@ -38,9 +38,11 @@ func (s *IntegrationTestSuite) sendBankTransfer(ctx context.Context) {
 	})
 	s.Require().NoError(err, "failed to create bank send tx command")
 
-	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoError(err, "failed to execute bank send tx")
 	// NOTE: The only message in the errBuf that is allowed is `gas estimate: ...`
+	s.T().Log("bank transfer output")
+	s.T().Log(outBuf.String())
 	gasEstimateMatch, err := regexp.MatchString(`^\s*gas estimate: \d+\s*$`, errBuf.String())
 	s.Require().NoError(err, "failed to match gas estimate message")
 	s.Require().True(
