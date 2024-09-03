@@ -5,7 +5,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/utils"
+
 	"github.com/evmos/evmos/v19/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 )
@@ -30,21 +30,21 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 	lastBid := k.GetHighestBid(ctx)
 
 	// Distribute the awards from the last auction
-	if isValidBid(lastBid) {
-		bidWinner, err := sdk.AccAddressFromBech32(lastBid.Sender)
-		if err != nil {
-			return
-		}
 
+	// lastBid.Sender can be "", "invalidBech32" or "validBech32".
+	bidWinner, err := sdk.AccAddressFromBech32(lastBid.Sender)
+
+	// Create a cached context that is committed only
+	// if not errors happen handling a valid bid.
+	ctxCache, writeFn := ctx.CacheContext()
+
+	// A valid bid is one in which lastBid.Sender is "validBech32" and the
+	// bid.Amount.Amount is positvie.
+	if err == nil && lastBid.BidValue.Amount.IsPositive() {
 		moduleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
-		coins := k.bankKeeper.GetAllBalances(ctx, moduleAddress)
+		coins := k.bankKeeper.GetAllBalances(ctxCache, moduleAddress)
 
-		remainingCoins := sdk.NewCoins()
-		for _, coin := range coins {
-			if coin.Denom != utils.BaseDenom {
-				remainingCoins = remainingCoins.Add(coin)
-			}
-		}
+		remainingCoins := removeBaseCoinFromCoins(coins)
 
 		// Burn the Evmos Coins from the module account
 		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lastBid.BidValue)); err != nil {
@@ -77,15 +77,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		k.Logger(ctx).Error("failed to send coins from Auctions Collector to Auctions module account", "error", err)
 		return
 	}
-}
-
-// isValidBid checks if the bid is valid
-func isValidBid(lastBid types.Bid) bool {
-	_, err := sdk.AccAddressFromBech32(lastBid.Sender)
-	if lastBid.BidValue.Amount.IsPositive() && lastBid.Sender != "" && err == nil {
-		return true
-	}
-	return false
+	writeFn()
 }
 
 // Hooks wrapper struct for incentives keeper

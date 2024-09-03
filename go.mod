@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	cosmossdk.io/api v0.3.1
+	cosmossdk.io/core v0.6.1
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d

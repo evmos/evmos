@@ -33,7 +33,7 @@ func (k Keeper) GetEpochsPerPeriod(ctx sdk.Context) int64 {
 		return 0
 	}
 
-	return int64(sdk.BigEndianToUint64(bz))
+	return int64(sdk.BigEndianToUint64(bz)) //#nosec G115
 }
 
 // SetEpochsPerPeriod stores the epochs per period
