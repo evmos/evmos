@@ -200,7 +200,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	s.T().Logf("wait for node to reach upgrade height %d...", s.upgradeManager.UpgradeHeight)
 	// wait for proposed upgrade height
-	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
+	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)) //#nosec G115
 	s.Require().NoError(err, "can't reach upgrade height")
 	dirs := strings.Split(s.upgradeParams.MountPath, ":")
 	buildDir := dirs[0]
@@ -235,9 +235,9 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.executeTransactions()
 
 	// make sure node produce blocks after upgrade
-	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade) // #nosec G115
 	// make sure node produces blocks after upgrade
-	errLogs, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	errLogs, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade) // #nosec G115
 	if err == nil && errLogs != "" {
 		s.T().Logf(
 			"even though the node is producing blocks, there are error messages contained in the logs:\n%s",

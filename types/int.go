@@ -20,7 +20,8 @@ func SafeInt64(value uint64) (int64, error) {
 		return 0, errorsmod.Wrapf(errortypes.ErrInvalidHeight, "uint64 value %v cannot exceed %v", value, int64(math.MaxInt64))
 	}
 
-	return int64(value), nil // #nosec G701 -- checked for int overflow already
+	// #nosec G701 -- checked for int overflow already
+	return int64(value), nil //nolint:gosec
 }
 
 // SafeNewIntFromBigInt constructs Int from big.Int, return error if more than 256bits
