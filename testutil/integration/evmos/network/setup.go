@@ -10,6 +10,8 @@ import (
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -17,6 +19,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -28,11 +31,13 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 
+	evmostestutil "github.com/evmos/evmos/v19/testutil"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	evmosutil "github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -157,17 +162,25 @@ func createStakingValidator(val *tmtypes.Validator, bondedAmt sdkmath.Int) (stak
 
 // createStakingValidators creates staking validators from the given tm validators and bonded
 // amounts
-func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
+func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, []abcitypes.ValidatorUpdate, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
+
+	initValPowers := []abcitypes.ValidatorUpdate{}
 	for _, val := range tmValidators {
 		validator, err := createStakingValidator(val, bondedAmt)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		stakingValidators = append(stakingValidators, validator)
+
+		protoVal, _ := val.ToProto()
+		initValPowers = append(initValPowers, abcitypes.ValidatorUpdate{
+			Power:  val.VotingPower,
+			PubKey: protoVal.PubKey,
+		})
 	}
-	return stakingValidators, nil
+	return stakingValidators, initValPowers, nil
 }
 
 // createDelegations creates delegations for the given validators and account
@@ -249,6 +262,7 @@ type defaultGenesisParams struct {
 	genAccounts []authtypes.GenesisAccount
 	staking     StakingCustomGenesisState
 	bank        BankCustomGenesisState
+	valUpdate   []abci.ValidatorUpdate
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
@@ -306,6 +320,22 @@ func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState simapp.Genesi
 	return genesisState
 }
 
+func setDefaultCcvGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, initValPowers []abci.ValidatorUpdate) simapp.GenesisState {
+	vals, err := tmtypes.PB2TM.ValidatorUpdates(initValPowers)
+	if err != nil {
+		panic("failed to get vals")
+	}
+	// Define the cross-chain validation module genesis.
+	// Ref: https://github.com/Stride-Labs/stride/blob/4cfda614e8fb9664ce72861d32824d72430d4436/app/test_setup.go#L171-L175
+	consumerGenesisState := evmostestutil.CreateMinimalConsumerTestGenesis()
+	consumerGenesisState.Provider.InitialValSet = initValPowers
+	consumerGenesisState.Provider.ConsensusState.NextValidatorsHash = tmtypes.NewValidatorSet(vals).Hash()
+	consumerGenesisState.Params.Enabled = true
+	genesisState[consumertypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(consumerGenesisState)
+
+	return genesisState
+}
+
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) simapp.GenesisState {
@@ -317,6 +347,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) si
 	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
+	genesisState = setDefaultCcvGenesisState(evmosApp, genesisState, params.valUpdate)
 
 	return genesisState
 }

@@ -25,6 +25,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -48,6 +49,8 @@ import (
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
+const EvmDenom = "uatom"
+
 // stipend to pay EVM tx fees
 var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
 
@@ -66,6 +69,8 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
+	// Initial validator powers is required to start the consumer chain InitGenesis.
+	initValPowers := []abci.ValidatorUpdate{}
 
 	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
 
@@ -89,6 +94,12 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+
+		protoVal, _ := val.ToProto()
+		initValPowers = append(initValPowers, abci.ValidatorUpdate{
+			Power:  val.VotingPower,
+			PubKey: protoVal.PubKey,
+		})
 	}
 	s.validators = validators
 
@@ -98,6 +109,11 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	stakingParams.BondDenom = utils.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	evmParams := evmtypes.DefaultParams()
+	evmParams.EvmDenom = EvmDenom
+	evmGenesis := evmtypes.NewGenesisState(evmParams, nil)
+	genesisState[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
 
 	totalBondAmt := math.ZeroInt()
 	for range validators {
@@ -118,6 +134,19 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
+
+	vals, err := tmtypes.PB2TM.ValidatorUpdates(initValPowers)
+	if err != nil {
+		panic("failed to get vals")
+	}
+
+	// Define the cross-chain validation module genesis.
+	// Ref: https://github.com/Stride-Labs/stride/blob/4cfda614e8fb9664ce72861d32824d72430d4436/app/test_setup.go#L171-L175
+	consumerGenesisState := evmosutil.CreateMinimalConsumerTestGenesis()
+	consumerGenesisState.Provider.InitialValSet = initValPowers
+	consumerGenesisState.Provider.ConsensusState.NextValidatorsHash = tmtypes.NewValidatorSet(vals).Hash()
+	consumerGenesisState.Params.Enabled = true
+	genesisState[consumertypes.ModuleName] = app.AppCodec().MustMarshalJSON(consumerGenesisState)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	s.Require().NoError(err)
@@ -184,7 +213,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount), sdk.NewCoin(EvmDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -209,12 +238,24 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
+
+	atomCoins := sdk.NewCoins(sdk.NewCoin(EvmDenom, math.NewInt(50000000)))
+	atomDistrCoins := sdk.NewCoins(sdk.NewCoin(EvmDenom, math.NewInt(50000000)))
+	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, atomCoins)
+	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
+	s.Require().NoError(err)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, atomDistrCoins)
 	s.Require().NoError(err)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	params := s.app.EvmKeeper.GetParams(s.ctx)
+	params.EvmDenom = EvmDenom
+	err = s.app.EvmKeeper.SetParams(s.ctx, params)
+	s.Require().NoError(err)
 }
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.

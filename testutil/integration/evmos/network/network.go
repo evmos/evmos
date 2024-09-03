@@ -114,7 +114,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	totalBonded := bondedAmt.Mul(sdktypes.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, bondedAmt)
+	validators, initValPowers, err := createStakingValidators(valSet.Validators, bondedAmt)
 	if err != nil {
 		return err
 	}
@@ -148,6 +148,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			genAccounts: genAccounts,
 			staking:     stakingParams,
 			bank:        bankParams,
+			valUpdate:   initValPowers,
 		},
 	)
 
