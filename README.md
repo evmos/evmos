@@ -84,7 +84,7 @@ For additional instructions, standards and style guides, please refer to the [Co
 
 ## Careers
 
-See our open positions on [Greenhouse](https://boards.eu.greenhouse.io/evmos).
+See our open positions on [Personio](https://altiplanic.jobs.personio.de/?language=en).
 
 ## Licensing
 
