@@ -53,11 +53,11 @@ set -e
 # the older versions of evmosd accept less arguments
 sdk_version=$(evmosd version --long | grep 'cosmos_sdk_version' | awk '{print $2}')
 if [[ $sdk_version == *v0.4* ]]; then
-    evmosd config chain-id "$CHAINID"
-    evmosd config keyring-backend "$KEYRING"
+	evmosd config chain-id "$CHAINID"
+	evmosd config keyring-backend "$KEYRING"
 else
-    evmosd config set client chain-id "$CHAINID"
-    evmosd config set client keyring-backend "$KEYRING"
+	evmosd config set client chain-id "$CHAINID"
+	evmosd config set client keyring-backend "$KEYRING"
 fi
 
 # Import keys from mnemonics
