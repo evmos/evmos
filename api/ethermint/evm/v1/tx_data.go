@@ -42,6 +42,6 @@ func stringToAddress(toStr string) *common.Address {
 	if toStr == "" {
 		return nil
 	}
-	addr := common.BytesToAddress([]byte(toStr))
+	addr := common.HexToAddress(toStr)
 	return &addr
 }
