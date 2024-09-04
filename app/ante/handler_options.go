@@ -50,6 +50,12 @@ func (options HandlerOptions) Validate() error {
 	if options.BankKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "bank keeper is required for AnteHandler")
 	}
+	if options.DistributionKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "distribution keeper is required for AnteHandler")
+	}
+	if options.ConsumerKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "consumer keeper is required for AnteHandler")
+	}
 	if options.IBCKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "ibc keeper is required for AnteHandler")
 	}
@@ -62,20 +68,14 @@ func (options HandlerOptions) Validate() error {
 	if options.EvmKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
 	}
-	if options.SigGasConsumer == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")
-	}
 	if options.SignModeHandler == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "sign mode handler is required for AnteHandler")
 	}
-	if options.DistributionKeeper == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "distribution keeper is required for AnteHandler")
+	if options.SigGasConsumer == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")
 	}
 	if options.TxFeeChecker == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "tx fee checker is required for AnteHandler")
-	}
-	if options.ConsumerKeeper == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "consumer keeper is required for AnteHandler")
 	}
 	return nil
 }
