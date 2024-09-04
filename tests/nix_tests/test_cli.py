@@ -128,7 +128,6 @@ def test_tx_flags(evmos_cluster):
     ]
 
     for tc in test_cases:
-
         try:
             res = node.transfer(
                 "signer1",
