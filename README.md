@@ -32,7 +32,7 @@ parent:
     <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
   </a>
   <a href="https://x.com/EvmosOrg">
-    <img alt="Follow Evmos X" src="https://x.com/intent/follow?screen_name=EvmosOrg"/>
+    <img alt="Follow Evmos on X" src="https://x.com/EvmosOrg"/>
   </a>
 </div>
 
