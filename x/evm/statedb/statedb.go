@@ -63,8 +63,14 @@ type StateDB struct {
 	// The count of calls to precompiles
 	precompileCallsCounter uint8
 
-	// The decimals of the EVM denom
-	denomDecimals uint32
+	// evm denom and decimals
+	denom evmdenom
+}
+
+// evmdenom struct holds the name and decimals of the EVM denom
+type evmdenom struct {
+	denom    string
+	decimals uint32
 }
 
 // New creates a new state from a given trie.
@@ -77,8 +83,11 @@ func New(ctx sdk.Context, keeper Keeper, txConfig TxConfig) *StateDB {
 		journal:      newJournal(),
 		accessList:   newAccessList(),
 
-		txConfig:      txConfig,
-		denomDecimals: params.DenomDecimals,
+		txConfig: txConfig,
+		denom: evmdenom{
+			params.EvmDenom,
+			params.DenomDecimals,
+		},
 	}
 }
 
@@ -548,4 +557,14 @@ func (s *StateDB) commitWithCtx(ctx sdk.Context) error {
 		}
 	}
 	return nil
+}
+
+// GetDenom returns the denom name of the current evm denom
+func (s *StateDB) GetDenom() string {
+	return s.denom.denom
+}
+
+// GetDenom returns the decimals of the current evm denom
+func (s *StateDB) GetDenomDecimals() uint32 {
+	return s.denom.decimals
 }
