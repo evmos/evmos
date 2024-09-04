@@ -36,7 +36,7 @@ const (
 
 // Precompile secp256r1 (P256) signature verification
 // implemented as a native contract as per EIP-7212.
-// See https://eips.ethereum.org/EIPS/eip-7212 for details
+// See https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md for details
 type Precompile struct{}
 
 // Address defines the address of the p256 precompiled contract.
