@@ -31,8 +31,8 @@ parent:
   <a href="https://codecov.io/gh/evmos/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
   </a>
-  <a href="https://twitter.com/EvmosOrg">
-    <img alt="Twitter Follow Evmos" src="https://x.com/intent/follow?screen_name=EvmosOrg"/>
+  <a href="https://x.com/EvmosOrg">
+    <img alt="Follow Evmos X" src="https://x.com/intent/follow?screen_name=EvmosOrg"/>
   </a>
 </div>
 
