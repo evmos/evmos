@@ -169,8 +169,8 @@ schema = 3
     version = "v7.0.0"
     hash = "sha256-eHXU2btyS0GADsPH1DkohydVNQsrEXfEHzRguH0JyK0="
   [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.7.0"
-    hash = "sha256-JS84d+tqd65eNfsV3FNkjWWAjDaqhiX4/tdUGjdkUb8="
+    version = "v7.8.0"
+    hash = "sha256-6tK5KyTjkFWXs/xL+8WkiFAnzekaQvPRB9rpJtPzrnk="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
