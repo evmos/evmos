@@ -56,11 +56,7 @@
         evm: {
           params: {
             evm_denom: 'aevmos',
-          },
-        },
-        crisis: {
-          constant_fee: {
-            denom: 'aevmos',
+            denom_decimals: 18,
           },
         },
         staking: {

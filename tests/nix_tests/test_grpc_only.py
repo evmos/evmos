@@ -13,6 +13,7 @@ from .utils import (
     CONTRACTS,
     decode_bech32,
     deploy_contract,
+    evm6dec_config,
     memiavl_config,
     supervisorctl,
     wait_for_block,
@@ -31,6 +32,16 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
+def custom_evmos_6dec(tmp_path_factory):
+    path = tmp_path_factory.mktemp("grpc-only-6dec")
+    yield from setup_custom_evmos(
+        path,
+        46810,
+        evm6dec_config(path, "rollback-test"),
+    )
+
+
+@pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("grpc-only-rocksdb")
     yield from setup_custom_evmos(
@@ -42,8 +53,8 @@ def custom_evmos_rocksdb(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -51,6 +62,8 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-6dec":
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     else:
