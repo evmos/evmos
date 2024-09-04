@@ -143,7 +143,7 @@ def test_tx_flags(evmos_cluster):
                 )
                 # wait for block to update nonce
                 current_height = get_current_height(node)
-                wait_for_block(node, current_height + 1)
+                wait_for_block(node, current_height + 2)
             else:
                 assert res["code"] != 0, tc["name"] + ". expected tx to fail"
                 assert tc["err_msg"] in res["raw_log"]
