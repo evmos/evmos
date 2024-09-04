@@ -32,7 +32,7 @@ parent:
     <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/EvmosOrg">
-    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
+    <img alt="Twitter Follow Evmos" src="https://x.com/intent/follow?screen_name=EvmosOrg"/>
   </a>
 </div>
 
@@ -70,7 +70,7 @@ Or check out the latest [release](https://github.com/evmos/evmos/releases).
 
 The following chat channels and forums are great spots to ask questions about Evmos:
 
-- [Evmos Twitter](https://twitter.com/EvmosOrg)
+- [Evmos X (Twitter)](https://x.com/EvmosOrg)
 - [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://commonwealth.im/evmos)
 
