@@ -77,11 +77,11 @@ func (k Keeper) AllocateExponentialInflation(
 	// Allocate community pool amount (remaining module balance) to community
 	// pool address
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	inflationBalance := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	communityPool = k.bankKeeper.GetAllBalances(ctx, moduleAddr)
 
 	err = k.distrKeeper.FundCommunityPool(
 		ctx,
-		inflationBalance,
+		communityPool,
 		moduleAddr,
 	)
 	if err != nil {
@@ -91,7 +91,7 @@ func (k Keeper) AllocateExponentialInflation(
 	return staking, communityPool, nil
 }
 
-// GetAllocationProportion calculates the proportion of coins that is to be
+// GetProportions calculates the proportion of coins that is to be
 // allocated during inflation for a given distribution.
 func (k Keeper) GetProportions(
 	_ sdk.Context,
