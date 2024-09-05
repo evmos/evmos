@@ -97,30 +97,16 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 		malleate func() common.Address
 	}{
 		{
-<<<<<<< HEAD
 			name:     "Only accounts that are not a contract (no storage)",
 			malleate: nil,
 		},
 		{
 			name: "One contract (with storage) and other EOAs",
 			malleate: func() common.Address {
-=======
-			"one account that's not a contract (no storage) - One precompile account (no storage)",
-			func() {},
-			[]int{0, 0},
-		},
-		{
-			"Two accounts - one contract (with storage), one wallet - One precompile account (no storage)",
-			func() {
->>>>>>> 24266c93 (chore(erc20): add codehash on erc20 precompile register  (#2763))
 				supply := big.NewInt(100)
 				contractAddr := suite.DeployTestContract(suite.T(), suite.address, supply)
 				return contractAddr
 			},
-<<<<<<< HEAD
-=======
-			[]int{2, 0, 0},
->>>>>>> 24266c93 (chore(erc20): add codehash on erc20 precompile register  (#2763))
 		},
 	}
 
