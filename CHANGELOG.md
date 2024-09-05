@@ -39,8 +39,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (erc20) [#2763](https://github.com/evmos/evmos/pull/2763) Added register/unregister erc20 codehash on the dynamic precompile accounts when updating the `x/erc20` params.
-- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 - (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-go to v7.8.0.
@@ -52,6 +50,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 - (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
+
+## [v19.2.0] - 2024-08-19
+
+### State Machine Breaking
+
+- (erc20) [#2763](https://github.com/evmos/evmos/pull/2763) Added register/unregister erc20 codehash on the dynamic precompile accounts when updating the `x/erc20` params.
+- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
 
 ### Bug Fixes
 
