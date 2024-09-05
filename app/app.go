@@ -688,21 +688,6 @@ func NewEvmos(
 		evidencetypes.ModuleName,
 		stakingtypes.ModuleName,
 		ibcexported.ModuleName,
-		// no-op modules
-		ibctransfertypes.ModuleName,
-		icatypes.ModuleName,
-		authtypes.ModuleName,
-		banktypes.ModuleName,
-		govtypes.ModuleName,
-		genutiltypes.ModuleName,
-		authz.ModuleName,
-		feegrant.ModuleName,
-		paramstypes.ModuleName,
-		vestingtypes.ModuleName,
-		inflationtypes.ModuleName,
-		erc20types.ModuleName,
-		consensusparamtypes.ModuleName,
-		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -711,29 +696,6 @@ func NewEvmos(
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
-		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
-		epochstypes.ModuleName,
-		// no-op modules
-		ibcexported.ModuleName,
-		ibctransfertypes.ModuleName,
-		icatypes.ModuleName,
-		capabilitytypes.ModuleName,
-		authtypes.ModuleName,
-		banktypes.ModuleName,
-		distrtypes.ModuleName,
-		slashingtypes.ModuleName,
-		genutiltypes.ModuleName,
-		evidencetypes.ModuleName,
-		authz.ModuleName,
-		feegrant.ModuleName,
-		paramstypes.ModuleName,
-		upgradetypes.ModuleName,
-		// Evmos modules
-		vestingtypes.ModuleName,
-		inflationtypes.ModuleName,
-		erc20types.ModuleName,
-		consensusparamtypes.ModuleName,
-		ratelimittypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
