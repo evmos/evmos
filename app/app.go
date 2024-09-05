@@ -1184,7 +1184,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-
 	// v19.2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v192.UpgradeName,
@@ -1216,8 +1215,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		}
 	case v192.UpgradeName:
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added:   []string{ratelimittypes.ModuleName},
-		}		
+			Added: []string{ratelimittypes.ModuleName},
+		}
 	default:
 		// no-op
 	}
