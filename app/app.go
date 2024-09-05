@@ -1248,19 +1248,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 		return
 	}
 
-	var storeUpgrades *storetypes.StoreUpgrades
+	// var storeUpgrades *storetypes.StoreUpgrades
 
-	switch upgradeInfo.Name {
+	// switch upgradeInfo.Name {
 	// case v191.UpgradeName:
 	// 	storeUpgrades = &storetypes.StoreUpgrades{
 	// 		Added: []string{ratelimittypes.ModuleName},
 	// 	}
-	default:
-		// no-op
-	}
+	// default:
+		// // no-op
+	// }
 
-	if storeUpgrades != nil {
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
-	}
+	// if storeUpgrades != nil {
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	// }
 }
