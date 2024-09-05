@@ -25,6 +25,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetStorageCmd(),
 		GetCodeCmd(),
+		GetAccountCmd(),
 		GetParamsCmd(),
 	)
 	return cmd
@@ -95,6 +96,43 @@ func GetCodeCmd() *cobra.Command {
 			}
 
 			res, err := queryClient.Code(rpctypes.ContextWithHeight(clientCtx.Height), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetAccountCmd queries the account of a given address
+func GetAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "account ADDRESS",
+		Short: "Gets account info from an address",
+		Long:  "Gets account info from an address. If the height is not provided, it will use the latest height from context.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			address, err := accountToHex(args[0])
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryAccountRequest{
+				Address: address,
+			}
+
+			res, err := queryClient.Account(rpctypes.ContextWithHeight(clientCtx.Height), req)
 			if err != nil {
 				return err
 			}

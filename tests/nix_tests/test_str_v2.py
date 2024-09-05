@@ -237,7 +237,7 @@ def test_toggle_erc20_precompile(ibc):
     # assert that there's code and code hash
     # on the erc20 contract address
     contract_bech32_addr = eth_to_bech32(ATOM_1_ERC20_ADDRESS)
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == erc20_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
@@ -250,7 +250,7 @@ def test_toggle_erc20_precompile(ibc):
     update_erc20_params(evmos)
 
     # check that code and code hash were updated
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == empty_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
@@ -264,7 +264,7 @@ def test_toggle_erc20_precompile(ibc):
     )
 
     # check that code and code hash were restored
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == erc20_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)

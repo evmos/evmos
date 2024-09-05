@@ -1256,7 +1256,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// 		Added: []string{ratelimittypes.ModuleName},
 	// 	}
 	// default:
-		// // no-op
+	// // no-op
 	// }
 
 	// if storeUpgrades != nil {

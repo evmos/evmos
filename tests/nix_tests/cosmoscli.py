@@ -1091,6 +1091,11 @@ class CosmosCLI:
             )
         )
 
+    def evm_account(self, addr):
+        return json.loads(
+            self.raw("query", "evm", "account", addr, output="json", node=self.node_rpc)
+        )
+
     # ==========================
     #        ERC20 Module
     # ==========================
