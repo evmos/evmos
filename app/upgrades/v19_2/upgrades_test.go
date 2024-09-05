@@ -13,7 +13,6 @@ import (
 
 	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
@@ -83,9 +82,9 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 					require.Nil(t, acc)
 					return
 				}
-				ethAcct, ok := acc.(*types.EthAccount)
-				require.True(t, ok)
-				require.Equal(t, ethAcct.CodeHash, expCodeHash.String())
+				ethAddr := common.BytesToAddress(acc.GetAddress().Bytes())
+				codeHash := network.App.EvmKeeper.GetCodeHash(ctx, ethAddr)
+				require.Equal(t, codeHash.String(), expCodeHash.String())
 			},
 		},
 		{
