@@ -37,8 +37,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-<<<<<<< HEAD
-=======
 ### State Machine Breaking
 
 - (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
@@ -60,7 +58,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v19.0.0] - 2024-07-23
 
->>>>>>> 0fb0ffc2 (add upgrade logic to add code to erc20 prec addrs (#2759))
 ### State Machine Breaking
 
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
