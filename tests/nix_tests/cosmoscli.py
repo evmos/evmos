@@ -688,7 +688,7 @@ class CosmosCLI:
             "gas_prices",
             f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
         )
-        kwargs.setdefault("gas", 600_000)
+        kwargs.setdefault("gas", DEFAULT_GAS)
         return json.loads(
             self.raw(
                 "tx",
@@ -798,7 +798,7 @@ class CosmosCLI:
             "gas_prices",
             f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
         )
-        kwargs.setdefault("gas", 600_000)
+        kwargs.setdefault("gas", str(int(DEFAULT_GAS) + 200_000))
         return json.loads(
             self.raw(
                 "tx",

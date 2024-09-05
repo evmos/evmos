@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
@@ -22,6 +23,25 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return types.NewParams(enableErc20, nativePrecompiles, dynamicPrecompiles)
 }
 
+func (k Keeper) UpdateCodeHash(ctx sdk.Context, updatedDynamicPrecompiles []string) error {
+	// if a precompile is disabled or deleted in the params, we should remove the codehash
+	oldDynamicPrecompiles := k.getDynamicPrecompiles(ctx)
+	disabledPrecompiles, enabledPrecompiles := types.GetDisabledAndEnabledPrecompiles(oldDynamicPrecompiles, updatedDynamicPrecompiles)
+	for _, precompile := range disabledPrecompiles {
+		if err := k.UnRegisterERC20CodeHash(ctx, precompile); err != nil {
+			return err
+		}
+	}
+
+	// if a precompile is added we should register the account with the erc20 codehash
+	for _, precompile := range enabledPrecompiles {
+		if err := k.RegisterERC20CodeHash(ctx, common.HexToAddress(precompile)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // SetParams sets the erc20 parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	// and keep params equal between different executions
@@ -29,6 +49,11 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	slices.Sort(params.NativePrecompiles)
 
 	if err := params.Validate(); err != nil {
+		return err
+	}
+
+	// update the codehash for enabled or disabled dynamic precompiles
+	if err := k.UpdateCodeHash(ctx, params.DynamicPrecompiles); err != nil {
 		return err
 	}
 

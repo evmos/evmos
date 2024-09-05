@@ -134,7 +134,14 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			network = testnetwork.NewUnitTestNetwork()
+			erc20GenesisState := erc20types.DefaultGenesisState()
+			erc20GenesisState.TokenPairs = []erc20types.TokenPair{}
+			genesis := testnetwork.CustomGenesisState{
+				erc20types.ModuleName: erc20GenesisState,
+			}
+			network = testnetwork.NewUnitTestNetwork(
+				testnetwork.WithCustomGenesis(genesis))
+
 			ctx := network.GetContext()
 
 			// check code does not exist
@@ -149,15 +156,14 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 			tc.malleate(ctx)
 
 			logger := ctx.Logger()
-			err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper, network.App.EvmKeeper)
+			err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper)
 			require.NoError(t, err)
 
 			code = network.App.EvmKeeper.GetCode(ctx, expCodeHash)
 			require.True(t, len(code) > 0)
 
 			pairs := network.App.Erc20Keeper.GetTokenPairs(ctx)
-			// we should expect to have the wevmos token pair too
-			require.Equal(t, len(tokenPairsSeed)+1, len(pairs))
+			require.Equal(t, len(tokenPairsSeed), len(pairs))
 			for _, p := range pairs {
 				tc.postCheck(t, ctx, p)
 			}
