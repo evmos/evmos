@@ -167,6 +167,26 @@ func (_m *EVMKeeper) EstimateGasInternal(c context.Context, req *evmtypes.EthCal
 	return r0, r1
 }
 
+// GetAccount provides a mock function with given fields: ctx, address
+func (_m *EVMKeeper) GetAccount(ctx types.Context, address common.Address) *statedb.Account {
+	ret := _m.Called(ctx, address)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccount")
+	}
+
+	var r0 *statedb.Account
+	if rf, ok := ret.Get(0).(func(types.Context, common.Address) *statedb.Account); ok {
+		r0 = rf(ctx, address)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*statedb.Account)
+		}
+	}
+
+	return r0
+}
+
 // GetAccountWithoutBalance provides a mock function with given fields: ctx, addr
 func (_m *EVMKeeper) GetAccountWithoutBalance(ctx types.Context, addr common.Address) *statedb.Account {
 	ret := _m.Called(ctx, addr)
@@ -181,6 +201,26 @@ func (_m *EVMKeeper) GetAccountWithoutBalance(ctx types.Context, addr common.Add
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*statedb.Account)
+		}
+	}
+
+	return r0
+}
+
+// GetCode provides a mock function with given fields: ctx, hash
+func (_m *EVMKeeper) GetCode(ctx types.Context, hash common.Hash) []byte {
+	ret := _m.Called(ctx, hash)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCode")
+	}
+
+	var r0 []byte
+	if rf, ok := ret.Get(0).(func(types.Context, common.Hash) []byte); ok {
+		r0 = rf(ctx, hash)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
 		}
 	}
 
@@ -221,6 +261,29 @@ func (_m *EVMKeeper) IsAvailableStaticPrecompile(params *evmtypes.Params, addres
 	}
 
 	return r0
+}
+
+// SetAccount provides a mock function with given fields: ctx, address, account
+func (_m *EVMKeeper) SetAccount(ctx types.Context, address common.Address, account statedb.Account) error {
+	ret := _m.Called(ctx, address, account)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetAccount")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(types.Context, common.Address, statedb.Account) error); ok {
+		r0 = rf(ctx, address, account)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetCode provides a mock function with given fields: ctx, hash, bytecode
+func (_m *EVMKeeper) SetCode(ctx types.Context, hash []byte, bytecode []byte) {
+	_m.Called(ctx, hash, bytecode)
 }
 
 // NewEVMKeeper creates a new instance of EVMKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
