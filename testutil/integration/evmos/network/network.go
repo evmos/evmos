@@ -22,6 +22,7 @@ import (
 	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cometbft/cometbft/version"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -280,6 +281,16 @@ func (n *IntegrationNetwork) GetOtherDenoms() []string {
 // GetValidators returns the network's validators
 func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 	return n.validators
+}
+
+// GetOtherDenoms returns network's other supported denoms
+func (n *IntegrationNetwork) GetEncodingConfig() sdktestutil.TestEncodingConfig {
+	return sdktestutil.TestEncodingConfig{
+		InterfaceRegistry: n.app.InterfaceRegistry(),
+		Codec:             n.app.AppCodec(),
+		TxConfig:          n.app.GetTxConfig(),
+		Amino:             n.app.LegacyAmino(),
+	}
 }
 
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.

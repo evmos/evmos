@@ -7,8 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 )
 
 // GetAccount returns the account for the given address.
@@ -21,7 +19,7 @@ func (gqh *IntegrationHandler) GetAccount(address string) (sdk.AccountI, error) 
 		return nil, err
 	}
 
-	encodingCgf := encoding.MakeConfig(app.ModuleBasics)
+	encodingCgf := gqh.network.GetEncodingConfig()
 	var acc sdk.AccountI
 	if err = encodingCgf.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return nil, err

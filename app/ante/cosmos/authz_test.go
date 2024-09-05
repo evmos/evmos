@@ -21,11 +21,15 @@ import (
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func TestAuthzLimiterDecorator(t *testing.T) {
+	nw := network.New()
+	txCfg := nw.GetEncodingConfig().TxConfig
 	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(5)
 	require.NoError(t, err)
 
@@ -264,7 +268,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			ctx := sdk.Context{}.WithIsCheckTx(tc.checkTx)
-			tx, err := createTx(ctx, testPrivKeys[0], tc.msgs...)
+			tx, err := createTx(ctx, txCfg, testPrivKeys[0], tc.msgs...)
 			require.NoError(t, err)
 
 			_, err = decorator.AnteHandle(ctx, tx, false, testutil.NextFn)

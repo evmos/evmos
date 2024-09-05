@@ -20,9 +20,7 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	evmosfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
@@ -565,7 +563,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				totalSendAmt = totalSendAmt.Add(txAmount)
 			}
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -606,7 +604,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				msgs[i] = &msg
 			}
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -643,7 +641,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				}
 			}
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -669,7 +667,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msg, err := s.factory.GenerateSignedMsgEthereumTx(testAccount.Priv, evmtypes.EvmTxArgs{To: &dest, GasPrice: gasPrice.BigInt(), GasLimit: gasLimit, Amount: txAmount.BigInt()})
 			Expect(err).To(BeNil())
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, &msg)
 			Expect(err).To(BeNil())
 
@@ -695,7 +693,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				msgs[i] = &msg
 			}
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -723,7 +721,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			msgs[numVestAccounts] = &msg
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -753,7 +751,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			msgs = append(msgs, &msg)
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 
@@ -780,7 +778,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			msgs := []sdk.Msg{&normAccMsg, &vestAccMsg}
 
-			txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+			txConfig := s.network.GetEncodingConfig().TxConfig
 			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
 			Expect(err).To(BeNil())
 

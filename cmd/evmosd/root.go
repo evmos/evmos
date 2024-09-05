@@ -34,7 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -52,8 +51,6 @@ import (
 	evmosclient "github.com/evmos/evmos/v19/client"
 	"github.com/evmos/evmos/v19/client/block"
 	"github.com/evmos/evmos/v19/client/debug"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
 	evmosserver "github.com/evmos/evmos/v19/server"
 	servercfg "github.com/evmos/evmos/v19/server/config"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
@@ -63,9 +60,11 @@ import (
 	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
 )
 
-const (
-	EnvPrefix = "EVMOS"
-)
+const EnvPrefix = "EVMOS"
+
+type emptyAppOptions struct{}
+
+func (ao emptyAppOptions) Get(_ string) interface{} { return nil }
 
 // NewRootCmd creates a new root command for evmosd. It is called once in the
 // main function.
@@ -79,8 +78,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		nil, true, nil,
 		tempDir(app.DefaultNodeHome),
 		0,
-		encoding.MakeConfig(app.ModuleBasics),
-		simtestutil.NewAppOptionsWithFlagHome(tempDir(app.DefaultNodeHome)),
+		emptyAppOptions{},
 	)
 	encodingConfig := sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
@@ -100,8 +98,6 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		WithKeyringOptions(evmoskr.Option()).
 		WithViper(EnvPrefix).
 		WithLedgerHasProtobuf(true)
-
-	eip712.SetEncodingConfig(encodingConfig)
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name,
@@ -159,7 +155,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
 		evmosclient.ValidateChainID(
-			InitCmd(app.ModuleBasics, app.DefaultNodeHome),
+			InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
 		),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
@@ -168,15 +164,15 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		),
 		MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
-			app.ModuleBasics, tempApp.GetTxConfig(),
+			tempApp.BasicModuleManager, tempApp.GetTxConfig(),
 			banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
 			tempApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
 		),
-		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
+		genutilcli.ValidateGenesisCmd(tempApp.BasicModuleManager),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		cmtcli.NewCompletionCmd(rootCmd, true),
-		NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
+		NewTestnetCmd(tempApp.BasicModuleManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(a.newApp, app.DefaultNodeHome),
@@ -356,7 +352,6 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(sdkserver.FlagInvCheckPeriod)),
-		a.encCfg,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))),
@@ -394,13 +389,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts)
 
 		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts)
 	}
 
 	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

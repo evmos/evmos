@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
@@ -79,7 +78,7 @@ type IntegrationTxFactory struct {
 
 	grpcHandler grpc.Handler
 	network     network.Network
-	ec          *testutiltypes.TestEncodingConfig
+	ec          testutiltypes.TestEncodingConfig
 }
 
 // New creates a new IntegrationTxFactory instance
@@ -87,14 +86,13 @@ func New(
 	network network.Network,
 	grpcHandler grpc.Handler,
 ) TxFactory {
-	ec := makeConfig(app.ModuleBasics)
-	cf := commonfactory.New(network, grpcHandler, &ec)
+	cf := commonfactory.New(network, grpcHandler)
 	return &IntegrationTxFactory{
 		CoreTxFactory:    cf,
 		VestingTxFactory: newVestingTxFactory(cf),
 		grpcHandler:      grpcHandler,
 		network:          network,
-		ec:               &ec,
+		ec:               network.GetEncodingConfig(),
 	}
 }
 

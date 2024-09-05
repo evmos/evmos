@@ -26,7 +26,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v19/encoding"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 
@@ -89,13 +88,12 @@ func Setup(
 		log.NewNopLogger(),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 5,
-		encoding.MakeConfig(ModuleBasics),
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
-		genesisState := NewDefaultGenesisState()
+		genesisState := app.DefaultGenesis()
 
 		genesisState = GenesisStateWithValSet(app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 
@@ -197,15 +195,14 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		db := dbm.NewMemDB()
-		cfg := encoding.MakeConfig(ModuleBasics)
 		app := NewEvmos(
 			log.NewNopLogger(),
 			db, nil, true,
 			map[int64]bool{},
-			DefaultNodeHome, 5, cfg,
+			DefaultNodeHome, 5,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
 			baseapp.SetChainID(chainID),
 		)
-		return app, NewDefaultGenesisState()
+		return app, app.DefaultGenesis()
 	}
 }

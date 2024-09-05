@@ -10,9 +10,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/stretchr/testify/suite"
 )
@@ -257,7 +256,8 @@ func (s *IntegrationTestSuite) checkProposalPassed(ctx context.Context) {
 		"failed to query proposals;\nstdout: %s,\nstderr: %s", outBuf.String(), errBuf.String(),
 	)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := network.New()
+	encodingConfig := nw.GetEncodingConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	s.Require().True(ok, "encoding config codec is not a proto codec")
 

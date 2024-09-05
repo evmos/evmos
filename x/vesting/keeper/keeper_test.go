@@ -5,8 +5,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/vesting/keeper"
@@ -16,7 +14,7 @@ import (
 
 func TestNewKeeper(t *testing.T) {
 	nw := network.NewUnitTestNetwork()
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := nw.GetEncodingConfig()
 	cdc := encCfg.Codec
 	storeKey := storetypes.NewKVStoreKey(vestingtypes.StoreKey)
 

@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v19/ethereum/eip712"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
@@ -23,9 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/utils"
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -69,12 +68,12 @@ func TestEIP712TestSuite(t *testing.T) {
 }
 
 func (suite *EIP712TestSuite) SetupTest() {
-	suite.config = encoding.MakeConfig(app.ModuleBasics)
+	nw := network.New()
+	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
 	suite.denom = utils.BaseDenom
 
 	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
-	eip712.SetEncodingConfig(suite.config)
 }
 
 // createTestAddress creates random test addresses for messages

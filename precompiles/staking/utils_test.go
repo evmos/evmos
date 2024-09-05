@@ -7,8 +7,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
@@ -18,6 +16,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,7 +78,7 @@ func CheckAuthorizationWithContext(ctx sdk.Context, ak authzkeeper.Keeper, autho
 }
 
 // CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
-func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time, error) {
+func CheckAuthorization(gh grpc.Handler, ir cdctypes.InterfaceRegistry, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time, error) {
 	grants, err := gh.GetGrants(sdk.AccAddress(grantee.Bytes()).String(), sdk.AccAddress(granter.Bytes()).String())
 	if err != nil {
 		return nil, nil, err
@@ -89,7 +88,6 @@ func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.Authoriz
 		return nil, nil, fmt.Errorf("no authorizations found for grantee %s and granter %s", grantee, granter)
 	}
 
-	encodingCfg := encoding.MakeConfig(app.ModuleBasics)
 	var (
 		expGrant           *authz.Grant
 		stakeAuthorization *stakingtypes.StakeAuthorization
@@ -99,7 +97,7 @@ func CheckAuthorization(gh grpc.Handler, authorizationType stakingtypes.Authoriz
 			ok   bool
 			auth authz.Authorization
 		)
-		if err = encodingCfg.InterfaceRegistry.UnpackAny(g.Authorization, &auth); err != nil {
+		if err = ir.UnpackAny(g.Authorization, &auth); err != nil {
 			return nil, nil, err
 		}
 		stakeAuthorization, ok = auth.(*stakingtypes.StakeAuthorization)
@@ -241,7 +239,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, expectedAuthz, *txArgs.To, granter.Addr)
+		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, expectedAuthz, *txArgs.To, granter.Addr)
 		Expect(err).To(BeNil())
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
@@ -276,7 +274,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(
 // ExpectAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
 // authorization is correctly set.
 func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address, maxTokens *sdk.Coin) {
-	authz, expirationTime, err := CheckAuthorization(s.grpcHandler, authorizationType, grantee, granter)
+	authz, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, authorizationType, grantee, granter)
 	Expect(err).To(BeNil())
 	Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 	Expect(authz.AuthorizationType).To(Equal(authorizationType), "expected different authorization type")

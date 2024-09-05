@@ -20,8 +20,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
@@ -68,7 +67,8 @@ func NewManager(networkName string) (*Manager, error) {
 		return nil, fmt.Errorf("docker network creation error: %w", err)
 	}
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := testnetwork.New()
+	encodingConfig := nw.GetEncodingConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	if !ok {
 		return nil, fmt.Errorf("failed to get proto codec")

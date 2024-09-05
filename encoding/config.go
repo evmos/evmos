@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -16,26 +15,13 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	enccodec "github.com/evmos/evmos/v19/encoding/codec"
+	"github.com/evmos/evmos/v19/ethereum/eip712"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
-// MakeConfig creates an EncodingConfig for testing
-// and registers the interfaces
-func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
-	ec := encodingConfig()
-	enccodec.RegisterLegacyAminoCodec(ec.Amino)
-	mb.RegisterLegacyAminoCodec(ec.Amino)
-	enccodec.RegisterInterfaces(ec.InterfaceRegistry)
-	mb.RegisterInterfaces(ec.InterfaceRegistry)
-	// This is needed for the EIP712 txs because currently is using
-	// the deprecated method legacytx.StdSignBytes
-	legacytx.RegressionTestingAminoCodec = ec.Amino
-	return ec
-}
-
 // encodingConfig creates a new EncodingConfig and returns it
-func encodingConfig() sdktestutil.TestEncodingConfig {
+func MakeConfig() sdktestutil.TestEncodingConfig {
 	cdc := amino.NewLegacyAmino()
 	signingOptions := signing.Options{
 		AddressCodec: address.Bech32Codec{
@@ -55,6 +41,13 @@ func encodingConfig() sdktestutil.TestEncodingConfig {
 		SigningOptions: signingOptions,
 	})
 	codec := amino.NewProtoCodec(interfaceRegistry)
+	enccodec.RegisterLegacyAminoCodec(cdc)
+	enccodec.RegisterInterfaces(interfaceRegistry)
+
+	// This is needed for the EIP712 txs because currently is using
+	// the deprecated method legacytx.StdSignBytes
+	legacytx.RegressionTestingAminoCodec = cdc
+	eip712.SetEncodingConfig(cdc, interfaceRegistry)
 
 	return sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: interfaceRegistry,

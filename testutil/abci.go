@@ -16,7 +16,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/testutil/tx"
 )
 
@@ -65,7 +64,7 @@ func DeliverTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := appEvmos.GetTxConfig()
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
 		appEvmos,
@@ -92,7 +91,7 @@ func DeliverEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := appEvmos.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
 	if err != nil {
@@ -103,7 +102,7 @@ func DeliverEthTx(
 		return res, err
 	}
 
-	codec := encoding.MakeConfig(app.ModuleBasics).Codec
+	codec := appEvmos.AppCodec()
 	if _, err := CheckEthTxResponse(res, codec); err != nil {
 		return res, err
 	}
@@ -119,7 +118,7 @@ func DeliverEthTxWithoutCheck(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := appEvmos.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
 	if err != nil {
@@ -142,7 +141,7 @@ func CheckTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := appEvmos.GetTxConfig()
 
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
@@ -168,7 +167,7 @@ func CheckEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := appEvmos.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
 	if err != nil {

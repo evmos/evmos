@@ -4,7 +4,6 @@
 package factory
 
 import (
-	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 )
@@ -38,9 +37,8 @@ type IntegrationTxFactory struct {
 func New(
 	network network.Network,
 	grpcHandler grpc.Handler,
-	ec *testutiltypes.TestEncodingConfig,
 ) CoreTxFactory {
-	bf := newBaseTxFactory(network, grpcHandler, ec)
+	bf := newBaseTxFactory(network, grpcHandler)
 	return &IntegrationTxFactory{
 		bf,
 		newDistrTxFactory(bf),

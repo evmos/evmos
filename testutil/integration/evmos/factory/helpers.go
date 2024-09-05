@@ -6,12 +6,9 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/encoding"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 )
 
@@ -20,11 +17,6 @@ func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmt
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
 	return *msgEthereumTx
-}
-
-// makeConfig creates an EncodingConfig for testing
-func makeConfig(mb module.BasicManager) testutiltypes.TestEncodingConfig {
-	return encoding.MakeConfig(mb)
 }
 
 // CheckError is a helper function to check if the error is the expected one.

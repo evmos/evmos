@@ -39,19 +39,18 @@ type BaseTxFactory interface {
 type baseTxFactory struct {
 	grpcHandler grpc.Handler
 	network     network.Network
-	ec          *testutiltypes.TestEncodingConfig
+	ec          testutiltypes.TestEncodingConfig
 }
 
 // newBaseTxFactory instantiates a new baseTxFactory
 func newBaseTxFactory(
 	network network.Network,
 	grpcHandler grpc.Handler,
-	ec *testutiltypes.TestEncodingConfig,
 ) BaseTxFactory {
 	return &baseTxFactory{
 		grpcHandler: grpcHandler,
 		network:     network,
-		ec:          ec,
+		ec:          network.GetEncodingConfig(),
 	}
 }
 

@@ -329,7 +329,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, grantee.Addr, granter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, grantee.Addr, granter.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
@@ -404,7 +404,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, granteeAddr, granter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, granteeAddr, granter.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
@@ -442,7 +442,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check that the authorization is revoked
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, granteeAddr, granter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, granteeAddr, granter.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", granteeAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be revoked")
@@ -2202,7 +2202,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check approvals
-				authorization, expirationTime, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, granter.Addr)
+				authorization, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
 				Expect(err).To(BeNil())
 				Expect(authorization).ToNot(BeNil(), "expected authorization to not be nil")
 				Expect(expirationTime).ToNot(BeNil(), "expected expiration time to not be nil")
@@ -2332,7 +2332,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check approvals
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, granter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be revoked")
@@ -2365,7 +2365,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			expiration := s.network.GetContext().BlockTime().Add(time.Hour * 24 * 365).UTC()
 			err = s.network.App.AuthzKeeper.SaveGrant(s.network.GetContext(), grantee.AccAddr, differentGranter.AccAddr, delegationAuthz, &expiration)
 			Expect(err).ToNot(HaveOccurred(), "failed to save authorization")
-			authz, _, err := CheckAuthorization(s.grpcHandler, createdAuthz, grantee.Addr, differentGranter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, createdAuthz, grantee.Addr, differentGranter.Addr)
 			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization to be created")
 
@@ -2379,7 +2379,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract")
 
 			// check approvals
-			authz, _, err = CheckAuthorization(s.grpcHandler, createdAuthz, grantee.Addr, differentGranter.Addr)
+			authz, _, err = CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, createdAuthz, grantee.Addr, differentGranter.Addr)
 			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization not to be revoked")
 		})
@@ -2396,7 +2396,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract")
 
 			// check approvals
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, granter.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected no authorization to be found")
@@ -2642,7 +2642,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			BeforeEach(func() {
 				granter := s.keyring.GetKey(0)
 
-				authz, _, err := CheckAuthorization(s.grpcHandler, staking.DelegateAuthz, contractAddr, granter.Addr)
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil")
@@ -3250,7 +3250,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			BeforeEach(func() {
 				delegator := s.keyring.GetKey(0)
 
-				authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), delegator.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
@@ -3383,7 +3383,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			BeforeEach(func() {
 				granter := s.keyring.GetKey(0)
 
-				authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, granter.Addr)
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, granter.Addr)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
@@ -4230,7 +4230,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// There should be no authorizations because everything should have been reverted
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), delegator.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be nil")
@@ -4261,7 +4261,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _, err := CheckAuthorization(s.grpcHandler, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
 			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization not to be nil")
 

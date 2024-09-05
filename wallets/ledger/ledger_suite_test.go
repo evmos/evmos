@@ -21,6 +21,7 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/wallets/ledger"
 	"github.com/evmos/evmos/v19/wallets/ledger/mocks"
 	"github.com/evmos/evmos/v19/wallets/usbwallet"
@@ -33,6 +34,13 @@ type LedgerTestSuite struct {
 	ledger     ledger.EvmosSECP256K1
 	mockWallet *mocks.Wallet
 	hrp        string
+}
+
+// Load encoding config for sign doc encoding/decoding
+// This is done on app instantiation.
+// We use the testutil network to load the encoding config
+func init() {
+	network.New()
 }
 
 func TestLedgerTestSuite(t *testing.T) {

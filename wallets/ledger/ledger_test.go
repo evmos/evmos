@@ -9,19 +9,9 @@ import (
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
 	"github.com/evmos/evmos/v19/wallets/accounts"
 	"github.com/evmos/evmos/v19/wallets/ledger"
 )
-
-// Load encoding config for sign doc encoding/decoding
-func init() {
-	config := encoding.MakeConfig(app.ModuleBasics)
-	eip712.SetEncodingConfig(config)
-	sdk.GetConfig().SetBech32PrefixForAccount("evmos", "")
-}
 
 func (suite *LedgerTestSuite) TestEvmosLedgerDerivation() {
 	testCases := []struct {

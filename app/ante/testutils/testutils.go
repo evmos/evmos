@@ -15,8 +15,6 @@ import (
 	"github.com/evmos/evmos/v19/app"
 	ante "github.com/evmos/evmos/v19/app/ante"
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -92,8 +90,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.handler = gh
 	suite.keyring = keys
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	eip712.SetEncodingConfig(encodingConfig)
+	encodingConfig := nw.GetEncodingConfig()
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 

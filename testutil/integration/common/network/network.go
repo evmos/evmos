@@ -9,6 +9,7 @@ import (
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -48,4 +49,5 @@ type Network interface {
 	// NOTE: this is only used for testing IBC related functionality.
 	// The idea is to deprecate this eventually.
 	GetIBCChain(t *testing.T, coord *ibctesting.Coordinator) *ibctesting.TestChain
+	GetEncodingConfig() sdktestutil.TestEncodingConfig
 }

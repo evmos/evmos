@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -162,7 +161,6 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 	skipUpgradeHeights := map[int64]bool{}
 	homePath := app.DefaultNodeHome
 	invCheckPeriod := uint(5)
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
@@ -174,7 +172,6 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 		skipUpgradeHeights,
 		homePath,
 		invCheckPeriod,
-		encodingConfig,
 		appOptions,
 		baseAppOptions...,
 	)
@@ -461,7 +458,7 @@ func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.Ge
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) evmostypes.GenesisState {
-	genesisState := app.NewDefaultGenesisState()
+	genesisState := evmosApp.DefaultGenesis()
 
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)

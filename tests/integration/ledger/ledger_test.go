@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/crypto/hd"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/tests/integration/ledger/mocks"
@@ -61,7 +60,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Adding a key from ledger using the CLI", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(app.ModuleBasics)
+			encCfg = encoding.MakeConfig()
 
 			cmd = s.evmosAddKeyCmd()
 
@@ -106,7 +105,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Singing a transactions", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(app.ModuleBasics)
+			encCfg = encoding.MakeConfig()
 
 			var err error
 
