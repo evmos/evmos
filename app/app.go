@@ -145,6 +145,7 @@ import (
 	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
 	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
 	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
+	v192 "github.com/evmos/evmos/v19/app/upgrades/v19_2"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
 	"github.com/evmos/evmos/v19/x/erc20"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
@@ -1258,7 +1259,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v20 upgrade handler
+	// v19.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v192.UpgradeName,
+		v192.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.Erc20Keeper,
+			app.EvmKeeper,
+		),
+	)
+  
+  // v20 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v20.UpgradeName,
 		v20.CreateUpgradeHandler(
@@ -1266,7 +1277,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.AccountKeeper,
 			app.EvmKeeper,
 		),
-	)
+	)   
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
