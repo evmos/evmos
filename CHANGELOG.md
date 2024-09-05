@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and ibc-go version to `v8.4.0`.
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.4.0`.
 - (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
 - (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
@@ -71,7 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc) [#2717](https://github.com/evmos/evmos/pull/2717) Add IBC rate-limit middleware.
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
-- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-go to v7.8.0.
+- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
 
 ### Bug Fixes
 
@@ -592,7 +592,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1288](https://github.com/evmos/evmos/pull/1288) Bump `ethermint` to [`v0.21.0`](https://github.com/evmos/ethermint/releases/v0.21.0).
 - (app) [#1101](https://github.com/evmos/evmos/pull/1101) Add ICA host submodule.
 - (inflation) [#1210](https://github.com/evmos/evmos/pull/1210) Delete `EpochMintProvision` from `KVStore` in a migration.
-- (deps) [#1196](https://github.com/evmos/evmos/pull/1196) Bump `ibc-go` to [`v6.1.0`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
+- (deps) [#1196](https://github.com/evmos/evmos/pull/1196) Bump `IBC-Go` to [`v6.1.0`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.0).
 - (inflation) [#1193](https://github.com/evmos/evmos/pull/1193) Remove `EpochMintProvision` setters and getters to calculate on the fly.
 - (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of `x/params` in `x/erc20`.
 - (inflation) [#1107](https://github.com/evmos/evmos/pull/1107) Deprecate usage of `x/params` in `x/inflation`.
@@ -628,7 +628,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5).
-- (deps) [#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0) and Cosmos-SDK to [`v0.46.7`](https://github.com/cosmos/Cosmos-SDK/releases/tag/v0.46.7).
+- (deps) [#1176](https://github.com/evmos/evmos/pull/1176) Bump `IBC-Go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0) and Cosmos-SDK to [`v0.46.7`](https://github.com/cosmos/Cosmos-SDK/releases/tag/v0.46.7).
 - (vesting) [#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [#1041](https://github.com/evmos/evmos/pull/1041) Add ICS-23 dragon-berry replace in `go.mod` as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4).
@@ -991,7 +991,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (app) [#128](https://github.com/evmos/evmos/pull/128) Add ibc-go `TestingApp` interface.
+- (app) [#128](https://github.com/evmos/evmos/pull/128) Add IBC-Go `TestingApp` interface.
 - (ci) [#117](https://github.com/evmos/evmos/pull/117) Enable automatic backport of PRs.
 - (deps) [#135](https://github.com/evmos/evmos/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/evmos/ethermint/releases/tag/v0.9.0).
 - (ci) [#136](https://github.com/evmos/evmos/pull/136) Deploy `evmos` docker container to [docker hub](https://hub.docker.com/u/tharsishq) for every versioned releases.
@@ -1027,7 +1027,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (deps) [#94](https://github.com/evmos/evmos/pull/94) Bump Ethermint version to [`v0.8.0`](https://github.com/evmos/ethermint/releases/tag/v0.8.0).
-- (deps) [#80](https://github.com/evmos/evmos/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0).
+- (deps) [#80](https://github.com/evmos/evmos/pull/80) Bump IBC-Go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0).
 
 ## [v0.1.3](https://github.com/evmos/evmos/releases/tag/v0.1.3) - 2021-10-24
 
