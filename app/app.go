@@ -1190,7 +1190,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v192.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.Erc20Keeper,
-			app.EvmKeeper,
 		),
 	)
 
@@ -1213,7 +1212,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// revenue module is deprecated in v19
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"revenue"},
-			Added:   []string{ratelimittypes.ModuleName},
+		}
+	case v192.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{ratelimittypes.ModuleName},
 		}
 	default:
 		// no-op
