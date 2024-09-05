@@ -6,6 +6,7 @@ package keeper_test
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -16,6 +17,7 @@ import (
 
 func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 	var (
+		ctx sdk.Context
 		// bytecode and codeHash is the same for all IBC coins
 		// cause they're all using the same contract
 		bytecode             = common.FromHex(types.Erc20Bytecode)
@@ -41,7 +43,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 		{
 			"existent account",
 			func() {
-				err := suite.app.EvmKeeper.SetAccount(suite.ctx, account, statedb.Account{
+				err := suite.network.App.EvmKeeper.SetAccount(ctx, account, statedb.Account{
 					CodeHash: codeHash,
 					Nonce:    nonce,
 					Balance:  balance,
@@ -53,12 +55,13 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
+		ctx = suite.network.GetContext()
 		tc.malleate()
 
-		err := suite.app.Erc20Keeper.RegisterERC20CodeHash(suite.ctx, account)
+		err := suite.network.App.Erc20Keeper.RegisterERC20CodeHash(ctx, account)
 		suite.Require().NoError(err)
 
-		acc := suite.app.EvmKeeper.GetAccount(suite.ctx, account)
+		acc := suite.network.App.EvmKeeper.GetAccount(ctx, account)
 		suite.Require().Equal(codeHash, acc.CodeHash)
 		if tc.existent {
 			suite.Require().Equal(balance, acc.Balance)
@@ -68,10 +71,10 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 			suite.Require().Equal(uint64(0), acc.Nonce)
 		}
 
-		err = suite.app.Erc20Keeper.UnRegisterERC20CodeHash(suite.ctx, account.Hex())
+		err = suite.network.App.Erc20Keeper.UnRegisterERC20CodeHash(ctx, account.Hex())
 		suite.Require().NoError(err)
 
-		acc = suite.app.EvmKeeper.GetAccount(suite.ctx, account)
+		acc = suite.network.App.EvmKeeper.GetAccount(ctx, account)
 		suite.Require().Equal(emptyCodeHash, acc.CodeHash)
 		if tc.existent {
 			suite.Require().Equal(balance, acc.Balance)
