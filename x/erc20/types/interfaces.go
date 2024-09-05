@@ -40,6 +40,10 @@ type EVMKeeper interface {
 	IsAvailableStaticPrecompile(params *evmtypes.Params, address common.Address) bool
 	CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error)
 	CallEVMWithData(ctx sdk.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
+	GetCode(ctx sdk.Context, hash common.Hash) []byte
+	SetCode(ctx sdk.Context, hash []byte, bytecode []byte)
+	SetAccount(ctx sdk.Context, address common.Address, account statedb.Account) error
+	GetAccount(ctx sdk.Context, address common.Address) *statedb.Account
 }
 
 type (
