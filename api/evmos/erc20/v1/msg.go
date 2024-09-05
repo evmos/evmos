@@ -9,8 +9,7 @@ import (
 	protov2 "google.golang.org/protobuf/proto"
 )
 
-// GetSigners is the custom function to get signers on Ethereum transactions
-// Gets the signer's address from the Ethereum tx signature
+// GetSigners gets the signer's address from the Ethereum tx signature
 func GetSigners(msg protov2.Message) ([][]byte, error) {
 	msgConvERC20, ok := msg.(*MsgConvertERC20)
 	if !ok {
