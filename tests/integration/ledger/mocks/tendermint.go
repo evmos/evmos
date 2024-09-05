@@ -20,7 +20,7 @@ type MockCometRPC struct {
 	responseQuery abci.ResponseQuery
 }
 
-// NewMockCometRPC returns a mock TendermintRPC implementation.
+// NewMockCometRPC returns a mock CometRPC implementation.
 // It is used for CLI testing.
 func NewMockCometRPC(respQuery abci.ResponseQuery) MockCometRPC {
 	return MockCometRPC{responseQuery: respQuery}

@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	tmlog "cosmossdk.io/log"
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
@@ -155,7 +155,7 @@ func TestKVIndexer(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			db := dbm.NewMemDB()
-			idxer := indexer.NewKVIndexer(db, tmlog.NewNopLogger(), clientCtx)
+			idxer := indexer.NewKVIndexer(db, log.NewNopLogger(), clientCtx)
 
 			err = idxer.IndexBlock(tc.block, tc.blockResult)
 			require.NoError(t, err)
