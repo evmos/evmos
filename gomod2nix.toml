@@ -686,8 +686,8 @@ schema = 3
     version = "v0.23.0"
     hash = "sha256-ECmmK3Wc0g/zUy5wAokj7ItRsUi6eoqSe9s9Uhcwu90="
   [mod."golang.org/x/text"]
-    version = "v0.17.0"
-    hash = "sha256-R8JbsP7KX+KFTHH7SjRnUGCdvtagylVOfngWEnVSqBc="
+    version = "v0.18.0"
+    hash = "sha256-aNvJW4gQs+MTfdz6DZqyyHQS2GJ9W8L8qKPVODPn4+k="
   [mod."golang.org/x/time"]
     version = "v0.5.0"
     hash = "sha256-W6RgwgdYTO3byIPOFxrP2IpAZdgaGowAaVfYby7AULU="
