@@ -76,7 +76,7 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the erc20 module.
+// GetTxCmd returns the root tx command for the vesting module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }

@@ -25,6 +25,7 @@ var (
 	_ sdk.HasValidateBasic = &MsgConvertERC20{}
 	_ sdk.HasValidateBasic = &MsgUpdateParams{}
 	_ sdk.HasValidateBasic = &MsgRegisterERC20{}
+	_ sdk.HasValidateBasic = &MsgToggleConversion{}
 )
 
 const (
@@ -96,5 +97,14 @@ func (m *MsgRegisterERC20) ValidateBasic() error {
 			return errortypes.ErrInvalidAddress.Wrapf("invalid ERC20 contract address: %s", addr)
 		}
 	}
+	return nil
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (m *MsgToggleConversion) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return errorsmod.Wrap(err, "Invalid authority address")
+	}
+
 	return nil
 }
