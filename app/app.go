@@ -1191,8 +1191,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v20.UpgradeName,
 		v20.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.EvmKeeper,
 		),
 	)
 
@@ -1207,20 +1205,4 @@ func (app *Evmos) setupUpgradeHandlers() {
 	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		return
 	}
-
-	// var storeUpgrades *storetypes.StoreUpgrades
-
-	// switch upgradeInfo.Name {
-	// case v191.UpgradeName:
-	// 	storeUpgrades = &storetypes.StoreUpgrades{
-	// 		Added: []string{ratelimittypes.ModuleName},
-	// 	}
-	// default:
-	// // no-op
-	// }
-
-	// if storeUpgrades != nil {
-	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
-	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
-	// }
 }
