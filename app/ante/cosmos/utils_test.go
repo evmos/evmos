@@ -1,6 +1,7 @@
 package cosmos_test
 
 import (
+	"context"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -12,16 +13,15 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v19/app/ante/testutils"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/encoding"
 )
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
+	txBuilder := suite.GetClientCtx().TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(TestGasLimit)
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(TestGasLimit))}}
+	txBuilder.SetGasLimit(testutils.TestGasLimit)
+	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(testutils.TestGasLimit))}}
 	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	suite.Require().NoError(err)
@@ -29,8 +29,8 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 }
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilderWithFees(fees sdk.Coins, msgs ...sdk.Msg) client.TxBuilder {
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
-	txBuilder.SetGasLimit(TestGasLimit)
+	txBuilder := suite.GetClientCtx().TxConfig.NewTxBuilder()
+	txBuilder.SetGasLimit(testutils.TestGasLimit)
 	txBuilder.SetFeeAmount(fees)
 	err := txBuilder.SetMsgs(msgs...)
 	suite.Require().NoError(err)
@@ -79,9 +79,12 @@ func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.A
 	return testPrivKeys, testAddresses, nil
 }
 
-func createTx(priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+func createTx(ctx context.Context, txCfg client.TxConfig, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
+	txBuilder := txCfg.NewTxBuilder()
+	defaultSignMode, err := authsigning.APISignModeToInternal(txCfg.SignModeHandler().DefaultMode())
+	if err != nil {
+		return nil, err
+	}
 
 	txBuilder.SetGasLimit(1000000)
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
@@ -93,34 +96,34 @@ func createTx(priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	sigV2 := signing.SignatureV2{
 		PubKey: priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
+			SignMode:  defaultSignMode,
 			Signature: nil,
 		},
 		Sequence: 0,
 	}
 
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	if err := txBuilder.SetSignatures(sigsV2...); err != nil {
+	if err := txBuilder.SetSignatures(sigV2); err != nil {
 		return nil, err
 	}
 
 	signerData := authsigning.SignerData{
-		ChainID:       chainID,
+		Address:       sdk.AccAddress(priv.PubKey().Bytes()).String(),
+		ChainID:       "chainID",
 		AccountNumber: 0,
 		Sequence:      0,
+		PubKey:        priv.PubKey(),
 	}
-	sigV2, err := tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
+
+	sigV2, err = tx.SignWithPrivKey(
+		ctx, defaultSignMode, signerData,
+		txBuilder, priv, txCfg,
 		0,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
+	err = txBuilder.SetSignatures(sigV2)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ package staking_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -13,6 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -29,6 +31,9 @@ import (
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
@@ -36,17 +41,24 @@ import (
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
+func TestPrecompileIntegrationTestSuite(t *testing.T) {
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Staking Precompile Integration Tests")
+}
+
 // General variables used for integration tests
 var (
 	// valAddr and valAddr2 are the two validator addresses used for testing
 	valAddr, valAddr2 sdk.ValAddress
 
-	// defaultCallArgs and defaultApproveArgs are the default arguments for calling the smart contract and to
+	// callArgs and approveCallArgs are the default arguments for calling the smart contract and to
 	// call the approve method specifically.
 	//
 	// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
-	defaultCallArgs, defaultApproveArgs contracts.CallArgs
-
+	callArgs, approveCallArgs factory.CallArgs
+	// txArgs are the EVM transaction arguments to use in the transactions
+	txArgs evmtypes.EvmTxArgs
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
@@ -57,25 +69,37 @@ var (
 
 var _ = Describe("Calling staking precompile directly", func() {
 	var (
+		// s is the precompile test suite to use for the tests
+		s *PrecompileTestSuite
 		// oneE18Coin is a sdk.Coin with an amount of 1e18 in the test suite's bonding denomination
-		oneE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(1e18))
+		oneE18Coin = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
 		// twoE18Coin is a sdk.Coin with an amount of 2e18 in the test suite's bonding denomination
-		twoE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(2e18))
+		twoE18Coin = sdk.NewCoin(utils.BaseDenom, math.NewInt(2e18))
 	)
 
 	BeforeEach(func() {
+		var err error
+		s = new(PrecompileTestSuite)
 		s.SetupTest()
-		s.NextBlock()
 
-		valAddr = s.validators[0].GetOperator()
-		valAddr2 = s.validators[1].GetOperator()
+		valAddr, err = sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+		Expect(err).To(BeNil())
+		valAddr2, err = sdk.ValAddressFromBech32(s.network.GetValidators()[1].GetOperator())
+		Expect(err).To(BeNil())
 
-		defaultCallArgs = contracts.CallArgs{
-			ContractAddr: s.precompile.Address(),
-			ContractABI:  s.precompile.ABI,
-			PrivKey:      s.privKey,
+		approveCallArgs = factory.CallArgs{
+			ContractABI: s.precompile.ABI,
+			MethodName:  authorization.ApproveMethod,
 		}
-		defaultApproveArgs = defaultCallArgs.WithMethodName(authorization.ApproveMethod)
+
+		callArgs = factory.CallArgs{
+			ContractABI: s.precompile.ABI,
+		}
+
+		precompileAddr := s.precompile.Address()
+		txArgs = evmtypes.EvmTxArgs{
+			To: &precompileAddr,
+		}
 
 		defaultLogCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.ABI.Events}
 		passCheck = defaultLogCheck.WithExpPass(true)
@@ -84,27 +108,35 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	Describe("when the precompile is not enabled in the EVM params", func() {
 		It("should succeed but not perform delegation", func() {
+			delegator := s.keyring.GetKey(0)
 			// disable the precompile
-			params := s.app.EvmKeeper.GetParams(s.ctx)
+			res, err := s.grpcHandler.GetEvmParams()
+			Expect(err).To(BeNil())
+
 			var activePrecompiles []string
-			for _, precompile := range params.ActiveStaticPrecompiles {
+			for _, precompile := range res.Params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
 					activePrecompiles = append(activePrecompiles, precompile)
 				}
 			}
-			params.ActiveStaticPrecompiles = activePrecompiles
-			err := s.app.EvmKeeper.SetParams(s.ctx, params)
+			res.Params.ActiveStaticPrecompiles = activePrecompiles
+
+			err = testutils.UpdateEvmParams(testutils.UpdateParamsInput{
+				Tf:      s.factory,
+				Network: s.network,
+				Pk:      delegator.Priv,
+				Params:  res.Params,
+			})
 			Expect(err).To(BeNil(), "error while setting params")
 
 			// get the delegation that is available prior to the test
-			prevDelegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-
+			qRes, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+			Expect(err).To(BeNil())
+			prevDelegation := qRes.DelegationResponse.Balance
 			// try to call the precompile
-			delegateArgs := defaultCallArgs.
-				WithMethodName(staking.DelegateMethod).
-				WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
-				)
+			callArgs.MethodName = staking.DelegateMethod
+			callArgs.Args = []interface{}{delegator.Addr, valAddr.String(), big.NewInt(2e18)}
+
 			// Contract should not be called but the transaction should be successful
 			// This is the expected behavior in Ethereum where there is a contract call
 			// to a non existing contract
@@ -112,31 +144,39 @@ var _ = Describe("Calling staking precompile directly", func() {
 				WithExpEvents([]string{}...).
 				WithExpPass(true)
 
-			_, _, err = contracts.CallContractAndCheckLogs(
-				s.ctx,
-				s.app,
-				delegateArgs,
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
 				expectedCheck,
 			)
-			Expect(err).To(BeNil(), "unexpected error while calling the precompile")
-
-			postDelegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			Expect(err).To(BeNil(), "expected error while calling the precompile")
+			qRes, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+			Expect(err).To(BeNil())
+			postDelegation := qRes.DelegationResponse.Balance
 			Expect(postDelegation).To(Equal(prevDelegation), "expected delegation to not change")
 		})
 	})
 
 	Describe("Revert transaction", func() {
 		It("should run out of gas if the gas limit is too low", func() {
-			outOfGasArgs := defaultApproveArgs.
-				WithGasLimit(30000).
-				WithArgs(
-					s.precompile.Address(),
-					abi.MaxUint256,
-					[]string{staking.DelegateMsg},
-				)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, outOfGasArgs, outOfGasCheck)
-			Expect(err).To(HaveOccurred(), "error while calling precompile")
+			approveCallArgs.Args = []interface{}{
+				grantee.Addr,
+				abi.MaxUint256,
+				[]string{staking.DelegateMsg},
+			}
+			txArgs.GasLimit = 30000
+
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs,
+				approveCallArgs,
+				outOfGasCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling precompile")
 		})
 	})
 
@@ -144,75 +184,94 @@ var _ = Describe("Calling staking precompile directly", func() {
 		// TODO: enable once we check that the spender is not the origin
 		// It("should return error if the origin is the spender", func() {
 		//	args := defaultApproveArgs.WithArgs(
-		//		s.address,
+		//		granter.Addr,
 		//		abi.MaxUint256,
 		//		[]string{staking.DelegateMsg},
 		//	)
 		//
-		//	differentOriginCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address, addr)
+		//	differentOriginCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, granter.Addr, addr)
 		//
-		//	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, args, differentOriginCheck)
+		//	_, _, err := s.factory.CallContractAndCheckLogs(
 		//	Expect(err).To(BeNil(), "error while calling precompile")
 		// })
 
 		It("should return error if the staking method is not supported on the precompile", func() {
-			approveArgs := defaultApproveArgs.WithArgs(
-				s.precompile.Address(), abi.MaxUint256, []string{distribution.DelegationRewardsMethod},
-			)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
+			approveCallArgs.Args = []interface{}{
+				grantee.Addr,
+				abi.MaxUint256,
+				[]string{distribution.DelegationRewardsMethod},
+			}
 
 			logCheckArgs := defaultLogCheck.WithErrContains(
 				cmn.ErrInvalidMsgType, "staking", distribution.DelegationRewardsMethod,
 			)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, logCheckArgs)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs,
+				approveCallArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 		})
 
 		It("should approve the delegate method with the max uint256 value", func() {
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), abi.MaxUint256, []string{staking.DelegateMsg},
+				granter.Priv, grantee.Addr, abi.MaxUint256, []string{staking.DelegateMsg},
 			)
 
-			s.ExpectAuthorization(staking.DelegateAuthz, s.precompile.Address(), s.address, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, nil)
 		})
 
 		It("should approve the undelegate method with 1 evmos", func() {
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), big.NewInt(1e18), []string{staking.UndelegateMsg},
+				granter.Priv, grantee.Addr, big.NewInt(1e18), []string{staking.UndelegateMsg},
 			)
 
-			s.ExpectAuthorization(staking.UndelegateAuthz, s.precompile.Address(), s.address, &oneE18Coin)
+			s.ExpectAuthorization(staking.UndelegateAuthz, grantee.Addr, granter.Addr, &oneE18Coin)
 		})
 
 		It("should approve the redelegate method with 2 evmos", func() {
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), big.NewInt(2e18), []string{staking.RedelegateMsg},
+				granter.Priv, grantee.Addr, big.NewInt(2e18), []string{staking.RedelegateMsg},
 			)
 
-			s.ExpectAuthorization(staking.RedelegateAuthz, s.precompile.Address(), s.address, &twoE18Coin)
+			s.ExpectAuthorization(staking.RedelegateAuthz, grantee.Addr, granter.Addr, &twoE18Coin)
 		})
 
 		It("should approve the cancel unbonding delegation method with 1 evmos", func() {
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), big.NewInt(1e18), []string{staking.CancelUnbondingDelegationMsg},
+				granter.Priv, grantee.Addr, big.NewInt(1e18), []string{staking.CancelUnbondingDelegationMsg},
 			)
 
-			s.ExpectAuthorization(staking.CancelUnbondingDelegationAuthz, s.precompile.Address(), s.address, &oneE18Coin)
+			s.ExpectAuthorization(staking.CancelUnbondingDelegationAuthz, grantee.Addr, granter.Addr, &oneE18Coin)
 		})
 	})
 
 	Describe("Execute increase allowance transaction", func() {
-		// defaultIncreaseArgs are the default arguments to call the increase allowance method.
-		//
-		// NOTE: this has to be populated in BeforeEach, because the private key is not initialized outside of it.
-		var defaultIncreaseArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			s.SetupApproval(
-				s.privKey, s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg},
-			)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
 
-			defaultIncreaseArgs = defaultCallArgs.WithMethodName(authorization.IncreaseAllowanceMethod)
+			s.SetupApproval(
+				granter.Priv, grantee.Addr, big.NewInt(1e18), []string{staking.DelegateMsg},
+			)
+			callArgs.MethodName = authorization.IncreaseAllowanceMethod
 		})
 
 		// TODO: enable once we check that the spender is not the origin
@@ -220,203 +279,253 @@ var _ = Describe("Calling staking precompile directly", func() {
 		//	increaseArgs := defaultCallArgs.
 		//		WithMethodName(authorization.IncreaseAllowanceMethod).
 		//		WithArgs(
-		//			s.address, big.NewInt(1e18), []string{staking.DelegateMsg},
+		//			granter.Addr, big.NewInt(1e18), []string{staking.DelegateMsg},
 		//		)
 		//
-		//	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, increaseArgs, differentOriginCheck)
+		//	_, _, err := s.factory.CallContractAndCheckLogs(
 		//	Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 		// })
 
 		It("Should increase the allowance of the delegate method with 1 evmos", func() {
-			increaseArgs := defaultCallArgs.
-				WithMethodName(authorization.IncreaseAllowanceMethod).
-				WithArgs(
-					s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg},
-				)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
+			callArgs.Args = []interface{}{
+				grantee.Addr, big.NewInt(1e18), []string{staking.DelegateMsg},
+			}
 
 			logCheckArgs := passCheck.WithExpEvents(authorization.EventTypeAllowanceChange)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, increaseArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			s.ExpectAuthorization(staking.DelegateAuthz, s.precompile.Address(), s.address, &twoE18Coin)
+			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, &twoE18Coin)
 		})
 
 		It("should return error if the allowance to increase does not exist", func() {
-			increaseArgs := defaultIncreaseArgs.WithArgs(
-				s.precompile.Address(), big.NewInt(1e18), []string{staking.UndelegateMsg},
-			)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
+			callArgs.Args = []interface{}{
+				grantee.Addr, big.NewInt(1e18), []string{staking.UndelegateMsg},
+			}
 
 			logCheckArgs := defaultLogCheck.WithErrContains(
 				"does not exist",
 			)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, increaseArgs, logCheckArgs)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
-			Expect(err.Error()).To(ContainSubstring("does not exist"))
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs,
+				callArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, s.precompile.Address(), s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, grantee.Addr, granter.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
 		})
 	})
 
 	Describe("Execute decrease allowance transaction", func() {
-		// defaultDecreaseArgs are the default arguments to call the decrease allowance method.
-		//
-		// NOTE: this has to be populated in BeforeEach, because the private key is not initialized outside of it.
-		var defaultDecreaseArgs contracts.CallArgs
-
 		BeforeEach(func() {
+			granteeAddr := s.precompile.Address()
+			granter := s.keyring.GetKey(0)
+
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), big.NewInt(2e18), []string{staking.DelegateMsg},
+				granter.Priv, granteeAddr, big.NewInt(2e18), []string{staking.DelegateMsg},
 			)
 
-			defaultDecreaseArgs = defaultCallArgs.WithMethodName(authorization.DecreaseAllowanceMethod)
+			callArgs.MethodName = authorization.DecreaseAllowanceMethod
 		})
 
 		// TODO: enable once we check that the spender is not the origin
 		// It("should return error if the origin is the spender", func() {
 		//	addr, _ := testutiltx.NewAddrKey()
 		//	decreaseArgs := defaultDecreaseArgs.WithArgs(
-		//		s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg},
+		//		grantee.Addr, big.NewInt(1e18), []string{staking.DelegateMsg},
 		//	)
 		//
 		//	logCheckArgs := defaultLogCheck.WithErrContains(
-		//		cmn.ErrDifferentOrigin, s.address, addr,
+		//		cmn.ErrDifferentOrigin, granter.Addr, addr,
 		//	)
 		//
-		//	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, decreaseArgs, logCheckArgs)
+		//	_, _, err := s.factory.CallContractAndCheckLogs(
 		//	Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 		// })
 
 		It("Should decrease the allowance of the delegate method with 1 evmos", func() {
-			decreaseArgs := defaultDecreaseArgs.WithArgs(
-				s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg},
-			)
+			granteeAddr := s.precompile.Address()
+			granter := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
+				granteeAddr, big.NewInt(1e18), []string{staking.DelegateMsg},
+			}
 
 			logCheckArgs := passCheck.WithExpEvents(authorization.EventTypeAllowanceChange)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, decreaseArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			s.ExpectAuthorization(staking.DelegateAuthz, s.precompile.Address(), s.address, &oneE18Coin)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, &oneE18Coin)
 		})
 
 		It("should return error if the allowance to decrease does not exist", func() {
-			decreaseArgs := defaultDecreaseArgs.WithArgs(
-				s.precompile.Address(), big.NewInt(1e18), []string{staking.UndelegateMsg},
-			)
+			granteeAddr := s.precompile.Address()
+			granter := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
+				granteeAddr, big.NewInt(1e18), []string{staking.UndelegateMsg},
+			}
 
 			logCheckArgs := defaultLogCheck.WithErrContains(
 				"does not exist",
 			)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, decreaseArgs, logCheckArgs)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
-			Expect(err.Error()).To(ContainSubstring("does not exist"))
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, s.precompile.Address(), s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, granteeAddr, granter.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid authorization type. Expected: %d, got: %d", staking.UndelegateAuthz, staking.DelegateAuthz)))
 			Expect(authz).To(BeNil(), "expected authorization to not be set")
 		})
 	})
 
 	Describe("to revoke an approval", func() {
-		var (
-			// defaultRevokeArgs are the default arguments to call the revoke method.
-			//
-			// NOTE: this has to be populated in BeforeEach, because the default call args are not initialized outside of it.
-			defaultRevokeArgs contracts.CallArgs
-
-			// granteeAddr is the address of the grantee used in the revocation tests.
-			granteeAddr = testutiltx.GenerateAddress()
-		)
+		// granteeAddr is the address of the grantee used in the revocation tests.
+		granteeAddr := testutiltx.GenerateAddress()
 
 		BeforeEach(func() {
-			defaultRevokeArgs = defaultCallArgs.WithMethodName(authorization.RevokeMethod)
+			callArgs.MethodName = authorization.RevokeMethod
 		})
 
 		It("should revoke the approval when executing as the granter", func() {
+			granter := s.keyring.GetKey(0)
 			typeURLs := []string{staking.DelegateMsg}
 
 			s.SetupApproval(
-				s.privKey, granteeAddr, abi.MaxUint256, typeURLs,
+				granter.Priv, granteeAddr, abi.MaxUint256, typeURLs,
 			)
-			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, s.address, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, nil)
 
-			revokeArgs := defaultRevokeArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				granteeAddr, typeURLs,
-			)
+			}
 
 			revocationCheck := passCheck.WithExpEvents(authorization.EventTypeRevocation)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, revocationCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				revocationCheck)
 			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check that the authorization is revoked
-			authz, _ := s.CheckAuthorization(staking.DelegateAuthz, granteeAddr, s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, granteeAddr, granter.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", granteeAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be revoked")
 		})
 
 		It("should not revoke the approval when trying to revoke for a different message type", func() {
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
 			typeURLs := []string{staking.DelegateMsg}
 
 			s.SetupApproval(
-				s.privKey, granteeAddr, abi.MaxUint256, typeURLs,
+				granter.Priv, grantee.Addr, abi.MaxUint256, typeURLs,
 			)
-			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, s.address, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, nil)
 
-			revokeArgs := defaultRevokeArgs.WithArgs(
-				granteeAddr, []string{staking.UndelegateMsg},
-			)
+			callArgs.Args = []interface{}{
+				grantee.Addr, []string{staking.UndelegateMsg},
+			}
 
 			notFoundCheck := defaultLogCheck.
 				WithErrContains("failed to delete grant")
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, notFoundCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				notFoundCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// the authorization should still be there.
-			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, s.address, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, grantee.Addr, granter.Addr, nil)
 		})
 
 		It("should return error if the approval does not exist", func() {
-			revokeArgs := defaultRevokeArgs.WithArgs(
-				s.address, []string{staking.DelegateMsg},
-			)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+
+			callArgs.Args = []interface{}{
+				grantee.Addr, []string{staking.DelegateMsg},
+			}
 
 			notFoundCheck := defaultLogCheck.
 				WithErrContains("failed to delete grant")
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, notFoundCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				notFoundCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 		})
 
 		It("should not revoke the approval if sent by someone else than the granter", func() {
 			typeURLs := []string{staking.DelegateMsg}
 
 			// set up an approval with a different key than the one used to sign the transaction.
-			differentAddr, differentPriv := testutiltx.NewAddrKey()
-			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, differentAddr.Bytes(), 1e18)
-			Expect(err).To(BeNil(), "error while funding account")
+			granter := s.keyring.GetKey(0)
+			differentSender := s.keyring.GetKey(1)
 
-			s.NextBlock()
 			s.SetupApproval(
-				differentPriv, granteeAddr, abi.MaxUint256, typeURLs,
+				granter.Priv, granteeAddr, abi.MaxUint256, typeURLs,
 			)
-			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, differentAddr, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, nil)
 
-			revokeArgs := defaultRevokeArgs.WithArgs(
-				differentAddr, typeURLs,
-			)
+			callArgs.Args = []interface{}{
+				granteeAddr, typeURLs,
+			}
 
 			notFoundCheck := defaultLogCheck.
 				WithErrContains("failed to delete grant")
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, notFoundCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the contract and checking logs")
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				differentSender.Priv,
+				txArgs, callArgs,
+				notFoundCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// the authorization should still be set
-			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, differentAddr, nil)
+			s.ExpectAuthorization(staking.DelegateAuthz, granteeAddr, granter.Addr, nil)
 		})
 	})
 
@@ -437,31 +546,35 @@ var _ = Describe("Calling staking precompile directly", func() {
 			defaultMinSelfDelegation = big.NewInt(1)
 			defaultPubkeyBase64Str   = GenerateBase64PubKey()
 			defaultValue             = big.NewInt(1)
-
-			// defaultCreateValidatorArgs are the default arguments for the createValidator call
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultCreateValidatorArgs contracts.CallArgs
 		)
 
 		BeforeEach(func() {
 			// populate the default createValidator args
-			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName(staking.CreateValidatorMethod)
+			callArgs.MethodName = staking.CreateValidatorMethod
 		})
 
 		Context("when validator address is the origin", func() {
 			It("should succeed", func() {
-				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
-					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue,
-				)
+				callArgs.Args = []interface{}{
+					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.keyring.GetAddr(0), defaultPubkeyBase64Str, defaultValue,
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
-				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
-				Expect(found).To(BeTrue(), "expected validator to be found")
+				valOperAddr := sdk.ValAddress(s.keyring.GetAccAddr(0)).String()
+				qc := s.network.GetStakingClient()
+				res, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: valOperAddr})
+				Expect(err).To(BeNil())
+				Expect(res).NotTo(BeNil())
+				Expect(res.Validator.OperatorAddress).To(Equal(valOperAddr))
 			})
 		})
 
@@ -469,16 +582,20 @@ var _ = Describe("Calling staking precompile directly", func() {
 			It("should fail", func() {
 				differentAddr := testutiltx.GenerateAddress()
 
-				createValidatorArgs := defaultCreateValidatorArgs.WithArgs(
+				callArgs.Args = []interface{}{
 					defaultDescription, defaultCommission, defaultMinSelfDelegation, differentAddr, defaultPubkeyBase64Str, defaultValue,
-				)
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address, differentAddr),
+					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.keyring.GetAddr(0), differentAddr),
 				)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the contract and checking logs")
 			})
 		})
 	})
@@ -494,16 +611,11 @@ var _ = Describe("Calling staking precompile directly", func() {
 			}
 			defaultCommissionRate    = big.NewInt(staking.DoNotModifyCommissionRate)
 			defaultMinSelfDelegation = big.NewInt(staking.DoNotModifyMinSelfDelegation)
-
-			// defaultEditValidatorArgs are the default arguments for the editValidator call
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultEditValidatorArgs contracts.CallArgs
 		)
 
 		BeforeEach(func() {
 			// populate the default editValidator args
-			defaultEditValidatorArgs = defaultCallArgs.WithMethodName(staking.EditValidatorMethod)
+			callArgs.MethodName = staking.EditValidatorMethod
 		})
 
 		Context("when origin is equal to validator address", func() {
@@ -511,8 +623,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 				// create a new validator
 				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
 				hexAddr := common.BytesToAddress(newAddr.Bytes())
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 2e18)
-				Expect(err).To(BeNil(), "error while funding account: %v", err)
+
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), newAddr, math.NewInt(2e18))
+				Expect(err).To(BeNil(), "error while sending coins")
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				description := staking.Description{
 					Moniker:         "new node",
@@ -530,29 +644,40 @@ var _ = Describe("Calling staking precompile directly", func() {
 				pubkeyBase64Str := "UuhHQmkUh2cPBA6Rg4ei0M2B04cVYGNn/F8SAUsYIb4="
 				value := big.NewInt(1e18)
 
-				createValidatorArgs := defaultCallArgs.WithMethodName(staking.CreateValidatorMethod).
-					WithPrivKey(newPriv).
-					WithArgs(description, commission, minSelfDelegation, hexAddr, pubkeyBase64Str, value)
+				createValidatorArgs := factory.CallArgs{
+					ContractABI: s.precompile.ABI,
+					MethodName:  staking.CreateValidatorMethod,
+					Args:        []interface{}{description, commission, minSelfDelegation, hexAddr, pubkeyBase64Str, value},
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
-
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
-				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-				s.NextBlock()
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					newPriv,
+					txArgs, createValidatorArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// edit validator
-				editValidatorArgs := defaultEditValidatorArgs.
-					WithPrivKey(newPriv).
-					WithArgs(defaultDescription, hexAddr, defaultCommissionRate, defaultMinSelfDelegation)
+				callArgs.Args = []interface{}{defaultDescription, hexAddr, defaultCommissionRate, defaultMinSelfDelegation}
 
 				logCheckArgs = passCheck.WithExpEvents(staking.EventTypeEditValidator)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					newPriv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the contract and checking logs")
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, editValidatorArgs, logCheckArgs)
-				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-				validator, found := s.app.StakingKeeper.GetValidator(s.ctx, newAddr.Bytes())
-				Expect(found).To(BeTrue(), "expected validator to be found")
+				valOperAddr := sdk.ValAddress(newAddr.Bytes()).String()
+				qc := s.network.GetStakingClient()
+				res, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: valOperAddr})
+				Expect(err).To(BeNil())
+				Expect(res).NotTo(BeNil())
+				validator := res.Validator
+				Expect(validator.OperatorAddress).To(Equal(valOperAddr))
 				Expect(validator.Description.Moniker).To(Equal(defaultDescription.Moniker), "expected validator moniker is updated")
 				// Other fields should not be modified due to the value "[do-not-modify]".
 				Expect(validator.Description.Identity).To(Equal(description.Identity), "expected validator identity not to be updated")
@@ -569,392 +694,484 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 		Context("with origin different than validator address", func() {
 			It("should fail", func() {
-				editValidatorArgs := defaultEditValidatorArgs.WithArgs(
-					defaultDescription, common.BytesToAddress(valAddr.Bytes()), defaultCommissionRate, defaultMinSelfDelegation,
-				)
+				valHexAddr := common.BytesToAddress(valAddr.Bytes())
+				callArgs.Args = []interface{}{
+					defaultDescription, valHexAddr, defaultCommissionRate, defaultMinSelfDelegation,
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeEditValidator)
-
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, editValidatorArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(1),
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).NotTo(BeNil(), "error while calling the contract and checking logs")
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("origin address %s is not the same as validator operator address %s", s.keyring.GetAddr(1), valHexAddr)))
 			})
 		})
 	})
-
 	Describe("to delegate", func() {
-		var (
-			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
-			// added in the test suite setup).
-			prevDelegation stakingtypes.Delegation
-			// defaultDelegateArgs are the default arguments for the delegate call
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultDelegateArgs contracts.CallArgs
-		)
+		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
+		// added in the test suite setup).
+		var prevDelegation stakingtypes.Delegation
 
 		BeforeEach(func() {
-			// get the delegation that is available prior to the test
-			prevDelegation, _ = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			delegator := s.keyring.GetKey(0)
 
+			// get the delegation that is available prior to the test
+			res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+
+			prevDelegation = res.DelegationResponse.Delegation
 			// populate the default delegate args
-			defaultDelegateArgs = defaultCallArgs.WithMethodName(staking.DelegateMethod)
+			callArgs.MethodName = staking.DelegateMethod
 		})
 
 		Context("as the token owner", func() {
 			It("should delegate without need for authorization", func() {
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(2e18),
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
 				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(2))
-				Expect(delegation.GetShares()).To(Equal(expShares), "expected different delegation shares")
+				Expect(res.DelegationResponse.Delegation.GetShares()).To(Equal(expShares), "expected different delegation shares")
 			})
 
 			It("should not delegate if the account has no sufficient balance", func() {
-				// send funds away from account to only have target balance remaining
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-				targetBalance := math.NewInt(1e17)
-				sentBalance := balance.Amount.Sub(targetBalance)
-				newAddr, _ := testutiltx.NewAccAddressAndKey()
-				err := s.app.BankKeeper.SendCoins(s.ctx, s.address.Bytes(), newAddr,
-					sdk.Coins{sdk.Coin{Denom: s.bondDenom, Amount: sentBalance}})
+				newAddr, newAddrPriv := testutiltx.NewAccAddressAndKey()
+				err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), newAddr, math.NewInt(1e17))
 				Expect(err).To(BeNil(), "error while sending coins")
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// try to delegate more than left in account
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
-				)
+				callArgs.Args = []interface{}{
+					common.BytesToAddress(newAddr), valAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("insufficient funds")
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					newAddrPriv,
+					txArgs,
+					callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 
 			It("should not delegate if the validator does not exist", func() {
 				nonExistingAddr := testutiltx.GenerateAddress()
 				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
+				delegator := s.keyring.GetKey(0)
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, nonExistingValAddr.String(), big.NewInt(2e18),
-				)
+				callArgs.Args = []interface{}{
+					delegator.Addr, nonExistingValAddr.String(), big.NewInt(2e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("validator does not exist")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("validator does not exist"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs,
+					callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 
 		Context("on behalf of another account", func() {
 			It("should not delegate if delegator address is not the origin", func() {
+				delegator := s.keyring.GetKey(0)
 				differentAddr := testutiltx.GenerateAddress()
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				callArgs.Args = []interface{}{
 					differentAddr, valAddr.String(), big.NewInt(2e18),
-				)
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address, differentAddr),
+					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, delegator.Addr, differentAddr),
 				)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs,
+					callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 	})
 
 	Describe("to undelegate", func() {
-		// defaultUndelegateArgs are the default arguments for the undelegate call
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultUndelegateArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultUndelegateArgs = defaultCallArgs.WithMethodName(staking.UndelegateMethod)
+			callArgs.MethodName = staking.UndelegateMethod
 		})
 
 		Context("as the token owner", func() {
 			It("should undelegate without need for authorization", func() {
-				undelegations := s.app.StakingKeeper.GetUnbondingDelegationsFromValidator(s.ctx, s.validators[0].GetOperator())
-				Expect(undelegations).To(HaveLen(0), "expected no unbonding delegations before test")
+				delegator := s.keyring.GetKey(0)
 
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
-				)
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+				Expect(err).To(BeNil())
+
+				res, err := s.grpcHandler.GetValidatorUnbondingDelegations(valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(0), "expected no unbonding delegations before test")
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeUnbond)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				undelegations = s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(1), "expected one undelegation")
-				Expect(undelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
+				delUbdRes, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(delUbdRes.UnbondingResponses).To(HaveLen(1), "expected one undelegation")
+				Expect(delUbdRes.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			})
 
 			It("should not undelegate if the amount exceeds the delegation", func() {
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(2e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("invalid shares amount")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("invalid shares amount"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 
 			It("should not undelegate if the validator does not exist", func() {
+				delegator := s.keyring.GetKey(0)
 				nonExistingAddr := testutiltx.GenerateAddress()
 				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
 
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, nonExistingValAddr.String(), big.NewInt(1e18),
-				)
+				callArgs.Args = []interface{}{
+					delegator.Addr, nonExistingValAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("validator does not exist")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("validator does not exist"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 
 		Context("on behalf of another account", func() {
 			It("should not undelegate if delegator address is not the origin", func() {
 				differentAddr := testutiltx.GenerateAddress()
+				delegator := s.keyring.GetKey(0)
 
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
+				callArgs.Args = []interface{}{
 					differentAddr, valAddr.String(), big.NewInt(1e18),
-				)
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address, differentAddr),
+					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, delegator.Addr, differentAddr),
 				)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 	})
 
 	Describe("to redelegate", func() {
-		// defaultRedelegateArgs are the default arguments for the redelegate call
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultRedelegateArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRedelegateArgs = defaultCallArgs.WithMethodName(staking.RedelegateMethod)
+			callArgs.MethodName = staking.RedelegateMethod
 		})
 
 		Context("as the token owner", func() {
 			It("should redelegate without need for authorization", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := passCheck.
 					WithExpEvents(staking.EventTypeRedelegate)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, logCheckArgs)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-				Expect(redelegations).To(HaveLen(1), "expected one redelegation to be found")
-				bech32Addr := sdk.AccAddress(s.address.Bytes())
-				Expect(redelegations[0].DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.address)
-				Expect(redelegations[0].ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
-				Expect(redelegations[0].ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+				Expect(err).To(BeNil())
+				Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
+				bech32Addr := delegator.AccAddr
+				Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", delegator.Addr)
+				Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
+				Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
 			})
 
 			It("should not redelegate if the amount exceeds the delegation", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(2e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(2e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("invalid shares amount")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("invalid shares amount"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 
 			It("should not redelegate if the validator does not exist", func() {
 				nonExistingAddr := testutiltx.GenerateAddress()
 				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
+				delegator := s.keyring.GetKey(0)
 
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), nonExistingValAddr.String(), big.NewInt(1e18),
-				)
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), nonExistingValAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("redelegation destination validator not found")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("redelegation destination validator not found"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 
 		Context("on behalf of another account", func() {
 			It("should not redelegate if delegator address is not the origin", func() {
 				differentAddr := testutiltx.GenerateAddress()
+				delegator := s.keyring.GetKey(0)
 
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
+				callArgs.Args = []interface{}{
 					differentAddr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
-				)
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address, differentAddr),
+					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, delegator.Addr, differentAddr),
 				)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 		})
 	})
 
 	Describe("to cancel an unbonding delegation", func() {
-		var (
-			// defaultCancelUnbondingArgs are the default arguments for the cancelUnbondingDelegation call
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultCancelUnbondingArgs contracts.CallArgs
-
-			// expCreationHeight is the expected creation height of the unbonding delegation
-			expCreationHeight = int64(3)
-		)
-
 		BeforeEach(func() {
-			defaultCancelUnbondingArgs = defaultCallArgs.WithMethodName(staking.CancelUnbondingDelegationMethod)
+			callArgs.MethodName = staking.CancelUnbondingDelegationMethod
+			delegator := s.keyring.GetKey(0)
 
 			// Set up an unbonding delegation
-			undelegateArgs := defaultCallArgs.
-				WithMethodName(staking.UndelegateMethod).
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+			undelegateArgs := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.UndelegateMethod,
+				Args: []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				},
+			}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeUnbond)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				undelegateArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while setting up an unbonding delegation: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			s.NextBlock()
+			creationHeight := s.network.GetContext().BlockHeight()
 
 			// Check that the unbonding delegation was created
-			unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(unbondingDelegations).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(unbondingDelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected delegator address to be %s", s.address)
-			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
-			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(delegator.AccAddr.String()), "expected delegator address to be %s", delegator.Addr)
+			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
+			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
+			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(creationHeight), "expected different creation height")
+			Expect(res.UnbondingResponses[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("as the token owner", func() {
 			It("should cancel unbonding delegation", func() {
-				delegations := s.app.StakingKeeper.GetValidatorDelegations(s.ctx, s.validators[0].GetOperator())
-				Expect(delegations).To(HaveLen(0))
+				delegator := s.keyring.GetKey(0)
 
-				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
-				)
+				valDelRes, err := s.grpcHandler.GetValidatorDelegations(s.network.GetValidators()[0].GetOperator())
+				Expect(err).To(BeNil())
+				Expect(valDelRes.DelegationResponses).To(HaveLen(0))
+
+				creationHeight := s.network.GetContext().BlockHeight()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(creationHeight),
+				}
 
 				logCheckArgs := passCheck.
 					WithExpEvents(staking.EventTypeCancelUnbondingDelegation)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs,
+					callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(0), "expected unbonding delegation to be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(0), "expected unbonding delegation to be canceled")
 
-				delegations = s.app.StakingKeeper.GetValidatorDelegations(s.ctx, s.validators[0].GetOperator())
-				Expect(delegations).To(HaveLen(1), "expected one delegation to be found")
+				valDelRes, err = s.grpcHandler.GetValidatorDelegations(s.network.GetValidators()[0].GetOperator())
+				Expect(err).To(BeNil())
+				Expect(valDelRes.DelegationResponses).To(HaveLen(1), "expected one delegation to be found")
 			})
 
 			It("should not cancel an unbonding delegation if the amount is not correct", func() {
-				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18), big.NewInt(expCreationHeight),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				creationHeight := s.network.GetContext().BlockHeight()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(2e18), big.NewInt(creationHeight),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("amount is greater than the unbonding delegation entry balance")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("amount is greater than the unbonding delegation entry balance"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation not to have been canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation not to have been canceled")
 			})
 
 			It("should not cancel an unbonding delegation if the creation height is not correct", func() {
-				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight+1),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				creationHeight := s.network.GetContext().BlockHeight()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(creationHeight + 1),
+				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains("unbonding delegation entry is not found at block height")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("unbonding delegation entry is not found at block height"))
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation not to have been canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation not to have been canceled")
 			})
 		})
 	})
 
 	Describe("Calling precompile txs from a vesting account", func() {
 		var (
-			funder          common.Address
 			vestAcc         common.Address
 			vestAccPriv     *ethsecp256k1.PrivKey
 			clawbackAccount *vestingtypes.ClawbackVestingAccount
 			unvested        sdk.Coins
 			vested          sdk.Coins
 			// unlockedVested are unlocked vested coins of the vesting schedule
-			unlockedVested      sdk.Coins
-			defaultDelegateArgs contracts.CallArgs
+			unlockedVested sdk.Coins
+			delegateArgs   factory.CallArgs
 		)
 
 		BeforeEach(func() {
 			// Setup vesting account
-			funder = s.address
-			vestAcc, vestAccPriv = testutiltx.NewAddrKey()
+			funderKey := s.keyring.GetKey(0)
+			vestAccKey := keyring.NewKey()
+			vestAcc, vestAccPriv = vestAccKey.Addr, vestAccKey.Priv.(*ethsecp256k1.PrivKey)
 			vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
 
-			clawbackAccount = s.setupVestingAccount(funder.Bytes(), vestAcc.Bytes())
+			clawbackAccount = s.setupVestingAccount(funderKey, vestAccKey)
 
 			// Check if all tokens are unvested at vestingStart
-			unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-			vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+			ctx := s.network.GetContext()
+			unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+			vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
 			Expect(vestingAmtTotal).To(Equal(unvested))
 			Expect(vested.IsZero()).To(BeTrue())
 
 			// populate the default delegate args
-			defaultDelegateArgs = defaultCallArgs.WithMethodName(staking.DelegateMethod)
-			defaultDelegateArgs = defaultDelegateArgs.WithPrivKey(vestAccPriv)
+			delegateArgs = factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.DelegateMethod,
+			}
 		})
 
 		Context("before first vesting period - all tokens locked and unvested", func() {
 			BeforeEach(func() {
-				s.NextBlock()
+				Expect(s.network.NextBlock()).To(BeNil())
 
+				ctx := s.network.GetContext()
 				// Ensure no tokens are vested
-				vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
-				unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-				unlocked := clawbackAccount.GetUnlockedCoins(s.ctx.BlockTime())
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
 				zeroCoins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.ZeroInt()))
 				Expect(vested).To(Equal(zeroCoins), "expected different vested coins")
 				Expect(unvested).To(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins), "expected different unvested coins")
@@ -962,44 +1179,47 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 
 			It("Should not be able to delegate unvested tokens", func() {
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				delegateArgs.Args = []interface{}{
 					vestAcc, valAddr.String(), unvested.AmountOf(s.bondDenom).BigInt(),
-				)
+				}
 
 				failCheck := defaultLogCheck.
 					WithErrContains("cannot delegate unvested coins")
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
-				Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
-				Expect(err.Error()).To(ContainSubstring("coins available for delegation < delegation amount"))
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, failCheck)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			})
 
 			It("Should be able to delegate tokens not involved in vesting schedule", func() {
 				// send some coins to the vesting account
 				coinsToDelegate := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
-				err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), coinsToDelegate)
+				err := s.factory.FundAccount(s.keyring.GetKey(0), vestAcc.Bytes(), coinsToDelegate)
 				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check balance is updated
-				balance := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
-				Expect(balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(coinsToDelegate[0])))
+				balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+				Expect(err).To(BeNil())
+				Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(coinsToDelegate[0])))
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				delegateArgs.Args = []interface{}{
 					vestAcc, valAddr.String(), coinsToDelegate.AmountOf(s.bondDenom).BigInt(),
-				)
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
-				Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+				delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+				Expect(err).To(BeNil(), "expected delegation to be found")
+				Expect(delRes.DelegationResponse.Balance).To(Equal(coinsToDelegate[0]))
 
 				// check vesting balance is untouched
-				balancePost := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
-				Expect(balancePost.IsGTE(evmosutil.TestVestingSchedule.TotalVestingCoins[0])).To(BeTrue())
+				balRes, err = s.grpcHandler.GetBalance(vestAcc.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				Expect(balRes.Balance.IsGTE(evmosutil.TestVestingSchedule.TotalVestingCoins[0])).To(BeTrue())
 			})
 		})
 
@@ -1007,20 +1227,21 @@ var _ = Describe("Calling staking precompile directly", func() {
 			BeforeEach(func() {
 				// Surpass cliff but none of lockup duration
 				cliffDuration := time.Duration(evmosutil.TestVestingSchedule.CliffPeriodLength)
-				s.NextBlockAfter(cliffDuration * time.Second)
+				Expect(s.network.NextBlockAfter(cliffDuration * time.Second)).To(BeNil())
+				ctx := s.network.GetContext()
 
 				// Check if some, but not all tokens are vested
-				vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
 				expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.CliffMonths))))
 				Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins), "expected some tokens to have been vested")
 				Expect(vested).To(Equal(expVested), "expected different vested amount")
 
 				// check the vested tokens are still locked
-				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.ctx.BlockTime())
+				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(ctx.BlockTime())
 				Expect(unlockedVested).To(Equal(sdk.Coins{}))
 
 				vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
-				res, err := s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
+				res, err := s.network.App.VestingKeeper.Balances(ctx, &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
 				Expect(err).To(BeNil())
 				Expect(res.Vested).To(Equal(expVested))
 				Expect(res.Unvested).To(Equal(vestingAmtTotal.Sub(expVested...)))
@@ -1029,44 +1250,49 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 
 			It("Should be able to delegate locked vested tokens", func() {
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				delegateArgs.Args = []interface{}{
 					vestAcc, valAddr.String(), vested[0].Amount.BigInt(),
-				)
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
-				Expect(delegation.Shares.BigInt()).To(Equal(vested[0].Amount.BigInt()))
+				delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+				Expect(err).To(BeNil(), "expected delegation to be found")
+				Expect(delRes.DelegationResponse.Balance).To(Equal(vested[0]))
 			})
 
 			It("Should be able to delegate locked vested tokens + free tokens (not in vesting schedule)", func() {
 				// send some coins to the vesting account
 				amt := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
-				err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), amt)
+
+				err := s.factory.FundAccount(s.keyring.GetKey(0), vestAcc.Bytes(), amt)
 				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check balance is updated
-				balance := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
-				Expect(balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(amt[0])))
+				balRes, err := s.grpcHandler.GetBalance(vestAcc.Bytes(), s.bondDenom)
+				Expect(err).To(BeNil())
+				Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(amt[0])))
 
 				coinsToDelegate := amt.Add(vested...)
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				delegateArgs.Args = []interface{}{
 					vestAcc, valAddr.String(), coinsToDelegate[0].Amount.BigInt(),
-				)
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
-				Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+				delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+				Expect(err).To(BeNil(), "expected delegation to be found")
+				Expect(delRes.DelegationResponse.Balance).To(Equal(coinsToDelegate[0]))
 			})
 		})
 
@@ -1074,12 +1300,13 @@ var _ = Describe("Calling staking precompile directly", func() {
 			BeforeEach(func() {
 				// Surpass first lockup
 				vestDuration := time.Duration(evmosutil.TestVestingSchedule.LockupPeriodLength)
-				s.NextBlockAfter(vestDuration * time.Second)
+				Expect(s.network.NextBlockAfter(vestDuration * time.Second)).To(BeNil())
+				ctx := s.network.GetContext()
 
 				// Check if some, but not all tokens are vested and unlocked
-				vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
-				unlocked := clawbackAccount.GetUnlockedCoins(s.ctx.BlockTime())
-				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.ctx.BlockTime())
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+				unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
+				unlockedVested = clawbackAccount.GetUnlockedVestedCoins(ctx.BlockTime())
 
 				expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.LockupMonths))))
 				expUnlockedVested := expVested
@@ -1092,59 +1319,65 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(unlockedVested).To(Equal(expUnlockedVested))
 			})
 			It("Should be able to delegate unlocked vested tokens", func() {
-				delegateArgs := defaultDelegateArgs.WithArgs(
+				delegateArgs.Args = []interface{}{
 					vestAcc, valAddr.String(), unlockedVested[0].Amount.BigInt(),
-				)
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
-				Expect(delegation.Shares.BigInt()).To(Equal(unlockedVested[0].Amount.BigInt()))
+				delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+				Expect(err).To(BeNil(), "expected delegation to be found")
+				Expect(delRes.DelegationResponse.Balance).To(Equal(unlockedVested[0]))
 			})
 
 			It("Cannot delegate more than vested tokens (and free tokens)", func() {
+				ctx := s.network.GetContext()
 				// calculate the delegatable amount
-				balance := s.app.BankKeeper.GetBalance(s.ctx, vestAcc.Bytes(), s.bondDenom)
-				unvestedOnly := clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-				delegatable := balance.Sub(unvestedOnly[0])
+				balRes, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestAcc.Bytes()), s.bondDenom)
+				Expect(err).To(BeNil())
+				unvestedOnly := clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				delegatable := balRes.Balance.Sub(unvestedOnly[0])
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					vestAcc, valAddr.String(), delegatable.Amount.Add(sdk.OneInt()).BigInt(),
-				)
+				delegateArgs.Args = []interface{}{
+					vestAcc, valAddr.String(), delegatable.Amount.Add(math.OneInt()).BigInt(),
+				}
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, delegateArgs, logCheckArgs)
 				Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
 				Expect(err.Error()).To(ContainSubstring("cannot delegate unvested coins"))
 
-				_, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-				Expect(found).To(BeFalse(), "expected delegation NOT to be found")
+				_, err = s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+				Expect(err).NotTo(BeNil(), "expected delegation NOT to be found")
+				Expect(err.Error()).To(ContainSubstring("not found"), "expected delegation NOT to be found")
 			})
 		})
 	})
 
 	Describe("to query allowance", func() {
-		var (
-			defaultAllowanceArgs contracts.CallArgs
-
-			differentAddr = testutiltx.GenerateAddress()
-		)
+		differentAddr := testutiltx.GenerateAddress()
 
 		BeforeEach(func() {
-			defaultAllowanceArgs = defaultCallArgs.WithMethodName(authorization.AllowanceMethod)
+			callArgs.MethodName = authorization.AllowanceMethod
 		})
 
 		It("should return an empty allowance if none is set", func() {
-			allowanceArgs := defaultAllowanceArgs.WithArgs(
-				s.address, differentAddr, staking.CancelUnbondingDelegationMsg,
-			)
+			granter := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
+			callArgs.Args = []interface{}{
+				granter.Addr, differentAddr, staking.CancelUnbondingDelegationMsg,
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var allowanceInt *big.Int
@@ -1154,17 +1387,23 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return the granted allowance if set", func() {
+			granter := s.keyring.GetKey(0)
+
 			// setup approval for another address
 			s.SetupApproval(
-				s.privKey, differentAddr, big.NewInt(1e18), []string{staking.CancelUnbondingDelegationMsg},
+				granter.Priv, differentAddr, big.NewInt(1e18), []string{staking.CancelUnbondingDelegationMsg},
 			)
 
 			// query allowance
-			allowanceArgs := defaultAllowanceArgs.WithArgs(
-				differentAddr, s.address, staking.CancelUnbondingDelegationMsg,
-			)
+			callArgs.Args = []interface{}{
+				differentAddr, granter.Addr, staking.CancelUnbondingDelegationMsg,
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var allowanceInt *big.Int
@@ -1175,22 +1414,21 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("Validator queries", func() {
-		// defaultValidatorArgs are the default arguments for the validator call
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultValidatorArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultValidatorArgs = defaultCallArgs.WithMethodName(staking.ValidatorMethod)
+			callArgs.MethodName = staking.ValidatorMethod
 		})
 
 		It("should return validator", func() {
-			varHexAddr := common.BytesToAddress(valAddr.Bytes())
-			validatorArgs := defaultValidatorArgs.WithArgs(
-				varHexAddr,
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
+			callArgs.Args = []interface{}{varHexAddr}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorOutput
@@ -1201,12 +1439,16 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return an empty validator if the validator is not found", func() {
-			newValHexAddr := testutiltx.GenerateAddress()
-			validatorArgs := defaultValidatorArgs.WithArgs(
-				newValHexAddr,
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			newValHexAddr := testutiltx.GenerateAddress()
+			callArgs.Args = []interface{}{newValHexAddr}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorOutput
@@ -1218,19 +1460,23 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("Validators queries", func() {
-		var defaultValidatorArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultValidatorArgs = defaultCallArgs.WithMethodName(staking.ValidatorsMethod)
+			callArgs.MethodName = staking.ValidatorsMethod
 		})
 
 		It("should return validators (default pagination)", func() {
-			validatorArgs := defaultValidatorArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Bonded.String(),
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
@@ -1238,9 +1484,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
 
 			Expect(valOut.PageResponse.NextKey).To(BeEmpty())
-			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.validators))))
+			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.network.GetValidators()))))
 
-			Expect(valOut.Validators).To(HaveLen(len(s.validators)), "expected two validators to be returned")
+			Expect(valOut.Validators).To(HaveLen(len(s.network.GetValidators())), "expected two validators to be returned")
 			// return order can change, that's why each validator is checked individually
 			for _, val := range valOut.Validators {
 				s.CheckValidatorOutput(val)
@@ -1250,15 +1496,22 @@ var _ = Describe("Calling staking precompile directly", func() {
 		//nolint:dupl // this is a duplicate of the test for smart contract calls to the precompile
 		It("should return validators w/pagination limit = 1", func() {
 			const limit uint64 = 1
-			validatorArgs := defaultValidatorArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Bonded.String(),
 				query.PageRequest{
 					Limit:      limit,
 					CountTotal: true,
 				},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
@@ -1267,7 +1520,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			// no pagination, should return default values
 			Expect(valOut.PageResponse.NextKey).NotTo(BeEmpty())
-			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.validators))))
+			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.network.GetValidators()))))
 
 			Expect(valOut.Validators).To(HaveLen(int(limit)), "expected one validator to be returned")
 
@@ -1278,25 +1531,38 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return an error if the bonding type is not known", func() {
-			validatorArgs := defaultValidatorArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				"15", // invalid bonding type
 				query.PageRequest{},
-			)
+			}
 
 			invalidStatusCheck := defaultLogCheck.WithErrContains("invalid validator status 15")
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, invalidStatusCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-			Expect(err.Error()).To(ContainSubstring("invalid validator status 15"))
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				invalidStatusCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 		})
 
 		It("should return an empty array if there are no validators with the given bonding type", func() {
-			validatorArgs := defaultValidatorArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Unbonded.String(),
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
@@ -1310,19 +1576,24 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("Delegation queries", func() {
-		var defaultDelegationArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultDelegationArgs = defaultCallArgs.WithMethodName(staking.DelegationMethod)
+			callArgs.MethodName = staking.DelegationMethod
 		})
 
 		It("should return a delegation if it is found", func() {
-			delegationArgs := defaultDelegationArgs.WithArgs(
-				s.address,
-				valAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr,
+				valAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var delOut staking.DelegationOutput
@@ -1333,12 +1604,20 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return an empty delegation if it is not found", func() {
-			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
-			delegationArgs := defaultDelegationArgs.WithArgs(
-				s.address, newValAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
+			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
+			callArgs.Args = []interface{}{
+				delegator.Addr,
+				newValAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var delOut staking.DelegationOutput
@@ -1351,38 +1630,55 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("UnbondingDelegation queries", func() {
-		var (
-			defaultUnbondingDelegationArgs contracts.CallArgs
-
-			// undelAmount is the amount of tokens to be unbonded
-			undelAmount = big.NewInt(1e17)
-		)
+		// undelAmount is the amount of tokens to be unbonded
+		undelAmount := big.NewInt(1e17)
 
 		BeforeEach(func() {
-			defaultUnbondingDelegationArgs = defaultCallArgs.WithMethodName(staking.UnbondingDelegationMethod)
+			callArgs.MethodName = staking.UnbondingDelegationMethod
+
+			delegator := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
 
 			// unbond a delegation
-			s.SetupApproval(s.privKey, s.precompile.Address(), abi.MaxUint256, []string{staking.UndelegateMsg})
+			s.SetupApproval(delegator.Priv, grantee.Addr, abi.MaxUint256, []string{staking.UndelegateMsg})
 
-			unbondArgs := defaultCallArgs.
-				WithMethodName(staking.UndelegateMethod).
-				WithArgs(s.address, valAddr.String(), undelAmount)
+			undelegateArgs := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.UndelegateMethod,
+				Args: []interface{}{
+					delegator.Addr, valAddr.String(), undelAmount,
+				},
+			}
+
 			unbondCheck := passCheck.WithExpEvents(staking.EventTypeUnbond)
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondArgs, unbondCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, undelegateArgs,
+				unbondCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check that the unbonding delegation exists
-			unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(unbondingDelegations).To(HaveLen(1), "expected one unbonding delegation")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation")
 		})
 
 		It("should return an unbonding delegation if it is found", func() {
-			unbondingDelegationsArgs := defaultUnbondingDelegationArgs.WithArgs(
-				s.address,
-				valAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr,
+				valAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
@@ -1395,12 +1691,19 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return an empty slice if the unbonding delegation is not found", func() {
-			unbondingDelegationsArgs := defaultUnbondingDelegationArgs.WithArgs(
-				s.address,
-				valAddr2.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr,
+				valAddr2.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
@@ -1411,34 +1714,48 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	Describe("to query a redelegation", func() {
-		var defaultRedelegationArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRedelegationArgs = defaultCallArgs.WithMethodName(staking.RedelegationMethod)
+			callArgs.MethodName = staking.RedelegationMethod
 		})
 
 		It("should return the redelegation if it exists", func() {
+			delegator := s.keyring.GetKey(0)
+			granteeAddr := s.precompile.Address()
+
 			// approve the redelegation
-			s.SetupApproval(s.privKey, s.precompile.Address(), abi.MaxUint256, []string{staking.RedelegateMsg})
+			s.SetupApproval(delegator.Priv, granteeAddr, abi.MaxUint256, []string{staking.RedelegateMsg})
 
 			// create a redelegation
-			redelegateArgs := defaultCallArgs.
-				WithMethodName(staking.RedelegateMethod).
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e17))
+			redelegateArgs := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.RedelegateMethod,
+				Args: []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1e17),
+				},
+			}
 
 			redelegateCheck := passCheck.WithExpEvents(staking.EventTypeRedelegate)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, redelegateCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, redelegateArgs,
+				redelegateCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// query the redelegation
-			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address,
+			callArgs.Args = []interface{}{
+				delegator.Addr,
 				valAddr.String(),
 				valAddr2.String(),
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var redelegationOutput staking.RedelegationOutput
@@ -1450,13 +1767,19 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return an empty output if the redelegation is not found", func() {
-			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address,
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
+				delegator.Addr,
 				valAddr.String(),
 				valAddr2.String(),
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var redelegationOutput staking.RedelegationOutput
@@ -1468,11 +1791,6 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 	Describe("Redelegations queries", func() {
 		var (
-			// defaultRedelegationsArgs are the default arguments for the redelegations query
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultRedelegationsArgs contracts.CallArgs
-
 			// delAmt is the amount of tokens to be delegated
 			delAmt = big.NewInt(3e17)
 			// redelTotalCount is the total number of redelegations
@@ -1480,40 +1798,62 @@ var _ = Describe("Calling staking precompile directly", func() {
 		)
 
 		BeforeEach(func() {
-			defaultRedelegationsArgs = defaultCallArgs.WithMethodName(staking.RedelegationsMethod)
+			delegator := s.keyring.GetKey(0)
+			granteeAddr := s.precompile.Address()
+
+			callArgs.MethodName = staking.RedelegationsMethod
 			// create some redelegations
 			s.SetupApproval(
-				s.privKey, s.precompile.Address(), abi.MaxUint256, []string{staking.RedelegateMsg},
+				delegator.Priv, granteeAddr, abi.MaxUint256, []string{staking.RedelegateMsg},
 			)
 
-			defaultRedelegateArgs := defaultCallArgs.WithMethodName(staking.RedelegateMethod)
-			redelegationsArgs := []contracts.CallArgs{
-				defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), delAmt,
-				),
-				defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), delAmt,
-				),
+			redelegationsArgs := []factory.CallArgs{
+				{
+					ContractABI: s.precompile.ABI,
+					MethodName:  staking.RedelegateMethod,
+					Args: []interface{}{
+						delegator.Addr, valAddr.String(), valAddr2.String(), delAmt,
+					},
+				},
+				{
+					ContractABI: s.precompile.ABI,
+					MethodName:  staking.RedelegateMethod,
+					Args: []interface{}{
+						delegator.Addr, valAddr.String(), valAddr2.String(), delAmt,
+					},
+				},
 			}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
 
+			txArgs.GasLimit = 500_000
 			for _, args := range redelegationsArgs {
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, args, logCheckArgs)
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, args,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while creating redelegation: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 			}
 		})
 
 		It("should return all redelegations for delegator (default pagination)", func() {
-			redelegationArgs := defaultRedelegationsArgs.WithArgs(
-				s.address,
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
+				delegator.Addr,
 				"",
 				"",
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var redelOut staking.RedelegationsOutput
@@ -1536,6 +1876,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return all redelegations for delegator w/pagination", func() {
+			delegator := s.keyring.GetKey(0)
+
 			// make 2 queries
 			// 1st one with pagination limit = 1
 			// 2nd using the next page key
@@ -1548,15 +1890,21 @@ var _ = Describe("Calling staking precompile directly", func() {
 				} else {
 					pagination.Key = nextPageKey
 				}
-				redelegationArgs := defaultRedelegationsArgs.WithArgs(
-					s.address,
+				callArgs.Args = []interface{}{
+					delegator.Addr,
 					"",
 					"",
 					pagination,
-				)
+				}
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs,
+					callArgs,
+					passCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				var redelOut staking.RedelegationsOutput
 				err = s.precompile.UnpackIntoInterface(&redelOut, staking.RedelegationsMethod, ethRes.Ret)
@@ -1593,14 +1941,20 @@ var _ = Describe("Calling staking precompile directly", func() {
 			//   --> filtering for all redelegations with the given source validator
 			// - delegator is NOT empty, source validator is NOT empty, destination validator is NOT empty
 			//   --> filtering for all redelegations with the given combination of delegator, source and destination validator
-			redelegationsArgs := defaultRedelegationsArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				common.Address{}, // passing in an empty address to filter for all redelegations from valAddr2
 				valAddr2.String(),
 				"",
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationsArgs, passCheck)
+			sender := s.keyring.GetKey(0)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				sender.Priv,
+				txArgs,
+				callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "expected error while calling the smart contract")
 
 			var redelOut staking.RedelegationsOutput
@@ -1615,23 +1969,33 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 
 	It("Should refund leftover gas", func() {
-		balancePre := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+		delegator := s.keyring.GetKey(0)
+
+		resBal, err := s.grpcHandler.GetBalance(delegator.AccAddr, s.bondDenom)
+		Expect(err).To(BeNil(), "error while getting balance")
+		balancePre := resBal.Balance
 		gasPrice := big.NewInt(1e9)
 
 		// Call the precompile with a lot of gas
-		approveArgs := defaultApproveArgs.
-			WithGasPrice(gasPrice).
-			WithArgs(s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg})
+		approveCallArgs.Args = []interface{}{
+			s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg},
+		}
+		txArgs.GasPrice = gasPrice
 
 		approvalCheck := passCheck.WithExpEvents(authorization.EventTypeApproval)
 
-		res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, approvalCheck)
+		res, _, err := s.factory.CallContractAndCheckLogs(
+			delegator.Priv,
+			txArgs, approveCallArgs,
+			approvalCheck,
+		)
 		Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+		Expect(s.network.NextBlock()).To(BeNil())
 
-		s.NextBlock()
-
-		balancePost := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-		difference := balancePre.Sub(balancePost)
+		resBal, err = s.grpcHandler.GetBalance(delegator.AccAddr, s.bondDenom)
+		Expect(err).To(BeNil(), "error while getting balance")
+		balancePost := resBal.Balance
+		difference := balancePre.Sub(*balancePost)
 
 		// NOTE: the expected difference is the gas price multiplied by the gas used, because the rest should be refunded
 		expDifference := gasPrice.Int64() * res.GasUsed
@@ -1639,8 +2003,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 	})
 })
 
-var _ = Describe("Calling staking precompile via Solidity", func() {
+var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 	var (
+		// s is the precompile test suite to use for the tests
+		s *PrecompileTestSuite
 		// contractAddr is the address of the smart contract that will be deployed
 		contractAddr    common.Address
 		contractTwoAddr common.Address
@@ -1662,62 +2028,86 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// nonExistingAddr is an address that does not exist in the state of the test suite
 		nonExistingAddr = testutiltx.GenerateAddress()
 		// nonExistingVal is a validator address that does not exist in the state of the test suite
-		nonExistingVal = sdk.ValAddress(nonExistingAddr.Bytes())
-
-		testContractInitialBalance = math.NewInt(100)
+		nonExistingVal             = sdk.ValAddress(nonExistingAddr.Bytes())
+		testContractInitialBalance = math.NewInt(1e18)
 	)
 
-	BeforeEach(func() {
-		s.SetupTest()
-
+	BeforeAll(func() {
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()
-		Expect(err).To(BeNil(), "error while loading the staking caller contract: %v", err)
-
-		contractAddr, err = s.DeployContract(stakingCallerContract)
-		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
-		s.NextBlock()
-
-		// Deploy StakingCallerTwo contract
+		Expect(err).To(BeNil())
 		stakingCallerTwoContract, err = testdata.LoadStakingCallerTwoContract()
 		Expect(err).To(BeNil(), "error while loading the StakingCallerTwo contract")
-
-		contractTwoAddr, err = s.DeployContract(stakingCallerTwoContract)
-		Expect(err).To(BeNil(), "error while deploying the StakingCallerTwo contract")
-		s.NextBlock()
-
-		// Deploy StakingReverter contract
 		stakingReverterContract, err = contracts.LoadStakingReverterContract()
 		Expect(err).To(BeNil(), "error while loading the StakingReverter contract")
+	})
 
-		stkReverterAddr, err = s.DeployContract(stakingReverterContract)
+	BeforeEach(func() {
+		s = new(PrecompileTestSuite)
+		s.SetupTest()
+		delegator := s.keyring.GetKey(0)
+
+		contractAddr, err = s.factory.DeployContract(
+			delegator.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: stakingCallerContract,
+			},
+		)
+		Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
+		valAddr, err = sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+		Expect(err).To(BeNil())
+		valAddr2, err = sdk.ValAddressFromBech32(s.network.GetValidators()[1].GetOperator())
+		Expect(err).To(BeNil())
+
+		Expect(s.network.NextBlock()).To(BeNil())
+
+		// Deploy StakingCallerTwo contract
+		contractTwoAddr, err = s.factory.DeployContract(
+			delegator.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: stakingCallerTwoContract,
+			},
+		)
+		Expect(err).To(BeNil(), "error while deploying the StakingCallerTwo contract")
+		Expect(s.network.NextBlock()).To(BeNil())
+
+		// Deploy StakingReverter contract
+		stkReverterAddr, err = s.factory.DeployContract(
+			delegator.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: stakingReverterContract,
+			},
+		)
 		Expect(err).To(BeNil(), "error while deploying the StakingReverter contract")
-		s.NextBlock()
+		Expect(s.network.NextBlock()).To(BeNil())
 
 		// send some funds to the StakingCallerTwo & StakingReverter contracts to transfer to the
 		// delegator during the tx
-		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, contractTwoAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		err := testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractTwoAddr.Bytes(), testContractInitialBalance)
 		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
-
-		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, stkReverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		Expect(s.network.NextBlock()).To(BeNil())
+		err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), stkReverterAddr.Bytes(), testContractInitialBalance)
 		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
-
-		valAddr = s.validators[0].GetOperator()
-		valAddr2 = s.validators[1].GetOperator()
+		Expect(s.network.NextBlock()).To(BeNil())
 
 		// check contract was correctly deployed
-		cAcc := s.app.EvmKeeper.GetAccount(s.ctx, contractAddr)
+		cAcc := s.network.App.EvmKeeper.GetAccount(s.network.GetContext(), contractAddr)
 		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 
+		// populate default TxArgs
+		txArgs.To = &contractAddr
 		// populate default call args
-		defaultCallArgs = contracts.CallArgs{
-			ContractAddr: contractAddr,
-			ContractABI:  stakingCallerContract.ABI,
-			PrivKey:      s.privKey,
+		callArgs = factory.CallArgs{
+			ContractABI: stakingCallerContract.ABI,
 		}
 		// populate default approval args
-		defaultApproveArgs = defaultCallArgs.WithMethodName("testApprove")
-
+		approveCallArgs = factory.CallArgs{
+			ContractABI: stakingCallerContract.ABI,
+			MethodName:  "testApprove",
+		}
 		// populate default log check args
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.Events,
@@ -1729,8 +2119,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 	Describe("when the precompile is not enabled in the EVM params", func() {
 		It("should return an error", func() {
+			delegator := s.keyring.GetKey(0)
+
 			// disable the precompile
-			params := s.app.EvmKeeper.GetParams(s.ctx)
+			res, err := s.grpcHandler.GetEvmParams()
+			Expect(err).To(BeNil(), "error while setting params")
+			params := res.Params
 			var activePrecompiles []string
 			for _, precompile := range params.ActiveStaticPrecompiles {
 				if precompile != s.precompile.Address().String() {
@@ -1738,60 +2132,78 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				}
 			}
 			params.ActiveStaticPrecompiles = activePrecompiles
-			err := s.app.EvmKeeper.SetParams(s.ctx, params)
+
+			err = testutils.UpdateEvmParams(testutils.UpdateParamsInput{
+				Tf:      s.factory,
+				Network: s.network,
+				Pk:      delegator.Priv,
+				Params:  params,
+			})
 			Expect(err).To(BeNil(), "error while setting params")
 
 			// try to call the precompile
-			delegateArgs := defaultCallArgs.
-				WithMethodName("testDelegate").
-				WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
-				)
+			callArgs.MethodName = "testDelegate"
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr.String(), big.NewInt(2e18),
+			}
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()))
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "expected error while calling the precompile")
 		})
 	})
 
 	Context("approving methods", func() {
 		Context("with valid input", func() {
 			It("should approve one method", func() {
-				approvalArgs := defaultApproveArgs.WithArgs(
+				granter := s.keyring.GetKey(0)
+
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(approvalArgs)
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should approve all methods", func() {
-				approvalArgs := defaultApproveArgs.
-					WithGasLimit(1e8).
-					WithArgs(
-						contractAddr,
-						[]string{staking.DelegateMsg, staking.RedelegateMsg, staking.UndelegateMsg, staking.CancelUnbondingDelegationMsg},
-						big.NewInt(1e18),
-					)
-				s.SetupApprovalWithContractCalls(approvalArgs)
+				granter := s.keyring.GetKey(0)
+
+				approveCallArgs.Args = []interface{}{
+					contractAddr,
+					[]string{staking.DelegateMsg, staking.RedelegateMsg, staking.UndelegateMsg, staking.CancelUnbondingDelegationMsg},
+					big.NewInt(1e18),
+				}
+				txArgs.GasLimit = 1e8
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should update a previous approval", func() {
-				approvalArgs := defaultApproveArgs.WithArgs(
-					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(approvalArgs)
+				granter := s.keyring.GetKey(0)
 
-				s.NextBlock()
+				approveCallArgs.Args = []interface{}{
+					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 				// update approval
-				approvalArgs = defaultApproveArgs.WithArgs(
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(2e18),
+				}
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					granter.Priv,
+					txArgs, approveCallArgs,
+					approvalCheck,
 				)
-
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, approvalArgs, approvalCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check approvals
-				authorization, expirationTime := s.CheckAuthorization(staking.DelegateAuthz, contractAddr, s.address)
+				authorization, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
+				Expect(err).To(BeNil())
 				Expect(authorization).ToNot(BeNil(), "expected authorization to not be nil")
 				Expect(expirationTime).ToNot(BeNil(), "expected expiration time to not be nil")
 				Expect(authorization.MsgTypeURL()).To(Equal(staking.DelegateMsg), "expected authorization msg type url to be %s", staking.DelegateMsg)
@@ -1799,46 +2211,58 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			})
 
 			It("should remove approval when setting amount to zero", func() {
-				s.SetupApprovalWithContractCalls(
-					defaultApproveArgs.WithArgs(contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18)),
-				)
+				granter := s.keyring.GetKey(0)
 
-				s.NextBlock()
+				approveCallArgs.Args = []interface{}{
+					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
+				}
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check approvals pre-removal
-				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+				allAuthz, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), granter.AccAddr.String())
 				Expect(err).To(BeNil(), "error while reading authorizations")
 				Expect(allAuthz).To(HaveLen(1), "expected no authorizations")
 
-				approveArgs := defaultApproveArgs.WithArgs(
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(0),
-				)
+				}
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, approvalCheck)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					granter.Priv,
+					txArgs, approveCallArgs,
+					approvalCheck,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract")
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check approvals after approving with amount 0
-				allAuthz, err = s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+				allAuthz, err = s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), granter.AccAddr.String())
 				Expect(err).To(BeNil(), "error while reading authorizations")
 				Expect(allAuthz).To(HaveLen(0), "expected no authorizations")
 			})
 
 			It("should not approve if the gas is not enough", func() {
-				approveArgs := defaultApproveArgs.
-					WithGasLimit(1e5).
-					WithArgs(
-						contractAddr,
-						[]string{
-							staking.DelegateMsg,
-							staking.UndelegateMsg,
-							staking.RedelegateMsg,
-							staking.CancelUnbondingDelegationMsg,
-						},
-						big.NewInt(1e18),
-					)
+				granter := s.keyring.GetKey(0)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract")
+				txArgs.GasLimit = 1e5
+				approveCallArgs.Args = []interface{}{
+					contractAddr,
+					[]string{
+						staking.DelegateMsg,
+						staking.UndelegateMsg,
+						staking.RedelegateMsg,
+						staking.CancelUnbondingDelegationMsg,
+					},
+					big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					granter.Priv,
+					txArgs, approveCallArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract")
 			})
 		})
 
@@ -1849,25 +2273,31 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			//		nonExistingAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
 			//	)
 			//
-			//	_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, execRevertedCheck)
+			//	_, _, err = s.factory.CallContractAndCheckLogs(
 			//	Expect(err).To(BeNil(), "error while calling the smart contract")
 			//
 			//	// check approvals
-			//	allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			//	allAuthz, err := s.network.App.AuthzKeeper.GetAuthorizations(s.network.GetContext(), contractAddr.Bytes(), delegator.AccAddr)
 			//	Expect(err).To(BeNil(), "error while reading authorizations")
 			//	Expect(allAuthz).To(HaveLen(0), "expected no authorizations")
 			// })
 
 			It("shouldn't approve for invalid methods", func() {
-				approveArgs := defaultApproveArgs.WithArgs(
-					contractAddr, []string{"invalid method"}, big.NewInt(1e18),
-				)
+				granter := s.keyring.GetKey(0)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract")
+				approveCallArgs.Args = []interface{}{
+					contractAddr, []string{"invalid method"}, big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					granter.Priv,
+					txArgs, approveCallArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract")
 
 				// check approvals
-				allAuthz, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+				allAuthz, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), granter.AccAddr.String())
 				Expect(err).To(BeNil(), "error while reading authorizations")
 				Expect(allAuthz).To(HaveLen(0), "expected no authorizations")
 			})
@@ -1875,42 +2305,54 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("to revoke an approval", func() {
-		var defaultRevokeArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRevokeArgs = defaultCallArgs.WithMethodName("testRevoke")
+			callArgs.MethodName = "testRevoke"
 		})
 
 		It("should revoke when sending as the granter", func() {
+			granter := s.keyring.GetKey(0)
+
 			// set up an approval to be revoked
-			cArgs := defaultApproveArgs.WithArgs(
+			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(cArgs)
+			}
 
-			s.NextBlock()
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
-			revokeArgs := defaultRevokeArgs.WithArgs(contractAddr, []string{staking.DelegateMsg})
+			callArgs.Args = []interface{}{contractAddr, []string{staking.DelegateMsg}}
 
 			revocationCheck := passCheck.WithExpEvents(authorization.EventTypeRevocation)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, revocationCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				revocationCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check approvals
-			authz, _ := s.CheckAuthorization(staking.DelegateAuthz, contractAddr, s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be revoked")
 		})
 
 		It("should not revoke when approval is issued by a different granter", func() {
 			// Create a delegate authorization where the granter is a different account from the default test suite one
 			createdAuthz := staking.DelegateAuthz
-			granteeAddr := testutiltx.GenerateAddress()
-			granterAddr := testutiltx.GenerateAddress()
-			validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
+			granter := s.keyring.GetKey(0)
+			grantee := s.keyring.GetKey(1)
+			differentGranterIdx := s.keyring.AddKey()
+			differentGranter := s.keyring.GetKey(differentGranterIdx)
+			validators, err := s.network.App.StakingKeeper.GetLastValidators(s.network.GetContext())
+			Expect(err).To(BeNil())
+
 			valAddrs := make([]sdk.ValAddress, len(validators))
 			for i, val := range validators {
-				valAddrs[i] = val.GetOperator()
+				parsedAddr, err := sdk.ValAddressFromBech32(val.GetOperator())
+				Expect(err).To(BeNil())
+				valAddrs[i] = parsedAddr
 			}
 			delegationAuthz, err := stakingtypes.NewStakeAuthorization(
 				valAddrs,
@@ -1920,52 +2362,72 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			)
 			Expect(err).To(BeNil(), "failed to create authorization")
 
-			expiration := s.ctx.BlockTime().Add(time.Hour * 24 * 365).UTC()
-			err = s.app.AuthzKeeper.SaveGrant(s.ctx, granteeAddr.Bytes(), granterAddr.Bytes(), delegationAuthz, &expiration)
+			expiration := s.network.GetContext().BlockTime().Add(time.Hour * 24 * 365).UTC()
+			err = s.network.App.AuthzKeeper.SaveGrant(s.network.GetContext(), grantee.AccAddr, differentGranter.AccAddr, delegationAuthz, &expiration)
 			Expect(err).ToNot(HaveOccurred(), "failed to save authorization")
-			authz, _ := s.CheckAuthorization(createdAuthz, granteeAddr, granterAddr)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, createdAuthz, grantee.Addr, differentGranter.Addr)
+			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization to be created")
 
-			revokeArgs := defaultRevokeArgs.WithArgs(granteeAddr, []string{staking.DelegateMsg})
+			callArgs.Args = []interface{}{grantee.Addr, []string{staking.DelegateMsg}}
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract")
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
 
 			// check approvals
-			authz, _ = s.CheckAuthorization(createdAuthz, granteeAddr, granterAddr)
+			authz, _, err = CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, createdAuthz, grantee.Addr, differentGranter.Addr)
+			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization not to be revoked")
 		})
 
 		It("should revert the execution when no approval is found", func() {
-			revokeArgs := defaultRevokeArgs.WithArgs(contractAddr, []string{staking.DelegateMsg})
+			granter := s.keyring.GetKey(0)
+			callArgs.Args = []interface{}{contractAddr, []string{staking.DelegateMsg}}
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract")
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
 
 			// check approvals
-			authz, _ := s.CheckAuthorization(staking.DelegateAuthz, contractAddr, s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected no authorization to be found")
 		})
 
 		It("should not revoke if the approval is for a different message type", func() {
+			granter := s.keyring.GetKey(0)
+
 			// set up an approval
-			cArgs := defaultApproveArgs.WithArgs(
+			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
+			}
+
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+			callArgs.Args = []interface{}{contractAddr, []string{staking.UndelegateMsg}}
+
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				execRevertedCheck,
 			)
-			s.SetupApprovalWithContractCalls(cArgs)
-
-			s.NextBlock()
-
-			revokeArgs := defaultRevokeArgs.WithArgs(contractAddr, []string{staking.UndelegateMsg})
-
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revokeArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract")
+			Expect(err).To(BeNil(), "error while calling the smart contract")
 
 			// check approval is still there
 			s.ExpectAuthorization(
 				staking.DelegateAuthz,
 				contractAddr,
-				s.address,
+				granter.Addr,
 				&sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)},
 			)
 		})
@@ -1973,8 +2435,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 	Context("create a validator", func() {
 		var (
-			valPriv *ethsecp256k1.PrivKey
-			valAddr sdk.AccAddress
+			valPriv    *ethsecp256k1.PrivKey
+			valAddr    sdk.AccAddress
+			valHexAddr common.Address
 
 			defaultDescription = staking.Description{
 				Moniker:         "new node",
@@ -1991,54 +2454,61 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			defaultMinSelfDelegation = big.NewInt(1)
 			defaultPubkeyBase64Str   = GenerateBase64PubKey()
 			defaultValue             = big.NewInt(1e8)
-
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultCreateValidatorArgs contracts.CallArgs
 		)
 
 		BeforeEach(func() {
-			defaultCreateValidatorArgs = defaultCallArgs.WithMethodName("testCreateValidator")
+			callArgs.MethodName = "testCreateValidator"
 			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
-			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 1e18)
+			valHexAddr = common.BytesToAddress(valAddr.Bytes())
+			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), valAddr.Bytes(), math.NewInt(1e18))
 			Expect(err).To(BeNil(), "error while funding account: %v", err)
-
-			s.NextBlock()
+			Expect(s.network.NextBlock()).To(BeNil())
 		})
 
 		It("tx from validator operator - should NOT create a validator", func() {
-			cArgs := defaultCreateValidatorArgs.
-				WithPrivKey(s.privKey).
-				WithArgs(defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue)
+			callArgs.Args = []interface{}{
+				defaultDescription, defaultCommission, defaultMinSelfDelegation, valHexAddr, defaultPubkeyBase64Str, defaultValue,
+			}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-			Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				valPriv,
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
-			Expect(found).To(BeFalse(), "expected validator NOT to be found")
+			qc := s.network.GetStakingClient()
+			_, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).NotTo(BeNil(), "expected validator NOT to be found")
+			Expect(err.Error()).To(ContainSubstring("not found"), "expected validator NOT to be found")
 		})
 
 		It("tx from another EOA - should create a validator fail", func() {
-			cArgs := defaultCreateValidatorArgs.
-				WithPrivKey(valPriv).
-				WithArgs(defaultDescription, defaultCommission, defaultMinSelfDelegation, s.address, defaultPubkeyBase64Str, defaultValue)
+			callArgs.Args = []interface{}{
+				defaultDescription, defaultCommission, defaultMinSelfDelegation, valHexAddr, defaultPubkeyBase64Str, defaultValue,
+			}
 
-			logCheckArgs := defaultLogCheck.WithErrContains(fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.address.String(), common.BytesToAddress(valAddr.Bytes()).String()))
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-			_, found := s.app.StakingKeeper.GetValidator(s.ctx, s.address.Bytes())
-			Expect(found).To(BeFalse(), "expected validator not to be found")
+			qc := s.network.GetStakingClient()
+			_, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).NotTo(BeNil(), "expected validator NOT to be found")
+			Expect(err.Error()).To(ContainSubstring("not found"), "expected validator NOT to be found")
 		})
 	})
 
 	Context("to edit a validator", func() {
 		var (
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultEditValArgs contracts.CallArgs
-			valPriv            *ethsecp256k1.PrivKey
-			valAddr            sdk.AccAddress
-			valHexAddr         common.Address
+			valPriv    *ethsecp256k1.PrivKey
+			valAddr    sdk.AccAddress
+			valHexAddr common.Address
 
 			defaultDescription = staking.Description{
 				Moniker:         "edit node",
@@ -2057,13 +2527,14 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		)
 
 		BeforeEach(func() {
-			defaultEditValArgs = defaultCallArgs.WithMethodName("testEditValidator")
+			callArgs.MethodName = "testEditValidator"
 
 			// create a new validator
 			valAddr, valPriv = testutiltx.NewAccAddressAndKey()
 			valHexAddr = common.BytesToAddress(valAddr.Bytes())
-			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAddr, 2e18)
+			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), valAddr.Bytes(), math.NewInt(2e18))
 			Expect(err).To(BeNil(), "error while funding account: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			description = staking.Description{
 				Moniker:         "original moniker",
@@ -2080,191 +2551,259 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			pubkeyBase64Str := "UuhHQmkUh2cPBA6Rg4ei0M2B04cVYGNn/F8SAUsYIb4="
 			value := big.NewInt(1e18)
 
-			createValidatorArgs := contracts.CallArgs{
-				ContractAddr: s.precompile.Address(),
-				ContractABI:  s.precompile.ABI,
-				MethodName:   staking.CreateValidatorMethod,
-				PrivKey:      valPriv,
-				Args:         []interface{}{description, commission, minSelfDelegation, valHexAddr, pubkeyBase64Str, value},
+			createValidatorArgs := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  staking.CreateValidatorMethod,
+				Args:        []interface{}{description, commission, minSelfDelegation, valHexAddr, pubkeyBase64Str, value},
 			}
 
 			logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createValidatorArgs, logCheckArgs)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-			s.NextBlock()
+			toAddr := s.precompile.Address()
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				valPriv,
+				evmtypes.EvmTxArgs{
+					To: &toAddr,
+				},
+				createValidatorArgs,
+				logCheckArgs,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 		})
 
 		It("with tx from validator operator - should NOT edit a validator", func() {
-			cArgs := defaultEditValArgs.
-				WithPrivKey(valPriv).
-				WithArgs(
-					defaultDescription, valHexAddr,
-					defaultCommissionRate, defaultMinSelfDelegation,
-				)
+			callArgs.Args = []interface{}{
+				defaultDescription, valHexAddr,
+				defaultCommissionRate, defaultMinSelfDelegation,
+			}
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-			Expect(err).NotTo(BeNil(), "error while calling the smart contract: %v", err)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				valPriv,
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
-			Expect(found).To(BeTrue(), "expected validator to be found")
+			qc := s.network.GetStakingClient()
+			qRes, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).To(BeNil())
+			Expect(qRes).NotTo(BeNil())
+			validator := qRes.Validator
 			Expect(validator.Description.Moniker).NotTo(Equal(defaultDescription.Moniker), "expected validator moniker NOT to be updated")
 		})
 
 		It("with tx from another EOA - should fail", func() {
-			cArgs := defaultEditValArgs.
-				WithPrivKey(s.privKey).
-				WithArgs(
-					defaultDescription, valHexAddr,
-					defaultCommissionRate, defaultMinSelfDelegation,
-				)
+			callArgs.Args = []interface{}{
+				defaultDescription, valHexAddr,
+				defaultCommissionRate, defaultMinSelfDelegation,
+			}
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-			Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()))
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				s.keyring.GetPrivKey(0),
+				txArgs,
+				callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// validator should remain unchanged
-			validator, found := s.app.StakingKeeper.GetValidator(s.ctx, valAddr.Bytes())
-			Expect(found).To(BeTrue(), "expected validator to be found")
+			qc := s.network.GetStakingClient()
+			qRes, err := qc.Validator(s.network.GetContext(), &stakingtypes.QueryValidatorRequest{ValidatorAddr: sdk.ValAddress(valAddr).String()})
+			Expect(err).To(BeNil())
+			Expect(qRes).NotTo(BeNil())
+
+			validator := qRes.Validator
 			Expect(validator.Description.Moniker).To(Equal("original moniker"), "expected validator moniker is updated")
 			Expect(validator.Commission.Rate.BigInt().String()).To(Equal("100000000000000000"), "expected validator commission rate remain unchanged")
 		})
 	})
 
 	Context("delegating", func() {
-		var (
-			// prevDelegation is the delegation that is available prior to the test (an initial delegation is
-			// added in the test suite setup).
-			prevDelegation stakingtypes.Delegation
-			// defaultDelegateArgs are the default arguments for the delegate call
-			//
-			// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-			defaultDelegateArgs contracts.CallArgs
-		)
+		// prevDelegation is the delegation that is available prior to the test (an initial delegation is
+		// added in the test suite setup).
+		var prevDelegation stakingtypes.Delegation
 
 		BeforeEach(func() {
+			delegator := s.keyring.GetKey(0)
+
 			// get the delegation that is available prior to the test
-			prevDelegation, _ = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
+			res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
 
-			defaultDelegateArgs = defaultCallArgs.WithMethodName("testDelegate")
+			prevDelegation = res.DelegationResponse.Delegation
+			callArgs.MethodName = "testDelegate"
 		})
-
 		Context("without approval set", func() {
 			BeforeEach(func() {
-				authz, _ := s.CheckAuthorization(staking.DelegateAuthz, contractAddr, s.address)
+				granter := s.keyring.GetKey(0)
+
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.DelegateAuthz, contractAddr, granter.Addr)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil")
 			})
 
 			It("should not delegate", func() {
-				Expect(s.app.EvmKeeper.GetAccount(s.ctx, contractAddr)).ToNot(BeNil(), "expected contract to exist")
+				Expect(s.network.App.EvmKeeper.GetAccount(s.network.GetContext(), contractAddr)).ToNot(BeNil(), "expected contract to exist")
+				delegator := s.keyring.GetKey(0)
 
-				cArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				del, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-				Expect(del).To(Equal(prevDelegation), "no new delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
+				Expect(res.DelegationResponse.Delegation).To(Equal(prevDelegation), "no new delegation to be found")
 			})
 		})
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
-				cArgs := defaultApproveArgs.WithArgs(
+				granter := s.keyring.GetKey(0)
+
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(cArgs)
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+				// add gas limit to avoid out of gas error
+				txArgs.GasLimit = 500_000
 			})
 
 			It("should delegate when not exceeding the allowance", func() {
-				cArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := passCheck.
 					WithExpEvents(staking.EventTypeDelegate)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-				Expect(found).To(BeTrue(), "expected delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
+				delegation := res.DelegationResponse.Delegation
+
 				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 			})
 
 			Context("Calling the precompile from the StakingReverter contract", func() {
 				var (
-					txSenderInitialBal     sdk.Coin
-					contractInitialBalance sdk.Coin
+					txSenderInitialBal     *sdk.Coin
+					contractInitialBalance *sdk.Coin
 					gasPrice               = math.NewInt(1e9)
 					delAmt                 = math.NewInt(1e18)
 				)
 
 				BeforeEach(func() {
 					// set approval for the StakingReverter contract
-					s.SetupApproval(s.privKey, stkReverterAddr, delAmt.BigInt(), []string{staking.DelegateMsg})
+					s.SetupApproval(s.keyring.GetPrivKey(0), stkReverterAddr, delAmt.BigInt(), []string{staking.DelegateMsg})
 
-					txSenderInitialBal = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-					contractInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					txSenderInitialBal = balRes.Balance
+					balRes, err = s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractInitialBalance = balRes.Balance
 				})
 
 				It("should revert the changes and NOT delegate - successful tx", func() {
-					callArgs := contracts.CallArgs{
-						ContractAddr: stkReverterAddr,
-						ContractABI:  stakingReverterContract.ABI,
-						PrivKey:      s.privKey,
-						MethodName:   "run",
+					callArgs := factory.CallArgs{
+						ContractABI: stakingReverterContract.ABI,
+						MethodName:  "run",
 						Args: []interface{}{
-							big.NewInt(5), s.validators[0].GetOperator().String(),
+							big.NewInt(5), s.network.GetValidators()[0].OperatorAddress,
 						},
-						GasPrice: gasPrice.BigInt(),
 					}
 
 					// Tx should be successful, but no state changes happened
-					res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, callArgs, passCheck)
-					Expect(err).To(BeNil())
+					res, _, err := s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						evmtypes.EvmTxArgs{
+							To:       &stkReverterAddr,
+							GasPrice: gasPrice.BigInt(),
+						},
+						callArgs,
+						passCheck,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
+
 					fees := gasPrice.MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					contractFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// No delegation should be created
-					_, found := s.app.StakingKeeper.GetDelegation(s.ctx, stkReverterAddr.Bytes(), s.validators[0].GetOperator())
-					Expect(found).To(BeFalse(), "expected NO delegation to be found")
+					_, err = s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).NotTo(BeNil())
+					Expect(err.Error()).To(ContainSubstring("not found"), "expected NO delegation created")
 
 					// Only fees deducted on tx sender
-					txSenderFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					txSenderFinalBal := balRes.Balance
 					Expect(txSenderFinalBal.Amount).To(Equal(txSenderInitialBal.Amount.Sub(fees)))
 				})
 
 				It("should revert the changes and NOT delegate - failed tx - max precompile calls reached", func() {
-					callArgs := contracts.CallArgs{
-						ContractAddr: stkReverterAddr,
-						ContractABI:  stakingReverterContract.ABI,
-						PrivKey:      s.privKey,
-						MethodName:   "run",
+					callArgs := factory.CallArgs{
+						ContractABI: stakingReverterContract.ABI,
+						MethodName:  "multipleDelegations",
 						Args: []interface{}{
-							big.NewInt(7), s.validators[0].GetOperator().String(),
+							big.NewInt(int64(evmtypes.MaxPrecompileCalls + 2)), s.network.GetValidators()[0].OperatorAddress,
 						},
-						GasPrice: gasPrice.BigInt(),
 					}
 
 					// Tx should fail due to MaxPrecompileCalls
-					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, callArgs, execRevertedCheck)
-					Expect(err).NotTo(BeNil())
+					_, _, err := s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						evmtypes.EvmTxArgs{
+							To:       &stkReverterAddr,
+							GasPrice: gasPrice.BigInt(),
+						},
+						callArgs,
+						execRevertedCheck,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 					// contract balance should remain unchanged
-					contractFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// No delegation should be created
-					_, found := s.app.StakingKeeper.GetDelegation(s.ctx, stkReverterAddr.Bytes(), s.validators[0].GetOperator())
-					Expect(found).To(BeFalse(), "expected NO delegation to be found")
+					_, err = s.grpcHandler.GetDelegation(sdk.AccAddress(stkReverterAddr.Bytes()).String(), s.network.GetValidators()[0].OperatorAddress)
+					Expect(err).NotTo(BeNil())
+					Expect(err.Error()).To(ContainSubstring("not found"), "expected NO delegation created")
 				})
 			})
 
@@ -2277,10 +2816,10 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				}
 
 				var (
-					args                           contracts.CallArgs
-					delegatorInitialBal            sdk.Coin
-					contractInitialBalance         sdk.Coin
-					bondedTokensPoolInitialBalance sdk.Coin
+					args                           factory.CallArgs
+					delegatorInitialBal            *sdk.Coin
+					contractInitialBalance         *sdk.Coin
+					bondedTokensPoolInitialBalance *sdk.Coin
 					delAmt                         = math.NewInt(1e18)
 					gasPrice                       = math.NewInt(1e9)
 					bondedTokensPoolAccAddr        = authtypes.NewModuleAddress("bonded_tokens_pool")
@@ -2288,32 +2827,37 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				BeforeEach(func() {
 					// set authorization for contract
-					callCArgs := contracts.CallArgs{
-						ContractAddr: contractTwoAddr,
-						ContractABI:  stakingCallerTwoContract.ABI,
-						PrivKey:      s.privKey,
-						MethodName:   "testApprove",
+					args = factory.CallArgs{
+						ContractABI: stakingCallerTwoContract.ABI,
+						MethodName:  "testApprove",
 						Args: []interface{}{
 							contractTwoAddr, []string{staking.DelegateMsg}, delAmt.BigInt(),
 						},
 					}
 
-					s.SetupApprovalWithContractCalls(callCArgs)
+					s.SetupApprovalWithContractCalls(
+						s.keyring.GetKey(0),
+						evmtypes.EvmTxArgs{
+							To: &contractTwoAddr,
+						}, args)
 
-					args = callCArgs.
-						WithMethodName("testDelegateWithCounterAndTransfer").
-						WithGasPrice(gasPrice.BigInt())
+					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					delegatorInitialBal = balRes.Balance
+					balRes, err = s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractInitialBalance = balRes.Balance
+					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					Expect(err).To(BeNil())
+					bondedTokensPoolInitialBalance = balRes.Balance
 
-					delegatorInitialBal = s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-					contractInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
-					bondedTokensPoolInitialBalance = s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+					args.MethodName = "testDelegateWithCounterAndTransfer"
 				})
 
 				DescribeTable("should delegate and update balances accordingly", func(tc testCase) {
-					cArgs := args.
-						WithArgs(
-							s.address, valAddr.String(), delAmt.BigInt(), tc.before, tc.after,
-						)
+					args.Args = []interface{}{
+						s.keyring.GetAddr(0), valAddr.String(), delAmt.BigInt(), tc.before, tc.after,
+					}
 
 					// This is the amount of tokens transferred from the contract to the delegator
 					// during the contract call
@@ -2327,24 +2871,42 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					logCheckArgs := passCheck.
 						WithExpEvents(staking.EventTypeDelegate)
 
-					res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+					res, _, err := s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						evmtypes.EvmTxArgs{
+							To:       &contractTwoAddr,
+							GasPrice: gasPrice.BigInt(),
+						},
+						args,
+						logCheckArgs,
+					)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
+
 					fees := gasPrice.MulRaw(res.GasUsed)
 
 					// check the contract's balance was deducted to fund the vesting account
-					contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					contractFinalBal := balRes.Balance
+					Expect(err).To(BeNil())
 					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount.Sub(transferToDelAmt)))
 
-					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-					Expect(found).To(BeTrue(), "expected delegation to be found")
+					qRes, err := s.grpcHandler.GetDelegation(s.keyring.GetAccAddr(0).String(), valAddr.String())
+					Expect(err).To(BeNil())
+					Expect(qRes).NotTo(BeNil(), "expected delegation to be found")
+					delegation := qRes.DelegationResponse.Delegation
 					expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
 					Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 
-					delegatorFinalBal := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					Expect(err).To(BeNil())
+					delegatorFinalBal := balRes.Balance
 					Expect(delegatorFinalBal.Amount).To(Equal(delegatorInitialBal.Amount.Sub(fees).Sub(delAmt).Add(transferToDelAmt)))
 
 					// check the bondedTokenPool is updated with the delegated tokens
-					bondedTokensPoolFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					bondedTokensPoolFinalBalance := balRes.Balance
+					Expect(err).To(BeNil())
 					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount.Add(delAmt)))
 				},
 					Entry("contract tx with transfer to delegator before and after precompile call ", testCase{
@@ -2362,88 +2924,137 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				)
 
 				It("should NOT delegate and update balances accordingly - internal transfer to tokens pool", func() {
-					cArgs := args.
-						WithMethodName("testDelegateWithTransfer").
-						WithArgs(
-							common.BytesToAddress(bondedTokensPoolAccAddr),
-							s.address, valAddr.String(), delAmt.BigInt(), true, true,
-						)
+					args.MethodName = "testDelegateWithTransfer"
+					args.Args = []interface{}{
+						common.BytesToAddress(bondedTokensPoolAccAddr),
+						s.keyring.GetAddr(0), valAddr.String(), delAmt.BigInt(), true, true,
+					}
 
-					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-					Expect(err).NotTo(BeNil())
+					_, _, err := s.factory.CallContractAndCheckLogs(
+						s.keyring.GetPrivKey(0),
+						txArgs,
+						args,
+						execRevertedCheck,
+					)
+					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
 
 					// contract balance should remain unchanged
-					contractFinalBal := s.app.BankKeeper.GetBalance(s.ctx, contractTwoAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					Expect(err).To(BeNil())
+					contractFinalBal := balRes.Balance
 					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// check the bondedTokenPool should remain unchanged
-					bondedTokensPoolFinalBalance := s.app.BankKeeper.GetBalance(s.ctx, bondedTokensPoolAccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					Expect(err).To(BeNil())
+					bondedTokensPoolFinalBalance := balRes.Balance
 					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount))
 				})
 			})
 
 			It("should not delegate when exceeding the allowance", func() {
-				cArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(2e18),
+				}
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				del, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-				Expect(del).To(Equal(prevDelegation), "no new delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
+				Expect(res.DelegationResponse.Delegation).To(Equal(prevDelegation), "no new delegation to be found")
 			})
 
 			It("should not delegate when sending from a different address", func() {
-				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 1e18)
-				Expect(err).To(BeNil(), "error while funding account: %v", err)
+				delegator := s.keyring.GetKey(0)
+				differentSender := s.keyring.GetKey(1)
 
-				s.NextBlock()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					differentSender.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegateArgs := defaultDelegateArgs.
-					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
-
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				del, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
-				Expect(del).To(Equal(prevDelegation), "no new delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), valAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
+				Expect(res.DelegationResponse.Delegation).To(Equal(prevDelegation), "no new delegation to be found")
 			})
 
 			It("should not delegate when validator does not exist", func() {
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, nonExistingVal.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				del, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), nonExistingVal)
-				Expect(del).To(BeZero(), "expected no delegation to be found")
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), nonExistingVal.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("delegation with delegator %s not found for validator %s", delegator.AccAddr.String(), nonExistingVal.String())))
+				Expect(res).To(BeNil())
 			})
 
 			It("shouldn't delegate to a validator that is not in the allow list of the approval", func() {
 				// create a new validator, which is not included in the active set of the last block
-				testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, math.NewInt(100))
-				newValAddr := sdk.ValAddress(s.address.Bytes())
+				commValue := math.LegacyNewDecWithPrec(5, 2)
+				commission := stakingtypes.NewCommissionRates(commValue, commValue, commValue)
+				validatorKey := ed25519.GenPrivKey()
+				delegator := s.keyring.GetKey(0)
+				err := s.factory.CreateValidator(delegator.Priv, validatorKey.PubKey(), sdk.NewCoin(s.bondDenom, math.NewInt(1)), stakingtypes.Description{Moniker: "NewValidator"}, commission, math.NewInt(1))
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, newValAddr.String(), big.NewInt(2e18),
+				newValAddr := sdk.ValAddress(delegator.AccAddr.Bytes())
+
+				res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), newValAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
+				prevDelegation = res.DelegationResponse.Delegation
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, newValAddr.String(), big.NewInt(2e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				res, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), newValAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.DelegationResponse).NotTo(BeNil())
 
-				delegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), newValAddr)
-				Expect(delegation.GetShares()).To(Equal(math.LegacyNewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
+				delegation := res.DelegationResponse.Delegation
+				Expect(delegation.GetShares()).To(Equal(prevDelegation.GetShares()), "expected only the delegation from creating the validator, no more")
 			})
 		})
 
 		Describe("delegation from a vesting account", func() {
 			var (
-				funder          common.Address
 				vestAcc         common.Address
 				vestAccPriv     *ethsecp256k1.PrivKey
 				clawbackAccount *vestingtypes.ClawbackVestingAccount
@@ -2451,41 +3062,41 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				vested          sdk.Coins
 				// unlockedVested are unlocked vested coins of the vesting schedule
 				unlockedVested sdk.Coins
-				defaultArgs    contracts.CallArgs
 			)
 
 			BeforeEach(func() {
 				// Setup vesting account
-				funder = s.address
-				vestAcc, vestAccPriv = testutiltx.NewAddrKey()
+				funderKey := s.keyring.GetKey(0)
+				vestAccKey := keyring.NewKey()
+				vestAcc, vestAccPriv = vestAccKey.Addr, vestAccKey.Priv.(*ethsecp256k1.PrivKey)
 
-				clawbackAccount = s.setupVestingAccount(funder.Bytes(), vestAcc.Bytes())
+				clawbackAccount = s.setupVestingAccount(funderKey, vestAccKey)
+				ctx := s.network.GetContext()
 
 				// Check if all tokens are unvested at vestingStart
 				totalVestingCoins := evmosutil.TestVestingSchedule.TotalVestingCoins
-				unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-				vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+				unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+				vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
 				Expect(unvested).To(Equal(totalVestingCoins))
 				Expect(vested.IsZero()).To(BeTrue())
 
-				// create approval to allow spending all vesting coins
-				cArgs := defaultApproveArgs.WithArgs(
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.DelegateMsg}, totalVestingCoins.AmountOf(s.bondDenom).BigInt(),
-				).WithPrivKey(vestAccPriv)
-				s.SetupApprovalWithContractCalls(cArgs)
+				}
 
-				// add the vesting account priv key to the delegate args
-				defaultArgs = defaultDelegateArgs.WithPrivKey(vestAccPriv)
+				// create approval to allow spending all vesting coins
+				s.SetupApprovalWithContractCalls(vestAccKey, txArgs, approveCallArgs)
 			})
 
 			Context("before first vesting period - all tokens locked and unvested", func() {
 				BeforeEach(func() {
-					s.NextBlock()
+					Expect(s.network.NextBlock()).To(BeNil())
+					ctx := s.network.GetContext()
 
 					// Ensure no tokens are vested
-					vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
-					unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-					unlocked := clawbackAccount.GetUnlockedCoins(s.ctx.BlockTime())
+					vested = clawbackAccount.GetVestedCoins(ctx.BlockTime())
+					unvested = clawbackAccount.GetVestingCoins(ctx.BlockTime())
+					unlocked := clawbackAccount.GetUnlockedCoins(ctx.BlockTime())
 					zeroCoins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.ZeroInt()))
 					Expect(vested).To(Equal(zeroCoins))
 					Expect(unvested).To(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins))
@@ -2493,32 +3104,33 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				})
 
 				It("Should not be able to delegate unvested tokens", func() {
-					delegateArgs := defaultArgs.WithArgs(
+					callArgs.Args = []interface{}{
 						vestAcc, valAddr.String(), unvested.AmountOf(s.bondDenom).BigInt(),
-					)
+					}
 
-					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
-					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, execRevertedCheck)
+					Expect(err).NotTo(HaveOccurred(), "error while calling the smart contract: %v", err)
 				})
 
 				It("Should be able to delegate tokens not involved in vesting schedule", func() {
 					// send some coins to the vesting account
 					coinsToDelegate := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
-					err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), coinsToDelegate)
+					err := s.factory.FundAccount(s.keyring.GetKey(0), vestAcc.Bytes(), coinsToDelegate)
 					Expect(err).To(BeNil())
+					Expect(s.network.NextBlock()).To(BeNil())
 
-					delegateArgs := defaultArgs.WithArgs(
+					callArgs.Args = []interface{}{
 						vestAcc, valAddr.String(), coinsToDelegate.AmountOf(s.bondDenom).BigInt(),
-					)
+					}
 
 					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-					_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+					_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-					Expect(found).To(BeTrue(), "expected delegation to be found")
-					Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+					delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+					Expect(err).To(BeNil(), "expected delegation to be found")
+					Expect(delRes.DelegationResponse.Balance).To(Equal(coinsToDelegate[0]))
 				})
 			})
 
@@ -2526,20 +3138,20 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				BeforeEach(func() {
 					// Surpass cliff but none of lockup duration
 					cliffDuration := time.Duration(evmosutil.TestVestingSchedule.CliffPeriodLength)
-					s.NextBlockAfter(cliffDuration * time.Second)
+					Expect(s.network.NextBlockAfter(cliffDuration * time.Second)).Error().To(BeNil())
 
 					// Check if some, but not all tokens are vested
-					vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+					vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
 					expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.CliffMonths))))
 					Expect(vested).NotTo(Equal(evmosutil.TestVestingSchedule.TotalVestingCoins))
 					Expect(vested).To(Equal(expVested))
 
 					// check the vested tokens are still locked
-					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.ctx.BlockTime())
+					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.network.GetContext().BlockTime())
 					Expect(unlockedVested).To(Equal(sdk.Coins{}))
 
 					vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
-					res, err := s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
+					res, err := s.network.App.VestingKeeper.Balances(s.network.GetContext(), &vestingtypes.QueryBalancesRequest{Address: clawbackAccount.Address})
 					Expect(err).To(BeNil())
 					Expect(res.Vested).To(Equal(expVested))
 					Expect(res.Unvested).To(Equal(vestingAmtTotal.Sub(expVested...)))
@@ -2548,40 +3160,44 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				})
 
 				It("Should be able to delegate locked vested tokens", func() {
-					delegateArgs := defaultArgs.WithArgs(
+					callArgs.Args = []interface{}{
 						vestAcc, valAddr.String(), vested[0].Amount.BigInt(),
-					)
+					}
 
 					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
 
-					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-					Expect(found).To(BeTrue(), "expected delegation to be found")
-					Expect(delegation.Shares.BigInt()).To(Equal(vested[0].Amount.BigInt()))
+					delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+					Expect(err).To(BeNil(), "expected delegation to be found")
+					Expect(delRes.DelegationResponse.Balance).To(Equal(vested[0]))
 				})
 
 				It("Should be able to delegate locked vested tokens + free tokens (not in vesting schedule)", func() {
 					// send some coins to the vesting account
 					amt := sdk.NewCoins(sdk.NewCoin(s.bondDenom, math.NewInt(1e18)))
-					err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), amt)
+
+					err := s.factory.FundAccount(s.keyring.GetKey(0), vestAcc.Bytes(), amt)
 					Expect(err).To(BeNil())
+					Expect(s.network.NextBlock()).To(BeNil())
 
 					coinsToDelegate := amt.Add(vested...)
 
-					delegateArgs := defaultArgs.WithArgs(
+					callArgs.Args = []interface{}{
 						vestAcc, valAddr.String(), coinsToDelegate[0].Amount.BigInt(),
-					)
+					}
 
 					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-					_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+					_, _, err = s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(s.network.NextBlock()).To(BeNil())
 
-					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-					Expect(found).To(BeTrue(), "expected delegation to be found")
-					Expect(delegation.Shares.BigInt()).To(Equal(coinsToDelegate[0].Amount.BigInt()))
+					delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+					Expect(err).To(BeNil(), "expected delegation to be found")
+					Expect(delRes.DelegationResponse.Balance).To(Equal(coinsToDelegate[0]))
 				})
 			})
 
@@ -2589,12 +3205,12 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				BeforeEach(func() {
 					// Surpass first lockup
 					vestDuration := time.Duration(evmosutil.TestVestingSchedule.LockupPeriodLength)
-					s.NextBlockAfter(vestDuration * time.Second)
+					Expect(s.network.NextBlockAfter(vestDuration * time.Second)).To(BeNil())
 
 					// Check if some, but not all tokens are vested and unlocked
-					vested = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
-					unlocked := clawbackAccount.GetUnlockedCoins(s.ctx.BlockTime())
-					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.ctx.BlockTime())
+					vested = clawbackAccount.GetVestedCoins(s.network.GetContext().BlockTime())
+					unlocked := clawbackAccount.GetUnlockedCoins(s.network.GetContext().BlockTime())
+					unlockedVested = clawbackAccount.GetUnlockedVestedCoins(s.network.GetContext().BlockTime())
 
 					expVested := sdk.NewCoins(sdk.NewCoin(s.bondDenom, evmosutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount.Mul(math.NewInt(evmosutil.TestVestingSchedule.LockupMonths))))
 					expUnlockedVested := expVested
@@ -2607,18 +3223,18 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 					Expect(unlockedVested).To(Equal(expUnlockedVested))
 				})
 				It("Should be able to delegate unlocked vested tokens", func() {
-					delegateArgs := defaultArgs.WithArgs(
+					callArgs.Args = []interface{}{
 						vestAcc, valAddr.String(), unlockedVested[0].Amount.BigInt(),
-					)
+					}
 
 					logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
 
-					_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, logCheckArgs)
+					_, _, err := s.factory.CallContractAndCheckLogs(vestAccPriv, txArgs, callArgs, logCheckArgs)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-					delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, vestAcc.Bytes(), valAddr)
-					Expect(found).To(BeTrue(), "expected delegation to be found")
-					Expect(delegation.Shares.BigInt()).To(Equal(unlockedVested[0].Amount.BigInt()))
+					delRes, err := s.grpcHandler.GetDelegation(sdk.AccAddress(vestAcc.Bytes()).String(), valAddr.String())
+					Expect(err).To(BeNil(), "expected delegation to be found")
+					Expect(delRes.DelegationResponse.Balance).To(Equal(unlockedVested[0]))
 				})
 			})
 		})
@@ -2627,99 +3243,131 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	Context("unbonding", func() {
 		// NOTE: there's no additional setup necessary because the test suite is already set up with
 		// delegations to the validator
-
-		// defaultUndelegateArgs are the default arguments for the undelegate call
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultUndelegateArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultUndelegateArgs = defaultCallArgs.WithMethodName("testUndelegate")
+			callArgs.MethodName = "testUndelegate"
 		})
-
 		Context("without approval set", func() {
 			BeforeEach(func() {
-				authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, contractAddr, s.address)
+				delegator := s.keyring.GetKey(0)
+
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), delegator.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
 			})
 			It("should not undelegate", func() {
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(0), "expected no undelegations to be found")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(BeEmpty())
 			})
 		})
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
-				approveArgs := defaultApproveArgs.WithArgs(
+				granter := s.keyring.GetKey(0)
+
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(approveArgs)
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+				// set gas limit to avoid out of gas error
+				txArgs.GasLimit = 500_000
 			})
 
 			It("should undelegate when not exceeding the allowance", func() {
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := defaultLogCheck.
 					WithExpEvents(staking.EventTypeUnbond).
 					WithExpPass(true)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(1), "expected one undelegation")
-				Expect(undelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected one undelegation")
+				Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			})
 
 			It("should not undelegate when exceeding the allowance", func() {
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(2e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(0), "expected no undelegations to be found")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(BeEmpty())
 			})
 
 			It("should not undelegate if the delegation does not exist", func() {
-				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, nonExistingVal.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(0), "expected no undelegations to be found")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(BeEmpty())
 			})
 
 			It("should not undelegate when called from a different address", func() {
-				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 1e18)
-				Expect(err).To(BeNil(), "error while funding account: %v", err)
+				delegator := s.keyring.GetKey(0)
+				differentSender := s.keyring.GetKey(1)
 
-				s.NextBlock()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18),
+				}
 
-				undelegateArgs := defaultUndelegateArgs.
-					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					differentSender.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(undelegations).To(HaveLen(0), "expected no undelegations to be found")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(BeEmpty())
 			})
 		})
 	})
@@ -2728,267 +3376,349 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// NOTE: there's no additional setup necessary because the test suite is already set up with
 		// delegations to the validator
 
-		// defaultRedelegateArgs are the default arguments for the redelegate call
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultRedelegateArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRedelegateArgs = defaultCallArgs.WithMethodName("testRedelegate")
+			callArgs.MethodName = "testRedelegate"
 		})
-
 		Context("without approval set", func() {
 			BeforeEach(func() {
-				authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, contractAddr, s.address)
+				granter := s.keyring.GetKey(0)
+
+				authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, granter.Addr)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), granter.Addr.Hex())))
 				Expect(authz).To(BeNil(), "expected authorization to be nil before test execution")
 			})
 
 			It("should not redelegate", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-				Expect(redelegations).To(HaveLen(0), "expected no redelegations to be found")
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", delegator.AccAddr, valAddr)))
+				Expect(res).To(BeNil(), "expected no redelegations to be found")
 			})
 		})
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
-				approveArgs := defaultApproveArgs.WithArgs(
+				granter := s.keyring.GetKey(0)
+
+				approveCallArgs.Args = []interface{}{
 					contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(approveArgs)
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 			})
 
 			It("should redelegate when not exceeding the allowance", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+				}
 
 				logCheckArgs := defaultLogCheck.
 					WithExpEvents(staking.EventTypeRedelegate).
 					WithExpPass(true)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-				Expect(redelegations).To(HaveLen(1), "expected one redelegation to be found")
-				bech32Addr := sdk.AccAddress(s.address.Bytes())
-				Expect(redelegations[0].DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.address)
-				Expect(redelegations[0].ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
-				Expect(redelegations[0].ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+				Expect(err).To(BeNil())
+				Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
+				Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(delegator.AccAddr.String()), "expected delegator address to be %s", delegator.AccAddr)
+				Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
+				Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
 			})
 
 			It("should not redelegate when exceeding the allowance", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(2e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(2e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-				Expect(redelegations).To(HaveLen(0), "expected no redelegations to be found")
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", delegator.AccAddr, valAddr)))
+				Expect(res).To(BeNil(), "expected no redelegations to be found")
 			})
 
 			It("should not redelegate if the delegation does not exist", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), valAddr2.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, nonExistingVal.String(), valAddr2.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), nonExistingVal, valAddr2)
-				Expect(redelegations).To(HaveLen(0), "expected no redelegations to be found")
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), nonExistingVal.String(), valAddr2.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", delegator.AccAddr, nonExistingVal)))
+				Expect(res).To(BeNil(), "expected no redelegations to be found")
 			})
 
 			It("should not redelegate when calling from a different address", func() {
-				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 1e18)
-				Expect(err).To(BeNil(), "error while funding account: %v", err)
+				delegator := s.keyring.GetKey(0)
+				differentSender := s.keyring.GetKey(1)
 
-				s.NextBlock()
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+				}
 
-				redelegateArgs := defaultRedelegateArgs.
-					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18))
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					differentSender.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-				Expect(redelegations).To(HaveLen(0), "expected no redelegations to be found")
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", delegator.AccAddr, valAddr)))
+				Expect(res).To(BeNil(), "expected no redelegations to be found")
 			})
 
 			It("should not redelegate when the validator does not exist", func() {
-				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), nonExistingVal.String(), big.NewInt(1e18),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), nonExistingVal.String(), big.NewInt(1e18),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, nonExistingVal)
-				Expect(redelegations).To(HaveLen(0), "expected no redelegations to be found")
+				res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), nonExistingVal.String())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("redelegation not found for delegator address %s from validator address %s", delegator.AccAddr, valAddr)))
+				Expect(res).To(BeNil())
 			})
 		})
 	})
 
 	Context("canceling unbonding delegations", func() {
-		var (
-			// defaultCancelUnbondingArgs are the default arguments for the cancelUnbondingDelegation call
-			//
-			// NOTE: this has to be set up in the BeforeEach block because the private key is only available then
-			defaultCancelUnbondingArgs contracts.CallArgs
-
-			// expCreationHeight is the expected creation height of the unbonding delegation
-			expCreationHeight = int64(6)
-		)
+		// expCreationHeight is the expected creation height of the unbonding delegation
+		var expCreationHeight int64
 
 		BeforeEach(func() {
-			defaultCancelUnbondingArgs = defaultCallArgs.WithMethodName("testCancelUnbonding")
+			granter := s.keyring.GetKey(0)
 
+			callArgs.MethodName = "testCancelUnbonding"
 			// Set up an unbonding delegation
-			approvalArgs := defaultApproveArgs.WithArgs(
+			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(approvalArgs)
+			}
 
-			s.NextBlock()
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
-			undelegateArgs := defaultCallArgs.
-				WithMethodName("testUndelegate").
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+			delegator := s.keyring.GetKey(0)
+			undelegateArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testUndelegate",
+				Args:        []interface{}{delegator.Addr, valAddr.String(), big.NewInt(1e18)},
+			}
 
 			logCheckArgs := defaultLogCheck.
 				WithExpEvents(staking.EventTypeUnbond).
 				WithExpPass(true)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, undelegateArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while setting up an unbonding delegation: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			s.NextBlock()
-
+			expCreationHeight = s.network.GetContext().BlockHeight()
 			// Check that the unbonding delegation was created
-			unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(unbondingDelegations).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(unbondingDelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected delegator address to be %s", s.address)
-			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
-			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(s.ctx.BlockHeight()-1), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(delegator.AccAddr.String()), "expected delegator address to be %s", delegator.Addr)
+			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
+			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
+			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
+			Expect(res.UnbondingResponses[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("without approval set", func() {
 			It("should not cancel unbonding delegations", func() {
-				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation not to be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation not to be canceled")
 			})
 		})
 
 		Context("with approval set", func() {
 			BeforeEach(func() {
-				// Set up an unbonding delegation
-				approvalArgs := defaultApproveArgs.WithArgs(
-					contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
-				)
-				s.SetupApprovalWithContractCalls(approvalArgs)
+				granter := s.keyring.GetKey(0)
 
-				s.NextBlock()
+				// Set up an unbonding delegation
+				approveCallArgs.Args = []interface{}{
+					contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
+				}
+
+				s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+
+				Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 			})
 
 			It("should cancel unbonding delegations when not exceeding allowance", func() {
-				cArgs := defaultCancelUnbondingArgs.WithGasLimit(1e9).WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
-				)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+				}
+
+				txArgs.GasLimit = 1e9
 
 				logCheckArgs := passCheck.
 					WithExpEvents(staking.EventTypeCancelUnbondingDelegation)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					logCheckArgs,
+				)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(0), "expected unbonding delegation to be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(BeEmpty(), "expected unbonding delegation to be canceled")
 			})
 
 			It("should not cancel unbonding delegations when exceeding allowance", func() {
-				approvalArgs := defaultApproveArgs.
-					WithArgs(contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1))
-				s.SetupApprovalWithContractCalls(approvalArgs)
+				delegator := s.keyring.GetKey(0)
 
-				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
+				approveCallArgs.Args = []interface{}{contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1)}
+				s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation to not be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation to not be canceled")
 			})
 
 			It("should not cancel unbonding any delegations when unbonding delegation does not exist", func() {
-				cancelArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()),
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.Args = []interface{}{
+					delegator.Addr,
+					nonExistingVal.String(),
+					big.NewInt(1e18),
+					big.NewInt(expCreationHeight),
+				}
+
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs,
+					callArgs,
+					execRevertedCheck,
 				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cancelArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation to not be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation to not be canceled")
 			})
 
 			It("should not cancel unbonding delegations when calling from a different address", func() {
-				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newAddr, 1e18)
-				Expect(err).To(BeNil(), "error while funding account: %v", err)
+				delegator := s.keyring.GetKey(0)
+				differentSender := s.keyring.GetKey(1)
 
-				s.NextBlock()
+				callArgs.Args = []interface{}{delegator.Addr, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight)}
 
-				cancelUnbondArgs := defaultCancelUnbondingArgs.
-					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(s.ctx.BlockHeight()))
+				_, _, err = s.factory.CallContractAndCheckLogs(
+					differentSender.Priv,
+					txArgs, callArgs,
+					execRevertedCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cancelUnbondArgs, execRevertedCheck)
-				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-
-				unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-				Expect(unbondingDelegations).To(HaveLen(1), "expected unbonding delegation to not be canceled")
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
+				Expect(res.UnbondingResponses).To(HaveLen(1), "expected unbonding delegation to not be canceled")
 			})
 		})
 	})
 
 	Context("querying allowance", func() {
-		// defaultAllowanceArgs are the default arguments for querying the allowance
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultAllowanceArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultAllowanceArgs = defaultCallArgs.WithMethodName("getAllowance")
+			callArgs.MethodName = "getAllowance"
 		})
-
 		It("without approval set it should show no allowance", func() {
-			allowanceArgs := defaultAllowanceArgs.WithArgs(
-				contractAddr, staking.CancelUnbondingDelegationMsg,
-			)
+			granter := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
+			callArgs.Args = []interface{}{
+				contractAddr, staking.CancelUnbondingDelegationMsg,
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var allowanceInt *big.Int
@@ -2998,19 +3728,25 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("with approval set it should show the granted allowance", func() {
-			// setup approval
-			approvalArgs := defaultApproveArgs.WithArgs(
-				contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
-			)
+			granter := s.keyring.GetKey(0)
 
-			s.SetupApprovalWithContractCalls(approvalArgs)
+			// setup approval
+			approveCallArgs.Args = []interface{}{
+				contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
+			}
+
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
 
 			// query allowance
-			allowanceArgs := defaultAllowanceArgs.WithArgs(
+			callArgs.Args = []interface{}{
 				contractAddr, staking.CancelUnbondingDelegationMsg,
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				granter.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var allowanceInt *big.Int
@@ -3021,21 +3757,21 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying validator", func() {
-		// defaultValidatorArgs are the default arguments for querying the validator
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultValidatorArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultValidatorArgs = defaultCallArgs.WithMethodName("getValidator")
+			callArgs.MethodName = "getValidator"
 		})
-
 		It("with non-existing address should return an empty validator", func() {
-			validatorArgs := defaultValidatorArgs.WithArgs(
-				nonExistingAddr,
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			callArgs.Args = []interface{}{
+				nonExistingAddr,
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorOutput
@@ -3046,66 +3782,78 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("with existing address should return the validator", func() {
-			varHexAddr := common.BytesToAddress(valAddr.Bytes())
-			validatorArgs := defaultValidatorArgs.WithArgs(
-				varHexAddr,
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			valHexAddr := common.BytesToAddress(valAddr.Bytes())
+			callArgs.Args = []interface{}{valHexAddr}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(valHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
 		It("with status bonded and pagination", func() {
-			validatorArgs := defaultCallArgs.
-				WithMethodName("getValidators").
-				WithArgs(
-					stakingtypes.Bonded.String(),
-					query.PageRequest{
-						Limit:      1,
-						CountTotal: true,
-					},
-				)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			callArgs.MethodName = "getValidators"
+			callArgs.Args = []interface{}{
+				stakingtypes.Bonded.String(),
+				query.PageRequest{
+					Limit:      1,
+					CountTotal: true,
+				},
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorsMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.validators))))
+			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.network.GetValidators()))))
 			Expect(valOut.PageResponse.NextKey).NotTo(BeEmpty())
 			Expect(valOut.Validators[0].DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 	})
 
 	Context("querying validators", func() {
-		var defaultValidatorsArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultValidatorsArgs = defaultCallArgs.WithMethodName("getValidators")
+			callArgs.MethodName = "getValidators"
 		})
-
 		It("should return validators (default pagination)", func() {
-			validatorsArgs := defaultValidatorsArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Bonded.String(),
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorsArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorsMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.validators))))
+			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.network.GetValidators()))))
 			Expect(valOut.PageResponse.NextKey).To(BeEmpty())
-			Expect(valOut.Validators).To(HaveLen(len(s.validators)), "expected all validators to be returned")
+			Expect(valOut.Validators).To(HaveLen(len(s.network.GetValidators())), "expected all validators to be returned")
 			// return order can change, that's why each validator is checked individually
 			for _, val := range valOut.Validators {
 				s.CheckValidatorOutput(val)
@@ -3115,15 +3863,21 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		//nolint:dupl // this is a duplicate of the test for EOA calls to the precompile
 		It("should return validators with pagination limit = 1", func() {
 			const limit uint64 = 1
-			validatorArgs := defaultValidatorsArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Bonded.String(),
 				query.PageRequest{
 					Limit:      limit,
 					CountTotal: true,
 				},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
@@ -3132,7 +3886,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// no pagination, should return default values
 			Expect(valOut.PageResponse.NextKey).NotTo(BeEmpty())
-			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.validators))))
+			Expect(valOut.PageResponse.Total).To(Equal(uint64(len(s.network.GetValidators()))))
 
 			Expect(valOut.Validators).To(HaveLen(int(limit)), "expected one validator to be returned")
 
@@ -3143,22 +3897,34 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("should revert the execution if the bonding type is not known", func() {
-			validatorArgs := defaultValidatorsArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				"15", // invalid bonding type
 				query.PageRequest{},
-			)
+			}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 		})
 
 		It("should return an empty array if there are no validators with the given bonding type", func() {
-			validatorArgs := defaultValidatorsArgs.WithArgs(
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.Args = []interface{}{
 				stakingtypes.Unbonded.String(),
 				query.PageRequest{},
-			)
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var valOut staking.ValidatorsOutput
@@ -3172,21 +3938,21 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying delegation", func() {
-		// defaultDelegationArgs are the default arguments for querying the delegation
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultDelegationArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultDelegationArgs = defaultCallArgs.WithMethodName("getDelegation")
+			callArgs.MethodName = "getDelegation"
 		})
-
 		It("which does not exist should return an empty delegation", func() {
-			delegationArgs := defaultDelegationArgs.WithArgs(
-				nonExistingAddr, valAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
+			callArgs.Args = []interface{}{
+				nonExistingAddr, valAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var delOut staking.DelegationOutput
@@ -3197,11 +3963,17 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("which exists should return the delegation", func() {
-			delegationArgs := defaultDelegationArgs.WithArgs(
-				s.address, valAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var delOut staking.DelegationOutput
@@ -3215,21 +3987,22 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying redelegation", func() {
-		// defaultRedelegationArgs are the default arguments for querying the redelegation
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultRedelegationArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRedelegationArgs = defaultCallArgs.WithMethodName("getRedelegation")
+			callArgs.MethodName = "getRedelegation"
 		})
 
 		It("which does not exist should return an empty redelegation", func() {
-			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address, valAddr.String(), nonExistingVal.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr.String(), nonExistingVal.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var redOut staking.RedelegationOutput
@@ -3239,39 +4012,53 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("which exists should return the redelegation", func() {
-			// set up approval
-			approvalArgs := defaultApproveArgs.WithArgs(
-				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(approvalArgs)
+			delegator := s.keyring.GetKey(0)
 
-			s.NextBlock()
+			// set up approval
+			approveCallArgs.Args = []interface{}{
+				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
+			}
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
+
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			// set up redelegation
-			redelegateArgs := defaultCallArgs.
-				WithMethodName("testRedelegate").
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1))
+			redelegateArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testRedelegate",
+				Args:        []interface{}{delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1)},
+			}
 
 			redelegateCheck := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, redelegateCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, redelegateArgs,
+				redelegateCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check that the redelegation was created
-			redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-			Expect(redelegations).To(HaveLen(1), "expected one redelegation to be found")
-			bech32Addr := sdk.AccAddress(s.address.Bytes())
-			Expect(redelegations[0].DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.address)
-			Expect(redelegations[0].ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
-			Expect(redelegations[0].ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
+			res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+			Expect(err).To(BeNil())
+			Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
+			bech32Addr := delegator.AccAddr
+			Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", delegator.Addr)
+			Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
+			Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
 
 			// query redelegation
-			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address, valAddr.String(), valAddr2.String(),
-			)
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr.String(), valAddr2.String(),
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var redOut staking.RedelegationOutput
@@ -3282,47 +4069,57 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Describe("query redelegations", func() {
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultRedelegationsArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultRedelegationsArgs = defaultCallArgs.WithMethodName("getRedelegations")
+			callArgs.MethodName = "getRedelegations"
 		})
-
 		It("which exists should return all the existing redelegations w/pagination", func() {
+			delegator := s.keyring.GetKey(0)
+
 			// set up approval
-			approvalArgs := defaultApproveArgs.WithArgs(
+			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.RedelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(approvalArgs)
-			s.NextBlock()
+			}
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 
 			// set up redelegation
-			redelegateArgs := defaultCallArgs.
-				WithMethodName("testRedelegate").
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1))
+			redelegateArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testRedelegate",
+				Args:        []interface{}{delegator.Addr, valAddr.String(), valAddr2.String(), big.NewInt(1)},
+			}
 
 			redelegateCheck := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, redelegateCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, redelegateArgs,
+				redelegateCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check that the redelegation was created
-			redelegations := s.app.StakingKeeper.GetAllRedelegations(s.ctx, s.address.Bytes(), valAddr, valAddr2)
-			Expect(redelegations).To(HaveLen(1), "expected one redelegation to be found")
-			bech32Addr := sdk.AccAddress(s.address.Bytes())
-			Expect(redelegations[0].DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", s.address)
-			Expect(redelegations[0].ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
-			Expect(redelegations[0].ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
+			res, err := s.grpcHandler.GetRedelegations(delegator.AccAddr.String(), valAddr.String(), valAddr2.String())
+			Expect(err).To(BeNil())
+			Expect(res.RedelegationResponses).To(HaveLen(1), "expected one redelegation to be found")
+			bech32Addr := delegator.AccAddr
+			Expect(res.RedelegationResponses[0].Redelegation.DelegatorAddress).To(Equal(bech32Addr.String()), "expected delegator address to be %s", delegator.Addr)
+			Expect(res.RedelegationResponses[0].Redelegation.ValidatorSrcAddress).To(Equal(valAddr.String()), "expected source validator address to be %s", valAddr)
+			Expect(res.RedelegationResponses[0].Redelegation.ValidatorDstAddress).To(Equal(valAddr2.String()), "expected destination validator address to be %s", valAddr2)
 
 			// query redelegations by delegator address
-			redelegationArgs := defaultRedelegationsArgs.
-				WithArgs(
-					s.address, "", "", query.PageRequest{Limit: 1, CountTotal: true},
-				)
+			callArgs.Args = []interface{}{
+				delegator.Addr, "", "", query.PageRequest{Limit: 1, CountTotal: true},
+			}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				passCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			var redOut staking.RedelegationsOutput
 			err = s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationsMethod, ethRes.Ret)
@@ -3335,48 +4132,55 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 	})
 
 	Context("querying unbonding delegation", func() {
-		// defaultQueryUnbondingArgs are the default arguments for querying the unbonding delegation
-		//
-		// NOTE: this has to be populated in the BeforeEach block because the private key is not initialized before
-		var defaultQueryUnbondingArgs contracts.CallArgs
-
 		BeforeEach(func() {
-			defaultQueryUnbondingArgs = defaultCallArgs.WithMethodName("getUnbondingDelegation")
+			delegator := s.keyring.GetKey(0)
 
+			callArgs.MethodName = "getUnbondingDelegation"
 			// Set up an unbonding delegation
-			approvalArgs := defaultApproveArgs.WithArgs(
+			approveCallArgs.Args = []interface{}{
 				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(approvalArgs)
+			}
 
-			s.NextBlock()
+			s.SetupApprovalWithContractCalls(delegator, txArgs, approveCallArgs)
 
-			undelegateArgs := defaultCallArgs.
-				WithMethodName("testUndelegate").
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
+
+			undelegateArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testUndelegate",
+				Args:        []interface{}{delegator.Addr, valAddr.String(), big.NewInt(1e18)},
+			}
 
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeUnbond)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, logCheckArgs)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, undelegateArgs, logCheckArgs)
 			Expect(err).To(BeNil(), "error while setting up an unbonding delegation: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
 			// Check that the unbonding delegation was created
-			unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(unbondingDelegations).To(HaveLen(1), "expected one unbonding delegation to be found")
-			Expect(unbondingDelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected delegator address to be %s", s.address)
-			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
-			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
-			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(s.ctx.BlockHeight()), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation to be found")
+			Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(delegator.AccAddr.String()), "expected delegator address to be %s", delegator.Addr)
+			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
+			Expect(res.UnbondingResponses[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
+			Expect(res.UnbondingResponses[0].Entries[0].CreationHeight).To(Equal(s.network.GetContext().BlockHeight()), "expected different creation height")
+			Expect(res.UnbondingResponses[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		It("which does not exist should return an empty unbonding delegation", func() {
-			queryUnbondingArgs := defaultQueryUnbondingArgs.WithArgs(
-				s.address, valAddr2.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr2.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
@@ -3386,11 +4190,15 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("which exists should return the unbonding delegation", func() {
-			queryUnbondingArgs := defaultQueryUnbondingArgs.WithArgs(
-				s.address, valAddr.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, passCheck)
+			callArgs.Args = []interface{}{
+				delegator.Addr, valAddr.String(),
+			}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			var unbondOut staking.UnbondingDelegationOutput
@@ -3405,40 +4213,62 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		// NOTE: there's no additional setup necessary because the test suite is already set up with
 		// delegations to the validator
 		It("should revert everything if any operation fails", func() {
-			cArgs := defaultCallArgs.
-				WithMethodName("testApproveAndThenUndelegate").
-				WithGasLimit(1e8).
-				WithArgs(contractAddr, big.NewInt(250), big.NewInt(500), valAddr.String())
+			delegator := s.keyring.GetKey(0)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			cArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testApproveAndThenUndelegate",
+				Args:        []interface{}{contractAddr, big.NewInt(250), big.NewInt(500), valAddr.String()},
+			}
+			txArgs.GasLimit = 1e8
+
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, cArgs,
+				execRevertedCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// There should be no authorizations because everything should have been reverted
-			authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, contractAddr, s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no authorizations found for grantee %s and granter %s", contractAddr.Hex(), delegator.Addr.Hex())))
 			Expect(authz).To(BeNil(), "expected authorization to be nil")
 
-			undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(undelegations).To(HaveLen(0), "expected no unbonding delegations")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(0), "expected no unbonding delegations")
 		})
 
 		It("should write to state if all operations succeed", func() {
-			cArgs := defaultCallArgs.
-				WithMethodName("testApproveAndThenUndelegate").
-				WithGasLimit(1e8).
-				WithArgs(contractAddr, big.NewInt(1000), big.NewInt(500), valAddr.String())
+			delegator := s.keyring.GetKey(0)
+
+			cArgs := factory.CallArgs{
+				ContractABI: stakingCallerContract.ABI,
+				MethodName:  "testApproveAndThenUndelegate",
+				Args:        []interface{}{contractAddr, big.NewInt(1000), big.NewInt(500), valAddr.String()},
+			}
+			txArgs.GasLimit = 1e8
 
 			logCheckArgs := passCheck.
 				WithExpEvents(authorization.EventTypeApproval, staking.EventTypeUnbond)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, cArgs, logCheckArgs)
+			_, _, err := s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, cArgs,
+				logCheckArgs,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			authz, _ := s.CheckAuthorization(staking.UndelegateAuthz, contractAddr, s.address)
+			authz, _, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, staking.UndelegateAuthz, contractAddr, delegator.Addr)
+			Expect(err).To(BeNil())
 			Expect(authz).ToNot(BeNil(), "expected authorization not to be nil")
 
-			undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
-			Expect(undelegations).To(HaveLen(1), "expected one unbonding delegation")
-			Expect(undelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected different validator address")
+			res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.UnbondingResponses).To(HaveLen(1), "expected one unbonding delegation")
+			Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected different validator address")
 		})
 	})
 
@@ -3457,13 +4287,16 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		}
 
 		BeforeEach(func() {
-			// approve undelegate message
-			approveArgs := defaultApproveArgs.WithArgs(
-				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
-			)
-			s.SetupApprovalWithContractCalls(approveArgs)
+			granter := s.keyring.GetKey(0)
 
-			s.NextBlock()
+			// approve undelegate message
+			approveCallArgs.Args = []interface{}{
+				contractAddr, []string{staking.UndelegateMsg}, big.NewInt(1e18),
+			}
+
+			s.SetupApprovalWithContractCalls(granter, txArgs, approveCallArgs)
+
+			Expect(s.network.NextBlock()).To(BeNil(), "failed to advance block")
 		})
 
 		for _, tc := range testcases {
@@ -3472,40 +4305,50 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			testcase := tc
 
 			It(fmt.Sprintf("should not execute transactions for calltype %q", testcase.calltype), func() {
-				args := defaultCallArgs.
-					WithMethodName("testCallUndelegate").
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18), testcase.calltype)
+				delegator := s.keyring.GetKey(0)
+
+				callArgs.MethodName = "testCallUndelegate"
+				callArgs.Args = []interface{}{
+					delegator.Addr, valAddr.String(), big.NewInt(1e18), testcase.calltype,
+				}
 
 				checkArgs := execRevertedCheck
 				if testcase.expTxPass {
 					checkArgs = passCheck.WithExpEvents(staking.EventTypeUnbond)
 				}
 
-				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, args, checkArgs)
-				if testcase.expTxPass {
-					Expect(err).To(BeNil(), "error while calling the smart contract for calltype %s: %v", testcase.calltype, err)
-				} else {
-					Expect(err).To(HaveOccurred(), "error while calling the smart contract for calltype %s: %v", testcase.calltype, err)
-				}
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs,
+					checkArgs,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract for calltype %s: %v", testcase.calltype, err)
+				Expect(s.network.NextBlock()).To(BeNil())
+
 				// check no delegations are unbonding
-				undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
+				res, err := s.grpcHandler.GetDelegatorUnbondingDelegations(delegator.AccAddr.String())
+				Expect(err).To(BeNil())
 
 				if testcase.expTxPass {
-					Expect(undelegations).To(HaveLen(1), "expected an unbonding delegation")
-					Expect(undelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected different validator address")
-					Expect(undelegations[0].DelegatorAddress).To(Equal(sdk.AccAddress(s.address.Bytes()).String()), "expected different delegator address")
+					Expect(res.UnbondingResponses).To(HaveLen(1), "expected an unbonding delegation")
+					Expect(res.UnbondingResponses[0].ValidatorAddress).To(Equal(valAddr.String()), "expected different validator address")
+					Expect(res.UnbondingResponses[0].DelegatorAddress).To(Equal(delegator.AccAddr.String()), "expected different delegator address")
 				} else {
-					Expect(undelegations).To(HaveLen(0), "expected no unbonding delegations for calltype %s", testcase.calltype)
+					Expect(res.UnbondingResponses).To(HaveLen(0), "expected no unbonding delegations for calltype %s", testcase.calltype)
 				}
 			})
 
 			It(fmt.Sprintf("should execute queries for calltype %q", testcase.calltype), func() {
-				args := defaultCallArgs.
-					WithMethodName("testCallDelegation").
-					WithArgs(s.address, valAddr.String(), testcase.calltype)
+				delegator := s.keyring.GetKey(0)
 
-				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, args, passCheck)
+				callArgs.MethodName = "testCallDelegation"
+				callArgs.Args = []interface{}{delegator.Addr, valAddr.String(), testcase.calltype}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					delegator.Priv,
+					txArgs, callArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				Expect(s.network.NextBlock()).To(BeNil())
 
 				var delOut staking.DelegationOutput
 				err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
@@ -3534,105 +4377,152 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// Set up funding for the contract address.
 			// NOTE: we are first asserting that no balance exists and then check successful
 			// funding afterwards.
-			balanceBefore := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
+
+			balanceBefore := resBal.Balance
 			Expect(balanceBefore.Amount.Int64()).To(BeZero(), "expected contract balance to be 0 before funding")
 
-			err = s.app.BankKeeper.SendCoins(
-				s.ctx, s.address.Bytes(), contractAddr.Bytes(),
-				sdk.Coins{sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(delegationAmount)}},
-			)
-			Expect(err).To(BeNil(), "error while sending coins: %v", err)
+			err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), contractAddr.Bytes(), math.NewIntFromBigInt(delegationAmount))
+			Expect(err).To(BeNil(), "error while funding account")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			s.NextBlock()
+			resBal, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
 
-			balanceAfterFunding := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			balanceAfterFunding := resBal.Balance
 			Expect(balanceAfterFunding.Amount.BigInt()).To(Equal(delegationAmount), "expected different contract balance after funding")
 
 			// Check no delegation exists from the contract to the validator
-			_, found := s.app.StakingKeeper.GetDelegation(s.ctx, contractAddr.Bytes(), valAddr)
-			Expect(found).To(BeFalse(), "expected delegation not to be found before testing")
+			res, err := s.grpcHandler.GetDelegation(sdk.AccAddress(contractAddr.Bytes()).String(), valAddr.String())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("delegation with delegator %s not found for validator %s", sdk.AccAddress(contractAddr.Bytes()), valAddr)))
+			Expect(res).To(BeNil())
 		})
 
 		It("delegating and increasing counter should change the bank balance accordingly", func() {
-			delegationArgs := defaultCallArgs.
-				WithGasLimit(1e9).
-				WithMethodName("testDelegateIncrementCounter").
-				WithArgs(valAddr.String(), delegationAmount)
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.MethodName = "testDelegateIncrementCounter"
+			callArgs.Args = []interface{}{valAddr.String(), delegationAmount}
+			txArgs.GasLimit = 1e9
 
 			approvalAndDelegationCheck := passCheck.WithExpEvents(
 				authorization.EventTypeApproval, staking.EventTypeDelegate,
 			)
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				approvalAndDelegationCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			del, found := s.app.StakingKeeper.GetDelegation(s.ctx, contractAddr.Bytes(), valAddr)
+			res, err := s.grpcHandler.GetDelegation(sdk.AccAddress(contractAddr.Bytes()).String(), valAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+			Expect(res.DelegationResponse.Delegation.GetShares().BigInt()).To(Equal(delegationAmount), "expected different delegation shares")
 
-			Expect(found).To(BeTrue(), "expected delegation to be found")
-			Expect(del.GetShares().BigInt()).To(Equal(delegationAmount), "expected different delegation shares")
+			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
 
-			postBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			postBalance := resBal.Balance
 			Expect(postBalance.Amount.Int64()).To(BeZero(), "expected balance to be 0 after contract call")
 		})
 	})
 
 	Context("when updating the stateDB prior to calling the precompile", func() {
 		It("should utilize the same contract balance to delegate", func() {
-			delegationArgs := defaultCallArgs.
-				WithGasLimit(1e9).
-				WithMethodName("approveDepositAndDelegate").
-				WithArgs(valAddr.String()).
-				WithAmount(big.NewInt(2e18))
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.MethodName = "approveDepositAndDelegate"
+			callArgs.Args = []interface{}{valAddr.String()}
+
+			txArgs.Amount = big.NewInt(2e18)
+			txArgs.GasLimit = 1e9
 
 			approvalAndDelegationCheck := passCheck.WithExpEvents(
 				authorization.EventTypeApproval, staking.EventTypeDelegate,
 			)
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				approvalAndDelegationCheck,
+			)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-			balance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
+			balance := resBal.Balance
+
 			Expect(balance.Amount.Int64()).To(BeZero(), "expected different contract balance after funding")
-			delegation := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, contractAddr.Bytes())
-			Expect(delegation).To(HaveLen(1), "expected one delegation")
-			Expect(delegation[0].GetShares().BigInt()).To(Equal(big.NewInt(2e18)), "expected different delegation shares")
+			res, err := s.grpcHandler.GetDelegatorDelegations(sdk.AccAddress(contractAddr.Bytes()).String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponses).To(HaveLen(1), "expected one delegation")
+			Expect(res.DelegationResponses[0].Delegation.GetShares().BigInt()).To(Equal(big.NewInt(2e18)), "expected different delegation shares")
 		})
 		//nolint:dupl
 		It("should revert the contract balance to the original value when the precompile fails", func() {
-			delegationArgs := defaultCallArgs.
-				WithGasLimit(1e9).
-				WithMethodName("approveDepositAndDelegateExceedingAllowance").
-				WithArgs(valAddr.String()).
-				WithAmount(big.NewInt(2e18))
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.MethodName = "approveDepositAndDelegateExceedingAllowance"
+			callArgs.Args = []interface{}{valAddr.String()}
+
+			txArgs.Amount = big.NewInt(2e18)
+			txArgs.GasLimit = 1e9
 
 			approvalAndDelegationCheck := defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				approvalAndDelegationCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
+			balance := resBal.Balance
+
 			Expect(balance.Amount.Int64()).To(BeZero(), "expected different contract balance after funding")
-			auth, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, contractAddr.Bytes(), s.address.Bytes(), staking.DelegateMsg)
+			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), delegator.AccAddr, staking.DelegateMsg)
 			Expect(auth).To(BeNil(), "expected no authorization")
-			delegation := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, contractAddr.Bytes())
-			Expect(delegation).To(HaveLen(0), "expected no delegations")
+			res, err := s.grpcHandler.GetDelegatorDelegations(sdk.AccAddress(contractAddr.Bytes()).String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponses).To(HaveLen(0), "expected no delegations")
 		})
 
 		//nolint:dupl
 		It("should revert the contract balance to the original value when the custom logic after the precompile fails ", func() {
-			delegationArgs := defaultCallArgs.
-				WithGasLimit(1e9).
-				WithMethodName("approveDepositDelegateAndFailCustomLogic").
-				WithArgs(valAddr.String()).
-				WithAmount(big.NewInt(2e18))
+			delegator := s.keyring.GetKey(0)
+
+			callArgs.MethodName = "approveDepositDelegateAndFailCustomLogic"
+			callArgs.Args = []interface{}{valAddr.String()}
+
+			txArgs.Amount = big.NewInt(2e18)
+			txArgs.GasLimit = 1e9
 
 			approvalAndDelegationCheck := defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
-			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				approvalAndDelegationCheck,
+			)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			Expect(err).To(BeNil(), "error while getting balance")
+
+			balance := resBal.Balance
 			Expect(balance.Amount.Int64()).To(BeZero(), "expected different contract balance after funding")
-			auth, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, contractAddr.Bytes(), s.address.Bytes(), staking.DelegateMsg)
+			auth, _ := s.network.App.AuthzKeeper.GetAuthorization(s.network.GetContext(), contractAddr.Bytes(), delegator.AccAddr, staking.DelegateMsg)
 			Expect(auth).To(BeNil(), "expected no authorization")
-			delegation := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, contractAddr.Bytes())
-			Expect(delegation).To(HaveLen(0), "expected no delegations")
+			res, err := s.grpcHandler.GetDelegatorDelegations(sdk.AccAddress(contractAddr.Bytes()).String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponses).To(HaveLen(0), "expected no delegations")
 		})
 	})
 })
@@ -3656,6 +4546,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 	)
 
 	var (
+		s *PrecompileTestSuite
 		// contractAddr is the address of the deployed StakingCaller contract
 		contractAddr common.Address
 		// stakingCallerContract is the contract instance calling into the staking precompile
@@ -3674,32 +4565,49 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		mintAmount = big.NewInt(1e18)
 		// transferredAmount is the amount of ERC20 tokens to transfer during the tests
 		transferredAmount = big.NewInt(1234e9)
+		// s is the precompile test suite to use for the tests
 	)
 
 	BeforeEach(func() {
+		s = new(PrecompileTestSuite)
 		s.SetupTest()
-		s.NextBlock()
+		delegator := s.keyring.GetKey(0)
 
 		stakingCallerContract, err = testdata.LoadStakingCallerContract()
 		Expect(err).To(BeNil(), "error while loading the StakingCaller contract")
 
 		// Deploy StakingCaller contract
-		contractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, stakingCallerContract)
+		contractAddr, err = s.factory.DeployContract(
+			delegator.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: stakingCallerContract,
+			},
+		)
 		Expect(err).To(BeNil(), "error while deploying the StakingCaller contract")
+		Expect(s.network.NextBlock()).To(BeNil())
 
 		// Deploy ERC20 contract
-		erc20ContractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, erc20Contract,
-			erc20Name, erc20Token, erc20Decimals,
+		erc20ContractAddr, err = s.factory.DeployContract(
+			delegator.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract:        erc20Contract,
+				ConstructorArgs: []interface{}{erc20Name, erc20Token, erc20Decimals},
+			},
 		)
 		Expect(err).To(BeNil(), "error while deploying the ERC20 contract")
+		Expect(s.network.NextBlock()).To(BeNil())
 
 		// Mint tokens to the StakingCaller contract
-		mintArgs := contracts.CallArgs{
-			ContractAddr: erc20ContractAddr,
-			ContractABI:  erc20Contract.ABI,
-			MethodName:   "mint",
-			PrivKey:      s.privKey,
-			Args:         []interface{}{contractAddr, mintAmount},
+		mintArgs := factory.CallArgs{
+			ContractABI: erc20Contract.ABI,
+			MethodName:  "mint",
+			Args:        []interface{}{contractAddr, mintAmount},
+		}
+
+		txArgs = evmtypes.EvmTxArgs{
+			To: &erc20ContractAddr,
 		}
 
 		mintCheck := testutil.LogCheckArgs{
@@ -3708,20 +4616,23 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			ExpPass:   true,
 		}
 
-		_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, mintArgs, mintCheck)
+		_, _, err = s.factory.CallContractAndCheckLogs(
+			delegator.Priv,
+			txArgs, mintArgs, mintCheck)
 		Expect(err).To(BeNil(), "error while minting tokens to the StakingCaller contract")
+		Expect(s.network.NextBlock()).To(BeNil())
 
 		// Check that the StakingCaller contract has the correct balance
-		erc20Balance := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, contractAddr)
+		erc20Balance := s.network.App.Erc20Keeper.BalanceOf(s.network.GetContext(), erc20Contract.ABI, erc20ContractAddr, contractAddr)
 		Expect(erc20Balance).To(Equal(mintAmount), "expected different ERC20 balance for the StakingCaller contract")
 
 		// populate default call args
-		defaultCallArgs = contracts.CallArgs{
-			ContractABI:  stakingCallerContract.ABI,
-			ContractAddr: contractAddr,
-			MethodName:   "callERC20AndDelegate",
-			PrivKey:      s.privKey,
+		callArgs = factory.CallArgs{
+			ContractABI: stakingCallerContract.ABI,
+			MethodName:  "callERC20AndDelegate",
 		}
+
+		txArgs.To = &contractAddr
 
 		// populate default log check args
 		defaultLogCheck = testutil.LogCheckArgs{
@@ -3736,42 +4647,48 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		var validator sdk.ValAddress
 
 		BeforeEach(func() {
-			delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, s.address.Bytes())
-			Expect(delegations).ToNot(HaveLen(0), "expected address to have delegations")
+			delegator := s.keyring.GetKey(0)
 
-			validator = delegations[0].GetValidatorAddr()
+			res, err := s.grpcHandler.GetDelegatorDelegations(delegator.AccAddr.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponses).ToNot(HaveLen(0), "expected address to have delegations")
+
+			validator, err = sdk.ValAddressFromBech32(res.DelegationResponses[0].Delegation.ValidatorAddress)
+			Expect(err).To(BeNil())
 
 			_ = erc20ContractAddr
 		})
 
 		It("should revert both states if a staking transaction fails", func() {
-			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
-				"expected delegation from %s to validator %s to be found",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
+			res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+
+			delegationPre := res.DelegationResponse.Delegation
 			sharesPre := delegationPre.GetShares()
 
 			// NOTE: passing an invalid validator address here should fail AFTER the erc20 transfer was made in the smart contract.
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
-			failArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, "invalid validator", transferredAmount)
+			callArgs.Args = []interface{}{erc20ContractAddr, "invalid validator", transferredAmount}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
-			Expect(err.Error()).To(ContainSubstring("execution reverted"), "expected different error message")
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				execRevertedCheck)
+			Expect(err).To(BeNil(), "expected error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
-				"expected delegation from %s to validator %s to be found after calling the smart contract",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
-			)
+			res, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+			delegationPost := res.DelegationResponse.Delegation
 
-			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), delegator.AccAddr.String())
 			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
 			sharesPost := delegationPost.GetShares()
-			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+			erc20BalancePost := s.network.App.Erc20Keeper.BalanceOf(s.network.GetContext(), erc20Contract.ABI, erc20ContractAddr, delegator.Addr)
 
 			Expect(auths).To(BeEmpty(), "expected no authorizations when reverting state")
 			Expect(sharesPost).To(Equal(sharesPre), "expected shares to be equal when reverting state")
@@ -3779,35 +4696,37 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		})
 
 		It("should revert both states if an ERC20 transaction fails", func() {
-			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
-				"expected delegation from %s to validator %s to be found",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
+			res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+
+			delegationPre := res.DelegationResponse.Delegation
 			sharesPre := delegationPre.GetShares()
 
 			// NOTE: trying to transfer more than the balance of the contract should fail AFTER the approval
 			// for delegating was made in the smart contract.
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
 			moreThanMintedAmount := new(big.Int).Add(mintAmount, big.NewInt(1))
-			failArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, moreThanMintedAmount)
+			callArgs.Args = []interface{}{erc20ContractAddr, s.network.GetValidators()[0].OperatorAddress, moreThanMintedAmount}
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
-			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
-			Expect(err.Error()).To(ContainSubstring("execution reverted"), "expected different error message")
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				execRevertedCheck)
+			Expect(err).To(BeNil(), "expected error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
-				"expected delegation from %s to validator %s to be found after calling the smart contract",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
-			)
+			res, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+			delegationPost := res.DelegationResponse.Delegation
 
-			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), delegator.AccAddr.String())
 			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
 			sharesPost := delegationPost.GetShares()
-			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+			erc20BalancePost := s.network.App.Erc20Keeper.BalanceOf(s.network.GetContext(), erc20Contract.ABI, erc20ContractAddr, delegator.Addr)
 
 			Expect(auths).To(BeEmpty(), "expected no authorizations when reverting state")
 			Expect(sharesPost).To(Equal(sharesPre), "expected shares to be equal when reverting state")
@@ -3815,19 +4734,19 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 		})
 
 		It("should persist changes in both the cosmos and eth states", func() {
-			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
-				"expected delegation from %s to validator %s to be found",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
-			)
+			delegator := s.keyring.GetKey(0)
 
+			res, err := s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil())
+
+			delegationPre := res.DelegationResponse.Delegation
 			sharesPre := delegationPre.GetShares()
 
 			// NOTE: trying to transfer more than the balance of the contract should fail AFTER the approval
 			// for delegating was made in the smart contract.
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
-			successArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, transferredAmount)
+			callArgs.Args = []interface{}{erc20ContractAddr, s.network.GetValidators()[0].OperatorAddress, transferredAmount}
 
 			// Build combined map of ABI events to check for both ERC20 events as well as precompile events
 			//
@@ -3843,19 +4762,25 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 					authorization.EventTypeApproval, "Transfer", staking.EventTypeDelegate,
 				)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, successArgs, successCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(
+				delegator.Priv,
+				txArgs, callArgs,
+				successCheck)
 			Expect(err).ToNot(HaveOccurred(), "error while calling the smart contract")
+			Expect(s.network.NextBlock()).To(BeNil())
 
-			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
-			Expect(found).To(BeTrue(),
+			res, err = s.grpcHandler.GetDelegation(delegator.AccAddr.String(), validator.String())
+			Expect(err).To(BeNil())
+			Expect(res.DelegationResponse).NotTo(BeNil(),
 				"expected delegation from %s to validator %s to be found after calling the smart contract",
-				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+				delegator.AccAddr.String(), validator.String(),
 			)
+			delegationPost := res.DelegationResponse.Delegation
 
-			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			auths, err := s.grpcHandler.GetAuthorizations(sdk.AccAddress(contractAddr.Bytes()).String(), delegator.AccAddr.String())
 			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
 			sharesPost := delegationPost.GetShares()
-			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+			erc20BalancePost := s.network.App.Erc20Keeper.BalanceOf(s.network.GetContext(), erc20Contract.ABI, erc20ContractAddr, delegator.Addr)
 
 			Expect(sharesPost.GT(sharesPre)).To(BeTrue(), "expected shares to be more than before")
 			Expect(erc20BalancePost).To(Equal(transferredAmount), "expected different erc20 balance of target address")

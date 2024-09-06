@@ -84,7 +84,7 @@ For additional instructions, standards and style guides, please refer to the [Co
 
 ## Careers
 
-See our open positions on [Personio](https://altiplanic.jobs.personio.de/?language=en).
+See our open positions on [our Careers page](https://evmos.org/careers/).
 
 ## Licensing
 
@@ -94,7 +94,6 @@ License 1.0 (ENCL-1.0)](./LICENSE). This license applies to all software release
 version 13 or later, except for specific files, as follows, which will continue
 to be licensed under LGPLv3:
 
-- `x/claims/genesis.go`
 - `x/erc20/keeper/proposals.go`
 - `x/erc20/types/utils.go`
 

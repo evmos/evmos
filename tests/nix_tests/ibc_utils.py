@@ -19,6 +19,7 @@ from .utils import (
     setup_stride,
     update_evmos_bin,
     update_evmosd_and_setup_stride,
+    wait_for_fn,
     wait_for_port,
 )
 
@@ -26,10 +27,12 @@ from .utils import (
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
 # uosmo IBC representation on the Evmos chain.
 OSMO_IBC_DENOM = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
+# cro IBC representation on another chain connected via channel-0.
+BASECRO_IBC_DENOM = (
+    "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"
+)
 # uatom from cosmoshub-1 IBC representation on the Evmos chain and on Cosmos Hub 2 chain.
 ATOM_IBC_DENOM = "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
-# basecro from chainmain to evmos via channel-0
-CRO_IBC_DENOM = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"
 
 RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
@@ -134,6 +137,10 @@ def prepare_network(
     custom_scenario=None,
 ):
     chains_to_connect = []
+    chains = {}
+
+    # initialize name here
+    hermes = None
 
     # set up the chains
     for chain in chain_names:
@@ -153,12 +160,14 @@ def prepare_network(
                 "stride" in chain_names,
                 custom_scenario,
             )
-            evmos = next(gen)
-            # wait for grpc ready
-            wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
+            evmos = next(gen)  # pylint: disable=stop-iteration-return
+
             # setup relayer
             hermes = Hermes(tmp_path / "relayer.toml")
-            chains = {"evmos": evmos}
+
+            # wait for grpc ready
+            wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
+            chains["evmos"] = evmos
             continue
 
         chain_instance = CosmosChain(tmp_path / chain_name, meta["bin"])
@@ -255,3 +264,36 @@ def get_balances(chain, addr):
     balance = chain.cosmos_cli().balances(addr)
     print("balance", balance, addr)
     return balance
+
+
+def setup_denom_trace(ibc):
+    """
+    Helper setup function to send some funds from chain-main to evmos
+    to register the denom trace (if not registered already)
+    """
+    res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+    if len(res["denom_traces"]) == 0:
+        amt = 100
+        src_denom = "basecro"
+        dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
+        src_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
+        rsp = (
+            ibc.chains["chainmain"]
+            .cosmos_cli()
+            .ibc_transfer(
+                src_addr,
+                dst_addr,
+                f"{amt}{src_denom}",
+                "channel-0",
+                1,
+                fees="10000000000basecro",
+            )
+        )
+        assert rsp["code"] == 0, rsp["raw_log"]
+
+        # wait for the ack and registering the denom trace
+        def check_denom_trace_change():
+            res = ibc.chains["evmos"].cosmos_cli().denom_traces()
+            return len(res["denom_traces"]) > 0
+
+        wait_for_fn("denom trace registration", check_denom_trace_change)

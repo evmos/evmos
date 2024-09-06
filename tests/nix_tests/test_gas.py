@@ -116,15 +116,15 @@ def test_block_gas_limit(evmos_cluster):
 
     # expect an error on contract call due to block gas limit
     try:
-        evmos_txhash = evmos_contract.functions.burnGas(exceeded_gas_limit).transact(
+        burn_gas_tx = evmos_contract.functions.burnGas(
+            exceeded_gas_limit
+        ).build_transaction(
             {
                 "from": ADDRS["validator"],
                 "gas": exceeded_gas_limit,
                 "gasPrice": evmos_gas_price,
             }
         )
-        (evmos_cluster.w3.eth.wait_for_transaction_receipt(evmos_txhash))
+        send_transaction(evmos_cluster.w3, burn_gas_tx, KEYS["validator"])
     except Exception as error:
         assert "exceeds block gas limit" in error.args[0]["message"]
-
-    return

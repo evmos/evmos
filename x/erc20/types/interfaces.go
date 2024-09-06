@@ -6,8 +6,8 @@ package types
 import (
 	"context"
 
+	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -21,13 +21,15 @@ import (
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+	AddressCodec() address.Codec
+	GetModuleAddress(moduleName string) sdk.AccAddress
+	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI
 }
 
 // StakingKeeper defines the expected interface needed to retrieve the staking denom.
 type StakingKeeper interface {
-	BondDenom(ctx sdk.Context) string
+	BondDenom(ctx context.Context) (string, error)
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on erc20

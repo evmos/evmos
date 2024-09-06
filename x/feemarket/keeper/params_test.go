@@ -2,21 +2,31 @@ package keeper_test
 
 import (
 	"reflect"
+	"testing"
 
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestGetParams() {
-	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-	suite.Require().NotNil(params.BaseFee)
-	suite.Require().NotNil(params.MinGasPrice)
-	suite.Require().NotNil(params.MinGasMultiplier)
+func TestGetParams(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
+
+	params := nw.App.FeeMarketKeeper.GetParams(ctx)
+	require.NotNil(t, params.BaseFee)
+	require.NotNil(t, params.MinGasPrice)
+	require.NotNil(t, params.MinGasMultiplier)
 }
 
-func (suite *KeeperTestSuite) TestSetGetParams() {
-	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-	err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
-	suite.Require().NoError(err)
+func TestSetGetParams(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
+
+	params := types.DefaultParams()
+	err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
+	require.NoError(t, err)
+
 	testCases := []struct {
 		name      string
 		paramsFun func() interface{}
@@ -29,7 +39,7 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 				return types.DefaultParams()
 			},
 			func() interface{} {
-				return suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				return nw.App.FeeMarketKeeper.GetParams(ctx)
 			},
 			true,
 		},
@@ -37,24 +47,24 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 			"success - Check ElasticityMultiplier is set to 3 and can be retrieved correctly",
 			func() interface{} {
 				params.ElasticityMultiplier = 3
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
+				require.NoError(t, err)
 				return params.ElasticityMultiplier
 			},
 			func() interface{} {
-				return suite.app.FeeMarketKeeper.GetParams(suite.ctx).ElasticityMultiplier
+				return nw.App.FeeMarketKeeper.GetParams(ctx).ElasticityMultiplier
 			},
 			true,
 		},
 		{
 			"success - Check BaseFeeEnabled is computed with its default params and can be retrieved correctly",
 			func() interface{} {
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, types.DefaultParams())
-				suite.Require().NoError(err)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, types.DefaultParams())
+				require.NoError(t, err)
 				return true
 			},
 			func() interface{} {
-				return suite.app.FeeMarketKeeper.GetBaseFeeEnabled(suite.ctx)
+				return nw.App.FeeMarketKeeper.GetBaseFeeEnabled(ctx)
 			},
 			true,
 		},
@@ -63,20 +73,20 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 			func() interface{} {
 				params.NoBaseFee = true
 				params.EnableHeight = 5
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
+				require.NoError(t, err)
 				return true
 			},
 			func() interface{} {
-				return suite.app.FeeMarketKeeper.GetBaseFeeEnabled(suite.ctx)
+				return nw.App.FeeMarketKeeper.GetBaseFeeEnabled(ctx)
 			},
 			false,
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		t.Run(tc.name, func(t *testing.T) {
 			outcome := reflect.DeepEqual(tc.paramsFun(), tc.getFun())
-			suite.Require().Equal(tc.expected, outcome)
+			require.Equal(t, tc.expected, outcome)
 		})
 	}
 }

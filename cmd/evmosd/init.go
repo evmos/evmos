@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,9 +16,9 @@ import (
 
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/cli"
-	tmos "github.com/cometbft/cometbft/libs/os"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
-	"github.com/cometbft/cometbft/types"
+	cmtrand "github.com/cometbft/cometbft/libs/rand"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	"github.com/cosmos/go-bip39"
 
@@ -31,6 +30,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+
+	"github.com/evmos/evmos/v19/utils"
 )
 
 type printInfo struct {
@@ -83,15 +84,6 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			// Set peers in and out to an 8:1 ratio to prevent choking
 			config.P2P.MaxNumInboundPeers = 240
 			config.P2P.MaxNumOutboundPeers = 30
-
-			// Set default seeds
-			seeds := []string{
-				"40f4fac63da8b1ce8f850b0fa0f79b2699d2ce72@seed.evmos.jerrychong.com:26656",                 // jerrychong
-				"e3e11fca4ecf4035a751f3fea90e3a821e274487@bd-evmos-mainnet-seed-node-01.bdnodes.net:26656", // blockdaemon
-				"fc86e7e75c5d2e4699535e1b1bec98ae55b16826@bd-evmos-mainnet-seed-node-02.bdnodes.net:26656", // blockdaemon
-			}
-			config.P2P.Seeds = strings.Join(seeds, ",")
-
 			config.Mempool.Size = 10000
 			config.StateSync.TrustPeriod = 112 * time.Hour
 
@@ -99,7 +91,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("evmos_9000-%v", tmrand.Str(6))
+				chainID = fmt.Sprintf("evmos_9000-%v", cmtrand.Str(6))
 			}
 
 			// Get bip39 mnemonic
@@ -128,34 +120,50 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			genFile := config.GenesisFile()
 			overwrite, _ := cmd.Flags().GetBool(genutilcli.FlagOverwrite)
+			defaultDenom, _ := cmd.Flags().GetString(genutilcli.FlagDefaultBondDenom)
 
-			if !overwrite && tmos.FileExists(genFile) {
+			// use os.Stat to check if the file exists
+			_, err = os.Stat(genFile)
+			if !overwrite && !os.IsNotExist(err) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
+			}
+
+			// Overwrites the SDK default denom for side-effects
+			if defaultDenom != "" {
+				sdk.DefaultBondDenom = defaultDenom
 			}
 
 			appState, err := json.MarshalIndent(mbm.DefaultGenesis(cdc), "", " ")
 			if err != nil {
-				return errors.Wrap(err, "Failed to marshall default genesis state")
+				return errors.Wrap(err, "Failed to marshal default genesis state")
 			}
 
-			genDoc := &types.GenesisDoc{}
+			appGenesis := &types.AppGenesis{}
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {
 					return err
 				}
 			} else {
-				genDoc, err = types.GenesisDocFromFile(genFile)
+				appGenesis, err = types.AppGenesisFromFile(genFile)
 				if err != nil {
 					return errors.Wrap(err, "Failed to read genesis doc from file")
 				}
 			}
 
-			genDoc.ChainID = chainID
-			genDoc.Validators = nil
-			genDoc.AppState = appState
+			// Get initial height
+			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
 
-			if err := genutil.ExportGenesisFile(genDoc, genFile); err != nil {
-				return errors.Wrap(err, "Failed to export gensis file")
+			appGenesis.AppName = version.AppName
+			appGenesis.AppVersion = version.Version
+			appGenesis.ChainID = chainID
+			appGenesis.AppState = appState
+			appGenesis.InitialHeight = initHeight
+			appGenesis.Consensus = &types.ConsensusGenesis{
+				Validators: nil,
+			}
+
+			if err := genutil.ExportGenesisFile(appGenesis, genFile); err != nil {
+				return errors.Wrap(err, "Failed to export genesis file")
 			}
 
 			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
@@ -169,6 +177,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd.Flags().BoolP(genutilcli.FlagOverwrite, "o", false, "overwrite the genesis.json file")
 	cmd.Flags().Bool(genutilcli.FlagRecover, false, "provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
+	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, utils.BaseDenom, "defines the default denom to use in genesis file")
 
 	return cmd
 }

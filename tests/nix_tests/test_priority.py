@@ -43,9 +43,9 @@ def effective_gas_price(tx, base_fee):
     if "maxFeePerGas" in tx:
         # dynamic fee tx
         return min(base_fee + tx["maxPriorityFeePerGas"], tx["maxFeePerGas"])
-    else:
-        # legacy tx
-        return tx["gasPrice"]
+
+    # legacy tx
+    return tx["gasPrice"]
 
 
 def tx_priority(tx, base_fee):
@@ -55,9 +55,9 @@ def tx_priority(tx, base_fee):
             min(tx["maxPriorityFeePerGas"], tx["maxFeePerGas"] - base_fee)
             // PRIORITY_REDUCTION
         )
-    else:
-        # legacy tx
-        return (tx["gasPrice"] - base_fee) // PRIORITY_REDUCTION
+
+    # legacy tx
+    return (tx["gasPrice"] - base_fee) // PRIORITY_REDUCTION
 
 
 def test_priority(evmos_cluster):

@@ -13,7 +13,7 @@ import (
 
 // CheckVMError is a helper function used to check if the transaction is reverted with the expected error message
 // in the VmError field of the MsgEthereumResponse struct.
-func CheckVMError(res abci.ResponseDeliverTx, expErrMsg string, args ...interface{}) error {
+func CheckVMError(res abci.ExecTxResult, expErrMsg string, args ...interface{}) error {
 	if !res.IsOK() {
 		return fmt.Errorf("code 0 was expected on response but got code %d", res.Code)
 	}

@@ -6,8 +6,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/precompiles/distribution"
 	"github.com/evmos/evmos/v19/utils"
@@ -62,6 +63,10 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 
 // TestRun tests the precompile's Run method.
 func (s *PrecompileTestSuite) TestRun() {
+	var (
+		ctx sdk.Context
+		err error
+	)
 	testcases := []struct {
 		name        string
 		malleate    func() (common.Address, []byte)
@@ -72,19 +77,19 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - set withdraw address transaction",
 			malleate: func() (common.Address, []byte) {
-				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
-				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
+				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				s.Require().NoError(s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...)))
 
 				input, err := s.precompile.Pack(
 					distribution.SetWithdrawAddressMethod,
-					s.address,
-					s.address.String(),
+					s.keyring.GetAddr(0),
+					s.keyring.GetAddr(0).String(),
 				)
 				s.Require().NoError(err, "failed to pack input")
-				return s.address, input
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -92,16 +97,22 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - withdraw validator commissions transaction",
 			malleate: func() (common.Address, []byte) {
-				hexAddr := common.Bytes2Hex(s.address.Bytes())
+				hexAddr := common.Bytes2Hex(s.keyring.GetAddr(0).Bytes())
 				valAddr, err := sdk.ValAddressFromHex(hexAddr)
 				s.Require().NoError(err)
 				caller := common.BytesToAddress(valAddr)
 
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				commAmt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, commAmt)}
 				// set outstanding rewards
-				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission
-				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission})
+				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission}))
+
+				// set distribution module account balance which pays out the rewards
+				coins := sdk.NewCoins(sdk.NewCoin(s.bondDenom, commAmt.RoundInt()))
+				err = s.mintCoinsForDistrMod(ctx, coins)
+				s.Require().NoError(err, "failed to fund distr module account")
 
 				input, err := s.precompile.Pack(
 					distribution.WithdrawValidatorCommissionMethod,
@@ -116,20 +127,25 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - withdraw delegator rewards transaction",
 			malleate: func() (common.Address, []byte) {
-				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
-				s.Require().NoError(err)
-				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				val := s.network.GetValidators()[0]
+				ctx, err = s.prepareStakingRewards(
+					ctx,
+					stakingRewards{
+						Delegator: s.keyring.GetAccAddr(0),
+						Validator: val,
+						RewardAmt: testRewardsAmt,
+					},
+				)
+				s.Require().NoError(err, "failed to prepare staking rewards")
 
 				input, err := s.precompile.Pack(
 					distribution.WithdrawDelegatorRewardsMethod,
-					s.address,
-					valAddr.String(),
+					s.keyring.GetAddr(0),
+					val.OperatorAddress,
 				)
 				s.Require().NoError(err, "failed to pack input")
 
-				return s.address, input
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -137,20 +153,24 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - claim rewards transaction",
 			malleate: func() (common.Address, []byte) {
-				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
-				s.Require().NoError(err)
-				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
-				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+				ctx, err = s.prepareStakingRewards(
+					ctx,
+					stakingRewards{
+						Delegator: s.keyring.GetAccAddr(0),
+						Validator: s.network.GetValidators()[0],
+						RewardAmt: testRewardsAmt,
+					},
+				)
+				s.Require().NoError(err, "failed to prepare staking rewards")
 
 				input, err := s.precompile.Pack(
 					distribution.ClaimRewardsMethod,
-					s.address,
+					s.keyring.GetAddr(0),
 					uint32(2),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
-				return s.address, input
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -160,12 +180,27 @@ func (s *PrecompileTestSuite) TestRun() {
 			malleate: func() (common.Address, []byte) {
 				input, err := s.precompile.Pack(
 					distribution.FundCommunityPoolMethod,
-					s.address,
+					s.keyring.GetAddr(0),
 					big.NewInt(1e18),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
-				return s.address, input
+				return s.keyring.GetAddr(0), input
+			},
+			readOnly: false,
+			expPass:  true,
+		},
+		{
+			name: "pass - fund community pool transaction",
+			malleate: func() (common.Address, []byte) {
+				input, err := s.precompile.Pack(
+					distribution.FundCommunityPoolMethod,
+					s.keyring.GetAddr(0),
+					big.NewInt(1e18),
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.keyring.GetAddr(0), input
 			},
 			readOnly: false,
 			expPass:  true,
@@ -177,8 +212,8 @@ func (s *PrecompileTestSuite) TestRun() {
 		s.Run(tc.name, func() {
 			// setup basic test suite
 			s.SetupTest()
-
-			baseFee := s.app.FeeMarketKeeper.GetBaseFee(s.ctx)
+			ctx = s.network.GetContext()
+			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
 
 			// malleate testcase
 			caller, input := tc.malleate()
@@ -189,7 +224,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.app.EvmKeeper.ChainID(),
+				ChainID:   s.network.App.EvmKeeper.ChainID(),
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
@@ -197,28 +232,30 @@ func (s *PrecompileTestSuite) TestRun() {
 				GasPrice:  app.MainnetMinGasPrices.BigInt(),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
-				Accesses:  &ethtypes.AccessList{},
+				Accesses:  &gethtypes.AccessList{},
 			}
-			msgEthereumTx := evmtypes.NewTx(&txArgs)
+			msgEthereumTx, err := s.factory.GenerateMsgEthereumTx(s.keyring.GetPrivKey(0), txArgs)
+			s.Require().NoError(err, "failed to generate Ethereum message")
 
-			msgEthereumTx.From = s.address.String()
-			err := msgEthereumTx.Sign(s.ethSigner, s.signer)
+			signedMsg, err := s.factory.SignMsgEthereumTx(s.keyring.GetPrivKey(0), msgEthereumTx)
 			s.Require().NoError(err, "failed to sign Ethereum message")
 
 			// Instantiate config
-			proposerAddress := s.ctx.BlockHeader().ProposerAddress
-			cfg, err := s.app.EvmKeeper.EVMConfig(s.ctx, proposerAddress, s.app.EvmKeeper.ChainID())
+			proposerAddress := ctx.BlockHeader().ProposerAddress
+			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EvmKeeper.ChainID())
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
-			msg, err := msgEthereumTx.AsMessage(s.ethSigner, baseFee)
+			ethChainID := s.network.GetEIP155ChainID()
+			signer := gethtypes.LatestSignerForChainID(ethChainID)
+			msg, err := signedMsg.AsMessage(signer, baseFee)
 			s.Require().NoError(err, "failed to instantiate Ethereum message")
 
 			// Instantiate EVM
-			evm := s.app.EvmKeeper.NewEVM(
-				s.ctx, msg, cfg, nil, s.stateDB,
+			evm := s.network.App.EvmKeeper.NewEVM(
+				ctx, msg, cfg, nil, s.network.GetStateDB(),
 			)
 
-			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
+			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)

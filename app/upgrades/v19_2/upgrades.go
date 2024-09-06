@@ -4,11 +4,13 @@
 package v192
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/cometbft/cometbft/libs/log"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"cosmossdk.io/log"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 )
@@ -19,7 +21,8 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	erc20k erc20keeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if err := AddCodeToERC20Extensions(ctx, logger, erc20k); err == nil {

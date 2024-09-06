@@ -3,66 +3,70 @@ package keeper_test
 import (
 	"testing"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	sdkmath "cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/app"
-	ibctesting "github.com/evmos/evmos/v19/ibc/testing"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	evm "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/ethereum/go-ethereum/params"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v19/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx              sdk.Context
-	app              *app.Evmos
-	queryClientEvm   evm.QueryClient
-	queryClient      types.QueryClient
-	address          common.Address
-	consAddress      sdk.ConsAddress
-	clientCtx        client.Context //nolint:unused
-	ethSigner        ethtypes.Signer
-	priv             cryptotypes.PrivKey
-	validator        stakingtypes.Validator
-	signer           keyring.Signer
+	network *network.UnitTestNetwork
+	handler grpc.Handler
+	keyring keyring.Keyring
+	factory factory.TxFactory
+
+	queryClient types.QueryClient
+
 	mintFeeCollector bool
-
-	coordinator *ibcgotesting.Coordinator
-
-	// testing chains used for convenience and readability
-	EvmosChain      *ibcgotesting.TestChain
-	IBCOsmosisChain *ibcgotesting.TestChain
-	IBCCosmosChain  *ibcgotesting.TestChain
-
-	pathOsmosisEvmos  *ibctesting.Path
-	pathCosmosEvmos   *ibctesting.Path
-	pathOsmosisCosmos *ibctesting.Path
-
-	suiteIBCTesting bool
 }
 
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "ERC20 Keeper Integration Tests Suite")
+func TestKeeperUnitTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest()
+	keys := keyring.New(2)
+	// Set custom balance based on test params
+	customGenesis := network.CustomGenesisState{}
+
+	if suite.mintFeeCollector {
+		// mint some coin to fee collector
+		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		balances := []banktypes.Balance{
+			{
+				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+				Coins:   coins,
+			},
+		}
+		bankGenesis := banktypes.DefaultGenesisState()
+		bankGenesis.Balances = balances
+		customGenesis[banktypes.ModuleName] = bankGenesis
+	}
+
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
+	)
+	gh := grpc.NewIntegrationHandler(nw)
+	tf := factory.New(nw, gh)
+
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
+	suite.queryClient = nw.GetERC20Client()
 }

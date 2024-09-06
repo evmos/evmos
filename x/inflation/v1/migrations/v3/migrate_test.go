@@ -3,16 +3,16 @@ package v3_test
 import (
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	v3 "github.com/evmos/evmos/v19/x/inflation/v1/migrations/v3"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMigrate(t *testing.T) {
-	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_test")
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
+	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 

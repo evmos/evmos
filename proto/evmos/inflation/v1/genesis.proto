@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.inflation.v1;
 
+import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 
 import "evmos/inflation/v1/inflation.proto";
@@ -12,7 +13,7 @@ option go_package = "github.com/evmos/evmos/v19/x/inflation/v1/types";
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {
   // params defines all the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // period is the amount of past periods, based on the epochs per period param
   uint64 period = 2;
   // epoch_identifier for inflation
@@ -28,9 +29,9 @@ message Params {
   // mint_denom specifies the type of coin to mint
   string mint_denom = 1;
   // exponential_calculation takes in the variables to calculate exponential inflation
-  ExponentialCalculation exponential_calculation = 2 [(gogoproto.nullable) = false];
+  ExponentialCalculation exponential_calculation = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // inflation_distribution of the minted denom
-  InflationDistribution inflation_distribution = 3 [(gogoproto.nullable) = false];
+  InflationDistribution inflation_distribution = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // enable_inflation is the parameter that enables inflation and halts increasing the skipped_epochs
   bool enable_inflation = 4;
 }

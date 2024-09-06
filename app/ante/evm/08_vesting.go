@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
@@ -55,7 +54,12 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 	denom := vtd.ek.GetParams(ctx).EvmDenom
 
-	for _, msg := range tx.GetMsgs() {
+	msgs := tx.GetMsgs()
+	if msgs == nil {
+		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
+	}
+
+	for _, msg := range msgs {
 		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
@@ -83,7 +87,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 func CheckVesting(
 	ctx sdk.Context,
 	bankKeeper evmtypes.BankKeeper,
-	account authtypes.AccountI,
+	account sdk.AccountI,
 	accountExpenses map[string]*EthVestingExpenseTracker,
 	addedExpense *big.Int,
 	denom string,

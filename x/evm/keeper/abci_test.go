@@ -1,18 +1,25 @@
 package keeper_test
 
 import (
-	"github.com/cometbft/cometbft/abci/types"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
-	em := suite.ctx.EventManager()
-	suite.Require().Equal(0, len(em.Events()))
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	ctx := unitNetwork.GetContext()
+	preEventManager := ctx.EventManager()
+	suite.Require().Equal(0, len(preEventManager.Events()))
 
-	res := suite.app.EvmKeeper.EndBlock(suite.ctx, types.RequestEndBlock{})
-	suite.Require().Equal([]types.ValidatorUpdate{}, res)
+	err := unitNetwork.App.EvmKeeper.EndBlock(ctx)
+	suite.Require().NoError(err)
 
+	postEventManager := unitNetwork.GetContext().EventManager()
 	// should emit 1 EventTypeBlockBloom event on EndBlock
-	suite.Require().Equal(1, len(em.Events()))
-	suite.Require().Equal(evmtypes.EventTypeBlockBloom, em.Events()[0].Type)
+	suite.Require().Equal(1, len(postEventManager.Events()))
+	suite.Require().Equal(evmtypes.EventTypeBlockBloom, postEventManager.Events()[0].Type)
 }

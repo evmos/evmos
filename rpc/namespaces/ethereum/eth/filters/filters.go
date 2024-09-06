@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v19/rpc/backend"
 	"github.com/evmos/evmos/v19/rpc/types"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/pkg/errors"
 

@@ -5,55 +5,56 @@ package vesting_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/precompiles/vesting"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
 )
-
-var s *PrecompileTestSuite
 
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx        sdk.Context
-	app        *evmosapp.Evmos
-	address    common.Address
-	validators []stakingtypes.Validator
-	ethSigner  ethtypes.Signer
-	privKey    cryptotypes.PrivKey
-	signer     keyring.Signer
-	bondDenom  string
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
+
+	bondDenom string
 
 	precompile *vesting.Precompile
-	stateDB    *statedb.StateDB
-
-	queryClientEVM evmtypes.QueryClient
-
-	vestingCallerContract evmtypes.CompiledContract
 }
 
-func TestPrecompileTestSuite(t *testing.T) {
-	s = new(PrecompileTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Precompile Test Suite")
+func TestPrecompileUnitTestSuite(t *testing.T) {
+	suite.Run(t, new(PrecompileTestSuite))
 }
 
-func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+func (s *PrecompileTestSuite) SetupTest(nKeys int) {
+	keyring := testkeyring.New(nKeys)
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(nw)
+	txFactory := factory.New(nw, grpcHandler)
+
+	stakingParams, err := grpcHandler.GetStakingParams()
+	bondDenom := stakingParams.Params.BondDenom
+
+	if err != nil {
+		panic(err)
+	}
+
+	s.bondDenom = bondDenom
+	s.factory = txFactory
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.network = nw
+
+	if s.precompile, err = vesting.NewPrecompile(
+		s.network.App.VestingKeeper,
+		s.network.App.AuthzKeeper,
+	); err != nil {
+		panic(err)
+	}
 }

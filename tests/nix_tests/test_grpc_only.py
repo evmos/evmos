@@ -104,8 +104,8 @@ def test_grpc_mode(evmos_cluster: Evmos):
     supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
 
     # run grpc-only mode directly with existing chain state
-    with (evmos_cluster.base_dir / "node1.log").open("a") as logfile:
-        proc = subprocess.Popen(
+    with open(evmos_cluster.base_dir / "node1.log", "a", encoding="utf-8") as logfile:
+        proc = subprocess.Popen(  # pylint: disable=consider-using-with
             [
                 evmos_cluster.chain_binary,
                 "start",

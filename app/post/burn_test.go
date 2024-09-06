@@ -166,7 +166,7 @@ func (s *PostTestSuite) TestPostHandle() {
 
 			// In the execution of the PostHandle method, simulate, success, and next have been
 			// hard-coded because they are not influencing the behavior of the BurnDecorator.
-			terminator := sdk.ChainPostDecorators(sdk.Terminator{})
+			terminator := sdk.ChainPostDecorators(sdk.Terminator{}) //nolint:staticcheck
 			_, err = burnDecorator.PostHandle(
 				s.unitNetwork.GetContext(),
 				tc.tx(),

@@ -5,12 +5,13 @@ package keeper
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "github.com/evmos/evmos/v19/precompiles/bank"
 	"github.com/evmos/evmos/v19/precompiles/bech32"
@@ -25,7 +26,6 @@ import (
 	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
-	"golang.org/x/exp/maps"
 )
 
 const bech32PrecompileBaseGas = 6_000

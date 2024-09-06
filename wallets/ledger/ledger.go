@@ -96,7 +96,7 @@ func (e EvmosSECP256K1) GetAddressPubKeySECP256K1(hdPath []uint32, hrp string) (
 
 // SignSECP256K1 returns the signature bytes generated from signing a transaction
 // using the EIP712 signature.
-func (e EvmosSECP256K1) SignSECP256K1(hdPath []uint32, signDocBytes []byte) ([]byte, error) {
+func (e EvmosSECP256K1) SignSECP256K1(hdPath []uint32, signDocBytes []byte, _ byte) ([]byte, error) {
 	fmt.Printf("Generating payload, please check your Ledger...\n")
 
 	if e.PrimaryWallet == nil {

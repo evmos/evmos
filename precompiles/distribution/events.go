@@ -43,7 +43,11 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 		return err
 	}
 
-	totalAmount := totalCoins.AmountOf(p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
+	totalAmount := totalCoins.AmountOf(bondDenom)
 	// Pack the arguments to be used as the Data field
 	arguments := abi.Arguments{event.Inputs[1]}
 	packed, err := arguments.Pack(totalAmount.BigInt())

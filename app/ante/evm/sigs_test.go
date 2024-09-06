@@ -4,48 +4,42 @@ import (
 	"math/big"
 
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestSignatures() {
-	suite.enableFeemarket = false
+	suite.WithFeemarketEnabled(false)
 	suite.SetupTest() // reset
 
-	addr, privKey := utiltx.NewAddrKey()
+	privKey := suite.GetKeyring().GetPrivKey(0)
 	to := utiltx.GenerateAddress()
 
-	acc := statedb.NewEmptyAccount()
-	acc.Nonce = 1
-	acc.Balance = big.NewInt(10000000000)
-
-	err := suite.app.EvmKeeper.SetAccount(suite.ctx, addr, *acc)
-	suite.Require().NoError(err)
-	ethTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.app.EvmKeeper.ChainID(),
-		Nonce:    1,
+	txArgs := evmtypes.EvmTxArgs{
+		ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+		Nonce:    0,
 		To:       &to,
 		Amount:   big.NewInt(10),
 		GasLimit: 100000,
 		GasPrice: big.NewInt(1),
 	}
-	msgEthereumTx := evmtypes.NewTx(ethTxParams)
-	msgEthereumTx.From = addr.Hex()
 
 	// CreateTestTx will sign the msgEthereumTx but not sign the cosmos tx since we have signCosmosTx as false
-	tx := suite.CreateTestTx(msgEthereumTx, privKey, 1, false)
+	tx := suite.CreateTxBuilder(privKey, txArgs).GetTx()
 	sigs, err := tx.GetSignaturesV2()
 	suite.Require().NoError(err)
 
 	// signatures of cosmos tx should be empty
 	suite.Require().Equal(len(sigs), 0)
 
-	txData, err := evmtypes.UnpackTxData(msgEthereumTx.Data)
+	msg := tx.GetMsgs()[0]
+	msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
+	suite.Require().True(ok)
+	txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
 	suite.Require().NoError(err)
 
 	msgV, msgR, msgS := txData.GetRawSignatureValues()
 
-	ethTx := msgEthereumTx.AsTransaction()
+	ethTx := msgEthTx.AsTransaction()
 	ethV, ethR, ethS := ethTx.RawSignatureValues()
 
 	// The signatures of MsgEthereumTx should be the same with the corresponding eth tx

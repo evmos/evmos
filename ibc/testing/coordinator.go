@@ -13,7 +13,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/evmos/v19/app"
 	"github.com/stretchr/testify/require"
 )
@@ -123,19 +123,25 @@ func SetupClients(coord *ibctesting.Coordinator, path *Path) {
 }
 
 func SendMsgs(chain *ibctesting.TestChain, feeAmt int64, msgs ...sdk.Msg) (*sdk.Result, error) {
-	var bondDenom string
+	var (
+		bondDenom string
+		err       error
+	)
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
 	if evmosChain, ok := chain.App.(*app.Evmos); ok {
-		bondDenom = evmosChain.StakingKeeper.BondDenom(chain.GetContext())
+		bondDenom, err = evmosChain.StakingKeeper.BondDenom(chain.GetContext())
 	} else {
-		bondDenom = chain.GetSimApp().StakingKeeper.BondDenom(chain.GetContext())
+		bondDenom, err = chain.GetSimApp().StakingKeeper.BondDenom(chain.GetContext())
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	fee := sdk.Coins{sdk.NewInt64Coin(bondDenom, feeAmt)}
 	_, r, err := SignAndDeliver(
-		chain.T,
+		chain.TB,
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
 		msgs,
@@ -170,7 +176,7 @@ func SendMsgs(chain *ibctesting.TestChain, feeAmt int64, msgs ...sdk.Msg) (*sdk.
 // Is a customization of IBC-go function that allows to modify the fee denom and amount
 // IBC-go implementation: https://github.com/cosmos/ibc-go/blob/d34cef7e075dda1a24a0a3e9b6d3eff406cc606c/testing/simapp/test_helpers.go#L332-L364
 func SignAndDeliver(
-	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
+	t testing.TB, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
 	fee sdk.Coins,
 	chainID string, accNums, accSeqs []uint64, expPass bool, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {

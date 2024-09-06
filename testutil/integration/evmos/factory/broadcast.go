@@ -17,20 +17,20 @@ import (
 func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
-) (abcitypes.ResponseDeliverTx, error) {
+) (abcitypes.ExecTxResult, error) {
 	signedMsg, err := tf.GenerateSignedEthTx(priv, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate signed ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to generate signed ethereum tx")
 	}
 
 	txBytes, err := tf.encodeTx(signedMsg)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode ethereum tx")
 	}
 
 	res, err := tf.network.BroadcastTxSync(txBytes)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
 	}
 
 	if err := tf.checkEthTxResponse(&res); err != nil {
@@ -39,11 +39,11 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	return res, nil
 }
 
-// ExecuteContractCall executes a contract call with the provided private key.
-func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
+// ExecuteContractCall executes a contract call with the provided private key
+func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error) {
 	completeTxArgs, err := tf.GenerateContractCallArgs(txArgs, callArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate contract call args")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to generate contract call args")
 	}
 
 	return tf.ExecuteEthTx(privKey, completeTxArgs)
@@ -81,18 +81,18 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	txArgs evmtypes.EvmTxArgs,
 	callArgs CallArgs,
 	logCheckArgs testutil.LogCheckArgs,
-) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
+) (abcitypes.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error) {
 	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
 	logCheckArgs.Res = res
 	if err != nil {
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
-		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
+		return res, nil, CheckError(err, logCheckArgs)
 	}
 
 	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, nil, err
+		return res, nil, err
 	}
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)

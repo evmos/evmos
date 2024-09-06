@@ -652,6 +652,9 @@ func (_m *Client) Reset() error {
 }
 
 // SetLogger provides a mock function with given fields: _a0
+//
+// NOTE: here we have to keep the Comet logger, instead of the Cosmos SDK
+// one because it has to implement the Client interface.
 func (_m *Client) SetLogger(_a0 log.Logger) {
 	_m.Called(_a0)
 }

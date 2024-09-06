@@ -80,7 +80,7 @@ func (p *Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err = msg.ValidateBasic(); err != nil {
+	if err := msg.Amount.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -93,11 +93,11 @@ func (p *Precompile) transfer(
 	var prevAllowance *big.Int
 	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
-		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
+		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
-			return nil, ConvertErrToERC20Error(errorsmod.Wrap(authz.ErrNoAuthorizationFound, err.Error()))
+			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "%s", err.Error()))
 		}
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})

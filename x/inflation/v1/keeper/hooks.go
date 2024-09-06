@@ -6,7 +6,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/armon/go-metrics"
+	"github.com/hashicorp/go-metrics"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,7 +50,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// mint coins, update supply
 	period := k.GetPeriod(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
-	bondedRatio := k.BondedRatio(ctx)
+	bondedRatio, err := k.BondedRatio(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	epochMintProvision := types.CalculateEpochMintProvision(
 		params,

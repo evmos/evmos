@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"

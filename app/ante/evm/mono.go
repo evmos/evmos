@@ -136,8 +136,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, err
 	}
 
+	msgs := tx.GetMsgs()
+	if msgs == nil {
+		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
+	}
+
 	// Use the lowest priority of all the messages as the final one.
-	for i, msg := range tx.GetMsgs() {
+	for i, msg := range msgs {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err

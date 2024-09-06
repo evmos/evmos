@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -46,7 +47,12 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 // sender of the tx is a clawback vesting account and then relay the message to the Cosmos SDK staking
 // method.
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
-	if err := k.validateDelegationAmountNotUnvested(goCtx, msg.DelegatorAddress, msg.Value.Amount); err != nil {
+	bz, err := k.ValidatorAddressCodec().StringToBytes(msg.ValidatorAddress)
+	if err != nil {
+		return nil, errorsmod.Wrap(errortypes.ErrInvalidAddress, fmt.Sprintf("invalid validator address. %s", err))
+	}
+
+	if err := k.validateDelegationAmountNotUnvested(goCtx, sdk.AccAddress(bz).String(), msg.Value.Amount); err != nil {
 		return nil, err
 	}
 
@@ -65,9 +71,9 @@ func (k msgServer) validateDelegationAmountNotUnvested(goCtx context.Context, de
 
 	acc := k.ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return errorsmod.Wrapf(
+		return errorsmod.Wrap(
 			errortypes.ErrUnknownAddress,
-			"account %s does not exist", addr,
+			fmt.Sprintf("account %s does not exist", addr),
 		)
 	}
 	// check if delegator address is a clawback vesting account. If not, no check
@@ -80,7 +86,10 @@ func (k msgServer) validateDelegationAmountNotUnvested(goCtx context.Context, de
 	// vesting account can only delegate
 	// if enough free balance (coins not in vesting schedule)
 	// plus the vested coins (locked/unlocked)
-	bondDenom := k.BondDenom(ctx)
+	bondDenom, err := k.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	// GetBalance returns entire account balance
 	// balance = free coins + all coins in vesting schedule
 	balance := k.bk.GetBalance(ctx, addr, bondDenom)

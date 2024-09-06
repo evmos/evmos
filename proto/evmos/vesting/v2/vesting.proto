@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "amino/amino.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
@@ -14,6 +15,7 @@ option go_package = "github.com/evmos/evmos/v19/x/vesting/types";
 // PeriodicVestingAccount), or vesting which is subject to clawback
 // of unvested tokens, or a combination (tokens vest, but are still locked).
 message ClawbackVestingAccount {
+  option (amino.name) = "evmos/x/vesting/v2/ClawbackVestingAccount";
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
 
@@ -23,15 +25,18 @@ message ClawbackVestingAccount {
   // funder_address specifies the account which can perform clawback
   string funder_address = 2;
   // start_time defines the time at which the vesting period begins
-  google.protobuf.Timestamp start_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp start_time = 3
+      [(gogoproto.stdtime) = true, (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // lockup_periods defines the unlocking schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
     (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
   // vesting_periods defines the vesting schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
     (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
 }

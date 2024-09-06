@@ -8,7 +8,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -17,7 +16,7 @@ import (
 func IncrementNonce(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,
-	account authtypes.AccountI,
+	account sdk.AccountI,
 	txNonce uint64,
 ) error {
 	nonce := account.GetSequence()

@@ -35,7 +35,6 @@ func (suite *MsgsTestSuite) TestMsgConvertERC20Getters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgConvertERC20, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 func (suite *MsgsTestSuite) TestMsgConvertERC20New() {

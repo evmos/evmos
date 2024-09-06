@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
 	"github.com/stretchr/testify/require"
@@ -15,10 +15,10 @@ import (
 func TestUnpackBalancesResponse(t *testing.T) {
 	t.Parallel()
 
-	expAmount, ok := sdk.NewIntFromString("1000000000000000000000")
+	expAmount, ok := math.NewIntFromString("1000000000000000000000")
 	require.True(t, ok, "failed to convert amount to int")
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	require.True(t, ok, "failed to cast codec to proto codec")
 

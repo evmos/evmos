@@ -7,6 +7,7 @@ import (
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -20,6 +21,7 @@ import (
 	commonnetwork "github.com/evmos/evmos/v19/testutil/integration/common/network"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	network "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -56,11 +58,15 @@ func (is *IntegrationTestSuite) setupSendAuthz(
 		amount,
 	)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up send authorization")
+
+	// commit changes to chain state
+	err = is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 }
 
 func setupSendAuthz(
 	network commonnetwork.Network,
-	factory commonfactory.TxFactory,
+	factory commonfactory.BaseTxFactory,
 	grantee sdk.AccAddress,
 	granterPriv cryptotypes.PrivKey,
 	amount sdk.Coins,
@@ -114,6 +120,10 @@ func (is *IntegrationTestSuite) setupSendAuthzForContract(
 	default:
 		panic("unknown contract call type")
 	}
+
+	// commit changes to the chain state
+	err := is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 }
 
 // setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
@@ -221,13 +231,21 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
-//
-// TODO: refactor
-func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
-	is.network.App.Erc20Keeper.SetToken(is.network.GetContext(), tokenPair)
+func (is *IntegrationTestSuite) setupERC20Precompile(denom string, tokenPairs []erc20types.TokenPair) *erc20.Precompile {
+	var tokenPair erc20types.TokenPair
+	for _, tp := range tokenPairs {
+		if tp.Denom != denom {
+			continue
+		}
+		tokenPair = tp
+	}
 
-	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+	precompile, err := erc20.NewPrecompile(
+		tokenPair,
+		is.network.App.BankKeeper,
+		is.network.App.AuthzKeeper,
+		is.network.App.TransferKeeper,
+	)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up %q erc20 precompile", tokenPair.Denom)
 
 	return precompile
@@ -235,6 +253,7 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precom
 
 // setupERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
 // a given token pair and adds the precompile to the available and active precompiles.
+// Do not use this function for integration tests.
 func setupERC20PrecompileForTokenPair(
 	unitNetwork network.UnitTestNetwork, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
@@ -259,13 +278,54 @@ func setupERC20PrecompileForTokenPair(
 	return precompile, nil
 }
 
+// setupNewERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
+// a given token pair and adds the precompile to the available and active precompiles.
+// This function should be used for integration tests
+func setupNewERC20PrecompileForTokenPair(
+	privKey cryptotypes.PrivKey,
+	unitNetwork *network.UnitTestNetwork,
+	tf factory.TxFactory, tokenPair erc20types.TokenPair,
+) (*erc20.Precompile, error) {
+	precompile, err := erc20.NewPrecompile(
+		tokenPair,
+		unitNetwork.App.BankKeeper,
+		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.TransferKeeper,
+	)
+	if err != nil {
+		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
+	}
+
+	// Update the params via gov proposal
+	params := unitNetwork.App.Erc20Keeper.GetParams(unitNetwork.GetContext())
+	params.DynamicPrecompiles = append(params.DynamicPrecompiles, precompile.Address().Hex())
+	slices.Sort(params.DynamicPrecompiles)
+
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := testutils.UpdateERC20Params(testutils.UpdateParamsInput{
+		Pk:      privKey,
+		Tf:      tf,
+		Network: unitNetwork,
+		Params:  params,
+	}); err != nil {
+		return nil, errorsmod.Wrapf(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
+	}
+
+	return precompile, nil
+}
+
 // CallType indicates which type of contract call is made during the integration tests.
 type CallType int
 
 // callType constants to differentiate between direct calls and calls through a contract.
 const (
 	directCall CallType = iota + 1
+	directCallToken2
 	contractCall
+	contractCallToken2
 	erc20Call
 	erc20CallerCall
 	erc20V5Call
@@ -273,7 +333,7 @@ const (
 )
 
 var (
-	nativeCallTypes = []CallType{directCall, contractCall}
+	nativeCallTypes = []CallType{directCall, directCallToken2, contractCall, contractCallToken2}
 	erc20CallTypes  = []CallType{erc20Call, erc20CallerCall, erc20V5Call, erc20V5CallerCall}
 )
 
@@ -290,7 +350,8 @@ func (is *IntegrationTestSuite) getTxAndCallArgs(
 	cd := contractData.GetContractData(callType)
 
 	txArgs := evmtypes.EvmTxArgs{
-		To: &cd.Address,
+		To:       &cd.Address,
+		GasPrice: gasPrice,
 	}
 
 	callArgs := factory.CallArgs{
@@ -314,7 +375,7 @@ func (is *IntegrationTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 		for _, expCoin := range expBalance.expCoins {
 			coinBalance, err := is.handler.GetBalance(expBalance.address, expCoin.Denom)
 			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
-			Expect(coinBalance.Balance.Amount.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
+			Expect(coinBalance.Balance.Amount).To(Equal(expCoin.Amount), "expected different balance")
 		}
 	}
 }
@@ -346,10 +407,13 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 		_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
 		Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 		var balance *big.Int
 		err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
 		Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
-		Expect(balance.Int64()).To(Equal(expBalance.expCoins.AmountOf(is.tokenDenom).Int64()), "expected different balance")
+		Expect(math.NewIntFromBigInt(balance)).To(Equal(expBalance.expCoins.AmountOf(is.tokenDenom)), "expected different balance")
 	}
 }
 
@@ -381,11 +445,13 @@ func (is *IntegrationTestSuite) expectSendAuthzForERC20(callType CallType, contr
 
 	_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
 	Expect(err).ToNot(HaveOccurred(), "expected no error getting allowance")
+	// Increase block to update nonce
+	Expect(is.network.NextBlock()).To(BeNil())
 
 	var allowance *big.Int
 	err = contractABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking allowance")
-	Expect(allowance.Int64()).To(Equal(expAmount.AmountOf(is.tokenDenom).Int64()), "expected different allowance")
+	Expect(math.NewIntFromBigInt(allowance)).To(Equal(expAmount.AmountOf(is.tokenDenom)), "expected different allowance")
 }
 
 // ExpectSendAuthzForContract is a helper function to check that a SendAuthorization
@@ -468,22 +534,25 @@ func (cd ContractsData) GetContractData(callType CallType) ContractData {
 // fundWithTokens is a helper function for the scope of the ERC20 integration tests.
 // Depending on the passed call type, it funds the given address with tokens either
 // using the Bank module or by minting straight on the ERC20 contract.
+// Returns the updated balance amount of the receiver address
 func (is *IntegrationTestSuite) fundWithTokens(
 	callType CallType,
 	contractData ContractsData,
 	receiver common.Address,
 	fundCoins sdk.Coins,
-) {
+) math.Int {
 	Expect(fundCoins).To(HaveLen(1), "expected only one coin")
 	Expect(fundCoins[0].Denom).To(Equal(is.tokenDenom),
 		"this helper function only supports funding with the token denom in the context of these integration tests",
 	)
 
 	var err error
+	receiverBalance := fundCoins.AmountOf(is.tokenDenom)
+	balanceInBankMod := slices.Contains(nativeCallTypes, callType)
 
 	switch {
-	case slices.Contains(nativeCallTypes, callType):
-		err = is.network.FundAccount(receiver.Bytes(), fundCoins)
+	case balanceInBankMod:
+		err = is.factory.FundAccount(is.keyring.GetKey(0), receiver.Bytes(), fundCoins)
 	case slices.Contains(erc20CallTypes, callType):
 		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
 	default:
@@ -491,6 +560,15 @@ func (is *IntegrationTestSuite) fundWithTokens(
 	}
 
 	Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+	Expect(is.network.NextBlock()).To(BeNil())
+
+	if balanceInBankMod {
+		balRes, err := is.handler.GetBalance(receiver.Bytes(), fundCoins.Denoms()[0])
+		Expect(err).To(BeNil())
+		receiverBalance = balRes.Balance.Amount
+	}
+
+	return receiverBalance
 }
 
 // MintERC20 is a helper function to mint tokens on the ERC20 contract.
@@ -511,7 +589,10 @@ func (is *IntegrationTestSuite) MintERC20(callType CallType, contractData Contra
 		ExpPass:   true,
 	}
 
-	_, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck)
+	if _, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck); err != nil {
+		return err
+	}
 
-	return err
+	// commit changes to chain state
+	return is.network.NextBlock()
 }

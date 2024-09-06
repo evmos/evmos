@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	versiondbclient "github.com/crypto-org-chain/cronos/versiondb/client"
+
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"
 )
@@ -34,4 +35,5 @@ func ChangeSetCmd() *cobra.Command {
 			return opendb.NewRocksdbOptions(nil, sstFileWriter)
 		},
 	})
+	return nil
 }

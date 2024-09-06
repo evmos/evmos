@@ -4,18 +4,16 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/simapp/params"
-	dbm "github.com/cometbft/cometbft-db"
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmlog "github.com/cometbft/cometbft/libs/log"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	evmenc "github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/indexer"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/evm/types"
@@ -41,7 +39,8 @@ func TestKVIndexer(t *testing.T) {
 	require.NoError(t, tx.Sign(ethSigner, signer))
 	txHash := tx.AsTransaction().Hash()
 
-	encodingConfig := MakeEncodingConfig()
+	nw := network.New()
+	encodingConfig := nw.GetEncodingConfig()
 	clientCtx := client.Context{}.WithTxConfig(encodingConfig.TxConfig).WithCodec(encodingConfig.Codec)
 
 	// build cosmos-sdk wrapper tx
@@ -59,14 +58,14 @@ func TestKVIndexer(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		block       *tmtypes.Block
-		blockResult []*abci.ResponseDeliverTx
+		block       *cmttypes.Block
+		blockResult []*abci.ExecTxResult
 		expSuccess  bool
 	}{
 		{
 			"success, format 1",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
+			[]*abci.ExecTxResult{
 				{
 					Code: 0,
 					Events: []abci.Event{
@@ -85,8 +84,8 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"success, format 2",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
+			[]*abci.ExecTxResult{
 				{
 					Code: 0,
 					Events: []abci.Event{
@@ -107,8 +106,8 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"success, exceed block gas limit",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
+			[]*abci.ExecTxResult{
 				{
 					Code:   11,
 					Log:    "out of gas in location: block gas meter; gasWanted: 21000",
@@ -119,8 +118,8 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, failed eth tx",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
+			[]*abci.ExecTxResult{
 				{
 					Code:   15,
 					Log:    "nonce mismatch",
@@ -131,8 +130,8 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, invalid events",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
+			[]*abci.ExecTxResult{
 				{
 					Code:   0,
 					Events: []abci.Event{},
@@ -142,8 +141,8 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, not eth tx",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz2}}},
-			[]*abci.ResponseDeliverTx{
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz2}}},
+			[]*abci.ExecTxResult{
 				{
 					Code:   0,
 					Events: []abci.Event{},
@@ -156,7 +155,7 @@ func TestKVIndexer(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			db := dbm.NewMemDB()
-			idxer := indexer.NewKVIndexer(db, tmlog.NewNopLogger(), clientCtx)
+			idxer := indexer.NewKVIndexer(db, log.NewNopLogger(), clientCtx)
 
 			err = idxer.IndexBlock(tc.block, tc.blockResult)
 			require.NoError(t, err)
@@ -186,9 +185,4 @@ func TestKVIndexer(t *testing.T) {
 			}
 		})
 	}
-}
-
-// MakeEncodingConfig creates the EncodingConfig
-func MakeEncodingConfig() params.EncodingConfig {
-	return evmenc.MakeConfig(app.ModuleBasics)
 }

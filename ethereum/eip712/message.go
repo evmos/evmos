@@ -100,6 +100,10 @@ func getPayloadMessages(payload gjson.Result) ([]gjson.Result, error) {
 		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "no messages found in payload, unable to parse")
 	}
 
+	if rawMsgs.Type == gjson.Null {
+		return []gjson.Result{}, nil
+	}
+
 	if !rawMsgs.IsArray() {
 		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "expected type array of messages, cannot parse")
 	}
