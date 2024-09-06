@@ -35,6 +35,7 @@ var (
 
 	_ appmodule.HasEndBlocker   = AppModule{}
 	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.HasABCIGenesis     = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the fee market module.
