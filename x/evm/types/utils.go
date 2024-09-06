@@ -4,33 +4,26 @@
 package types
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
+
+	"github.com/cosmos/gogoproto/proto"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/gogoproto/proto"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-var (
-	// DefaultPriorityReduction is the default amount of price values required for 1 unit of priority.
-	// Because priority is `int64` while price is `big.Int`, it's necessary to scale down the range to keep it more pratical.
-	// The default value is the same as the `sdk.DefaultPowerReduction`.
-	DefaultPriorityReduction = sdk.DefaultPowerReduction
+// DefaultPriorityReduction is the default amount of price values required for 1 unit of priority.
+// Because priority is `int64` while price is `big.Int`, it's necessary to scale down the range to keep it more pratical.
+// The default value is the same as the `sdk.DefaultPowerReduction`.
+var DefaultPriorityReduction = sdk.DefaultPowerReduction
 
-	// EmptyCodeHash is keccak256 hash of nil to represent empty code.
-	EmptyCodeHash = crypto.Keccak256(nil)
-)
-
-// IsEmptyCodeHash checks if the given byte slice represents an empty code hash.
-func IsEmptyCodeHash(bz []byte) bool {
-	return bytes.Equal(bz, EmptyCodeHash)
-}
+var EmptyCodeHash = crypto.Keccak256(nil)
 
 // DecodeTxResponse decodes an protobuf-encoded byte slice into TxResponse
 func DecodeTxResponse(in []byte) (*MsgEthereumTxResponse, error) {

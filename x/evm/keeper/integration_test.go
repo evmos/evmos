@@ -5,14 +5,16 @@ package keeper_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
+
 	//nolint:revive // dot imports are fine for Ginkgo
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	"cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/contracts"
@@ -161,13 +163,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
 			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
 			Expect(err).To(BeNil())
-			Expect(contractAccount).ToNot(BeNil(), "expected account to be retrievable via auth query")
-
-			ethAccountRes, err := s.grpcHandler.GetEvmAccount(contractAddr)
-			Expect(err).To(BeNil(), "expected no error retrieving account from the state db")
-			Expect(ethAccountRes.CodeHash).ToNot(Equal(common.BytesToHash(evmtypes.EmptyCodeHash).Hex()),
-				"expected code hash not to be the empty code hash",
-			)
+			err = integrationutils.IsContractAccount(contractAccount)
+			Expect(err).To(BeNil())
 		},
 			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
 			Entry("as an AccessListTx",

@@ -141,7 +141,6 @@ import (
 	"github.com/evmos/evmos/v19/app/ante"
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/app/post"
-	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
 	"github.com/evmos/evmos/v19/x/erc20"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
@@ -481,7 +480,7 @@ func NewEvmos(
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -979,7 +978,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	}
 
 	for _, precompile := range blockedPrecompilesHex {
-		blockedAddrs[utils.EthHexToCosmosAddr(precompile).String()] = true
+		blockedAddrs[utils.EthHexToSDKAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
@@ -1186,15 +1185,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v20 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v20.UpgradeName,
-		v20.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.EvmKeeper,
-		),
-	)
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it

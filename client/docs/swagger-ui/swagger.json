@@ -1150,7 +1150,7 @@
     },
     "/evmos/evm/v1/balances/{address}": {
       "get": {
-        "summary": "Balance queries the balance of a the EVM denomination for a single\naccount.",
+        "summary": "Balance queries the balance of a the EVM denomination for a single\nEthAccount.",
         "operationId": "Balance",
         "responses": {
           "200": {
@@ -1820,12 +1820,12 @@
                               "default": "ACCESS_TYPE_PERMISSIONLESS",
                               "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                             },
-                            "access_control_list": {
+                            "allowlist_addresses": {
                               "type": "array",
                               "items": {
                                 "type": "string"
                               },
-                              "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                              "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                             }
                           }
                         },
@@ -1844,12 +1844,12 @@
                               "default": "ACCESS_TYPE_PERMISSIONLESS",
                               "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                             },
-                            "access_control_list": {
+                            "allowlist_addresses": {
                               "type": "array",
                               "items": {
                                 "type": "string"
                               },
-                              "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                              "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                             }
                           }
                         }
@@ -22481,12 +22481,12 @@
               "default": "ACCESS_TYPE_PERMISSIONLESS",
               "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
             },
-            "access_control_list": {
+            "allowlist_addresses": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+              "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
             }
           }
         },
@@ -22505,12 +22505,12 @@
               "default": "ACCESS_TYPE_PERMISSIONLESS",
               "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
             },
-            "access_control_list": {
+            "allowlist_addresses": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+              "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
             }
           }
         }
@@ -22531,12 +22531,12 @@
           "default": "ACCESS_TYPE_PERMISSIONLESS",
           "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
         },
-        "access_control_list": {
+        "allowlist_addresses": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+          "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
         }
       },
       "title": "AccessControlType defines the permission type for policies"
@@ -22933,12 +22933,12 @@
                   "default": "ACCESS_TYPE_PERMISSIONLESS",
                   "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                 },
-                "access_control_list": {
+                "allowlist_addresses": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
-                  "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                  "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                 }
               }
             },
@@ -22957,12 +22957,12 @@
                   "default": "ACCESS_TYPE_PERMISSIONLESS",
                   "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                 },
-                "access_control_list": {
+                "allowlist_addresses": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
-                  "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                  "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                 }
               }
             }
@@ -23179,12 +23179,12 @@
                       "default": "ACCESS_TYPE_PERMISSIONLESS",
                       "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                     },
-                    "access_control_list": {
+                    "allowlist_addresses": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
-                      "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                      "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                     }
                   }
                 },
@@ -23203,12 +23203,12 @@
                       "default": "ACCESS_TYPE_PERMISSIONLESS",
                       "description": "- ACCESS_TYPE_PERMISSIONLESS: ACCESS_TYPE_PERMISSIONLESS does not restrict the operation to anyone\n - ACCESS_TYPE_RESTRICTED: ACCESS_TYPE_RESTRICTED restrict the operation to anyone\n - ACCESS_TYPE_PERMISSIONED: ACCESS_TYPE_PERMISSIONED only allows the operation for specific addresses"
                     },
-                    "access_control_list": {
+                    "allowlist_addresses": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
-                      "title": "access_control_list defines defines different things depending on the AccessType:\n- ACCESS_TYPE_PERMISSIONLESS: list of addresses that are blocked from performing the operation\n- ACCESS_TYPE_RESTRICTED: ignored\n- ACCESS_TYPE_PERMISSIONED: list of addresses that are allowed to perform the operation"
+                      "title": "allowlist_addresses defines which addresses have permissions in case of permissioned access_type"
                     }
                   }
                 }
