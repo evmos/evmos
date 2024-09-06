@@ -1193,6 +1193,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.AccountKeeper,
 			app.EvmKeeper,
+			app.StakingKeeper.Keeper,
+			app.BankKeeper,
 		),
 	)
 
