@@ -688,6 +688,8 @@ func NewEvmos(
 		evidencetypes.ModuleName,
 		stakingtypes.ModuleName,
 		ibcexported.ModuleName,
+		authz.ModuleName,
+		feegrant.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -696,6 +698,7 @@ func NewEvmos(
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
+		feegrant.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
