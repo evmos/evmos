@@ -122,7 +122,7 @@ func TestMsgDelegate(t *testing.T) {
 			ctx = nw.GetContext()
 			delCoin := tc.setup()
 
-			srv := keeper.NewMsgServerImpl(&nw.App.StakingKeeper)
+			srv := keeper.NewMsgServerImpl(nw.App.StakingKeeper)
 			res, err := srv.Delegate(ctx, &types.MsgDelegate{
 				DelegatorAddress: delegatorAddr.String(),
 				ValidatorAddress: nw.GetValidators()[0].OperatorAddress,
@@ -256,7 +256,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				sdk.OneInt(),
 			)
 			require.NoError(t, err)
-			srv := keeper.NewMsgServerImpl(&nw.App.StakingKeeper)
+			srv := keeper.NewMsgServerImpl(nw.App.StakingKeeper)
 			res, err := srv.CreateValidator(ctx, msg)
 
 			if tc.expErr {

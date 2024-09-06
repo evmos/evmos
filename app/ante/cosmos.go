@@ -10,6 +10,7 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
