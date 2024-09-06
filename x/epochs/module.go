@@ -33,6 +33,7 @@ const consensusVersion = 1
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.HasABCIGenesis = AppModule{}
 
 	_ appmodule.HasBeginBlocker = AppModule{}
 )

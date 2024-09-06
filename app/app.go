@@ -673,11 +673,9 @@ func NewEvmos(
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, to keep the
 	// CanWithdrawInvariant invariant.
-	// NOTE: upgrade module must go first to handle software upgrades.
 	// NOTE: staking module is required if HistoricalEntries param > 0.
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
 		epochstypes.ModuleName,
@@ -715,7 +713,6 @@ func NewEvmos(
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
-		ibcexported.ModuleName,
 		// Ethermint modules
 		evmtypes.ModuleName,
 		// NOTE: feemarket module needs to be initialized before genutil module:
@@ -727,14 +724,11 @@ func NewEvmos(
 		icatypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
-		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		// Evmos modules
-		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
-		consensusparamtypes.ModuleName,
 		ratelimittypes.ModuleName,
 	)
 
