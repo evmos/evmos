@@ -52,6 +52,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
 
+## [v19.2.0] - 2024-08-19
+
+### State Machine Breaking
+
+- (erc20) [#2763](https://github.com/evmos/evmos/pull/2763) Added register/unregister erc20 codehash on the dynamic precompile accounts when updating the `x/erc20` params.
+- (upgrade) [#2759](https://github.com/evmos/evmos/pull/2759) Add upgrade handler for v19.2.0.
+
 ### Bug Fixes
 
 - (rpc) [#2765](https://github.com/evmos/evmos/pull/2765) Fix EIP parsing for archive queries.

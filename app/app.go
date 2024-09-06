@@ -141,9 +141,6 @@ import (
 	"github.com/evmos/evmos/v19/app/ante"
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/app/post"
-	v17 "github.com/evmos/evmos/v19/app/upgrades/v17"
-	v18 "github.com/evmos/evmos/v19/app/upgrades/v18"
-	v19 "github.com/evmos/evmos/v19/app/upgrades/v19"
 	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
 	"github.com/evmos/evmos/v19/x/erc20"
@@ -1188,35 +1185,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v17 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v17.UpgradeName,
-		v17.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v18 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v18.UpgradeName,
-		v18.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v19 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v19.UpgradeName,
-		v19.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.Erc20Keeper,
-			app.EvmKeeper,
-		),
-	)
-
 	// v20 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v20.UpgradeName,
@@ -1239,26 +1207,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 		return
 	}
 
-	var storeUpgrades *storetypes.StoreUpgrades
+	// var storeUpgrades *storetypes.StoreUpgrades
 
-	switch upgradeInfo.Name {
-	case v19.UpgradeName:
-		// revenue module is deprecated in v19
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"revenue"},
-		}
-	case v20.UpgradeName:
-		storeUpgrades = &storetypes.StoreUpgrades{
-			// this store was added on v19.2.0
-			// adding it here because the v19.2.0 upgrade was deleted and the upgrade tests fail without this
-			Added: []string{ratelimittypes.ModuleName},
-		}
-	default:
-		// no-op
-	}
+	// switch upgradeInfo.Name {
+	// case v191.UpgradeName:
+	// 	storeUpgrades = &storetypes.StoreUpgrades{
+	// 		Added: []string{ratelimittypes.ModuleName},
+	// 	}
+	// default:
+	// // no-op
+	// }
 
-	if storeUpgrades != nil {
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
-	}
+	// if storeUpgrades != nil {
+	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
+	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	// }
 }
