@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
@@ -14,23 +15,33 @@ option go_package = "github.com/evmos/evmos/v19/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
   // contract that is registered on the token mapping.
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
     option (google.api.http).get = "/evmos/erc20/v1/tx/convert_erc20";
   };
-  // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
+  // UpdateParams defines a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  // RegisterERC20 defines a governance operation for registering a token pair for the specified erc20 contract.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc RegisterERC20(MsgRegisterERC20) returns (MsgRegisterERC20Response);
+  // ToggleConversion defines a governance operation for enabling/disablen a token pair conversion.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc ToggleConversion(MsgToggleConversion) returns (MsgToggleConversionResponse);
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
 // coin.
 message MsgConvertERC20 {
+  option (amino.name) = "evmos/MsgConvertERC20";
+  option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
   // amount of ERC20 tokens to convert
-  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  string amount = 2
+      [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // receiver is the bech32 address to receive native Cosmos coins
   string receiver = 3;
   // sender is the hex address from the owner of the given ERC20 tokens
@@ -57,6 +68,7 @@ message MsgConvertCoinResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParams {
+  option (amino.name) = "evmos/x/erc20/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -64,10 +76,45 @@ message MsgUpdateParams {
 
   // params defines the x/evm parameters to update.
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
+
+// MsgRegisterERC20 is the Msg/RegisterERC20 request type for registering
+// an Erc20 contract token pair.
+message MsgRegisterERC20 {
+  option (amino.name) = "evmos/x/erc20/MsgRegisterERC20";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // erc20addresses is a slice of ERC20 token contract hex addresses
+  repeated string erc20addresses = 2;
+}
+
+// MsgRegisterERC20Response defines the response structure for executing a
+// MsgRegisterERC20 message.
+message MsgRegisterERC20Response {}
+
+// MsgToggleConversion is the Msg/MsgToggleConversion request type for toggling
+// an Erc20 contract conversion capability.
+message MsgToggleConversion {
+  option (amino.name) = "evmos/x/erc20/MsgToggleConversion";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // token identifier can be either the hex contract address of the ERC20 or the
+  // Cosmos base denomination
+  string token = 2;
+}
+
+// MsgToggleConversionResponse defines the response structure for executing a
+// ToggleConversion message.
+message MsgToggleConversionResponse {}

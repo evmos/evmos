@@ -3,7 +3,7 @@
 # "stable" mode tests assume data is static
 # "live" mode tests assume data dynamic
 
-SCRIPT=$(basename ${BASH_SOURCE[0]})
+SCRIPT=$(basename "${BASH_SOURCE[0]}")
 TEST=""
 QTD=1
 SLEEP_TIMEOUT=5
@@ -26,28 +26,30 @@ NODE_PORT="2663"
 NODE_RPC_PORT="2666"
 
 usage() {
-    echo "Usage: $SCRIPT"
-    echo "Optional command line arguments"
-    echo "-t <string>  -- Test to run. eg: rpc"
-    echo "-q <number>  -- Quantity of nodes to run. eg: 3"
-    echo "-z <number>  -- Quantity of nodes to run tests against eg: 3"
-    echo "-s <number>  -- Sleep between operations in secs. eg: 5"
-    echo "-r <string>  -- Remove test dir after, eg: true, default is false"
-    exit 1
+	echo "Usage: $SCRIPT"
+	echo "Optional command line arguments"
+	echo "-t <string>  -- Test to run. eg: rpc"
+	echo "-q <number>  -- Quantity of nodes to run. eg: 3"
+	echo "-z <number>  -- Quantity of nodes to run tests against eg: 3"
+	echo "-s <number>  -- Sleep between operations in secs. eg: 5"
+	echo "-r <string>  -- Remove test dir after, eg: true, default is false"
+	exit 1
 }
 
 while getopts "h?t:q:z:s:m:r:" args; do
-    case $args in
-        h|\?)
-            usage;
-        exit;;
-        t ) TEST=${OPTARG};;
-        q ) QTD=${OPTARG};;
-        z ) TEST_QTD=${OPTARG};;
-        s ) SLEEP_TIMEOUT=${OPTARG};;
-        m ) MODE=${OPTARG};;
-        r ) REMOVE_DATA_DIR=${OPTARG};;
-    esac
+	case $args in
+	h | \?)
+		usage
+		# shellcheck disable=SC2317
+		exit
+		;;
+	t) TEST=${OPTARG} ;;
+	q) QTD=${OPTARG} ;;
+	z) TEST_QTD=${OPTARG} ;;
+	s) SLEEP_TIMEOUT=${OPTARG} ;;
+	m) MODE=${OPTARG} ;;
+	r) REMOVE_DATA_DIR=${OPTARG} ;;
+	esac
 done
 
 set -euxo pipefail
@@ -55,8 +57,8 @@ set -euxo pipefail
 DATA_DIR=$(mktemp -d -t evmos-datadir.XXXXX)
 
 if [[ ! "$DATA_DIR" ]]; then
-    echo "Could not create $DATA_DIR"
-    exit 1
+	echo "Could not create $DATA_DIR"
+	exit 1
 fi
 
 # Compile evmos
@@ -67,69 +69,70 @@ make build
 arr=()
 
 init_func() {
-    "$PWD"/build/evmosd keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
-    "$PWD"/build/evmosd init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd add-genesis-account \
-    "$("$PWD"/build/evmosd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aevmos,1000000000000000000stake \
-    --keyring-backend test --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd collect-gentxs --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd validate-genesis --home "$DATA_DIR$i"
+	"$PWD"/build/evmosd keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
+	"$PWD"/build/evmosd init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
+	"$PWD"/build/evmosd add-genesis-account \
+		"$("$PWD"/build/evmosd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aevmos,1000000000000000000stake \
+		--keyring-backend test --home "$DATA_DIR$i"
+	"$PWD"/build/evmosd gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
+	"$PWD"/build/evmosd collect-gentxs --home "$DATA_DIR$i"
+	"$PWD"/build/evmosd validate-genesis --home "$DATA_DIR$i"
 
-    if [[ $MODE == "pending" ]]; then
-      ls $DATA_DIR$i
-      if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "30s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "120s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "150s"/g' $DATA_DIR$i/config/config.toml
-        sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' $DATA_DIR$i/config/config.toml
-      else
-        sed -i 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_propose = "3s"/timeout_propose = "30s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_prevote = "1s"/timeout_prevote = "120s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_commit = "5s"/timeout_commit = "150s"/g' $DATA_DIR$i/config/config.toml
-        sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' $DATA_DIR$i/config/config.toml
-      fi
-    fi
+	if [[ $MODE == "pending" ]]; then
+		ls "$DATA_DIR$i"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			sed -i '' 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_propose = "3s"/timeout_propose = "30s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "120s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_commit = "5s"/timeout_commit = "150s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' "$DATA_DIR$i"/config/config.toml
+		else
+			sed -i 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_propose = "3s"/timeout_propose = "30s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_prevote = "1s"/timeout_prevote = "120s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_commit = "5s"/timeout_commit = "150s"/g' "$DATA_DIR$i"/config/config.toml
+			sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' "$DATA_DIR$i"/config/config.toml
+		fi
+	fi
 }
 
 start_func() {
-    echo "starting evmos node $i in background ..."
-    "$PWD"/build/evmosd start --pruning=nothing --rpc.unsafe \
-    --p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
-    --json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
-    --keyring-backend test --home "$DATA_DIR$i" \
-    >"$DATA_DIR"/node"$i".log 2>&1 & disown
+	echo "starting evmos node $i in background ..."
+	"$PWD"/build/evmosd start --pruning=nothing --rpc.unsafe \
+		--p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
+		--json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
+		--keyring-backend test --home "$DATA_DIR$i" \
+		>"$DATA_DIR"/node"$i".log 2>&1 &
+	disown
 
-    EVMOS_PID=$!
-    echo "started evmos node, pid=$EVMOS_PID"
-    # add PID to array
-    arr+=("$EVMOS_PID")
+	EVMOS_PID=$!
+	echo "started evmos node, pid=$EVMOS_PID"
+	# add PID to array
+	arr+=("$EVMOS_PID")
 
-    if [[ $MODE == "pending" ]]; then
-      echo "waiting for the first block..."
-      sleep 300
-    fi
+	if [[ $MODE == "pending" ]]; then
+		echo "waiting for the first block..."
+		sleep 300
+	fi
 }
 
 # Run node with static blockchain database
 # For loop N times
 for i in $(seq 1 "$QTD"); do
-    init_func "$i"
-    start_func "$i"
-    sleep 1
-    echo "sleeping $SLEEP_TIMEOUT seconds for startup"
-    sleep "$SLEEP_TIMEOUT"
-    echo "done sleeping"
+	init_func "$i"
+	start_func "$i"
+	sleep 1
+	echo "sleeping $SLEEP_TIMEOUT seconds for startup"
+	sleep "$SLEEP_TIMEOUT"
+	echo "done sleeping"
 done
 
 echo "sleeping $SLEEP_TIMEOUT seconds before running tests ... "
@@ -138,43 +141,42 @@ echo "done sleeping"
 
 set +e
 
-if [[ -z $TEST || $TEST == "rpc" ||  $TEST == "pending" ]]; then
+if [[ -z $TEST || $TEST == "rpc" || $TEST == "pending" ]]; then
 
-    time_out=300s
-    if [[ $TEST == "pending" ]]; then
-      time_out=60m0s
-    fi
+	time_out=300s
+	if [[ $TEST == "pending" ]]; then
+		time_out=60m0s
+	fi
 
-    for i in $(seq 1 "$TEST_QTD"); do
-        HOST_RPC=http://$IP_ADDR:$RPC_PORT"$i"
-        echo "going to test evmos node $HOST_RPC ..."
-        MODE=$MODE HOST=$HOST_RPC go test ./tests/... -timeout=$time_out -v -short
+	for i in $(seq 1 "$TEST_QTD"); do
+		HOST_RPC=http://$IP_ADDR:$RPC_PORT"$i"
+		echo "going to test evmos node $HOST_RPC ..."
+		MODE=$MODE HOST=$HOST_RPC go test ./tests/... -timeout=$time_out -v -short
 
-        RPC_FAIL=$?
-    done
+		RPC_FAIL=$?
+	done
 
 fi
 
 stop_func() {
-    EVMOS_PID=$i
-    echo "shutting down node, pid=$EVMOS_PID ..."
+	EVMOS_PID=$i
+	echo "shutting down node, pid=$EVMOS_PID ..."
 
-    # Shutdown evmos node
-    kill -9 "$EVMOS_PID"
-    wait "$EVMOS_PID"
+	# Shutdown evmos node
+	kill -9 "$EVMOS_PID"
+	wait "$EVMOS_PID"
 
-    if [ $REMOVE_DATA_DIR == "true" ]
-    then
-        rm -rf $DATA_DIR*
-    fi
+	if [ "$REMOVE_DATA_DIR" == "true" ]; then
+		rm -rf "$DATA_DIR"*
+	fi
 }
 
 for i in "${arr[@]}"; do
-    stop_func "$i"
+	stop_func "$i"
 done
 
 if [[ (-z $TEST || $TEST == "rpc") && $RPC_FAIL -ne 0 ]]; then
-    exit $RPC_FAIL
+	exit "$RPC_FAIL"
 else
-    exit 0
+	exit 0
 fi

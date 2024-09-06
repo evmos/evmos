@@ -8,7 +8,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
@@ -17,10 +17,8 @@ import (
 
 // ERC20RegistrationData is the necessary data to provide in order to register an ERC20 token.
 type ERC20RegistrationData struct {
-	// Address is the address of the ERC20 token.
-	Address common.Address
-	// Denom is the ERC20 token denom.
-	Denom string
+	// Addresses are the addresses of the ERC20 tokens.
+	Addresses []string
 	// ProposerPriv is the private key used to sign the proposal and voting transactions.
 	ProposerPriv cryptotypes.PrivKey
 }
@@ -28,12 +26,19 @@ type ERC20RegistrationData struct {
 // ValidateBasic does stateless validation of the data for the ERC20 registration.
 func (ed ERC20RegistrationData) ValidateBasic() error {
 	emptyAddr := common.Address{}
-	if ed.Address.Hex() == emptyAddr.Hex() {
-		return fmt.Errorf("address cannot be empty")
+
+	if len(ed.Addresses) == 0 {
+		return fmt.Errorf("addresses cannot be empty")
 	}
 
-	if ed.Denom == "" {
-		return fmt.Errorf("denom cannot be empty")
+	for _, a := range ed.Addresses {
+		if ok := common.IsHexAddress(a); !ok {
+			return fmt.Errorf("invalid address %s", a)
+		}
+		hexAddr := common.HexToAddress(a)
+		if hexAddr.Hex() == emptyAddr.Hex() {
+			return fmt.Errorf("address cannot be empty")
+		}
 	}
 
 	if ed.ProposerPriv == nil {
@@ -46,69 +51,65 @@ func (ed ERC20RegistrationData) ValidateBasic() error {
 // RegisterERC20 is a helper function to register ERC20 token through
 // submitting a governance proposal and having it pass.
 // It returns the registered token pair.
-func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20RegistrationData) (erc20types.TokenPair, error) {
-	err := data.ValidateBasic()
+func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20RegistrationData) (res []erc20types.TokenPair, err error) {
+	err = data.ValidateBasic()
 	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to validate erc20 registration data")
+		return nil, errorsmod.Wrap(err, "failed to validate erc20 registration data")
 	}
 
-	proposal := erc20types.RegisterERC20Proposal{
-		Title:          fmt.Sprintf("Register %s Token", data.Denom),
-		Description:    fmt.Sprintf("This proposal registers the ERC20 token at address: %s", data.Address.Hex()),
-		Erc20Addresses: []string{data.Address.Hex()},
+	proposal := erc20types.MsgRegisterERC20{
+		Authority:      authtypes.NewModuleAddress("gov").String(),
+		Erc20Addresses: data.Addresses,
 	}
 
 	// Submit the proposal
-	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, &proposal)
+	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, fmt.Sprintf("Register %d Token", len(data.Addresses)), &proposal)
 	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to submit proposal")
+		return nil, errorsmod.Wrap(err, "failed to submit proposal")
 	}
 
 	err = network.NextBlock()
 	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after proposal")
+		return nil, errorsmod.Wrap(err, "failed to commit block after proposal")
 	}
 
-	// Vote on proposal
-	err = VoteOnProposal(tf, data.ProposerPriv, proposalID, govtypes.OptionYes)
+	// vote 'yes' and wait till proposal passes
+	err = ApproveProposal(tf, network, data.ProposerPriv, proposalID)
 	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to vote on proposal")
-	}
-
-	gq := network.GetGovClient()
-	params, err := gq.Params(network.GetContext(), &govtypes.QueryParamsRequest{ParamsType: "voting"})
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query voting params")
-	}
-
-	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after voting period ends")
-	}
-
-	err = network.NextBlock()
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after votes")
-	}
-
-	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
-	// context.
-	gq = network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query proposal")
-	}
-
-	if proposalRes.Proposal.Status != govtypes.StatusPassed {
-		return erc20types.TokenPair{}, fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
+		return nil, errorsmod.Wrap(err, "failed to approve proposal")
 	}
 
 	// Check if token pair is registered
 	eq := network.GetERC20Client()
-	tokenPairRes, err := eq.TokenPair(network.GetContext(), &erc20types.QueryTokenPairRequest{Token: data.Address.Hex()})
-	if err != nil {
-		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query token pair")
+	for _, a := range data.Addresses {
+		tokenPairRes, err := eq.TokenPair(network.GetContext(), &erc20types.QueryTokenPairRequest{Token: a})
+		if err != nil {
+			return nil, errorsmod.Wrap(err, "failed to query token pair")
+		}
+		res = append(res, tokenPairRes.TokenPair)
 	}
 
-	return tokenPairRes.TokenPair, nil
+	return res, nil
+}
+
+// ToggleTokenConversion is a helper function to toggle an ERC20 token pair conversion through
+// submitting a governance proposal and having it pass.
+func ToggleTokenConversion(tf factory.TxFactory, network network.Network, privKey cryptotypes.PrivKey, token string) error {
+	proposal := erc20types.MsgToggleConversion{
+		Authority: authtypes.NewModuleAddress("gov").String(),
+		Token:     token,
+	}
+
+	// Submit the proposal
+	proposalID, err := SubmitProposal(tf, network, privKey, fmt.Sprintf("Toggle %s Token", token), &proposal)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to submit proposal")
+	}
+
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
+
+	return ApproveProposal(tf, network, privKey, proposalID)
 }

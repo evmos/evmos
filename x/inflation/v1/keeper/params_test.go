@@ -1,19 +1,25 @@
 package keeper_test
 
 import (
+	"testing"
+
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestParams() {
+func TestParams(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
 	testCases := []struct {
 		name      string
 		mockFunc  func() types.Params
 		expParams types.Params
 	}{
 		{
-			"Pass default params",
+			"pass - default params",
 			func() types.Params {
-				params := suite.app.InflationKeeper.GetParams(suite.ctx)
+				params := nw.App.InflationKeeper.GetParams(ctx)
 				return params
 			},
 			types.DefaultParams(),
@@ -22,18 +28,18 @@ func (suite *KeeperTestSuite) TestParams() {
 			"pass - setting new params",
 			func() types.Params {
 				params := types.DefaultParams()
-				err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
-				suite.Require().NoError(err)
+				err := nw.App.InflationKeeper.SetParams(ctx, params)
+				require.NoError(t, err)
 				return params
 			},
-			suite.app.InflationKeeper.GetParams(suite.ctx),
+			nw.App.InflationKeeper.GetParams(ctx),
 		},
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		t.Run(tc.name, func(t *testing.T) {
 			params := tc.mockFunc()
-			suite.Require().Equal(tc.expParams, params)
+			require.Equal(t, tc.expParams, params)
 		})
 	}
 }

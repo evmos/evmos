@@ -14,7 +14,7 @@ import (
 
 // RegisterERC20 creates a Cosmos coin and registers the token pair between the
 // coin and the ERC20
-func (k Keeper) RegisterERC20(
+func (k Keeper) registerERC20(
 	ctx sdk.Context,
 	contract common.Address,
 ) (*types.TokenPair, error) {
@@ -109,8 +109,8 @@ func (k Keeper) CreateCoinMetadata(
 	return &metadata, nil
 }
 
-// ToggleConversion toggles conversion for a given token pair
-func (k Keeper) ToggleConversion(
+// toggleConversion toggles conversion for a given token pair
+func (k Keeper) toggleConversion(
 	ctx sdk.Context,
 	token string,
 ) (types.TokenPair, error) {

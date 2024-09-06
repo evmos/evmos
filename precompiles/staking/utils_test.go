@@ -2,236 +2,72 @@ package staking_test
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"slices"
 	"time"
 
+	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/precompiles/staking"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
 // stipend to pay EVM tx fees
-var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
-
-// SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
-// that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit (10^6) in the default token of the simapp from first genesis
-// account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
-	app, ok := appI.(*evmosapp.Evmos)
-	s.Require().True(ok)
-
-	// set genesis accounts
-	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
-
-	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
-	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
-
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
-
-	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
-		s.Require().NoError(err)
-		pkAny, err := codectypes.NewAnyWithValue(pk)
-		s.Require().NoError(err)
-		validator := stakingtypes.Validator{
-			OperatorAddress:   sdk.ValAddress(val.Address).String(),
-			ConsensusPubkey:   pkAny,
-			Jailed:            false,
-			Status:            stakingtypes.Bonded,
-			Tokens:            bondAmt,
-			DelegatorShares:   math.LegacyOneDec(),
-			Description:       stakingtypes.Description{},
-			UnbondingHeight:   int64(0),
-			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyNewDecWithPrec(5, 1), math.LegacyNewDecWithPrec(5, 2)),
-			MinSelfDelegation: math.ZeroInt(),
-		}
-		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
-	}
-	s.validators = validators
-
-	// set validators and delegations
-	stakingParams := stakingtypes.DefaultParams()
-	// set bond demon to be aevmos
-	stakingParams.BondDenom = utils.BaseDenom
-	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
-
-	totalBondAmt := math.ZeroInt()
-	for range validators {
-		totalBondAmt = totalBondAmt.Add(bondAmt)
-	}
-	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(utils.BaseDenom, totalBondAmt))...)
-	}
-
-	// add bonded amount to bonded pool module account
-	balances = append(balances, banktypes.Balance{
-		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, totalBondAmt)},
-	})
-
-	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
-	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
-
-	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-	s.Require().NoError(err)
-
-	header := evmosutil.NewHeader(
-		2,
-		time.Now().UTC(),
-		cmn.DefaultChainID,
-		sdk.ConsAddress(validators[0].GetOperator()),
-		tmhash.Sum([]byte("app")),
-		tmhash.Sum([]byte("validators")),
-	)
-
-	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
-			ChainId:         cmn.DefaultChainID,
-			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: evmosapp.DefaultConsensusParams,
-			AppStateBytes:   stateBytes,
-		},
-	)
-
-	// create Context
-	s.ctx = app.BaseApp.NewContext(false, header)
-
-	// commit genesis changes
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	s.app = app
-}
-
-func (s *PrecompileTestSuite) DoSetupTest() {
-	nValidators := 3
-	signers := make(map[string]tmtypes.PrivValidator, nValidators)
-	validators := make([]*tmtypes.Validator, 0, nValidators)
-
-	for i := 0; i < nValidators; i++ {
-		privVal := mock.NewPV()
-		pubKey, err := privVal.GetPubKey()
-		s.Require().NoError(err)
-		signers[pubKey.Address().String()] = privVal
-		validator := tmtypes.NewValidator(pubKey, 1)
-		validators = append(validators, validator)
-	}
-
-	valSet := tmtypes.NewValidatorSet(validators)
-
-	// generate genesis account
-	addr, priv := testutiltx.NewAddrKey()
-	s.privKey = priv
-	s.address = addr
-	s.signer = testutiltx.NewSigner(priv)
-
-	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
-
-	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
-
-	balance := banktypes.Balance{
-		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
-	}
-
-	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
-
-	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
-
-	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
-	s.bondDenom = stakingParams.BondDenom
-	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
-	s.Require().NoError(err)
-
-	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
-
-	precompile, err := staking.NewPrecompile(s.app.StakingKeeper, s.app.AuthzKeeper)
-	s.Require().NoError(err)
-	s.precompile = precompile
-
-	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
-	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
-	s.Require().NoError(err)
-	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
-	s.Require().NoError(err)
-
-	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
-	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
-}
+var (
+	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
+	gas                = uint64(200_000)
+	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(utils.BaseDenom)
+)
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.
-func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType string, amount *big.Int) {
+func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, granter, grantee testkeyring.Key, msgType string, amount *big.Int) {
 	approveArgs := []interface{}{
-		s.address,
+		grantee.Addr,
 		amount,
 		[]string{msgType},
 	}
-	resp, err := s.precompile.Approve(s.ctx, s.address, s.stateDB, &method, approveArgs)
+	resp, err := s.precompile.Approve(s.network.GetContext(), granter.Addr, s.network.GetStateDB(), &method, approveArgs)
 	s.Require().NoError(err)
 	s.Require().Equal(resp, cmn.TrueValue)
 
-	auth, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
+	auth, _ := CheckAuthorizationWithContext(s.network.GetContext(), s.network.App.AuthzKeeper, staking.DelegateAuthz, grantee.Addr, granter.Addr)
 	s.Require().NotNil(auth)
 	s.Require().Equal(auth.AuthorizationType, staking.DelegateAuthz)
 	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(amount)})
 }
 
-// CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
-func (s *PrecompileTestSuite) CheckAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
+// CheckAuthorizationWithContext is a helper function to check if the authorization is set and if it is the correct type.
+// Useful only for unit tests
+func CheckAuthorizationWithContext(ctx sdk.Context, ak authzkeeper.Keeper, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time) {
 	stakingAuthz := stakingtypes.StakeAuthorization{AuthorizationType: authorizationType}
-	auth, expirationTime := s.app.AuthzKeeper.GetAuthorization(s.ctx, grantee.Bytes(), granter.Bytes(), stakingAuthz.MsgTypeURL())
+	auth, expirationTime := ak.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), stakingAuthz.MsgTypeURL())
 
 	stakeAuthorization, ok := auth.(*stakingtypes.StakeAuthorization)
 	if !ok {
@@ -241,23 +77,66 @@ func (s *PrecompileTestSuite) CheckAuthorization(authorizationType stakingtypes.
 	return stakeAuthorization, expirationTime
 }
 
+// CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
+func CheckAuthorization(gh grpc.Handler, ir cdctypes.InterfaceRegistry, authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address) (*stakingtypes.StakeAuthorization, *time.Time, error) {
+	grants, err := gh.GetGrants(sdk.AccAddress(grantee.Bytes()).String(), sdk.AccAddress(granter.Bytes()).String())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(grants) == 0 {
+		return nil, nil, fmt.Errorf("no authorizations found for grantee %s and granter %s", grantee, granter)
+	}
+
+	var (
+		expGrant           *authz.Grant
+		stakeAuthorization *stakingtypes.StakeAuthorization
+	)
+	for _, g := range grants {
+		var (
+			ok   bool
+			auth authz.Authorization
+		)
+		if err = ir.UnpackAny(g.Authorization, &auth); err != nil {
+			return nil, nil, err
+		}
+		stakeAuthorization, ok = auth.(*stakingtypes.StakeAuthorization)
+		if !ok {
+			return nil, nil, fmt.Errorf("invalid authorization type. Expected: stakingtypes.StakeAuthorization, got: %T", auth)
+		}
+		if stakeAuthorization.AuthorizationType == authorizationType {
+			expGrant = g
+			break
+		}
+	}
+
+	if expGrant == nil {
+		return nil, nil, fmt.Errorf("invalid authorization type. Expected: %d, got: %d", authorizationType, stakeAuthorization.AuthorizationType)
+	}
+
+	return stakeAuthorization, expGrant.Expiration, nil
+}
+
 // CreateAuthorization is a helper function to create a new authorization of the given type for a spender address
 // (=grantee).
 // The authorization will be created to spend the given Coin.
 // For testing purposes, this function will create a new authorization for all available validators,
 // that are not jailed.
-func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
+func (s *PrecompileTestSuite) CreateAuthorization(ctx sdk.Context, granter, grantee sdk.AccAddress, authzType stakingtypes.AuthorizationType, coin *sdk.Coin) error {
 	// Get all available validators and filter out jailed validators
 	validators := make([]sdk.ValAddress, 0)
-	s.app.StakingKeeper.IterateValidators(
-		s.ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
+	err := s.network.App.StakingKeeper.IterateValidators(
+		ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, validator.GetOperator())
+			validators = append(validators, sdk.ValAddress(validator.GetOperator()))
 			return
 		},
 	)
+	if err != nil {
+		return err
+	}
 
 	stakingAuthz, err := stakingtypes.NewStakeAuthorization(validators, nil, authzType, coin)
 	if err != nil {
@@ -265,7 +144,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzT
 	}
 
 	expiration := time.Now().Add(cmn.DefaultExpirationDuration).UTC()
-	err = s.app.AuthzKeeper.SaveGrant(s.ctx, grantee.Bytes(), s.address.Bytes(), stakingAuthz, &expiration)
+	err = s.network.App.AuthzKeeper.SaveGrant(ctx, grantee, granter, stakingAuthz, &expiration)
 	if err != nil {
 		return err
 	}
@@ -281,11 +160,13 @@ func (s *PrecompileTestSuite) SetupApproval(
 	amount *big.Int,
 	msgTypes []string,
 ) {
-	approveArgs := contracts.CallArgs{
-		ContractAddr: s.precompile.Address(),
-		ContractABI:  s.precompile.ABI,
-		PrivKey:      granterPriv,
-		MethodName:   authorization.ApproveMethod,
+	precompileAddr := s.precompile.Address()
+	txArgs := evmtypes.EvmTxArgs{
+		To: &precompileAddr,
+	}
+	approveArgs := factory.CallArgs{
+		ContractABI: s.precompile.ABI,
+		MethodName:  authorization.ApproveMethod,
 		Args: []interface{}{
 			grantee, amount, msgTypes,
 		},
@@ -297,10 +178,13 @@ func (s *PrecompileTestSuite) SetupApproval(
 		ExpPass:   true,
 	}
 
-	res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, logCheckArgs)
+	res, _, err := s.factory.CallContractAndCheckLogs(
+		granterPriv,
+		txArgs, approveArgs,
+		logCheckArgs,
+	)
 	Expect(err).To(BeNil(), "error while calling the contract to approve")
-
-	s.NextBlock()
+	Expect(s.network.NextBlock()).To(BeNil())
 
 	// Check if the approval event is emitted
 	granterAddr := common.BytesToAddress(granterPriv.PubKey().Address().Bytes())
@@ -310,14 +194,18 @@ func (s *PrecompileTestSuite) SetupApproval(
 		granterAddr,
 		grantee,
 		res,
-		s.ctx.BlockHeight()-1,
+		s.network.GetContext().BlockHeight(),
 		msgTypes,
 		amount,
 	)
 }
 
 // SetupApprovalWithContractCalls is a helper function used to setup the allowance for the given spender.
-func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contracts.CallArgs) {
+func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(
+	granter testkeyring.Key,
+	txArgs evmtypes.EvmTxArgs,
+	approvalArgs factory.CallArgs,
+) {
 	msgTypes, ok := approvalArgs.Args[1].([]string)
 	Expect(ok).To(BeTrue(), "failed to convert msgTypes to []string")
 	expAmount, ok := approvalArgs.Args[2].(*big.Int)
@@ -329,15 +217,14 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		ExpPass:   true,
 	}
 
-	_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approvalArgs, logCheckArgs)
+	_, _, err := s.factory.CallContractAndCheckLogs(
+		granter.Priv,
+		txArgs,
+		approvalArgs,
+		logCheckArgs,
+	)
 	Expect(err).To(BeNil(), "error while approving: %v", err)
-
-	// get granter address from private key provided
-	pk, ok := approvalArgs.PrivKey.(*ethsecp256k1.PrivKey)
-	Expect(ok).To(BeTrue(), fmt.Sprintf("expected a ethsecp256k1.PrivKey, but got %T", approvalArgs.PrivKey))
-	key, err := pk.ToECDSA()
-	Expect(err).To(BeNil())
-	granter := crypto.PubkeyToAddress(key.PublicKey)
+	Expect(s.network.NextBlock()).To(BeNil())
 
 	// iterate over args
 	var expectedAuthz stakingtypes.AuthorizationType
@@ -352,7 +239,8 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 		case staking.CancelUnbondingDelegationMsg:
 			expectedAuthz = staking.CancelUnbondingDelegationAuthz
 		}
-		authz, expirationTime := s.CheckAuthorization(expectedAuthz, approvalArgs.ContractAddr, granter)
+		authz, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, expectedAuthz, *txArgs.To, granter.Addr)
+		Expect(err).To(BeNil())
 		Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 		Expect(authz.MaxTokens.Amount).To(Equal(math.NewInt(expAmount.Int64())), "expected different allowance")
 		Expect(authz.MsgTypeURL()).To(Equal(msgType), "expected different message type")
@@ -360,43 +248,21 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 	}
 }
 
-// DeployContract deploys a contract that calls the staking precompile's methods for testing purposes.
-func (s *PrecompileTestSuite) DeployContract(contract evmtypes.CompiledContract) (addr common.Address, err error) {
-	addr, err = evmosutil.DeployContract(
-		s.ctx,
-		s.app,
-		s.privKey,
-		s.queryClientEVM,
-		contract,
-	)
-	return
-}
-
-// NextBlock commits the current block and sets up the next block.
-func (s *PrecompileTestSuite) NextBlock() {
-	s.NextBlockAfter(time.Second)
-}
-
-// NextBlock commits the current block and sets up the next block.
-func (s *PrecompileTestSuite) NextBlockAfter(t time.Duration) {
-	var err error
-	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, t, nil)
-	Expect(err).To(BeNil(), "failed to commit block")
-}
-
 // CheckAllowanceChangeEvent is a helper function used to check the allowance change event arguments.
-func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, methods []string, amounts []*big.Int) {
+func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(
+	log *ethtypes.Log, methods []string, amounts []*big.Int, granter, grantee common.Address,
+) {
 	s.Require().Equal(log.Address, s.precompile.Address())
 	// Check event signature matches the one emitted
 	event := s.precompile.ABI.Events[authorization.EventTypeAllowanceChange]
 	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+	s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
 
 	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
 	s.Require().NoError(err)
-	s.Require().Equal(s.address, approvalEvent.Grantee)
-	s.Require().Equal(s.address, approvalEvent.Granter)
+	s.Require().Equal(grantee, approvalEvent.Grantee)
+	s.Require().Equal(granter, approvalEvent.Granter)
 	s.Require().Equal(len(methods), len(approvalEvent.Methods))
 
 	for i, method := range methods {
@@ -408,7 +274,8 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 // ExpectAuthorization is a helper function for tests using the Ginkgo BDD style tests, to check that the
 // authorization is correctly set.
 func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes.AuthorizationType, grantee, granter common.Address, maxTokens *sdk.Coin) {
-	authz, expirationTime := s.CheckAuthorization(authorizationType, grantee, granter)
+	authz, expirationTime, err := CheckAuthorization(s.grpcHandler, s.network.GetEncodingConfig().InterfaceRegistry, authorizationType, grantee, granter)
+	Expect(err).To(BeNil())
 	Expect(authz).ToNot(BeNil(), "expected authorization to be set")
 	Expect(authz.AuthorizationType).To(Equal(authorizationType), "expected different authorization type")
 	Expect(authz.MaxTokens).To(Equal(maxTokens), "expected different max tokens")
@@ -420,22 +287,25 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 	// returning order can change
 	valOrder := []int{0, 1}
 	varAddr := sdk.ValAddress(common.HexToAddress(validators[0].OperatorAddress).Bytes()).String()
-	if varAddr != s.validators[0].OperatorAddress {
+	vals := s.network.GetValidators()
+
+	if varAddr != vals[0].OperatorAddress {
 		valOrder = []int{1, 0}
 	}
 	for i := 0; i < expLen; i++ {
 		j := valOrder[i]
 
-		s.Require().Equal(s.validators[j].OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
-		s.Require().Equal(uint8(s.validators[j].Status), validators[i].Status) //#nosec G115
-		s.Require().Equal(s.validators[j].Tokens.Uint64(), validators[i].Tokens.Uint64())
-		s.Require().Equal(s.validators[j].DelegatorShares.BigInt(), validators[i].DelegatorShares)
-		s.Require().Equal(s.validators[j].Jailed, validators[i].Jailed)
-		s.Require().Equal(s.validators[j].UnbondingHeight, validators[i].UnbondingHeight)
+		val := s.network.GetValidators()[j]
+		s.Require().Equal(val.OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
+		s.Require().Equal(uint8(val.Status), validators[i].Status) //#nosec G115
+		s.Require().Equal(val.Tokens.Uint64(), validators[i].Tokens.Uint64())
+		s.Require().Equal(val.DelegatorShares.BigInt(), validators[i].DelegatorShares)
+		s.Require().Equal(val.Jailed, validators[i].Jailed)
+		s.Require().Equal(val.UnbondingHeight, validators[i].UnbondingHeight)
 		s.Require().Equal(int64(0), validators[i].UnbondingTime)
-		s.Require().Equal(int64(0), validators[i].Commission.Int64())
+		s.Require().Equal(math.LegacyNewDecWithPrec(5, 2).BigInt(), validators[i].Commission)
 		s.Require().Equal(int64(0), validators[i].MinSelfDelegation.Int64())
-		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(s.validators[j].ConsensusPubkey))
+		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(val.ConsensusPubkey))
 	}
 }
 
@@ -459,16 +329,16 @@ func (s *PrecompileTestSuite) assertRedelegationsOutput(data []byte, redelTotalC
 	if len(redOut.Response[0].Entries) == 2 {
 		s.assertRedelegation(redOut.Response[0],
 			2,
-			s.validators[0].OperatorAddress,
-			s.validators[1].OperatorAddress,
+			s.network.GetValidators()[0].OperatorAddress,
+			s.network.GetValidators()[1].OperatorAddress,
 			expAmt,
 			expCreationHeight,
 		)
 	} else {
 		s.assertRedelegation(redOut.Response[0],
 			1,
-			s.validators[0].OperatorAddress,
-			sdk.ValAddress(s.address.Bytes()).String(),
+			s.network.GetValidators()[0].OperatorAddress,
+			s.network.GetValidators()[2].OperatorAddress,
 			expAmt,
 			expCreationHeight,
 		)
@@ -480,7 +350,7 @@ func (s *PrecompileTestSuite) assertRedelegationsOutput(data []byte, redelTotalC
 // the same amount is considered for all entries
 func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationResponse, entriesCount int, expValSrcAddr, expValDstAddr string, expAmt *big.Int, expCreationHeight int64) {
 	// check response
-	s.Require().Equal(res.Redelegation.DelegatorAddress, sdk.AccAddress(s.address.Bytes()).String())
+	s.Require().Equal(res.Redelegation.DelegatorAddress, s.keyring.GetAccAddr(0).String())
 	s.Require().Equal(res.Redelegation.ValidatorSrcAddress, expValSrcAddr)
 	s.Require().Equal(res.Redelegation.ValidatorDstAddress, expValDstAddr)
 	// check redelegation entries - should be empty
@@ -497,36 +367,37 @@ func (s *PrecompileTestSuite) assertRedelegation(res staking.RedelegationRespons
 }
 
 // setupRedelegations setups 2 entries for redelegation from validator[0]
-// to validator[1], creates a validator using s.address
-// and creates a redelegation from validator[0] to the new validator
-func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
+// to validator[1], and a redelegation from validator[0] to validator[2]
+func (s *PrecompileTestSuite) setupRedelegations(ctx sdk.Context, redelAmt *big.Int) error {
+	ctx = ctx.WithBlockTime(time.Now())
+	vals := s.network.GetValidators()
+
 	msg := stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress:    sdk.AccAddress(s.address.Bytes()).String(),
-		ValidatorSrcAddress: s.validators[0].OperatorAddress,
-		ValidatorDstAddress: s.validators[1].OperatorAddress,
+		DelegatorAddress:    s.keyring.GetAccAddr(0).String(),
+		ValidatorSrcAddress: vals[0].OperatorAddress,
+		ValidatorDstAddress: vals[1].OperatorAddress,
 		Amount:              sdk.NewCoin(s.bondDenom, math.NewIntFromBigInt(redelAmt)),
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&s.network.App.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
-		if _, err := msgSrv.BeginRedelegate(s.ctx, &msg); err != nil {
+		if _, err := msgSrv.BeginRedelegate(ctx, &msg); err != nil {
 			return err
 		}
 	}
 
-	// create a validator with s.address and s.privKey
-	// then create a redelegation from validator[0] to this new validator
-	testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, math.NewInt(100))
-	msg.ValidatorDstAddress = sdk.ValAddress(s.address.Bytes()).String()
-	_, err := msgSrv.BeginRedelegate(s.ctx, &msg)
+	// create a redelegation from validator[0] to validator[2]
+	msg.ValidatorDstAddress = vals[2].OperatorAddress
+	_, err := msgSrv.BeginRedelegate(ctx, &msg)
 	return err
 }
 
 // CheckValidatorOutput checks that the given validator output
 func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo) {
-	validatorAddrs := make([]string, len(s.validators))
-	for i, v := range s.validators {
+	vals := s.network.GetValidators()
+	validatorAddrs := make([]string, len(vals))
+	for i, v := range vals {
 		validatorAddrs[i] = v.OperatorAddress
 	}
 
@@ -538,34 +409,57 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 // setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
 // using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
-func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc sdk.AccAddress) *vestingtypes.ClawbackVestingAccount {
+func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Key) *vestingtypes.ClawbackVestingAccount {
 	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+	ctx := s.network.GetContext()
 
-	vestingStart := s.ctx.BlockTime()
-	baseAccount := authtypes.NewBaseAccountWithAddress(vestAcc.Bytes())
-	clawbackAccount := vestingtypes.NewClawbackVestingAccount(
-		baseAccount,
-		funder,
-		vestingAmtTotal,
+	// send some funds to the vesting acccount to pay for fees
+	err := s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 1. Create vesting account
+	createAccMsg := vestingtypes.NewMsgCreateClawbackVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
+		false,
+	)
+
+	_, err = s.factory.ExecuteCosmosTx(vestAcc.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}, Gas: &gas, GasPrice: &gasPrices})
+	Expect(err).To(BeNil())
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	// 2. Funder funds the vesting account
+	vestingStart := ctx.BlockTime()
+	fundMsg := vestingtypes.NewMsgFundVestingAccount(
+		funder.AccAddr,
+		vestAcc.AccAddr,
 		vestingStart,
 		evmosutil.TestVestingSchedule.LockupPeriods,
 		evmosutil.TestVestingSchedule.VestingPeriods,
 	)
-
-	err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), vestingAmtTotal)
+	_, err = s.factory.ExecuteCosmosTx(funder.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{fundMsg}})
 	Expect(err).To(BeNil())
-	acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
-	s.app.AccountKeeper.SetAccount(s.ctx, acc)
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	acc, err := s.grpcHandler.GetAccount(vestAcc.AccAddr.String())
+	Expect(err).To(BeNil())
+
+	clawbackAccount, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+	Expect(ok).To(BeTrue(), "account should be a ClawbackVestingAccount")
 
 	// Check all coins are locked up
-	lockedUp := clawbackAccount.GetLockedUpCoins(s.ctx.BlockTime())
+	lockedUp := clawbackAccount.GetLockedUpCoins(ctx.BlockTime())
 	Expect(vestingAmtTotal).To(Equal(lockedUp))
 
 	// Grant gas stipend to cover EVM fees
-	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
+	err = s.factory.FundAccount(funder, vestAcc.AccAddr, accountGasCoverage)
 	Expect(err).To(BeNil())
-	granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
-	Expect(granteeBalance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
+	Expect(s.network.NextBlock()).To(BeNil())
+
+	balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+	Expect(err).To(BeNil())
+	Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
 
 	return clawbackAccount
 }

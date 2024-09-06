@@ -7,11 +7,10 @@ import (
 	"encoding/json"
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
 	v7 "github.com/evmos/evmos/v19/x/evm/migrations/v7"
 	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
@@ -19,12 +18,11 @@ import (
 )
 
 func TestMigrate(t *testing.T) {
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	cdc := encCfg.Codec
 
-	// Initialize the store
-	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_storekey")
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
+	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)
 

@@ -45,7 +45,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	ctx := integrationNetwork.GetContext()
 	sk := integrationNetwork.App.StakingKeeper
-	bondDenom := sk.BondDenom(ctx)
+	bondDenom, err := sk.BondDenom(ctx)
+	s.Require().NoError(err)
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
 
 	s.bondDenom = bondDenom

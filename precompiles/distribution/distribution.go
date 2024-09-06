@@ -7,7 +7,7 @@ import (
 	"embed"
 	"fmt"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/common"
@@ -16,6 +16,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
 )
+
+// PrecompileAddress of the distribution EVM extension in hex format.
+const PrecompileAddress = "0x0000000000000000000000000000000000000801"
 
 var _ vm.PrecompiledContract = &Precompile{}
 

@@ -28,7 +28,12 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	// we need to emit some basic events at the very end of ante handler to be indexed by tendermint.
 	blockTxIndex := eeed.evmKeeper.GetTxIndexTransient(ctx)
 
-	for i, msg := range tx.GetMsgs() {
+	msgs := tx.GetMsgs()
+	if msgs == nil {
+		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
+	}
+
+	for i, msg := range msgs {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))

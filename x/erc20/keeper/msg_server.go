@@ -10,12 +10,12 @@ import (
 	"cosmossdk.io/math"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/hashicorp/go-metrics"
 
 	"github.com/evmos/evmos/v19/contracts"
 	"github.com/evmos/evmos/v19/x/erc20/types"
@@ -103,7 +103,7 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	}
 
 	if !unpackedRet.Value {
-		return nil, errorsmod.Wrap(errortypes.ErrLogic, "failed to execute transfer")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
 	}
 
 	// Check expected escrow balance after transfer execution
@@ -233,7 +233,7 @@ func (k Keeper) ConvertCoinNativeERC20(
 	}
 
 	if !unpackedRet.Value {
-		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
+		return errorsmod.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
 	}
 
 	// Check expected Receiver balance after transfer execution
@@ -265,8 +265,8 @@ func (k Keeper) ConvertCoinNativeERC20(
 // it updates the parameters in the keeper only if the requested authority
 // is the Cosmos SDK governance module account
 func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority.String() != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
+	if err := k.validateAuthority(req.Authority); err != nil {
+		return nil, err
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -275,4 +275,83 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
+}
+
+// RegisterERC20 implements the gRPC MsgServer interface. After a successful governance vote
+// it updates creates the token pair for an ERC20 contract if the requested authority
+// is the Cosmos SDK governance module account
+func (k *Keeper) RegisterERC20(goCtx context.Context, req *types.MsgRegisterERC20) (*types.MsgRegisterERC20Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Check if the conversion is globally enabled
+	if !k.IsERC20Enabled(ctx) {
+		return nil, types.ErrERC20Disabled.Wrap("registration is currently disabled by governance")
+	}
+
+	if err := k.validateAuthority(req.Authority); err != nil {
+		return nil, err
+	}
+
+	for _, addr := range req.Erc20Addresses {
+		if !common.IsHexAddress(addr) {
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid ERC20 contract address: %s", addr)
+		}
+
+		pair, err := k.registerERC20(ctx, common.HexToAddress(addr))
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterERC20,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
+	}
+
+	return &types.MsgRegisterERC20Response{}, nil
+}
+
+// RegisterERC20 implements the gRPC MsgServer interface. After a successful governance vote
+// it updates creates the token pair for an ERC20 contract if the requested authority
+// is the Cosmos SDK governance module account
+func (k *Keeper) ToggleConversion(goCtx context.Context, req *types.MsgToggleConversion) (*types.MsgToggleConversionResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Check if the conversion is globally enabled
+	if !k.IsERC20Enabled(ctx) {
+		return nil, types.ErrERC20Disabled.Wrap("toggle conversion is currently disabled by governance")
+	}
+
+	if err := k.validateAuthority(req.Authority); err != nil {
+		return nil, err
+	}
+
+	pair, err := k.toggleConversion(ctx, req.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeToggleTokenConversion,
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+		),
+	)
+
+	return &types.MsgToggleConversionResponse{}, nil
+}
+
+// validateAuthority is a helper function to validate that the provided authority
+// is the keeper's authority address
+func (k *Keeper) validateAuthority(authority string) error {
+	if _, err := k.accountKeeper.AddressCodec().StringToBytes(authority); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+	}
+
+	if k.authority.String() != authority {
+		return errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, authority)
+	}
+	return nil
 }

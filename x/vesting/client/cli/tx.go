@@ -14,10 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/version"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
@@ -268,87 +265,5 @@ func NewMsgConvertVestingAccountCmd() *cobra.Command {
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-// NewClawbackProposalCmd implements the command to submit
-// a proposal to clawback funds from a specified vesting account,
-// that has this functionality enabled.
-//
-//nolint:staticcheck
-func NewClawbackProposalCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "clawback ADDRESS [DEST_ADDRESS]",
-		Args:  cobra.RangeArgs(1, 2),
-		Short: "Submit a proposal to clawback funds from a ClawbackVestingAccount",
-		Long:  "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has this functionality enabled.",
-		Example: fmt.Sprintf(
-			`$ %s tx gov submit-legacy-proposal clawback <address> \
---from=<key_or_address> \
---title=<proposal_title> \
---description=<proposal_description> \
---deposit=<deposit>`,
-			version.AppName,
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			title, err := cmd.Flags().GetString(cli.FlagTitle)
-			if err != nil {
-				return err
-			}
-
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
-			if err != nil {
-				return err
-			}
-
-			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
-			if err != nil {
-				return err
-			}
-
-			deposit, err := sdk.ParseCoinsNormalized(depositStr)
-			if err != nil {
-				return err
-			}
-
-			from := clientCtx.GetFromAddress()
-
-			vestingAddress := args[0]
-
-			var destinationAddr string
-			if len(args) == 2 {
-				destinationAddr = args[1]
-			}
-
-			// check that args[0] is valid address in ValidateBasic()
-			content := types.NewClawbackProposal(title, description, vestingAddress, destinationAddr)
-
-			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
-			if err != nil {
-				return err
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
-
-	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
-		panic(err)
-	}
 	return cmd
 }

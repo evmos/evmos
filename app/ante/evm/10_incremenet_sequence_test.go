@@ -3,8 +3,8 @@
 package evm_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -22,19 +22,19 @@ func (suite *EvmAnteTestSuite) TestIncrementSequence() {
 	testCases := []struct {
 		name          string
 		expectedError error
-		malleate      func(acct authtypes.AccountI) uint64
+		malleate      func(acct sdk.AccountI) uint64
 	}{
 		{
 			name:          "fail: invalid sequence",
 			expectedError: errortypes.ErrInvalidSequence,
-			malleate: func(acct authtypes.AccountI) uint64 {
+			malleate: func(acct sdk.AccountI) uint64 {
 				return acct.GetSequence() + 1
 			},
 		},
 		{
 			name:          "success: increments sequence",
 			expectedError: nil,
-			malleate: func(acct authtypes.AccountI) uint64 {
+			malleate: func(acct sdk.AccountI) uint64 {
 				return acct.GetSequence()
 			},
 		},

@@ -106,13 +106,16 @@ func (k Keeper) GetProportions(
 
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
-func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
-	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
+func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
+	stakeSupply, err := k.stakingKeeper.StakingTokenSupply(ctx)
+	if err != nil {
+		return math.LegacyZeroDec(), err
+	}
 
 	isMainnet := utils.IsMainnet(ctx.ChainID())
 
 	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
-		return math.LegacyZeroDec()
+		return math.LegacyZeroDec(), nil
 	}
 
 	// don't count team allocation in bonded ratio's stake supple
@@ -120,7 +123,11 @@ func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
 		stakeSupply = stakeSupply.Sub(teamAlloc)
 	}
 
-	return math.LegacyNewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx)).QuoInt(stakeSupply)
+	totalBondedTokens, err := k.stakingKeeper.TotalBondedTokens(ctx)
+	if err != nil {
+		return math.LegacyZeroDec(), err
+	}
+	return math.LegacyNewDecFromInt(totalBondedTokens).QuoInt(stakeSupply), nil
 }
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
@@ -163,10 +170,15 @@ func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) math.LegacyD
 // GetEpochMintProvision retrieves necessary params KV storage
 // and calculate EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
+	bondedRadio, err := k.BondedRatio(ctx)
+	// ?? Should we bubble up this error instead of returning 0 ??
+	if err != nil {
+		return math.LegacyZeroDec()
+	}
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),
 		k.GetEpochsPerPeriod(ctx),
-		k.BondedRatio(ctx),
-	)
+		bondedRadio,
+	).Quo(math.LegacyNewDec(types.ReductionFactor))
 }

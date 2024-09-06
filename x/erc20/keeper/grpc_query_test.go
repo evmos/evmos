@@ -12,6 +12,7 @@ import (
 
 func (suite *KeeperTestSuite) TestTokenPairs() {
 	var (
+		ctx    sdk.Context
 		req    *types.QueryTokenPairsRequest
 		expRes *types.QueryTokenPairsResponse
 	)
@@ -42,7 +43,7 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				}
 				pairs := types.DefaultTokenPairs
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair)
 				pairs = append(pairs, pair)
 
 				expRes = &types.QueryTokenPairsResponse{
@@ -60,8 +61,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 
 				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, pair2)
 				pairs = append(pairs, pair, pair2)
 
 				expRes = &types.QueryTokenPairsResponse{
@@ -75,8 +76,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			ctx = suite.network.GetContext()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
 			res, err := suite.queryClient.TokenPairs(ctx, req)
@@ -93,6 +94,7 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 
 func (suite *KeeperTestSuite) TestTokenPair() {
 	var (
+		ctx    sdk.Context
 		req    *types.QueryTokenPairRequest
 		expRes *types.QueryTokenPairResponse
 	)
@@ -125,10 +127,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			func() {
 				addr := utiltx.GenerateAddress()
 				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
-
+				suite.network.App.Erc20Keeper.SetToken(ctx, pair)
 				req = &types.QueryTokenPairRequest{
 					Token: pair.Erc20Address,
 				}
@@ -141,8 +140,8 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			func() {
 				addr := utiltx.GenerateAddress()
 				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE)
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, addr, pair.GetID())
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, pair.Denom, pair.GetID())
 
 				req = &types.QueryTokenPairRequest{
 					Token: pair.Erc20Address,
@@ -155,8 +154,8 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			ctx = suite.network.GetContext()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
 			res, err := suite.queryClient.TokenPair(ctx, req)
@@ -171,7 +170,8 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	suite.SetupTest()
+	ctx := suite.network.GetContext()
 	expParams := types.DefaultParams()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})

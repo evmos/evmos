@@ -6,11 +6,12 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
@@ -24,7 +25,7 @@ type Keeper struct {
 	evmKeeper          types.EVMKeeper
 	stakingKeeper      types.StakingKeeper
 	distributionKeeper types.DistributionKeeper
-	govKeeper          types.GovKeeper
+	govKeeper          govkeeper.Keeper
 
 	// The x/gov module account used for executing transaction by governance.
 	authority sdk.AccAddress
@@ -40,7 +41,7 @@ func NewKeeper(
 	dk types.DistributionKeeper,
 	ek types.EVMKeeper,
 	sk types.StakingKeeper,
-	gk types.GovKeeper,
+	gk govkeeper.Keeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {

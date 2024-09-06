@@ -11,12 +11,12 @@ make install
 cd tests/solidity || exit
 
 if command -v yarn &>/dev/null; then
-    yarn install
+	yarn install
 else
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-    sudo apt update && sudo apt install yarn
-    yarn install
+	curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+	echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+	sudo apt update && sudo apt install yarn
+	yarn install
 fi
 
 yarn test --network evmos "$@"

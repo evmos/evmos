@@ -41,7 +41,7 @@ func CanTransfer(
 		BaseFee:     baseFee,
 	}
 
-	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())))
+	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
 	evm := evmKeeper.NewEVM(ctx, msg, cfg, evmtypes.NewNoOpTracer(), stateDB)
 
 	// check that caller has enough balance to cover asset transfer for **topmost** call

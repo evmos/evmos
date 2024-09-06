@@ -1,8 +1,19 @@
 package keeper_test
 
-import "fmt"
+import (
+	"fmt"
+	"testing"
 
-func (suite *KeeperTestSuite) TestSetGetPeriod() {
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	"github.com/stretchr/testify/require"
+)
+
+func TestSetGetPeriod(t *testing.T) {
+	var (
+		ctx sdk.Context
+		nw  *network.UnitTestNetwork
+	)
 	expPeriod := uint64(9)
 
 	testCases := []struct {
@@ -18,22 +29,24 @@ func (suite *KeeperTestSuite) TestSetGetPeriod() {
 		{
 			"period set",
 			func() {
-				suite.app.InflationKeeper.SetPeriod(suite.ctx, expPeriod)
+				nw.App.InflationKeeper.SetPeriod(ctx, expPeriod)
 			},
 			true,
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
 
 			tc.malleate()
 
-			period := suite.app.InflationKeeper.GetPeriod(suite.ctx)
+			period := nw.App.InflationKeeper.GetPeriod(ctx)
 			if tc.ok {
-				suite.Require().Equal(expPeriod, period, tc.name)
+				require.Equal(t, expPeriod, period, tc.name)
 			} else {
-				suite.Require().Zero(period, tc.name)
+				require.Zero(t, period, tc.name)
 			}
 		})
 	}

@@ -3,6 +3,7 @@
 package evm_test
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -11,6 +12,7 @@ import (
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 )
 
 func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
@@ -34,7 +36,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 			expectedError: nil,
 			getCtx: func() sdktypes.Context {
 				// Even if the gasWanted is more than the blockGasLimit, it should not error
-				blockMeter := sdktypes.NewGasMeter(commonGasLimit - 10000)
+				blockMeter := storetypes.NewGasMeter(commonGasLimit - 10000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   false,
@@ -44,7 +46,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 			name:          "success: gasWanted is less than blockGasLimit",
 			expectedError: nil,
 			getCtx: func() sdktypes.Context {
-				blockMeter := sdktypes.NewGasMeter(commonGasLimit + 10000)
+				blockMeter := storetypes.NewGasMeter(commonGasLimit + 10000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   true,
@@ -54,7 +56,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 			name:          "fail: gasWanted is more than blockGasLimit",
 			expectedError: errortypes.ErrOutOfGas,
 			getCtx: func() sdktypes.Context {
-				blockMeter := sdktypes.NewGasMeter(commonGasLimit - 10000)
+				blockMeter := storetypes.NewGasMeter(commonGasLimit - 10000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   true,
@@ -68,10 +70,15 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 				feeMarketParams, err := grpcHandler.GetFeeMarketParams()
 				suite.Require().NoError(err)
 				feeMarketParams.Params.NoBaseFee = true
-				err = unitNetwork.UpdateFeeMarketParams(feeMarketParams.Params)
+				err = integrationutils.UpdateFeeMarketParams(integrationutils.UpdateParamsInput{
+					Tf:      txFactory,
+					Network: unitNetwork,
+					Pk:      keyring.GetPrivKey(0),
+					Params:  feeMarketParams.Params,
+				})
 				suite.Require().NoError(err)
 
-				blockMeter := sdktypes.NewGasMeter(commonGasLimit + 10000)
+				blockMeter := storetypes.NewGasMeter(commonGasLimit + 10000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   true,

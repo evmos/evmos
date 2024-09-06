@@ -25,7 +25,7 @@ def test_block_cmd(evmos_cluster):
         {
             "name": "success - get latest block",
             "flags": [],
-            "exp_out": f'"last_commit":{{"height":{last_block-1}',
+            "exp_out": f'"last_commit":{{"height":{last_block - 1}',
             "exp_err": False,
             "err_msg": None,
         },
@@ -41,7 +41,8 @@ def test_block_cmd(evmos_cluster):
             "flags": ["--height", last_block + 10],
             "exp_out": None,
             "exp_err": True,
-            "err_msg": f"invalid height, the latest height found in the db is {last_block}, and you asked for {last_block+10}",  # noqa: E501 - ignore line too long linter
+            "err_msg": f"invalid height, the latest height found in the db is {last_block}, "
+            f"and you asked for {last_block + 10}",
         },
     ]
     for tc in test_cases:
@@ -52,9 +53,9 @@ def test_block_cmd(evmos_cluster):
             if tc["exp_err"] is True:
                 assert tc["err_msg"] in err.args[0]
                 continue
-            else:
-                print(f"Unexpected {err=}, {type(err)=}")
-                raise
+
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
 
     # start node1 again
     supervisorctl(
@@ -62,3 +63,97 @@ def test_block_cmd(evmos_cluster):
     )
     # check if chain continues alright
     wait_for_block(node1, last_block + 3)
+
+
+def test_tx_flags(evmos_cluster):
+    """
+    Tests the expected responses for common fee and gas related CLI flags.
+    """
+
+    node = evmos_cluster.cosmos_cli(0)
+    current_height = get_current_height(node)
+    wait_for_block(node, current_height + 1)
+
+    test_cases = [
+        {
+            "name": "fail - invalid flags combination (gas-prices & fees)",
+            "flags": {"fees": "5000000000aevmos", "gas_prices": "50000aevmos"},
+            "exp_err": True,
+            "err_msg": "cannot provide both fees and gas prices",
+        },
+        {
+            "name": "fail - no fees & insufficient gas",
+            "flags": {"gas": 50000, "gas_prices": None},
+            "exp_err": True,
+            "err_msg": "gas prices too low",
+        },
+        {
+            "name": "fail - insufficient fees",
+            "flags": {"fees": "10aevmos", "gas": 50000, "gas_prices": None},
+            "exp_err": True,
+            "err_msg": "insufficient fee",
+        },
+        {
+            "name": "fail - insufficient gas",
+            "flags": {"fees": "500000000000aevmos", "gas": 1, "gas_prices": None},
+            "exp_err": True,
+            "err_msg": "out of gas",
+        },
+        {
+            "name": "success - defined fees & gas",
+            "flags": {
+                "fees": "10000000000000000000aevmos",
+                "gas": 1500000,
+                "gas_prices": None,
+            },
+            "exp_err": False,
+            "err_msg": None,
+        },
+        {
+            "name": "success - using gas & gas-prices",
+            "flags": {"gas_prices": "100000000000aevmos", "gas": 1500000},
+            "exp_err": False,
+            "err_msg": None,
+        },
+        {
+            "name": "success - using gas 'auto' and specific fees",
+            "flags": {
+                "gas": "auto",
+                "fees": "10000000000000000000aevmos",
+                "gas_prices": None,
+            },
+            "exp_err": False,
+            "err_msg": None,
+        },
+    ]
+
+    for tc in test_cases:
+        try:
+            res = node.transfer(
+                "signer1",
+                "evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
+                "100000000000000aevmos",
+                False,
+                **tc["flags"],
+            )
+            if not tc["exp_err"]:
+                assert res["code"] == 0, (
+                    tc["name"] + ". expected tx to be successful " + res["raw_log"]
+                )
+                # wait for block to update nonce
+                current_height = get_current_height(node)
+                wait_for_block(node, current_height + 2)
+            else:
+                assert res["code"] != 0, tc["name"] + ". expected tx to fail"
+                assert tc["err_msg"] in res["raw_log"]
+        except Exception as err:
+            if tc["exp_err"] is True:
+                assert tc["err_msg"] in err.args[0], (
+                    tc["name"]
+                    + ". expected different error to be found. got "
+                    + err.args[0]
+                )
+                continue
+
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise

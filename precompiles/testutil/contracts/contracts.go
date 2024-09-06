@@ -19,24 +19,24 @@ import (
 )
 
 // Call is a helper function to call any arbitrary smart contract.
-func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.ResponseDeliverTx, ethRes *evmtypes.MsgEthereumTxResponse, err error) {
+func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.ExecTxResult, ethRes *evmtypes.MsgEthereumTxResponse, err error) {
 	var (
 		nonce    uint64
 		gasLimit = args.GasLimit
 	)
 
 	if args.PrivKey == nil {
-		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("private key is required; got: %v", args.PrivKey)
+		return abci.ExecTxResult{}, nil, fmt.Errorf("private key is required; got: %v", args.PrivKey)
 	}
 
 	pk, ok := args.PrivKey.(*ethsecp256k1.PrivKey)
 	if !ok {
-		return abci.ResponseDeliverTx{}, nil, errors.New("error while casting type ethsecp256k1.PrivKey on provided private key")
+		return abci.ExecTxResult{}, nil, errors.New("error while casting type ethsecp256k1.PrivKey on provided private key")
 	}
 
 	key, err := pk.ToECDSA()
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while converting private key to ecdsa: %v", err)
+		return abci.ExecTxResult{}, nil, fmt.Errorf("error while converting private key to ecdsa: %v", err)
 	}
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
@@ -64,7 +64,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 	// Create MsgEthereumTx that calls the contract
 	input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
+		return abci.ExecTxResult{}, nil, fmt.Errorf("error while packing the input: %v", err)
 	}
 
 	// Create MsgEthereumTx that calls the contract
@@ -100,7 +100,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 
 // CallContractAndCheckLogs is a helper function to call any arbitrary smart contract and check that the logs
 // contain the expected events.
-func CallContractAndCheckLogs(ctx sdk.Context, app *evmosapp.Evmos, cArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abci.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
+func CallContractAndCheckLogs(ctx sdk.Context, app *evmosapp.Evmos, cArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abci.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error) {
 	res, ethRes, err := Call(ctx, app, cArgs)
 	if err != nil {
 		return res, nil, err

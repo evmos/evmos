@@ -12,6 +12,7 @@ import (
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v19/x/evm/statedb"
 )
 
 var (
@@ -40,7 +41,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func() {},
 			true,
-			"-1xmpl: invalid coins",
+			"coin -1xmpl amount is not positive",
 		},
 		{
 			"fail - invalid to address",
@@ -111,6 +112,10 @@ func (s *PrecompileTestSuite) TestTransfer() {
 }
 
 func (s *PrecompileTestSuite) TestTransferFrom() {
+	var (
+		ctx  sdk.Context
+		stDB *statedb.StateDB
+	)
 	method := s.precompile.Methods[erc20.TransferFromMethod]
 	// owner of the tokens
 	owner := s.keyring.GetKey(0)
@@ -131,7 +136,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"-1xmpl: invalid coins",
+			"coin -1xmpl amount is not positive",
 		},
 		{
 			"fail - invalid from address",
@@ -174,7 +179,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			func() []interface{} {
 				expiration := time.Now().Add(time.Hour)
 				err := s.network.App.AuthzKeeper.SaveGrant(
-					s.network.GetContext(),
+					ctx,
 					spender.AccAddr,
 					owner.AccAddr,
 					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: s.tokenDenom, Amount: math.NewInt(5e18)}}},
@@ -193,7 +198,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			func() []interface{} {
 				expiration := time.Now().Add(time.Hour)
 				err := s.network.App.AuthzKeeper.SaveGrant(
-					s.network.GetContext(),
+					ctx,
 					spender.AccAddr,
 					owner.AccAddr,
 					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: math.NewInt(300)}}},
@@ -204,7 +209,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 				return []interface{}{owner.Addr, toAddr, big.NewInt(100)}
 			},
 			func() {
-				toAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), toAddr.Bytes(), tokenDenom)
+				toAddrBalance := s.network.App.BankKeeper.GetBalance(ctx, toAddr.Bytes(), tokenDenom)
 				s.Require().Equal(big.NewInt(100), toAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
 			},
 			false,
@@ -214,16 +219,16 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			"pass - spend on behalf of own account",
 			func() []interface{} {
 				// Mint some coins to the module account and then send to the spender address
-				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+				err := s.network.App.BankKeeper.MintCoins(ctx, erc20types.ModuleName, XMPLCoin)
 				s.Require().NoError(err, "failed to mint coins")
-				err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, spender.AccAddr, XMPLCoin)
+				err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, spender.AccAddr, XMPLCoin)
 				s.Require().NoError(err, "failed to send coins from module to account")
 
 				// NOTE: no authorization is necessary to spend on behalf of the same account
 				return []interface{}{spender.Addr, toAddr, big.NewInt(100)}
 			},
 			func() {
-				toAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), toAddr.Bytes(), tokenDenom)
+				toAddrBalance := s.network.App.BankKeeper.GetBalance(ctx, toAddr.Bytes(), tokenDenom)
 				s.Require().Equal(big.NewInt(100), toAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
 			},
 			false,
@@ -235,18 +240,19 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
-			stateDB := s.network.GetStateDB()
+			ctx = s.network.GetContext()
+			stDB = s.network.GetStateDB()
 
 			var contract *vm.Contract
-			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), spender.Addr, s.precompile, 0)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, spender.Addr, s.precompile, 0)
 
 			// Mint some coins to the module account and then send to the from address
-			err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+			err := s.network.App.BankKeeper.MintCoins(ctx, erc20types.ModuleName, XMPLCoin)
 			s.Require().NoError(err, "failed to mint coins")
-			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, owner.AccAddr, XMPLCoin)
+			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, owner.AccAddr, XMPLCoin)
 			s.Require().NoError(err, "failed to send coins from module to account")
 
-			_, err = s.precompile.TransferFrom(ctx, contract, stateDB, &method, tc.malleate())
+			_, err = s.precompile.TransferFrom(ctx, contract, stDB, &method, tc.malleate())
 			if tc.expErr {
 				s.Require().Error(err, "expected transfer transaction to fail")
 				s.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")

@@ -2,16 +2,23 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
+	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
 )
 
-func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
+func TestPeriod(t *testing.T) { //nolint:dupl
 	var (
+		ctx    sdk.Context
+		nw     *network.UnitTestNetwork
 		req    *types.QueryPeriodRequest
 		expRes *types.QueryPeriodResponse
 	)
@@ -33,8 +40,7 @@ func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
 			"set period",
 			func() {
 				period := uint64(9)
-				suite.app.InflationKeeper.SetPeriod(suite.ctx, period)
-				suite.Commit()
+				nw.App.InflationKeeper.SetPeriod(ctx, period)
 
 				req = &types.QueryPeriodRequest{}
 				expRes = &types.QueryPeriodResponse{Period: period}
@@ -43,27 +49,32 @@ func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
+			qc := nw.GetInflationClient()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.Period(ctx, req)
+			res, err := qc.Period(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			}
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestEpochMintProvision() {
+func TestEpochMintProvision(t *testing.T) {
 	var (
-		req    *types.QueryEpochMintProvisionRequest
-		expRes *types.QueryEpochMintProvisionResponse
+		ctx         sdk.Context
+		nw          *network.UnitTestNetwork
+		req         *types.QueryEpochMintProvisionRequest
+		expRes      *types.QueryEpochMintProvisionResponse
+		bondedRatio math.LegacyDec
 	)
 
 	testCases := []struct {
@@ -79,36 +90,46 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 					params,
 					uint64(0),
 					365,
-					math.LegacyOneDec(),
+					bondedRatio,
 				)
+				expEpochMintProvision := defaultEpochMintProvision.Quo(math.LegacyNewDec(types.ReductionFactor))
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
+					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, expEpochMintProvision),
 				}
 			},
 			true,
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork(network.WithChainID(utils.TestnetChainID + "-1"))
+			ctx = nw.GetContext()
+			qc := nw.GetInflationClient()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			// get bonded ratio
+			var err error
+			bondedRatio, err = nw.App.InflationKeeper.BondedRatio(ctx)
+			require.NoError(t, err)
+
 			tc.malleate()
 
-			res, err := suite.queryClient.EpochMintProvision(ctx, req)
+			res, err := qc.EpochMintProvision(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			}
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
+func TestSkippedEpochs(t *testing.T) { //nolint:dupl
 	var (
+		ctx    sdk.Context
+		nw     *network.UnitTestNetwork
 		req    *types.QuerySkippedEpochsRequest
 		expRes *types.QuerySkippedEpochsResponse
 	)
@@ -130,8 +151,7 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
 			"set skipped epochs",
 			func() {
 				skippedEpochs := uint64(9)
-				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, skippedEpochs)
-				suite.Commit()
+				nw.App.InflationKeeper.SetSkippedEpochs(ctx, skippedEpochs)
 
 				req = &types.QuerySkippedEpochsRequest{}
 				expRes = &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}
@@ -140,67 +160,92 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
 		},
 	}
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
+			qc := nw.GetInflationClient()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.SkippedEpochs(ctx, req)
+			res, err := qc.SkippedEpochs(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			}
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
-	// Team allocation is only set on mainnet
-	ctx := sdk.WrapSDKContext(suite.ctx)
+func TestQueryCirculatingSupply(t *testing.T) {
+	nAccs := int64(1)
+	nVals := int64(3)
+
+	keyring := testkeyring.New(int(nAccs))
+	nw := network.NewUnitTestNetwork(
+		network.WithAmountOfValidators(int(nVals)),
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	ctx := nw.GetContext()
+	qc := nw.GetInflationClient()
 
 	// Mint coins to increase supply
-	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
 	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), evmostypes.PowerReduction))
-	err := suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
-	suite.Require().NoError(err)
+	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
+	require.NoError(t, err)
 
 	// team allocation is zero if not on mainnet
 	expCirculatingSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction))
 
-	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := sdk.NewInt64DecCoin(evmostypes.AttoEvmos, 1000100000000000000)
+	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
+	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs))
+	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
 
-	res, err := suite.queryClient.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(expCirculatingSupply.Add(bondedAmt), res.CirculatingSupply)
+	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
+	require.NoError(t, err)
+	require.Equal(t, expCirculatingSupply.Add(bondedCoins), res.CirculatingSupply)
 }
 
-func (suite *KeeperTestSuite) TestQueryInflationRate() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+func TestQueryInflationRate(t *testing.T) {
+	nAccs := int64(1)
+	nVals := int64(3)
 
-	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := math.NewInt(1_000_100_000_000_000_000)
+	keyring := testkeyring.New(int(nAccs))
+	nw := network.NewUnitTestNetwork(
+		network.WithAmountOfValidators(int(nVals)),
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	ctx := nw.GetContext()
+	qc := nw.GetInflationClient()
+
+	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	bondedAmt := network.DefaultBondedAmount.MulRaw(nVals)                          // Add the allocation for the validators
+	bondedAmt = bondedAmt.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
 
 	// Mint coins to increase supply
-	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
 	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), evmostypes.PowerReduction).Sub(bondedAmt))
-	err := suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
-	suite.Require().NoError(err)
+	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
+	require.NoError(t, err)
 
-	expInflationRate := math.LegacyMustNewDecFromStr("51.562500000000000000")
-	res, err := suite.queryClient.InflationRate(ctx, &types.QueryInflationRateRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(expInflationRate, res.InflationRate)
+	expInflationRate := math.LegacyMustNewDecFromStr("51.5625").Quo(math.LegacyNewDec(types.ReductionFactor))
+	res, err := qc.InflationRate(ctx, &types.QueryInflationRateRequest{})
+	require.NoError(t, err)
+	require.Equal(t, expInflationRate, res.InflationRate)
 }
 
-func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+func TestQueryParams(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
+	qc := nw.GetInflationClient()
+
 	expParams := types.DefaultParams()
 
-	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(expParams, res.Params)
+	res, err := qc.Params(ctx, &types.QueryParamsRequest{})
+	require.NoError(t, err)
+	require.Equal(t, expParams, res.Params)
 }

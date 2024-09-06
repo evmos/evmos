@@ -9,12 +9,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	amino "github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	enccodec "github.com/evmos/evmos/v19/encoding/codec"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 )
 
@@ -23,26 +17,6 @@ func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmt
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
 	return *msgEthereumTx
-}
-
-// makeConfig creates an EncodingConfig for testing
-func makeConfig(mb module.BasicManager) testutiltypes.TestEncodingConfig {
-	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	codec := amino.NewProtoCodec(interfaceRegistry)
-
-	encodingConfig := testutiltypes.TestEncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
-		TxConfig:          authtx.NewTxConfig(codec, authtx.DefaultSignModes),
-		Amino:             cdc,
-	}
-
-	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	return encodingConfig
 }
 
 // CheckError is a helper function to check if the error is the expected one.

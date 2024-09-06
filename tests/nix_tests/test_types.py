@@ -365,45 +365,54 @@ def test_incomplete_send_transaction(evmos_cluster, geth):
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_sendTransaction", [tx])
 
 
-def same_types(given, expected):
+def same_types(given, expected):  # pylint: disable=too-many-return-statements
     if isinstance(given, dict):
         if not isinstance(expected, dict):
             return False, "A is dict, B is not"
+
         keys = list(set(list(given.keys()) + list(expected.keys())))
         for key in keys:
             if key not in expected or key not in given:
                 return False, key + " key not on both json"
+
             res, err = same_types(given[key], expected[key])
             if not res:
                 return res, key + " key failed. Error: " + err
+
         return True, ""
-    elif isinstance(given, list):
+
+    if isinstance(given, list):
         if not isinstance(expected, list):
             return False, "A is list, B is not"
+
         if len(given) == 0 and len(expected) == 0:
             return True, ""
+
         if len(given) > 0 and len(expected) > 0:
             return same_types(given[0], expected[0])
-        else:
-            return True, ""
-    elif given is None and expected is None:
+
         return True, ""
-    elif type(given) is type(expected):
+
+    if given is None and expected is None:
         return True, ""
-    elif (
-        type(given) is int
-        and type(expected) is float
+
+    if type(given) is type(expected):
+        return True, ""
+
+    if (  # pylint: disable=too-many-boolean-expressions
+        isinstance(given, int)
+        and isinstance(expected, float)
         and given == 0
-        or type(expected) is int
-        and type(given) is float
+        or isinstance(expected, int)
+        and isinstance(given, float)
         and expected == 0
     ):
         return True, ""
-    else:
-        return (
-            False,
-            "different types. Given object is type "
-            + type(given).__name__
-            + " expected object is type "
-            + type(expected).__name__,
-        )
+
+    return (
+        False,
+        "different types. Given object is type "
+        + type(given).__name__
+        + " expected object is type "
+        + type(expected).__name__,
+    )

@@ -10,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import memiavl_config, supervisorctl, wait_for_port
+from .utils import http_wait_for_block, memiavl_config, supervisorctl, wait_for_port
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -28,17 +28,17 @@ class Evmos:
         return Evmos(self.base_dir)
 
     @property
-    def w3_http_endpoint(self, i=0):
-        port = ports.evmrpc_port(self.base_port(i))
+    def w3_http_endpoint(self):  # pylint: disable=property-with-parameters
+        port = ports.evmrpc_port(self.base_port(0))
         return f"http://localhost:{port}"
 
     @property
-    def w3_ws_endpoint(self, i=0):
-        port = ports.evmrpc_ws_port(self.base_port(i))
+    def w3_ws_endpoint(self):
+        port = ports.evmrpc_ws_port(self.base_port(0))
         return f"ws://localhost:{port}"
 
     @property
-    def w3(self, i=0):
+    def w3(self):
         if self._w3 is None:
             if self._use_websockets:
                 self._w3 = web3.Web3(
@@ -48,11 +48,14 @@ class Evmos:
                 self._w3 = web3.Web3(web3.providers.HTTPProvider(self.w3_http_endpoint))
         return self._w3
 
-    def base_port(self, i):
+    def base_port(self, i=0):  # pylint: disable=property-with-parameters
         return self.config["validators"][i]["base_port"]
 
     def node_rpc(self, i):
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
+
+    def node_api(self, i=0):
+        return "http://127.0.0.1:%d" % ports.api_port(self.base_port(i))
 
     def use_websocket(self, use=True):
         self._w3 = None
@@ -60,7 +63,10 @@ class Evmos:
 
     def cosmos_cli(self, i=0):
         return CosmosCLI(
-            self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
+            self.base_dir / f"node{i}",
+            self.node_rpc(i),
+            self.node_api(i),
+            self.chain_binary,
         )
 
     def node_home(self, i=0):
@@ -84,15 +90,20 @@ class CosmosChain:
     def node_rpc(self, i=0):
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
 
+    def node_api(self, i=0):
+        return "http://127.0.0.1:%d" % ports.api_port(self.base_port(i))
+
     def cosmos_cli(self, i=0):
         node_path = self.base_dir / f"node{i}"
         if node_path.exists() and node_path.is_dir():
-            return CosmosCLI(node_path, self.node_rpc(i), self.daemon_name)
+            return CosmosCLI(
+                node_path, self.node_rpc(i), self.node_api(i), self.daemon_name
+            )
         # in case the provided directory does not exist
         # try with the other node. This applies for
         # stride that has a special setup because is a consumer chain
         node_path = self.base_dir / "node1"
-        return CosmosCLI(node_path, self.node_rpc(), self.daemon_name)
+        return CosmosCLI(node_path, self.node_rpc(), self.node_api(), self.daemon_name)
 
 
 #  Hermes IBC relayer
@@ -118,7 +129,9 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
 
 # for memiavl need to create the data/snapshots dir
 # for the nodes
-def create_snapshots_dir(path, base_port, config, n_nodes=2):
+def create_snapshots_dir(
+    path, base_port, config, n_nodes=2
+):  # pylint: disable=unused-argument
     for idx in range(n_nodes):
         data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
         os.makedirs(data_snapshots_dir, exist_ok=True)
@@ -137,8 +150,8 @@ def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
         path,
         base_port,
         cfg,
-        chain_binary="evmosd-rocksdb",
         post_init=create_snapshots_dir,
+        chain_binary="evmosd-rocksdb",
     )
 
 
@@ -155,7 +168,7 @@ def setup_geth(path, base_port):
             "eth,net,web3,debug",
         ]
         print(*cmd)
-        proc = subprocess.Popen(
+        proc = subprocess.Popen(  # pylint: disable=consider-using-with,subprocess-popen-preexec-fn
             cmd,
             preexec_fn=os.setsid,
             stdout=logfile,
@@ -190,7 +203,7 @@ def setup_custom_evmos(
     subprocess.run(cmd, check=True)
     if post_init is not None:
         post_init(path, base_port, config)
-    proc = subprocess.Popen(
+    proc = subprocess.Popen(  # pylint: disable=consider-using-with,subprocess-popen-preexec-fn
         ["pystarport", "start", "--data", path, "--quiet"],
         preexec_fn=os.setsid,
     )
@@ -198,6 +211,9 @@ def setup_custom_evmos(
         if wait_port:
             wait_for_port(ports.evmrpc_port(base_port))
             wait_for_port(ports.evmrpc_ws_port(base_port))
+            # wait for blocks
+            # cause with sdkv0.50 the port starts faster
+            http_wait_for_block(ports.rpc_port(base_port), 2)
         yield Evmos(
             path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
         )

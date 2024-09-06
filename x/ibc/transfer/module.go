@@ -8,9 +8,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
 )
 
@@ -52,5 +52,13 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	if err := cfg.RegisterMigration(types.ModuleName, 2, m.MigrateTotalEscrowForDenom); err != nil {
 		panic(fmt.Sprintf("failed to migrate transfer app from version 2 to 3: %v", err))
+	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 3, m.MigrateParams); err != nil {
+		panic(fmt.Errorf("failed to migrate transfer app version 3 to 4 (self-managed params migration): %v", err))
+	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 4, m.MigrateDenomMetadata); err != nil {
+		panic(fmt.Errorf("failed to migrate transfer app from version 4 to 5 (set denom metadata migration): %v", err))
 	}
 }

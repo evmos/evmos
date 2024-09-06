@@ -4,7 +4,6 @@ package v3
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
 )
 
@@ -16,7 +15,7 @@ func MigrateStore(
 	ctx sdk.Context,
 	ak vestingtypes.AccountKeeper,
 ) error {
-	ak.IterateAccounts(ctx, func(account accounttypes.AccountI) bool {
+	ak.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 		if vestAcc, ok := account.(*vestingtypes.ClawbackVestingAccount); ok {
 			// if DelegatedVesting == 0, skip it
 			if !vestAcc.DelegatedVesting.IsAllPositive() {

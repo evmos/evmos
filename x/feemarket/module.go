@@ -13,6 +13,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -29,10 +30,12 @@ import (
 const consensusVersion = 4
 
 var (
-	_ module.AppModule           = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.EndBlockAppModule   = AppModule{}
-	_ module.BeginBlockAppModule = AppModule{}
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.HasABCIGenesis     = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the fee market module.
@@ -80,19 +83,14 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the fee market module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
-}
-
-// GetQueryCmd returns no root query command for the fee market module.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
-}
-
 // RegisterInterfaces registers interfaces and implementations of the fee market module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
+}
+
+// GetTxCmd returns the root query command for the erc20 module.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // ____________________________________________________________________________
@@ -136,15 +134,16 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 }
 
 // BeginBlock returns the begin block for the fee market module.
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-	am.keeper.BeginBlock(ctx, req)
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return am.keeper.BeginBlock(c)
 }
 
 // EndBlock returns the end blocker for the fee market module. It returns no validator
 // updates.
-func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {
-	am.keeper.EndBlock(ctx, req)
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return am.keeper.EndBlock(c)
 }
 
 // InitGenesis performs genesis initialization for the fee market module. It returns
@@ -165,7 +164,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // RegisterStoreDecoder registers a decoder for fee market module's types
-func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
+func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {}
 
 // GenerateGenesisState creates a randomized GenState of the fee market module.
 func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
@@ -175,3 +174,9 @@ func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
 func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return nil
 }
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}

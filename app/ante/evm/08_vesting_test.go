@@ -32,12 +32,12 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 	testCases := []struct {
 		name                  string
 		expectedError         error
-		getAccountAndExpenses func() (authtypes.AccountI, AccountExpenses)
+		getAccountAndExpenses func() (sdktypes.AccountI, AccountExpenses)
 	}{
 		{
 			name:          "success: non clawback account should be successful",
 			expectedError: nil,
-			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
+			getAccountAndExpenses: func() (sdktypes.AccountI, AccountExpenses) {
 				account, err := grpcHandler.GetAccount(sender.String())
 				suite.Require().NoError(err)
 				return account, defaultAccountExpenses()
@@ -46,7 +46,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 		{
 			name:          "error: clawback account with balance 0 should fail",
 			expectedError: errortypes.ErrInsufficientFunds,
-			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
+			getAccountAndExpenses: func() (sdktypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()
 				unfundedAddr := keyring.GetAccAddr(newIndex)
 				funder := keyring.GetAccAddr(0)
@@ -60,7 +60,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 		{
 			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total should fail",
 			expectedError: vestingtypes.ErrInsufficientUnlockedCoins,
-			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
+			getAccountAndExpenses: func() (sdktypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()
 				newAddr := keyring.GetAccAddr(newIndex)
 				funder := keyring.GetAccAddr(0)
@@ -89,7 +89,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 		{
 			name:          "error: clawback account with not enough bank + not enough vested unlocked balance < total + previousExpenses should fail",
 			expectedError: vestingtypes.ErrInsufficientUnlockedCoins,
-			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
+			getAccountAndExpenses: func() (sdktypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()
 				newAddr := keyring.GetAccAddr(newIndex)
 				funder := keyring.GetAccAddr(0)
@@ -125,7 +125,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 		{
 			name:          "success: clawback account with enough bank + not enough vested unlocked balance > total should be successful",
 			expectedError: nil,
-			getAccountAndExpenses: func() (authtypes.AccountI, AccountExpenses) {
+			getAccountAndExpenses: func() (sdktypes.AccountI, AccountExpenses) {
 				newIndex := keyring.AddKey()
 				newAddr := keyring.GetAccAddr(newIndex)
 				funder := keyring.GetAccAddr(0)
@@ -198,14 +198,14 @@ func defaultVestingParams(network network.Network, funder, baseAddress sdktypes.
 			Length: 1000,
 			Amount: sdktypes.NewCoins(sdktypes.NewInt64Coin(network.GetDenom(), 1000)),
 		},
-		VestingAmount: sdktypes.NewInt(1e18),
+		VestingAmount: math.NewInt(1e18),
 	}
 }
 
 func generateNewVestingAccount(
 	unitNetwork *network.UnitTestNetwork,
 	vestingParams customVestingParams,
-) authtypes.AccountI {
+) sdktypes.AccountI {
 	var (
 		balances       = sdktypes.NewCoins(sdktypes.NewInt64Coin(unitNetwork.GetDenom(), 1000))
 		lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}

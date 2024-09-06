@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 			"fail - invalid operator address",
 			func(string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					"invalid",
 				}
 			},
@@ -86,7 +86,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 			"success",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 				}
 			},
@@ -105,9 +105,9 @@ func (s *PrecompileTestSuite) TestDelegation() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.Delegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))
+			bz, err := s.precompile.Delegation(s.network.GetContext(), contract, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -178,7 +178,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			"success",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					operatorAddress,
 				}
 			},
@@ -187,7 +187,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 				err := s.precompile.UnpackIntoInterface(&ubdOut, staking.UnbondingDelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Len(ubdOut.UnbondingDelegation.Entries, 1)
-				s.Require().Equal(ubdOut.UnbondingDelegation.Entries[0].CreationHeight, s.ctx.BlockHeight())
+				s.Require().Equal(ubdOut.UnbondingDelegation.Entries[0].CreationHeight, s.network.GetContext().BlockHeight())
 				s.Require().Equal(ubdOut.UnbondingDelegation.Entries[0].Balance, big.NewInt(1e18))
 			},
 			100000,
@@ -199,12 +199,14 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), math.LegacyNewDec(1))
+			valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].GetOperator())
+			s.Require().NoError(err)
+			_, _, err = s.network.App.StakingKeeper.Undelegate(s.network.GetContext(), s.keyring.GetAddr(0).Bytes(), valAddr, math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))
+			bz, err := s.precompile.UnbondingDelegation(s.network.GetContext(), contract, &method, tc.malleate(s.network.GetValidators()[0].OperatorAddress))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -251,7 +253,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 				err := s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 
-				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				operatorAddress, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
 
 				s.Require().Equal(common.HexToAddress(valOut.Validator.OperatorAddress), common.BytesToAddress(operatorAddress.Bytes()))
@@ -283,12 +285,12 @@ func (s *PrecompileTestSuite) TestValidator() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			operatorAddress, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.Validator(s.ctx, &method, contract, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
+			bz, err := s.precompile.Validator(s.network.GetContext(), &method, contract, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -354,7 +356,7 @@ func (s *PrecompileTestSuite) TestValidators() {
 
 				s.Require().Len(valOut.Validators, expLen)
 				// passed CountTotal = true
-				s.Require().Equal(len(s.validators), int(valOut.PageResponse.Total)) //nolint:gosec
+				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total)) //nolint:gosec
 				s.Require().NotEmpty(valOut.PageResponse.NextKey)
 				s.assertValidatorsResponse(valOut.Validators, expLen)
 			},
@@ -382,7 +384,7 @@ func (s *PrecompileTestSuite) TestValidators() {
 
 				s.Require().Len(valOut.Validators, expLen)
 				// passed CountTotal = true
-				s.Require().Equal(len(s.validators), int(valOut.PageResponse.Total)) //nolint:gosec
+				s.Require().Equal(len(s.network.GetValidators()), int(valOut.PageResponse.Total)) //nolint:gosec
 				s.Require().NotEmpty(valOut.PageResponse.NextKey)
 				s.assertValidatorsResponse(valOut.Validators, expLen)
 			},
@@ -395,9 +397,9 @@ func (s *PrecompileTestSuite) TestValidators() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.Validators(s.ctx, &method, contract, tc.malleate())
+			bz, err := s.precompile.Validators(s.network.GetContext(), &method, contract, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -451,7 +453,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 			"fail - empty src validator addr",
 			func(_, destOperatorAddr string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					"",
 					destOperatorAddr,
 				}
@@ -465,7 +467,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 			"fail - empty destination addr",
 			func(srcOperatorAddr, _ string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					"",
 				}
@@ -479,7 +481,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 			"success",
 			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					destOperatorAddr,
 				}
@@ -489,7 +491,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				err := s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Len(redOut.Redelegation.Entries, 1)
-				s.Require().Equal(redOut.Redelegation.Entries[0].CreationHeight, s.ctx.BlockHeight())
+				s.Require().Equal(redOut.Redelegation.Entries[0].CreationHeight, s.network.GetContext().BlockHeight())
 				s.Require().Equal(redOut.Redelegation.Entries[0].SharesDst, big.NewInt(1e18))
 			},
 			100000,
@@ -501,7 +503,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 			malleate: func(srcOperatorAddr, _ string) []interface{} {
 				nonExistentOperator := sdk.ValAddress([]byte("non-existent-operator"))
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					srcOperatorAddr,
 					nonExistentOperator.String(),
 				}
@@ -519,22 +521,22 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
 			delegationArgs := []interface{}{
-				s.address,
-				s.validators[0].OperatorAddress,
-				s.validators[1].OperatorAddress,
+				s.keyring.GetAddr(0),
+				s.network.GetValidators()[0].OperatorAddress,
+				s.network.GetValidators()[1].OperatorAddress,
 				big.NewInt(1e18),
 			}
 
-			err := s.CreateAuthorization(s.address, staking.RedelegateAuthz, nil)
+			err := s.CreateAuthorization(s.network.GetContext(), s.keyring.GetAccAddr(0), s.keyring.GetAccAddr(0), staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
-			_, err = s.precompile.Redelegate(s.ctx, s.address, contract, s.stateDB, &redelegateMethod, delegationArgs)
+			_, err = s.precompile.Redelegate(s.network.GetContext(), s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &redelegateMethod, delegationArgs)
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.Redelegation(s.ctx, &method, contract, tc.malleate(s.validators[0].OperatorAddress, s.validators[1].OperatorAddress))
+			bz, err := s.precompile.Redelegation(s.network.GetContext(), &method, contract, tc.malleate(s.network.GetValidators()[0].OperatorAddress, s.network.GetValidators()[1].OperatorAddress))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -578,8 +580,8 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			func() []interface{} {
 				return []interface{}{
 					common.BytesToAddress([]byte("invalid")),
-					s.validators[0].OperatorAddress,
-					s.validators[1].OperatorAddress,
+					s.network.GetValidators()[0].OperatorAddress,
+					s.network.GetValidators()[1].OperatorAddress,
 					query.PageRequest{},
 				}
 			},
@@ -609,7 +611,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				return []interface{}{
 					common.Address{},
 					"",
-					s.validators[1].OperatorAddress,
+					s.network.GetValidators()[1].OperatorAddress,
 					query.PageRequest{},
 				}
 			},
@@ -622,14 +624,14 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			"success - specified delegator, source & destination",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
-					s.validators[0].OperatorAddress,
-					s.validators[1].OperatorAddress,
+					s.keyring.GetAddr(0),
+					s.network.GetValidators()[0].OperatorAddress,
+					s.network.GetValidators()[1].OperatorAddress,
 					query.PageRequest{},
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, 0, delAmt, 2, false)
+				s.assertRedelegationsOutput(data, 0, delAmt, s.network.GetContext().BlockHeight(), false)
 			},
 			100000,
 			false,
@@ -640,7 +642,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			func() []interface{} {
 				return []interface{}{
 					common.Address{},
-					s.validators[0].OperatorAddress,
+					s.network.GetValidators()[0].OperatorAddress,
 					"",
 					query.PageRequest{
 						Limit:      1,
@@ -649,7 +651,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, s.network.GetContext().BlockHeight(), true)
 			},
 			100000,
 			false,
@@ -659,7 +661,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			"success - get all existing redelegations for a delegator w/pagination",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					"",
 					"",
 					query.PageRequest{
@@ -669,7 +671,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 				}
 			},
 			func(data []byte) {
-				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, 2, true)
+				s.assertRedelegationsOutput(data, redelTotalCount, delAmt, s.network.GetContext().BlockHeight(), true)
 			},
 			100000,
 			false,
@@ -680,13 +682,13 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
-			err := s.setupRedelegations(delAmt)
+			err := s.setupRedelegations(s.network.GetContext(), delAmt)
 			s.Require().NoError(err)
 
 			// query redelegations
-			bz, err := s.precompile.Redelegations(s.ctx, &method, contract, tc.malleate())
+			bz, err := s.precompile.Redelegations(s.network.GetContext(), &method, contract, tc.malleate())
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -726,12 +728,12 @@ func (s *PrecompileTestSuite) TestAllowance() {
 		{
 			"success - query delegate method allowance",
 			func() []interface{} {
-				err := s.CreateAuthorization(granteeAddr, staking.DelegateAuthz, &approvedCoin)
+				err := s.CreateAuthorization(s.network.GetContext(), s.keyring.GetAccAddr(0), granteeAddr.Bytes(), staking.DelegateAuthz, &approvedCoin)
 				s.Require().NoError(err)
 
 				return []interface{}{
 					granteeAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 					staking.DelegateMsg,
 				}
 			},
@@ -750,7 +752,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			func() []interface{} {
 				return []interface{}{
 					granteeAddr,
-					s.address,
+					s.keyring.GetAddr(0),
 					staking.UndelegateMsg,
 				}
 			},
@@ -769,10 +771,10 @@ func (s *PrecompileTestSuite) TestAllowance() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+			contract := vm.NewContract(vm.AccountRef(s.keyring.GetAddr(0)), s.precompile, big.NewInt(0), tc.gas)
 
 			args := tc.malleate()
-			bz, err := s.precompile.Allowance(s.ctx, &method, contract, args)
+			bz, err := s.precompile.Allowance(s.network.GetContext(), &method, contract, args)
 
 			if tc.expErr {
 				s.Require().Error(err)

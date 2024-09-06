@@ -46,7 +46,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with non feemarket block event",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
 						Type: evmtypes.EventTypeBlockBloom,
 					},
@@ -63,7 +63,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with feemarket block event",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
 						Type: feemarkettypes.EventTypeFeeMarket,
 					},
@@ -80,7 +80,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with feemarket block event with wrong attribute value",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
 						Type: feemarkettypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
@@ -100,7 +100,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc baseFee error - with feemarket block event with baseFee attribute value",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
 						Type: feemarkettypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{

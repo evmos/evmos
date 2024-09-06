@@ -32,9 +32,9 @@ def evmos_indexer(tmp_path_factory):
 
 @pytest.fixture(
     scope="module",
-    params=["evmos", "geth", "evmos-ws", "enable-indexer", "evmos-rocksdb"],
+    params=["evmos", "geth", "evmos-ws", "evmos-rocksdb", "enable-indexer"],
 )
-def cluster(request, custom_evmos, evmos_indexer, evmos_rocksdb, geth):
+def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
     """
     run on both evmos and geth
     """
@@ -420,7 +420,7 @@ def test_multiple_filters(cluster):
         try:
             for flt in tc["filters"]:
                 fltrs.append(w3.eth.filter(flt["params"]))
-        except Exception as err:
+        except Exception as err:  # pylint: disable=broad-exception-caught
             if "register_err" in tc:
                 # if exception was expected when registering filters
                 # the test is finished
@@ -428,9 +428,9 @@ def test_multiple_filters(cluster):
                 # remove the registered filters
                 remove_filters(w3, fltrs, 300)
                 continue
-            else:
-                print(f"Unexpected {err=}, {type(err)=}")
-                raise
+
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
 
         # without tx: filters should not return any entries
         for flt in fltrs:
@@ -456,9 +456,9 @@ def test_multiple_filters(cluster):
                     assert_no_filter_err(flt, err)
                     # filter was removed and error checked. Continue to next filter
                     continue
-                else:
-                    print(f"Unexpected {err=}, {type(err)=}")
-                    raise
+
+                print(f"Unexpected {err=}, {type(err)=}")
+                raise
 
             assert len(new_entries) == tc["filters"][i]["exp_len"]
 
@@ -480,9 +480,10 @@ def test_multiple_filters(cluster):
                 if "rm_filters_post_tx" in tc and i < tc["rm_filters_post_tx"]:
                     assert_no_filter_err(flt, err)
                     continue
-                else:
-                    print(f"Unexpected {err=}, {type(err)=}")
-                    raise
+
+                print(f"Unexpected {err=}, {type(err)=}")
+                raise
+
             # remove the filters added on this test
             # because the node is not reseted for each test
             # otherwise may get a max-limit error for registering
@@ -754,8 +755,7 @@ def make_filter_array(array_len):
 def remove_filters(w3, filters, count):
     # if number of filters to remove exceeds the amount of filters passed
     # update the 'count' to the length of the filters array
-    if count > len(filters):
-        count = len(filters)
+    count = min(count, len(filters))
 
     for i in range(count):
         assert w3.eth.uninstall_filter(filters[i].filter_id)

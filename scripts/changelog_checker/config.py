@@ -107,6 +107,7 @@ ALLOWED_SPELLINGS = {
     "ERC-20": re.compile(r"erc[\s-]*20", re.IGNORECASE),
     "EVM": re.compile("evm", re.IGNORECASE),
     "IBC": re.compile("ibc", re.IGNORECASE),
+    "IBC-Go": re.compile(r"ibc[\s-]*go", re.IGNORECASE),
     "ICS": re.compile("ics", re.IGNORECASE),
     "ICS-20": re.compile(r"ics[\s-]*20", re.IGNORECASE),
     "outpost": re.compile("outpost", re.IGNORECASE),
