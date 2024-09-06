@@ -32,6 +32,7 @@ const consensusVersion = 3
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.HasABCIGenesis = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the sub-vesting
