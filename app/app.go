@@ -710,6 +710,7 @@ func NewEvmos(
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
+		ibcexported.ModuleName,
 		// Ethermint modules
 		evmtypes.ModuleName,
 		// NOTE: feemarket module needs to be initialized before genutil module:
@@ -723,6 +724,7 @@ func NewEvmos(
 		feegrant.ModuleName,
 		upgradetypes.ModuleName,
 		// Evmos modules
+		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
