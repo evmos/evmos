@@ -1,43 +1,54 @@
 package keeper_test
 
 import (
-	"testing"
+	"time"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
-
-	evm "github.com/evmos/evmos/v19/x/evm/types"
-
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/x/epochs/types"
 )
 
+const (
+	day             = time.Hour * 24
+	week            = time.Hour * 24 * 7
+	month           = time.Hour * 24 * 31
+	monthIdentifier = "month"
+)
+
+// KeeperTestSuite is the implementation of the test suite for the
+// Epochs module.
 type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx            sdk.Context
-	app            *app.Evmos
-	queryClientEvm evm.QueryClient
-	queryClient    types.QueryClient
-	consAddress    sdk.ConsAddress
+	network *network.UnitTestNetwork
+	keyring keyring.Keyring
+	handler grpc.Handler
 }
 
-var s *KeeperTestSuite
+// SetupTest is the setup function for epoch module tests. If epochsInfo is provided empty
+// the default genesis for the epoch module is used.
+func SetupTest(epochsInfo []types.EpochInfo) *KeeperTestSuite {
+	keys := keyring.New(1)
 
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
+	customGenesis := network.CustomGenesisState{}
+	epochsGenesis := types.DefaultGenesisState()
 
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
+	if len(epochsInfo) > 0 {
+		epochsGenesis = types.NewGenesisState(epochsInfo)
+	}
 
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest()
+	customGenesis[types.ModuleName] = epochsGenesis
+
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
+	)
+
+	gh := grpc.NewIntegrationHandler(nw)
+
+	return &KeeperTestSuite{
+		network: nw,
+		keyring: keys,
+		handler: gh,
+	}
 }

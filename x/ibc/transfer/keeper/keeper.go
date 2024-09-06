@@ -4,14 +4,14 @@
 package keeper
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 
 	"github.com/evmos/evmos/v19/x/ibc/transfer/types"
 )
@@ -39,12 +39,14 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 	erc20Keeper types.ERC20Keeper,
+	authority string,
 ) Keeper {
 	// create the original IBC transfer keeper for embedding
 	transferKeeper := keeper.NewKeeper(
 		cdc, storeKey, paramSpace,
 		ics4Wrapper, channelKeeper, portKeeper,
 		accountKeeper, bankKeeper, scopedKeeper,
+		authority,
 	)
 
 	return Keeper{

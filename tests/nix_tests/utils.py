@@ -21,8 +21,11 @@ from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
 
+from .http_rpc import comet_status
+
 load_dotenv(Path(__file__).parent.parent.parent / "scripts/.env")
 Account.enable_unaudited_hdwallet_features()
+MAX_UINT256 = 2**256 - 1
 ACCOUNTS = {
     "validator": Account.from_mnemonic(os.getenv("VALIDATOR1_MNEMONIC")),
     "community": Account.from_mnemonic(os.getenv("COMMUNITY_MNEMONIC")),
@@ -65,6 +68,27 @@ WASM_BINARIES = {
     "CrosschainSwap": "crosschain_swaps.wasm",
     "Swaprouter": "swaprouter.wasm",
 }
+
+REGISTER_ERC20_PROP = {
+    "messages": [
+        {
+            "@type": "/evmos.erc20.v1.MsgRegisterERC20",
+            "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+            "erc20addresses": ["ADDRESS_HERE"],
+        }
+    ],
+    "metadata": "ipfs://CID",
+    "deposit": "1aevmos",
+    "title": "register erc20",
+    "summary": "register erc20",
+    "expedited": False,
+}
+
+PROPOSAL_STATUS_DEPOSIT_PERIOD = 1
+PROPOSAL_STATUS_VOTING_PERIOD = 2
+PROPOSAL_STATUS_PASSED = 3
+PROPOSAL_STATUS_REJECTED = 4
+PROPOSAL_STATUS_FAILED = 5
 
 
 def wasm_binaries_path(filename):
@@ -117,10 +141,26 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+    """
+    Helper function to wait for new blocks on a cosmos chain.
+    If the chain has sdk < 0.50, the sync_info field will be 'SyncInfo'.
+    With cosmos-sdk v0.50+, the sync_info field is 'sync_info'
+    """
+    sync_info_field = "sync_info"
+    try:
+        cur_height = begin_height = int(
+            (cli.status())[sync_info_field]["latest_block_height"]
+        )
+    except KeyError:
+        sync_info_field = "SyncInfo"
+        cur_height = begin_height = int(
+            (cli.status())[sync_info_field]["latest_block_height"]
+        )
+
     while cur_height - begin_height < n:
         time.sleep(sleep)
-        cur_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+        cur_height = int((cli.status())[sync_info_field]["latest_block_height"])
+
     return cur_height
 
 
@@ -135,13 +175,27 @@ def wait_for_block(cli, height, timeout=240):
         raise TimeoutError(f"wait for block {height} timeout")
 
 
+def http_wait_for_block(port, height, timeout=240):
+    for _ in range(timeout * 2):
+        status = comet_status(port)
+        if status is None:
+            time.sleep(0.5)
+            continue
+        current_height = int(status["sync_info"]["latest_block_height"])
+        if current_height >= height:
+            break
+        time.sleep(0.5)
+    else:
+        raise TimeoutError(f"wait for block {height} timeout")
+
+
 def get_current_height(cli):
     try:
         status = cli.status()
     except AssertionError as e:
         print(f"get sync status failed: {e}", file=sys.stderr)
     else:
-        current_height = int(status["SyncInfo"]["latest_block_height"])
+        current_height = int(status["sync_info"]["latest_block_height"])
     return current_height
 
 
@@ -163,7 +217,7 @@ def w3_wait_for_block(w3, height, timeout=240):
 def wait_for_block_time(cli, t):
     print("wait for block time", t)
     while True:
-        now = isoparse((cli.status())["SyncInfo"]["latest_block_time"])
+        now = isoparse((cli.status())["sync_info"]["latest_block_time"])
         print("block time now: ", now)
         if now >= t:
             break
@@ -171,7 +225,7 @@ def wait_for_block_time(cli, t):
 
 
 def wait_for_fn(name, fn, *, timeout=240, interval=1):
-    for i in range(int(timeout / interval)):
+    for _ in range(int(timeout / interval)):
         result = fn()
         print("check", name, result)
         if result:
@@ -188,10 +242,16 @@ def approve_proposal(n, proposal_id, **kwargs):
     """
     cli = n.cosmos_cli()
 
+    # make the deposit (1 aevmos)
+    rsp = cli.gov_deposit("signer2", proposal_id, 1)
+    assert rsp["code"] == 0, rsp["raw_log"]
+    wait_for_new_blocks(cli, 1)
+
     for i in range(len(n.config["validators"])):
         rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes", **kwargs)
         assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(cli, 1)
+        wait_for_new_blocks(cli, 1)
+    wait_for_new_blocks(cli, 2)
     assert (
         int(cli.query_tally(proposal_id)["yes_count"]) == cli.staking_pool()
     ), "all validators should have voted yes"
@@ -199,6 +259,9 @@ def approve_proposal(n, proposal_id, **kwargs):
     proposal = cli.query_proposal(proposal_id)
     wait_for_block_time(cli, isoparse(proposal["voting_end_time"]))
     proposal = cli.query_proposal(proposal_id)
+    if isinstance(proposal["status"], int):
+        assert int(proposal["status"]) == int(PROPOSAL_STATUS_PASSED), proposal
+        return
     assert proposal["status"] == "PROPOSAL_STATUS_PASSED", proposal
 
 
@@ -261,6 +324,8 @@ def wait_for_ack(cli, chain):
     if txs_res is None:
         wait_for_new_blocks(cli, 1)
         return wait_for_ack(cli, chain)
+
+    return None
 
 
 def register_host_zone(
@@ -373,7 +438,7 @@ def parse_events_rpc(events):
             if attr["key"] is None:
                 continue
             # after sdk v0.47, key and value are strings instead of byte arrays
-            if type(attr["key"]) is str:
+            if isinstance(attr["key"], str):
                 result[ev["type"]][attr["key"]] = attr["value"]
             else:
                 key = base64.b64decode(attr["key"].encode()).decode()
@@ -430,8 +495,8 @@ default {{
       memiavl: {{
         enable: true,
       }},
-      store: {{
-        streamers: ['versiondb'],
+      versiondb: {{
+        enable: true,
       }},
     }},
     config+: {{
@@ -480,14 +545,16 @@ def update_node_cmd(path, cmd, i):
 
 
 def update_evmosd_and_setup_stride(modified_bin):
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         update_evmos_bin(modified_bin)(path, base_port, config)
         setup_stride()(path, base_port, config)
 
     return inner
 
 
-def update_evmos_bin(modified_bin, nodes=[0, 1]):
+def update_evmos_bin(
+    modified_bin, nodes=[0, 1]
+):  # pylint: disable=dangerous-default-value
     """
     updates the evmos binary with a patched binary.
     Input parameters are the modified binary (modified_bin)
@@ -497,7 +564,7 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
     so nodes should be an array containing only 0 and/or 1
     """
 
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "evmos_9000-1"
         # by default, there're 2 nodes
         # need to update the bin in all these
@@ -508,7 +575,7 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
 
 
 def setup_stride():
-    def inner(path, base_port, config):
+    def inner(path, base_port, config):  # pylint: disable=unused-argument
         chain_id = "stride-1"
         base_dir = Path(path / chain_id)
         os.environ["BASE_DIR"] = str(base_dir)
@@ -535,6 +602,16 @@ def debug_trace_tx(evmos, tx_hash: str):
     rsp = requests.post(url, json=params)
     assert rsp.status_code == 200
     return rsp.json()["result"]
+
+
+def check_error(err: Exception, err_contains):
+    if err_contains is not None:
+        # stringify error in case it is an obj
+        err_msg = json.dumps(err.args[0], separators=(",", ":"))
+        assert err_contains in err_msg
+    else:
+        print(f"Unexpected {err=}, {type(err)=}")
+        raise err
 
 
 def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):

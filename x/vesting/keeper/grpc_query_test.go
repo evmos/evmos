@@ -2,16 +2,21 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/stretchr/testify/require"
 
 	"github.com/evmos/evmos/v19/testutil"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
-func (suite *KeeperTestSuite) TestBalances() {
+func TestBalances(t *testing.T) {
 	var (
+		ctx    sdk.Context
+		nw     *network.UnitTestNetwork
 		req    *types.QueryBalancesRequest
 		expRes *types.QueryBalancesResponse
 	)
@@ -62,8 +67,8 @@ func (suite *KeeperTestSuite) TestBalances() {
 			name: "invalid account - not clawback vesting account",
 			malleate: func() {
 				baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
-				acc := suite.app.AccountKeeper.NewAccount(suite.ctx, baseAccount)
-				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+				acc := nw.App.AccountKeeper.NewAccount(ctx, baseAccount)
+				nw.App.AccountKeeper.SetAccount(ctx, acc)
 
 				req = &types.QueryBalancesRequest{
 					Address: vestingAddr.String(),
@@ -75,22 +80,22 @@ func (suite *KeeperTestSuite) TestBalances() {
 		{
 			name: "valid",
 			malleate: func() {
-				vestingStart := s.ctx.BlockTime()
+				vestingStart := ctx.BlockTime()
 
 				// fund the vesting account with coins to initialize it and
 				// then send all balances to the funding account
-				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
-				suite.Require().NoError(err, "error while funding the target account")
-				err = s.app.BankKeeper.SendCoins(suite.ctx, vestingAddr, funder, balances)
-				suite.Require().NoError(err, "error while sending coins to the funder account")
+				err := testutil.FundAccount(ctx, nw.App.BankKeeper, vestingAddr, balances)
+				require.NoError(t, err, "error while funding the target account")
+				err = nw.App.BankKeeper.SendCoins(ctx, vestingAddr, funder, balances)
+				require.NoError(t, err, "error while sending coins to the funder account")
 
 				msg := types.NewMsgCreateClawbackVestingAccount(
 					funder,
 					vestingAddr,
 					false,
 				)
-				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
-				suite.Require().NoError(err, "error while creating the vesting account")
+				_, err = nw.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
+				require.NoError(t, err, "error while creating the vesting account")
 
 				msgFund := types.NewMsgFundVestingAccount(
 					funder,
@@ -99,8 +104,8 @@ func (suite *KeeperTestSuite) TestBalances() {
 					lockupPeriods,
 					vestingPeriods,
 				)
-				_, err = suite.app.VestingKeeper.FundVestingAccount(sdk.WrapSDKContext(suite.ctx), msgFund)
-				suite.Require().NoError(err, "error while funding the vesting account")
+				_, err = nw.App.VestingKeeper.FundVestingAccount(ctx, msgFund)
+				require.NoError(t, err, "error while funding the vesting account")
 
 				req = &types.QueryBalancesRequest{
 					Address: vestingAddr.String(),
@@ -116,19 +121,21 @@ func (suite *KeeperTestSuite) TestBalances() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.Require().NoError(suite.SetupTest()) // reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
-			tc.malleate()
-			suite.Commit()
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			// reset
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
+			qc := nw.GetVestingClient()
 
-			res, err := suite.queryClient.Balances(ctx, req)
+			tc.malleate()
+
+			res, err := qc.Balances(ctx, req)
 			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				require.NoError(t, err)
+				require.Equal(t, expRes, res)
 			} else {
-				suite.Require().Error(err)
-				suite.Require().ErrorContains(err, tc.errContains)
+				require.Error(t, err)
+				require.ErrorContains(t, err, tc.errContains)
 			}
 		})
 	}

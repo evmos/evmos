@@ -32,14 +32,14 @@ config {
     },
     validators: [
       {
-        coins: '2234240000000000000cro',
-        staked: '10000000000000cro',
+        coins: '2234240000000000000basecro',
+        staked: '10000000000000basecro',
         mnemonic: '${VALIDATOR1_MNEMONIC}',
         base_port: 26800,
       },
       {
-        coins: '987870000000000000cro',
-        staked: '20000000000000cro',
+        coins: '987870000000000000basecro',
+        staked: '20000000000000basecro',
         mnemonic: '${VALIDATOR2_MNEMONIC}',
         base_port: 26810,
       },
@@ -47,17 +47,17 @@ config {
     accounts: [
       {
         name: 'community',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${COMMUNITY_MNEMONIC}',
       },
       {
         name: 'relayer',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${SIGNER1_MNEMONIC}',
       },
       {
         name: 'signer2',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${SIGNER2_MNEMONIC}',
       },
     ],
@@ -138,7 +138,7 @@ config {
           },
         },
         gas_price: {
-          price: 40000000000,
+          price: 80000000000,
           denom: 'aevmos',
         },
         extension_options: [{

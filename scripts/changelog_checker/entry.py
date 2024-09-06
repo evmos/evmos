@@ -56,7 +56,7 @@ class Entry:
 
         self.pr_number = int(match.group("pr"))
         self.category = match.group("category")
-        self.backslash = True if match.group("bs") else False
+        self.backslash = bool(match.group("bs"))
         self.link = match.group("link")
         self.description = match.group("desc")
         self.whitespaces = [

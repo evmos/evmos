@@ -6,16 +6,16 @@ import (
 	evmante "github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/testutil"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
-	dec := evmante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
+	dec := evmante.NewEthSetUpContextDecorator(suite.GetNetwork().App.EvmKeeper)
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.app.EvmKeeper.ChainID(),
+		ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
@@ -38,7 +38,7 @@ func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			ctx, err := dec.AnteHandle(suite.ctx, tc.tx, false, testutil.NextFn)
+			ctx, err := dec.AnteHandle(suite.GetNetwork().GetContext(), tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err)

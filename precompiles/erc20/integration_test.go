@@ -3,19 +3,22 @@ package erc20_test
 import (
 	"fmt"
 	"math/big"
+	"slices"
 	"strings"
 	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/evmos/evmos/v19/contracts"
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
-	contractutils "github.com/evmos/evmos/v19/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -42,29 +45,28 @@ type IntegrationTestSuite struct {
 	keyring keyring.Keyring
 	factory factory.TxFactory
 
-	bondDenom  string
-	tokenDenom string
+	bondDenom     string
+	tokenDenom    string // erc20 precompile denom with supply
+	tokenDenomTwo string // erc20 precompile denom with zero supply
 
-	precompile *erc20.Precompile
+	precompile    *erc20.Precompile // erc20 precompile with supply
+	precompileTwo *erc20.Precompile // erc20 precompile with zero supply
 }
 
 func (is *IntegrationTestSuite) SetupTest() {
+	is.tokenDenom = "xmpl"
+	is.tokenDenomTwo = "xmpl2"
+
 	keys := keyring.New(2)
+	genesis := utils.CreateGenesisWithTokenPairs(keys, is.tokenDenom, is.tokenDenomTwo)
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithOtherDenoms([]string{is.tokenDenom}), // add balance (supply) to is.tokenDenom
+		network.WithCustomGenesis(genesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
-
-	// Set up min deposit in Evmos
-	params, err := gh.GetGovParams("deposit")
-	Expect(err).ToNot(HaveOccurred(), "failed to get gov params")
-	Expect(params).ToNot(BeNil(), "returned gov params are nil")
-
-	updatedParams := params.Params
-	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), math.NewInt(1e18)))
-	err = nw.UpdateGovParams(*updatedParams)
-	Expect(err).ToNot(HaveOccurred(), "failed to update the min deposit")
 
 	is.network = nw
 	is.factory = tf
@@ -72,9 +74,10 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.keyring = keys
 
 	is.bondDenom = nw.GetDenom()
-	is.tokenDenom = "xmpl"
 
-	is.precompile = is.setupERC20Precompile(is.tokenDenom)
+	erc20Gen := genesis[erc20types.ModuleName].(*erc20types.GenesisState)
+	is.precompile = is.setupERC20Precompile(is.tokenDenom, erc20Gen.TokenPairs)
+	is.precompileTwo = is.setupERC20Precompile(is.tokenDenomTwo, erc20Gen.TokenPairs)
 }
 
 func TestIntegrationSuite(t *testing.T) {
@@ -86,11 +89,10 @@ func TestIntegrationSuite(t *testing.T) {
 }
 
 var (
-	defaultCallArgs    contractutils.CallArgs
 	wevmosAddress      common.Address
 	revertContractAddr common.Address
-	gasLimit           uint64
-	gasPrice           *big.Int
+	gasLimit           = uint64(5000000)
+	gasPrice           = big.NewInt(800_000_000)
 )
 
 var _ = Describe("ERC20 Extension -", func() {
@@ -134,6 +136,26 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
+		contractAddrTokenTwo, err := is.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: allowanceCallerContract,
+				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
+				// to make calls to the correct ERC20 precompile.
+				ConstructorArgs: []interface{}{is.precompileTwo.Address()},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
 		erc20MinterBurnerAddr, err := is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
@@ -145,6 +167,10 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
+
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
 
 		ERC20MinterV5Addr, err := is.factory.DeployContract(
 			sender.Priv,
@@ -158,6 +184,10 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter contract")
 
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
 		erc20MinterV5CallerAddr, err := is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
@@ -170,6 +200,10 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter caller contract")
 
+		// commit the changes to update state (account nonce mostly)
+		err = is.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
 		// Store the data of the deployed contracts
 		contractsData = ContractsData{
 			ownerPriv: sender.Priv,
@@ -178,8 +212,16 @@ var _ = Describe("ERC20 Extension -", func() {
 					Address: is.precompile.Address(),
 					ABI:     is.precompile.ABI,
 				},
+				directCallToken2: {
+					Address: is.precompileTwo.Address(),
+					ABI:     is.precompileTwo.ABI,
+				},
 				contractCall: {
 					Address: contractAddr,
+					ABI:     allowanceCallerContract.ABI,
+				},
+				contractCallToken2: {
+					Address: contractAddrTokenTwo,
 					ABI:     allowanceCallerContract.ABI,
 				},
 				erc20Call: {
@@ -203,6 +245,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
+		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(erc20types.WEVMOSContractTestnet)))
 
 		wevmosAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
 		revertContractAddr, err = is.factory.DeployContract(
@@ -216,16 +259,6 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy reverter contract")
-
-		gasLimit = uint64(4991202)
-		gasPrice = big.NewInt(765625001)
-		defaultCallArgs = contractutils.CallArgs{
-			ContractAddr: revertContractAddr,
-			ContractABI:  revertCallerContract.ABI,
-			PrivKey:      sender.Priv,
-			GasLimit:     gasLimit,
-			GasPrice:     gasPrice,
-		}
 
 		err = is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
@@ -258,8 +291,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
-				// Fund account with some tokens
-				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				senderInitialAmt := is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				senderInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, senderInitialAmt)}
 
 				// Transfer tokens
 				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoins[0].Amount.BigInt())
@@ -269,11 +302,14 @@ var _ = Describe("ERC20 Extension -", func() {
 				res, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 				is.ExpectBalancesForContract(
 					callType, contractsData,
 					[]ExpectedBalance{
-						{address: sender.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+						{address: sender.AccAddr, expCoins: senderInitialBalance.Sub(transferCoins...)},
 						{address: receiver.Bytes(), expCoins: transferCoins},
 					},
 				)
@@ -295,8 +331,11 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
 
 				// Fund accounts with some tokens
-				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoinsSender)
-				is.fundWithTokens(callType, contractsData, receiver.Addr, fundCoinsReceiver)
+				receiverInitialAmt := is.fundWithTokens(callType, contractsData, receiver.Addr, fundCoinsReceiver)
+				receiverInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, receiverInitialAmt)}
+
+				senderInitialAmt := is.fundWithTokens(callType, contractsData, sender.Addr, fundCoinsSender)
+				senderInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, senderInitialAmt)}
 
 				// Transfer tokens
 				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver.Addr, transferCoin.Amount.BigInt())
@@ -306,12 +345,15 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 				is.ExpectBalancesForContract(
 					callType, contractsData,
 					[]ExpectedBalance{
-						{address: sender.AccAddr, expCoins: fundCoinsSender.Sub(transferCoin)},
-						{address: receiver.AccAddr, expCoins: fundCoinsReceiver.Add(transferCoin)},
+						{address: sender.AccAddr, expCoins: senderInitialBalance.Sub(transferCoin)},
+						{address: receiver.AccAddr, expCoins: receiverInitialBalance.Add(transferCoin)},
 					},
 				)
 			},
@@ -347,10 +389,12 @@ var _ = Describe("ERC20 Extension -", func() {
 				sender := is.keyring.GetKey(0)
 				receiver := is.keyring.GetAddr(1)
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 200)}
-				transferCoin := sdk.NewInt64Coin(is.tokenDenom, 300)
 
 				// Fund account with some tokens
-				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				senderInitialAmt := is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				senderInitialBalance := sdk.NewCoin(is.tokenDenom, senderInitialAmt)
+
+				transferCoin := senderInitialBalance.Add(sdk.NewInt64Coin(is.tokenDenom, 100))
 
 				// Transfer tokens
 				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
@@ -373,37 +417,62 @@ var _ = Describe("ERC20 Extension -", func() {
 		})
 		When("calling reverter contract", func() {
 			Context("in a direct call to the WEVMOS contract", func() {
+				var (
+					args   factory.CallArgs
+					txArgs evmtypes.EvmTxArgs
+				)
+				BeforeEach(func() {
+					args = factory.CallArgs{
+						ContractABI: revertCallerContract.ABI,
+					}
+					txArgs = evmtypes.EvmTxArgs{
+						To:       &revertContractAddr,
+						GasLimit: gasLimit,
+						GasPrice: gasPrice,
+					}
+				})
 				It("should transfer tokens", func() {
 					sender := is.keyring.GetKey(0)
-					receiver := is.keyring.GetAddr(1)
+					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
-					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					denomInitialBalance := balRes.Balance
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderInitialBalance := balRes.Balance
 
-					cArgs := defaultCallArgs.
-						WithPrivKey(sender.Priv).
-						WithMethodName("transferWithRevert").
-						WithArgs(
-							receiver,
-							amountToSend,
-							false,
-							false,
-						).
-						WithAmount(amountToSend)
+					args.MethodName = "transferWithRevert"
+					args.Args = []interface{}{
+						receiver.Addr,
+						amountToSend,
+						false,
+						false,
+					}
+					txArgs.Amount = amountToSend
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
 					)
-					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, transferCheck)
 					Expect(err).To(BeNil())
-					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(is.network.NextBlock()).To(BeNil())
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
+					balRes, err = is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
-					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + amountToSend.Int64()))
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderFinalBalance := balRes.Balance
+					denomSpent := fees.Add(math.NewIntFromBigInt(amountToSend))
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
 				},
 				)
@@ -411,31 +480,43 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomInitialBalance := balRes.Balance
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderInitialBalance := balRes.Balance
 
-					cArgs := defaultCallArgs.
-						WithPrivKey(sender.Priv).
-						WithMethodName("transferWithRevert").
-						WithArgs(
-							receiver,
-							amountToSend,
-							before,
-							after,
-						).
-						WithAmount(amountToSend)
+					args.MethodName = "transferWithRevert"
+					args.Args = []interface{}{
+						receiver,
+						amountToSend,
+						before,
+						after,
+					}
+					txArgs.Amount = amountToSend
 
-					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
-					Expect(err).NotTo(BeNil())
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, execRevertedCheck)
+					Expect(err).To(BeNil())
+					Expect(is.network.NextBlock()).To(BeNil())
+
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
 					// contract balance should remain unchanged
-					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
-					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderFinalBalance := balRes.Balance
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
 				},
 					Entry("revert before", true, false),
 					Entry("revert after", false, true),
@@ -444,69 +525,91 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					totalToSend := int64(350)
-					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomInitialBalance := balRes.Balance
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderInitialBalance := balRes.Balance
 
-					cArgs := defaultCallArgs.
-						WithPrivKey(sender.Priv).
-						WithMethodName("testTransferAndSend").
-						WithArgs(
-							receiver,
-							big.NewInt(100),
-							big.NewInt(100),
-							big.NewInt(150),
-							false,
-							false,
-						).
-						WithAmount(big.NewInt(totalToSend))
+					args.MethodName = "testTransferAndSend"
+					args.Args = []interface{}{
+						receiver,
+						big.NewInt(100),
+						big.NewInt(100),
+						big.NewInt(150),
+						false,
+						false,
+					}
+					txArgs.Amount = big.NewInt(totalToSend)
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
 					)
-					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, transferCheck)
 					Expect(err).To(BeNil())
+					Expect(is.network.NextBlock()).To(BeNil())
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
 					// contract balance should remain unchanged
-					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(totalToSend))))
 
-					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
-					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + totalToSend))
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderFinalBalance := balRes.Balance
+					denomSpent := fees.AddRaw(totalToSend)
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
 				},
 				)
 				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomInitialBalance := balRes.Balance
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderInitialBalance := balRes.Balance
 
-					cArgs := defaultCallArgs.
-						WithPrivKey(sender.Priv).
-						WithMethodName("testTransferAndSend").
-						WithArgs(
-							receiver,
-							big.NewInt(100),
-							big.NewInt(100),
-							big.NewInt(100),
-							before,
-							after,
-						).
-						WithAmount(big.NewInt(300))
+					args.MethodName = "testTransferAndSend"
+					args.Args = []interface{}{
+						receiver,
+						big.NewInt(100),
+						big.NewInt(100),
+						big.NewInt(100),
+						before,
+						after,
+					}
+					txArgs.Amount = big.NewInt(300)
 
-					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, execRevertedCheck)
-					Expect(err).NotTo(BeNil())
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, execRevertedCheck)
+					Expect(err).To(BeNil())
+					Expect(is.network.NextBlock()).To(BeNil())
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
 					// contract balance should remain unchanged
-					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
-					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(math.NewInt((res.GasUsed * gasPrice.Int64())))))
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderFinalBalance := balRes.Balance
+					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
 				},
 					Entry("revert before", true, false),
 					Entry("revert after", false, true),
@@ -515,32 +618,43 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					denomInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
-					senderInitialBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomInitialBalance := balRes.Balance
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderInitialBalance := balRes.Balance
 
-					cArgs := defaultCallArgs.
-						WithPrivKey(sender.Priv).
-						WithMethodName("transfersWithTry").
-						WithArgs(
-							receiver,
-							amountToSend,
-							amountToSend,
-						).
-						WithAmount(big.NewInt(200))
+					args.MethodName = "transfersWithTry"
+					args.Args = []interface{}{
+						receiver,
+						amountToSend,
+						amountToSend,
+					}
+					txArgs.Amount = big.NewInt(200)
 
 					transferCheck := passCheck.WithExpEvents(
 						erc20.EventTypeTransfer,
 					)
-					res, _, err := contractutils.CallContractAndCheckLogs(is.network.GetContext(), is.network.App, cArgs, transferCheck)
+					res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, args, transferCheck)
 					Expect(err).To(BeNil())
-					denomFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), receiver.Bytes(), is.bondDenom)
+					Expect(is.network.NextBlock()).To(BeNil())
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
+					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					contractBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					Expect(err).To(BeNil())
+					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount.Int64()).To(Equal(amountToSend.Int64()))
 
-					senderFinalBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), sender.AccAddr, is.bondDenom)
-					denomSpent := math.NewInt((res.GasUsed*gasPrice.Int64() + amountToSend.Int64() + amountToSend.Int64()))
+					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					Expect(err).To(BeNil())
+					senderFinalBalance := balRes.Balance
+					denomSpent := fees.AddRaw(amountToSend.Int64() + amountToSend.Int64())
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(denomSpent)))
 				})
 			})
@@ -557,7 +671,8 @@ var _ = Describe("ERC20 Extension -", func() {
 					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 					// Fund account with some tokens
-					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+					ownerInitialAmt := is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+					ownerInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, ownerInitialAmt)}
 
 					// Set allowance
 					is.setupSendAuthzForContract(callType, contractsData, spender.Addr, owner.Priv, transferCoins)
@@ -577,11 +692,15 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit the changes to the chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
-							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: owner.AccAddr, expCoins: ownerInitialBalance.Sub(transferCoins...)},
 							{address: receiver.Bytes(), expCoins: transferCoins},
 						},
 					)
@@ -609,7 +728,8 @@ var _ = Describe("ERC20 Extension -", func() {
 						transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 						// Fund account with some tokens
-						is.fundWithTokens(directCall, contractsData, owner.Addr, fundCoins)
+						ownerInitialAmt := is.fundWithTokens(directCall, contractsData, owner.Addr, fundCoins)
+						ownerInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, ownerInitialAmt)}
 
 						// Transfer tokens
 						txArgs, transferArgs := is.getTxAndCallArgs(
@@ -625,11 +745,15 @@ var _ = Describe("ERC20 Extension -", func() {
 						_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 						is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 						is.ExpectBalancesForContract(
 							directCall, contractsData,
 							[]ExpectedBalance{
-								{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+								{address: owner.AccAddr, expCoins: ownerInitialBalance.Sub(transferCoins...)},
 								{address: receiver.Bytes(), expCoins: transferCoins},
 							},
 						)
@@ -643,7 +767,8 @@ var _ = Describe("ERC20 Extension -", func() {
 						transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 						// Fund account with some tokens
-						is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+						ownerInitialAmt := is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+						ownerInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, ownerInitialAmt)}
 
 						// NOTE: Here we set up the allowance using the contract calls instead of the helper utils,
 						// because the `MsgGrant` used there doesn't allow the sender to be the same as the spender,
@@ -659,10 +784,17 @@ var _ = Describe("ERC20 Extension -", func() {
 						_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+						// create new block to commit the changes in the state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 						is.ExpectSendAuthzForContract(
 							callType, contractsData,
 							owner.Addr, owner.Addr, transferCoins,
 						)
+
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 						// Transfer tokens
 						txArgs, transferArgs := is.getTxAndCallArgs(
@@ -679,11 +811,15 @@ var _ = Describe("ERC20 Extension -", func() {
 						_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 						is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 						is.ExpectBalancesForContract(
 							callType, contractsData,
 							[]ExpectedBalance{
-								{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+								{address: owner.AccAddr, expCoins: ownerInitialBalance.Sub(transferCoins...)},
 								{address: receiver.Bytes(), expCoins: transferCoins},
 							},
 						)
@@ -763,6 +899,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -778,10 +918,11 @@ var _ = Describe("ERC20 Extension -", func() {
 					from := is.keyring.GetKey(1)
 					receiver := utiltx.GenerateAddress()
 					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 200)}
-					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
 
 					// Fund account with some tokens
-					is.fundWithTokens(callType, contractsData, from.Addr, fundCoins)
+					senderInitialAmt := is.fundWithTokens(callType, contractsData, from.Addr, fundCoins)
+					senderInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, senderInitialAmt)}
+					transferCoins := senderInitialBalance.Add(sdk.NewInt64Coin(is.tokenDenom, 100))
 
 					// Set allowance
 					is.setupSendAuthzForContract(
@@ -799,6 +940,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -821,7 +966,8 @@ var _ = Describe("ERC20 Extension -", func() {
 					spender := contractsData.GetContractData(callType).Address
 
 					// Fund account with some tokens
-					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoin)
+					ownerInitialAmt := is.fundWithTokens(callType, contractsData, owner.Addr, fundCoin)
+					ownerInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, ownerInitialAmt)}
 
 					// Set allowance
 					is.setupSendAuthzForContract(
@@ -844,11 +990,15 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
-							{address: owner.AccAddr, expCoins: fundCoin.Sub(transferCoins...)},
+							{address: owner.AccAddr, expCoins: ownerInitialBalance.Sub(transferCoins...)},
 							{address: receiver.Bytes(), expCoins: transferCoins},
 						},
 					)
@@ -878,7 +1028,8 @@ var _ = Describe("ERC20 Extension -", func() {
 					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 					// Fund account with some tokens
-					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+					ownerInitialAmt := is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+					ownerInitialBalance := sdk.Coins{sdk.NewCoin(is.tokenDenom, ownerInitialAmt)}
 
 					// Set allowance
 					is.setupSendAuthzForContract(
@@ -901,11 +1052,15 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
-							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: owner.AccAddr, expCoins: ownerInitialBalance.Sub(transferCoins...)},
 							{address: receiver.Bytes(), expCoins: transferCoins},
 						},
 					)
@@ -948,6 +1103,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 				},
 					// NOTE: we are not passing the direct call here because this test is for contract calls only
 					Entry(" - through contract", contractCall),
@@ -959,11 +1118,11 @@ var _ = Describe("ERC20 Extension -", func() {
 		When("querying balance", func() {
 			DescribeTable("it should return an existing balance", func(callType CallType) {
 				sender := is.keyring.GetKey(0)
-				expBalance := big.NewInt(100)
-				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, expBalance.Int64())}
+				addedAmt := big.NewInt(100)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, addedAmt.Int64())}
 
 				// Fund account with some tokens
-				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				ownerInitialAmt := is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
 
 				// Query the balance
 				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, sender.Addr)
@@ -974,7 +1133,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				var balance *big.Int
 				err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(balance).To(Equal(expBalance), "expected different balance")
+				Expect(math.NewIntFromBigInt(balance)).To(Equal(ownerInitialAmt), "expected different balance")
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
@@ -989,8 +1148,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
 
 				// Fund account with some tokens
-				err := is.network.FundAccount(sender.AccAddr, fundCoins)
+				err := is.factory.FundAccount(is.keyring.GetKey(0), sender.AccAddr, fundCoins)
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				Expect(is.network.NextBlock()).To(BeNil())
 
 				// Query the balance
 				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, address)
@@ -1176,6 +1336,15 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Fund account with some tokens
 				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
 
+				// if is native coin, get expSupply from the bank mod
+				if slices.Contains(nativeCallTypes, callType) {
+					qc := is.network.GetBankClient()
+					qRes, err := qc.SupplyOf(is.network.GetContext(), &banktypes.QuerySupplyOfRequest{Denom: is.tokenDenom})
+					Expect(err).To(BeNil())
+					Expect(qRes).NotTo(BeNil())
+					expSupply = qRes.Amount.Amount.BigInt()
+				}
+
 				// Query the balance
 				txArgs, supplyArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TotalSupplyMethod)
 
@@ -1206,8 +1375,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 				Expect(supply.Int64()).To(BeZero(), "expected zero supply")
 			},
-				Entry(" - direct call", directCall),
-				Entry(" - through contract", contractCall),
+				Entry(" - direct call", directCallToken2),
+				Entry(" - through contract", contractCallToken2),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
@@ -1228,6 +1397,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(
@@ -1257,6 +1430,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance contains both spend limits
 					is.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
@@ -1285,6 +1462,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance contains both spend limits
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(tokenCoins...))
@@ -1312,6 +1493,11 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					// Check allowance contains only the spend limit in network denomination
 					is.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
 				},
@@ -1336,6 +1522,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance was deleted
 					is.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
@@ -1357,6 +1547,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check still no authorization exists
@@ -1391,6 +1585,10 @@ var _ = Describe("ERC20 Extension -", func() {
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 						Expect(ethRes).To(BeNil(), "expected empty result")
 
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 						is.ExpectNoSendAuthzForContract(
 							directCall, contractsData,
 							grantee.Addr, granter.Addr,
@@ -1413,6 +1611,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 						_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 						is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 						is.ExpectSendAuthzForContract(
@@ -1443,6 +1645,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
@@ -1468,6 +1674,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance
 					is.ExpectSendAuthzForContract(
@@ -1492,6 +1702,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Set up a second approval which should overwrite the initial one
@@ -1500,6 +1714,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err = is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					// Check allowance has been updated
 					is.ExpectSendAuthzForContract(
@@ -1525,12 +1743,20 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Approve allowance
 					txArgs, approveArgs = is.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
 					_, ethRes, err = is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
@@ -1554,6 +1780,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check still no authorization exists
@@ -1587,6 +1817,10 @@ var _ = Describe("ERC20 Extension -", func() {
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 						Expect(ethRes).To(BeNil(), "expected empty result")
 
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 						is.ExpectNoSendAuthzForContract(
 							callType, contractsData,
 							grantee, granter,
@@ -1610,6 +1844,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 						_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approvalCheck)
 						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						// commit changes to chain state
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 						is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 						is.ExpectSendAuthzForContract(
@@ -1639,6 +1877,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					},
 				)
 				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// NOTE: update the address but leave the ABI as it is, so that the ABI includes
 				// the metadata methods but the contract doesn't have them.
@@ -1702,16 +1944,20 @@ var _ = Describe("ERC20 Extension -", func() {
 				expName = erc20types.CreateDenom(erc20Addr.String())
 
 				// Register ERC20 token pair for this test
-				tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-					Address:      erc20Addr,
-					Denom:        denom,
+				tokenPairs, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+					Addresses:    []string{erc20Addr.Hex()},
 					ProposerPriv: is.keyring.GetPrivKey(0),
 				})
 				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+				Expect(tokenPairs).To(HaveLen(1))
 
 				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
-				is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+				is.precompile, err = setupNewERC20PrecompileForTokenPair(is.keyring.GetPrivKey(0), is.network, is.factory, tokenPairs[0])
 				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// update this in the global contractsData
 				contractsData.contractData[directCall] = ContractData{
@@ -1731,6 +1977,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					},
 				)
 				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				contractsData.contractData[contractCall] = ContractData{
 					Address: callerAddr,
@@ -1806,6 +2056,10 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
+			// commit changes to chain state
+			err = is.network.NextBlock()
+			Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 			contractsData.contractData[erc20CallerCall] = ContractData{
 				Address: contractAddr,
 				ABI:     allowanceCallerContract.ABI,
@@ -1840,6 +2094,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectNoSendAuthzForContract(
 						directCall, contractsData,
 						grantee.Addr, granter.Addr,
@@ -1862,6 +2120,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approvalCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(
@@ -1897,6 +2159,9 @@ var _ = Describe("ERC20 Extension -", func() {
 						directCall, contractsData,
 						grantee.Addr, granter.Addr,
 					)
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 				})
 
 				DescribeTable("it should decrease an existing allowance", func(callType CallType) {
@@ -1921,6 +2186,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approvalCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(
@@ -1950,6 +2219,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, notFoundCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 				Expect(ethRes).To(BeNil(), "expected empty result")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through erc20 contract", erc20Call),
@@ -1972,6 +2245,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
 				},
@@ -1993,6 +2270,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit changes to chain state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, contractAddr, authzCoins)
@@ -2021,6 +2302,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 				is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(increaseCoins...))
 			},
@@ -2044,6 +2329,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, notFoundCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 				Expect(ethRes).To(BeNil(), "expected empty result")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
@@ -2073,6 +2362,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 				is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Add(increaseCoins...))
 			},
@@ -2091,6 +2384,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+
 				is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Sub(decreaseCoins...))
 			},
@@ -2106,6 +2403,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 				Expect(ethRes).To(BeNil(), "expected empty result")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
@@ -2121,6 +2422,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// Check that only the spend limit in the network denomination remains
 				bondDenom := is.network.GetDenom()
@@ -2140,6 +2445,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, belowZeroCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 				Expect(ethRes).To(BeNil(), "expected empty result")
+
+				// commit changes to chain state
+				err = is.network.NextBlock()
+				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// Check that the allowance was not changed
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
@@ -2172,6 +2481,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Add(increaseCoins...))
 				},
@@ -2189,6 +2502,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Sub(decreaseCoins...))
 				},
@@ -2203,6 +2520,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr)
@@ -2223,6 +2544,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
 
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					// Check that the allowance was not changed
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
 				},
@@ -2239,6 +2564,9 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					// Check that the allowance was not changed
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
@@ -2270,16 +2598,26 @@ var _ = Describe("ERC20 Extension -", func() {
 					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 					_, _, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					is.ExpectSendAuthzForContract(contractCall, contractsData, grantee.Addr, callerContractAddr, authzCoins)
 
 					// Create the authorization for the ERC20 caller contract
 					txArgs, approveArgs = is.getTxAndCallArgs(erc20CallerCall, contractsData, auth.ApproveMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
 					_, _, err = is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					is.ExpectSendAuthzForContract(erc20CallerCall, contractsData, grantee.Addr, erc20CallerContractAddr, authzCoins)
 				})
 
-				DescribeTable("increasing the allowance should increase the spend limit", func(callType CallType) {
+				DescribeTable("increasing the allowance should increase the spend limit", func(callType CallType) { //nolint:dupl
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
 					increaseCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
@@ -2288,6 +2626,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins.Add(increaseCoins...))
@@ -2306,6 +2648,9 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
 
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					// Check that the allowance was not changed
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins)
 				},
@@ -2313,7 +2658,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 caller contract", erc20CallerCall),
 				)
 
-				DescribeTable("decreasing the allowance should decrease the spend limit", func(callType CallType) {
+				DescribeTable("decreasing the allowance should decrease the spend limit", func(callType CallType) { //nolint:dupl
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
 					decreaseCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 50)}
@@ -2322,6 +2667,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins.Sub(decreaseCoins...))
@@ -2339,6 +2688,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					// commit the changes to state
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
+
 					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr)
 				},
@@ -2355,6 +2708,9 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, decreaseArgs, execRevertedCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					err = is.network.NextBlock()
+					Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 
 					// Check that the allowance was not changed
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins)
@@ -2419,8 +2775,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 
 			// Register the deployed erc20 contract as a token pair
 			_, err = utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-				Address:      erc20Addr,
-				Denom:        tokenDenom,
+				Addresses:    []string{erc20Addr.Hex()},
 				ProposerPriv: contractOwner.Priv,
 			})
 			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
@@ -2431,9 +2786,6 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 			// Mint the supply of tokens
 			err = is.MintERC20(erc20V5Call, contractData, contractOwner.Addr, supply.Amount.BigInt())
 			Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
-
-			err = is.network.NextBlock()
-			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
 
 			// Check that the supply was minted
 			is.ExpectBalancesForERC20(erc20V5Call, contractData, []ExpectedBalance{{

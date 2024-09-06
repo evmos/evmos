@@ -47,6 +47,7 @@ jobs:
           PARALLEL_TESTS=(
             "test_account.py"
             "test_distr_precompile.py"
+            "test_erc20_ibc_callbacks.py"
             "test_filters.py"
             "test_fee_history.py"
             "test_grpc_only.py"

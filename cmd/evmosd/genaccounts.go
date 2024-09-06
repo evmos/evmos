@@ -185,7 +185,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				}
 
 				// Check if account balance is aligned with vesting schedule
-				if !vestingCoins.IsEqual(coins) {
+				if !vestingCoins.Equal(coins) {
 					return fmt.Errorf("vestingCoins (%s) and coin balance (%s) amounts must be equal",
 						vestingCoins, coins,
 					)

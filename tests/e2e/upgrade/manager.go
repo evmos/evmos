@@ -6,6 +6,7 @@ package upgrade
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
@@ -19,8 +20,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
+	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
@@ -37,6 +37,9 @@ type Manager struct {
 
 	// CurrentNode stores the currently running docker container
 	CurrentNode *dockertest.Resource
+
+	// CurrentVersion stores the current version of the running node
+	CurrentVersion string
 
 	// HeightBeforeStop stores the last block height that was reached before the last running node container
 	// was stopped
@@ -64,7 +67,8 @@ func NewManager(networkName string) (*Manager, error) {
 		return nil, fmt.Errorf("docker network creation error: %w", err)
 	}
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := testnetwork.New()
+	encodingConfig := nw.GetEncodingConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	if !ok {
 		return nil, fmt.Errorf("failed to get proto codec")
@@ -119,6 +123,12 @@ func (m *Manager) RunNode(node *Node) error {
 	}
 
 	if err != nil {
+		if resource == nil || resource.Container == nil {
+			return fmt.Errorf(
+				"can't run container\n[error]: %s",
+				err.Error(),
+			)
+		}
 		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 		return fmt.Errorf(
 			"can't run container\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
@@ -211,8 +221,8 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error)
 				return "", fmt.Errorf("error while getting logs: %s", errLogs.Error())
 			}
 			return "", fmt.Errorf(
-				"can't reach height %d, due to: %s\nerror logs: %s\nout logs: %s",
-				height, err.Error(), stdOut, stdErr,
+				"can't reach height %d, due to: %v\nerror logs: %s\nout logs: %s",
+				height, err, stdOut, stdErr,
 			)
 		default:
 			currentHeight, err = m.GetNodeHeight(ctx)
@@ -229,21 +239,47 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error)
 
 // GetNodeHeight calls the Evmos CLI in the current node container to get the current block height
 func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
-	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
+	cmd := []string{"evmosd", "q", "block"}
+	splitIdx := 0 // split index for the lines in the output - in newer versions the output is in the second line
+	useV50 := false
+
+	// if the version is higher than v20.0.0, we need to use the json output flag
+	if !EvmosVersions([]string{m.CurrentVersion, "v20.0.0"}).Less(0, 1) {
+		cmd = append(cmd, "--output=json")
+		splitIdx = 1
+		useV50 = true
+	}
+
+	exec, err := m.CreateExec(cmd, m.ContainerID())
 	if err != nil {
 		return 0, fmt.Errorf("create exec error: %w", err)
 	}
+
 	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
 		return 0, fmt.Errorf("run exec error: %w", err)
 	}
-	outStr := outBuff.String()
+
+	if errBuff.String() != "" {
+		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
+	}
+
+	// NOTE: we're splitting the output because it has the first line saying "falling back to latest height"
+	splittedOutBuff := strings.Split(outBuff.String(), "\n")
+	if len(splittedOutBuff) < splitIdx+1 {
+		return 0, fmt.Errorf("unexpected output format for node height; got: %s", outBuff.String())
+	}
+
+	outStr := splittedOutBuff[splitIdx]
 	var h int
 	// parse current height number from block info
 	if outStr != "<nil>" && outStr != "" {
-		index := strings.Index(outBuff.String(), "\"height\":")
-		qq := outStr[index+10 : index+12]
-		h, err = strconv.Atoi(qq)
+		if useV50 {
+			h, err = UnwrapBlockHeightPostV50(outStr)
+		} else {
+			h, err = UnwrapBlockHeightPreV50(outStr)
+		}
+
 		// check if the conversion was possible
 		if err == nil {
 			// if conversion was possible but the errBuff is not empty, return the height along with an error
@@ -255,10 +291,44 @@ func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 			return h, nil
 		}
 	}
-	if errBuff.String() != "" {
-		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
-	}
+
 	return h, nil
+}
+
+type BlockHeaderPreV50 struct {
+	Block struct {
+		Header struct {
+			Height string `json:"height"`
+		} `json:"header"`
+	} `json:"block"`
+}
+
+type BlockHeaderPostV50 struct {
+	Header struct {
+		Height string `json:"height"`
+	} `json:"header"`
+}
+
+// UnwrapBlockHeightPreV50 unwraps the block height from the output of the evmosd query block command
+func UnwrapBlockHeightPreV50(input string) (int, error) {
+	var blockHeader BlockHeaderPreV50
+	err := json.Unmarshal([]byte(input), &blockHeader)
+	if err != nil {
+		return 0, fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+
+	return strconv.Atoi(blockHeader.Block.Header.Height)
+}
+
+// UnwrapBlockHeightPostV50 unwraps the block height from the output of the evmosd query block command
+func UnwrapBlockHeightPostV50(input string) (int, error) {
+	var blockHeader BlockHeaderPostV50
+	err := json.Unmarshal([]byte(input), &blockHeader)
+	if err != nil {
+		return 0, fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+
+	return strconv.Atoi(blockHeader.Header.Height)
 }
 
 // GetNodeVersion calls the Evmos CLI in the current node container to get the
@@ -371,6 +441,9 @@ func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int
 
 // ContainerID returns the docker container ID of the currently running Node
 func (m *Manager) ContainerID() string {
+	if m.CurrentNode == nil || m.CurrentNode.Container == nil {
+		return ""
+	}
 	return m.CurrentNode.Container.ID
 }
 

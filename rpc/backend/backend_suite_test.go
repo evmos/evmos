@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	dbm "github.com/cometbft/cometbft-db"
+	dbm "github.com/cosmos/cosmos-db"
 
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -18,12 +18,12 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/crypto/hd"
 	"github.com/evmos/evmos/v19/encoding"
 	"github.com/evmos/evmos/v19/indexer"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v19/rpc/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/utils"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
@@ -71,7 +71,8 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.signer = utiltx.NewSigner(priv)
 	suite.Require().NoError(err)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := network.New()
+	encodingConfig := nw.GetEncodingConfig()
 	clientCtx := client.Context{}.WithChainID(ChainID).
 		WithHeight(1).
 		WithTxConfig(encodingConfig.TxConfig).
@@ -92,8 +93,7 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.backend.ctx = rpctypes.ContextWithHeight(1)
 
 	// Add codec
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
-	suite.backend.clientCtx.Codec = encCfg.Codec
+	suite.backend.clientCtx.Codec = encodingConfig.Codec
 }
 
 // buildEthereumTx returns an example legacy Ethereum transaction
@@ -169,7 +169,7 @@ func (suite *BackendTestSuite) buildFormattedBlock(
 
 func (suite *BackendTestSuite) generateTestKeyring(clientDir string) (keyring.Keyring, error) {
 	buf := bufio.NewReader(os.Stdin)
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	return keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, encCfg.Codec, []keyring.Option{hd.EthSecp256k1Option()}...)
 }
 

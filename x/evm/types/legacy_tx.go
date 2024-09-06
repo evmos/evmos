@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/types"
+	ethutils "github.com/evmos/evmos/v19/utils/eth"
 )
 
 func NewLegacyTx(tx *ethtypes.Transaction) (*LegacyTx, error) {
@@ -68,7 +69,7 @@ func (tx *LegacyTx) Copy() TxData {
 // GetChainID returns the chain id field from the derived signature values
 func (tx *LegacyTx) GetChainID() *big.Int {
 	v, _, _ := tx.GetRawSignatureValues()
-	return DeriveChainID(v)
+	return ethutils.DeriveChainID(v)
 }
 
 // GetAccessList returns nil
@@ -144,7 +145,7 @@ func (tx *LegacyTx) AsEthereumData() ethtypes.TxData {
 // GetRawSignatureValues returns the V, R, S signature values of the transaction.
 // The return values should not be modified by the caller.
 func (tx *LegacyTx) GetRawSignatureValues() (v, r, s *big.Int) {
-	return rawSignatureValues(tx.V, tx.R, tx.S)
+	return ethutils.RawSignatureValues(tx.V, tx.R, tx.S)
 }
 
 // SetSignatureValues sets the signature values to the transaction.

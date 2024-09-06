@@ -39,7 +39,11 @@ func (p Precompile) Approve(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeURLs, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeURLs, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +127,11 @@ func (p Precompile) DecreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +174,11 @@ func (p Precompile) IncreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -231,16 +243,29 @@ func (p Precompile) createStakingAuthz(
 	authzType stakingtypes.AuthorizationType,
 ) error {
 	// Get all available validators and filter out jailed validators
+	var iterErr error
 	validators := make([]sdk.ValAddress, 0)
-	p.stakingKeeper.IterateValidators(
+	if err := p.stakingKeeper.IterateValidators(
 		ctx, func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, validator.GetOperator())
+			var valAddr sdk.ValAddress
+			valAddr, iterErr = sdk.ValAddressFromBech32(validator.GetOperator())
+			if iterErr != nil {
+				return true
+			}
+			validators = append(validators, valAddr)
 			return
 		},
-	)
+	); err != nil {
+		return err
+	}
+
+	if iterErr != nil {
+		return iterErr
+	}
+
 	stakingAuthz, err := stakingtypes.NewStakeAuthorization(validators, nil, authzType, coin)
 	if err != nil {
 		return err

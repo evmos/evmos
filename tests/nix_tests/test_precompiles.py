@@ -66,6 +66,20 @@ def test_ibc_transfer(ibc):
     receipt = send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
 
     assert receipt.status == 1
+
+    # check ibc-transfer event was emitted
+    transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
+    assert transfer_event.address == "0x0000000000000000000000000000000000000802"
+    assert transfer_event.event == "IBCTransfer"
+    assert transfer_event.args.sender == ADDRS["signer2"]
+    # TODO check if we want to keep the keccak256 hash bytes or smth better
+    # assert transfer_event.args.receiver == dst_addr
+    assert transfer_event.args.sourcePort == "transfer"
+    assert transfer_event.args.sourceChannel == "channel-0"
+    assert transfer_event.args.denom == src_denom
+    assert transfer_event.args.amount == amt
+    assert transfer_event.args.memo == ""
+
     # check gas used
     assert receipt.gasUsed == 48184
 
@@ -99,7 +113,7 @@ def test_ibc_transfer_invalid_packet(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501
+    exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501 # pylint: disable=line-too-long
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -114,7 +128,7 @@ def test_ibc_transfer_invalid_packet(ibc):
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
-        pc.functions.transfer(
+        tx = pc.functions.transfer(
             "transfer",
             "channel-0",
             src_denom,
@@ -124,7 +138,8 @@ def test_ibc_transfer_invalid_packet(ibc):
             [0, 0],
             0,
             "",
-        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
     except Exception as error:
         assert error.args[0]["message"] == f"rpc error: code = Unknown desc = {exp_err}"
 
@@ -142,7 +157,7 @@ def test_ibc_transfer_timeout(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC\)\: packet timeout"  # noqa: E501
+    exp_err = r"rpc error: code = Unknown desc = invalid packet timeout: current timestamp: \d+, timeout timestamp \d+: timeout elapsed"  # noqa: E501 # pylint: disable=line-too-long
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -157,7 +172,7 @@ def test_ibc_transfer_timeout(ibc):
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
-        pc.functions.transfer(
+        tx = pc.functions.transfer(
             "transfer",
             "channel-0",
             src_denom,
@@ -167,7 +182,8 @@ def test_ibc_transfer_timeout(ibc):
             [0, 0],
             1000,
             "",
-        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        ).build_transaction({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
+        send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
     except Exception as error:
         assert re.search(exp_err, error.args[0]["message"]) is not None
 

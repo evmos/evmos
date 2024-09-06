@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmlog "github.com/cometbft/cometbft/libs/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/evmos/evmos/v19/indexer"
@@ -26,7 +26,7 @@ func (suite *BackendTestSuite) TestGetTransactionByHash() {
 
 	txBz := suite.signAndEncodeEthTx(msgEthereumTx)
 	block := &types.Block{Header: types.Header{Height: 1, ChainID: "test"}, Data: types.Data{Txs: []types.Tx{txBz}}}
-	responseDeliver := []*abci.ResponseDeliverTx{
+	responseDeliver := []*abci.ExecTxResult{
 		{
 			Code: 0,
 			Events: []abci.Event{
@@ -111,7 +111,7 @@ func (suite *BackendTestSuite) TestGetTransactionByHash() {
 			tc.registerMock()
 
 			db := dbm.NewMemDB()
-			suite.backend.indexer = indexer.NewKVIndexer(db, tmlog.NewNopLogger(), suite.backend.clientCtx)
+			suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
 			err := suite.backend.indexer.IndexBlock(block, responseDeliver)
 			suite.Require().NoError(err)
 
@@ -284,7 +284,7 @@ func (suite *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
 	msgEthTx, bz := suite.buildEthereumTx()
 
 	defaultBlock := types.MakeBlock(1, []types.Tx{bz}, nil, nil)
-	defaultResponseDeliverTx := []*abci.ResponseDeliverTx{
+	defaultExecTxResult := []*abci.ExecTxResult{
 		{
 			Code: 0,
 			Events: []abci.Event{
@@ -348,10 +348,10 @@ func (suite *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				db := dbm.NewMemDB()
-				suite.backend.indexer = indexer.NewKVIndexer(db, tmlog.NewNopLogger(), suite.backend.clientCtx)
+				suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
 				txBz := suite.signAndEncodeEthTx(msgEthTx)
 				block := &types.Block{Header: types.Header{Height: 1, ChainID: "test"}, Data: types.Data{Txs: []types.Tx{txBz}}}
-				err := suite.backend.indexer.IndexBlock(block, defaultResponseDeliverTx)
+				err := suite.backend.indexer.IndexBlock(block, defaultExecTxResult)
 				suite.Require().NoError(err)
 				_, err = RegisterBlockResults(client, 1)
 				suite.Require().NoError(err)
@@ -553,7 +553,7 @@ func (suite *BackendTestSuite) TestGetTransactionReceipt() {
 		registerMock func()
 		tx           *evmtypes.MsgEthereumTx
 		block        *types.Block
-		blockResult  []*abci.ResponseDeliverTx
+		blockResult  []*abci.ExecTxResult
 		expTxReceipt map[string]interface{}
 		expPass      bool
 	}{
@@ -572,7 +572,7 @@ func (suite *BackendTestSuite) TestGetTransactionReceipt() {
 			},
 			msgEthereumTx,
 			&types.Block{Header: types.Header{Height: 1}, Data: types.Data{Txs: []types.Tx{txBz}}},
-			[]*abci.ResponseDeliverTx{
+			[]*abci.ExecTxResult{
 				{
 					Code: 0,
 					Events: []abci.Event{
@@ -598,7 +598,7 @@ func (suite *BackendTestSuite) TestGetTransactionReceipt() {
 			tc.registerMock()
 
 			db := dbm.NewMemDB()
-			suite.backend.indexer = indexer.NewKVIndexer(db, tmlog.NewNopLogger(), suite.backend.clientCtx)
+			suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
 			err := suite.backend.indexer.IndexBlock(tc.block, tc.blockResult)
 			suite.Require().NoError(err)
 

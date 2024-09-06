@@ -398,10 +398,20 @@ func (k Keeper) addGrant(
 
 	// how much is really delegated?
 	vestingAddr := va.GetAddress()
-	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, vestingAddr)
-	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, vestingAddr)
+	bondedAmt, err := k.stakingKeeper.GetDelegatorBonded(ctx, vestingAddr)
+	if err != nil {
+		return err
+	}
+	unbondingAmt, err := k.stakingKeeper.GetDelegatorUnbonding(ctx, vestingAddr)
+	if err != nil {
+		return err
+	}
 	delegatedAmt := bondedAmt.Add(unbondingAmt)
-	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
+	delegated := sdk.NewCoins(sdk.NewCoin(bondDenom, delegatedAmt))
 
 	// modify schedules for the new grant
 	accStartTime := va.GetStartTime()

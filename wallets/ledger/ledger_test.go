@@ -5,25 +5,13 @@ package ledger_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
 	"github.com/evmos/evmos/v19/wallets/accounts"
 	"github.com/evmos/evmos/v19/wallets/ledger"
 )
-
-// Test Mnemonic:
-// glow spread dentist swamp people siren hint muscle first sausage castle metal cycle abandon accident logic again around mix dial knee organ episode usual
-
-// Load encoding config for sign doc encoding/decoding
-func init() {
-	config := encoding.MakeConfig(app.ModuleBasics)
-	eip712.SetEncodingConfig(config)
-	sdk.GetConfig().SetBech32PrefixForAccount("cosmos", "")
-}
 
 func (suite *LedgerTestSuite) TestEvmosLedgerDerivation() {
 	testCases := []struct {
@@ -156,7 +144,7 @@ func (suite *LedgerTestSuite) TestSignatures() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
 			tc.mockFunc()
-			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx)
+			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {
@@ -200,9 +188,9 @@ func (suite *LedgerTestSuite) TestSignatureEquivalence() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
 			tc.mockFunc()
-			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf)
+			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			suite.Require().NoError(err)
-			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino)
+			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			suite.Require().NoError(err)
 			if tc.expPass {
 				suite.Require().Equal(protoSignature, aminoSignature)

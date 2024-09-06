@@ -28,7 +28,7 @@ MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
 ROCKSDB_VERSION ?= "9.3.1"
 # Deps
-DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep 'github.com/evmos/cosmos-sdk' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
+DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep -E 'github.com/evmos/cosmos-sdk\s' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_IBC_GO_VERSION := $(shell cat go.sum | grep 'github.com/cosmos/ibc-go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_COSMOS_PROTO := $(shell cat go.sum | grep 'github.com/cosmos/cosmos-proto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 DEPS_COSMOS_GOGOPROTO := $(shell cat go.sum | grep 'github.com/cosmos/gogoproto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
@@ -39,7 +39,7 @@ export GO111MODULE = on
 # Default target executed when no arguments are given to make.
 default_target: all
 
-.PHONY: default_target
+.PHONY: build, default_target
 
 # process build tags
 
@@ -399,31 +399,31 @@ benchmark:
 ###                                Linting                                  ###
 ###############################################################################
 
-lint:
+lint: lint-go lint-python lint-contracts
+
+lint-go:
+	gofumpt -l .
 	golangci-lint run --out-format=tab
-	solhint contracts/**/*.sol
+
+lint-python:
+	find . -name "*.py" -type f -not -path "*/node_modules/*" | xargs pylint
+	flake8
 
 lint-contracts:
-	@cd contracts && \
-	npm i && \
-	npm run lint
+	solhint contracts/**/*.sol
 
 lint-fix:
 	golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 lint-fix-contracts:
-	@cd contracts && \
-	npm i && \
-	npm run lint-fix
 	solhint --fix contracts/**/*.sol
 
-.PHONY: lint lint-fix
+.PHONY: lint lint-fix lint-contracts lint-go lint-python
 
-format:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' | xargs gofumpt -w -l
+format: format-go format-python format-shell
 
-.PHONY: format
-
+format-go:
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' -not -name '*.pulsar.go' | xargs gofumpt -w -l
 
 format-python: format-isort format-black
 
@@ -433,11 +433,16 @@ format-black:
 format-isort:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
 
+format-shell:
+	shfmt -l -w .
+
+.PHONY: format format-go format-python format-black format-isort format-go
+
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.11.6
+protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --user 0 $(protoImageName)
 

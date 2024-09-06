@@ -7,12 +7,11 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/app/ante"
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/encoding"
 	cmmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
@@ -128,7 +127,7 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 			sdktypes.NewCoins(
 				sdktypes.NewCoin(
 					s.network.GetDenom(),
-					sdktypes.NewInt(1000),
+					math.NewInt(1000),
 				),
 			),
 		)
@@ -140,7 +139,7 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 }
 
 func (s *benchmarkSuite) generateHandlerOptions() ante.HandlerOptions {
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := s.network.GetEncodingConfig()
 	return ante.HandlerOptions{
 		Cdc:                    s.network.App.AppCodec(),
 		AccountKeeper:          s.network.App.AccountKeeper,

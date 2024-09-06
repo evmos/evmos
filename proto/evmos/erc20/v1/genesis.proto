@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
+import "amino/amino.proto";
 import "evmos/erc20/v1/erc20.proto";
 import "gogoproto/gogo.proto";
 
@@ -11,9 +12,9 @@ option go_package = "github.com/evmos/evmos/v19/x/erc20/types";
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // params are the erc20 module parameters at genesis
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // token_pairs is a slice of the registered token pairs at genesis
-  repeated TokenPair token_pairs = 2 [(gogoproto.nullable) = false];
+  repeated TokenPair token_pairs = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // Params defines the erc20 module params

@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,7 +21,6 @@ func (k Keeper) GetERC20PrecompileInstance(
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
 	params := k.GetParams(ctx)
-
 	if k.IsAvailableERC20Precompile(&params, address) {
 		precompile, err := k.InstantiateERC20Precompile(ctx, address)
 		if err != nil {
@@ -49,6 +49,6 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
 // EVM keeper's available dynamic precompiles precompiles params.
 func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
-	return params.IsNativePrecompile(address) ||
-		params.IsDynamicPrecompile(address)
+	return slices.Contains(params.NativePrecompiles, address.Hex()) ||
+		slices.Contains(params.DynamicPrecompiles, address.Hex())
 }

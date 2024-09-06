@@ -1,21 +1,24 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/vesting/keeper"
 	v1vestingtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"
 	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestMigrate1to2() {
-	if err := suite.SetupTest(); err != nil {
-		panic(err)
-	}
+func TestMigrate1to2(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
 
 	// Create account addresses for testing
 	vestingAddr, _ := testutiltx.NewAccAddressAndKey()
@@ -23,7 +26,9 @@ func (suite *KeeperTestSuite) TestMigrate1to2() {
 
 	// create a base vesting account instead of a clawback vesting account at the vesting address
 	baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
-	acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	baseAccount.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+	acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	require.NoError(t, err)
 
 	oldAccount := &v1vestingtypes.ClawbackVestingAccount{
 		BaseVestingAccount: acc,
@@ -32,28 +37,27 @@ func (suite *KeeperTestSuite) TestMigrate1to2() {
 		LockupPeriods:      lockupPeriods,
 		VestingPeriods:     vestingPeriods,
 	}
-	suite.app.AccountKeeper.SetAccount(suite.ctx, oldAccount)
+	nw.App.AccountKeeper.SetAccount(ctx, oldAccount)
 
-	foundAcc := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-	suite.Require().NotNil(foundAcc, "vesting account not found")
-	suite.Require().IsType(&v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
+	foundAcc := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+	require.NotNil(t, foundAcc, "vesting account not found")
+	require.IsType(t, &v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
 
 	// migrate
-	migrator := keeper.NewMigrator(suite.app.VestingKeeper)
-	err = migrator.Migrate1to2(suite.ctx)
-	suite.Require().NoError(err, "migration failed")
+	migrator := keeper.NewMigrator(nw.App.VestingKeeper)
+	err = migrator.Migrate1to2(ctx)
+	require.NoError(t, err, "migration failed")
 
 	// check that the account is now a v2 base vesting account
-	foundAcc = suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-	suite.Require().NotNil(foundAcc, "vesting account not found")
-	suite.Require().IsType(&vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
+	foundAcc = nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+	require.NotNil(t, foundAcc, "vesting account not found")
+	require.IsType(t, &vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
 }
 
-func (suite *KeeperTestSuite) TestMigrate2to3() {
-	var emtpyCoins types.Coins
-	if err := suite.SetupTest(); err != nil {
-		panic(err)
-	}
+func TestMigrate2to3(t *testing.T) {
+	var emptyCoins types.Coins
+	nw := network.NewUnitTestNetwork()
+	ctx := nw.GetContext()
 
 	// Create account addresses for testing
 	vestingAddr, _ := testutiltx.NewAccAddressAndKey()
@@ -61,7 +65,9 @@ func (suite *KeeperTestSuite) TestMigrate2to3() {
 
 	// create a base vesting account instead of a clawback vesting account at the vesting address
 	baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
-	acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	baseAccount.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+	acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+	require.NoError(t, err)
 
 	testCases := []struct {
 		name                    string
@@ -72,31 +78,31 @@ func (suite *KeeperTestSuite) TestMigrate2to3() {
 		{
 			name:                    "delegated vesting > 0 and delegated free == 0",
 			initialDelegatedVesting: quarter,
-			initialDelegatedFree:    emtpyCoins,
+			initialDelegatedFree:    emptyCoins,
 			expectedDelegatedFree:   quarter,
 		},
 		{
 			name:                    "delegated vesting > 0 and delegated free > 0",
 			initialDelegatedVesting: quarter,
 			initialDelegatedFree:    quarter,
-			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin("test", 500)),
+			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin(utils.BaseDenom, 500)),
 		},
 		{
 			name:                    "delegated vesting == 0 and delegated free > 0",
-			initialDelegatedVesting: emtpyCoins,
+			initialDelegatedVesting: emptyCoins,
 			initialDelegatedFree:    quarter,
 			expectedDelegatedFree:   quarter,
 		},
 		{
 			name:                    "delegated vesting == 0 and delegated free == 0",
-			initialDelegatedVesting: emtpyCoins,
-			initialDelegatedFree:    emtpyCoins,
-			expectedDelegatedFree:   emtpyCoins,
+			initialDelegatedVesting: emptyCoins,
+			initialDelegatedFree:    emptyCoins,
+			expectedDelegatedFree:   emptyCoins,
 		},
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		t.Run(tc.name, func(t *testing.T) {
 			acc.DelegatedVesting = tc.initialDelegatedVesting
 			acc.DelegatedFree = tc.initialDelegatedFree
 
@@ -107,29 +113,29 @@ func (suite *KeeperTestSuite) TestMigrate2to3() {
 				LockupPeriods:      lockupPeriods,
 				VestingPeriods:     vestingPeriods,
 			}
-			suite.app.AccountKeeper.SetAccount(suite.ctx, vestAcc)
+			nw.App.AccountKeeper.SetAccount(ctx, vestAcc)
 
 			// check account was created successfully
-			foundAcc := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-			suite.Require().NotNil(foundAcc, "vesting account not found")
+			foundAcc := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+			require.NotNil(t, foundAcc, "vesting account not found")
 			vestAcc, ok := foundAcc.(*vestingtypes.ClawbackVestingAccount)
-			suite.Require().True(ok)
-			suite.Require().Equal(tc.initialDelegatedVesting, vestAcc.DelegatedVesting)
-			suite.Require().Equal(tc.initialDelegatedFree, vestAcc.DelegatedFree)
+			require.True(t, ok)
+			require.Equal(t, tc.initialDelegatedVesting, vestAcc.DelegatedVesting)
+			require.Equal(t, tc.initialDelegatedFree, vestAcc.DelegatedFree)
 
 			// migrate
-			migrator := keeper.NewMigrator(suite.app.VestingKeeper)
-			err = migrator.Migrate2to3(suite.ctx)
-			suite.Require().NoError(err, "migration failed")
+			migrator := keeper.NewMigrator(nw.App.VestingKeeper)
+			err = migrator.Migrate2to3(ctx)
+			require.NoError(t, err, "migration failed")
 
 			// check that the account delegated vesting coins were migrated
 			// to the delegated free coins
-			foundAcc = suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
-			suite.Require().NotNil(foundAcc, "vesting account not found")
+			foundAcc = nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+			require.NotNil(t, foundAcc, "vesting account not found")
 			vestAcc, ok = foundAcc.(*vestingtypes.ClawbackVestingAccount)
-			suite.Require().True(ok)
-			suite.Require().Equal(emtpyCoins, vestAcc.DelegatedVesting)
-			suite.Require().Equal(tc.expectedDelegatedFree, vestAcc.DelegatedFree)
+			require.True(t, ok)
+			require.Equal(t, emptyCoins, vestAcc.DelegatedVesting)
+			require.Equal(t, tc.expectedDelegatedFree, vestAcc.DelegatedFree)
 		})
 	}
 }

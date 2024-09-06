@@ -21,7 +21,7 @@ import (
 // CheckAuthorizationEvents is a helper function used in the integration tests and checks if the approval event is emitted.
 //
 // If the amount is nil, it will not check for the amount in the event, which should be used for any generic approvals.
-func CheckAuthorizationEvents(event abi.Event, precompileAddr, granter, grantee common.Address, res abci.ResponseDeliverTx, height int64, msgTypes []string, amount *big.Int) {
+func CheckAuthorizationEvents(event abi.Event, precompileAddr, granter, grantee common.Address, res abci.ExecTxResult, height int64, msgTypes []string, amount *big.Int) {
 	var log evmtypes.Log
 	// Tx log is always the second last event
 	txLogAttributes := res.Events[len(res.Events)-2].Attributes

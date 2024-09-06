@@ -11,8 +11,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -20,6 +20,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
 )
+
+// PrecompileAddress of the vesting EVM extension in hex format.
+const PrecompileAddress = "0x0000000000000000000000000000000000000803"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -52,7 +55,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new vesting Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	vestingKeeper vestingkeeper.Keeper,

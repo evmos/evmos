@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/evmos/evmos/v19/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
@@ -39,7 +39,7 @@ func (p Precompile) DenomTrace(
 		return nil, err
 	}
 
-	res, err := p.transferKeeper.DenomTrace(sdk.WrapSDKContext(ctx), req)
+	res, err := p.transferKeeper.DenomTrace(ctx, req)
 	if err != nil {
 		// if the trace does not exist, return empty array
 		if strings.Contains(err.Error(), ErrTraceNotFound) {
@@ -63,7 +63,7 @@ func (p Precompile) DenomTraces(
 		return nil, err
 	}
 
-	res, err := p.transferKeeper.DenomTraces(sdk.WrapSDKContext(ctx), req)
+	res, err := p.transferKeeper.DenomTraces(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (p Precompile) DenomHash(
 		return nil, err
 	}
 
-	res, err := p.transferKeeper.DenomHash(sdk.WrapSDKContext(ctx), req)
+	res, err := p.transferKeeper.DenomHash(ctx, req)
 	if err != nil {
 		// if the denom hash does not exist, return empty string
 		if strings.Contains(err.Error(), ErrTraceNotFound) {

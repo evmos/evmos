@@ -3,10 +3,12 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +20,10 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
-	var contract common.Address
+	var (
+		contract common.Address
+		ctx      sdk.Context
+	)
 	testCases := []struct {
 		name     string
 		malleate func()
@@ -31,16 +36,30 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 		},
 		{
 			"ok",
-			func() { contract, _ = suite.DeployContract("coin", "token", erc20Decimals) },
+			func() {
+				var err error
+				contract, err = suite.factory.DeployContract(
+					suite.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					testfactory.ContractDeploymentData{
+						Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+						ConstructorArgs: []interface{}{"coin", "token", erc20Decimals},
+					},
+				)
+				suite.Require().NoError(err)
+				suite.Require().NoError(suite.network.NextBlock())
+				ctx = suite.network.GetContext()
+			},
 			true,
 		},
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
+		ctx = suite.network.GetContext()
 
 		tc.malleate()
 
-		res, err := suite.app.Erc20Keeper.QueryERC20(suite.ctx, contract)
+		res, err := suite.network.App.Erc20Keeper.QueryERC20(ctx, contract)
 		if tc.res {
 			suite.Require().NoError(err)
 			suite.Require().Equal(
@@ -95,18 +114,18 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		mockEVMKeeper = &erc20mocks.EVMKeeper{}
-		suite.app.Erc20Keeper = keeper.NewKeeper(
-			suite.app.GetKey("erc20"), suite.app.AppCodec(),
+		suite.network.App.Erc20Keeper = keeper.NewKeeper(
+			suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
 			authtypes.NewModuleAddress(govtypes.ModuleName),
-			suite.app.AccountKeeper, suite.app.BankKeeper,
-			mockEVMKeeper, suite.app.StakingKeeper,
-			s.app.AuthzKeeper, &s.app.TransferKeeper,
+			suite.network.App.AccountKeeper, suite.network.App.BankKeeper,
+			mockEVMKeeper, suite.network.App.StakingKeeper,
+			suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 		)
 
 		tc.malleate()
 
 		abi := contracts.ERC20MinterBurnerDecimalsContract.ABI
-		balance := suite.app.Erc20Keeper.BalanceOf(suite.ctx, abi, contract, utiltx.GenerateAddress())
+		balance := suite.network.App.Erc20Keeper.BalanceOf(suite.network.GetContext(), abi, contract, utiltx.GenerateAddress())
 		if tc.res {
 			suite.Require().Equal(balance.Int64(), tc.expBalance)
 		} else {
@@ -194,16 +213,16 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 
 		// TODO: what's the reason we are using mockEVMKeeper here? Instead of just passing the suite.app.EvmKeeper?
 		mockEVMKeeper = &erc20mocks.EVMKeeper{}
-		suite.app.Erc20Keeper = keeper.NewKeeper(
-			suite.app.GetKey("erc20"), suite.app.AppCodec(),
-			authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
-			s.app.AuthzKeeper, &s.app.TransferKeeper,
+		suite.network.App.Erc20Keeper = keeper.NewKeeper(
+			suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
+			authtypes.NewModuleAddress(govtypes.ModuleName), suite.network.App.AccountKeeper,
+			suite.network.App.BankKeeper, mockEVMKeeper, suite.network.App.StakingKeeper,
+			suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 		)
 
 		tc.malleate()
 
-		res, err := suite.app.Erc20Keeper.QueryERC20(suite.ctx, contract)
+		res, err := suite.network.App.Erc20Keeper.QueryERC20(suite.network.GetContext(), contract)
 		if tc.res {
 			suite.Require().NoError(err)
 			suite.Require().Equal(

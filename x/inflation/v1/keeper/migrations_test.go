@@ -1,17 +1,20 @@
 package keeper_test
 
 import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"testing"
+
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	inflationkeeper "github.com/evmos/evmos/v19/x/inflation/v1/keeper"
 	v2types "github.com/evmos/evmos/v19/x/inflation/v1/migrations/v2/types"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/stretchr/testify/require"
 )
 
 type mockSubspace struct {
@@ -29,15 +32,17 @@ func (ms mockSubspace) GetParamSetIfExists(_ sdk.Context, ps types.LegacyParams)
 }
 
 func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	cdc := encCfg.Codec
 	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
 }
 
-func (suite *KeeperTestSuite) TestMigrations() {
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
-	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_test")
+func TestMigrations(t *testing.T) {
+	nw := network.NewUnitTestNetwork()
+
+	encCfg := encoding.MakeConfig()
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
+	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 
 	var outputParams v2types.V2Params
@@ -47,7 +52,7 @@ func (suite *KeeperTestSuite) TestMigrations() {
 	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
 
 	// Added dummy keeper in order to use the test store and store key
-	mockKeeper := inflationkeeper.NewKeeper(storeKey, encCfg.Codec, authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper, nil, nil, nil, "")
+	mockKeeper := inflationkeeper.NewKeeper(storeKey, encCfg.Codec, authtypes.NewModuleAddress(govtypes.ModuleName), nw.App.AccountKeeper, nil, nil, nil, "")
 	mockSubspace := newMockSubspace(v2types.DefaultParams(), storeKey, tKey)
 	migrator := inflationkeeper.NewMigrator(mockKeeper, mockSubspace)
 
@@ -66,9 +71,9 @@ func (suite *KeeperTestSuite) TestMigrations() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		t.Run(tc.name, func(t *testing.T) {
 			err := tc.migrateFunc(ctx)
-			suite.Require().NoError(err)
+			require.NoError(t, err)
 		})
 	}
 }

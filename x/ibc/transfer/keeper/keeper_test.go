@@ -1,186 +1,93 @@
 package keeper_test
 
 import (
-	"encoding/json"
-	"math"
 	"math/big"
 	"testing"
-	"time"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
-	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"cosmossdk.io/math"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evm "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	evm "github.com/evmos/evmos/v19/x/evm/types"
 
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx              sdk.Context
-	app              *app.Evmos
-	queryClientEvm   evm.QueryClient
-	queryClient      types.QueryClient
-	address          common.Address
-	consAddress      sdk.ConsAddress
-	clientCtx        client.Context //nolint:unused
-	ethSigner        ethtypes.Signer
-	priv             cryptotypes.PrivKey
-	validator        stakingtypes.Validator
-	signer           keyring.Signer
-	mintFeeCollector bool
-}
+	network *network.UnitTestNetwork
+	handler grpc.Handler
+	keyring keyring.Keyring
+	factory factory.TxFactory
 
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
-	// account key
-	priv, err := ethsecp256k1.GenerateKey()
-	require.NoError(t, err)
-	suite.priv = priv
-	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = utiltx.NewSigner(priv)
-
-	// consensus key
-	privCons, err := ethsecp256k1.GenerateKey()
-	require.NoError(t, err)
-	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
-	suite.consAddress = consAddress
-
-	// init app
-	chainID := utils.TestnetChainID + "-1"
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
-	header := testutil.NewHeader(
-		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
-	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
-	// query clients
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.Erc20Keeper)
-	suite.queryClient = types.NewQueryClient(queryHelper)
-
-	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
-
-	// bond denom
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
-	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-	suite.Require().NoError(err)
-
-	// Set Validator
-	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
-	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
-	require.NoError(t, err)
-	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
-	require.NoError(t, err)
-
-	// fund signer acc to pay for tx fees
-	amt := sdkmath.NewInt(int64(math.Pow10(18) * 2))
-	err = testutil.FundAccount(
-		suite.ctx,
-		suite.app.BankKeeper,
-		suite.priv.PubKey().Address().Bytes(),
-		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
-	)
-	suite.Require().NoError(err)
-
-	// TODO change to setup with 1 validator
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 2)
-	// set a bonded validator that takes part in consensus
-	if validators[0].Status == stakingtypes.Bonded {
-		suite.validator = validators[0]
-	} else {
-		suite.validator = validators[1]
-	}
-
-	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
+	otherDenom string
 }
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
-func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+func TestKeeperTestSuite(t *testing.T) {
+	s := new(KeeperTestSuite)
+	suite.Run(t, s)
 }
 
-func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-	suite.Require().NoError(err)
-	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, types.ModuleName, authtypes.FeeCollectorName, coins)
-	suite.Require().NoError(err)
-}
+func (suite *KeeperTestSuite) SetupTest() {
+	keys := keyring.New(2)
+	suite.otherDenom = "xmpl"
 
-// Commit commits and starts a new block with an updated context.
-func (suite *KeeperTestSuite) Commit() {
-	suite.CommitAndBeginBlockAfter(time.Hour * 1)
-}
+	// Set custom genesis with capability record
+	customGenesis := network.CustomGenesisState{}
 
-// Commit commits a block at a given time. Reminder: At the end of each
-// Tendermint Consensus round the following methods are run
-//  1. BeginBlock
-//  2. DeliverTx
-//  3. EndBlock
-//  4. Commit
-func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
-	var err error
-	suite.ctx, err = testutil.CommitAndCreateNewCtx(suite.ctx, suite.app, t, nil)
-	suite.Require().NoError(err)
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+	capParams := capabilitytypes.DefaultGenesis()
+	capParams.Index = 2
+	capParams.Owners = []capabilitytypes.GenesisOwners{
+		{
+			Index: 1,
+			IndexOwners: capabilitytypes.CapabilityOwners{
+				Owners: []capabilitytypes.Owner{
+					{
+						Module: "ibc",
+						Name:   "capabilities/ports/transfer/channels/channel-0",
+					},
+					{
+						Module: "transfer",
+						Name:   "capabilities/ports/transfer/channels/channel-0",
+					},
+				},
+			},
+		},
+	}
+
+	customGenesis[capabilitytypes.ModuleName] = capParams
+
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithOtherDenoms([]string{suite.otherDenom}),
+		network.WithCustomGenesis(customGenesis),
+	)
+	gh := grpc.NewIntegrationHandler(nw)
+	tf := factory.New(nw, gh)
+
+	suite.network = nw
+	suite.factory = tf
+	suite.handler = gh
+	suite.keyring = keys
 }
 
 var _ transfertypes.ChannelKeeper = &MockChannelKeeper{}
@@ -235,61 +142,51 @@ func (b *MockICS4Wrapper) SendPacket(
 	return 0, nil
 }
 
-// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	suite.Commit()
-	addr, err := testutil.DeployContract(
-		suite.ctx,
-		suite.app,
-		suite.priv,
-		suite.queryClientEvm,
-		contracts.ERC20MinterBurnerDecimalsContract,
-		name, symbol, decimals,
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, to common.Address, amount *big.Int) (abcitypes.ExecTxResult, error) {
+	res, err := suite.factory.ExecuteContractCall(
+		suite.keyring.GetPrivKey(0),
+		evm.EvmTxArgs{
+			To: &contractAddr,
+		},
+		factory.CallArgs{
+			ContractABI: contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			MethodName:  "mint",
+			Args:        []interface{}{to, amount},
+		},
 	)
-	suite.Commit()
-	return addr, err
-}
-
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
-	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
-	suite.Require().NoError(err)
-	return suite.sendTx(contractAddr, from, transferData)
-}
-
-func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
-	suite.Require().NoError(err)
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	suite.Require().NoError(err)
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	// Mint the max gas to the FeeCollector to ensure balance in case of refund
-	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdkmath.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas))))) //#nosec G115
-
-	ethTxParams := evm.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		To:        &contractAddr,
-		GasLimit:  res.Gas,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     transferData,
-		Accesses:  &ethtypes.AccessList{},
+	if err != nil {
+		return res, err
 	}
-	ercTransferTx := evm.NewTx(&ethTxParams)
 
-	ercTransferTx.From = suite.address.Hex()
-	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
-	suite.Require().NoError(err)
-	suite.Require().Empty(rsp.VmError)
-	return ercTransferTx
+	return res, suite.network.NextBlock()
+}
+
+func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
+	addr, err := suite.factory.DeployContract(
+		suite.keyring.GetPrivKey(0),
+		evm.EvmTxArgs{},
+		factory.ContractDeploymentData{
+			Contract:        contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{name, symbol, decimals},
+		},
+	)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	return addr, suite.network.NextBlock()
+}
+
+func (suite *KeeperTestSuite) ConvertERC20(sender keyring.Key, contractAddr common.Address, amt math.Int) error {
+	msg := &erc20types.MsgConvertERC20{
+		ContractAddress: contractAddr.Hex(),
+		Amount:          amt,
+		Sender:          sender.Addr.String(),
+		Receiver:        sender.AccAddr.String(),
+	}
+	_, err := suite.factory.CommitCosmosTx(sender.Priv, cmnfactory.CosmosTxArgs{
+		Msgs: []sdk.Msg{msg},
+	})
+
+	return err
 }

@@ -5,13 +5,14 @@ package evm
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	evmante "github.com/evmos/evmos/v19/x/evm/ante"
 )
 
-var _ sdktypes.AnteDecorator = &EthSetupContextDecorator{}
+var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
 
 // EthSetupContextDecorator is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
 // by setting the gas meter to infinite
@@ -25,7 +26,7 @@ func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
 	}
 }
 
-func (esc EthSetupContextDecorator) AnteHandle(ctx sdktypes.Context, tx sdktypes.Tx, simulate bool, next sdktypes.AnteHandler) (newCtx sdktypes.Context, err error) {
+func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	newCtx, err = SetupContext(ctx, tx, esc.evmKeeper)
 	if err != nil {
 		return ctx, err
@@ -33,7 +34,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdktypes.Context, tx sdktypes
 	return next(newCtx, tx, simulate)
 }
 
-func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper EVMKeeper) (sdktypes.Context, error) {
+func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
 	// all transactions must implement GasTx
 	_, ok := tx.(authante.GasTx)
 	if !ok {
@@ -42,7 +43,7 @@ func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper EVMKeeper) (sd
 
 	// We need to set up an empty gas config so that the gas is consistent with Ethereum.
 	newCtx := evmante.BuildEvmExecutionCtx(ctx).
-		WithGasMeter(sdktypes.NewInfiniteGasMeter())
+		WithGasMeter(storetypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.
 	// Transient gas-used is necessary to sum the gas-used of cosmos tx, when it contains multiple eth msgs.
 	evmKeeper.ResetTransientGasUsed(ctx)

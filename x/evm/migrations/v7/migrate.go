@@ -6,8 +6,8 @@ package v7
 import (
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	v6types "github.com/evmos/evmos/v19/x/evm/migrations/v7/types"
@@ -77,6 +77,5 @@ func MigrateStore(
 	bz := cdc.MustMarshal(&params)
 
 	store.Set(types.KeyPrefixParams, bz)
-
 	return nil
 }

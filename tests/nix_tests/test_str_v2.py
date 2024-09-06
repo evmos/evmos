@@ -73,12 +73,24 @@ def test_str_v2_single_hop(ibc):
     evmos: Evmos = ibc.chains["evmos"]
     gaia: CosmosChain = ibc.chains["cosmoshub-1"]
 
+    w3 = evmos.w3
     evmos_cli = evmos.cosmos_cli()
     evmos_addr = ADDRS["signer2"]
     bech_dst = eth_to_bech32(evmos_addr)
 
     gaia_cli = gaia.cosmos_cli()
     gaia_addr = gaia_cli.address("signer2")
+
+    # Before IBC transfer, check no dynamic precompiles available
+    active_dynamic_precompiles = evmos_cli.erc20_params()["params"][
+        "dynamic_precompiles"
+    ]
+    assert len(active_dynamic_precompiles) == 0
+
+    # Check token pairs before IBC transfer,
+    # should only exist the WEVMOS pair
+    pairs = evmos_cli.get_token_pairs()
+    assert len(pairs) == 1
 
     old_dst_balance = get_balance(evmos, bech_dst, ATOM_IBC_DENOM)
     rsp = gaia_cli.ibc_transfer(
@@ -88,7 +100,7 @@ def test_str_v2_single_hop(ibc):
 
     wait_for_ack(evmos_cli, "Evmos")
 
-    w3 = evmos.w3
+    pairs = evmos_cli.get_token_pairs()
     active_dynamic_precompiles = evmos_cli.erc20_params()["params"][
         "dynamic_precompiles"
     ]
@@ -96,6 +108,8 @@ def test_str_v2_single_hop(ibc):
     erc_dest_balance = erc20_balance(w3, ATOM_1_ERC20_ADDRESS, evmos_addr)
 
     assert len(active_dynamic_precompiles) == 1
+    assert active_dynamic_precompiles[0] == ATOM_1_ERC20_ADDRESS
+    assert len(pairs) == 2
     assert old_dst_balance + 5000 == new_dest_balance
     assert old_dst_balance + 5000 == erc_dest_balance
 
@@ -223,7 +237,7 @@ def test_toggle_erc20_precompile(ibc):
     # assert that there's code and code hash
     # on the erc20 contract address
     contract_bech32_addr = eth_to_bech32(ATOM_1_ERC20_ADDRESS)
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == erc20_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
@@ -236,7 +250,7 @@ def test_toggle_erc20_precompile(ibc):
     update_erc20_params(evmos)
 
     # check that code and code hash were updated
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == empty_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)
@@ -250,7 +264,7 @@ def test_toggle_erc20_precompile(ibc):
     )
 
     # check that code and code hash were restored
-    acc = evmos_cli.account(contract_bech32_addr)
+    acc = evmos_cli.evm_account(contract_bech32_addr)
     assert acc["code_hash"] == erc20_code_hash
 
     code = w3.eth.get_code(ATOM_1_ERC20_ADDRESS)

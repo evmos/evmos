@@ -18,17 +18,20 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
-// GetTxCmd returns the transaction commands for this module
-func GetTxCmd() *cobra.Command {
-	cmd := &cobra.Command{
+// NewTxCmd returns a root CLI command handler for evm module transaction commands
+func NewTxCmd() *cobra.Command {
+	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      fmt.Sprintf("%s transactions subcommands", types.ModuleName),
+		Short:                      "evm subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	cmd.AddCommand(NewRawTxCmd())
-	return cmd
+
+	txCmd.AddCommand(
+		NewRawTxCmd(),
+	)
+	return txCmd
 }
 
 // NewRawTxCmd command build cosmos transaction from raw ethereum transaction

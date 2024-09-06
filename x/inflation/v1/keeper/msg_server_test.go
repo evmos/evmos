@@ -1,12 +1,21 @@
 package keeper_test
 
 import (
+	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) TestUpdateParams() {
+func TestUpdateParams(t *testing.T) {
+	var (
+		ctx sdk.Context
+		nw  *network.UnitTestNetwork
+	)
 	testCases := []struct {
 		name      string
 		request   *types.MsgUpdateParams
@@ -29,12 +38,14 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 
 	for _, tc := range testCases {
 		tc := tc
-		suite.Run("MsgUpdateParams", func() {
-			_, err := suite.app.InflationKeeper.UpdateParams(suite.ctx, tc.request)
+		t.Run(tc.name, func(t *testing.T) {
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
+			_, err := nw.App.InflationKeeper.UpdateParams(ctx, tc.request)
 			if tc.expectErr {
-				suite.Require().Error(err)
+				require.Error(t, err)
 			} else {
-				suite.Require().NoError(err)
+				require.NoError(t, err)
 			}
 		})
 	}

@@ -7,41 +7,43 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestCheckLegacyProposal tests the checkLegacyProposal function with different version strings
-func TestCheckLegacyProposal(t *testing.T) {
-	var legacyProposal bool
-
+func TestCheckUpgradeProposalVersion(t *testing.T) {
 	testCases := []struct {
 		Name string
 		Ver  string
-		Exp  bool
+		Exp  ProposalVersion
 	}{
 		{
-			Name: "legacy proposal - v10.0.1",
+			Name: "legacy proposal pre v0.47 - v10.0.1",
 			Ver:  "v10.0.1",
-			Exp:  true,
+			Exp:  LegacyProposalPreV50,
 		},
 		{
-			Name: "normal proposal - v9.1.0",
+			Name: "normal proposal pre v0.46 - v9.1.0",
 			Ver:  "v9.1.0",
-			Exp:  false,
+			Exp:  LegacyProposalPreV46,
 		},
 		{
 			Name: "normal proposal - version with whitespace - v9.1.0",
 			Ver:  "\tv9.1.0 ",
-			Exp:  false,
+			Exp:  LegacyProposalPreV46,
 		},
 		{
 			Name: "normal proposal - version without v - 9.1.0",
 			Ver:  "9.1.0",
-			Exp:  false,
+			Exp:  LegacyProposalPreV46,
+		},
+		{
+			Name: "SDK v0.50 proposal - version with whitespace - v20.0.0",
+			Ver:  "\tv20.0.0 ",
+			Exp:  UpgradeProposalV50,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			legacyProposal = CheckLegacyProposal(tc.Ver)
-			require.Equal(t, legacyProposal, tc.Exp, "expected: %v, got: %v", tc.Exp, legacyProposal)
+			legacyProposal := CheckUpgradeProposalVersion(tc.Ver)
+			require.Equal(t, tc.Exp, legacyProposal, "expected: %v, got: %v", tc.Exp, legacyProposal)
 		})
 	}
 }

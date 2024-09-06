@@ -34,7 +34,6 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgCreateClawbackVestingAccount, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 // TestMsgCreateClawbackVestingAccountNew checks if creating a clawback vesting account message
@@ -110,7 +109,6 @@ func (suite *MsgsTestSuite) TestMsgFundVestingAccountGetters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgFundVestingAccount, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 // TestMsgFundVestingAccountNew checks if creating a fund vesting account message
@@ -253,7 +251,6 @@ func (suite *MsgsTestSuite) TestMsgClawbackGetters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgClawback, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 func (suite *MsgsTestSuite) TestMsgClawbackNew() {
@@ -360,7 +357,6 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgUpdateVestingFunder, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
@@ -458,7 +454,6 @@ func (suite *MsgsTestSuite) TestMsgConvertVestingAccountGetters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgConvertVestingAccount, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 func (suite *MsgsTestSuite) TestMsgConvertVestingAccount() {
