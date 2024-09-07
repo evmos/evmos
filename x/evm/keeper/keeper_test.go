@@ -92,21 +92,19 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	var ctx sdk.Context
 	testCases := []struct {
 		name     string
-		malleate func()
+		malleate func() common.Address
 		expRes   []int
 	}{
 		{
-			"Only one account that's not a contract (no storage)",
-			func() {},
-			[]int{0},
+			name:     "Only one account that's not a contract (no storage)",
+			malleate: nil,
 		},
 		{
-			"Two accounts - one contract (with storage), one wallet",
-			func() {
+			name: "Two accounts - one contract (with storage), one wallet",
+			malleate: func() common.Address {
 				supply := big.NewInt(100)
-				suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
+				return suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 			},
-			[]int{2, 0},
 		},
 	}
 
@@ -115,10 +113,13 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			suite.SetupTest()
 			ctx = suite.network.GetContext()
 
-			tc.malleate()
+			var contractAddr common.Address
+			if tc.malleate != nil {
+				contractAddr = tc.malleate()
+			}
 
 			i := 0
-			suite.network.App.AccountKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
+			suite.network.App.AccountKeeper.IterateAccounts(suite.network.GetContext(), func(account sdk.AccountI) bool {
 				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
 					// ignore non EthAccounts
@@ -128,7 +129,17 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 				addr := ethAccount.EthAddress()
 				storage := suite.network.App.EvmKeeper.GetAccountStorage(suite.network.GetContext(), addr)
 
-				suite.Require().Equal(tc.expRes[i], len(storage))
+				if addr.Hex() == contractAddr.Hex() {
+					suite.Require().NotEqual(0, len(storage),
+						"expected account %d to have non-zero amount of storage slots, got %d",
+						i, len(storage),
+					)
+				} else {
+					suite.Require().Len(storage, 0,
+						"expected account %d to have %d storage slots, got %d",
+						i, 0, len(storage),
+					)
+				}
 				i++
 				return false
 			})

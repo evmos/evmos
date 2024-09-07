@@ -344,6 +344,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			MethodName:  staking.DelegateMethod,
 			Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
 		}
+		err = s.network.NextBlock()
+		Expect(err).To(BeNil())
 		delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
 		if contractCallParams.ExpFail {
 			Expect(err).NotTo(BeNil())
@@ -378,12 +380,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		// 	// Set params to default values
 		// 	defaultParams := evmtypes.DefaultParams()
 		// 	defaultParams.AccessControl.Call = evmtypes.AccessControlType{
-		// 		AccessType:        evmtypes.AccessTypeRestricted,
+		// 		AccessType: evmtypes.AccessTypeRestricted,
 		// 	}
 		// 	return defaultParams
 		// },
-		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
+		// 	PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		// 	PermissionsTableTest{ExpFail: true, SignerIndex: 0},
 		// ),
 		Entry("transfer and call succeed with CALL permission policy set to default and CREATE permission policy set to restricted", func() evmtypes.Params {
 			blockedSignerIndex := 1
