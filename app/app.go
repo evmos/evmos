@@ -1186,7 +1186,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-
 	// v20 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v20.UpgradeName,
