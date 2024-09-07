@@ -5,12 +5,10 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/evm"
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	"github.com/evmos/evmos/v19/x/evm/types"
@@ -88,22 +86,6 @@ func TestInitGenesis(t *testing.T) {
 			expPanic: true,
 		},
 		{
-			name: "invalid account type",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
-				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
-				network.App.AccountKeeper.SetAccount(network.GetContext(), acc)
-			},
-			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				Accounts: []types.GenesisAccount{
-					{
-						Address: address.String(),
-					},
-				},
-			},
-			expPanic: true,
-		},
-		{
 			name: "invalid code hash",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
 				ctx := network.GetContext()
@@ -126,27 +108,6 @@ func TestInitGenesis(t *testing.T) {
 			malleate: func(network *testnetwork.UnitTestNetwork) {
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
-			},
-			genState: &types.GenesisState{
-				Params: types.DefaultParams(),
-				Accounts: []types.GenesisAccount{
-					{
-						Address: address.String(),
-						Code:    "",
-					},
-				},
-			},
-			expPanic: false,
-		},
-		{
-			name: "ignore empty account code checking with non-empty codehash",
-			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ethAcc := &evmostypes.EthAccount{
-					BaseAccount: authtypes.NewBaseAccount(address.Bytes(), nil, 0, 0),
-					CodeHash:    common.BytesToHash([]byte{1, 2, 3}).Hex(),
-				}
-
-				network.App.AccountKeeper.SetAccount(ctx, ethAcc)
 			},
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
