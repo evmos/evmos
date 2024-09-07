@@ -141,6 +141,7 @@ import (
 	"github.com/evmos/evmos/v19/app/ante"
 	ethante "github.com/evmos/evmos/v19/app/ante/evm"
 	"github.com/evmos/evmos/v19/app/post"
+	v20 "github.com/evmos/evmos/v19/app/upgrades/v20"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
 	"github.com/evmos/evmos/v19/x/erc20"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
@@ -1185,6 +1186,15 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
+
+	// v20 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v20.UpgradeName,
+		v20.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1197,19 +1207,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		return
 	}
 
-	// var storeUpgrades *storetypes.StoreUpgrades
+	var storeUpgrades *storetypes.StoreUpgrades
 
-	// switch upgradeInfo.Name {
-	// case v191.UpgradeName:
-	// 	storeUpgrades = &storetypes.StoreUpgrades{
-	// 		Added: []string{ratelimittypes.ModuleName},
-	// 	}
-	// default:
-	// // no-op
-	// }
+	switch upgradeInfo.Name {
+	default:
+		// no-op
+	}
 
-	// if storeUpgrades != nil {
-	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
-	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
-	// }
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }

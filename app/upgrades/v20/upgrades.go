@@ -9,16 +9,12 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v20
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	ak authkeeper.AccountKeeper,
-	ek *evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
