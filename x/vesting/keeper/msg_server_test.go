@@ -9,10 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
@@ -660,124 +662,124 @@ func TestClawbackVestingAccountStore(t *testing.T) {
 	require.Equal(t, acc.String(), acc2.String())
 }
 
-// func TestConvertVestingAccount(t *testing.T) {
-// 	var (
-// 		ctx sdk.Context
-// 		nw  *network.UnitTestNetwork
-// 	)
-// 	now := time.Now()
-// 	startTime := now.Add(-5 * time.Second)
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func() sdk.AccountI
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"fail - no account found",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				return baseAcc
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"fail - not a vesting account",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
-// 				nw.App.AccountKeeper.SetAccount(ctx, baseAcc)
-// 				return baseAcc
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"fail - unlocked & unvested",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
-// 				lockupPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
-// 				vestingPeriods := sdkvesting.Periods{
-// 					{Length: 0, Amount: quarter},
-// 					{Length: 2000, Amount: quarter},
-// 					{Length: 2000, Amount: quarter},
-// 					{Length: 2000, Amount: quarter},
-// 				}
-// 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
-// 				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
-// 				return vestingAcc
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"fail - locked & vested",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
-// 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
-// 				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
-// 				return vestingAcc
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"fail - locked & unvested",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
-// 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, ctx.BlockTime(), lockupPeriods, vestingPeriods)
-// 				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
-// 				return vestingAcc
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"success - unlocked & vested convert to base account",
-// 			func() sdk.AccountI {
-// 				from, priv := utiltx.NewAccAddressAndKey()
-// 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
-// 				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
-// 				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
-// 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, nil, vestingPeriods)
-// 				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
-// 				return vestingAcc
-// 			},
-// 			true,
-// 		},
-// 	}
+func TestConvertVestingAccount(t *testing.T) {
+	var (
+		ctx sdk.Context
+		nw  *network.UnitTestNetwork
+	)
+	now := time.Now()
+	startTime := now.Add(-5 * time.Second)
+	testCases := []struct {
+		name     string
+		malleate func() sdk.AccountI
+		expPass  bool
+	}{
+		{
+			"fail - no account found",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				return baseAcc
+			},
+			false,
+		},
+		{
+			"fail - not a vesting account",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+				nw.App.AccountKeeper.SetAccount(ctx, baseAcc)
+				return baseAcc
+			},
+			false,
+		},
+		{
+			"fail - unlocked & unvested",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+				lockupPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				vestingPeriods := sdkvesting.Periods{
+					{Length: 0, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+				}
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
+				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"fail - locked & vested",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
+				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"fail - locked & unvested",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, ctx.BlockTime(), lockupPeriods, vestingPeriods)
+				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"success - unlocked & vested convert to base account",
+			func() sdk.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				baseAcc.AccountNumber = nw.App.AccountKeeper.NextAccountNumber(ctx)
+				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, nil, vestingPeriods)
+				nw.App.AccountKeeper.SetAccount(ctx, vestingAcc)
+				return vestingAcc
+			},
+			true,
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		tc := tc
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			nw = network.NewUnitTestNetwork()
-// 			ctx = nw.GetContext()
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
 
-// 			acc := tc.malleate()
+			acc := tc.malleate()
 
-// 			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
-// 			res, err := nw.App.VestingKeeper.ConvertVestingAccount(ctx, msg)
+			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
+			res, err := nw.App.VestingKeeper.ConvertVestingAccount(ctx, msg)
 
-// 			if tc.expPass {
-// 				require.NoError(t, err)
-// 				require.NotNil(t, res)
+			if tc.expPass {
+				require.NoError(t, err)
+				require.NotNil(t, res)
 
-// 				account := nw.App.AccountKeeper.GetAccount(ctx, acc.GetAddress())
+				account := nw.App.AccountKeeper.GetAccount(ctx, acc.GetAddress())
 
-// 				_, ok := account.(vestingexported.VestingAccount)
-// 				require.False(t, ok)
+				_, ok := account.(vestingexported.VestingAccount)
+				require.False(t, ok)
 
-// 				_, ok = account.(evmostypes.EthAccountI)
-// 				require.True(t, ok)
+				_, ok = account.(evmostypes.EthAccountI)
+				require.True(t, ok)
 
-// 			} else {
-// 				require.Error(t, err)
-// 				require.Nil(t, res)
-// 			}
-// 		})
-// 	}
-// }
+			} else {
+				require.Error(t, err)
+				require.Nil(t, res)
+			}
+		})
+	}
+}
