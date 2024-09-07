@@ -321,10 +321,6 @@ func (suite *KeeperTestSuite) TestSetCode() {
 }
 
 func (suite *KeeperTestSuite) TestKeeperSetCode() {
-	addr := utiltx.GenerateAddress()
-	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
-
 	testCases := []struct {
 		name     string
 		codeHash []byte
