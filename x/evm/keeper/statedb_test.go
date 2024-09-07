@@ -941,58 +941,57 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 	}
 }
 
-// func (suite *KeeperTestSuite) TestDeleteAccount() {
-// 	var (
-// 		ctx          sdk.Context
-// 		contractAddr common.Address
-// 	)
-// 	supply := big.NewInt(100)
+func (suite *KeeperTestSuite) TestDeleteAccount() {
+	var (
+		ctx          sdk.Context
+		contractAddr common.Address
+	)
+	supply := big.NewInt(100)
 
-// 	testCases := []struct {
-// 		name   string
-// 		addr   common.Address
-// 		expErr bool
-// 	}{
-// 		{
-// 			"remove address",
-// 			suite.address,
-// 			false,
-// 		},
-// 		{
-// 			"remove unexistent address - returns nil error",
-// 			common.HexToAddress("unexistent_address"),
-// 			false,
-// 		},
-// 		{
-// 			"remove deployed contract",
-// 			contractAddr,
-// 			false,
-// 		},
-// 	}
+	testCases := []struct {
+		name    string
+		addr    common.Address
+		expPass bool
+	}{
+		{
+			"remove address",
+			suite.keyring.GetAddr(0),
+			true,
+		},
+		{
+			"remove unexistent address - returns nil error",
+			common.HexToAddress("unexistent_address"),
+			true,
+		},
+		{
+			"remove deployed contract",
+			contractAddr,
+			true,
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		suite.Run(tc.name, func() {
-// 			suite.SetupTest()
-// 			ctx = suite.network.GetContext()
-// 			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			ctx = suite.network.GetContext()
+			contractAddr = suite.DeployTestContract(suite.T(), ctx, suite.keyring.GetAddr(0), supply)
 
-// 			addr := tc.malleate()
+			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, tc.addr)
+			if tc.expPass {
+				suite.Require().NoError(err, "expected deleting account to succeed")
 
-// 			err := suite.network.App.EvmKeeper.DeleteAccount(ctx, addr)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err, "expected deleting account to succeed")
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				suite.Require().Nil(acc, "expected no account to be found after deleting")
 
-// 				acc := suite.network.App.EvmKeeper.GetAccount(ctx, addr)
-// 				suite.Require().Nil(acc, "expected no account to be found after deleting")
+				balance := suite.network.App.EvmKeeper.GetBalance(ctx, tc.addr)
+				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
+			} else {
+				suite.Require().Error(err, "expected error")
+				// suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
 
-// 				balance := suite.network.App.EvmKeeper.GetBalance(ctx, addr)
-// 				suite.Require().Equal(new(big.Int), balance, "expected balance to be zero after deleting account")
-// 			} else {
-// 				suite.Require().ErrorContains(err, tc.errContains, "expected error to contain message")
-
-// 				acc := suite.network.App.EvmKeeper.GetAccount(ctx, addr)
-// 				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
-// 			}
-// 		})
-// 	}
-// }
+				acc := suite.network.App.EvmKeeper.GetAccount(ctx, tc.addr)
+				suite.Require().NotNil(acc, "expected account to still be found after failing to delete")
+			}
+		})
+	}
+}
