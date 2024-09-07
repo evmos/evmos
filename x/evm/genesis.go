@@ -11,7 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/evm/keeper"
 	"github.com/evmos/evmos/v19/x/evm/types"
@@ -76,7 +75,7 @@ func InitGenesis(
 // ExportGenesis exports genesis state of the EVM module
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper, ak types.AccountKeeper) *types.GenesisState {
 	var ethGenAccounts []types.GenesisAccount
-	ak.IterateAccounts(ctx, func(account sdktypes.AccountI) bool {
+	ak.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 		ethAccount, ok := account.(evmostypes.EthAccountI)
 		if !ok {
 			// ignore non EthAccounts
