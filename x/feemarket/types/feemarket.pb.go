@@ -25,7 +25,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Params defines the EVM module parameters
+// Params defines the feemarket module parameters
 type Params struct {
 	// no_base_fee forces the EIP-1559 base fee to 0 (needed for 0 price calls)
 	NoBaseFee bool `protobuf:"varint,1,opt,name=no_base_fee,json=noBaseFee,proto3" json:"no_base_fee,omitempty"`

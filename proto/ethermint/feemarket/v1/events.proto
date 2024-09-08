@@ -5,7 +5,7 @@ package ethermint.feemarket.v1;
 
 option go_package = "github.com/evmos/evmos/v19/x/feemarket/types";
 
-// EventFeeMarket is the event type for the fee market module
+// EventFeeMarket is the event type for the feemarket module
 message EventFeeMarket {
   // base_fee for EIP-1559 blocks
   string base_fee = 1;
