@@ -47,7 +47,6 @@ func TestNewKeeper(t *testing.T) {
 					nw.App.AccountKeeper,
 					nw.App.BankKeeper,
 					nw.App.DistrKeeper,
-					nw.App.EvmKeeper,
 					nw.App.StakingKeeper,
 					nw.App.GovKeeper,
 				)
@@ -61,7 +60,6 @@ func TestNewKeeper(t *testing.T) {
 						nw.App.AccountKeeper,
 						nw.App.BankKeeper,
 						nw.App.DistrKeeper,
-						nw.App.EvmKeeper,
 						nw.App.StakingKeeper,
 						nw.App.GovKeeper,
 					)

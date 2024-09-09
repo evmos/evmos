@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 
 	cmtconfig "github.com/cometbft/cometbft/config"
@@ -328,7 +329,10 @@ func initTestnetFiles(
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
-		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genAccounts = append(genAccounts, &evmostypes.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
+			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
+		})
 
 		valTokens := sdk.TokensFromConsensusPower(100, evmostypes.PowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(

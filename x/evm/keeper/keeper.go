@@ -247,15 +247,19 @@ func (k *Keeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) 
 		return nil
 	}
 
-	codeHashBz := k.GetCodeHash(ctx, addr).Bytes()
+	codeHash := types.EmptyCodeHash
+	ethAcct, ok := acct.(evmostypes.EthAccountI)
+	if ok {
+		codeHash = ethAcct.GetCodeHash().Bytes()
+	}
 
 	return &statedb.Account{
 		Nonce:    acct.GetSequence(),
-		CodeHash: codeHashBz,
+		CodeHash: codeHash,
 	}
 }
 
-// GetAccountOrEmpty returns empty account if not exist
+// GetAccountOrEmpty returns empty account if not exist, returns error if it's not `EthAccount`
 func (k *Keeper) GetAccountOrEmpty(ctx sdk.Context, addr common.Address) statedb.Account {
 	acct := k.GetAccount(ctx, addr)
 	if acct != nil {

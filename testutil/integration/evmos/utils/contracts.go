@@ -7,7 +7,9 @@ import (
 	"slices"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
@@ -29,6 +31,19 @@ func CheckTxTopics(res abcitypes.ExecTxResult, expectedTopics []string) error {
 		if !slices.Contains(availableLogs, expectedTopic) {
 			return fmt.Errorf("expected topic %s not found in tx response", expectedTopic)
 		}
+	}
+	return nil
+}
+
+// IsContractAccount checks if the given account is a contract account
+func IsContractAccount(acc sdktypes.AccountI) error {
+	contractETHAccount, ok := acc.(evmostypes.EthAccountI)
+	if !ok {
+		return fmt.Errorf("account is not an eth account")
+	}
+
+	if contractETHAccount.Type() != evmostypes.AccountTypeContract {
+		return fmt.Errorf("account is not a contract account")
 	}
 	return nil
 }

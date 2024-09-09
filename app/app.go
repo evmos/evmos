@@ -368,7 +368,7 @@ func NewEvmos(
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, runtime.NewKVStoreService(keys[authtypes.StoreKey]),
-		authtypes.ProtoBaseAccount, maccPerms,
+		evmostypes.ProtoAccount, maccPerms,
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
@@ -481,7 +481,7 @@ func NewEvmos(
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EvmKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, *govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -979,7 +979,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	}
 
 	for _, precompile := range blockedPrecompilesHex {
-		blockedAddrs[utils.EthHexToCosmosAddr(precompile).String()] = true
+		blockedAddrs[utils.EthHexToSDKAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
@@ -1191,8 +1191,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v20.UpgradeName,
 		v20.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.EvmKeeper,
 		),
 	)
 
@@ -1208,19 +1206,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		return
 	}
 
-	// var storeUpgrades *storetypes.StoreUpgrades
+	var storeUpgrades *storetypes.StoreUpgrades
 
-	// switch upgradeInfo.Name {
-	// case v191.UpgradeName:
-	// 	storeUpgrades = &storetypes.StoreUpgrades{
-	// 		Added: []string{ratelimittypes.ModuleName},
-	// 	}
-	// default:
-	// // no-op
-	// }
+	switch upgradeInfo.Name {
+	default:
+		// no-op
+	}
 
-	// if storeUpgrades != nil {
-	// 	// configure store loader that checks if version == upgradeHeight and applies store upgrades
-	// 	app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
-	// }
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }
