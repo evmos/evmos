@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
@@ -103,6 +104,25 @@ func TestInitGenesis(t *testing.T) {
 			},
 			expPanic: true,
 		},
+		{
+			name: "invalid account type",
+			malleate: func(network *testnetwork.UnitTestNetwork) {
+				acc := authtypes.NewBaseAccountWithAddress(address.Bytes())
+				// account is initialized with account number zero.
+				// set a correct acc number
+				accs := network.App.AccountKeeper.GetAllAccounts(ctx)
+				acc.AccountNumber = uint64(len(accs))
+				network.App.AccountKeeper.SetAccount(ctx, acc)
+			},
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Accounts: []types.GenesisAccount{
+					{
+						Address: address.String(),
+					},
+				},
+			},
+			expPanic: true},
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {

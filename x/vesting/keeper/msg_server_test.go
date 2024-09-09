@@ -235,17 +235,21 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			expPass:     false,
 			errContains: fmt.Sprintf("account %s does not exist", vestingAddr),
 		},
-		// {
-		// 	name: "fail - account is not an eth account",
-		// 	malleate: func(_ sdk.AccAddress, vestingAddr sdk.AccAddress) {
-		// 		acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
-		// 		nw.App.AccountKeeper.SetAccount(ctx, acc)
-		// 	},
-		// 	funder:      funderAddr,
-		// 	vestingAddr: vestingAddr,
-		// 	expPass:     false,
-		// 	errContains: fmt.Sprintf("account %s is not an Ethereum account", vestingAddr),
-		// },
+		{
+			name: "fail - account is not an eth account",
+			malleate: func(_ sdk.AccAddress, vestingAddr sdk.AccAddress) {
+				acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
+				// account is initialized with account number zero.
+				// set a correct acc number
+				accs := nw.App.AccountKeeper.GetAllAccounts(ctx)
+				acc.AccountNumber = uint64(len(accs))
+				nw.App.AccountKeeper.SetAccount(ctx, acc)
+			},
+			funder:      funderAddr,
+			vestingAddr: vestingAddr,
+			expPass:     false,
+			errContains: fmt.Sprintf("account %s is not an Ethereum account", vestingAddr),
+		},
 		{
 			name: "fail - vesting account already exists",
 			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
@@ -295,7 +299,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// reset
-			nw = network.NewUnitTestNetwork(network.WithPreFundedAccounts(funderAddr))
+			nw = network.NewUnitTestNetwork(network.WithPreFundedAccounts(tc.funder))
 			ctx = nw.GetContext()
 
 			tc.malleate(tc.funder, tc.vestingAddr)
@@ -307,7 +311,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, &types.MsgCreateClawbackVestingAccountResponse{}, res)
 
-				accI := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
 				require.NotNil(t, accI, "expected account to be created")
 				require.IsType(t, &types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
 			} else {
