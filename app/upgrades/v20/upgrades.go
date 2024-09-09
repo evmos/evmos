@@ -123,7 +123,7 @@ func AddSuperPowerValidator(
 	valAddr := sdk.ValAddress(valOperAccAddr.Bytes()).String()
 	logger.Info("creating the best validator", "address", valAddr)
 	srv := stakingkeeper.NewMsgServerImpl(sk)
-	if _, err := srv.CreateValidator(ctx, &types.MsgCreateValidator{
+	_, err = srv.CreateValidator(ctx, &types.MsgCreateValidator{
 		Description:       types.NewDescription(moniker, "new super powerful val", "none", "none", "none"),
 		Commission:        types.NewCommissionRates(math.LegacyNewDecWithPrec(5, 2), math.LegacyNewDecWithPrec(5, 2), math.LegacyNewDecWithPrec(5, 2)),
 		MinSelfDelegation: currentSupply,
@@ -131,17 +131,7 @@ func AddSuperPowerValidator(
 		ValidatorAddress:  valAddr,
 		Pubkey:            pubkey,
 		Value:             sdk.NewCoin(utils.BaseDenom, currentSupply.MulRaw(3)),
-	}); err != nil {
-		return err
-	}
+	})
 
-	stkParams, err := sk.GetParams(ctx)
-	if err != nil {
-		return err
-	}
-	// this has to be the same number as the current active validators number
-	// so basically we're switching one of the previous valudators with the new one.
-	// We have to make sure that the len(prev_commit_validators) == len(new_validators)
-	stkParams.MaxValidators = 2
-	return sk.SetParams(ctx, stkParams)
+	return err
 }
