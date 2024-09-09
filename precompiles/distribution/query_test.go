@@ -10,11 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/precompiles/distribution"
+	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
 var expValAmount int64 = 1

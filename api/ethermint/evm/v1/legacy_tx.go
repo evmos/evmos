@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethutils "github.com/evmos/evmos/v19/utils/eth"
+	ethutils "github.com/evmos/evmos/v20/utils/eth"
 )
 
 // GetChainID returns the chain id field from the derived signature values

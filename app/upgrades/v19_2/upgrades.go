@@ -11,8 +11,8 @@ import (
 
 	"cosmossdk.io/log"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	erc20keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v19.2

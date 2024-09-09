@@ -24,8 +24,8 @@ import (
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
 	"github.com/cometbft/cometbft/proto/tendermint/crypto"
-	"github.com/evmos/evmos/v19/rpc/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/rpc/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 type txGasAndReward struct {

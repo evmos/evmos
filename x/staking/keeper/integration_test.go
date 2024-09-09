@@ -11,13 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
-	evmosfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/testutil/integration/common/factory"
+	evmosfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/precompiles/bech32"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v20/cmd/config"
+	"github.com/evmos/evmos/v20/precompiles/bech32"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
 func (s *PrecompileTestSuite) TestHexToBech32() {

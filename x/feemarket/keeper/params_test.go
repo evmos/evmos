@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 

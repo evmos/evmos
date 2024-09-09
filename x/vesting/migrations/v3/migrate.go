@@ -4,7 +4,7 @@ package v3
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // MigrateStore migrates the x/vesting module state from the consensus version 2 to

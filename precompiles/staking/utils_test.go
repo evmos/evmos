@@ -7,10 +7,10 @@ import (
 	"slices"
 	"time"
 
-	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	cmnfactory "github.com/evmos/evmos/v20/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -28,15 +28,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/precompiles/staking"
+	"github.com/evmos/evmos/v20/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // stipend to pay EVM tx fees
