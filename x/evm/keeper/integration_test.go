@@ -314,7 +314,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
 		if transferParams.ExpFail {
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+			if params.AccessControl.Call.AccessType == evmtypes.AccessTypeRestricted {
+				Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+			} else {
+				Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+			}
+
 		} else {
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -376,17 +381,17 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
 		}
 	},
-		// Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
-		// 	// Set params to default values
-		// 	defaultParams := evmtypes.DefaultParams()
-		// 	defaultParams.AccessControl.Call = evmtypes.AccessControlType{
-		// 		AccessType: evmtypes.AccessTypeRestricted,
-		// 	}
-		// 	return defaultParams
-		// },
-		// 	PermissionsTableTest{ExpFail: true, SignerIndex: 0},
-		// 	PermissionsTableTest{ExpFail: true, SignerIndex: 0},
-		// ),
+		Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType: evmtypes.AccessTypeRestricted,
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		),
 		Entry("transfer and call succeed with CALL permission policy set to default and CREATE permission policy set to restricted", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
