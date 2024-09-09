@@ -51,6 +51,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 - (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
+- (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
 
 ## [v19.2.0] - 2024-08-19
 

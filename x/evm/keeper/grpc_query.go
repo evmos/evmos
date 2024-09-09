@@ -311,8 +311,6 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 		}
 	}
 
-	// TODO: Recap the highest gas limit with account's available balance.
-
 	// Recap the highest gas allowance with specified gascap.
 	if req.GasCap != 0 && hi > req.GasCap {
 		hi = req.GasCap
@@ -334,6 +332,34 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	msg, err := args.ToMessage(req.GasCap, cfg.BaseFee)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	// Recap the highest gas limit with account's available balance.
+	if msg.GasFeeCap().BitLen() != 0 {
+		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), types.DefaultEVMDenom)
+		available := balance.Amount
+		if args.Value != nil {
+			if args.Value.ToInt().Cmp(available.BigInt()) >= 0 {
+				return nil, core.ErrInsufficientFundsForTransfer
+			}
+			available = available.Sub(sdkmath.NewIntFromBigInt(args.Value.ToInt()))
+		}
+		allowance := available.Quo(sdkmath.NewIntFromBigInt(msg.GasFeeCap()))
+
+		// If the allowance is larger than maximum uint64, skip checking
+		if allowance.IsUint64() && hi > allowance.Uint64() {
+			transfer := "0"
+			if args.Value != nil {
+				transfer = args.Value.String()
+			}
+			k.Logger(ctx).Debug("Gas estimation capped by limited funds", "original", hi, "balance", balance,
+				"sent", transfer, "maxFeePerGas", msg.GasFeeCap().String(), "fundable", allowance)
+
+			hi = allowance.Uint64()
+			if hi < ethparams.TxGas {
+				return nil, core.ErrInsufficientFunds
+			}
+		}
 	}
 
 	// NOTE: the errors from the executable below should be consistent with go-ethereum,
