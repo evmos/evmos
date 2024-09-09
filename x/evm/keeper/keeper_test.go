@@ -93,7 +93,6 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 	testCases := []struct {
 		name     string
 		malleate func() common.Address
-		expRes   []int
 	}{
 		{
 			name:     "Only one account that's not a contract (no storage)",

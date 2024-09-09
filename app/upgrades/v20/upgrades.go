@@ -20,6 +20,7 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 		// run module migrations first.
 		// so we wont override erc20 params when running strv2 migration,
+		logger.Debug("Running module migrations...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
