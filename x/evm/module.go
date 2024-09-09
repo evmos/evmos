@@ -21,9 +21,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v19/x/evm/client/cli"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/client/cli"
+	"github.com/evmos/evmos/v20/x/evm/keeper"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // consensusVersion defines the current x/evm module consensus version.

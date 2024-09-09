@@ -9,8 +9,8 @@ import (
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/wallets/accounts"
-	"github.com/evmos/evmos/v19/wallets/ledger"
+	"github.com/evmos/evmos/v20/wallets/accounts"
+	"github.com/evmos/evmos/v20/wallets/ledger"
 )
 
 func (suite *LedgerTestSuite) TestEvmosLedgerDerivation() {

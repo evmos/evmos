@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
-	"github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	feemarketkeeper "github.com/evmos/evmos/v20/x/feemarket/keeper"
+	"github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -10,8 +10,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
+	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here
