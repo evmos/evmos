@@ -5,8 +5,8 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
-	v3 "github.com/evmos/evmos/v19/x/inflation/v1/migrations/v3"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	v3 "github.com/evmos/evmos/v20/x/inflation/v1/migrations/v3"
+	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 

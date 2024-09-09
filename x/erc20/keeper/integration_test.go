@@ -15,9 +15,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
-	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/testutil/integration/common/factory"
+	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {

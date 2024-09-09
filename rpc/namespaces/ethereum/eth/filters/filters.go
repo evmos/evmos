@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v19/rpc/backend"
-	"github.com/evmos/evmos/v19/rpc/types"
+	"github.com/evmos/evmos/v20/rpc/backend"
+	"github.com/evmos/evmos/v20/rpc/types"
 
 	"cosmossdk.io/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"

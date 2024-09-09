@@ -5,10 +5,10 @@ package evm_test
 import (
 	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	evmante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	evmante "github.com/evmos/evmos/v20/app/ante/evm"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {

@@ -5,16 +5,16 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v20/encoding"
 
-	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
+	v3types "github.com/evmos/evmos/v20/x/erc20/migrations/v3/types"
 
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3 "github.com/evmos/evmos/v19/x/erc20/migrations/v3"
+	v3 "github.com/evmos/evmos/v20/x/erc20/migrations/v3"
 )
 
 type mockSubspace struct {

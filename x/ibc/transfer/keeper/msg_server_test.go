@@ -11,9 +11,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
 

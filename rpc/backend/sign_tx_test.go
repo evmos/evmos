@@ -15,10 +15,10 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/rpc/backend/mocks"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestSendTransaction() {

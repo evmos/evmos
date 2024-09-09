@@ -10,7 +10,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evm "github.com/evmos/evmos/v19/x/evm/types"
+	evm "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 var ParamsKey = []byte("Params")

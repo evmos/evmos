@@ -52,12 +52,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/rosetta"
 
-	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"
-	"github.com/evmos/evmos/v19/indexer"
-	ethdebug "github.com/evmos/evmos/v19/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/evmos/v19/server/config"
-	srvflags "github.com/evmos/evmos/v19/server/flags"
-	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v20/cmd/evmosd/opendb"
+	"github.com/evmos/evmos/v20/indexer"
+	ethdebug "github.com/evmos/evmos/v20/rpc/namespaces/ethereum/debug"
+	"github.com/evmos/evmos/v20/server/config"
+	srvflags "github.com/evmos/evmos/v20/server/flags"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.

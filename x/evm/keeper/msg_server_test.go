@@ -9,8 +9,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestEthereumTx() {

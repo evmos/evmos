@@ -21,9 +21,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/evmos/evmos/v19/x/vesting/client/cli"
-	"github.com/evmos/evmos/v19/x/vesting/keeper"
-	"github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/x/vesting/client/cli"
+	"github.com/evmos/evmos/v20/x/vesting/keeper"
+	"github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // consensusVersion defines the current x/vesting module consensus version.

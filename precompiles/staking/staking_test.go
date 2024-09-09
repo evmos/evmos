@@ -4,22 +4,22 @@ import (
 	"math/big"
 	"time"
 
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 
 	"cosmossdk.io/math"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/app"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/staking"
+	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
