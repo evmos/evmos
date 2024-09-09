@@ -27,7 +27,7 @@ require (
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.5.0
 	github.com/cosmos/rosetta v0.50.9
-	github.com/creachadair/tomledit v0.0.24
+	github.com/creachadair/tomledit v0.0.26
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240722062311-8384cad72737
@@ -120,7 +120,7 @@ require (
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
-	github.com/creachadair/atomicfile v0.3.1 // indirect
+	github.com/creachadair/atomicfile v0.3.3 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
