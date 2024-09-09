@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v20
+// CreateUpgradeHandler creates an SDK upgrade handler for Evmos v20
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
