@@ -94,6 +94,12 @@ schema = 3
   [mod."github.com/Nvveen/Gotty"]
     version = "v0.0.0-20120604004816-cd527374f1e5"
     hash = "sha256-2EwwPSTvPqMcKRKxCXX1OhknkkO/8fGGtmaAa27Im/o="
+  [mod."github.com/PuerkitoBio/purell"]
+    version = "v1.1.1"
+    hash = "sha256-Hjf8ZNNdwcRd50A9QNrcCj17gu/6f1iKzVTVrrMrojA="
+  [mod."github.com/PuerkitoBio/urlesc"]
+    version = "v0.0.0-20170810143723-de5bf2ad4578"
+    hash = "sha256-nL0/0QM0Pec83vBlwXvQ8g5SvvZnCQgzD1apxfHNGlg="
   [mod."github.com/StackExchange/wmi"]
     version = "v1.2.1"
     hash = "sha256-1BoEeWAWyebH+1mMuyPhWZut8nWHb6r73MgcqlGuUEY="
@@ -213,8 +219,8 @@ schema = 3
     version = "v0.13.3"
     hash = "sha256-4f73odipfgWku0/gK2UtXbrBXvj8kT9sg4IhnfAP/S0="
   [mod."github.com/cosmos/rosetta"]
-    version = "v0.50.2"
-    hash = "sha256-1mQ//e8rDUuQ3OYyfRrb47M3lmCo7mhkiY7K2aCkwRs="
+    version = "v0.50.9"
+    hash = "sha256-OJQhD0YxJ5v8hqXNJytt6gBAN62Hpyxi18/74Z4Rz08="
   [mod."github.com/cosmos/rosetta-sdk-go"]
     version = "v0.10.0"
     hash = "sha256-WmLq9E9mYV+ms6Tdb43lCoAy6cowkDnK4bvX/ApDzLY="
@@ -390,6 +396,9 @@ schema = 3
   [mod."github.com/gorilla/websocket"]
     version = "v1.5.3"
     hash = "sha256-vTIGEFMEi+30ZdO6ffMNJ/kId6pZs5bbyqov8xe9BM0="
+  [mod."github.com/goware/urlx"]
+    version = "v0.3.2"
+    hash = "sha256-mLUQnnRkp2ekRY4ddBs+MRee7fzuEZiQRM6CInLWCn0="
   [mod."github.com/grpc-ecosystem/go-grpc-middleware"]
     version = "v1.4.0"
     hash = "sha256-0UymBjkg41C9MPqkBLz/ZY9WbimZrabpJk+8C/X63h8="
