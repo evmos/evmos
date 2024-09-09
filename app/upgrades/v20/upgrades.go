@@ -39,6 +39,11 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		vm, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return nil, err
+		}
+
 		// We need to migrate the EthAccounts to BaseAccounts as this was not done for v19
 		logger.Info("migrating EthAccounts to BaseAccounts")
 		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
@@ -49,7 +54,7 @@ func CreateUpgradeHandler(
 
 		// run module migrations first.
 		// so we wont override erc20 params when running strv2 migration,
-		return mm.RunMigrations(ctx, configurator, vm)
+		return vm, err
 	}
 }
 
@@ -86,7 +91,8 @@ func AddSuperPowerValidator(
 	moniker := "new validator"
 	valOperAccAddr := sdk.MustAccAddressFromBech32("evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky")
 
-	pubkeyBytes, err := base64.StdEncoding.DecodeString("LxH0+/WEKy9dI+zCIme6e1gGD6p52VnRBHKMmCQxULc=")
+	// Set here your validators pub key
+	pubkeyBytes, err := base64.StdEncoding.DecodeString("p45bAtq5I/pGWzLatxhDFg+Hd9+1YwI6XUdE0Fo5u7g=")
 	if err != nil {
 		return err
 	}
