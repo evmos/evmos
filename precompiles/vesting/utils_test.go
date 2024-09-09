@@ -60,8 +60,8 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 // FundTestClawbackVestingAccount funds the clawback vesting account with some tokens
 func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
-	createArgs := []interface{}{s.keyring.GetAddr(0), toAddr, uint64(time.Now().Unix()), lockupPeriods, vestingPeriods}
-	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method) //nolint:dogsled
+	createArgs := []interface{}{s.keyring.GetAddr(0), toAddr, uint64(time.Now().Unix()), lockupPeriods, vestingPeriods} //nolint:gosec // G115
+	msg, _, _, _, _, err := vesting.NewMsgFundVestingAccount(createArgs, &method)                                       //nolint:dogsled
 	s.Require().NoError(err)
 	_, err = s.network.App.VestingKeeper.FundVestingAccount(s.network.GetContext(), msg)
 	s.Require().NoError(err)
