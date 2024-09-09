@@ -4,6 +4,11 @@ import (
 	"math"
 	"testing"
 
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
+
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -46,6 +51,10 @@ func TestKeeperTestSuite(t *testing.T) {
 	// Run UnitTestSuite
 	unitTestSuite := new(UnitTestSuite)
 	suite.Run(t, unitTestSuite)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

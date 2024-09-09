@@ -22,7 +22,6 @@ type Keeper struct {
 
 	accountKeeper      types.AccountKeeper
 	bankKeeper         types.BankKeeper
-	evmKeeper          types.EVMKeeper
 	stakingKeeper      types.StakingKeeper
 	distributionKeeper types.DistributionKeeper
 	govKeeper          govkeeper.Keeper
@@ -39,7 +38,6 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	dk types.DistributionKeeper,
-	ek types.EVMKeeper,
 	sk types.StakingKeeper,
 	gk govkeeper.Keeper,
 ) Keeper {
@@ -55,7 +53,6 @@ func NewKeeper(
 		distributionKeeper: dk,
 		accountKeeper:      ak,
 		bankKeeper:         bk,
-		evmKeeper:          ek,
 		stakingKeeper:      sk,
 		govKeeper:          gk,
 	}

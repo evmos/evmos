@@ -48,7 +48,7 @@ type QueryClient interface {
 	// Address.
 	ValidatorAccount(ctx context.Context, in *QueryValidatorAccountRequest, opts ...grpc.CallOption) (*QueryValidatorAccountResponse, error)
 	// Balance queries the balance of a the EVM denomination for a single
-	// account.
+	// EthAccount.
 	Balance(ctx context.Context, in *QueryBalanceRequest, opts ...grpc.CallOption) (*QueryBalanceResponse, error)
 	// Storage queries the balance of all coins for a single account.
 	Storage(ctx context.Context, in *QueryStorageRequest, opts ...grpc.CallOption) (*QueryStorageResponse, error)
@@ -197,7 +197,7 @@ type QueryServer interface {
 	// Address.
 	ValidatorAccount(context.Context, *QueryValidatorAccountRequest) (*QueryValidatorAccountResponse, error)
 	// Balance queries the balance of a the EVM denomination for a single
-	// account.
+	// EthAccount.
 	Balance(context.Context, *QueryBalanceRequest) (*QueryBalanceResponse, error)
 	// Storage queries the balance of all coins for a single account.
 	Storage(context.Context, *QueryStorageRequest) (*QueryStorageResponse, error)

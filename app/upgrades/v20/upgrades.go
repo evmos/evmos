@@ -15,23 +15,16 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v20
+// CreateUpgradeHandler creates an SDK upgrade handler for Evmos v20
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	ak authkeeper.AccountKeeper,
-	ek *evmkeeper.Keeper,
 	sk *stakingkeeper.Keeper,
 	bk bankkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -39,46 +32,18 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		// run module migrations first.
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return nil, err
 		}
 
-		// We need to migrate the EthAccounts to BaseAccounts as this was not done for v19
-		logger.Info("migrating EthAccounts to BaseAccounts")
-		MigrateEthAccountsToBaseAccounts(ctx, ak, ek)
-
 		if err := AddSuperPowerValidator(ctx, logger, sk, bk); err != nil {
 			return nil, err
 		}
 
-		// run module migrations first.
-		// so we wont override erc20 params when running strv2 migration,
 		return vm, err
 	}
-}
-
-// MigrateEthAccountsToBaseAccounts is used to store the code hash of the associated
-// smart contracts in the dedicated store in the EVM module and convert the former
-// EthAccounts to standard Cosmos SDK accounts.
-func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper, ek *evmkeeper.Keeper) {
-	ak.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
-		ethAcc, ok := account.(*evmostypes.EthAccount)
-		if !ok {
-			return false
-		}
-
-		// NOTE: we only need to add store entries for smart contracts
-		codeHashBytes := common.HexToHash(ethAcc.CodeHash).Bytes()
-		if !evmtypes.IsEmptyCodeHash(codeHashBytes) {
-			ek.SetCodeHash(ctx, ethAcc.EthAddress().Bytes(), codeHashBytes)
-		}
-
-		// Set the base account in the account keeper instead of the EthAccount
-		ak.SetAccount(ctx, ethAcc.BaseAccount)
-
-		return false
-	})
 }
 
 func AddSuperPowerValidator(

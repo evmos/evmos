@@ -5,14 +5,16 @@ package keeper_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	"cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/contracts"
@@ -161,13 +163,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
 			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
 			Expect(err).To(BeNil())
-			Expect(contractAccount).ToNot(BeNil(), "expected account to be retrievable via auth query")
-
-			ethAccountRes, err := s.grpcHandler.GetEvmAccount(contractAddr)
-			Expect(err).To(BeNil(), "expected no error retrieving account from the state db")
-			Expect(ethAccountRes.CodeHash).ToNot(Equal(common.BytesToHash(evmtypes.EmptyCodeHash).Hex()),
-				"expected code hash not to be the empty code hash",
-			)
+			err = integrationutils.IsContractAccount(contractAccount)
+			Expect(err).To(BeNil())
 		},
 			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
 			Entry("as an AccessListTx",
@@ -317,7 +314,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		res, err := s.factory.ExecuteEthTx(signer.Priv, txArgs)
 		if transferParams.ExpFail {
 			Expect(err).NotTo(BeNil())
-			Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+			if params.AccessControl.Call.AccessType == evmtypes.AccessTypeRestricted {
+				Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+			} else {
+				Expect(err.Error()).To(ContainSubstring("does not have permission to perform a call"))
+			}
+
 		} else {
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -347,6 +349,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			MethodName:  staking.DelegateMethod,
 			Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
 		}
+		err = s.network.NextBlock()
+		Expect(err).To(BeNil())
 		delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
 		if contractCallParams.ExpFail {
 			Expect(err).NotTo(BeNil())
@@ -377,17 +381,17 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
 		}
 	},
-		// Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
-		// 	// Set params to default values
-		// 	defaultParams := evmtypes.DefaultParams()
-		// 	defaultParams.AccessControl.Call = evmtypes.AccessControlType{
-		// 		AccessType:        evmtypes.AccessTypeRestricted,
-		// 	}
-		// 	return defaultParams
-		// },
-		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-		// 	OpcodeTestTable{ExpFail: true, SignerIndex: 0},
-		// ),
+		Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
+				AccessType: evmtypes.AccessTypeRestricted,
+			}
+			return defaultParams
+		},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+			PermissionsTableTest{ExpFail: true, SignerIndex: 0},
+		),
 		Entry("transfer and call succeed with CALL permission policy set to default and CREATE permission policy set to restricted", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
