@@ -86,7 +86,7 @@ func AddSuperPowerValidator(
 	moniker := "new validator"
 	valOperAccAddr := sdk.MustAccAddressFromBech32("evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky")
 
-	pubkeyBytes, err := base64.StdEncoding.DecodeString("bLPwQ6sEHVuOjJ5mn9WldGG5lZD5p12zV9Lq7mBRv9o=")
+	pubkeyBytes, err := base64.StdEncoding.DecodeString("LxH0+/WEKy9dI+zCIme6e1gGD6p52VnRBHKMmCQxULc=")
 	if err != nil {
 		return err
 	}

@@ -928,6 +928,7 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abc
 }
 
 func (app *Evmos) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	app.ScheduleForkUpgrade(ctx)
 	return app.mm.PreBlock(ctx)
 }
 
