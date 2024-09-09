@@ -18,8 +18,7 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
-		// run module migrations first.
-		// so we wont override erc20 params when running strv2 migration,
+		logger := ctx.Logger().With("upgrade", UpgradeName)
 		logger.Debug("Running module migrations...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
