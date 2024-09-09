@@ -10,7 +10,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v20/x/epochs/types"
 )
 
 func TestEpochInfo(t *testing.T) {

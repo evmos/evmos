@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 // NewTransactionLogs creates a new NewTransactionLogs instance.

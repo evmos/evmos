@@ -12,12 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/staking/keeper"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -22,9 +22,9 @@ import (
 
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 
-	evmosapp "github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
+	evmosapp "github.com/evmos/evmos/v20/app"
+	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 // DefaultTestingAppInit is a test helper function used to initialize an App

@@ -15,13 +15,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v19/app"
-	cmnfactory "github.com/evmos/evmos/v19/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/app"
+	cmnfactory "github.com/evmos/evmos/v20/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func TestEvmosExport(t *testing.T) {

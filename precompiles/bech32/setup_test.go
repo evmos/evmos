@@ -3,10 +3,10 @@ package bech32_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v19/precompiles/bech32"
+	"github.com/evmos/evmos/v20/precompiles/bech32"
 
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

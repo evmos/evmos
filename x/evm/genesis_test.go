@@ -6,12 +6,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/evm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/x/evm"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

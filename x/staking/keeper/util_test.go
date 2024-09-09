@@ -8,9 +8,9 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // setupClawbackVestingAccount sets up a clawback vesting account

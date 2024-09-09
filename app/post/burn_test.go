@@ -6,9 +6,9 @@ package post_test
 import (
 	sdkmath "cosmossdk.io/math"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v19/app/post"
+	"github.com/evmos/evmos/v20/app/post"
 
-	// "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	// "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

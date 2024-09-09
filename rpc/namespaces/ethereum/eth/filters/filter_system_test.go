@@ -12,7 +12,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/evmos/v19/rpc/ethereum/pubsub"
+	"github.com/evmos/evmos/v20/rpc/ethereum/pubsub"
 )
 
 func makeSubscription(id, event string) *Subscription {

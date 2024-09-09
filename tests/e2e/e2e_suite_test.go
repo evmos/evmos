@@ -10,9 +10,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/utils"
 	"github.com/stretchr/testify/suite"
 )
 

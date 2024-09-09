@@ -5,10 +5,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	erc20precompile "github.com/evmos/evmos/v19/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	erc20precompile "github.com/evmos/evmos/v20/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
 //nolint:dupl // this is not a duplicate of the approval events test

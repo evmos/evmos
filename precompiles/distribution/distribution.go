@@ -11,10 +11,10 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
 )
 
 // PrecompileAddress of the distribution EVM extension in hex format.

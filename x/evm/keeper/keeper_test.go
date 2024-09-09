@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/keeper"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )

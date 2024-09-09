@@ -9,11 +9,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/app"
+	"github.com/evmos/evmos/v20/precompiles/distribution"
+	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {

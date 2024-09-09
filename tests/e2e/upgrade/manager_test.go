@@ -3,7 +3,7 @@ package upgrade_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
 	"github.com/stretchr/testify/require"
 )
 

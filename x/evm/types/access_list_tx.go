@@ -12,8 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v19/types"
-	ethutils "github.com/evmos/evmos/v19/utils/eth"
+	"github.com/evmos/evmos/v20/types"
+	ethutils "github.com/evmos/evmos/v20/utils/eth"
 )
 
 func newAccessListTx(tx *ethtypes.Transaction) (*AccessListTx, error) {
