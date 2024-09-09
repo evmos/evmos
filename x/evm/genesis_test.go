@@ -122,7 +122,8 @@ func TestInitGenesis(t *testing.T) {
 					},
 				},
 			},
-			expPanic: true},
+			expPanic: true,
+		},
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
