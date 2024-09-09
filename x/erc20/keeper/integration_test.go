@@ -5,16 +5,16 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/testutil/integration/common/factory"
 	testutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v19/x/erc20/types"
@@ -84,7 +84,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 				contract2, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				Expect(err).To(BeNil())
 			})
-
 			Describe("for a single ERC20 token", func() {
 				BeforeEach(func() {
 					// register erc20
@@ -114,7 +113,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 					}
 				})
 			})
-
 			Describe("for multiple ERC20 tokens", func() {
 				BeforeEach(func() {
 					// register erc20 tokens
@@ -128,7 +126,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 					)
 					Expect(err).To(BeNil())
 				})
-
 				It("should create a token pairs owned by the contract deployer", func() {
 					qc := s.network.GetERC20Client()
 					res, err := qc.TokenPairs(s.network.GetContext(), &types.QueryTokenPairsRequest{})

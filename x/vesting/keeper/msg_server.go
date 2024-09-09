@@ -7,14 +7,17 @@ import (
 	"context"
 	"time"
 
-	errorsmod "cosmossdk.io/errors"
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/evmos/evmos/v19/utils"
+	evmostypes "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/vesting/types"
 )
 
@@ -32,7 +35,6 @@ func (k Keeper) CreateClawbackVestingAccount(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	ak := k.accountKeeper
 	bk := k.bankKeeper
-	ek := k.evmKeeper
 
 	// Error checked during msg validation
 	funderAddress := sdk.MustAccAddressFromBech32(msg.FunderAddress)
@@ -60,19 +62,22 @@ func (k Keeper) CreateClawbackVestingAccount(
 		)
 	}
 
+	// Initialize the vesting account
+	ethAcc, ok := acc.(*evmostypes.EthAccount)
+	if !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
+			"account %s is not an Ethereum account", msg.VestingAddress,
+		)
+	}
+
 	// Check for contract account (code hash is not empty)
-	if ek.IsContract(ctx, utils.CosmosToEthAddr(acc.GetAddress())) {
+	if ethAcc.CodeHash != crypto.Keccak256Hash([]byte{}).String() {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
 			"account %s is a contract account and cannot be converted in a clawback vesting account", msg.VestingAddress,
 		)
 	}
 
-	baseAcc, ok := acc.(*authtypes.BaseAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
-			"account %s could not be converted to a base account", msg.VestingAddress,
-		)
-	}
+	baseAcc := ethAcc.GetBaseAccount()
 	baseVestingAcc := &sdkvesting.BaseVestingAccount{BaseAccount: baseAcc}
 	vestingAcc := &types.ClawbackVestingAccount{
 		BaseVestingAccount: baseVestingAcc,
@@ -375,8 +380,9 @@ func (k Keeper) ConvertVestingAccount(
 	// if no entry is found for the address, this will no-op
 	k.DeleteGovClawbackDisabled(ctx, address)
 
-	baseAcc := vestingAcc.BaseAccount
-	k.accountKeeper.SetAccount(ctx, baseAcc)
+	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
+	ethAccount.BaseAccount = vestingAcc.BaseAccount
+	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
 }
@@ -455,15 +461,16 @@ func (k Keeper) transferClawback(
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := vestingAccount.ComputeClawback(ctx.BlockTime().Unix())
 
-	// convert the account back to a normal account
+	// convert the account back to a normal EthAccount
 	//
 	// NOTE: this is necessary to allow the bank keeper to send the locked coins away to the
 	// destination address. If the account is not converted, the coins will still be seen as locked,
 	// and can therefore not be transferred.
-	baseAcc := updatedAcc.BaseAccount
+	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
+	ethAccount.BaseAccount = updatedAcc.BaseAccount
 
 	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, baseAcc)
+	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	address := updatedAcc.GetAddress()
 
