@@ -15,11 +15,11 @@ import (
 	"github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	"github.com/evmos/evmos/v19/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v19/rpc/types"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v20/rpc/types"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {

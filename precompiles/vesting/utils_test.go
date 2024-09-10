@@ -9,15 +9,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 
-	"github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )

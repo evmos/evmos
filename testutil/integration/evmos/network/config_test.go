@@ -8,10 +8,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	grpchandler "github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/utils"
+	grpchandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/utils"
 	"github.com/stretchr/testify/require"
 )
 

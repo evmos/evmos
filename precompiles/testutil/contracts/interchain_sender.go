@@ -4,8 +4,8 @@
 package contracts
 
 import (
-	contractutils "github.com/evmos/evmos/v19/contracts/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	contractutils "github.com/evmos/evmos/v20/contracts/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func LoadInterchainSenderContract() (evmtypes.CompiledContract, error) {

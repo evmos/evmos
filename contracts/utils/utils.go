@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // LoadContractFromJSONFile is a helper method to convert the embedded bytes from a JSON file,

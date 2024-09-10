@@ -48,16 +48,16 @@ import (
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	evmosclient "github.com/evmos/evmos/v19/client"
-	"github.com/evmos/evmos/v19/client/block"
-	"github.com/evmos/evmos/v19/client/debug"
-	evmosserver "github.com/evmos/evmos/v19/server"
-	servercfg "github.com/evmos/evmos/v19/server/config"
-	srvflags "github.com/evmos/evmos/v19/server/flags"
+	evmosclient "github.com/evmos/evmos/v20/client"
+	"github.com/evmos/evmos/v20/client/block"
+	"github.com/evmos/evmos/v20/client/debug"
+	evmosserver "github.com/evmos/evmos/v20/server"
+	servercfg "github.com/evmos/evmos/v20/server/config"
+	srvflags "github.com/evmos/evmos/v20/server/flags"
 
-	"github.com/evmos/evmos/v19/app"
-	cmdcfg "github.com/evmos/evmos/v19/cmd/config"
-	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
+	"github.com/evmos/evmos/v20/app"
+	cmdcfg "github.com/evmos/evmos/v20/cmd/config"
+	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
 )
 
 const EnvPrefix = "EVMOS"

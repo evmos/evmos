@@ -6,8 +6,8 @@ package testutil
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v20/app/ante/evm"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
 )
 
 // NewStateDB returns a new StateDB for testing purposes.

@@ -7,8 +7,8 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/encoding"
+	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
 	"github.com/stretchr/testify/require"
 )
 

@@ -22,10 +22,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v19/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	vestingcli "github.com/evmos/evmos/v20/x/vesting/client/cli"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 const (

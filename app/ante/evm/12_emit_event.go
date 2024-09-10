@@ -9,7 +9,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EthEmitEventDecorator emit events in ante handler in case of tx execution failed (out of block gas limit).

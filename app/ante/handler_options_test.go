@@ -3,12 +3,12 @@ package ante_test
 import (
 	"testing"
 
-	ethante "github.com/evmos/evmos/v19/app/ante/evm"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/types"
+	ethante "github.com/evmos/evmos/v20/app/ante/evm"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v19/app/ante"
+	"github.com/evmos/evmos/v20/app/ante"
 )
 
 func TestValidateHandlerOptions(t *testing.T) {

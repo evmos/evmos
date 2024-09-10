@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v20/x/epochs/types"
 )
 
 func TestEpochInfoChangesBeginBlockerAndInitGenesis(t *testing.T) {
