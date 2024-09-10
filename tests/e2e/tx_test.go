@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
 )
 
 // executeTransactions executes some sample transactions to check they are still working after the upgrade.

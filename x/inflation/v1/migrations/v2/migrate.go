@@ -7,8 +7,8 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v2types "github.com/evmos/evmos/v19/x/inflation/v1/migrations/v2/types"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	v2types "github.com/evmos/evmos/v20/x/inflation/v1/migrations/v2/types"
+	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 // MigrateStore migrates the x/inflation module state from the consensus version 1 to

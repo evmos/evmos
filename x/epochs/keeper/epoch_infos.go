@@ -8,7 +8,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v20/x/epochs/types"
 )
 
 // GetEpochInfo returns epoch info by identifier

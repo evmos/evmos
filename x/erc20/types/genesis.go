@@ -6,7 +6,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 var DefaultTokenPairs = []TokenPair{

@@ -8,7 +8,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/evmos/evmos/v19/app"
+	"github.com/evmos/evmos/v20/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -33,13 +33,13 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // genSetupFn is the type for the module genesis setup functions

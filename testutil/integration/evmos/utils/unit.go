@@ -9,14 +9,14 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 const (
