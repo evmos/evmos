@@ -214,8 +214,6 @@ type JSONRPCConfig struct {
 	// MaxOpenConnections sets the maximum number of simultaneous connections
 	// for the server listener.
 	MaxOpenConnections int `mapstructure:"max-open-connections"`
-	// EnableIndexer defines if enable the custom indexer service.
-	EnableIndexer bool `mapstructure:"enable-indexer"`
 	// MetricsAddress defines the metrics server to listen on
 	MetricsAddress string `mapstructure:"metrics-address"`
 	// FixRevertGasRefundHeight defines the upgrade height for fix of revert gas refund logic when transaction reverted
@@ -345,7 +343,6 @@ func DefaultJSONRPCConfig() *JSONRPCConfig {
 		HTTPIdleTimeout:          DefaultHTTPIdleTimeout,
 		AllowUnprotectedTxs:      DefaultAllowUnprotectedTxs,
 		MaxOpenConnections:       DefaultMaxOpenConnections,
-		EnableIndexer:            false,
 		MetricsAddress:           DefaultJSONRPCMetricsAddress,
 		FixRevertGasRefundHeight: DefaultFixRevertGasRefundHeight,
 	}

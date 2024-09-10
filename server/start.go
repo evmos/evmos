@@ -30,7 +30,6 @@ import (
 	"github.com/cometbft/cometbft/p2p"
 	pvm "github.com/cometbft/cometbft/privval"
 	"github.com/cometbft/cometbft/proxy"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cometbft/cometbft/rpc/client/local"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
@@ -53,11 +52,9 @@ import (
 	"github.com/cosmos/rosetta"
 
 	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"
-	"github.com/evmos/evmos/v19/indexer"
 	ethdebug "github.com/evmos/evmos/v19/rpc/namespaces/ethereum/debug"
 	"github.com/evmos/evmos/v19/server/config"
 	srvflags "github.com/evmos/evmos/v19/server/flags"
-	evmostypes "github.com/evmos/evmos/v19/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.
@@ -418,24 +415,6 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		ethmetricsexp.Setup(config.JSONRPC.MetricsAddress)
 	}
 
-	var idxer evmostypes.EVMTxIndexer
-	if config.JSONRPC.EnableIndexer {
-		idxDB, err := OpenIndexerDB(home, server.GetAppDBBackend(svrCtx.Viper))
-		if err != nil {
-			logger.Error("failed to open evm indexer DB", "error", err.Error())
-			return err
-		}
-
-		idxLogger := svrCtx.Logger.With("indexer", "evm")
-		idxer = indexer.NewKVIndexer(idxDB, idxLogger, clientCtx)
-		indexerService := NewEVMIndexerService(idxer, clientCtx.Client.(rpcclient.Client))
-		indexerService.SetLogger(servercmtlog.CometLoggerWrapper{Logger: idxLogger})
-
-		g.Go(func() error {
-			return indexerService.Start()
-		})
-	}
-
 	if config.API.Enable || config.JSONRPC.Enable {
 		genDoc, err := genDocProvider()
 		if err != nil {
@@ -460,7 +439,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		defer apiSrv.Close()
 	}
 
-	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress, idxer)
+	clientCtx, httpSrv, httpSrvDone, err := startJSONRPCServer(svrCtx, clientCtx, g, config, genDocProvider, cfg.RPC.ListenAddress)
 	if httpSrv != nil {
 		defer func() {
 			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
@@ -619,7 +598,6 @@ func startJSONRPCServer(
 	config config.Config,
 	genDocProvider node.GenesisDocProvider,
 	cmtRPCAddr string,
-	idxer evmostypes.EVMTxIndexer,
 ) (ctx client.Context, httpSrv *http.Server, httpSrvDone chan struct{}, err error) {
 	ctx = clientCtx
 	if !config.JSONRPC.Enable {
@@ -634,7 +612,7 @@ func startJSONRPCServer(
 	ctx = clientCtx.WithChainID(genDoc.ChainID)
 	cmtEndpoint := "/websocket"
 	g.Go(func() error {
-		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config, idxer)
+		httpSrv, httpSrvDone, err = StartJSONRPC(svrCtx, clientCtx, cmtRPCAddr, cmtEndpoint, &config)
 		return err
 	})
 	return

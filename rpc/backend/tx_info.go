@@ -306,10 +306,6 @@ func (b *Backend) GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNum
 // TODO: Don't need to convert once hashing is fixed on Tendermint
 // https://github.com/cometbft/cometbft/issues/6539
 func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
-	if b.indexer != nil {
-		return b.indexer.GetByTxHash(hash)
-	}
-
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("%s.%s='%s'", evmtypes.TypeMsgEthereumTx, evmtypes.AttributeKeyEthereumTxHash, hash.Hex())
 	txResult, err := b.queryTendermintTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
@@ -323,11 +319,6 @@ func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
 
 // GetTxByTxIndex uses `/tx_query` to find transaction by tx index of valid ethereum txs
 func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, error) {
-	int32Index := int32(index) // #nosec G701 G115 -- checked for int overflow already
-	if b.indexer != nil {
-		return b.indexer.GetByBlockAndIndex(height, int32Index)
-	}
-
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("tx.height=%d AND %s.%s=%d",
 		height, evmtypes.TypeMsgEthereumTx,

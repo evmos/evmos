@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	dbm "github.com/cosmos/cosmos-db"
-
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -20,7 +18,6 @@ import (
 
 	"github.com/evmos/evmos/v19/crypto/hd"
 	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/indexer"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v19/rpc/types"
 	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
@@ -81,9 +78,8 @@ func (suite *BackendTestSuite) SetupTest() {
 		WithAccountRetriever(client.TestAccountRetriever{Accounts: accounts})
 
 	allowUnprotectedTxs := false
-	idxer := indexer.NewKVIndexer(dbm.NewMemDB(), ctx.Logger, clientCtx)
 
-	suite.backend = NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, idxer)
+	suite.backend = NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs)
 	suite.backend.cfg.JSONRPC.GasCap = 0
 	suite.backend.cfg.JSONRPC.EVMTimeout = 0
 	suite.backend.cfg.JSONRPC.AllowInsecureUnlock = true

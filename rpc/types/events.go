@@ -3,14 +3,11 @@
 package types
 
 import (
-	"fmt"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
@@ -137,29 +134,6 @@ func ParseTxResult(result *abci.ExecTxResult, tx sdk.Tx) (*ParsedTxs, error) {
 		}
 	}
 	return p, nil
-}
-
-// ParseTxIndexerResult parse tm tx result to a format compatible with the custom tx indexer.
-func ParseTxIndexerResult(txResult *tmrpctypes.ResultTx, tx sdk.Tx, getter func(*ParsedTxs) *ParsedTx) (*types.TxResult, error) {
-	txs, err := ParseTxResult(&txResult.TxResult, tx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse tx events: block %d, index %d, %v", txResult.Height, txResult.Index, err)
-	}
-
-	parsedTx := getter(txs)
-	if parsedTx == nil {
-		return nil, fmt.Errorf("ethereum tx not found in msgs: block %d, index %d", txResult.Height, txResult.Index)
-	}
-	index := uint32(parsedTx.MsgIndex) // #nosec G701 G115
-	return &types.TxResult{
-		Height:            txResult.Height,
-		TxIndex:           txResult.Index,
-		MsgIndex:          index,
-		EthTxIndex:        parsedTx.EthTxIndex,
-		Failed:            parsedTx.Failed,
-		GasUsed:           parsedTx.GasUsed,
-		CumulativeGasUsed: txs.AccumulativeGasUsed(parsedTx.MsgIndex),
-	}, nil
 }
 
 // newTx parse a new tx from events, called during parsing.

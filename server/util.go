@@ -54,9 +54,6 @@ func AddCommands(
 		sdkserver.ExportCmd(appExport, opts.DefaultNodeHome),
 		version.NewVersionCommand(),
 		sdkserver.NewRollbackCmd(opts.AppCreator, opts.DefaultNodeHome),
-
-		// custom tx indexer command
-		NewIndexTxCmd(),
 	)
 }
 

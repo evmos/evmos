@@ -16,7 +16,6 @@ import (
 	"github.com/evmos/evmos/v19/rpc"
 
 	svrconfig "github.com/evmos/evmos/v19/server/config"
-	evmostypes "github.com/evmos/evmos/v19/types"
 )
 
 // StartJSONRPC starts the JSON-RPC server
@@ -25,7 +24,6 @@ func StartJSONRPC(ctx *server.Context,
 	tmRPCAddr,
 	tmEndpoint string,
 	config *svrconfig.Config,
-	indexer evmostypes.EVMTxIndexer,
 ) (*http.Server, chan struct{}, error) {
 	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
 
@@ -47,7 +45,7 @@ func StartJSONRPC(ctx *server.Context,
 	allowUnprotectedTxs := config.JSONRPC.AllowUnprotectedTxs
 	rpcAPIArr := config.JSONRPC.API
 
-	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr)
+	apis := rpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, rpcAPIArr...)
 
 	for _, api := range apis {
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {

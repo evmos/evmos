@@ -1,6 +1,6 @@
 package backend
 
-import (
+import 
 	"fmt"
 
 	"cosmossdk.io/log"
@@ -12,10 +12,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/indexer"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-)
+
 
 func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx, _ := suite.buildEthereumTx()
@@ -189,11 +188,6 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock()
 
-			db := dbm.NewMemDB()
-			suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
-
-			err := suite.backend.indexer.IndexBlock(tc.block, tc.responseBlock)
-			suite.Require().NoError(err)
 			txResult, err := suite.backend.TraceTransaction(txHash, nil)
 
 			if tc.expPass {

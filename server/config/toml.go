@@ -75,9 +75,6 @@ allow-unprotected-txs = {{ .JSONRPC.AllowUnprotectedTxs }}
 # for the server listener.
 max-open-connections = {{ .JSONRPC.MaxOpenConnections }}
 
-# EnableIndexer enables the custom transaction indexer for the EVM (ethereum transactions).
-enable-indexer = {{ .JSONRPC.EnableIndexer }}
-
 # MetricsAddress defines the EVM Metrics server address to bind to. Pass --metrics in CLI to enable
 # Prometheus metrics path: /debug/metrics/prometheus
 metrics-address = "{{ .JSONRPC.MetricsAddress }}"
