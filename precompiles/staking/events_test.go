@@ -53,7 +53,7 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[authorization.EventTypeApproval]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				var approvalEvent authorization.EventApproval
 				err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
@@ -303,7 +303,7 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCreateValidator]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				// Check the fully unpacked event matches the one emitted
 				var createValidatorEvent staking.EventCreateValidator
@@ -377,7 +377,7 @@ func (s *PrecompileTestSuite) TestEditValidatorEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeEditValidator]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				// Check the fully unpacked event matches the one emitted
 				var editValidatorEvent staking.EventEditValidator
@@ -447,7 +447,7 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeDelegate]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -521,7 +521,7 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeUnbond]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -595,7 +595,7 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeRedelegate]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				optSrcAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
@@ -685,7 +685,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCancelUnbondingDelegation]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				optAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)

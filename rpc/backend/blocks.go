@@ -391,8 +391,8 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 		}
 
 		tx := ethMsg.AsTransaction()
-		height := uint64(block.Height) //#nosec G701 -- checked for int overflow already
-		index := uint64(txIndex)       //#nosec G701 -- checked for int overflow already
+		height := uint64(block.Height) //nolint:gosec // G115 G701 -- checked for int overflow already
+		index := uint64(txIndex)       //nolint:gosec // G115 G701 -- checked for int overflow already
 		rpcTx, err := rpctypes.NewRPCTransaction(
 			tx,
 			common.BytesToHash(block.Hash()),
@@ -452,7 +452,7 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 			// block gas limit has exceeded, other txs must have failed with same reason.
 			break
 		}
-		gasUsed += uint64(txsResult.GetGasUsed()) // #nosec G701 -- checked for int overflow already
+		gasUsed += uint64(txsResult.GetGasUsed()) //nolint:gosec // G115 -- checked for int overflow already
 	}
 
 	formattedBlock := rpctypes.FormatBlock(

@@ -59,7 +59,7 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grant
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -95,7 +95,7 @@ func (p Precompile) EmitCreateClawbackVestingAccountEvent(
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        nil,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -131,7 +131,7 @@ func (p Precompile) EmitFundVestingAccountEvent(
 
 	// Pack the arguments to be used as the Data field
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4]}
-	packed, err := arguments.Pack(uint64(msg.StartTime.Unix()), lockupPeriods.LockupPeriods, vestingPeriods.VestingPeriods)
+	packed, err := arguments.Pack(uint64(msg.StartTime.Unix()), lockupPeriods.LockupPeriods, vestingPeriods.VestingPeriods) //nolint:gosec // G115
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func (p Precompile) EmitFundVestingAccountEvent(
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -185,7 +185,7 @@ func (p Precompile) EmitClawbackEvent(
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -229,7 +229,7 @@ func (p Precompile) EmitUpdateVestingFunderEvent(
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -255,7 +255,7 @@ func (p Precompile) EmitConvertVestingAccountEvent(ctx sdk.Context, stateDB vm.S
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        nil,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

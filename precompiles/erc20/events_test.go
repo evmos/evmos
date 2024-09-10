@@ -44,7 +44,7 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 			// Check event signature matches the one emitted
 			event := s.precompile.ABI.Events[erc20precompile.EventTypeTransfer]
 			s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight())) //nolint:gosec // G115
 
 			// Check the fully unpacked event matches the one emitted
 			var transferEvent erc20precompile.EventTransfer
@@ -92,7 +92,7 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 			// Check event signature matches the one emitted
 			event := s.precompile.ABI.Events[authorization.EventTypeApproval]
 			s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight())) //nolint:gosec // G115
 
 			// Check the fully unpacked event matches the one emitted
 			var approvalEvent erc20precompile.EventApproval

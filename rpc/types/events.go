@@ -121,7 +121,7 @@ func ParseTxResult(result *abci.ExecTxResult, tx sdk.Tx) (*ParsedTxs, error) {
 	}
 
 	// some old versions miss some events, fill it with tx result
-	gasUsed := uint64(result.GasUsed) // #nosec G701
+	gasUsed := uint64(result.GasUsed) // #nosec G701 G115
 	if len(p.Txs) == 1 {
 		p.Txs[0].GasUsed = gasUsed
 	}
