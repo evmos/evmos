@@ -22,7 +22,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// EventFeeMarket is the event type for the fee market module
+// EventFeeMarket is the event type for the feemarket module
 type EventFeeMarket struct {
 	// base_fee for EIP-1559 blocks
 	BaseFee string `protobuf:"bytes,1,opt,name=base_fee,json=baseFee,proto3" json:"base_fee,omitempty"`
