@@ -932,7 +932,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// EventFeeMarket is the event type for the fee market module
+// EventFeeMarket is the event type for the feemarket module
 type EventFeeMarket struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

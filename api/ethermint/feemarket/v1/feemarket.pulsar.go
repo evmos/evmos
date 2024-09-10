@@ -776,7 +776,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Params defines the EVM module parameters
+// Params defines the feemarket module parameters
 type Params struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

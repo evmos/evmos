@@ -8,7 +8,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/evmos/v19/x/feemarket/types";
 
-// Params defines the EVM module parameters
+// Params defines the feemarket module parameters
 message Params {
   option (amino.name) = "evmos/x/feemarket/Params";
 

@@ -11,7 +11,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/evmos/v19/x/feemarket/types";
 
-// Msg defines the erc20 Msg service.
+// Msg defines the feemarket Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
   // UpdateParams defined a governance operation for updating the x/feemarket module parameters.
