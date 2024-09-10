@@ -46,6 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
@@ -1086,5 +1087,3 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
-
-
