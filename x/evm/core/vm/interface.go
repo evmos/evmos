@@ -94,6 +94,16 @@ type CallContext interface {
 // The Interpreter will run the byte code VM based on the passed
 // configuration.
 type Interpreter interface {
+	// EVM returns the EVM instance
+	EVM() *EVM
+	// Config returns the configuration of the interpreter
+	Config() Config
+	// ReadOnly returns whether the interpreter is in read-only mode
+	ReadOnly() bool
+	// ReturnData gets the last CALL's return data for subsequent reuse
+	ReturnData() []byte
+	// SetReturnData sets the last CALL's return data
+	SetReturnData([]byte)
 	// Run loops and evaluates the contract's code with the given input data and returns
 	// the return byte-slice and an error if one occurred.
 	Run(contract *Contract, input []byte, static bool) ([]byte, error)
