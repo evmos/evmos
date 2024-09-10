@@ -48,6 +48,7 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 // WithEthereumTxHash ensures that all transactions follow the Ethereum-compatible
 // transaction hash format.
 func (ec *EVMConfigurator) WithEthereumTxHash() *EVMConfigurator {
+	// FIXME: set option for dual tx hashing
 	txhash.Set(&evmos.Hash{})
 	txhash.SetFmtHash(evmos.HashFmtFunc)
 
