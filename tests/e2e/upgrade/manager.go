@@ -369,7 +369,7 @@ func (m *Manager) GetUpgradeHeight(ctx context.Context, chainID string) (uint, e
 	}
 
 	heightDelta := new(big.Int).Quo(votingPeriod, timeoutCommit)
-	upgradeHeight := uint(currentHeight) + uint(heightDelta.Int64()) + safetyDelta
+	upgradeHeight := uint(currentHeight) + uint(heightDelta.Int64()) + safetyDelta // #nosec G115
 
 	// return the height at which the upgrade will be scheduled
 	return upgradeHeight, nil

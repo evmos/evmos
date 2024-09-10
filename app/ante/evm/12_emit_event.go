@@ -39,7 +39,7 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
 		}
 
-		txIdx := uint64(i) // nosec: G701
+		txIdx := uint64(i) //nolint:gosec // G115 G701
 		EmitTxHashEvent(ctx, msgEthTx, blockTxIndex, txIdx)
 	}
 
