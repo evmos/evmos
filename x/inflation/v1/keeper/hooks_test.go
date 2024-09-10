@@ -215,7 +215,7 @@ func TestPeriodChangesSkippedEpochsAfterEpochEnd(t *testing.T) {
 			}
 
 			nw.App.InflationKeeper.SetSkippedEpochs(ctx, tc.skippedEpochs)
-			nw.App.InflationKeeper.SetPeriod(ctx, uint64(tc.currentPeriod))
+			nw.App.InflationKeeper.SetPeriod(ctx, uint64(tc.currentPeriod)) //nolint:gosec // G115
 			currentSkippedEpochs := nw.App.InflationKeeper.GetSkippedEpochs(ctx)
 			currentPeriod := nw.App.InflationKeeper.GetPeriod(ctx)
 			originalProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
