@@ -94,6 +94,31 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 	}
 }
 
+// EVM returns the EVM instance
+func (in *EVMInterpreter) EVM() *EVM {
+	return in.evm
+}
+
+// Config returns the configuration of the interpreter
+func (in EVMInterpreter) Config() Config {
+	return in.cfg
+}
+
+// ReadOnly returns whether the interpreter is in read-only mode
+func (in EVMInterpreter) ReadOnly() bool {
+	return in.readOnly
+}
+
+// ReturnData gets the last CALL's return data for subsequent reuse
+func (in *EVMInterpreter) ReturnData() []byte {
+	return in.returnData
+}
+
+// SetReturnData sets the last CALL's return data
+func (in *EVMInterpreter) SetReturnData(data []byte) {
+	in.returnData = data
+}
+
 // Run loops and evaluates the contract's code with the given input data and returns
 // the return byte-slice and an error if one occurred.
 //
