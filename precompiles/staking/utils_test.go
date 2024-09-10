@@ -256,7 +256,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(
 	// Check event signature matches the one emitted
 	event := s.precompile.ABI.Events[authorization.EventTypeAllowanceChange]
 	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-	s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+	s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight())) //nolint:gosec // G115
 
 	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
