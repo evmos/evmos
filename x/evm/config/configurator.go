@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/cometbft/cometbft/crypto/txhash"
+	evmos "github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	"github.com/evmos/evmos/v19/x/evm/types"
 )
@@ -21,6 +23,7 @@ type EVMConfigurator struct {
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
 	sealed                   bool
+	ethereumTxHash           bool
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -39,6 +42,16 @@ func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[string]func(*vm.Jum
 // by adding provided EIP numbers.
 func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConfigurator {
 	ec.extendedDefaultExtraEIPs = eips
+	return ec
+}
+
+// WithEthereumTxHash ensures that all transactions follow the Ethereum-compatible
+// transaction hash format.
+func (ec *EVMConfigurator) WithEthereumTxHash() *EVMConfigurator {
+	txhash.Set(&evmos.Hash{})
+	txhash.SetFmtHash(evmos.HashFmtFunc)
+
+	ec.ethereumTxHash = true
 	return ec
 }
 

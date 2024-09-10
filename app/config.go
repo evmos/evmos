@@ -14,6 +14,7 @@ import (
 func init() {
 	err := evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
+		WithEthereumTxHash().
 		Configure()
 	if err != nil {
 		panic(err)
