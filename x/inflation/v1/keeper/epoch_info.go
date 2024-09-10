@@ -39,7 +39,7 @@ func (k Keeper) GetEpochsPerPeriod(ctx sdk.Context) int64 {
 // SetEpochsPerPeriod stores the epochs per period
 func (k Keeper) SetEpochsPerPeriod(ctx sdk.Context, epochsPerPeriod int64) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyPrefixEpochsPerPeriod, sdk.Uint64ToBigEndian(uint64(epochsPerPeriod)))
+	store.Set(types.KeyPrefixEpochsPerPeriod, sdk.Uint64ToBigEndian(uint64(epochsPerPeriod))) //nolint:gosec // G115
 }
 
 // GetSkippedEpochs gets the number of skipped epochs

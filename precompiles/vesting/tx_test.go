@@ -161,7 +161,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 				return []interface{}{
 					differentAddr,
 					toAddr,
-					uint64(time.Now().Unix()),
+					uint64(time.Now().Unix()), //nolint:gosec // G115
 					lockupPeriods,
 					vestingPeriods,
 				}
@@ -178,7 +178,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					toAddr,
-					uint64(time.Now().Unix()),
+					uint64(time.Now().Unix()), //nolint:gosec // G115
 					lockupPeriods,
 					vestingPeriods,
 				}

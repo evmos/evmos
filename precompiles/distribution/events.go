@@ -59,7 +59,7 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -91,7 +91,7 @@ func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.Stat
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -129,7 +129,7 @@ func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB v
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -158,7 +158,7 @@ func (p Precompile) EmitWithdrawValidatorCommissionEvent(ctx sdk.Context, stateD
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -187,7 +187,7 @@ func (p Precompile) EmitFundCommunityPoolEvent(ctx sdk.Context, stateDB vm.State
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
