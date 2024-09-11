@@ -605,6 +605,44 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			false,
 			config.DefaultGasCap,
 		},
+		{
+			"fail - not enough balance w/ gas fee cap",
+			func() types.TransactionArgs {
+				addr := suite.keyring.GetAddr(0)
+				hexBigInt := hexutil.Big(*big.NewInt(1))
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				value := balance.Amount.Add(sdkmath.NewInt(1))
+				return types.TransactionArgs{
+					To:           &common.Address{},
+					From:         &addr,
+					Value:        (*hexutil.Big)(value.BigInt()),
+					MaxFeePerGas: &hexBigInt,
+				}
+			},
+			false,
+			0,
+			false,
+			config.DefaultGasCap,
+		},
+		{
+			"fail - insufficient funds for gas * price + value w/ gas fee cap",
+			func() types.TransactionArgs {
+				addr := suite.keyring.GetAddr(0)
+				hexBigInt := hexutil.Big(*big.NewInt(1))
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				value := balance.Amount.Sub(sdkmath.NewInt(1))
+				return types.TransactionArgs{
+					To:           &common.Address{},
+					From:         &addr,
+					Value:        (*hexutil.Big)(value.BigInt()),
+					MaxFeePerGas: &hexBigInt,
+				}
+			},
+			false,
+			0,
+			false,
+			config.DefaultGasCap,
+		},
 		// should success, because gas limit lower than 21000 is ignored
 		{
 			"gas exceed allowance",
@@ -872,7 +910,6 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Start from a clean state
 			suite.Require().NoError(suite.network.NextBlock())

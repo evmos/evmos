@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
 - (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
+- (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
 
 ## [v19.2.0] - 2024-08-19
 
