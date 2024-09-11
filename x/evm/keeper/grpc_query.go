@@ -335,7 +335,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 
 	// Recap the highest gas limit with account's available balance.
 	if msg.GasFeeCap().BitLen() != 0 {
-		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), types.DefaultEVMDenom)
+		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), k.GetParams(ctx).EvmDenom)
 		available := balance.Amount
 		if args.Value != nil {
 			if args.Value.ToInt().Cmp(available.BigInt()) >= 0 {
