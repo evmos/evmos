@@ -337,20 +337,18 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	if msg.GasFeeCap().BitLen() != 0 {
 		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), k.GetParams(ctx).EvmDenom)
 		available := balance.Amount
+		transfer := "0"
 		if args.Value != nil {
 			if args.Value.ToInt().Cmp(available.BigInt()) >= 0 {
 				return nil, core.ErrInsufficientFundsForTransfer
 			}
 			available = available.Sub(sdkmath.NewIntFromBigInt(args.Value.ToInt()))
+			transfer = args.Value.String()
 		}
 		allowance := available.Quo(sdkmath.NewIntFromBigInt(msg.GasFeeCap()))
 
 		// If the allowance is larger than maximum uint64, skip checking
 		if allowance.IsUint64() && hi > allowance.Uint64() {
-			transfer := "0"
-			if args.Value != nil {
-				transfer = args.Value.String()
-			}
 			k.Logger(ctx).Debug("Gas estimation capped by limited funds", "original", hi, "balance", balance,
 				"sent", transfer, "maxFeePerGas", msg.GasFeeCap().String(), "fundable", allowance)
 
