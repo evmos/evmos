@@ -22,6 +22,7 @@ type EVMConfigurator struct {
 	extendedDefaultExtraEIPs []string
 	sealed                   bool
 	chainConfig              *types.ChainConfig
+	decimals                 Decimals
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -49,6 +50,12 @@ func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurat
 	return ec
 }
 
+// WithChainConfig
+func (ec *EVMConfigurator) WithDecimals(d Decimals) *EVMConfigurator {
+	ec.decimals = d
+	return ec
+}
+
 // Configure apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
@@ -63,6 +70,10 @@ func (ec *EVMConfigurator) Configure() error {
 
 	if ec.chainConfig == nil {
 		SetChainConfig(*ec.chainConfig)
+	}
+
+	if ec.decimals != 0 {
+		SetDecimals(ec.decimals)
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {

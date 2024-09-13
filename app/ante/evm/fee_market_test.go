@@ -25,6 +25,9 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	testCases := []struct {
 		name              string
 		expectedGasWanted uint64
@@ -35,7 +38,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := evmtypes.DefaultEVMDenom
+				denom := baseDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
@@ -95,7 +98,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"EIP712 message",
 			200000,
 			func() sdk.Tx {
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
+				amount := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(20)))
 				gas := uint64(200000)
 				acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
@@ -110,7 +113,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx - gasWanted > max block gas",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := evmtypes.DefaultEVMDenom
+				denom := baseDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",

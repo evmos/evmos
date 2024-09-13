@@ -67,15 +67,13 @@ func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, e
 		return common.Hash{}, err
 	}
 
-	// Query params to use the EVM denomination
-	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
+	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
-		b.logger.Error("failed to query evm params", "error", err.Error())
 		return common.Hash{}, err
 	}
 
 	// Assemble transaction from fields
-	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), res.Params.EvmDenom)
+	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	if err != nil {
 		b.logger.Error("build cosmos tx failed", "error", err.Error())
 		return common.Hash{}, err

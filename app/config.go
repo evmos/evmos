@@ -13,7 +13,7 @@ import (
 
 // The init function of the config file allows to setup the global
 // configuration for the EVM, modifying the custom ones defined in evmOS.
-func Initialize(chainID string) {
+func InitializeEVMConfiguration(chainID string) {
 
 	switch chainID {
 	case utils.MainnetChainID:
@@ -29,6 +29,7 @@ func Initialize(chainID string) {
 	err := evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		// WithChainConfig(&ChainConfig).
+		WithDecimals(evmconfig.SixDecimals).
 		Configure()
 	if err != nil {
 		panic(err)

@@ -75,14 +75,15 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
-				denom := s.GetNetwork().App.EvmKeeper.GetParams(ctx).EvmDenom
-				fees := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(fee)))
+				baseDenom, err := sdk.GetBaseDenom()
+				s.Require().NoError(err)
+				fees := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
 
-				err := ethante.ConsumeFeesAndEmitEvent(
+				err = ethante.ConsumeFeesAndEmitEvent(
 					cacheCtx.WithIsCheckTx(true).WithGasMeter(storetypes.NewInfiniteGasMeter()),
 					&keepers,
 					fees,

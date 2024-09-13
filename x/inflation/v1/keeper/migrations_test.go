@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/evmos/v20/encoding"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	inflationkeeper "github.com/evmos/evmos/v20/x/inflation/v1/keeper"
-	v2types "github.com/evmos/evmos/v20/x/inflation/v1/migrations/v2/types"
 	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
@@ -60,10 +59,6 @@ func TestMigrations(t *testing.T) {
 		name        string
 		migrateFunc func(ctx sdk.Context) error
 	}{
-		{
-			"Run Migrate1to2",
-			migrator.Migrate1to2,
-		},
 		{
 			"Run Migrate2to3",
 			migrator.Migrate2to3,

@@ -3,8 +3,6 @@
 package testutils
 
 import (
-	"math"
-
 	"github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"
@@ -59,15 +57,15 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
-	if !suite.enableLondonHF {
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-	}
+	// if !suite.enableLondonHF {
+	// 	maxInt := sdkmath.NewInt(math.MaxInt64)
+	// 	evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
+	// }
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)
 	}

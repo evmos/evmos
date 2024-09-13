@@ -13,6 +13,7 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/params"
 	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -35,11 +36,14 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 			// genesis transactions: fallback to min-gas-price logic
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 		}
-		params := k.GetParams(ctx)
-		denom := params.EvmDenom
-		ethCfg := params.ChainConfig.EthereumConfig(k.ChainID())
 
-		return FeeChecker(ctx, k, denom, ethCfg, feeTx)
+		baseDenom, err := sdk.GetBaseDenom()
+		if err != nil {
+			return sdk.Coins{}, 0, err
+		}
+		ethCfg := config.GetChainConfig().EthereumConfig(k.ChainID())
+
+		return FeeChecker(ctx, k, baseDenom, ethCfg, feeTx)
 	}
 }
 

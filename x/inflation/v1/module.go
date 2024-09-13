@@ -136,14 +136,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
 
-	// Migrate to version 2 of store
-	err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
-	if err != nil {
-		panic(err)
-	}
-
 	// Migrate to version 3 of store
-	err = cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3)
+	err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3)
 	if err != nil {
 		panic(err)
 	}

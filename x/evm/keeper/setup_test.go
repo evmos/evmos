@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"math"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -61,17 +60,17 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	if !s.enableLondonHF {
-		evmGenesis := evmtypes.DefaultGenesisState()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-		customGenesis[evmtypes.ModuleName] = evmGenesis
-	}
+	// if !s.enableLondonHF {
+	// 	evmGenesis := evmtypes.DefaultGenesisState()
+	// 	maxInt := sdkmath.NewInt(math.MaxInt64)
+	// 	evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
+	// 	evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
+	// 	customGenesis[evmtypes.ModuleName] = evmGenesis
+	// }
 
 	if s.mintFeeCollector {
 		// mint some coin to fee collector

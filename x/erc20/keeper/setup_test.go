@@ -18,7 +18,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 type KeeperTestSuite struct {
@@ -44,8 +43,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	customGenesis := network.CustomGenesisState{}
 
 	if suite.mintFeeCollector {
+		baseDenom, err := sdk.GetBaseDenom()
+		suite.Require().NoError(err)
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),

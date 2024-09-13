@@ -10,11 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -60,12 +60,11 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &types.QueryParamsRequest{})
+			baseDenom, err := sdk.GetBaseDenom()
 			if err != nil {
 				return err
 			}
-
-			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), rsp.Params.EvmDenom)
+			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 			if err != nil {
 				return err
 			}

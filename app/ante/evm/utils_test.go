@@ -126,10 +126,12 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	// Build MsgCreateValidator
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)),
+		sdk.NewCoin(baseDenom, sdkmath.NewInt(20)),
 		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),

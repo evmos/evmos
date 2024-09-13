@@ -10,13 +10,11 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evm "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 var ParamsKey = []byte("Params")
 
 var (
-	DefaultInflationDenom         = evm.DefaultEVMDenom
 	DefaultInflation              = true
 	DefaultExponentialCalculation = ExponentialCalculation{
 		A:             math.LegacyNewDec(int64(300_000_000)),
@@ -48,8 +46,9 @@ func NewParams(
 
 // default minting module parameters
 func DefaultParams() Params {
+	baseDenom, _ := sdk.GetBaseDenom()
 	return Params{
-		MintDenom:              DefaultInflationDenom,
+		MintDenom:              baseDenom,
 		ExponentialCalculation: DefaultExponentialCalculation,
 		InflationDistribution:  DefaultInflationDistribution,
 		EnableInflation:        DefaultInflation,

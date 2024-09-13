@@ -26,7 +26,6 @@ import (
 	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	"github.com/evmos/evmos/v20/server/config"
 	"github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Accounts returns the list of accounts available to this node.
@@ -337,13 +336,13 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 // the node config. If set value is 0, it will default to 20.
 
 func (b *Backend) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
+	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
 		return types.DefaultGasPrice
 	}
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
+	amt := minGasPrice.AmountOf(baseDenom).TruncateInt64()
 	if amt == 0 {
 		return types.DefaultGasPrice
 	}

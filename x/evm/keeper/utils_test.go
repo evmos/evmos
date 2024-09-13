@@ -18,9 +18,9 @@ import (
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	ctx := suite.network.GetContext()
-	rsp, _ := suite.network.GetEvmClient().Params(ctx, &evmtypes.QueryParamsRequest{})
-	return rsp.Params.EvmDenom
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+	return baseDenom
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {

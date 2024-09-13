@@ -47,6 +47,9 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 		sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 	)
 
+	baseDenom, err := sdk.GetBaseDenom()
+	require.NoError(t, err)
+
 	testCases := []struct {
 		name        string
 		msgs        []sdk.Msg
@@ -59,7 +62,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 				banktypes.NewMsgSend(
 					testAddresses[0],
 					testAddresses[1],
-					sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+					sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 				),
 			},
 			false,
@@ -141,7 +144,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					[]sdk.Msg{banktypes.NewMsgSend(
 						testAddresses[0],
 						testAddresses[3],
-						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 					)}),
 			},
 			false,
@@ -175,7 +178,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 						&evmtypes.MsgEthereumTx{},
 					},
@@ -226,7 +229,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -244,7 +247,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -255,7 +258,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -315,6 +318,9 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		return msg
 	}
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	testcases := []struct {
 		name         string
 		msgs         []sdk.Msg
@@ -346,7 +352,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 						msgEthereumTx,
 					},
@@ -377,7 +383,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -394,7 +400,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -405,7 +411,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 100e6)),
 						),
 					},
 				),
@@ -426,7 +432,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			priv := suite.GetKeyring().GetPrivKey(0)
 
 			if tc.isEIP712 {
-				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20))
+				coinAmount := sdk.NewCoin(baseDenom, math.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
 				cosmosTxArgs := utiltx.CosmosTxArgs{
 					TxCfg:   suite.GetClientCtx().TxConfig,

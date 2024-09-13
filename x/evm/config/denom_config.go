@@ -15,4 +15,14 @@ const (
 
 var decimals Decimals
 
-set and get
+func SetDecimals(d Decimals) {
+	if d != SixDecimals && d != EighteenDecimals {
+		panic("evm does not support these decimals")
+	}
+
+	decimals = d
+}
+
+func GetDecimals() Decimals {
+	return decimals
+}
