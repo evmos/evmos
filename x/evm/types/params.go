@@ -60,7 +60,6 @@ var (
 func NewParams(
 	evmDenom string,
 	allowUnprotectedTxs bool,
-	config ChainConfig,
 	extraEIPs []string,
 	activeStaticPrecompiles,
 	evmChannels []string,
@@ -70,7 +69,6 @@ func NewParams(
 		EvmDenom:                evmDenom,
 		AllowUnprotectedTxs:     allowUnprotectedTxs,
 		ExtraEIPs:               extraEIPs,
-		ChainConfig:             config,
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
@@ -81,7 +79,6 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EvmDenom:                DefaultEVMDenom,
-		ChainConfig:             DefaultChainConfig(),
 		ExtraEIPs:               DefaultExtraEIPs,
 		AllowUnprotectedTxs:     DefaultAllowUnprotectedTxs,
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
@@ -119,10 +116,6 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateBool(p.AllowUnprotectedTxs); err != nil {
-		return err
-	}
-
-	if err := validateChainConfig(p.ChainConfig); err != nil {
 		return err
 	}
 

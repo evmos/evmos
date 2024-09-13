@@ -4,16 +4,31 @@
 package app
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
+	"github.com/evmos/evmos/v20/utils"
 	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 // The init function of the config file allows to setup the global
 // configuration for the EVM, modifying the custom ones defined in evmOS.
-func init() {
+func Initialize(chainID string) {
+
+	switch chainID {
+	case utils.MainnetChainID:
+		sdk.SetBaseDenom("aevmos")
+		break
+	case utils.TestingChainID:
+		sdk.SetBaseDenom("atevmos")
+		break
+	default:
+		panic("undefined chain denom")
+	}
+
 	err := evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
+		// WithChainConfig(&ChainConfig).
 		Configure()
 	if err != nil {
 		panic(err)

@@ -21,6 +21,7 @@ type EVMConfigurator struct {
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
 	sealed                   bool
+	chainConfig              *types.ChainConfig
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -42,6 +43,12 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 	return ec
 }
 
+// WithChainConfig
+func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurator {
+	ec.chainConfig = cc
+	return ec
+}
+
 // Configure apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
@@ -52,6 +59,10 @@ func (ec *EVMConfigurator) Configure() error {
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
 		return err
+	}
+
+	if ec.chainConfig == nil {
+		SetChainConfig(*ec.chainConfig)
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {

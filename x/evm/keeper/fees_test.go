@@ -9,6 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -499,8 +500,8 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)
 
-			evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-			ethCfg := evmParams.GetChainConfig().EthereumConfig(nil)
+			// evmParams := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+			ethCfg := config.GetChainConfig().EthereumConfig(nil)
 			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext(), ethCfg)
 			priority := evmtypes.GetTxPriority(txData, baseFee)
 
