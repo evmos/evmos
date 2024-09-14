@@ -103,8 +103,8 @@ type EVMBackend interface {
 
 	// Tx Info
 	GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransaction, error)
-	GetTxByEthHash(txHash common.Hash) (*evmostypes.TxResult, error)
-	GetTxByTxIndex(height int64, txIndex uint) (*evmostypes.TxResult, error)
+	GetTxByEthHash(txHash common.Hash) (*tmrpctypes.ResultTx, error)
+	GetTxByTxIndex(height int64, txIndex uint) (*tmrpctypes.ResultTx, error)
 	GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error)
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)

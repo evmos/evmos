@@ -42,13 +42,13 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		return nil, fmt.Errorf("tx count %d is overfloing", len(blk.Block.Txs))
 	}
 	txsLen := uint32(len(blk.Block.Txs)) // #nosec G701 G115 -- checked for int overflow already
-	if txsLen < transaction.TxIndex {
-		b.logger.Debug("tx index out of bounds", "index", transaction.TxIndex, "hash", hash.String(), "height", blk.Block.Height)
+	if txsLen < transaction.Index {
+		b.logger.Debug("tx index out of bounds", "index", transaction.Index, "hash", hash.String(), "height", blk.Block.Height)
 		return nil, fmt.Errorf("transaction not included in block %v", blk.Block.Height)
 	}
 
 	var predecessors []*evmtypes.MsgEthereumTx
-	for _, txBz := range blk.Block.Txs[:transaction.TxIndex] {
+	for _, txBz := range blk.Block.Txs[:transaction.Index] {
 		tx, err := b.clientCtx.TxConfig.TxDecoder()(txBz)
 		if err != nil {
 			b.logger.Debug("failed to decode transaction in block", "height", blk.Block.Height, "error", err.Error())
@@ -64,14 +64,14 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		}
 	}
 
-	tx, err := b.clientCtx.TxConfig.TxDecoder()(blk.Block.Txs[transaction.TxIndex])
+	tx, err := b.clientCtx.TxConfig.TxDecoder()(blk.Block.Txs[transaction.Index])
 	if err != nil {
 		b.logger.Debug("tx not found", "hash", hash)
 		return nil, err
 	}
 
 	// add predecessor messages in current cosmos tx
-	index := int(transaction.MsgIndex) // #nosec G701
+	index := int(transaction.Index) // #nosec G701
 	for i := 0; i < index; i++ {
 		ethMsg, ok := tx.GetMsgs()[i].(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -80,7 +80,7 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		predecessors = append(predecessors, ethMsg)
 	}
 
-	ethMessage, ok := tx.GetMsgs()[transaction.MsgIndex].(*evmtypes.MsgEthereumTx)
+	ethMessage, ok := tx.GetMsgs()[transaction.Index].(*evmtypes.MsgEthereumTx)
 	if !ok {
 		b.logger.Debug("invalid transaction type", "type", fmt.Sprintf("%T", tx))
 		return nil, fmt.Errorf("invalid transaction type %T", tx)

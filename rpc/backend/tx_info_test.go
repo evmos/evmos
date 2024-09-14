@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/ethermint/indexer"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v19/rpc/types"
-	evmostypes "github.com/evmos/evmos/v19/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
@@ -110,11 +109,6 @@ func (suite *BackendTestSuite) TestGetTransactionByHash() {
 			suite.SetupTest() // reset
 			tc.registerMock()
 
-			db := dbm.NewMemDB()
-			suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
-			err := suite.backend.indexer.IndexBlock(block, responseDeliver)
-			suite.Require().NoError(err)
-
 			rpcTx, err := suite.backend.GetTransactionByHash(common.HexToHash(tc.tx.Hash))
 
 			if tc.expPass {
@@ -201,7 +195,6 @@ func (suite *BackendTestSuite) TestGetTxByEthHash() {
 		{
 			"fail - Indexer disabled can't find transaction",
 			func() {
-				suite.backend.indexer = nil
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				query := fmt.Sprintf("%s.%s='%s'", evmtypes.TypeMsgEthereumTx, evmtypes.AttributeKeyEthereumTxHash, common.HexToHash(msgEthereumTx.Hash).Hex())
 				RegisterTxSearch(client, query, bz)
@@ -343,26 +336,6 @@ func (suite *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
 			true,
 		},
 		{
-			"pass - Gets Tx by transaction index",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				db := dbm.NewMemDB()
-				suite.backend.indexer = indexer.NewKVIndexer(db, log.NewNopLogger(), suite.backend.clientCtx)
-				txBz := suite.signAndEncodeEthTx(msgEthTx)
-				block := &types.Block{Header: types.Header{Height: 1, ChainID: "test"}, Data: types.Data{Txs: []types.Tx{txBz}}}
-				err := suite.backend.indexer.IndexBlock(block, defaultExecTxResult)
-				suite.Require().NoError(err)
-				_, err = RegisterBlockResults(client, 1)
-				suite.Require().NoError(err)
-				RegisterBaseFee(queryClient, math.NewInt(1))
-			},
-			&tmrpctypes.ResultBlock{Block: defaultBlock},
-			0,
-			txFromMsg,
-			true,
-		},
-		{
 			"pass - returns the Ethereum format transaction by the Ethereum hash",
 			func() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -459,89 +432,6 @@ func (suite *BackendTestSuite) TestGetTransactionByBlockNumberAndIndex() {
 	}
 }
 
-func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
-	_, bz := suite.buildEthereumTx()
-
-	testCases := []struct {
-		name         string
-		registerMock func()
-		height       int64
-		index        uint
-		expTxResult  *evmostypes.TxResult
-		expPass      bool
-	}{
-		{
-			"fail - Ethereum tx with query not found",
-			func() {
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				suite.backend.indexer = nil
-				RegisterTxSearch(client, "tx.height=0 AND ethereum_tx.txIndex=0", bz)
-			},
-			0,
-			0,
-			&evmostypes.TxResult{},
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset
-			tc.registerMock()
-
-			txResults, err := suite.backend.GetTxByTxIndex(tc.height, tc.index)
-
-			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(txResults, tc.expTxResult)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
-}
-
-func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
-	testCases := []struct {
-		name         string
-		registerMock func()
-		txGetter     func(*rpctypes.ParsedTxs) *rpctypes.ParsedTx
-		query        string
-		expTxResult  *evmostypes.TxResult
-		expPass      bool
-	}{
-		{
-			"fail - Ethereum tx with query not found",
-			func() {
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterTxSearchEmpty(client, "")
-			},
-			func(_ *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
-				return &rpctypes.ParsedTx{}
-			},
-			"",
-			&evmostypes.TxResult{},
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset
-			tc.registerMock()
-
-			txResults, err := suite.backend.queryTendermintTxIndexer(tc.query, tc.txGetter)
-
-			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(txResults, tc.expTxResult)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
-}
-
 func (suite *BackendTestSuite) TestGetTransactionReceipt() {
 	msgEthereumTx, _ := suite.buildEthereumTx()
 	txHash := msgEthereumTx.AsTransaction().Hash()
@@ -618,7 +508,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 	testCases := []struct {
 		name                     string
 		fixRevertGasRefundHeight int64
-		txResult                 *evmostypes.TxResult
+		txResult                 *tmrpctypes.ResultTx
 		price                    *big.Int
 		gas                      uint64
 		exp                      uint64
@@ -626,7 +516,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"success txResult",
 			1,
-			&evmostypes.TxResult{
+			&tmrpctypes.ResultTx{
 				Height:  1,
 				Failed:  false,
 				GasUsed: 53026,
@@ -638,7 +528,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult before cap",
 			2,
-			&evmostypes.TxResult{
+			&tmrpctypes.ResultTx{
 				Height:  1,
 				Failed:  true,
 				GasUsed: 53026,
@@ -650,7 +540,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult after cap",
 			2,
-			&evmostypes.TxResult{
+			&tmrpctypes.ResultTx{
 				Height:  3,
 				Failed:  true,
 				GasUsed: 53026,

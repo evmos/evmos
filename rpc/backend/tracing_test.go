@@ -1,20 +1,18 @@
 package backend
 
-import 
+import (
 	"fmt"
 
-	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
-	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v19/rpc/backend/mocks"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-
+)
 
 func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx, _ := suite.buildEthereumTx()

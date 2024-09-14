@@ -36,13 +36,13 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 		return nil, err
 	}
 
-	tx, err := b.clientCtx.TxConfig.TxDecoder()(block.Block.Txs[res.TxIndex])
+	tx, err := b.clientCtx.TxConfig.TxDecoder()(block.Block.Txs[res.Index])
 	if err != nil {
 		return nil, err
 	}
 
 	// the `res.MsgIndex` is inferred from tx index, should be within the bound.
-	msg, ok := tx.GetMsgs()[res.MsgIndex].(*evmtypes.MsgEthereumTx)
+	msg, ok := tx.GetMsgs()[res.Index].(*evmtypes.MsgEthereumTx)
 	if !ok {
 		return nil, errors.New("invalid ethereum tx")
 	}
@@ -153,11 +153,12 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		b.logger.Debug("block not found", "height", res.Height, "error", err.Error())
 		return nil, nil
 	}
-	tx, err := b.clientCtx.TxConfig.TxDecoder()(resBlock.Block.Txs[res.TxIndex])
+	tx, err := b.clientCtx.TxConfig.TxDecoder()(resBlock.Block.Txs[res.Index])
 	if err != nil {
 		b.logger.Debug("decoding failed", "error", err.Error())
 		return nil, fmt.Errorf("failed to decode tx: %w", err)
 	}
+
 	ethMsg := tx.GetMsgs()[res.MsgIndex].(*evmtypes.MsgEthereumTx)
 
 	txData, err := evmtypes.UnpackTxData(ethMsg.Data)
@@ -305,7 +306,7 @@ func (b *Backend) GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNum
 // GetTxByEthHash uses `/tx_query` to find transaction by ethereum tx hash
 // TODO: Don't need to convert once hashing is fixed on Tendermint
 // https://github.com/cometbft/cometbft/issues/6539
-func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
+func (b *Backend) GetTxByEthHash(hash common.Hash) (*tmrpctypes.ResultTx, error) {
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("%s.%s='%s'", evmtypes.TypeMsgEthereumTx, evmtypes.AttributeKeyEthereumTxHash, hash.Hex())
 	txResult, err := b.queryTendermintTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
@@ -318,7 +319,7 @@ func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
 }
 
 // GetTxByTxIndex uses `/tx_query` to find transaction by tx index of valid ethereum txs
-func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, error) {
+func (b *Backend) GetTxByTxIndex(height int64, index uint) (*tmrpctypes.ResultTx, error) {
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("tx.height=%d AND %s.%s=%d",
 		height, evmtypes.TypeMsgEthereumTx,
