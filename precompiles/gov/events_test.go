@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestVoteEvent() {
 				err := cmn.UnpackLog(s.precompile.ABI, &voteEvent, gov.EventTypeVote, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.keyring.GetAddr(0), voteEvent.Voter)
-				s.Require().Equal(uint64(1), voteEvent.ProposalID)
+				s.Require().Equal(uint64(1), voteEvent.ProposalId)
 				s.Require().Equal(uint8(1), voteEvent.Option)
 			},
 			20000,
