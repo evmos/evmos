@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
+	"github.com/evmos/evmos/v20/rpc/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 
@@ -81,6 +82,16 @@ func EthHeaderFromTendermint(header cmttypes.Header, bloom ethtypes.Bloom, baseF
 		Nonce:       ethtypes.BlockNonce{},
 		BaseFee:     baseFee,
 	}
+}
+
+func EthBlockFromTendermint(cmtBlock *cmttypes.Block) (*ethtypes.Block, error) {
+	// tx := GetBaseFee(block.Txs),
+
+	header := EthHeaderFromTendermint(cmtBlock.Header, types.Bloom{}, nil)
+	// TODO: get from transactions
+	block := ethtypes.NewBlockWithHeader(header).WithBody(nil, nil)
+
+	return block, nil
 }
 
 // BlockMaxGasFromConsensusParams returns the gas limit for the current block from the chain consensus params.
@@ -167,7 +178,11 @@ func NewTransactionFromMsg(
 // NewTransactionFromData returns a transaction that will serialize to the RPC
 // representation, with the given location metadata set (if available).
 func NewRPCTransaction(
-	tx *ethtypes.Transaction, blockHash common.Hash, blockNumber, index uint64, baseFee *big.Int,
+	tx *ethtypes.Transaction,
+	blockHash common.Hash,
+	blockNumber,
+	index uint64,
+	baseFee,
 	chainID *big.Int,
 ) (*RPCTransaction, error) {
 	// Determine the signer. For replay-protected transactions, use the most permissive
@@ -222,28 +237,64 @@ func NewRPCTransaction(
 			result.GasPrice = (*hexutil.Big)(tx.GasFeeCap())
 		}
 	}
+
 	return result, nil
+}
+
+func BaseFeeBloomFromEvents(events []abci.Event) (*big.Int, ethtypes.Bloom) {
+	var (
+		baseFee *big.Int
+		bloom   ethtypes.Bloom
+	)
+	for _, event := range events {
+		if baseFee == nil {
+			baseFee, _ = BaseFeeFromEvent(event)
+		}
+
+		if bloom == (ethtypes.Bloom{}) {
+			bloom, _ = BloomFromEvent(event)
+		}
+	}
+	return baseFee, bloom
 }
 
 // BaseFeeFromEvents parses the feemarket basefee from cosmos events
 func BaseFeeFromEvents(events []abci.Event) *big.Int {
 	for _, event := range events {
-		if event.Type != feemarkettypes.EventTypeFeeMarket {
-			continue
-		}
-
-		for _, attr := range event.Attributes {
-			if attr.Key == feemarkettypes.AttributeKeyBaseFee {
-				result, success := new(big.Int).SetString(attr.Value, 10)
-				if success {
-					return result
-				}
-
-				return nil
-			}
+		baseFee, ok := BaseFeeFromEvent(event)
+		if ok {
+			return baseFee
 		}
 	}
 	return nil
+}
+
+func BaseFeeFromEvent(event abci.Event) (*big.Int, bool) {
+	if event.Type != feemarkettypes.EventTypeFeeMarket {
+		return nil, false
+	}
+
+	for _, attr := range event.Attributes {
+		if attr.Key == feemarkettypes.AttributeKeyBaseFee {
+			return new(big.Int).SetString(attr.Value, 10)
+		}
+	}
+
+	return nil, false
+}
+
+func BloomFromEvent(event abci.Event) (ethtypes.Bloom, bool) {
+	if event.Type != evmtypes.EventTypeBlockBloom {
+		return types.Bloom{}, false
+	}
+
+	for _, attr := range event.Attributes {
+		if attr.Key == evmtypes.AttributeKeyEthereumBloom {
+			return ethtypes.BytesToBloom([]byte(attr.Value)), true
+		}
+	}
+
+	return types.Bloom{}, false
 }
 
 // CheckTxFee is an internal function used to check whether the fee of

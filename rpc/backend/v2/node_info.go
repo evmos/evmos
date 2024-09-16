@@ -1,10 +1,9 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package backend
+package v2
 
 import (
 	"fmt"
-	"math/big"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -16,13 +15,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdkconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v20/precompiles/distribution"
 	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	"github.com/evmos/evmos/v20/server/config"
 	"github.com/evmos/evmos/v20/types"
@@ -104,60 +104,64 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
+	// FIXME: use the distribution precompile contract
+
 	withdrawAddr := sdk.AccAddress(etherbase.Bytes())
-	msg := distributiontypes.NewMsgSetWithdrawAddress(delAddr, withdrawAddr)
 
-	// Assemble transaction from fields
-	builder, ok := b.clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
-	if !ok {
-		b.logger.Debug("clientCtx.TxConfig.NewTxBuilder returns unsupported builder", "error", err.Error())
-		return false
-	}
-
-	err = builder.SetMsgs(msg)
-	if err != nil {
-		b.logger.Error("builder.SetMsgs failed", "error", err.Error())
-		return false
-	}
-
-	// Fetch minimum gas price to calculate fees using the configuration.
-	minGasPrices := b.cfg.GetMinGasPrices()
-	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		b.logger.Debug("the minimum fee is not set")
-		return false
-	}
-	minGasPriceValue := minGasPrices[0].Amount
-	denom := minGasPrices[0].Denom
-
-	delCommonAddr := common.BytesToAddress(delAddr.Bytes())
-	nonce, err := b.GetTransactionCount(delCommonAddr, rpctypes.EthPendingBlockNumber)
+	nonce, err := b.GetTransactionCount(delAddr, rpctypes.EthPendingBlockNumber)
 	if err != nil {
 		b.logger.Debug("failed to get nonce", "error", err.Error())
 		return false
 	}
 
-	txFactory := tx.Factory{}
-	txFactory = txFactory.
-		WithChainID(b.clientCtx.ChainID).
-		WithKeybase(b.clientCtx.Keyring).
-		WithTxConfig(b.clientCtx.TxConfig).
-		WithSequence(uint64(*nonce)).
-		WithGasAdjustment(1.25)
+	// FIXME: use the abi from the precompile
+	setWithdrawMethod := abi.NewMethod(
+		distribution.SetWithdrawAddressMethod,
+		distribution.SetWithdrawAddressMethod,
+		abi.Function,
+		"",
+		false, false,
+		abi.Arguments{
+			// {Name: "delegatorAddress", Type: abi.AddressTy},
+			// {Name: "withdrawerAddress", Type: abi.StringTy}, // FIXME: update to address
+		},
+		abi.Arguments{
+			// {Name: "success", Type: abi.BoolTy},
+		},
+	)
 
-	_, gas, err := tx.CalculateGas(b.clientCtx, txFactory, msg)
+	input, err := setWithdrawMethod.Inputs.Pack(
+		delAddr, withdrawAddr.String(),
+	)
 	if err != nil {
-		b.logger.Debug("failed to calculate gas", "error", err.Error())
 		return false
 	}
 
-	txFactory = txFactory.WithGas(gas)
+	gasPrice, err := b.GasPrice()
+	if err != nil {
+		return false
+	}
 
-	value := new(big.Int).SetUint64(gas * minGasPriceValue.Ceil().TruncateInt().Uint64())
-	fees := sdk.Coins{sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(value))}
-	builder.SetFeeAmount(fees)
-	builder.SetGasLimit(gas)
+	args := evmtypes.EvmTxArgs{
+		// Nonce:    uint64(nonce),
+		GasLimit: 0,
+		Input:    input,
+		ChainID:  b.chainID,
+		GasPrice: gasPrice.ToInt(), // TODO: set effective gas price
+	}
+	//
 
-	keyInfo, err := b.clientCtx.Keyring.KeyByAddress(delAddr)
+	msg := distributiontypes.NewMsgSetWithdrawAddress(delAddr.Bytes(), withdrawAddr)
+
+	gas, err := b.EstimateGas(args, nil)
+	if err != nil {
+		b.logger.Debug("failed to estimate gas", "error", err.Error())
+		return false
+	}
+
+	args.GasLimit = uint64(gas)
+
+	keyInfo, err := b.clientCtx.Keyring.KeyByAddress(sdk.AccAddress(delAddr.Bytes()))
 	if err != nil {
 		b.logger.Debug("failed to get the wallet address using the keyring", "error", err.Error())
 		return false

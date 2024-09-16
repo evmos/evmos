@@ -490,6 +490,13 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 		return nil, err
 	}
 
+	chainIDHex, err := e.backend.ChainID()
+	if err != nil {
+		return nil, err
+	}
+
+	chainID := chainIDHex.ToInt()
+
 	result := make([]*rpctypes.RPCTransaction, 0, len(txs))
 	for _, tx := range txs {
 		for _, msg := range (*tx).GetMsgs() {
@@ -505,7 +512,7 @@ func (e *PublicAPI) GetPendingTransactions() ([]*rpctypes.RPCTransaction, error)
 				uint64(0),
 				uint64(0),
 				nil,
-				e.backend.ChainConfig().ChainID,
+				chainID,
 			)
 			if err != nil {
 				return nil, err

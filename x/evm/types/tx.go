@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/big"
 
+	errorsmod "cosmossdk.io/errors"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -78,4 +79,29 @@ func (m *MsgEthereumTxResponse) Revert() []byte {
 		return nil
 	}
 	return common.CopyBytes(m.Ret)
+}
+
+func ValidateTx(tx *ethtypes.Transaction) error {
+	data, err := NewTxDataFromTx(tx)
+	if err != nil {
+		return err
+	}
+
+	return validateTxData(data)
+}
+
+func validateTxData(data TxData) error {
+	gas := data.GetGas()
+
+	// prevent txs with 0 gas to fill up the mempool
+	if gas == 0 {
+		return errorsmod.Wrap(ErrInvalidGasLimit, "gas limit must not be zero")
+	}
+
+	// prevent gas limit from overflow
+	if g := new(big.Int).SetUint64(gas); !g.IsInt64() {
+		return errorsmod.Wrap(ErrGasOverflow, "gas limit must be less than math.MaxInt64")
+	}
+
+	return data.Validate()
 }

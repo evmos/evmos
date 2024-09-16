@@ -1,6 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package backend
+package v2
 
 import (
 	"bytes"
@@ -37,13 +37,7 @@ func (b *Backend) Resend(args evmtypes.TransactionArgs, gasPrice *hexutil.Big, g
 
 	// The signer used should always be the 'latest' known one because we expect
 	// signers to be backwards-compatible with old transactions.
-	eip155ChainID, err := b.ChainID()
-	if err != nil {
-		return common.Hash{}, err
-	}
-
-	chainID := eip155ChainID.ToInt()
-
+	chainID := b.ChainID()
 	signer := ethtypes.LatestSignerForChainID(chainID)
 
 	matchTx := args.ToTransaction().AsTransaction()
@@ -67,22 +61,14 @@ func (b *Backend) Resend(args evmtypes.TransactionArgs, gasPrice *hexutil.Big, g
 	}
 
 	for _, tx := range pending {
-		// FIXME does Resend api possible at all?  https://github.com/evmos/ethermint/issues/905
-		p, err := evmtypes.UnwrapEthereumMsg(tx, common.Hash{})
-		if err != nil {
-			// not valid ethereum tx
-			continue
-		}
-
-		pTx := p.AsTransaction()
-
+		// FIXME: does Resend api possible at all?  https://github.com/evmos/ethermint/issues/905
 		wantSigHash := signer.Hash(matchTx)
-		pFrom, err := ethtypes.Sender(signer, pTx)
+		pFrom, err := ethtypes.Sender(signer, tx)
 		if err != nil {
 			continue
 		}
 
-		if pFrom == *args.From && signer.Hash(pTx) == wantSigHash {
+		if pFrom == *args.From && signer.Hash(tx) == wantSigHash {
 			// Match. Re-sign and send the transaction.
 			if gasPrice != nil && (*big.Int)(gasPrice).Sign() != 0 {
 				args.GasPrice = gasPrice
@@ -113,44 +99,20 @@ func (b *Backend) SendRawTransaction(data hexutil.Bytes) (common.Hash, error) {
 		return common.Hash{}, errors.New("only replay-protected (EIP-155) transactions allowed over RPC")
 	}
 
-	ethereumTx := &evmtypes.MsgEthereumTx{}
-	if err := ethereumTx.FromEthereumTx(tx); err != nil {
-		b.logger.Error("transaction converting failed", "error", err.Error())
-		return common.Hash{}, err
-	}
-
-	if err := ethereumTx.ValidateBasic(); err != nil {
+	// TODO: create a validate basic for an ethereum
+	if err := evmtypes.ValidateTx(tx); err != nil {
 		b.logger.Debug("tx failed basic validation", "error", err.Error())
 		return common.Hash{}, err
 	}
 
-	// Query params to use the EVM denomination
-	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		b.logger.Error("failed to query evm params", "error", err.Error())
-		return common.Hash{}, err
-	}
-
-	cosmosTx, err := ethereumTx.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), res.Params.EvmDenom)
-	if err != nil {
-		b.logger.Error("failed to build cosmos tx", "error", err.Error())
-		return common.Hash{}, err
-	}
-
-	// Encode transaction by default Tx encoder
-	txBytes, err := b.clientCtx.TxConfig.TxEncoder()(cosmosTx)
-	if err != nil {
-		b.logger.Error("failed to encode eth tx using default encoder", "error", err.Error())
-		return common.Hash{}, err
-	}
-
-	txHash := ethereumTx.AsTransaction().Hash()
+	txHash := tx.Hash()
 
 	syncCtx := b.clientCtx.WithBroadcastMode(flags.BroadcastSync)
-	rsp, err := syncCtx.BroadcastTx(txBytes)
+	rsp, err := syncCtx.BroadcastTx(data)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
+
 	if err != nil {
 		b.logger.Error("failed to broadcast tx", "error", err.Error())
 		return txHash, err
@@ -170,6 +132,8 @@ func (b *Backend) SetTxDefaults(args evmtypes.TransactionArgs) (evmtypes.Transac
 	if head == nil {
 		return args, errors.New("latest header is nil")
 	}
+
+	// FIXME: this is spagghetti code
 
 	// If user specifies both maxPriorityfee and maxFee, then we do not
 	// need to consult the chain for defaults. It's definitely a London tx.
