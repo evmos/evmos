@@ -25,15 +25,9 @@ require (
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-apps/modules/rate-limiting/v8 v8.0.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
-<<<<<<< HEAD
-	github.com/cosmos/ibc-go/v8 v8.5.0
-	github.com/cosmos/rosetta v0.50.2
-	github.com/creachadair/tomledit v0.0.24
-=======
 	github.com/cosmos/ibc-go/v8 v8.5.1
 	github.com/cosmos/rosetta v0.50.9
 	github.com/creachadair/tomledit v0.0.26
->>>>>>> f943af3b (build(deps): bump github.com/cosmos/ibc-go/v8 from 8.5.0 to 8.5.1 (#2853))
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240722062311-8384cad72737
@@ -95,6 +89,8 @@ require (
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
 	github.com/alitto/pond v1.8.3 // indirect
@@ -124,7 +120,7 @@ require (
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
-	github.com/creachadair/atomicfile v0.3.1 // indirect
+	github.com/creachadair/atomicfile v0.3.3 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
@@ -170,6 +166,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.5 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
+	github.com/goware/urlx v0.3.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
