@@ -31,6 +31,8 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -50,7 +52,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() *types.QueryAccountRequest {
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, 100)}
 
 				// Add new unfunded key
 				index := suite.keyring.AddKey()
@@ -188,6 +190,9 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	testCases := []struct {
 		msg           string
 		getReqAndResp func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse)
@@ -210,7 +215,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				addr := suite.keyring.GetAddr(newIndex)
 
 				balance := int64(100)
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, balance)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, balance)}
 
 				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 				suite.Require().NoError(err)

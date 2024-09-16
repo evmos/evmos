@@ -52,7 +52,10 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
-	denom := vtd.ek.GetParams(ctx).EvmDenom
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		return ctx, err
+	}
 
 	msgs := tx.GetMsgs()
 	if msgs == nil {
@@ -73,7 +76,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				"account %s does not exist", acc)
 		}
 
-		if err := CheckVesting(ctx, vtd.bk, acc, accountExpenses, value, denom); err != nil {
+		if err := CheckVesting(ctx, vtd.bk, acc, accountExpenses, value, baseDenom); err != nil {
 			return ctx, err
 		}
 	}

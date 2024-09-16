@@ -27,7 +27,9 @@ var _ Network = (*UnitTestNetwork)(nil)
 // It panics if an error occurs.
 // Note: Only uses for Unit Tests
 func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
+
 	network := New(opts...)
+	// sdk.SetBaseDenom("aevmos")
 	return &UnitTestNetwork{
 		IntegrationNetwork: *network,
 		App:                network.app,

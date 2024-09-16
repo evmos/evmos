@@ -4,29 +4,37 @@
 package app
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/utils"
 	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 // The init function of the config file allows to setup the global
 // configuration for the EVM, modifying the custom ones defined in evmOS.
-func InitializeEVMConfiguration(chainID string) {
+func init() {
 
-	switch chainID {
-	case utils.MainnetChainID:
-		sdk.SetBaseDenom("aevmos")
-		break
-	case utils.TestingChainID:
-		sdk.SetBaseDenom("atevmos")
-		break
-	default:
-		panic("undefined chain denom")
+	// fmt.Println(chainID)
+
+	// if utils.IsMainnet(chainID) {
+	// 	sdk.SetBaseDenom("aevmos")
+	// } else if utils.IsTestnet(chainID) {
+	// 	sdk.SetBaseDenom("atevmos")
+	// } else {
+	// 	panic("undefined chain denom")
+	// }
+	err := sdk.RegisterDenom("aevmos", math.LegacyNewDec(18))
+	if err != nil {
+		panic("cant register base denom")
+	}
+	err = sdk.SetBaseDenom("aevmos")
+
+	if err != nil {
+		panic("cant set base denom")
 	}
 
-	err := evmconfig.NewEVMConfigurator().
+	err = evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		// WithChainConfig(&ChainConfig).
 		WithDecimals(evmconfig.SixDecimals).

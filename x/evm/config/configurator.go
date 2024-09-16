@@ -68,7 +68,7 @@ func (ec *EVMConfigurator) Configure() error {
 		return err
 	}
 
-	if ec.chainConfig == nil {
+	if ec.chainConfig != nil {
 		SetChainConfig(*ec.chainConfig)
 	}
 

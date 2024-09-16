@@ -67,6 +67,9 @@ var _ = Describe("Staking module tests", func() {
 
 			Expect(nw.NextBlock()).To(BeNil())
 
+			// err := sdk.SetBaseDenom("aevmos")
+			// Expect(err).To(BeNil())
+
 			// setup vesting account
 			createAccMsg := vestingtypes.NewMsgCreateClawbackVestingAccount(funder.AccAddr, vestingAccount.AccAddr, false)
 			res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createAccMsg}})
