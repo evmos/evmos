@@ -25,9 +25,15 @@ require (
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-apps/modules/rate-limiting/v8 v8.0.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
+<<<<<<< HEAD
 	github.com/cosmos/ibc-go/v8 v8.5.0
 	github.com/cosmos/rosetta v0.50.2
 	github.com/creachadair/tomledit v0.0.24
+=======
+	github.com/cosmos/ibc-go/v8 v8.5.1
+	github.com/cosmos/rosetta v0.50.9
+	github.com/creachadair/tomledit v0.0.26
+>>>>>>> f943af3b (build(deps): bump github.com/cosmos/ibc-go/v8 from 8.5.0 to 8.5.1 (#2853))
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20240722062311-8384cad72737
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20240722062311-8384cad72737
