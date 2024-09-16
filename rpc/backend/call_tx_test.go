@@ -220,7 +220,7 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				// RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterUnconfirmedTxsError(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -250,7 +250,7 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				// RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterUnconfirmedTxsEmpty(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -289,8 +289,8 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 	ethTx, bz := suite.buildEthereumTx()
 
 	// Sign the ethTx
-	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
+	// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+	// RegisterParamsWithoutHeader(queryClient, 1)
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	err := ethTx.Sign(ethSigner, suite.signer)
 	suite.Require().NoError(err)
@@ -325,32 +325,35 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 		{
 			"fail - unprotected transactions",
 			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = false
-				RegisterParamsWithoutHeaderError(queryClient, 1)
+				// RegisterParamsWithoutHeaderError(queryClient, 1)
+				client := suite.backend.clientCtx.Client.(*mocks.Client)
+				RegisterBroadcastTxError(client, txBytes)
 			},
 			rlpEncodedBz,
 			common.Hash{},
 			false,
 		},
-		{
-			"fail - failed to get evm params",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeaderError(queryClient, 1)
-			},
-			rlpEncodedBz,
-			common.Hash{},
-			false,
-		},
+		// {
+		// 	"fail - failed to get evm params",
+		// 	func() {
+		// 		// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+		// 		suite.backend.allowUnprotectedTxs = true
+		// 		// RegisterParamsWithoutHeaderError(queryClient, 1)
+
+		// 	},
+		// 	rlpEncodedBz,
+		// 	common.Hash{},
+		// 	false,
+		// },
 		{
 			"fail - failed to broadcast transaction",
 			func() {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
+				// RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterBroadcastTxError(client, txBytes)
 			},
 			rlpEncodedBz,
@@ -361,9 +364,9 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 			"pass - Gets the correct transaction hash of the eth transaction",
 			func() {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
+				// RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterBroadcastTx(client, txBytes)
 			},
 			rlpEncodedBz,

@@ -56,7 +56,6 @@ import (
 	srvflags "github.com/evmos/evmos/v20/server/flags"
 
 	"github.com/evmos/evmos/v20/app"
-	cmdcfg "github.com/evmos/evmos/v20/cmd/config"
 	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
 )
 
@@ -278,7 +277,11 @@ func txCommand() *cobra.Command {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	customAppTemplate, customAppConfig := servercfg.AppConfig(cmdcfg.BaseDenom)
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		panic(err)
+	}
+	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
 
 	srvCfg, ok := customAppConfig.(servercfg.Config)
 	if !ok {

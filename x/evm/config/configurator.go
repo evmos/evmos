@@ -51,7 +51,7 @@ func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurat
 }
 
 // WithChainConfig
-func (ec *EVMConfigurator) WithDecimals(d Decimals) *EVMConfigurator {
+func (ec *EVMConfigurator) WithDenom(denom string, d Decimals) *EVMConfigurator {
 	ec.decimals = d
 	return ec
 }

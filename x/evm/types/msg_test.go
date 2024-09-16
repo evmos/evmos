@@ -53,6 +53,14 @@ func (suite *MsgsTestSuite) SetupTest() {
 
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
+
+	_, err := sdk.GetBaseDenom()
+	if err != nil {
+		err := sdk.RegisterDenom("aevmos", sdkmath.LegacyNewDecWithPrec(1, 18))
+		suite.Require().NoError(err)
+		err = sdk.SetBaseDenom("aevmos")
+		suite.Require().NoError(err)
+	}
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
@@ -83,6 +91,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
+
 	evmTx := &types.EvmTxArgs{
 		Nonce:     0,
 		To:        &suite.to,
@@ -116,6 +125,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 
 		baseDenom, err := sdk.GetBaseDenom()
 		suite.Require().NoError(err)
+
 		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 		if tc.expError {
 			suite.Require().Error(err)

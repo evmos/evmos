@@ -326,7 +326,7 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	// InitializeEVMConfiguration(bApp.ChainID())
+	InitializeEVMConfiguration(bApp.ChainID())
 
 	keys, memKeys, tkeys := StoreKeys()
 

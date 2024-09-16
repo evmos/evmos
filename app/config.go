@@ -11,10 +11,16 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
+var sealed = false
+
 // The init function of the config file allows to setup the global
 // configuration for the EVM, modifying the custom ones defined in evmOS.
-func init() {
+// func init() {
+func InitializeEVMConfiguration(chainID string) {
 
+	if sealed {
+		return
+	}
 	// fmt.Println(chainID)
 
 	// if utils.IsMainnet(chainID) {
@@ -24,7 +30,7 @@ func init() {
 	// } else {
 	// 	panic("undefined chain denom")
 	// }
-	err := sdk.RegisterDenom("aevmos", math.LegacyNewDec(18))
+	err := sdk.RegisterDenom("aevmos", math.LegacyNewDecWithPrec(1, 18))
 	if err != nil {
 		panic("cant register base denom")
 	}
@@ -37,11 +43,13 @@ func init() {
 	err = evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		// WithChainConfig(&ChainConfig).
-		WithDecimals(evmconfig.SixDecimals).
+		WithDenom("aevmos", evmconfig.EighteenDecimals).
 		Configure()
 	if err != nil {
 		panic(err)
 	}
+
+	sealed = true
 }
 
 // EvmosActivators defines a map of opcode modifiers associated

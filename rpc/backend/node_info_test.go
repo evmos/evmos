@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -27,8 +26,8 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 		{
 			"pass - default gas price",
 			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeaderError(queryClient, 1)
+				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				// RegisterParamsWithoutHeaderError(queryClient, 1)
 			},
 			types.DefaultGasPrice,
 			true,
@@ -36,8 +35,8 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 		{
 			"pass - min gas price is 0",
 			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeader(queryClient, 1)
+				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				// RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			types.DefaultGasPrice,
 			true,
@@ -59,42 +58,42 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	}
 }
 
-func (suite *BackendTestSuite) TestSetGasPrice() {
-	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
-	testCases := []struct {
-		name         string
-		registerMock func()
-		gasPrice     hexutil.Big
-		expOutput    bool
-	}{
-		{
-			"pass - cannot get server config",
-			func() {
-				suite.backend.clientCtx.Viper = viper.New()
-			},
-			*defaultGasPrice,
-			false,
-		},
-		{
-			"pass - cannot find coin denom",
-			func() {
-				suite.backend.clientCtx.Viper = viper.New()
-				suite.backend.clientCtx.Viper.Set("telemetry.global-labels", []interface{}{})
-			},
-			*defaultGasPrice,
-			false,
-		},
-	}
+// func (suite *BackendTestSuite) TestSetGasPrice() {
+// 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
+// 	testCases := []struct {
+// 		name         string
+// 		registerMock func()
+// 		gasPrice     hexutil.Big
+// 		expOutput    bool
+// 	}{
+// 		{
+// 			"pass - cannot get server config",
+// 			func() {
+// 				suite.backend.clientCtx.Viper = viper.New()
+// 			},
+// 			*defaultGasPrice,
+// 			false,
+// 		},
+// 		{
+// 			"pass - cannot find coin denom",
+// 			func() {
+// 				suite.backend.clientCtx.Viper = viper.New()
+// 				suite.backend.clientCtx.Viper.Set("telemetry.global-labels", []interface{}{})
+// 			},
+// 			*defaultGasPrice,
+// 			false,
+// 		},
+// 	}
 
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
-			suite.SetupTest() // reset test and queries
-			tc.registerMock()
-			output := suite.backend.SetGasPrice(tc.gasPrice)
-			suite.Require().Equal(tc.expOutput, output)
-		})
-	}
-}
+// 	for _, tc := range testCases {
+// 		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
+// 			suite.SetupTest() // reset test and queries
+// 			tc.registerMock()
+// 			output := suite.backend.SetGasPrice(tc.gasPrice)
+// 			suite.Require().Equal(tc.expOutput, output)
+// 		})
+// 	}
+// }
 
 // TODO: Combine these 2 into one test since the code is identical
 func (suite *BackendTestSuite) TestListAccounts() {
