@@ -167,7 +167,7 @@ func (b *Backend) TendermintBlockByNumber(blockNum rpctypes.BlockNumber) (*tmrpc
 		}
 		height = int64(n) //#nosec G701 G115 -- checked for int overflow already
 	}
-	resBlock, err := b.clientCtx.Client.Block(b.ctx, &height)
+	resBlock, err := b.rpcClient.Block(b.ctx, &height)
 	if err != nil {
 		b.logger.Debug("tendermint client failed to get block", "height", height, "error", err.Error())
 		return nil, err

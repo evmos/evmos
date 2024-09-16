@@ -261,7 +261,7 @@ func RegisterBlockByHashNotFound(client *mocks.Client, _ common.Hash, _ []byte) 
 func RegisterHeaderByHash(
 	client *mocks.Client,
 	_ common.Hash,
-	tx []byte,
+	_ []byte,
 ) (*tmrpctypes.ResultHeader, error) {
 	header := &types.Header{
 		Version: cmtversion.Consensus{Block: version.BlockProtocol, App: 0},

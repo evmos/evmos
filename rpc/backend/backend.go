@@ -4,6 +4,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -125,7 +126,7 @@ var _ BackendI = (*Backend)(nil)
 type Backend struct {
 	ctx                 context.Context
 	clientCtx           client.Context
-	rpcClient           tmrpcclient.Client
+	rpcClient           tmrpcclient.SignClient
 	queryClient         *rpctypes.QueryClient // gRPC query client
 	logger              log.Logger
 	chainID             *big.Int
@@ -152,7 +153,10 @@ func NewBackend(
 		panic(err)
 	}
 
-	rpcClient := clientCtx.Client.(tmrpcclient.Client)
+	rpcClient, ok := clientCtx.Client.(tmrpcclient.SignClient)
+	if !ok {
+		panic(fmt.Sprintf("invalid rpc client, expected: tmrpcclient.SignClient, got: %T", clientCtx.Client))
+	}
 
 	return &Backend{
 		ctx:                 context.Background(),
