@@ -56,7 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (app) [#2854](https://github.com/evmos/evmos/pull/2854) Bump IBC-go to `v8.5.1`.
+- (deps) [#2854](https://github.com/evmos/evmos/pull/2854) Bump IBC-go to `v8.5.1`.
 
 ## [v19.2.0] - 2024-08-19
 
