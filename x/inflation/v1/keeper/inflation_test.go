@@ -99,7 +99,7 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
 	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)                             // Add the allocation for the validators
 	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
-	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
+	bondedCoins := sdk.NewDecCoin(evmostypes.BaseDenom, bondedAmount)
 
 	testCases := []struct {
 		name             string

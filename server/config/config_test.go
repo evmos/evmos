@@ -29,12 +29,12 @@ func TestGetConfig(t *testing.T) {
 			"test unmarshal embedded structs",
 			func() *viper.Viper {
 				v := viper.New()
-				v.Set("minimum-gas-prices", fmt.Sprintf("100%s", evmostypes.AttoEvmos))
+				v.Set("minimum-gas-prices", fmt.Sprintf("100%s", evmostypes.BaseDenom))
 				return v
 			},
 			func() Config {
 				cfg := DefaultConfig()
-				cfg.MinGasPrices = fmt.Sprintf("100%s", evmostypes.AttoEvmos)
+				cfg.MinGasPrices = fmt.Sprintf("100%s", evmostypes.BaseDenom)
 				return *cfg
 			},
 			false,

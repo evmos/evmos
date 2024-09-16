@@ -203,7 +203,7 @@ func TestQueryCirculatingSupply(t *testing.T) {
 	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
 	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
 	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs))
-	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
+	bondedCoins := sdk.NewDecCoin(evmostypes.BaseDenom, bondedAmount)
 
 	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	require.NoError(t, err)

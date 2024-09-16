@@ -23,7 +23,7 @@ func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{evmostypes.NewBaseCoinInt64(1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)
@@ -40,7 +40,7 @@ func SetupTestMessageCall(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{evmostypes.NewBaseCoinInt64(1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)
