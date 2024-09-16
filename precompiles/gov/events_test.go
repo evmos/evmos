@@ -47,14 +47,14 @@ func (s *PrecompileTestSuite) TestVoteEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[gov.EventTypeVote]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
 
 				// Check the fully unpacked event matches the one emitted
 				var voteEvent gov.EventVote
 				err := cmn.UnpackLog(s.precompile.ABI, &voteEvent, gov.EventTypeVote, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.keyring.GetAddr(0), voteEvent.Voter)
-				s.Require().Equal(uint64(1), voteEvent.ProposalId)
+				s.Require().Equal(uint64(1), voteEvent.ProposalID)
 				s.Require().Equal(uint8(1), voteEvent.Option)
 			},
 			20000,

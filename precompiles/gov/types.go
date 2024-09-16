@@ -23,7 +23,7 @@ type EventSetWithdrawAddress struct {
 // EventVote defines the event data for the Vote transaction.
 type EventVote struct {
 	Voter      common.Address
-	ProposalId uint64
+	ProposalID uint64
 	Option     uint8
 }
 

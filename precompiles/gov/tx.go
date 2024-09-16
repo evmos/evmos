@@ -46,7 +46,7 @@ func (p Precompile) Vote(
 		return nil, err
 	}
 
-	if err = p.EmitVoteEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, uint8(msg.Option)); err != nil {
+	if err = p.EmitVoteEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, int32(msg.Option)); err != nil {
 		return nil, err
 	}
 

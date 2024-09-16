@@ -22,7 +22,7 @@ const (
 )
 
 // EmitVoteEvent creates a new event emitted on a Vote transaction.
-func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddress common.Address, proposalID uint64, option uint8) error {
+func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddress common.Address, proposalID uint64, option int32) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeVote]
 	topics := make([]common.Hash, 2)
@@ -40,7 +40,7 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
