@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
@@ -39,21 +39,21 @@ func (s *PrecompileTestSuite) SetupTest() {
 	now := time.Now().UTC()
 	inOneHour := now.Add(time.Hour)
 	prop := &govv1.Proposal{
-		Id: 1,
-		Status: govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
-		SubmitTime: &now,
-		DepositEndTime: &inOneHour,
+		Id:              1,
+		Status:          govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
+		SubmitTime:      &now,
+		DepositEndTime:  &inOneHour,
 		VotingStartTime: &now,
-		VotingEndTime: &inOneHour,
-		Metadata: "ipfs://CID",
-		Title: "test prop",
-		Summary: "test prop",
-		Proposer: keyring.GetAccAddr(0).String(),
+		VotingEndTime:   &inOneHour,
+		Metadata:        "ipfs://CID",
+		Title:           "test prop",
+		Summary:         "test prop",
+		Proposer:        keyring.GetAccAddr(0).String(),
 	}
 	govGen := govv1.DefaultGenesisState()
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
-	
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGen),
@@ -74,4 +74,3 @@ func (s *PrecompileTestSuite) SetupTest() {
 		panic(err)
 	}
 }
-
