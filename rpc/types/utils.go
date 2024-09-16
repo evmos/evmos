@@ -167,7 +167,11 @@ func NewTransactionFromMsg(
 // NewTransactionFromData returns a transaction that will serialize to the RPC
 // representation, with the given location metadata set (if available).
 func NewRPCTransaction(
-	tx *ethtypes.Transaction, blockHash common.Hash, blockNumber, index uint64, baseFee *big.Int,
+	tx *ethtypes.Transaction,
+	blockHash common.Hash,
+	blockNumber,
+	index uint64,
+	baseFee,
 	chainID *big.Int,
 ) (*RPCTransaction, error) {
 	// Determine the signer. For replay-protected transactions, use the most permissive
@@ -222,6 +226,7 @@ func NewRPCTransaction(
 			result.GasPrice = (*hexutil.Big)(tx.GasFeeCap())
 		}
 	}
+
 	return result, nil
 }
 
