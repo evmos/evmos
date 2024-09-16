@@ -538,7 +538,7 @@ func NewEvmos(
 			app.GovKeeper,
 		),
 	)
-	
+
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
