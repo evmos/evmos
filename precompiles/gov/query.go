@@ -1,7 +1,6 @@
 package gov
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -51,12 +50,10 @@ func (p *Precompile) VoteRequest(
 
 	queryServer := govkeeper.NewQueryServer(&p.govKeeper)
 	res, err := queryServer.Vote(ctx, queryVotesReq)
-	fmt.Println(res, err)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(res, err)
 	output := new(SingleVote).FromResponse(res)
 
 	return method.Outputs.Pack(output)
