@@ -17,8 +17,8 @@ const (
 	GetVoteMethod = "getVote"
 )
 
-// Votes implements the query logic for getting votes for a proposal.
-func (p *Precompile) Votes(
+// GetVotes implements the query logic for getting votes for a proposal.
+func (p *Precompile) GetVotes(
 	ctx sdk.Context,
 	method *abi.Method,
 	_ *vm.Contract,
@@ -39,8 +39,8 @@ func (p *Precompile) Votes(
 	return method.Outputs.Pack(output.Votes, output.PageResponse)
 }
 
-// VoteRequest implements the query logic for getting votes for a proposal.
-func (p *Precompile) VoteRequest(
+// GetVote implements the query logic for getting votes for a proposal.
+func (p *Precompile) GetVote(
 	ctx sdk.Context,
 	method *abi.Method,
 	_ *vm.Contract,

@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
-func (s *PrecompileTestSuite) TestVotes() {
+func (s *PrecompileTestSuite) TestGetVotes() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[gov.GetVotesMethod]
 	testCases := []struct {
@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestVotes() {
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.Votes(ctx, &method, contract, tc.args)
+			bz, err := s.precompile.GetVotes(ctx, &method, contract, tc.args)
 
 			if tc.expPass {
 				var out gov.VotesOutput
@@ -69,7 +69,7 @@ func (s *PrecompileTestSuite) TestVotes() {
 	}
 }
 
-func (s *PrecompileTestSuite) TestVoteRequest() {
+func (s *PrecompileTestSuite) TestGetVote() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[gov.GetVoteMethod]
 	testCases := []struct {
@@ -86,7 +86,7 @@ func (s *PrecompileTestSuite) TestVoteRequest() {
 			expPass: true,
 			gas:     200000,
 			malleate: func() {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAddr(0).Bytes(), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, sdk.AccAddress(s.keyring.GetAddr(0).Bytes()), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 			},
 			expVote: gov.WeightedVote{
@@ -124,7 +124,7 @@ func (s *PrecompileTestSuite) TestVoteRequest() {
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			bz, err := s.precompile.VoteRequest(ctx, &method, contract, tc.args)
+			bz, err := s.precompile.GetVote(ctx, &method, contract, tc.args)
 
 			if tc.expPass {
 				s.Require().NoError(err)
