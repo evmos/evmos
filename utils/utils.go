@@ -29,7 +29,10 @@ const (
 	TestnetChainID = "evmos_9000"
 	// TestingChainID defines the Evmos EIP155 chain ID for integration test
 	TestingChainID = "test_9000"
-	// BaseDenom defines the Evmos mainnet denomination
+)
+
+var (
+	// BaseDenom defines the Evmos mainnet denomination for testing use only
 	BaseDenom = "aevmos"
 )
 

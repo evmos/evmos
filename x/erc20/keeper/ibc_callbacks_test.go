@@ -315,6 +315,9 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 	var ctx sdk.Context
 	senderAddr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	testCases := []struct {
 		name     string
 		malleate func() transfertypes.FungibleTokenPacketData
@@ -324,14 +327,14 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 		{
 			name: "error - invalid sender",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", "", "", "")
+				return transfertypes.NewFungibleTokenPacketData(baseDenom, "10", "", "", "")
 			},
 			expPass: false,
 		},
 		{
 			name: "pass - is base denom",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", senderAddr, "", "")
+				return transfertypes.NewFungibleTokenPacketData(baseDenom, "10", senderAddr, "", "")
 			},
 			expPass: true,
 		},

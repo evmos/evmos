@@ -213,7 +213,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				utils.BaseDenom,
+				denom,
 				math.NewInt(10000000),
 			),
 		),

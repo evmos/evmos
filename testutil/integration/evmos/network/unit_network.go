@@ -29,7 +29,6 @@ var _ Network = (*UnitTestNetwork)(nil)
 func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
 
 	network := New(opts...)
-	// sdk.SetBaseDenom("aevmos")
 	return &UnitTestNetwork{
 		IntegrationNetwork: *network,
 		App:                network.app,

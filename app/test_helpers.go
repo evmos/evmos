@@ -75,12 +75,14 @@ func Setup(
 	validator := cmttypes.NewValidator(pubKey, 1)
 	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
+	baseDenom := utils.BaseDenom
+
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100000000000000))),
 	}
 
 	db := dbm.NewMemDB()
@@ -173,13 +175,13 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 
 	for range delegations {
 		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(utils.BaseDenom, bondAmt))
+		totalSupply = totalSupply.Add(sdk.NewCoin(stakingParams.BondDenom, bondAmt))
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(stakingParams.BondDenom, bondAmt)},
 	})
 
 	// update total supply

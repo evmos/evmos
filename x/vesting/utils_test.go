@@ -84,7 +84,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, totalBondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(stakingParams.BondDenom, totalBondAmt)},
 	})
 
 	// update total supply

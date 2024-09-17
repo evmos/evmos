@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -58,8 +57,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			rewards sdk.DecCoins
 			// minExpRewards are the minimun rewards that should be accrued
 			// for the test case
-			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e5), Denom: utils.BaseDenom}}
-			delegationCoin = sdk.Coin{Amount: sdkmath.NewInt(1e15), Denom: utils.BaseDenom}
+			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e5), Denom: s.network.GetDenom()}}
+			delegationCoin = sdk.Coin{Amount: sdkmath.NewInt(1e15), Denom: s.network.GetDenom()}
 			transferAmt    = sdkmath.NewInt(1e14)
 		)
 
@@ -71,7 +70,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: utils.BaseDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetDenom()}},
 			}
 
 			valAddr := s.network.GetValidators()[0].OperatorAddress
@@ -131,7 +130,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: sdkmath.NewInt(1),
-						Denom:  utils.BaseDenom,
+						Denom:  s.network.GetDenom(),
 					},
 				},
 			)
@@ -142,7 +141,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: utils.BaseDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: s.network.GetDenom()}},
 			}
 		})
 
@@ -171,7 +170,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
 		// minExpRewards are the minimun rewards that should be accrued
 		// for the test case
-		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e8), Denom: utils.BaseDenom}}
+		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e8), Denom: s.network.GetDenom()}}
 
 		BeforeEach(func() {
 			addr, priv = testutiltx.NewAccAddressAndKey()
@@ -184,7 +183,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: sdkmath.NewInt(1e18),
-						Denom:  utils.BaseDenom,
+						Denom:  s.network.GetDenom(),
 					},
 				},
 			)
@@ -203,7 +202,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1), Denom: utils.BaseDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1), Denom: s.network.GetDenom()}},
 			}
 		})
 	})

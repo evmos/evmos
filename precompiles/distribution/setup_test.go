@@ -12,6 +12,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/utils"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -26,6 +27,7 @@ type PrecompileTestSuite struct {
 
 	precompile           *distribution.Precompile
 	bondDenom            string
+	baseDenom            string
 	validatorsKeys       []testkeyring.Key
 	withValidatorSlashes bool
 }
@@ -80,6 +82,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	s.bondDenom = bondDenom
+	s.baseDenom = utils.BaseDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring

@@ -24,10 +24,11 @@ import (
 )
 
 var (
-	balances         = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(1000)}}
-	quarter          = []cmn.Coin{{Denom: utils.BaseDenom, Amount: big.NewInt(250)}}
-	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 1000))
-	quarterSdkCoins  = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
+	baseDenom        = utils.BaseDenom
+	balances         = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(1000)}}
+	quarter          = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(250)}}
+	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1000))
+	quarterSdkCoins  = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
 	toAddr           = evmosutiltx.GenerateAddress()
 	funderAddr       = evmosutiltx.GenerateAddress()
 	diffFunderAddr   = evmosutiltx.GenerateAddress()
@@ -174,7 +175,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 			"success",
 			func() []interface{} {
 				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
-				err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
+				err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100))))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					toAddr,

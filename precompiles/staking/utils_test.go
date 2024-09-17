@@ -41,9 +41,10 @@ import (
 
 // stipend to pay EVM tx fees
 var (
-	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e16)))
+	bondDenom          = utils.BaseDenom
+	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(bondDenom, math.NewInt(1e16)))
 	gas                = uint64(200_000)
-	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(utils.BaseDenom)
+	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(bondDenom)
 )
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.

@@ -24,8 +24,9 @@ import (
 
 var (
 	vestAmount     = int64(1000)
-	balances       = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, vestAmount))
-	quarter        = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
+	baseDenom      = utils.BaseDenom
+	balances       = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
+	quarter        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
 	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	funder         = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
@@ -145,8 +146,8 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			res, err := nw.App.VestingKeeper.FundVestingAccount(ctx, msg)
 
 			expRes := &types.MsgFundVestingAccountResponse{}
-			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, utils.BaseDenom)
-			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, utils.BaseDenom)
+			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, baseDenom)
+			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, baseDenom)
 
 			if tc.expPass {
 				require.NoError(t, err, tc.name)
@@ -155,8 +156,8 @@ func TestMsgFundVestingAccount(t *testing.T) {
 				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
 				require.NotNil(t, accI)
 				require.IsType(t, &types.ClawbackVestingAccount{}, accI)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceFunder)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceFunder)
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
 			} else {
 				require.Error(t, err, tc.name)
 				require.ErrorContains(t, err, tc.errContains)
@@ -490,8 +491,8 @@ func TestMsgClawback(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, fundRes)
 
-				balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, utils.BaseDenom)
-				require.Equal(t, balanceVestingAcc, sdk.NewInt64Coin(utils.BaseDenom, 1000))
+				balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, baseDenom)
+				require.Equal(t, balanceVestingAcc, sdk.NewInt64Coin(baseDenom, 1000))
 			}
 
 			tc.malleate()
@@ -500,10 +501,10 @@ func TestMsgClawback(t *testing.T) {
 			msg := types.NewMsgClawback(tc.funder, vestingAddr, tc.clawbackDest)
 			res, err := nw.App.VestingKeeper.Clawback(ctx, msg)
 
-			balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, utils.BaseDenom)
-			balanceClaw := nw.App.BankKeeper.GetBalance(ctx, tc.clawbackDest, utils.BaseDenom)
+			balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, baseDenom)
+			balanceClaw := nw.App.BankKeeper.GetBalance(ctx, tc.clawbackDest, baseDenom)
 			if len(tc.clawbackDest) == 0 {
-				balanceClaw = nw.App.BankKeeper.GetBalance(ctx, tc.funder, utils.BaseDenom)
+				balanceClaw = nw.App.BankKeeper.GetBalance(ctx, tc.funder, baseDenom)
 			}
 
 			if tc.expPass {
@@ -511,7 +512,7 @@ func TestMsgClawback(t *testing.T) {
 
 				expRes := &types.MsgClawbackResponse{Coins: balances}
 				require.Equal(t, expRes, res, "expected full balances to be clawed back")
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceVestingAcc)
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceVestingAcc)
 				require.Equal(t, balances[0], balanceClaw)
 			} else {
 				require.Error(t, err)

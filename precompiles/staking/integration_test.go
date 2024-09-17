@@ -35,7 +35,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
@@ -72,9 +71,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		// s is the precompile test suite to use for the tests
 		s *PrecompileTestSuite
 		// oneE18Coin is a sdk.Coin with an amount of 1e18 in the test suite's bonding denomination
-		oneE18Coin = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
+		oneE18Coin sdk.Coin
 		// twoE18Coin is a sdk.Coin with an amount of 2e18 in the test suite's bonding denomination
-		twoE18Coin = sdk.NewCoin(utils.BaseDenom, math.NewInt(2e18))
+		twoE18Coin sdk.Coin
 	)
 
 	BeforeEach(func() {
@@ -104,6 +103,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		defaultLogCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.ABI.Events}
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
+
+		oneE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(1e18))
+		twoE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(2e18))
 	})
 
 	Describe("when the precompile is not enabled in the EVM params", func() {
@@ -3959,7 +3961,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance.Amount.Int64()).To(Equal(int64(0)), "expected a different delegation balance")
-			Expect(delOut.Balance.Denom).To(Equal(utils.BaseDenom), "expected a different delegation balance")
+			Expect(delOut.Balance.Denom).To(Equal(s.bondDenom), "expected a different delegation balance")
 		})
 
 		It("which exists should return the delegation", func() {
@@ -3980,7 +3982,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance).To(Equal(
-				cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
+				cmn.Coin{Denom: s.bondDenom, Amount: big.NewInt(1e18)}),
 				"expected a different delegation balance",
 			)
 		})

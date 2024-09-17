@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v20/cmd/config"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/distribution"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 )
@@ -183,13 +182,13 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecFromInt(amt))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.baseDenom, math.LegacyNewDecFromInt(amt))}
 				// set outstanding rewards
 				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission
 				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorAccumulatedCommission(ctx, valAddr, types.ValidatorAccumulatedCommission{Commission: valCommission}))
 				// set funds to distr mod to pay for commission
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt))
+				coins := sdk.NewCoins(sdk.NewCoin(s.baseDenom, amt))
 				err = s.mintCoinsForDistrMod(ctx, coins)
 				s.Require().NoError(err)
 				return []interface{}{
@@ -255,7 +254,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}{
 		{
 			"success",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(s.baseDenom, math.NewInt(1e18))),
 			func() {
 				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
@@ -297,7 +296,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(s.baseDenom, math.NewInt(1e18))),
 			func() {
 				log := stDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())

@@ -177,15 +177,15 @@ func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEth
 	from, priv := utiltx.NewAddrKey()
 	signer := utiltx.NewSigner(priv)
 
-	// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	// RegisterParamsWithoutHeader(queryClient, 1)
-
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msgEthereumTx.From = from.String()
 	err := msgEthereumTx.Sign(ethSigner, signer)
 	suite.Require().NoError(err)
 
-	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), utils.BaseDenom)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
+	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	suite.Require().NoError(err)
 
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()

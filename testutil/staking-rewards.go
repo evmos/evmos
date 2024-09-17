@@ -117,7 +117,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		stakingHelper := teststaking.NewHelper(t, ctx, app.StakingKeeper.Keeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-		stakingHelper.Denom = utils.BaseDenom
+		stakingHelper.Denom = stakingParams.BondDenom
 
 		valAddr := sdk.ValAddress(addr2.Bytes())
 		// self-delegate the same amount of tokens as the delegate address also stakes
@@ -135,7 +135,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to get validator: %s", err.Error())
 		}
-		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(math.NewInt(2))))
+		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(stakingParams.BondDenom, reward.Mul(math.NewInt(2))))
 		if err = app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards); err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to allocate tokens to validator: %s", err.Error())
 		}

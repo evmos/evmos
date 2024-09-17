@@ -52,6 +52,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/crypto/hd"
+	"github.com/evmos/evmos/v20/utils"
 
 	"github.com/evmos/evmos/v20/server/config"
 	evmostypes "github.com/evmos/evmos/v20/types"
@@ -118,7 +119,7 @@ func DefaultConfig() Config {
 		TimeoutCommit:     3 * time.Second,
 		ChainID:           chainID,
 		NumValidators:     4,
-		BondDenom:         "aevmos",
+		BondDenom:         utils.BaseDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", evmostypes.BaseDenom),
 		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, evmostypes.PowerReduction),
 		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, evmostypes.PowerReduction),
