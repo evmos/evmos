@@ -17,12 +17,6 @@ import (
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
-// EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
-type EventSetWithdrawAddress struct {
-	Caller            common.Address
-	WithdrawerAddress string
-}
-
 // EventVote defines the event data for the Vote transaction.
 type EventVote struct {
 	Voter      common.Address
