@@ -8,9 +8,7 @@ address constant GOV_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000000
 string constant MSG_VOTE = "/cosmos.gov.v1.MsgVote";
 
 /// @dev The IGov contract's instance.
-IGov constant GOV_CONTRACT = IGov(
-    GOV_PRECOMPILE_ADDRESS
-);
+IGov constant GOV_CONTRACT = IGov(GOV_PRECOMPILE_ADDRESS);
 
 /**
  * @dev VoteOption enumerates the valid vote options for a given governance proposal.
@@ -34,22 +32,18 @@ enum VoteOption {
 /// @custom:address 0x0000000000000000000000000000000000000805
 interface IGov {
     /// @dev Vote defines an Event emitted when a proposal voted.
-    /// @param voter the address of the voter
-    /// @param proposalId the proposal of id
-    /// @param option the option for voter
-    event Vote(
-        address indexed voter,
-        uint64 proposalId,
-        uint8 option
-    );
+    /// @param voter The address of the voter
+    /// @param proposalId The proposal's ID
+    /// @param option The option for voter
+    event Vote(address indexed voter, uint64 proposalId, uint8 option);
 
     /// TRANSACTIONS
 
     /// @dev vote defines a method to add a vote on a specific proposal.
     /// @param voter The address of the voter
-    /// @param proposalId the proposal of id
-    /// @param option the option for voter
-    /// @param metadata the metadata for voter send
+    /// @param proposalId The proposal's ID
+    /// @param option The option for voter
+    /// @param metadata The metadata for voter send
     /// @return success Whether the transaction was successful or not
     function vote(
         address voter,
@@ -60,3 +54,4 @@ interface IGov {
 
     /// QUERIES
 }
+

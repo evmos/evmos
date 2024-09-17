@@ -27,7 +27,7 @@ type PrecompileTestSuite struct {
 	precompile *gov.Precompile
 }
 
-func TestPrecompileUniteTestSuite(t *testing.T) {
+func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
 }
 
