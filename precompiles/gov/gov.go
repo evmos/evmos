@@ -104,6 +104,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case VoteMethod:
 		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
 		// TODO queries and other txs will be included on following PRs
+	// gov queries
 	case GetVoteMethod:
 		bz, err = p.GetVote(ctx, method, contract, args)
 	case GetVotesMethod:

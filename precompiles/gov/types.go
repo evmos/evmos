@@ -30,11 +30,13 @@ type VotesInput struct {
 	Pagination query.PageRequest
 }
 
+// VotesOutput defines the output for the Votes query.
 type VotesOutput struct {
 	Votes        []WeightedVote
-	PageResponse PageResponse
+	PageResponse query.PageResponse
 }
 
+// WeightedVote defines a struct of vote for vote split.
 type WeightedVote struct {
 	ProposalId uint64 //nolint:revive,stylecheck
 	Voter      common.Address
@@ -42,14 +44,10 @@ type WeightedVote struct {
 	Metadata   string
 }
 
+// WeightedVoteOption defines a unit of vote for vote split.
 type WeightedVoteOption struct {
 	Option uint8
 	Weight string
-}
-
-type PageResponse struct {
-	NextKey []byte
-	Total   uint64
 }
 
 // NewMsgVote creates a new MsgVote instance.
@@ -127,7 +125,7 @@ func (vo *VotesOutput) FromResponse(res *govv1.QueryVotesResponse) *VotesOutput 
 		}
 	}
 	if res.Pagination != nil {
-		vo.PageResponse = PageResponse{
+		vo.PageResponse = query.PageResponse{
 			NextKey: res.Pagination.NextKey,
 			Total:   res.Pagination.Total,
 		}
