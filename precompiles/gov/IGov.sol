@@ -10,9 +10,7 @@ address constant GOV_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000000
 string constant MSG_VOTE = "/cosmos.gov.v1.MsgVote";
 
 /// @dev The IGov contract's instance.
-IGov constant GOV_CONTRACT = IGov(
-    GOV_PRECOMPILE_ADDRESS
-);
+IGov constant GOV_CONTRACT = IGov(GOV_PRECOMPILE_ADDRESS);
 
 /**
  * @dev VoteOption enumerates the valid vote options for a given governance proposal.
@@ -52,11 +50,7 @@ interface IGov {
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
     /// @param option the option for voter
-    event Vote(
-        address indexed voter,
-        uint64 proposalId,
-        uint8 option
-    );
+    event Vote(address indexed voter, uint64 proposalId, uint8 option);
 
     /// TRANSACTIONS
 
@@ -75,22 +69,25 @@ interface IGov {
 
     /// QUERIES
 
-    /// @dev votes returns the votes for a specific proposal.
-    /// @param proposalId the proposal id
-    /// @param pagination the pagination options
+    /// @dev votesQuery Returns the votes for a specific proposal.
+    /// @param proposalId The proposal id
+    /// @param pagination The pagination options
     /// @return votes The votes for the proposal
     /// @return pageResponse The pagination information
-    function votes(
+    function votesQuery(
         uint64 proposalId,
         PageRequest calldata pagination
-    ) external view returns (SingleVote[] memory votes, PageResponse memory pageResponse);
+    )
+        external
+        view
+        returns (SingleVote[] memory votes, PageResponse memory pageResponse);
 
-    /// @dev voteRequest returns the vote of a single voter for a given proposalId.
-    /// @param proposalId the proposal id
-    /// @param pagination the pagination options
-    /// @return votes The votes for the proposal
-    /// @return pageResponse The pagination information
-    function voteRequest(
+    /// @dev voteQuery returns the vote of a single voter for a
+    /// given proposalId.
+    /// @param proposalId The proposal id
+    /// @param voter The voter on the proposal
+    /// @return vote Voter's vote for the proposal
+    function voteQuery(
         uint64 proposalId,
         address voter
     ) external view returns (SingleVote memory vote);
