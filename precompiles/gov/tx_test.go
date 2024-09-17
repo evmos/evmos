@@ -87,6 +87,21 @@ func (s *PrecompileTestSuite) TestVote() {
 			"does not match the voter address",
 		},
 		{
+			"fail - invalid vote option",
+			func() []interface{} {
+				return []interface{}{
+					s.keyring.GetAddr(0),
+					proposalID,
+					option+10,
+					metadata,
+				}
+			},
+			func() {},
+			200000,
+			true,
+			"invalid vote option",
+		},
+		{
 			"success - vote proposal success",
 			func() []interface{} {
 				return []interface{}{

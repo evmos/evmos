@@ -35,7 +35,7 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 	}
 
 	// Prepare the event data
-	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
+	arguments := abi.Arguments{event.Inputs[1], event.Inputs[2]}
 	packed, err := arguments.Pack(proposalID, uint8(option)) //nolint:gosec // G115
 	if err != nil {
 		return err
