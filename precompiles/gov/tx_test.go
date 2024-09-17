@@ -92,7 +92,7 @@ func (s *PrecompileTestSuite) TestVote() {
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					proposalID,
-					option+10,
+					option + 10,
 					metadata,
 				}
 			},
