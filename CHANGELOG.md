@@ -44,7 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 - (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-go to v7.8.0.
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
-- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote tx).
+- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 
 ### Improvements
 
