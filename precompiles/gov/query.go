@@ -2,6 +2,7 @@ package gov
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
