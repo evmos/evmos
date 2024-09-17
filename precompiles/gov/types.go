@@ -134,3 +134,46 @@ func (vo *VotesOutput) FromResponse(res *govv1.QueryVotesResponse) *VotesOutput 
 	}
 	return vo
 }
+
+// ParseVoteArgs parses the arguments for the Votes query.
+func ParseVoteArgs(args []interface{}) (*govv1.QueryVoteRequest, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	proposalID, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidProposalID, args[0])
+	}
+
+	voter, ok := args[1].(common.Address)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidVoter, args[1])
+	}
+
+	voterBech32 := sdk.AccAddress(voter.Bytes())
+	return &govv1.QueryVoteRequest{
+		ProposalId: proposalID,
+		Voter:      voterBech32.String(),
+	}, nil
+}
+
+func (sv *SingleVote) FromResponse(res *govv1.QueryVoteResponse) *SingleVote {
+	hexVoter, err := utils.Bech32ToHexAddr(res.Vote.Voter)
+	if err != nil {
+		return nil
+	}
+	sv.Voter = hexVoter
+	sv.Metadata = res.Vote.Metadata
+	sv.ProposalId = res.Vote.ProposalId
+
+	options := make([]WeightedVoteOption, len(res.Vote.Options))
+	for j, opt := range res.Vote.Options {
+		options[j] = WeightedVoteOption{
+			Option: uint8(opt.Option),
+			Weight: opt.Weight,
+		}
+	}
+	sv.Options = options
+	return sv
+}

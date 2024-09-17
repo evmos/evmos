@@ -70,6 +70,64 @@
           "type": "uint64"
         },
         {
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        }
+      ],
+      "name": "voteRequest",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "proposalId",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "voter",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "enum VoteOption",
+                  "name": "option",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "string",
+                  "name": "weight",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct WeightedVoteOption[]",
+              "name": "options",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct SingleVote",
+          "name": "vote",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
           "components": [
             {
               "internalType": "bytes",

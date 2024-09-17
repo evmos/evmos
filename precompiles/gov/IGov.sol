@@ -84,4 +84,14 @@ interface IGov {
         uint64 proposalId,
         PageRequest calldata pagination
     ) external view returns (SingleVote[] memory votes, PageResponse memory pageResponse);
+
+    /// @dev voteRequest returns the vote of a single voter for a given proposalId.
+    /// @param proposalId the proposal id
+    /// @param pagination the pagination options
+    /// @return votes The votes for the proposal
+    /// @return pageResponse The pagination information
+    function voteRequest(
+        uint64 proposalId,
+        address voter
+    ) external view returns (SingleVote memory vote);
 }
