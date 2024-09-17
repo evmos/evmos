@@ -12,7 +12,7 @@ const (
 	// ErrInvalidPageRequest invalid page request.
 	ErrInvalidPageRequest = "invalid page request"
 	// ErrInvalidOption invalid option.
-	ErrInvalidOption = "invalid proposal id %d "
+	ErrInvalidOption = "invalid option %s "
 	// ErrInvalidMetadata invalid metadata.
 	ErrInvalidMetadata = "invalid metadata %s "
 )

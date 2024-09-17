@@ -6,9 +6,6 @@ import "../common/Types.sol";
 /// @dev The IGov contract's address.
 address constant GOV_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000805;
 
-/// @dev Define all the available gov methods.
-string constant MSG_VOTE = "/cosmos.gov.v1.MsgVote";
-
 /// @dev The IGov contract's instance.
 IGov constant GOV_CONTRACT = IGov(GOV_PRECOMPILE_ADDRESS);
 
@@ -27,8 +24,8 @@ enum VoteOption {
     // NoWithWeto defines a no with veto vote option.
     NoWithWeto
 }
-/// @dev Vote represents a vote on a governance proposal
-struct SingleVote {
+/// @dev WeightedVote represents a vote on a governance proposal
+struct WeightedVote {
     uint64 proposalId;
     address voter;
     WeightedVoteOption[] options;
@@ -44,7 +41,6 @@ struct WeightedVoteOption {
 /// @author Luke
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
-/// @custom:address 0x0000000000000000000000000000000000000805
 interface IGov {
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
@@ -69,26 +65,26 @@ interface IGov {
 
     /// QUERIES
 
-    /// @dev votesQuery Returns the votes for a specific proposal.
+    /// @dev getVote returns the vote of a single voter for a
+    /// given proposalId.
+    /// @param proposalId The proposal id
+    /// @param voter The voter on the proposal
+    /// @return vote Voter's vote for the proposal
+    function getVote(
+        uint64 proposalId,
+        address voter
+    ) external view returns (WeightedVote memory vote);
+
+    /// @dev getVotes Returns the votes for a specific proposal.
     /// @param proposalId The proposal id
     /// @param pagination The pagination options
     /// @return votes The votes for the proposal
     /// @return pageResponse The pagination information
-    function votesQuery(
+    function getVotes(
         uint64 proposalId,
         PageRequest calldata pagination
     )
         external
         view
-        returns (SingleVote[] memory votes, PageResponse memory pageResponse);
-
-    /// @dev voteQuery returns the vote of a single voter for a
-    /// given proposalId.
-    /// @param proposalId The proposal id
-    /// @param voter The voter on the proposal
-    /// @return vote Voter's vote for the proposal
-    function voteQuery(
-        uint64 proposalId,
-        address voter
-    ) external view returns (SingleVote memory vote);
+        returns (WeightedVote[] memory votes, PageResponse memory pageResponse);
 }

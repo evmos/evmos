@@ -31,40 +31,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "voter",
-          "type": "address"
-        },
-        {
-          "internalType": "uint64",
-          "name": "proposalId",
-          "type": "uint64"
-        },
-        {
-          "internalType": "enum VoteOption",
-          "name": "option",
-          "type": "uint8"
-        },
-        {
-          "internalType": "string",
-          "name": "metadata",
-          "type": "string"
-        }
-      ],
-      "name": "vote",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "success",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint64",
           "name": "proposalId",
           "type": "uint64"
@@ -75,7 +41,7 @@
           "type": "address"
         }
       ],
-      "name": "voteRequest",
+      "name": "getVote",
       "outputs": [
         {
           "components": [
@@ -112,7 +78,7 @@
               "type": "string"
             }
           ],
-          "internalType": "struct SingleVote",
+          "internalType": "struct WeightedVote",
           "name": "vote",
           "type": "tuple"
         }
@@ -160,7 +126,7 @@
           "type": "tuple"
         }
       ],
-      "name": "votes",
+      "name": "getVotes",
       "outputs": [
         {
           "components": [
@@ -197,7 +163,7 @@
               "type": "string"
             }
           ],
-          "internalType": "struct SingleVote[]",
+          "internalType": "struct WeightedVote[]",
           "name": "votes",
           "type": "tuple[]"
         },
@@ -220,6 +186,40 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "enum VoteOption",
+          "name": "option",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "metadata",
+          "type": "string"
+        }
+      ],
+      "name": "vote",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
