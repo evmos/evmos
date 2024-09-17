@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
+import "../common/Types.sol";
+
 /// @dev The IGov contract's address.
 address constant GOV_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000805;
 
@@ -26,6 +28,19 @@ enum VoteOption {
     No,
     // NoWithWeto defines a no with veto vote option.
     NoWithWeto
+}
+/// @dev Vote represents a vote on a governance proposal
+struct SingleVote {
+    uint64 proposalId;
+    address voter;
+    WeightedVoteOption[] options;
+    string metadata;
+}
+
+/// @dev WeightedVoteOption represents a weighted vote option
+struct WeightedVoteOption {
+    VoteOption option;
+    string weight;
 }
 
 /// @author Luke
@@ -59,4 +74,14 @@ interface IGov {
     ) external returns (bool success);
 
     /// QUERIES
+
+    /// @dev votes returns the votes for a specific proposal.
+    /// @param proposalId the proposal id
+    /// @param pagination the pagination options
+    /// @return votes The votes for the proposal
+    /// @return pageResponse The pagination information
+    function votes(
+        uint64 proposalId,
+        PageRequest calldata pagination
+    ) external view returns (SingleVote[] memory votes, PageResponse memory pageResponse);
 }

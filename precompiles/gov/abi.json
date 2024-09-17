@@ -61,6 +61,108 @@
       ],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "key",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint64",
+              "name": "offset",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "limit",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bool",
+              "name": "countTotal",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "reverse",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct PageRequest",
+          "name": "pagination",
+          "type": "tuple"
+        }
+      ],
+      "name": "votes",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "proposalId",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "voter",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "enum VoteOption",
+                  "name": "option",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "string",
+                  "name": "weight",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct WeightedVoteOption[]",
+              "name": "options",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct SingleVote[]",
+          "name": "votes",
+          "type": "tuple[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "nextKey",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint64",
+              "name": "total",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct PageResponse",
+          "name": "pageResponse",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": "0x",

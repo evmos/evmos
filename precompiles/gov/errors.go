@@ -9,6 +9,8 @@ const (
 	ErrInvalidVoter = "invalid voter address: %s"
 	// ErrInvalidProposalID invalid proposal id.
 	ErrInvalidProposalID = "invalid proposal id %d "
+	// ErrInvalidPageRequest invalid page request.
+	ErrInvalidPageRequest = "invalid page request"
 	// ErrInvalidOption invalid option.
 	ErrInvalidOption = "invalid proposal id %d "
 	// ErrInvalidMetadata invalid metadata.
