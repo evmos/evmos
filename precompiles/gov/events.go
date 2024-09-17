@@ -4,16 +4,14 @@
 package gov
 
 import (
-	"bytes"
-	"reflect"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 const (
@@ -29,17 +27,24 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
-	topics[1] = common.BytesToHash(voterAddress.Bytes())
+
+	var err error
+	topics[1], err = cmn.MakeTopic(voterAddress)
+	if err != nil {
+		return err
+	}
 
 	// Prepare the event data
-	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(proposalID)))
-	b.Write(cmn.PackNum(reflect.ValueOf(option)))
+	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
+	packed, err := arguments.Pack(proposalID, uint8(option)) //nolint:gosec // G115
+	if err != nil {
+		return err
+	}
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        b.Bytes(),
+		Data:        packed,
 		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
