@@ -352,7 +352,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	// init configurator
-
+	// app.InitializeEVMConfiguration(chainID)
 	evmosApp := app.NewEvmos(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),

@@ -15,6 +15,7 @@ import (
 var ParamsKey = []byte("Params")
 
 var (
+	DefaultInflationDenom         = "aevmos"
 	DefaultInflation              = true
 	DefaultExponentialCalculation = ExponentialCalculation{
 		A:             math.LegacyNewDec(int64(300_000_000)),
@@ -46,9 +47,8 @@ func NewParams(
 
 // default minting module parameters
 func DefaultParams() Params {
-	baseDenom, _ := sdk.GetBaseDenom()
 	return Params{
-		MintDenom:              baseDenom,
+		MintDenom:              DefaultInflationDenom,
 		ExponentialCalculation: DefaultExponentialCalculation,
 		InflationDistribution:  DefaultInflationDistribution,
 		EnableInflation:        DefaultInflation,

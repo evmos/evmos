@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
+	"github.com/evmos/evmos/v20/utils"
 	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
@@ -21,26 +22,35 @@ func InitializeEVMConfiguration(chainID string) {
 	if sealed {
 		return
 	}
-	// fmt.Println(chainID)
 
-	// if utils.IsMainnet(chainID) {
-	// 	sdk.SetBaseDenom("aevmos")
-	// } else if utils.IsTestnet(chainID) {
-	// 	sdk.SetBaseDenom("atevmos")
-	// } else {
-	// 	panic("undefined chain denom")
-	// }
-	err := sdk.RegisterDenom("aevmos", math.LegacyNewDecWithPrec(1, 18))
-	if err != nil {
-		panic("cant register base denom")
-	}
-	err = sdk.SetBaseDenom("aevmos")
-
-	if err != nil {
-		panic("cant set base denom")
+	if chainID == "" {
+		return
 	}
 
-	err = evmconfig.NewEVMConfigurator().
+	if utils.IsMainnet(chainID) {
+		sdk.RegisterDenom("evmos", math.LegacyOneDec())
+		if err := sdk.RegisterDenom("aevmos", math.LegacyNewDecWithPrec(1, 18)); err != nil {
+			panic("cant register base denom")
+		}
+		if err := sdk.SetBaseDenom("aevmos"); err != nil {
+			panic("cant set base denom")
+		}
+
+	} else if utils.IsTestnet(chainID) {
+		if err := sdk.RegisterDenom("tevmos", math.LegacyOneDec()); err != nil {
+			panic(err)
+		}
+		if err := sdk.RegisterDenom("atevmos", math.LegacyNewDecWithPrec(1, 18)); err != nil {
+			panic(err)
+		}
+		if err := sdk.SetBaseDenom("atevmos"); err != nil {
+			panic("cant set base denom")
+		}
+	} else {
+		panic("undefined chain denom")
+	}
+
+	err := evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		// WithChainConfig(&ChainConfig).
 		WithDenom("aevmos", evmconfig.EighteenDecimals).

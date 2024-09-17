@@ -53,11 +53,6 @@
         },
       },
       app_state: {
-        evm: {
-          params: {
-            evm_denom: 'aevmos',
-          },
-        },
         crisis: {
           constant_fee: {
             denom: 'aevmos',

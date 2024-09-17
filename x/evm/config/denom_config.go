@@ -13,16 +13,35 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-var decimals Decimals
+// EvmDenom struct holds the name and decimals of the EVM denom
+type EvmDenom struct {
+	denom    string
+	decimals Decimals
+}
+
+var evmDenom EvmDenom
 
 func SetDecimals(d Decimals) {
 	if d != SixDecimals && d != EighteenDecimals {
 		panic("evm does not support these decimals")
 	}
 
-	decimals = d
+	evmDenom.decimals = d
+}
+
+func SetDenom(denom string) {
+	evmDenom.denom = denom
 }
 
 func GetDecimals() Decimals {
-	return decimals
+	return evmDenom.decimals
+}
+
+func GetDenom() string {
+	return evmDenom.denom
+}
+
+func SetEVMDenom(evmdenom EvmDenom) {
+	SetDenom(evmdenom.denom)
+	SetDecimals(evmdenom.decimals)
 }

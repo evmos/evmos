@@ -20,7 +20,9 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 
+	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/encoding"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -54,13 +56,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	_, err := sdk.GetBaseDenom()
-	if err != nil {
-		err := sdk.RegisterDenom("aevmos", sdkmath.LegacyNewDecWithPrec(1, 18))
-		suite.Require().NoError(err)
-		err = sdk.SetBaseDenom("aevmos")
-		suite.Require().NoError(err)
-	}
+	app.InitializeEVMConfiguration("evmos_9001-1")
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
@@ -123,8 +119,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			tc.msg.Data = nil
 		}
 
-		baseDenom, err := sdk.GetBaseDenom()
-		suite.Require().NoError(err)
+		baseDenom := config.GetDenom()
 
 		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 		if tc.expError {

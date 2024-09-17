@@ -22,7 +22,7 @@ type EVMConfigurator struct {
 	extendedDefaultExtraEIPs []string
 	sealed                   bool
 	chainConfig              *types.ChainConfig
-	decimals                 Decimals
+	evmDenom                 EvmDenom
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -52,7 +52,7 @@ func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurat
 
 // WithChainConfig
 func (ec *EVMConfigurator) WithDenom(denom string, d Decimals) *EVMConfigurator {
-	ec.decimals = d
+	ec.evmDenom = EvmDenom{denom: denom, decimals: d}
 	return ec
 }
 
@@ -64,16 +64,16 @@ func (ec *EVMConfigurator) Configure() error {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
-		return err
-	}
-
 	if ec.chainConfig != nil {
 		SetChainConfig(*ec.chainConfig)
 	}
 
-	if ec.decimals != 0 {
-		SetDecimals(ec.decimals)
+	if ec.evmDenom.denom != "" && ec.evmDenom.decimals != 0 {
+		SetEVMDenom(ec.evmDenom)
+	}
+
+	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
+		return err
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {

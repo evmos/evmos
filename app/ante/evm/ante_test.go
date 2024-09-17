@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -61,8 +62,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		GasFeeCap: big.NewInt(200),
 	}
 
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	testCases := []struct {
 		name      string

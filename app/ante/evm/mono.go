@@ -88,10 +88,7 @@ func NewMonoDecoratorUtils(
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)
 	feeMarketParams := fmk.GetParams(ctx)
-	baseDenom, err := sdk.GetBaseDenom()
-	if err != nil {
-		return nil, err
-	}
+	baseDenom := config.GetDenom()
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(

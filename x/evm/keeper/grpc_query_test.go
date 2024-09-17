@@ -22,6 +22,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
@@ -31,8 +32,7 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := evmconfig.GetDenom()
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -190,8 +190,7 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := evmconfig.GetDenom()
 
 	testCases := []struct {
 		msg           string

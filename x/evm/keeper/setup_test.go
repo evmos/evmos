@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"math"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -12,6 +13,8 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/x/evm/config"
+	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -59,17 +62,22 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	// if !s.enableLondonHF {
-	// 	evmGenesis := evmtypes.DefaultGenesisState()
-	// 	maxInt := sdkmath.NewInt(math.MaxInt64)
-	// 	evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-	// 	evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-	// 	evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-	// 	evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-	// 	evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-	// 	evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-	// 	customGenesis[evmtypes.ModuleName] = evmGenesis
-	// }
+	if !s.enableLondonHF {
+		chainConfig := types.DefaultChainConfig()
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = &maxInt
+		chainConfig.ArrowGlacierBlock = &maxInt
+		chainConfig.GrayGlacierBlock = &maxInt
+		chainConfig.MergeNetsplitBlock = &maxInt
+		chainConfig.ShanghaiBlock = &maxInt
+		chainConfig.CancunBlock = &maxInt
+		config.NewEVMConfigurator().
+			WithChainConfig(&chainConfig).Configure()
+	} else {
+		chainConfig := types.DefaultChainConfig()
+		config.NewEVMConfigurator().
+			WithChainConfig(&chainConfig).Configure()
+	}
 
 	if s.mintFeeCollector {
 		// mint some coin to fee collector

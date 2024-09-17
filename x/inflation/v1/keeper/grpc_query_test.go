@@ -95,7 +95,7 @@ func TestEpochMintProvision(t *testing.T) {
 				expEpochMintProvision := defaultEpochMintProvision.Quo(math.LegacyNewDec(types.ReductionFactor))
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: sdk.NewDecCoinFromDec(denomMint, expEpochMintProvision),
+					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, expEpochMintProvision),
 				}
 			},
 			true,
@@ -104,7 +104,7 @@ func TestEpochMintProvision(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			// reset
-			nw = network.NewUnitTestNetwork(network.WithChainID(utils.TestnetChainID + "-1"))
+			nw = network.NewUnitTestNetwork(network.WithChainID(utils.MainnetChainID + "-1"))
 			ctx = nw.GetContext()
 			qc := nw.GetInflationClient()
 

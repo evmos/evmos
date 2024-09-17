@@ -15,6 +15,7 @@ import (
 )
 
 func TestInitCmd(t *testing.T) {
+	app.InitializeEVMConfiguration("evmos_9001-1")
 	target := t.TempDir()
 
 	rootCmd, _ := evmosd.NewRootCmd()

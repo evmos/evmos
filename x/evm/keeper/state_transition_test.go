@@ -363,8 +363,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 	// for refund to work
 	// NOTE: everything should happen within the same block for
 	// feecollector account to remain funded
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	coins := sdk.NewCoins(sdk.NewCoin(
 		baseDenom,

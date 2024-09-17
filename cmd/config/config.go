@@ -48,7 +48,7 @@ func RegisterDenoms() {
 		panic(err)
 	}
 
-	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		panic(err)
-	}
+	// if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+	// 	panic(err)
+	// }
 }

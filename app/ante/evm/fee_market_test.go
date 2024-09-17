@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -25,8 +25,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	testCases := []struct {
 		name              string
@@ -38,13 +37,12 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := baseDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
+					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: baseDenom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), baseDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -113,13 +111,12 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx - gasWanted > max block gas",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := baseDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
+					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: baseDenom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), baseDenom, &testMsg)
 				limit := types.BlockGasLimit(ctx)
 				txBuilder.SetGasLimit(limit + 5)
 				return txBuilder.GetTx()

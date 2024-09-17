@@ -13,6 +13,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -112,10 +113,7 @@ func (k *Keeper) ForEachStorage(ctx sdk.Context, addr common.Address, cb func(ke
 func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.Int) error {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
-	baseDenom, err := sdk.GetBaseDenom()
-	if err != nil {
-		return err
-	}
+	baseDenom := config.GetDenom()
 
 	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, baseDenom)
 	balance := coin.Amount.BigInt()

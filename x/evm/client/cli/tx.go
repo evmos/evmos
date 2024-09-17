@@ -10,11 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -60,10 +60,8 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			baseDenom, err := sdk.GetBaseDenom()
-			if err != nil {
-				return err
-			}
+			baseDenom := config.GetDenom()
+
 			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 			if err != nil {
 				return err

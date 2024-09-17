@@ -37,9 +37,6 @@ evmos_9000-1:
         max_bytes: "1048576"
         max_gas: "81500000"
     app_state:
-      evm:
-        params:
-          evm_denom: aevmos
       crisis:
         constant_fee:
           denom: aevmos          

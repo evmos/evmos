@@ -10,6 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/x/evm/config"
 )
 
 // executeTransactions executes some sample transactions to check they are still working after the upgrade.
@@ -24,7 +25,7 @@ func (s *IntegrationTestSuite) executeTransactions() {
 // SendBankTransfer sends a bank transfer to check that the transactions are still working after the upgrade.
 func (s *IntegrationTestSuite) sendBankTransfer(ctx context.Context) {
 	receiver := "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"
-	sentCoins := sdk.Coins{sdk.NewInt64Coin("aevmos", 10000000000)}
+	sentCoins := sdk.Coins{sdk.NewInt64Coin(config.GetDenom(), 10000000000)}
 
 	balancePre, err := s.upgradeManager.GetBalance(ctx, s.upgradeParams.ChainID, receiver)
 	s.Require().NoError(err, "can't get balance of receiver account")
