@@ -94,7 +94,7 @@ func ParseVotesArgs(method *abi.Method, args []interface{}) (*govv1.QueryVotesRe
 
 	var input VotesInput
 	if err := method.Inputs.Copy(&input, args); err != nil {
-		return nil, fmt.Errorf("error while unpacking args to ValidatorsInput struct: %s", err)
+		return nil, fmt.Errorf("error while unpacking args to VotesInput: %s", err)
 	}
 
 	return &govv1.QueryVotesRequest{
