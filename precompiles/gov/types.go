@@ -149,10 +149,10 @@ func ParseVoteArgs(args []interface{}) (*govv1.QueryVoteRequest, error) {
 		return nil, fmt.Errorf(ErrInvalidVoter, args[1])
 	}
 
-	voterBech32 := sdk.AccAddress(voter.Bytes())
+	voterAccAddr := sdk.AccAddress(voter.Bytes())
 	return &govv1.QueryVoteRequest{
 		ProposalId: proposalID,
-		Voter:      voterBech32.String(),
+		Voter:      voterAccAddr.String(),
 	}, nil
 }
 
