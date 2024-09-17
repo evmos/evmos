@@ -4,11 +4,13 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"time"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -28,17 +30,7 @@ import (
 
 // BackendI implements the Cosmos and EVM backend.
 type BackendI interface { //nolint: revive
-	CosmosBackend
 	EVMBackend
-}
-
-// CosmosBackend implements the functionality shared within cosmos namespaces
-// as defined by Wallet Connect V2: https://docs.walletconnect.com/2.0/json-rpc/cosmos.
-// Implemented by Backend.
-type CosmosBackend interface { // TODO: define
-	// GetAccounts()
-	// SignDirect()
-	// SignAmino()
 }
 
 // EVMBackend implements the functionality shared within ethereum namespaces
@@ -71,7 +63,6 @@ type EVMBackend interface {
 	GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint
 	GetBlockTransactionCountByNumber(blockNum rpctypes.BlockNumber) *hexutil.Uint
 	TendermintBlockByNumber(blockNum rpctypes.BlockNumber) (*tmrpctypes.ResultBlock, error)
-	TendermintBlockResultByNumber(height *int64) (*tmrpctypes.ResultBlockResults, error)
 	TendermintBlockByHash(blockHash common.Hash) (*tmrpctypes.ResultBlock, error)
 	BlockNumberFromTendermint(blockNrOrHash rpctypes.BlockNumberOrHash) (rpctypes.BlockNumber, error)
 	BlockNumberFromTendermintByHash(blockHash common.Hash) (*big.Int, error)
@@ -107,6 +98,7 @@ type EVMBackend interface {
 	GetTxByTxIndex(height int64, txIndex uint) (*evmostypes.TxResult, error)
 	GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error)
+	GetTransactionLogs(hash common.Hash) ([]*ethtypes.Log, error)
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockNumber, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 
@@ -134,6 +126,7 @@ var _ BackendI = (*Backend)(nil)
 type Backend struct {
 	ctx                 context.Context
 	clientCtx           client.Context
+	rpcClient           tmrpcclient.SignClient
 	queryClient         *rpctypes.QueryClient // gRPC query client
 	logger              log.Logger
 	chainID             *big.Int
@@ -160,9 +153,15 @@ func NewBackend(
 		panic(err)
 	}
 
+	rpcClient, ok := clientCtx.Client.(tmrpcclient.SignClient)
+	if !ok {
+		panic(fmt.Sprintf("invalid rpc client, expected: tmrpcclient.SignClient, got: %T", clientCtx.Client))
+	}
+
 	return &Backend{
 		ctx:                 context.Background(),
 		clientCtx:           clientCtx,
+		rpcClient:           rpcClient,
 		queryClient:         rpctypes.NewQueryClient(clientCtx),
 		logger:              logger.With("module", "backend"),
 		chainID:             chainID,
