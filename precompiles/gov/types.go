@@ -36,6 +36,11 @@ type VotesOutput struct {
 	PageResponse query.PageResponse
 }
 
+// VoteOutput is the output response returned by the vote query method.
+type VoteOutput struct {
+	Vote WeightedVote
+}
+
 // WeightedVote defines a struct of vote for vote split.
 type WeightedVote struct {
 	ProposalId uint64 //nolint:revive,stylecheck
@@ -156,14 +161,14 @@ func ParseVoteArgs(args []interface{}) (*govv1.QueryVoteRequest, error) {
 	}, nil
 }
 
-func (sv *WeightedVote) FromResponse(res *govv1.QueryVoteResponse) *WeightedVote {
+func (vo *VoteOutput) FromResponse(res *govv1.QueryVoteResponse) *VoteOutput {
 	hexVoter, err := utils.Bech32ToHexAddr(res.Vote.Voter)
 	if err != nil {
 		return nil
 	}
-	sv.Voter = hexVoter
-	sv.Metadata = res.Vote.Metadata
-	sv.ProposalId = res.Vote.ProposalId
+	vo.Vote.Voter = hexVoter
+	vo.Vote.Metadata = res.Vote.Metadata
+	vo.Vote.ProposalId = res.Vote.ProposalId
 
 	options := make([]WeightedVoteOption, len(res.Vote.Options))
 	for j, opt := range res.Vote.Options {
@@ -172,6 +177,6 @@ func (sv *WeightedVote) FromResponse(res *govv1.QueryVoteResponse) *WeightedVote
 			Weight: opt.Weight,
 		}
 	}
-	sv.Options = options
-	return sv
+	vo.Vote.Options = options
+	return vo
 }

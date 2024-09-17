@@ -57,7 +57,7 @@ func (p *Precompile) GetVote(
 		return nil, err
 	}
 
-	output := new(WeightedVote).FromResponse(res)
+	output := new(VoteOutput).FromResponse(res)
 
-	return method.Outputs.Pack(output)
+	return method.Outputs.Pack(output.Vote)
 }

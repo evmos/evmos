@@ -81,6 +81,7 @@ func (s *PrecompileTestSuite) TestGetVote() {
 		expPropNumber uint64
 		expVoter      common.Address
 		gas           uint64
+		errContains   string
 	}{
 		{
 			name: "valid query",
@@ -96,20 +97,22 @@ func (s *PrecompileTestSuite) TestGetVote() {
 		},
 		{
 			name:       "invalid proposal ID",
-			propNumber: uint64(1),
-			expPass:    false,
-			gas:        200_000,
-			malleate:   func() {},
-		},
-		{
-			name:       "non-existent vote",
-			propNumber: uint64(1),
+			propNumber: uint64(10),
 			expPass:    false,
 			gas:        200_000,
 			malleate: func() {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAddr(0).Bytes(), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 			},
+			errContains: "not found for proposal",
+		},
+		{
+			name:        "non-existent vote",
+			propNumber:  uint64(1),
+			expPass:     false,
+			gas:         200_000,
+			malleate:    func() {},
+			errContains: "not found for proposal",
 		},
 	}
 
@@ -134,16 +137,17 @@ func (s *PrecompileTestSuite) TestGetVote() {
 
 			if tc.expPass {
 				s.Require().NoError(err)
-				var out gov.WeightedVote
+				var out gov.VoteOutput
 				err = s.precompile.UnpackIntoInterface(&out, gov.GetVoteMethod, bz)
 
 				s.Require().NoError(err)
-				s.Require().Equal(expVote.ProposalId, out.ProposalId)
-				s.Require().Equal(expVote.Voter, out.Voter)
-				s.Require().Equal(expVote.Options, out.Options)
-				s.Require().Equal(expVote.Metadata, out.Metadata)
+				s.Require().Equal(expVote.ProposalId, out.Vote.ProposalId)
+				s.Require().Equal(expVote.Voter, out.Vote.Voter)
+				s.Require().Equal(expVote.Options, out.Vote.Options)
+				s.Require().Equal(expVote.Metadata, out.Vote.Metadata)
 			} else {
 				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
 			}
 		})
 	}
