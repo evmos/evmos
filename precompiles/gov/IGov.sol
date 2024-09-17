@@ -38,7 +38,7 @@ struct WeightedVoteOption {
     string weight;
 }
 
-/// @author Luke
+/// @author The Evmos Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {

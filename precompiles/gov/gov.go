@@ -99,7 +99,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		return nil, err
 	}
 
-	switch method.Name { //nolint:gocritic
+	switch method.Name {
 	// gov transactions
 	case VoteMethod:
 		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)

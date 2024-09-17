@@ -26,7 +26,7 @@ type EventVote struct {
 
 // VotesInput defines the input for the Votes query.
 type VotesInput struct {
-	ProposalId uint64
+	ProposalId uint64 //nolint:revive,stylecheck
 	Pagination query.PageRequest
 }
 
@@ -36,7 +36,7 @@ type VotesOutput struct {
 }
 
 type WeightedVote struct {
-	ProposalId uint64
+	ProposalId uint64 //nolint:revive,stylecheck
 	Voter      common.Address
 	Options    []WeightedVoteOption
 	Metadata   string
@@ -115,7 +115,7 @@ func (vo *VotesOutput) FromResponse(res *govv1.QueryVotesResponse) *VotesOutput 
 		options := make([]WeightedVoteOption, len(v.Options))
 		for j, opt := range v.Options {
 			options[j] = WeightedVoteOption{
-				Option: uint8(opt.Option),
+				Option: uint8(opt.Option), //nolint:gosec // G115
 				Weight: opt.Weight,
 			}
 		}
@@ -170,7 +170,7 @@ func (sv *WeightedVote) FromResponse(res *govv1.QueryVoteResponse) *WeightedVote
 	options := make([]WeightedVoteOption, len(res.Vote.Options))
 	for j, opt := range res.Vote.Options {
 		options[j] = WeightedVoteOption{
-			Option: uint8(opt.Option),
+			Option: uint8(opt.Option), //nolint:gosec // G115
 			Weight: opt.Weight,
 		}
 	}
