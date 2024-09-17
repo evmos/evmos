@@ -29,7 +29,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 	"github.com/evmos/evmos/v20/x/vesting/types"
@@ -58,7 +58,7 @@ var (
 	gasLimit                 uint64 = 400_000
 	gasPrice                        = remainingAmtToPayFees.QuoRaw(int64(gasLimit))
 	dest                            = utiltx.GenerateAddress()
-	stakeDenom                      = utils.BaseDenom
+	stakeDenom                      = evmostypes.BaseDenom
 	accountGasCoverage              = sdk.NewCoins(sdk.NewCoin(stakeDenom, remainingAmtToPayFees))
 	amt                             = testutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount
 	cliff                           = testutil.TestVestingSchedule.CliffMonths

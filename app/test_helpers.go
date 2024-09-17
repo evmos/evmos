@@ -30,7 +30,6 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 
 	"github.com/evmos/evmos/v20/cmd/config"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 // DefaultTestingAppInit defines the IBC application used for testing
@@ -75,7 +74,7 @@ func Setup(
 	validator := cmttypes.NewValidator(pubKey, 1)
 	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
-	baseDenom := utils.BaseDenom
+	baseDenom := evmostypes.BaseDenom
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
@@ -163,7 +162,7 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 	}
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.BondDenom = evmostypes.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 

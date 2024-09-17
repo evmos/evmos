@@ -12,7 +12,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -82,7 +82,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	s.bondDenom = bondDenom
-	s.baseDenom = utils.BaseDenom
+	s.baseDenom = evmostypes.BaseDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring

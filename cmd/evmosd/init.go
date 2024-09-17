@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -30,8 +31,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-
-	"github.com/evmos/evmos/v20/utils"
 )
 
 type printInfo struct {
@@ -177,7 +176,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd.Flags().BoolP(genutilcli.FlagOverwrite, "o", false, "overwrite the genesis.json file")
 	cmd.Flags().Bool(genutilcli.FlagRecover, false, "provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, utils.BaseDenom, "defines the default denom to use in genesis file")
+	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, evmostypes.BaseDenom, "defines the default denom to use in genesis file")
 
 	return cmd
 }

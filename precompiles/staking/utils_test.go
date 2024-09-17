@@ -33,7 +33,7 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/staking"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	evmosutil "github.com/evmos/evmos/v20/testutil"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
@@ -41,7 +41,7 @@ import (
 
 // stipend to pay EVM tx fees
 var (
-	bondDenom          = utils.BaseDenom
+	bondDenom          = evmostypes.BaseDenom
 	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(bondDenom, math.NewInt(1e16)))
 	gas                = uint64(200_000)
 	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(bondDenom)

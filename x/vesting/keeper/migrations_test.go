@@ -9,7 +9,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/vesting/keeper"
 	v1vestingtypes "github.com/evmos/evmos/v20/x/vesting/migrations/types"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
@@ -85,7 +85,7 @@ func TestMigrate2to3(t *testing.T) {
 			name:                    "delegated vesting > 0 and delegated free > 0",
 			initialDelegatedVesting: quarter,
 			initialDelegatedFree:    quarter,
-			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin(utils.BaseDenom, 500)),
+			expectedDelegatedFree:   types.NewCoins(types.NewInt64Coin(evmostypes.BaseDenom, 500)),
 		},
 		{
 			name:                    "delegated vesting == 0 and delegated free > 0",

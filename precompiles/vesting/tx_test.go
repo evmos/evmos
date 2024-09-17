@@ -18,13 +18,13 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v20/testutil"
 	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 var (
-	baseDenom        = utils.BaseDenom
+	baseDenom        = evmostypes.BaseDenom
 	balances         = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(1000)}}
 	quarter          = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(250)}}
 	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1000))

@@ -17,6 +17,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/evmos/evmos/v20/x/vesting/types"
@@ -24,7 +25,7 @@ import (
 
 var (
 	vestAmount     = int64(1000)
-	baseDenom      = utils.BaseDenom
+	baseDenom      = evmostypes.BaseDenom
 	balances       = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
 	quarter        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
 	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())

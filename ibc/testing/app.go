@@ -24,7 +24,6 @@ import (
 
 	evmosapp "github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 // DefaultTestingAppInit is a test helper function used to initialize an App
@@ -72,7 +71,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.BondDenom = types.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 

@@ -46,7 +46,7 @@ func DefaultConfig() Config {
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
-		denom:              utils.BaseDenom,
+		denom:              evmostypes.BaseDenom,
 		customGenesisState: nil,
 	}
 }

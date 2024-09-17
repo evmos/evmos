@@ -18,7 +18,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v20/app"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -86,7 +86,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 	// set distribution module account balance which pays out the rewards
 	distrAcc := app.DistrKeeper.GetDistributionAccount(ctx)
-	err := FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, totalRewards)))
+	err := FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, totalRewards)))
 	if err != nil {
 		return sdk.Context{}, fmt.Errorf("failed to fund distribution module account: %s", err.Error())
 	}
@@ -110,7 +110,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to get staking params: %s", err.Error())
 		}
-		stakingParams.BondDenom = utils.BaseDenom
+		stakingParams.BondDenom = evmostypes.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
 		err = app.StakingKeeper.SetParams(ctx, stakingParams)
 		require.NoError(t, err)

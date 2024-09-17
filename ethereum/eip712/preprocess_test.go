@@ -102,7 +102,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(utils.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(types.BaseDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -196,7 +196,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	gasLimit := uint64(200000)
 	memo := ""
-	denom := utils.BaseDenom
+	denom := types.BaseDenom
 	feeAmount := math.NewInt(2000)
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(

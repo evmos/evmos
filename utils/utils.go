@@ -31,11 +31,6 @@ const (
 	TestingChainID = "test_9000"
 )
 
-var (
-	// BaseDenom defines the Evmos mainnet denomination for testing use only
-	BaseDenom = "aevmos"
-)
-
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
 // from it.
 func EthHexToCosmosAddr(hexAddr string) sdk.AccAddress {
