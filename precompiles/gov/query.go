@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	// VotesMethodRequest defines the method name for the votes precompile request.
-	VotesMethodRequest = "votes"
-	// VoteMethodRequest defines the method name for the vote precompile request.
-	VoteMethodRequest
+	// GetVotesMethod defines the method name for the votes precompile request.
+	GetVotesMethod = "getVotes"
+	// GetVoteMethod defines the method name for the vote precompile request.
+	GetVoteMethod = "getVote"
 )
 
 // Votes implements the query logic for getting votes for a proposal.
@@ -57,7 +57,7 @@ func (p *Precompile) VoteRequest(
 		return nil, err
 	}
 
-	output := new(SingleVote).FromResponse(res)
+	output := new(WeightedVote).FromResponse(res)
 
 	return method.Outputs.Pack(output)
 }

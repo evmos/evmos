@@ -3,7 +3,7 @@ package gov_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
@@ -11,14 +11,14 @@ import (
 
 func (s *PrecompileTestSuite) TestVotes() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[gov.VotesMethodRequest]
+	method := s.precompile.Methods[gov.GetVotesMethod]
 	testCases := []struct {
 		name     string
 		args     []interface{}
 		expPass  bool
 		expTotal uint64
 		gas      uint64
-		malleate func() []gov.SingleVote
+		malleate func() []gov.WeightedVote
 	}{
 		{
 			name:     "valid query",
@@ -26,10 +26,10 @@ func (s *PrecompileTestSuite) TestVotes() {
 			expPass:  true,
 			expTotal: 1,
 			gas:      200000,
-			malleate: func() []gov.SingleVote {
+			malleate: func() []gov.WeightedVote {
 				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAddr(0).Bytes(), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
-				return []gov.SingleVote{
+				return []gov.WeightedVote{
 					{ProposalId: 1, Voter: s.keyring.GetAddr(0), Options: []gov.WeightedVoteOption{{Option: uint8(v1.OptionYes), Weight: "1.0"}}},
 				}
 			},
@@ -39,8 +39,8 @@ func (s *PrecompileTestSuite) TestVotes() {
 			args:    []interface{}{uint64(0), query.PageRequest{Limit: 10, CountTotal: true}},
 			expPass: false,
 			gas:     200000,
-			malleate: func() []gov.SingleVote {
-				return []gov.SingleVote{}
+			malleate: func() []gov.WeightedVote {
+				return []gov.WeightedVote{}
 			},
 		},
 	}
@@ -58,7 +58,7 @@ func (s *PrecompileTestSuite) TestVotes() {
 
 			if tc.expPass {
 				var out gov.VotesOutput
-				err = s.precompile.UnpackIntoInterface(&out, gov.VotesMethodRequest, bz)
+				err = s.precompile.UnpackIntoInterface(&out, gov.GetVotesMethod, bz)
 				s.Require().NoError(err)
 				s.Require().Equal(votes, out.Votes)
 				s.Require().Equal(tc.expTotal, out.PageResponse.Total)
@@ -71,12 +71,12 @@ func (s *PrecompileTestSuite) TestVotes() {
 
 func (s *PrecompileTestSuite) TestVoteRequest() {
 	var ctx sdk.Context
-	method := s.precompile.Methods[gov.VoteMethodRequest]
+	method := s.precompile.Methods[gov.GetVoteMethod]
 	testCases := []struct {
 		name     string
 		args     []interface{}
 		expPass  bool
-		expVote  gov.SingleVote
+		expVote  gov.WeightedVote
 		gas      uint64
 		malleate func()
 	}{
@@ -89,7 +89,7 @@ func (s *PrecompileTestSuite) TestVoteRequest() {
 				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAddr(0).Bytes(), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 			},
-			expVote: gov.SingleVote{
+			expVote: gov.WeightedVote{
 				ProposalId: 1,
 				Voter:      s.keyring.GetAddr(0),
 				Options:    []gov.WeightedVoteOption{{Option: uint8(v1.OptionYes), Weight: "1.0"}},
@@ -128,8 +128,8 @@ func (s *PrecompileTestSuite) TestVoteRequest() {
 
 			if tc.expPass {
 				s.Require().NoError(err)
-				var out gov.SingleVote
-				err = s.precompile.UnpackIntoInterface(&out, gov.VoteMethodRequest, bz)
+				var out gov.WeightedVote
+				err = s.precompile.UnpackIntoInterface(&out, gov.GetVoteMethod, bz)
 				s.Require().NoError(err)
 				s.Require().Equal(tc.expVote.ProposalId, out.ProposalId)
 				s.Require().Equal(tc.expVote.Voter, out.Voter)

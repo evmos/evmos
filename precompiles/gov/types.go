@@ -31,11 +31,11 @@ type VotesInput struct {
 }
 
 type VotesOutput struct {
-	Votes        []SingleVote
+	Votes        []WeightedVote
 	PageResponse PageResponse
 }
 
-type SingleVote struct {
+type WeightedVote struct {
 	ProposalId uint64
 	Voter      common.Address
 	Options    []WeightedVoteOption
@@ -106,7 +106,7 @@ func ParseVotesArgs(method *abi.Method, args []interface{}) (*govv1.QueryVotesRe
 }
 
 func (vo *VotesOutput) FromResponse(res *govv1.QueryVotesResponse) *VotesOutput {
-	vo.Votes = make([]SingleVote, len(res.Votes))
+	vo.Votes = make([]WeightedVote, len(res.Votes))
 	for i, v := range res.Votes {
 		hexAddr, err := utils.Bech32ToHexAddr(v.Voter)
 		if err != nil {
@@ -119,7 +119,7 @@ func (vo *VotesOutput) FromResponse(res *govv1.QueryVotesResponse) *VotesOutput 
 				Weight: opt.Weight,
 			}
 		}
-		vo.Votes[i] = SingleVote{
+		vo.Votes[i] = WeightedVote{
 			ProposalId: v.ProposalId,
 			Voter:      hexAddr,
 			Options:    options,
@@ -158,7 +158,7 @@ func ParseVoteArgs(args []interface{}) (*govv1.QueryVoteRequest, error) {
 	}, nil
 }
 
-func (sv *SingleVote) FromResponse(res *govv1.QueryVoteResponse) *SingleVote {
+func (sv *WeightedVote) FromResponse(res *govv1.QueryVoteResponse) *WeightedVote {
 	hexVoter, err := utils.Bech32ToHexAddr(res.Vote.Voter)
 	if err != nil {
 		return nil
