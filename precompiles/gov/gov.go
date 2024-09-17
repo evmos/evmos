@@ -108,7 +108,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case GetVoteMethod:
 		bz, err = p.GetVote(ctx, method, contract, args)
 	case GetVotesMethod:
-		bz, err = p.GetVotes(ctx, method, contract, args)		
+		bz, err = p.GetVotes(ctx, method, contract, args)
 	}
 
 	if err != nil {
