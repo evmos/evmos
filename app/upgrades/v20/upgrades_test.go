@@ -141,5 +141,4 @@ func TestUpdateExpeditedPropsParams(t *testing.T) {
 			tc.postCheck()
 		})
 	}
-
 }
