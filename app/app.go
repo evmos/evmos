@@ -510,20 +510,6 @@ func NewEvmos(
 		authAddr,
 	)
 
-	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithStaticPrecompiles(
-		evmkeeper.NewAvailableStaticPrecompiles(
-			*stakingKeeper,
-			app.DistrKeeper,
-			app.BankKeeper,
-			app.Erc20Keeper,
-			app.VestingKeeper,
-			app.AuthzKeeper,
-			app.TransferKeeper,
-			app.IBCKeeper.ChannelKeeper,
-		),
-	)
-
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
@@ -535,6 +521,21 @@ func NewEvmos(
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.VestingKeeper.Hooks(),
+		),
+	)
+
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	evmKeeper.WithStaticPrecompiles(
+		evmkeeper.NewAvailableStaticPrecompiles(
+			*stakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			app.Erc20Keeper,
+			app.VestingKeeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.GovKeeper,
 		),
 	)
 

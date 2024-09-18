@@ -39,11 +39,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+<<<<<<< HEAD
 - (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.5.0`.
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 - (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-go to v7.8.0.
 - (evm) [#2824](https://github.com/evmos/evmos/pull/2824) Reverted PR #2633. Use `EthAccount` type instead of `BaseAccount`.
+=======
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.4.0`.
+- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
+- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
+- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
+- (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
+- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
+>>>>>>> 4c59847b (feat(precompile): add gov precompile (vote only) (#2858))
 
 ### Improvements
 
@@ -58,7 +67,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (deps) [#2854](https://github.com/evmos/evmos/pull/2854) Bump IBC-go to `v8.5.1`.
 
-## [v19.2.0] - 2024-08-19
+## [v19.2.0](https://github.com/evmos/evmos/releases/tag/v19.2.0) - 2024-08-19
 
 ### State Machine Breaking
 
@@ -69,7 +78,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (rpc) [#2765](https://github.com/evmos/evmos/pull/2765) Fix EIP parsing for archive queries.
 
-## [v19.1.0] - 2024-08-02
+## [v19.1.0](https://github.com/evmos/evmos/releases/tag/v19.1.0) - 2024-08-02
 
 ### State Machine Breaking
 
@@ -80,7 +89,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (gov) [#2703](https://github.com/evmos/evmos/pull/2703) Keep `RegisterCoinProposal` registered as interface for backwards compatibility on gov proposals query.
 
-## [v19.0.0] - 2024-07-23
+## [v19.0.0](https://github.com/evmos/evmos/releases/tag/v19.0.0) - 2024-07-23
 
 ### State Machine Breaking
 

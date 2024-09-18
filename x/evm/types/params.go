@@ -33,6 +33,7 @@ var (
 		ICS20PrecompileAddress,        // ICS20 transfer precompile
 		VestingPrecompileAddress,      // Vesting precompile
 		BankPrecompileAddress,         // Bank precompile
+		GovPrecompileAddress,          // Gov precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
