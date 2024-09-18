@@ -53,16 +53,15 @@ func EnableGovPrecompile(ctx sdk.Context, ek *evmkeeper.Keeper) error {
 }
 
 func UpdateExpeditedPropsParams(ctx sdk.Context, gv govkeeper.Keeper) error {
-	// !! NOTE: for mainnet upgrade updating the var sdk.DefaultBondDenom = 'aevmos'
-	// !! before running the migrations will suffice to set the expedited
-	// !! min deposit denom
-	// Enable gov precompile
 	params, err := gv.Params.Get(ctx)
 	if err != nil {
 		return err
 	}
 
 	// use the same denom as the min deposit denom
+	// !! NOTE: for mainnet upgrade updating the var sdk.DefaultBondDenom = 'aevmos'
+	// !! before running the migrations will suffice to set the expedited
+	// !! min deposit denom
 	// also amount must be greater than MinDeposit amount
 	// !! NOTE for mainnet upgrade, updating the var govv1.DefaultMinDepositTokens
 	// !! before running the migrations
