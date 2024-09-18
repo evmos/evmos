@@ -27,10 +27,6 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 
 	priv, _ := ethsecp256k1.GenerateKey()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-
-	// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	// RegisterParamsWithoutHeader(queryClient, 1)
-
 	armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
 	_ = suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
 

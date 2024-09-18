@@ -28,11 +28,6 @@ func TestParamsValidate(t *testing.T) {
 			params:  NewParams(false, extraEips, nil, nil, DefaultAccessControl),
 			expPass: true,
 		},
-		// {
-		// 	name:        "empty",
-		// 	params:      Params{},
-		// 	errContains: "invalid denom: ", // NOTE: this returns the first error that occurs
-		// },
 		{
 			name: "invalid eip",
 			params: Params{

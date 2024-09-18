@@ -85,7 +85,6 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				_, err = RegisterBlockResults(client, 1)
 				suite.Require().NoError(err)
 				RegisterBaseFee(queryClient, baseFee)
-				// RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			evmtypes.TransactionArgs{
 				From:     &from,
@@ -127,7 +126,7 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 			if tc.expPass {
 				// Sign the transaction and get the hash
 				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				// RegisterParamsWithoutHeader(queryClient, 1)
+
 				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 				msg := callArgsDefault.ToTransaction()
 				err := msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
@@ -254,7 +253,7 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	_, err = RegisterBlockResults(client, 1)
 	suite.Require().NoError(err)
 	RegisterBaseFee(queryClient, baseFee)
-	// RegisterParamsWithoutHeader(queryClient, 1)
+
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)

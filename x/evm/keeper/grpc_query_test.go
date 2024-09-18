@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
@@ -1475,6 +1476,7 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBaseFee() {
+	defaultChainConfig := types.DefaultChainConfig()
 	suite.enableFeemarket = true
 	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
@@ -1501,28 +1503,29 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 
 			true,
 		},
-		// {
-		// 	"pass - nil Base Fee when london hardfork not activated",
-		// 	func() *types.QueryBaseFeeResponse {
-		// 		return &types.QueryBaseFeeResponse{}
-		// 	},
-		// 	func() {
-		// 		feemarketDefault := feemarkettypes.DefaultParams()
-		// 		suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
+		{
+			"pass - nil Base Fee when london hardfork not activated",
+			func() *types.QueryBaseFeeResponse {
+				return &types.QueryBaseFeeResponse{}
+			},
+			func() {
+				feemarketDefault := feemarkettypes.DefaultParams()
+				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-		// 		evmDefault := types.DefaultParams()
-		// 		maxInt := sdkmath.NewInt(math.MaxInt64)
-		// 		evmDefault.ChainConfig.LondonBlock = &maxInt
-		// 		evmDefault.ChainConfig.LondonBlock = &maxInt
-		// 		evmDefault.ChainConfig.ArrowGlacierBlock = &maxInt
-		// 		evmDefault.ChainConfig.GrayGlacierBlock = &maxInt
-		// 		evmDefault.ChainConfig.MergeNetsplitBlock = &maxInt
-		// 		evmDefault.ChainConfig.ShanghaiBlock = &maxInt
-		// 		evmDefault.ChainConfig.CancunBlock = &maxInt
-		// 		suite.Require().NoError(suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), evmDefault))
-		// 	},
-		// 	true,
-		// },
+				chainConfig := types.DefaultChainConfig()
+				maxInt := sdkmath.NewInt(math.MaxInt64)
+				chainConfig.LondonBlock = &maxInt
+				chainConfig.ArrowGlacierBlock = &maxInt
+				chainConfig.GrayGlacierBlock = &maxInt
+				chainConfig.MergeNetsplitBlock = &maxInt
+				chainConfig.ShanghaiBlock = &maxInt
+				chainConfig.CancunBlock = &maxInt
+				evmconfig.NewEVMConfigurator().
+					WithChainConfig(&chainConfig).
+					Configure()
+			},
+			true,
+		},
 		{
 			"pass - zero Base Fee when feemarket not activated",
 			func() *types.QueryBaseFeeResponse {
@@ -1564,8 +1567,12 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 
 			suite.Require().NoError(suite.network.NextBlock())
+			evmconfig.NewEVMConfigurator().
+				WithChainConfig(&defaultChainConfig).
+				Configure()
 		})
 	}
+
 }
 
 func (suite *KeeperTestSuite) TestEthCall() {

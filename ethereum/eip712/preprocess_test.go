@@ -21,6 +21,7 @@ import (
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	"github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -102,7 +103,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(types.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(evmconfig.GetDenom()), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged

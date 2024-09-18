@@ -26,8 +26,6 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 		{
 			"pass - default gas price",
 			func() {
-				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				// RegisterParamsWithoutHeaderError(queryClient, 1)
 			},
 			types.DefaultGasPrice,
 			true,
@@ -35,8 +33,6 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 		{
 			"pass - min gas price is 0",
 			func() {
-				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				// RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			types.DefaultGasPrice,
 			true,
@@ -58,6 +54,7 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	}
 }
 
+// TODO: need to mock `sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)`
 // func (suite *BackendTestSuite) TestSetGasPrice() {
 // 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
 // 	testCases := []struct {

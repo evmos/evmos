@@ -24,6 +24,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -47,8 +48,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 		sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 	)
 
-	baseDenom, err := sdk.GetBaseDenom()
-	require.NoError(t, err)
+	baseDenom := config.GetDenom()
 
 	testCases := []struct {
 		name        string
@@ -318,8 +318,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		return msg
 	}
 
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	testcases := []struct {
 		name         string
