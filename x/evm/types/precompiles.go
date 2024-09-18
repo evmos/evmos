@@ -14,6 +14,7 @@ const (
 	ICS20PrecompileAddress        = "0x0000000000000000000000000000000000000802"
 	VestingPrecompileAddress      = "0x0000000000000000000000000000000000000803"
 	BankPrecompileAddress         = "0x0000000000000000000000000000000000000804"
+	GovPrecompileAddress          = "0x0000000000000000000000000000000000000805"
 )
 
 // AvailableStaticPrecompiles defines the full list of all available EVM extension addresses.
@@ -28,4 +29,5 @@ var AvailableStaticPrecompiles = []string{
 	ICS20PrecompileAddress,
 	VestingPrecompileAddress,
 	BankPrecompileAddress,
+	GovPrecompileAddress,
 }
