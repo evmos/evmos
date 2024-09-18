@@ -276,7 +276,7 @@ func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	chainID := utils.TestnetChainID + "-1"
+	chainID := utils.MainnetChainID + "-1"
 	testCases := []struct {
 		name       string
 		moduleName string
