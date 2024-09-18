@@ -36,7 +36,7 @@ func (p Precompile) Vote(
 
 	// If the contract is the voter, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractVoter := contract.CallerAddress == voterHexAddr
+	isContractVoter := contract.CallerAddress == voterHexAddr && contract.CallerAddress != origin
 	if !isContractVoter && origin != voterHexAddr {
 		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), voterHexAddr.String())
 	}
