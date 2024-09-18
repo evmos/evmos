@@ -69,13 +69,15 @@ func (suite *AnteTestSuite) SetupTest() {
 		chainConfig.MergeNetsplitBlock = &maxInt
 		chainConfig.ShanghaiBlock = &maxInt
 		chainConfig.CancunBlock = &maxInt
-		config.NewEVMConfigurator().
+		err := config.NewEVMConfigurator().
 			WithChainConfig(&chainConfig).
 			Configure()
+		suite.Require().NoError(err)
 	} else {
 		chainConfig := evmtypes.DefaultChainConfig()
-		config.NewEVMConfigurator().
+		err := config.NewEVMConfigurator().
 			WithChainConfig(&chainConfig).Configure()
+		suite.Require().NoError(err)
 	}
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)

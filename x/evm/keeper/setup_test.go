@@ -71,12 +71,14 @@ func (suite *KeeperTestSuite) SetupTest() {
 		chainConfig.MergeNetsplitBlock = &maxInt
 		chainConfig.ShanghaiBlock = &maxInt
 		chainConfig.CancunBlock = &maxInt
-		config.NewEVMConfigurator().
+		err := config.NewEVMConfigurator().
 			WithChainConfig(&chainConfig).Configure()
+		suite.Require().NoError(err)
 	} else {
 		chainConfig := types.DefaultChainConfig()
-		config.NewEVMConfigurator().
+		err := config.NewEVMConfigurator().
 			WithChainConfig(&chainConfig).Configure()
+		suite.Require().NoError(err)
 	}
 
 	if s.mintFeeCollector {

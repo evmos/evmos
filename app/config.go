@@ -58,24 +58,24 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 }
 
 func SetBaseDenomWithChainID(chainID string) {
-	if utils.IsMainnet(chainID) {
-		sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec())
-		if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-			panic("cant register base denom")
+	if utils.IsTestnet(chainID) {
+		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
+			panic(err)
 		}
-		if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
+		if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+			panic(err)
+		}
+		if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
 			panic("cant set base denom")
 		}
 		return
 	}
 
-	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
-		panic(err)
+	sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
+	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+		panic("cant register base denom")
 	}
-	if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		panic(err)
-	}
-	if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
+	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
 		panic("cant set base denom")
 	}
 

@@ -65,7 +65,9 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	if ec.chainConfig != nil {
-		SetChainConfig(*ec.chainConfig)
+		if err := SetChainConfig(*ec.chainConfig); err != nil {
+			return err
+		}
 	}
 
 	if ec.evmDenom.denom != "" && ec.evmDenom.decimals != 0 {
