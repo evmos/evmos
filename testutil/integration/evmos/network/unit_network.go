@@ -27,7 +27,6 @@ var _ Network = (*UnitTestNetwork)(nil)
 // It panics if an error occurs.
 // Note: Only uses for Unit Tests
 func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
-
 	network := New(opts...)
 	return &UnitTestNetwork{
 		IntegrationNetwork: *network,

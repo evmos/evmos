@@ -19,7 +19,6 @@ var sealed = false
 // configuration for the EVM, modifying the custom ones defined in evmOS.
 // func init() {
 func InitializeEVMConfiguration(chainID string) {
-
 	if sealed {
 		return
 	}
