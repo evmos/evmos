@@ -78,5 +78,4 @@ func SetBaseDenomWithChainID(chainID string) {
 	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
 		panic("cant set base denom")
 	}
-
 }
