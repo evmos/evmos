@@ -1572,7 +1572,6 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				Configure()
 		})
 	}
-
 }
 
 func (suite *KeeperTestSuite) TestEthCall() {

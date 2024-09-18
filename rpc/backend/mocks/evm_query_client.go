@@ -466,7 +466,8 @@ func (_m *EVMQueryClient) ValidatorAccount(ctx context.Context, in *types.QueryV
 func NewEVMQueryClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMQueryClient {
+},
+) *EVMQueryClient {
 	mock := &EVMQueryClient{}
 	mock.Mock.Test(t)
 

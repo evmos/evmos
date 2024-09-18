@@ -87,7 +87,6 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
-
 	evmTx := &types.EvmTxArgs{
 		Nonce:     0,
 		To:        &suite.to,
