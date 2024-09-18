@@ -31,17 +31,17 @@ func TestMintAndAllocateInflation(t *testing.T) {
 	}{
 		{
 			"pass",
-			sdk.NewCoin(types.DefaultInflationDenom, math.NewInt(1_000_000)),
+			sdk.NewCoin(denomMint, math.NewInt(1_000_000)),
 			func() {},
-			sdk.NewCoin(types.DefaultInflationDenom, math.NewInt(533_333)),
-			sdk.NewDecCoins(sdk.NewDecCoin(types.DefaultInflationDenom, math.NewInt(466_667))),
+			sdk.NewCoin(denomMint, math.NewInt(533_333)),
+			sdk.NewDecCoins(sdk.NewDecCoin(denomMint, math.NewInt(466_667))),
 			true,
 		},
 		{
 			"pass - no coins minted ",
-			sdk.NewCoin(types.DefaultInflationDenom, math.ZeroInt()),
+			sdk.NewCoin(denomMint, math.ZeroInt()),
 			func() {},
-			sdk.NewCoin(types.DefaultInflationDenom, math.ZeroInt()),
+			sdk.NewCoin(denomMint, math.ZeroInt()),
 			sdk.DecCoins(nil),
 			true,
 		},
@@ -61,14 +61,14 @@ func TestMintAndAllocateInflation(t *testing.T) {
 			balanceModule := nw.App.BankKeeper.GetBalance(
 				ctx,
 				nw.App.AccountKeeper.GetModuleAddress(types.ModuleName),
-				types.DefaultInflationDenom,
+				denomMint,
 			)
 
 			feeCollector := nw.App.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 			balanceStakingRewards := nw.App.BankKeeper.GetBalance(
 				ctx,
 				feeCollector,
-				types.DefaultInflationDenom,
+				denomMint,
 			)
 
 			pool, err := nw.App.DistrKeeper.FeePool.Get(ctx)
@@ -150,7 +150,7 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 
 			// Mint coins to increase supply
 			coin := sdk.NewCoin(
-				types.DefaultInflationDenom,
+				denomMint,
 				tc.bankSupply,
 			)
 			decCoin := sdk.NewDecCoinFromCoin(coin)
@@ -158,14 +158,14 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 			require.NoError(t, err)
 
 			teamAlloc := sdk.NewDecCoin(
-				types.DefaultInflationDenom,
+				denomMint,
 				sdk.TokensFromConsensusPower(int64(200_000_000), evmostypes.PowerReduction),
 			)
 
-			circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, types.DefaultInflationDenom)
+			circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, denomMint)
 			require.Equal(t, decCoin.Add(bondedCoins).Sub(teamAlloc).Amount, circulatingSupply)
 
-			inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, types.DefaultInflationDenom)
+			inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, denomMint)
 			require.Equal(t, tc.expInflationRate, inflationRate)
 		})
 	}

@@ -21,6 +21,7 @@ import (
 
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/server/config"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -38,10 +39,7 @@ func PrepareEthTx(
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
 
-	baseDenom, err := sdk.GetBaseDenom()
-	if err != nil {
-		return nil, err
-	}
+	baseDenom := evmconfig.GetDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -69,7 +67,7 @@ func PrepareEthTx(
 
 	// Set the extension
 	var option *codectypes.Any
-	option, err = codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
+	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	if err != nil {
 		return nil, err
 	}

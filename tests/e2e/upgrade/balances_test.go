@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/encoding"
 	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,6 +23,8 @@ func TestUnpackBalancesResponse(t *testing.T) {
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	require.True(t, ok, "failed to cast codec to proto codec")
 
+	baseDenom := types.BaseDenom
+
 	testcases := []struct {
 		name        string
 		output      string
@@ -32,11 +35,12 @@ func TestUnpackBalancesResponse(t *testing.T) {
 		{
 			name: "success",
 			output: fmt.Sprintf(
-				`{"balances":[{"denom":"aevmos","amount":"%s"}],`+
+				`{"balances":[{"denom":"%s","amount":"%s"}],`+
 					`"pagination":{"next_key":null,"total":"0"}}`,
+				baseDenom,
 				expAmount,
 			),
-			want:    sdk.Coins{sdk.NewCoin("aevmos", expAmount)},
+			want:    sdk.Coins{sdk.NewCoin(baseDenom, expAmount)},
 			expPass: true,
 		},
 		{

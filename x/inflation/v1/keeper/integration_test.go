@@ -21,6 +21,7 @@ var (
 	epochNumber int64
 	skipped     uint64
 	provision   math.LegacyDec
+	denomMint   = types.DefaultInflationDenom
 )
 
 func TestKeeperIntegrationTestSuite(t *testing.T) {
@@ -69,14 +70,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 23)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (Deprecated)", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					balance := res.Balance
 					Expect(balance.IsZero()).To(BeTrue(), "balance should be zero")
@@ -84,7 +85,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should not allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					finalAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					finalAmt := res.Pool.AmountOf(denomMint)
 					Expect(finalAmt.Sub(prevCommPoolBalanceAmt).TruncateInt64()).To(Equal(int64(0)))
 				})
 			})
@@ -93,14 +94,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 25)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
@@ -118,7 +119,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					balanceCommunityPoolAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
@@ -160,14 +161,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 23)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					balance := res.Balance
 					Expect(balance.IsZero()).To(BeTrue())
@@ -176,7 +177,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should not allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					finalAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					finalAmt := res.Pool.AmountOf(denomMint)
 					Expect(finalAmt.Sub(prevCommPoolBalanceAmt).IsZero()).To(BeTrue())
 				})
 			})
@@ -185,14 +186,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 25)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
@@ -210,7 +211,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					balanceCommunityPoolAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")
@@ -247,14 +248,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 23)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					balance := res.Balance
 					Expect(balance.IsZero()).To(BeTrue())
@@ -262,7 +263,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should not allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					finalAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					finalAmt := res.Pool.AmountOf(denomMint)
 					Expect(finalAmt.Sub(prevCommPoolBalanceAmt).IsZero()).To(BeTrue())
 				})
 			})
@@ -271,14 +272,14 @@ var _ = Describe("Inflation", Ordered, func() {
 				BeforeEach(func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					prevCommPoolBalanceAmt = res.Pool.AmountOf(types.DefaultInflationDenom)
+					prevCommPoolBalanceAmt = res.Pool.AmountOf(denomMint)
 
 					Expect(s.network.NextBlockAfter(time.Minute)).To(BeNil())    // Start Epoch
 					Expect(s.network.NextBlockAfter(time.Hour * 25)).To(BeNil()) // End Epoch
 				})
 
 				It("should not allocate funds to usage incentives (deprecated)", func() {
-					res, err := s.handler.GetBalance(addr, types.DefaultInflationDenom)
+					res, err := s.handler.GetBalance(addr, denomMint)
 					Expect(err).To(BeNil())
 					actual := res.Balance
 
@@ -295,7 +296,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					res, err := s.handler.GetCommunityPool()
 					Expect(err).To(BeNil())
-					balanceCommunityPoolAmt := res.Pool.AmountOf(types.DefaultInflationDenom)
+					balanceCommunityPoolAmt := res.Pool.AmountOf(denomMint)
 
 					provisionRes, err := s.handler.GetEpochMintProvision()
 					Expect(err).To(BeNil(), "failed to get epoch mint provision")

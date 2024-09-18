@@ -11,6 +11,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	teststypes "github.com/evmos/evmos/v20/types/tests"
 )
 
@@ -237,6 +238,7 @@ func TestGetReceivedCoin(t *testing.T) {
 }
 
 func TestGetSentCoin(t *testing.T) {
+	baseDenom := evmostypes.BaseDenom
 	testCases := []struct {
 		name      string
 		rawDenom  string
@@ -245,9 +247,9 @@ func TestGetSentCoin(t *testing.T) {
 	}{
 		{
 			"get unwrapped aevmos coin",
-			"aevmos",
+			baseDenom,
 			"10",
-			sdk.Coin{Denom: "aevmos", Amount: math.NewInt(10)},
+			sdk.Coin{Denom: baseDenom, Amount: math.NewInt(10)},
 		},
 		{
 			"get ibc wrapped aevmos coin",

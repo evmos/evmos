@@ -25,7 +25,6 @@ import (
 	ibcmock "github.com/cosmos/ibc-go/v8/testing/mock"
 
 	"github.com/evmos/evmos/v20/contracts"
-	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -57,9 +56,12 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	packet := mockPacket
 	expAck := ibcmock.MockAcknowledgement
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	registeredDenom := cosmosTokenBase
 	coins := sdk.NewCoins(
-		sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1000)),
+		sdk.NewCoin(baseDenom, math.NewInt(1000)),
 		sdk.NewCoin(registeredDenom, math.NewInt(1000)), // some ERC20 token
 		sdk.NewCoin(ibcBase, math.NewInt(1000)),         // some IBC coin with a registered token pair
 	)
@@ -212,7 +214,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:   ethsecpAddr,
 			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1000)),
+				sdk.NewCoin(baseDenom, math.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, math.NewInt(0)),
 				sdk.NewCoin(ibcBase, math.NewInt(1000)),
 			),
