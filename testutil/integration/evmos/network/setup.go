@@ -448,7 +448,7 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 	updatedParams := govGen.Params
 	minDepositAmt := sdkmath.NewInt(1e18)
 	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
-	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
+	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt.MulRaw(2)))
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState
