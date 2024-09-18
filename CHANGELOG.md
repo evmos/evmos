@@ -35,24 +35,21 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v20.0.0-rc1] - 2024-09-16
+## Unreleased
 
 ### State Machine Breaking
 
-<<<<<<< HEAD
-- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.5.0`.
-- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-go to v7.7.0 and Cosmos-SDK to v0.47.13.
-- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
-- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-go to v7.8.0.
-- (evm) [#2824](https://github.com/evmos/evmos/pull/2824) Reverted PR #2633. Use `EthAccount` type instead of `BaseAccount`.
-=======
+- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
+
+## [v20.0.0-rc1](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc1) - 2024-09-16
+
+### State Machine Breaking
+
 - (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.4.0`.
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
 - (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
-- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
->>>>>>> 4c59847b (feat(precompile): add gov precompile (vote only) (#2858))
 
 ### Improvements
 
