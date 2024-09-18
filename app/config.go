@@ -67,18 +67,17 @@ func SetBaseDenomWithChainID(chainID string) {
 		if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
 			panic("cant set base denom")
 		}
-
-	} else if utils.IsTestnet(chainID) {
-		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
-			panic(err)
-		}
-		if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-			panic(err)
-		}
-		if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
-			panic("cant set base denom")
-		}
-	} else {
-		panic("undefined chain denom")
+		return
 	}
+
+	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
+		panic(err)
+	}
+	if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+		panic(err)
+	}
+	if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
+		panic("cant set base denom")
+	}
+
 }

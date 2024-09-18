@@ -9,12 +9,12 @@ import (
 	"github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/crypto"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/indexer"
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -37,8 +37,7 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx.From = from.String()
 	_ = msgEthereumTx.Sign(ethSigner, suite.signer)
 
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txBz, _ := txEncoder(tx)

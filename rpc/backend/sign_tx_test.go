@@ -18,6 +18,7 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -258,8 +259,7 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)

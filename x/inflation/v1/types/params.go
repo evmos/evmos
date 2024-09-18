@@ -10,12 +10,13 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 var ParamsKey = []byte("Params")
 
 var (
-	DefaultInflationDenom         = "aevmos"
+	DefaultInflationDenom         = evmostypes.BaseDenom
 	DefaultInflation              = true
 	DefaultExponentialCalculation = ExponentialCalculation{
 		A:             math.LegacyNewDec(int64(300_000_000)),

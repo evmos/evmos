@@ -26,6 +26,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -182,8 +183,7 @@ func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEth
 	err := msgEthereumTx.Sign(ethSigner, signer)
 	suite.Require().NoError(err)
 
-	baseDenom, err := sdk.GetBaseDenom()
-	suite.Require().NoError(err)
+	baseDenom := config.GetDenom()
 
 	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	suite.Require().NoError(err)

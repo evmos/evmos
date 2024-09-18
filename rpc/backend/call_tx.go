@@ -17,6 +17,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/pkg/errors"
@@ -128,10 +129,7 @@ func (b *Backend) SendRawTransaction(data hexutil.Bytes) (common.Hash, error) {
 		return common.Hash{}, err
 	}
 
-	baseDenom, err := sdk.GetBaseDenom()
-	if err != nil {
-		return common.Hash{}, err
-	}
+	baseDenom := config.GetDenom()
 
 	cosmosTx, err := ethereumTx.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	if err != nil {
