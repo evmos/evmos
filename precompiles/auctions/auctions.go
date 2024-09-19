@@ -4,9 +4,10 @@
 package auctions
 
 import (
-	storetypes "cosmossdk.io/store/types"
 	"embed"
 	"fmt"
+
+	storetypes "cosmossdk.io/store/types"
 
 	erc20keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
 

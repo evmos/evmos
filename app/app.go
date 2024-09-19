@@ -7,14 +7,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v20/x/auctions"
-	auctionskeeper "github.com/evmos/evmos/v20/x/auctions/keeper"
-	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/evmos/evmos/v20/x/auctions"
+	auctionskeeper "github.com/evmos/evmos/v20/x/auctions/keeper"
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
