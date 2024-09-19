@@ -57,7 +57,4 @@ def test_gas_eth_tx(evmos_cluster):
             "This query should have failed"
         )
     except Exception as error:
-        assert (
-            "node is not persisting finalize block responses"
-            in error.args[0]["message"]
-        )
+        assert "block result not found" in error.args[0]["message"]
