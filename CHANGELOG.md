@@ -42,6 +42,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (gov) [#2863](https://github.com/evmos/evmos/pull/2863) Fix denom, amount and period in expedited proposal params.
 
+### Improvements
+
+- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
+
 ## [v20.0.0-rc1](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc1) - 2024-09-16
 
 ### State Machine Breaking

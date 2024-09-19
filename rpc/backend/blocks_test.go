@@ -673,7 +673,8 @@ func (suite *BackendTestSuite) TestTendermintBlockResultByNumber() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock(tc.blockNumber)
 
-			blockRes, err := suite.backend.TendermintBlockResultByNumber(&tc.blockNumber) //#nosec G601 -- fine for tests
+			client := suite.backend.clientCtx.Client.(*mocks.Client)
+			blockRes, err := client.BlockResults(suite.backend.ctx, &tc.blockNumber) //#nosec G601 -- fine for tests
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -686,7 +687,7 @@ func (suite *BackendTestSuite) TestTendermintBlockResultByNumber() {
 }
 
 func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
-	var resBlock *tmrpctypes.ResultBlock
+	var resHeader *tmrpctypes.ResultHeader
 
 	_, bz := suite.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
@@ -713,7 +714,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
 			&blockHash,
 			func(hash *common.Hash) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlockByHashError(client, *hash, bz)
+				RegisterHeaderByHashError(client, *hash, bz)
 			},
 			false,
 		},
@@ -723,7 +724,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
 			&blockHash,
 			func(hash *common.Hash) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				resBlock, _ = RegisterBlockByHash(client, *hash, bz)
+				resHeader, _ = RegisterHeaderByHash(client, *hash, bz)
 			},
 			true,
 		},
@@ -752,7 +753,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
 				if tc.hash == nil {
 					suite.Require().Equal(*tc.blockNum, blockNum)
 				} else {
-					expHeight := ethrpc.NewBlockNumber(big.NewInt(resBlock.Block.Height))
+					expHeight := ethrpc.NewBlockNumber(big.NewInt(resHeader.Header.Height))
 					suite.Require().Equal(expHeight, blockNum)
 				}
 			} else {
@@ -763,7 +764,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
 }
 
 func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
-	var resBlock *tmrpctypes.ResultBlock
+	var resHeader *tmrpctypes.ResultHeader
 
 	_, bz := suite.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
@@ -780,7 +781,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 			common.BytesToHash(block.Hash()),
 			func(hash common.Hash) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlockByHashError(client, hash, bz)
+				RegisterHeaderByHashError(client, hash, bz)
 			},
 			false,
 		},
@@ -789,7 +790,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 			common.BytesToHash(emptyBlock.Hash()),
 			func(hash common.Hash) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				resBlock, _ = RegisterBlockByHash(client, hash, bz)
+				resHeader, _ = RegisterHeaderByHash(client, hash, bz)
 			},
 			true,
 		},
@@ -798,7 +799,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 			common.BytesToHash(block.Hash()),
 			func(hash common.Hash) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				resBlock, _ = RegisterBlockByHash(client, hash, bz)
+				resHeader, _ = RegisterHeaderByHash(client, hash, bz)
 			},
 			true,
 		},
@@ -810,7 +811,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 			tc.registerMock(tc.hash)
 			blockNum, err := suite.backend.BlockNumberFromTendermintByHash(tc.hash)
 			if tc.expPass {
-				expHeight := big.NewInt(resBlock.Block.Height)
+				expHeight := big.NewInt(resHeader.Header.Height)
 				suite.Require().NoError(err)
 				suite.Require().Equal(expHeight, blockNum)
 			} else {
@@ -1308,7 +1309,7 @@ func (suite *BackendTestSuite) TestHeaderByNumber() {
 }
 
 func (suite *BackendTestSuite) TestHeaderByHash() {
-	var expResultBlock *tmrpctypes.ResultBlock
+	var expResultHeader *tmrpctypes.ResultHeader
 
 	_, bz := suite.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
@@ -1327,7 +1328,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			math.NewInt(1).BigInt(),
 			func(hash common.Hash, _ math.Int) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlockByHashError(client, hash, bz)
+				RegisterHeaderByHashError(client, hash, bz)
 			},
 			false,
 		},
@@ -1337,7 +1338,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			math.NewInt(1).BigInt(),
 			func(hash common.Hash, _ math.Int) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlockByHashNotFound(client, hash, bz)
+				RegisterHeaderByHashNotFound(client, hash, bz)
 			},
 			false,
 		},
@@ -1348,7 +1349,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			func(hash common.Hash, _ math.Int) {
 				height := int64(1)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				_, err := RegisterBlockByHash(client, hash, bz)
+				_, err := RegisterHeaderByHash(client, hash, bz)
 				suite.Require().NoError(err)
 				RegisterBlockResultsError(client, height)
 			},
@@ -1361,7 +1362,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			func(hash common.Hash, _ math.Int) {
 				height := int64(1)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				expResultBlock, _ = RegisterBlockByHash(client, hash, bz)
+				expResultHeader, _ = RegisterHeaderByHash(client, hash, bz)
 				_, err := RegisterBlockResults(client, height)
 				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -1376,7 +1377,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			func(hash common.Hash, baseFee math.Int) {
 				height := int64(1)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				expResultBlock, _ = RegisterBlockByHash(client, hash, nil)
+				expResultHeader, _ = RegisterHeaderByHash(client, hash, nil)
 				_, err := RegisterBlockResults(client, height)
 				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -1391,7 +1392,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			func(hash common.Hash, baseFee math.Int) {
 				height := int64(1)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				expResultBlock, _ = RegisterBlockByHash(client, hash, bz)
+				expResultHeader, _ = RegisterHeaderByHash(client, hash, bz)
 				_, err := RegisterBlockResults(client, height)
 				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -1408,7 +1409,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 			header, err := suite.backend.HeaderByHash(tc.hash)
 
 			if tc.expPass {
-				expHeader := ethrpc.EthHeaderFromTendermint(expResultBlock.Block.Header, ethtypes.Bloom{}, tc.baseFee)
+				expHeader := ethrpc.EthHeaderFromTendermint(*expResultHeader.Header, ethtypes.Bloom{}, tc.baseFee)
 				suite.Require().NoError(err)
 				suite.Require().Equal(expHeader, header)
 			} else {
