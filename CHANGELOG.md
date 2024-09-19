@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 
+### Improvements
+
+- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
+
 ## [v20.0.0-rc1](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc1) - 2024-09-16
 
 ### State Machine Breaking
@@ -53,7 +57,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
 - (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
