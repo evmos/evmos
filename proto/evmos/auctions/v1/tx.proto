@@ -14,6 +14,7 @@ option go_package = "github.com/evmos/evmos/v18/x/auctions/types";
 
 // Msg defines the auctions Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // Bid defines a method for placing a bid for an auction
   rpc Bid(MsgBid) returns (MsgBidResponse) {
     option (google.api.http).get = "/evmos/auctions/v1/bid";

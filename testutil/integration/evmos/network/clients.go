@@ -16,6 +16,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
@@ -30,6 +31,12 @@ func getQueryHelper(ctx sdktypes.Context, encCfg testutil.TestEncodingConfig) *b
 	// simulations.
 	cacheCtx, _ := ctx.CacheContext()
 	return baseapp.NewQueryServerTestHelper(cacheCtx, interfaceRegistry)
+}
+
+func (n *IntegrationNetwork) GetAuctionsClient() auctionstypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext(), n.GetEncodingConfig())
+	auctionstypes.RegisterQueryServer(queryHelper, n.app.AuctionsKeeper)
+	return auctionstypes.NewQueryClient(queryHelper)
 }
 
 func (n *IntegrationNetwork) GetERC20Client() erc20types.QueryClient {

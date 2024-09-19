@@ -7,6 +7,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v20/x/auctions"
+	auctionskeeper "github.com/evmos/evmos/v20/x/auctions/keeper"
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 	"io"
 	"net/http"
 	"os"
@@ -192,17 +195,19 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     {authtypes.Burner},
-		distrtypes.ModuleName:          nil,
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		icatypes.ModuleName:            nil,
-		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		inflationtypes.ModuleName:      {authtypes.Minter},
-		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		ratelimittypes.ModuleName:      nil,
+		authtypes.FeeCollectorName:         {authtypes.Burner},
+		distrtypes.ModuleName:              nil,
+		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                {authtypes.Burner},
+		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:                nil,
+		evmtypes.ModuleName:                {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		inflationtypes.ModuleName:          {authtypes.Minter},
+		erc20types.ModuleName:              {authtypes.Minter, authtypes.Burner},
+		ratelimittypes.ModuleName:          nil,
+		auctionstypes.ModuleName:           {authtypes.Burner},
+		auctionstypes.AuctionCollectorName: nil,
 	}
 )
 
@@ -259,6 +264,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
+	AuctionsKeeper  auctionskeeper.Keeper
 	InflationKeeper inflationkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
 	EpochsKeeper    epochskeeper.Keeper
@@ -524,6 +530,11 @@ func NewEvmos(
 		),
 	)
 
+	app.AuctionsKeeper = auctionskeeper.NewKeeper(
+		keys[auctionstypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.BankKeeper, app.AccountKeeper,
+	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithStaticPrecompiles(
 		evmkeeper.NewAvailableStaticPrecompiles(
@@ -635,6 +646,7 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
+		auctions.NewAppModule(appCodec, app.AuctionsKeeper),
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, *app.StakingKeeper.Keeper,
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
@@ -679,6 +691,7 @@ func NewEvmos(
 		epochstypes.ModuleName,
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
+		auctionstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -690,6 +703,7 @@ func NewEvmos(
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
 	app.mm.SetOrderEndBlockers(
+		auctionstypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
@@ -728,6 +742,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
+		auctionstypes.ModuleName,
 		ratelimittypes.ModuleName,
 	)
 

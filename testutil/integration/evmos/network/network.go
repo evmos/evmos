@@ -5,6 +5,7 @@ package network
 
 import (
 	"fmt"
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 	"math"
 	"math/big"
 	"time"
@@ -52,6 +53,7 @@ type Network interface {
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 	GetVestingClient() vestingtypes.QueryClient
+	GetAuctionsClient() auctionstypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
