@@ -99,7 +99,7 @@ var (
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
 	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100000000000000000000000") // 100k
+	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000") // 100k
 )
 
 // configureAndInitChain initializes the network with the given configuration.
