@@ -22,12 +22,6 @@ func InitializeEVMConfiguration(chainID string) {
 		return
 	}
 
-	// on node init baseApp doesnt have the chainID set
-	// we dont need to configure evm if the node is not running yet
-	if chainID == "" {
-		return
-	}
-
 	// set the base denom considering if its mainnet or testnet
 	setBaseDenomWithChainID(chainID)
 
@@ -60,6 +54,7 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 // base denom for the chain. The function registers different values based on
 // the chainID to allow different configurations in mainnet and testnet.
 func setBaseDenomWithChainID(chainID string) {
+	// only set to aevmos on testnet
 	if utils.IsTestnet(chainID) {
 		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
 			panic(err)
@@ -73,6 +68,7 @@ func setBaseDenomWithChainID(chainID string) {
 		return
 	}
 
+	// for mainnet, testing cases, it will default to aevmos
 	sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
 	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
 		panic("can't register base denom")
