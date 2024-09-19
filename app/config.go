@@ -4,6 +4,8 @@
 package app
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
@@ -15,9 +17,8 @@ import (
 
 var sealed = false
 
-// The init function of the config file allows to setup the global
-// configuration for the EVM, modifying the custom ones defined in evmOS.
-// func init() {
+// InitializeEVMConfiguration allows to setup the global configuration
+// for the EVM.
 func InitializeEVMConfiguration(chainID string) {
 	if sealed {
 		return
@@ -30,7 +31,7 @@ func InitializeEVMConfiguration(chainID string) {
 	}
 
 	// set the base denom considering if its mainnet or testnet
-	SetBaseDenomWithChainID(chainID)
+	setBaseDenomWithChainID(chainID)
 
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
@@ -57,7 +58,10 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 	"evmos_2": eips.Enable0002,
 }
 
-func SetBaseDenomWithChainID(chainID string) {
+// setBaseDenomWithChainID registers the display denom and base denom and sets the
+// base denom for the chain. The function registers different values based on
+// the chainID to allow different configurations in mainnet and testnet.
+func setBaseDenomWithChainID(chainID string) {
 	if utils.IsTestnet(chainID) {
 		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
 			panic(err)
@@ -66,16 +70,20 @@ func SetBaseDenomWithChainID(chainID string) {
 			panic(err)
 		}
 		if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
-			panic("cant set base denom")
+			panic("can't set base denom")
 		}
 		return
 	}
 
-	sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
-	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		panic("cant register base denom")
+	if utils.IsMainnet(chainID) {
+		sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
+		if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+			panic("can't register base denom")
+		}
+		if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
+			panic("can't set base denom")
+		}
 	}
-	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
-		panic("cant set base denom")
-	}
+
+	panic(fmt.Sprintf("chain id %s is neither a mainnet nor testnet value", chainID))
 }
