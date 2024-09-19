@@ -4,8 +4,6 @@
 package app
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
@@ -75,16 +73,12 @@ func setBaseDenomWithChainID(chainID string) {
 		return
 	}
 
-	if utils.IsMainnet(chainID) {
-		sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
-		if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-			panic("can't register base denom")
-		}
-		if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
-			panic("can't set base denom")
-		}
-		return
+	sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
+	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+		panic("can't register base denom")
+	}
+	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
+		panic("can't set base denom")
 	}
 
-	panic(fmt.Sprintf("chain id %s is neither a mainnet nor testnet value", chainID))
 }

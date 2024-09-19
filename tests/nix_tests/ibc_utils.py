@@ -38,12 +38,12 @@ RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
 IBC_CHAINS_META = {
     "evmos": {
-        "chain_name": "evmos_9000-1",
+        "chain_name": "evmos_9002-1",
         "bin": "evmosd",
         "denom": "aevmos",
     },
     "evmos-rocksdb": {
-        "chain_name": "evmos_9000-1",
+        "chain_name": "evmos_9002-1",
         "bin": "evmosd-rocksdb",
         "denom": "aevmos",
     },
@@ -73,7 +73,7 @@ IBC_CHAINS_META = {
         "denom": "uatom",
     },
 }
-EVM_CHAINS = ["evmos_9000", "chainmain-1"]
+EVM_CHAINS = ["evmos_9002", "chainmain-1"]
 
 
 class IBCNetwork(NamedTuple):
@@ -234,9 +234,9 @@ def assert_ready(ibc):
 
 def hermes_transfer(ibc, other_chain_name="chainmain-1", other_chain_denom="basecro"):
     assert_ready(ibc)
-    # chainmain-1 -> evmos_9000-1
+    # chainmain-1 -> evmos_9002-1
     my_ibc0 = other_chain_name
-    my_ibc1 = "evmos_9000-1"
+    my_ibc1 = "evmos_9002-1"
     my_channel = "channel-0"
     dst_addr = eth_to_bech32(ADDRS["signer2"])
     src_amount = 10
