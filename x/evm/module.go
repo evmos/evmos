@@ -27,7 +27,7 @@ import (
 )
 
 // consensusVersion defines the current x/evm module consensus version.
-const consensusVersion = 7
+const consensusVersion = 8
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -135,11 +135,11 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	// m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
+	m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
 
-	// if err := cfg.RegisterMigration(types.ModuleName, 6, m.Migrate6to7); err != nil {
-	// 	panic(err)
-	// }
+	if err := cfg.RegisterMigration(types.ModuleName, 7, m.Migrate7to8); err != nil {
+		panic(err)
+	}
 }
 
 // BeginBlock returns the begin block for the evm module.
