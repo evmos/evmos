@@ -2,43 +2,42 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
-var (
-	// DefaultEVMDenom defines the default EVM denomination on Evmos
-	DefaultEVMDenom = "aevmos"
-	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
-	// DefaultAllowUnprotectedTxs = false
-	// // DefaultStaticPrecompiles defines the default active precompiles
-	// DefaultStaticPrecompiles = []string{
-	// 	P256PrecompileAddress,         // P256 precompile
-	// 	Bech32PrecompileAddress,       // Bech32 precompile
-	// 	StakingPrecompileAddress,      // Staking precompile
-	// 	DistributionPrecompileAddress, // Distribution precompile
-	// 	ICS20PrecompileAddress,        // ICS20 transfer precompile
-	// 	VestingPrecompileAddress,      // Vesting precompile
-	// 	BankPrecompileAddress,         // Bank precompile
-	// 	GovPrecompileAddress,          // Gov precompile
-	// }
-	// // DefaultExtraEIPs defines the default extra EIPs to be included
-	// // On v15, EIP 3855 was enabled
-	// DefaultExtraEIPs   = []string{"ethereum_3855"}
-	// DefaultEVMChannels = []string{
-	// 	"channel-10", // Injective
-	// 	"channel-31", // Cronos
-	// 	"channel-83", // Kava
-	// }
-	// DefaultCreateAllowlistAddresses []string
-	// DefaultCallAllowlistAddresses   []string
-	// DefaultAccessControl            = AccessControl{
-	// 	Create: AccessControlType{
-	// 		AccessType:        AccessTypePermissionless,
-	// 		AccessControlList: DefaultCreateAllowlistAddresses,
-	// 	},
-	// 	Call: AccessControlType{
-	// 		AccessType:        AccessTypePermissionless,
-	// 		AccessControlList: DefaultCreateAllowlistAddresses,
-	// 	},
-	// }
-)
+// DefaultEVMDenom defines the default EVM denomination on Evmos
+var DefaultEVMDenom = "aevmos"
+
+// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
+// DefaultAllowUnprotectedTxs = false
+// // DefaultStaticPrecompiles defines the default active precompiles
+// DefaultStaticPrecompiles = []string{
+// 	P256PrecompileAddress,         // P256 precompile
+// 	Bech32PrecompileAddress,       // Bech32 precompile
+// 	StakingPrecompileAddress,      // Staking precompile
+// 	DistributionPrecompileAddress, // Distribution precompile
+// 	ICS20PrecompileAddress,        // ICS20 transfer precompile
+// 	VestingPrecompileAddress,      // Vesting precompile
+// 	BankPrecompileAddress,         // Bank precompile
+// 	GovPrecompileAddress,          // Gov precompile
+// }
+// // DefaultExtraEIPs defines the default extra EIPs to be included
+// // On v15, EIP 3855 was enabled
+// DefaultExtraEIPs   = []string{"ethereum_3855"}
+// DefaultEVMChannels = []string{
+// 	"channel-10", // Injective
+// 	"channel-31", // Cronos
+// 	"channel-83", // Kava
+// }
+// DefaultCreateAllowlistAddresses []string
+// DefaultCallAllowlistAddresses   []string
+// DefaultAccessControl            = AccessControl{
+// 	Create: AccessControlType{
+// 		AccessType:        AccessTypePermissionless,
+// 		AccessControlList: DefaultCreateAllowlistAddresses,
+// 	},
+// 	Call: AccessControlType{
+// 		AccessType:        AccessTypePermissionless,
+// 		AccessControlList: DefaultCreateAllowlistAddresses,
+// 	},
+// }
 
 // // NewParams creates a new Params instance
 // func NewParams(
