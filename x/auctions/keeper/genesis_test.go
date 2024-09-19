@@ -4,12 +4,14 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
+	"testing"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"

@@ -4,8 +4,9 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
 	"testing"
+
+	"cosmossdk.io/math"
 
 	"github.com/stretchr/testify/assert"
 

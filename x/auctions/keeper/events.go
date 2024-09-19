@@ -5,9 +5,10 @@ package keeper
 
 import (
 	"encoding/json"
-	"github.com/evmos/evmos/v20/precompiles/common"
 	"math/big"
 	"reflect"
+
+	"github.com/evmos/evmos/v20/precompiles/common"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
