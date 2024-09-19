@@ -83,6 +83,7 @@ func setBaseDenomWithChainID(chainID string) {
 		if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
 			panic("can't set base denom")
 		}
+		return
 	}
 
 	panic(fmt.Sprintf("chain id %s is neither a mainnet nor testnet value", chainID))
