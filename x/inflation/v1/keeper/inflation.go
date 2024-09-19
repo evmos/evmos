@@ -11,12 +11,13 @@ import (
 	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
-// foundationWallets contains the address of the foundation that held tokens to
+// FoundationWallets contains the address of the foundation that held tokens to
 // be distributed to the team locked.
-var foundationWallets = []string{
+var FoundationWallets = []string{
 	"0x29fDcB7b64B84fD54D0fB0E04A8f6B062046fc6F",
 	"0x83ef4C096F9A9daC61081121CCE30578fe437182",
 	"0x7F98F5891780Dc73984da11b5499A70F31A6b2A8",
+	"0xCdf843a5102cc1B3098940552faA9e6F39b3Bb61",
 }
 
 // MintAndAllocateInflation performs inflation minting and allocation
@@ -142,7 +143,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
 // foundation.
 func (k Keeper) computeTeamAllocation(ctx sdk.Context, mintDenom string) math.LegacyDec {
 	teamAllocation := math.LegacyZeroDec()
-	for _, wallet := range foundationWallets {
+	for _, wallet := range FoundationWallets {
 		walletAddress := utils.EthHexToCosmosAddr(wallet)
 		walletBalance := k.bankKeeper.GetBalance(ctx, walletAddress, mintDenom)
 		teamAllocation = teamAllocation.Add(math.LegacyNewDecFromInt(walletBalance.Amount))
