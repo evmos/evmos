@@ -5,10 +5,11 @@ package network
 
 import (
 	"fmt"
-	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 	"math"
 	"math/big"
 	"time"
+
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 
 	sdkmath "cosmossdk.io/math"
 
