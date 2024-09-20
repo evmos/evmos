@@ -120,7 +120,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				return txBuilder.GetTx()
 			},
 			false,
-			"provided fee < minimum global fee",
+			"expected only use native token",
 			true,
 		},
 		{
