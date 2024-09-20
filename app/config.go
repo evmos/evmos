@@ -17,17 +17,19 @@ var sealed = false
 
 // InitializeEVMConfiguration allows to setup the global configuration
 // for the EVM.
-func InitializeEVMConfiguration(chainID string) {
+func InitializeEVMConfiguration(chainID string) error {
 	if sealed {
-		return
+		return nil
 	}
 
 	// set the base denom considering if its mainnet or testnet
-	setBaseDenomWithChainID(chainID)
+	if err := setBaseDenomWithChainID(chainID); err != nil {
+		return err
+	}
 
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
-		panic("no base denom")
+		return err
 	}
 
 	err = evmconfig.NewEVMConfigurator().
@@ -36,10 +38,11 @@ func InitializeEVMConfiguration(chainID string) {
 		WithEVMCoinInfo(baseDenom, evmconfig.EighteenDecimals).
 		Configure()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	sealed = true
+	return nil
 }
 
 // EvmosActivators defines a map of opcode modifiers associated
@@ -53,27 +56,28 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 // setBaseDenomWithChainID registers the display denom and base denom and sets the
 // base denom for the chain. The function registers different values based on
 // the chainID to allow different configurations in mainnet and testnet.
-func setBaseDenomWithChainID(chainID string) {
+func setBaseDenomWithChainID(chainID string) error {
 	// only set to aevmos on testnet
 	if utils.IsTestnet(chainID) {
 		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
-			panic(err)
+			return err
 		}
 		if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-			panic(err)
+			return err
 		}
 		if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
-			panic("can't set base denom")
+			return err
 		}
-		return
+		return nil
 	}
 
 	// for mainnet, testing cases, it will default to aevmos
 	sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
 	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		panic("can't register base denom")
+		return err
 	}
 	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
-		panic("can't set base denom")
+		return err
 	}
+	return nil
 }
