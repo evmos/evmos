@@ -60,16 +60,14 @@ func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigu
 }
 
 // Configure apply the changes to the virtual machine configuration.
-func (ec *EVMConfigurator) Configure(chainID string) error {
+func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
 	if ec.sealed {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	if err := setChainConfig(ec.chainConfig, chainID); err != nil {
-		return err
-	}
+	setChainConfig(ec.chainConfig)
 
 	if ec.evmDenom.denom != "" && ec.evmDenom.decimals != 0 {
 		setEVMCoinInfo(ec.evmDenom)

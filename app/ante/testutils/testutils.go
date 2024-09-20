@@ -90,10 +90,8 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
 
+	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
 	if !suite.enableLondonHF {
-		eip155ChainID, err := types.ParseChainID(suite.network.GetChainID())
-		suite.Require().NoError(err)
-		chainConfig := config.DefaultChainConfig(eip155ChainID)
 		maxInt := sdkmath.NewInt(math.MaxInt64)
 		chainConfig.LondonBlock = maxInt.BigInt()
 		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
@@ -101,15 +99,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
 		chainConfig.ShanghaiBlock = maxInt.BigInt()
 		chainConfig.CancunBlock = maxInt.BigInt()
-		err = config.NewEVMConfigurator().
-			WithChainConfig(chainConfig).
-			Configure(suite.network.GetChainID())
-		suite.Require().NoError(err)
-	} else {
-		err := config.NewEVMConfigurator().
-			Configure(suite.network.GetChainID())
-		suite.Require().NoError(err)
 	}
+	err := config.NewEVMConfigurator().
+		WithChainConfig(chainConfig).
+		Configure()
+	suite.Require().NoError(err)
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
 		Cdc:                    suite.network.App.AppCodec(),

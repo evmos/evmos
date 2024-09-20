@@ -12,15 +12,25 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
 var chainConfig *geth.ChainConfig = nil
 
-func DefaultChainConfig(chainID *big.Int) *geth.ChainConfig {
-	qq := &geth.ChainConfig{
-		ChainID:                 chainID,
+func DefaultChainConfig(chainID string) *geth.ChainConfig {
+
+	if chainID == "" {
+		chainID = utils.MainnetChainID + "-1"
+	}
+
+	eip155ChainID, err := types.ParseChainID(chainID)
+	if err != nil {
+		return nil
+	}
+	cfg := &geth.ChainConfig{
+		ChainID:                 eip155ChainID,
 		HomesteadBlock:          big.NewInt(0),
 		DAOForkBlock:            big.NewInt(0),
 		DAOForkSupport:          true,
@@ -44,25 +54,19 @@ func DefaultChainConfig(chainID *big.Int) *geth.ChainConfig {
 		Ethash:                  nil,
 		Clique:                  nil,
 	}
-	return qq
+	return cfg
 }
 
 // setChainConfig allows to set the `chainConfig` variable modifying the
 // default values. The method is private because it should only be called once
 // in the EVMConfigurator.
-func setChainConfig(cc *geth.ChainConfig, chainID string) error {
+func setChainConfig(cc *geth.ChainConfig) {
 	if cc != nil {
 		chainConfig = cc
-		return nil
+		return
 	}
 
-	eip155ChainID, err := types.ParseChainID(chainID)
-	if err != nil {
-		return err
-	}
-
-	chainConfig = DefaultChainConfig(eip155ChainID)
-	return nil
+	chainConfig = DefaultChainConfig("")
 }
 
 // GetChainConfig returns the `chainConfig` used in the EVM.

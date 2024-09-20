@@ -32,11 +32,13 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
+	ethCfg := evmconfig.DefaultChainConfig(chainID)
+
 	err = evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
-		// WithChainConfig(&ChainConfig).
+		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, evmconfig.EighteenDecimals).
-		Configure(chainID)
+		Configure()
 	if err != nil {
 		return err
 	}

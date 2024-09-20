@@ -6,7 +6,6 @@ import (
 	"math"
 	"math/big"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
@@ -1486,10 +1485,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			func() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
-
-				eip155ChainID, err := evmostypes.ParseChainID(suite.network.GetChainID())
-				suite.Require().NoError(err)
-				chainConfig := evmconfig.DefaultChainConfig(eip155ChainID)
+				chainConfig := evmconfig.DefaultChainConfig(suite.network.GetChainID())
 				maxInt := sdkmath.NewInt(math.MaxInt64)
 				chainConfig.LondonBlock = maxInt.BigInt()
 				chainConfig.ArrowGlacierBlock = maxInt.BigInt()
@@ -1497,9 +1493,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				chainConfig.MergeNetsplitBlock = maxInt.BigInt()
 				chainConfig.ShanghaiBlock = maxInt.BigInt()
 				chainConfig.CancunBlock = maxInt.BigInt()
-				err = evmconfig.NewEVMConfigurator().
+				err := evmconfig.NewEVMConfigurator().
 					WithChainConfig(chainConfig).
-					Configure(suite.network.GetChainID())
+					Configure()
 				suite.Require().NoError(err)
 			},
 			true,
@@ -1546,7 +1542,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 
 			suite.Require().NoError(suite.network.NextBlock())
 			err = evmconfig.NewEVMConfigurator().
-				Configure(suite.network.GetChainID())
+				Configure()
 			suite.Require().NoError(err)
 		})
 	}
