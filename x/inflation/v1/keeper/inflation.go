@@ -110,14 +110,17 @@ func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
 	isMainnet := utils.IsMainnet(ctx.ChainID())
 
 	mintDenom := k.GetParams(ctx).MintDenom
-	teamAlloc := k.computeTeamAllocation(ctx, mintDenom)
+	teamAlloc := math.LegacyZeroDec()
+	if isMainnet {
+		teamAlloc = k.computeTeamAllocation(ctx, mintDenom)
+	}
 
 	legacyStakeSupply := math.LegacyNewDecFromInt(stakeSupply)
 	if !stakeSupply.IsPositive() || (isMainnet && legacyStakeSupply.LTE(teamAlloc)) {
 		return math.LegacyZeroDec(), nil
 	}
 
-	// don't count team allocation in bonded ratio's stake supple
+	// Don't count team allocation in bonded ratio's stake supply
 	if isMainnet {
 		stakeSupply = legacyStakeSupply.Sub(teamAlloc).RoundInt()
 	}

@@ -16,6 +16,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	nAccs = int64(1)
+	nVals = int64(3)
+)
+
 func TestMintAndAllocateInflation(t *testing.T) {
 	var (
 		ctx sdk.Context
@@ -92,9 +97,6 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
 	)
-
-	nAccs := int64(1)
-	nVals := int64(3)
 
 	foundationAcc := []sdk.AccAddress{
 		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
@@ -194,40 +196,53 @@ func TestBondedRatio(t *testing.T) {
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
 	)
+
+	foundationAcc := []sdk.AccAddress{
+		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
+		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
+	}
+	teamAllocation := network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
+
+	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
+	accsBondAmount := math.OneInt().MulRaw(nVals)
+	bondedAmount := valBondedAmt.Add(accsBondAmount)
+
 	testCases := []struct {
-		name         string
-		isMainnet    bool
-		malleate     func()
-		expBondRatio math.LegacyDec
+		name      string
+		isMainnet bool
 	}{
 		{
 			"is mainnet",
 			true,
-			func() {},
-			math.LegacyZeroDec(),
 		},
 		{
 			"not mainnet",
 			false,
-			func() {},
-			math.LegacyMustNewDecFromStr("0.000029999100026999"),
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			totalSupply := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount).Add(bondedAmount)
+
 			chainID := utils.MainnetChainID + "-1"
 			if !tc.isMainnet {
 				chainID = utils.TestnetChainID + "-1"
+				totalSupply = totalSupply.Add(teamAllocation)
 			}
+
 			// reset
-			nw = network.NewUnitTestNetwork(network.WithChainID(chainID))
+			keyring := testkeyring.New(int(nAccs))
+			nw = network.NewUnitTestNetwork(
+				network.WithChainID(chainID),
+				network.WithAmountOfValidators(int(nVals)),
+				network.WithPreFundedAccounts(append(keyring.GetAllAccAddrs(), foundationAcc...)...),
+			)
 			ctx = nw.GetContext()
 
-			tc.malleate()
-
+			expBondedRatio := math.LegacyNewDecFromInt(bondedAmount).QuoInt(totalSupply)
 			bondRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)
 			require.NoError(t, (err))
-			require.Equal(t, tc.expBondRatio, bondRatio)
+			require.Equal(t, expBondedRatio, bondRatio)
 		})
 	}
 }
