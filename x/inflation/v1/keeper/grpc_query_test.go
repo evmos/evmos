@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
@@ -190,8 +189,8 @@ func TestQueryCirculatingSupply(t *testing.T) {
 
 	// Foundation wallets are not considered in the circulating supply.
 	foundationAcc := []sdk.AccAddress{
-		utils.EthHexToCosmosAddr(keeper.FoundationWallets[0]),
-		utils.EthHexToCosmosAddr(keeper.FoundationWallets[1]),
+		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
+		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
 	}
 
 	nw := network.NewUnitTestNetwork(
@@ -234,8 +233,6 @@ func TestQueryInflationRate(t *testing.T) {
 	nAccs := int64(1)
 	nVals := int64(3)
 
-	prefundedAccBalance := network.PrefundedAccountInitialBalance
-
 	keyring := testkeyring.New(int(nAccs))
 	nw := network.NewUnitTestNetwork(
 		network.WithAmountOfValidators(int(nVals)),
@@ -250,16 +247,16 @@ func TestQueryInflationRate(t *testing.T) {
 	//- Free EOA tokens.
 	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
 	accsBondAmount := math.OneInt().MulRaw(nVals)
-	accsFeeAmount := prefundedAccBalance.MulRaw(nAccs).Sub(accsBondAmount)
+	accsFreeAmount := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount)
 
 	// Mint other coins to the inflation module to increase circulating supply.
 	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
-	mintAmount := prefundedAccBalance.MulRaw(4)
+	mintAmount := network.PrefundedAccountInitialBalance.MulRaw(4)
 	mintCoin := sdk.NewCoin(mintDenom, mintAmount)
 	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
 	require.NoError(t, err)
 
-	circulatingSupply := valBondedAmt.Add(accsBondAmount).Add(accsFeeAmount).Add(mintAmount)
+	circulatingSupply := valBondedAmt.Add(accsBondAmount).Add(accsFreeAmount).Add(mintAmount)
 
 	epp := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
 	epochsPerPeriod := math.LegacyNewDec(epp)
