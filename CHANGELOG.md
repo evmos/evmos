@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
+- (app) [#2860](https://github.com/evmos/evmos/pull/2860) Refactor to use `sdk.BaseDenom` and evm denom and added app configurator.
 
 ### Improvements
 
