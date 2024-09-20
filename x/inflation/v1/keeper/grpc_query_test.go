@@ -188,38 +188,40 @@ func TestQueryCirculatingSupply(t *testing.T) {
 
 	keyring := testkeyring.New(int(nAccs))
 
-	// Foundation wallet are not considered in the circulating supply.
-	foundationAcc1 := utils.EthHexToCosmosAddr(keeper.FoundationWallets[0])
-	foundationAcc2 := utils.EthHexToCosmosAddr(keeper.FoundationWallets[2])
+	// Foundation wallets are not considered in the circulating supply.
 	foundationAcc := []sdk.AccAddress{
-		foundationAcc1, foundationAcc2,
+		utils.EthHexToCosmosAddr(keeper.FoundationWallets[0]),
+		utils.EthHexToCosmosAddr(keeper.FoundationWallets[1]),
 	}
-
-	allAcc := append(keyring.GetAllAccAddrs(), foundationAcc...)
 
 	nw := network.NewUnitTestNetwork(
 		network.WithAmountOfValidators(int(nVals)),
-		network.WithPreFundedAccounts(allAcc...),
+		network.WithPreFundedAccounts(append(keyring.GetAllAccAddrs(), foundationAcc...)...),
 	)
 	ctx := nw.GetContext()
 	qc := nw.GetInflationClient()
 
-	// Mint coins to increase supply
+	// Mint coins to increase the supply.
 	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
 	mintCoin := sdk.NewCoin(mintDenom, prefundedAccBalance.MulRaw(4))
 	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
 	require.NoError(t, err)
 
-	// Expected circulating supply is composed only of the minted tokens.
+	// Expected circulating supply is composed only of the minted tokens plus
+	// pre-funded accounts balances except foundation wallets.
 	// Foundation wallets are removed in the computation, that's why we multiply
-	// by 4 (miinted coins) + number of EOA and we don't add the number of
+	// by 4 (minted coins) + number of EOA and we don't add the number of
 	// foundation accounts.
 	//
 	// NOTE: wallets associated with nAccs have part of the balance delegated
 	// but it is all considered in one place for simplicity.
 	expCirculatingSupply := sdk.NewDecCoin(mintDenom, prefundedAccBalance.MulRaw(4+nAccs))
 
-	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
+	// The total bonded tokens for the 4 accounts initialized on the setup (3
+	// validators, 1 EOA).
+	//
+	// NOTE: the EOA delegate 1 token to every validator but it is already
+	// accounted for in the expCirculatingSupply.
 	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
 	bondedCoins := sdk.NewDecCoin(evmostypes.BaseDenom, bondedAmount)
 
@@ -242,23 +244,28 @@ func TestQueryInflationRate(t *testing.T) {
 	ctx := nw.GetContext()
 	qc := nw.GetInflationClient()
 
-	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
-	bondedAmt := network.DefaultBondedAmount.MulRaw(nVals) // Add the allocation for the validators
-	// bondedAmt = bondedAmt.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
+	// Genesis available tokens are defined by the testing suite setup:
+	//- Validators' self delegation.
+	//- Tokens delegated by EOA.
+	//- Free EOA tokens.
+	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
+	accsBondAmount := math.OneInt().MulRaw(nVals)
+	accsFeeAmount := prefundedAccBalance.MulRaw(nAccs).Sub(accsBondAmount)
 
-	// Mint coins to increase supply
+	// Mint other coins to the inflation module to increase circulating supply.
 	mintDenom := nw.App.InflationKeeper.GetParams(ctx).MintDenom
-	mintCoin := sdk.NewCoin(mintDenom, prefundedAccBalance.MulRaw(4))
+	mintAmount := prefundedAccBalance.MulRaw(4)
+	mintCoin := sdk.NewCoin(mintDenom, mintAmount)
 	err := nw.App.InflationKeeper.MintCoins(ctx, mintCoin)
 	require.NoError(t, err)
+
+	circulatingSupply := valBondedAmt.Add(accsBondAmount).Add(accsFeeAmount).Add(mintAmount)
 
 	epp := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
 	epochsPerPeriod := math.LegacyNewDec(epp)
 	epochMintProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
 
-	circulatingSupply := math.LegacyNewDecFromInt(prefundedAccBalance.MulRaw(4 + nAccs)).Add(math.LegacyDec(bondedAmt))
-
-	expInflationRate := epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(math.LegacyNewDec(100))
+	expInflationRate := epochMintProvision.Mul(epochsPerPeriod).Quo(math.LegacyNewDecFromInt(circulatingSupply)).Mul(math.LegacyNewDec(100))
 
 	res, err := qc.InflationRate(ctx, &types.QueryInflationRateRequest{})
 	require.NoError(t, err)
