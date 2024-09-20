@@ -4,7 +4,6 @@
 package config
 
 import (
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v20/types"
@@ -40,11 +39,4 @@ func SetBip44CoinType(config *sdk.Config) {
 	config.SetCoinType(types.Bip44CoinType)
 	config.SetPurpose(sdk.Purpose)                  // Shared
 	config.SetFullFundraiserPath(types.BIP44HDPath) //nolint: staticcheck
-}
-
-// RegisterDenoms registers the base and display denominations to the SDK.
-func RegisterDenoms() {
-	if err := sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()); err != nil {
-		panic(err)
-	}
 }
