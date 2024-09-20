@@ -12,6 +12,8 @@ import (
 
 var chainConfig types.ChainConfig = types.DefaultChainConfig()
 
+// SetChainConfig allows to set the chain configuration variable modifying the
+// default values.
 func SetChainConfig(cc types.ChainConfig) error {
 	if err := cc.Validate(); err != nil {
 		return err
@@ -20,6 +22,7 @@ func SetChainConfig(cc types.ChainConfig) error {
 	return nil
 }
 
+// GetChainConfig returns the chain configuration used in the EVM.
 func GetChainConfig() types.ChainConfig {
 	return chainConfig
 }
