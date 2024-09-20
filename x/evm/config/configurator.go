@@ -18,11 +18,11 @@ import (
 // the EVM before starting the node. This means that all init genesis validations will be
 // applied to each change.
 type EVMConfigurator struct {
+	sealed                   bool
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
-	sealed                   bool
 	chainConfig              *types.ChainConfig
-	evmDenom                 EvmDenom
+	evmDenom                 EvmCoinInfo
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -44,15 +44,17 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 	return ec
 }
 
-// WithChainConfig
+// WithChainConfig allows to define a custom `chainConfig` to be used in the
+// EVM.
 func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurator {
 	ec.chainConfig = cc
 	return ec
 }
 
-// WithChainConfig
-func (ec *EVMConfigurator) WithDenom(denom string, d Decimals) *EVMConfigurator {
-	ec.evmDenom = EvmDenom{denom: denom, decimals: d}
+// WithEVMCoinInfo allows to define the denom and decimals of the token used as the
+// EVM token.
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigurator {
+	ec.evmDenom = EvmCoinInfo{denom: denom, decimals: d}
 	return ec
 }
 
@@ -65,13 +67,13 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	if ec.chainConfig != nil {
-		if err := SetChainConfig(*ec.chainConfig); err != nil {
+		if err := setChainConfig(*ec.chainConfig); err != nil {
 			return err
 		}
 	}
 
 	if ec.evmDenom.denom != "" && ec.evmDenom.decimals != 0 {
-		SetEVMDenom(ec.evmDenom)
+		setEVMCoinInfo(ec.evmDenom)
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {

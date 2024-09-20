@@ -13,35 +13,42 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-// EvmDenom struct holds the name and decimals of the EVM denom
-type EvmDenom struct {
+// EvmCoinInfo struct holds the name and decimals of the EVM denom. The EVM denom
+// is the token used to pay fees in the EVM.
+type EvmCoinInfo struct {
 	denom    string
 	decimals Decimals
 }
 
-var evmDenom EvmDenom
+var evmCoinInfo EvmCoinInfo
 
-func SetDecimals(d Decimals) {
+// setEVMCoinDecimals allows to define the decimals used in the representation
+// of the EVM coin.
+func setEVMCoinDecimals(d Decimals) {
 	if d != SixDecimals && d != EighteenDecimals {
 		panic("evm does not support these decimals")
 	}
 
-	evmDenom.decimals = d
+	evmCoinInfo.decimals = d
 }
 
-func SetDenom(denom string) {
-	evmDenom.denom = denom
+// setEVMCoinDenom allows to define the denom of the coin used in the EVM.
+func setEVMCoinDenom(denom string) {
+	evmCoinInfo.denom = denom
 }
 
-func GetDecimals() Decimals {
-	return evmDenom.decimals
+// GetEVMCoinDecimals returns the decimals used in the representation of the EVM
+// coin.
+func GetEVMCoinDecimals() Decimals {
+	return evmCoinInfo.decimals
 }
 
 func GetDenom() string {
-	return evmDenom.denom
+	return evmCoinInfo.denom
 }
 
-func SetEVMDenom(evmdenom EvmDenom) {
-	SetDenom(evmdenom.denom)
-	SetDecimals(evmdenom.decimals)
+// setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
+func setEVMCoinInfo(evmdenom EvmCoinInfo) {
+	setEVMCoinDenom(evmdenom.denom)
+	setEVMCoinDecimals(evmdenom.decimals)
 }

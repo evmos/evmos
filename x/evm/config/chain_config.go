@@ -10,11 +10,14 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
+// chainConfig is the chain configuration used in the EVM to defined which
+// opcodes are active based on Ethereum upgrades.
 var chainConfig types.ChainConfig = types.DefaultChainConfig()
 
-// SetChainConfig allows to set the chain configuration variable modifying the
-// default values.
-func SetChainConfig(cc types.ChainConfig) error {
+// setChainConfig allows to set the `chainConfig` variable modifying the
+// default values. The method is private because it should only be called once
+// in the EVMConfigurator.
+func setChainConfig(cc types.ChainConfig) error {
 	if err := cc.Validate(); err != nil {
 		return err
 	}
@@ -22,7 +25,7 @@ func SetChainConfig(cc types.ChainConfig) error {
 	return nil
 }
 
-// GetChainConfig returns the chain configuration used in the EVM.
+// GetChainConfig returns the `chainConfig` used in the EVM.
 func GetChainConfig() types.ChainConfig {
 	return chainConfig
 }

@@ -33,7 +33,7 @@ func InitializeEVMConfiguration(chainID string) {
 	err = evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		// WithChainConfig(&ChainConfig).
-		WithDenom(baseDenom, evmconfig.EighteenDecimals).
+		WithEVMCoinInfo(baseDenom, evmconfig.EighteenDecimals).
 		Configure()
 	if err != nil {
 		panic(err)
