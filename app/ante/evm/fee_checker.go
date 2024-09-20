@@ -47,7 +47,7 @@ func feeChecker(
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
 	denom := config.GetDenom()
-	ethConfig := config.GetChainConfig().EthereumConfig(k.ChainID())
+	ethConfig := config.GetChainConfig()
 	baseFee := k.GetBaseFee(ctx, ethConfig)
 	if baseFee == nil {
 		// london hardfork is not enabled: fallback to min-gas-prices logic

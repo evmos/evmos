@@ -82,8 +82,7 @@ func NewMonoDecoratorUtils(
 	fmk FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	chainCfg := config.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(ek.ChainID())
+	ethCfg := config.GetChainConfig()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)

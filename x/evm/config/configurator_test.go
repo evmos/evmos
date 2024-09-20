@@ -6,6 +6,7 @@ package config_test
 import (
 	"testing"
 
+	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/stretchr/testify/require"
@@ -15,10 +16,10 @@ import (
 
 func TestEVMConfigurator(t *testing.T) {
 	evmConfigurator := config.NewEVMConfigurator()
-	err := evmConfigurator.Configure()
+	err := evmConfigurator.Configure(utils.MainnetChainID + "-1")
 	require.NoError(t, err)
 
-	err = evmConfigurator.Configure()
+	err = evmConfigurator.Configure(utils.MainnetChainID + "-1")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "sealed", "expected different error")
 }
@@ -58,7 +59,7 @@ func TestExtendedEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
-		err := ec.Configure()
+		err := ec.Configure(utils.MainnetChainID + "-1")
 
 		if tc.expPass {
 			require.NoError(t, err)
@@ -139,7 +140,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ec := tc.malleate()
-			err := ec.Configure()
+			err := ec.Configure(utils.MainnetChainID + "-1")
 
 			if tc.expPass {
 				require.NoError(t, err)

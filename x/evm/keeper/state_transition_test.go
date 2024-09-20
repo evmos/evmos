@@ -256,9 +256,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			ethCfg := config.GetChainConfig().EthereumConfig(
-				suite.network.App.EvmKeeper.ChainID(),
-			)
+			ethCfg := config.GetChainConfig()
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
 			signer := gethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
@@ -538,24 +536,21 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.SetupTest()
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
-	eip155ChainID := suite.network.GetEIP155ChainID()
 	cfg, err := suite.network.App.EvmKeeper.EVMConfig(
 		suite.network.GetContext(),
 		proposerAddress,
-		eip155ChainID,
 	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(config.GetChainConfig().EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
+	suite.Require().Equal(config.GetChainConfig(), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
-	networkChainID := suite.network.GetEIP155ChainID()
-	networkConfig := config.GetChainConfig().EthereumConfig(networkChainID)
+	networkConfig := config.GetChainConfig()
 	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 
@@ -568,7 +563,6 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 	config, err := suite.network.App.EvmKeeper.EVMConfig(
 		suite.network.GetContext(),
 		proposerAddress,
-		suite.network.GetEIP155ChainID(),
 	)
 	suite.Require().NoError(err)
 
@@ -737,7 +731,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			config, err := suite.network.App.EvmKeeper.EVMConfig(
 				suite.network.GetContext(),
 				proposerAddress,
-				suite.network.GetEIP155ChainID(),
 			)
 			suite.Require().NoError(err)
 

@@ -252,7 +252,7 @@ func BenchmarkApplyMessage(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig().EthereumConfig(suite.network.App.EvmKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 
 	b.ResetTimer()
@@ -288,7 +288,7 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig().EthereumConfig(suite.network.App.EvmKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 
 	b.ResetTimer()
@@ -323,7 +323,7 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig().EthereumConfig(suite.network.App.EvmKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 
 	b.ResetTimer()

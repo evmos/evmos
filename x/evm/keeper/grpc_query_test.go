@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/big"
 
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
@@ -1156,18 +1157,6 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			// expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceTxRequest(suite.network)
-				defaultRequest.ChainId = -1
-				return defaultRequest
-			},
-			getPredecessors: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
@@ -1354,19 +1343,6 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceBlockRequest {
-				defaultReq := getDefaultTraceBlockRequest(suite.network)
-				defaultReq.ChainId = -1
-				return defaultReq
-			},
-			getAdditionalTxs: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass:       true,
-			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
-		},
 	}
 
 	for _, tc := range testCases {
@@ -1476,7 +1452,7 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBaseFee() {
-	defaultChainConfig := types.DefaultChainConfig()
+
 	suite.enableFeemarket = true
 	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
@@ -1512,17 +1488,19 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				chainConfig := types.DefaultChainConfig()
+				eip155ChainID, err := evmostypes.ParseChainID(suite.network.GetChainID())
+				suite.Require().NoError(err)
+				chainConfig := evmconfig.DefaultChainConfig(eip155ChainID)
 				maxInt := sdkmath.NewInt(math.MaxInt64)
-				chainConfig.LondonBlock = &maxInt
-				chainConfig.ArrowGlacierBlock = &maxInt
-				chainConfig.GrayGlacierBlock = &maxInt
-				chainConfig.MergeNetsplitBlock = &maxInt
-				chainConfig.ShanghaiBlock = &maxInt
-				chainConfig.CancunBlock = &maxInt
-				err := evmconfig.NewEVMConfigurator().
-					WithChainConfig(&chainConfig).
-					Configure()
+				chainConfig.LondonBlock = maxInt.BigInt()
+				chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+				chainConfig.GrayGlacierBlock = maxInt.BigInt()
+				chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+				chainConfig.ShanghaiBlock = maxInt.BigInt()
+				chainConfig.CancunBlock = maxInt.BigInt()
+				err = evmconfig.NewEVMConfigurator().
+					WithChainConfig(chainConfig).
+					Configure(suite.network.GetChainID())
 				suite.Require().NoError(err)
 			},
 			true,
@@ -1569,8 +1547,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 
 			suite.Require().NoError(suite.network.NextBlock())
 			err = evmconfig.NewEVMConfigurator().
-				WithChainConfig(&defaultChainConfig).
-				Configure()
+				Configure(suite.network.GetChainID())
 			suite.Require().NoError(err)
 		})
 	}

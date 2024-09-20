@@ -241,7 +241,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Instantiate config
 			proposerAddress := ctx.BlockHeader().ProposerAddress
-			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EvmKeeper.ChainID())
+			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress)
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
 			ethChainID := s.network.GetEIP155ChainID()

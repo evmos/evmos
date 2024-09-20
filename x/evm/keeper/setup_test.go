@@ -13,8 +13,8 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/config"
-	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -62,25 +62,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	if !s.enableLondonHF {
-		chainConfig := types.DefaultChainConfig()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		chainConfig.LondonBlock = &maxInt
-		chainConfig.ArrowGlacierBlock = &maxInt
-		chainConfig.GrayGlacierBlock = &maxInt
-		chainConfig.MergeNetsplitBlock = &maxInt
-		chainConfig.ShanghaiBlock = &maxInt
-		chainConfig.CancunBlock = &maxInt
-		err := config.NewEVMConfigurator().
-			WithChainConfig(&chainConfig).Configure()
-		suite.Require().NoError(err)
-	} else {
-		chainConfig := types.DefaultChainConfig()
-		err := config.NewEVMConfigurator().
-			WithChainConfig(&chainConfig).Configure()
-		suite.Require().NoError(err)
-	}
-
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(config.GetDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
@@ -106,4 +87,26 @@ func (suite *KeeperTestSuite) SetupTest() {
 	s.factory = tf
 	s.handler = gh
 	s.keyring = keys
+
+	if !s.enableLondonHF {
+		eip155ChainID, err := evmostypes.ParseChainID(suite.network.GetChainID())
+		suite.Require().NoError(err)
+		chainConfig := config.DefaultChainConfig(eip155ChainID)
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = maxInt.BigInt()
+		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+		chainConfig.GrayGlacierBlock = maxInt.BigInt()
+		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+		chainConfig.ShanghaiBlock = maxInt.BigInt()
+		chainConfig.CancunBlock = maxInt.BigInt()
+		err = config.NewEVMConfigurator().
+			WithChainConfig(chainConfig).
+			Configure(suite.network.GetChainID())
+		suite.Require().NoError(err)
+	} else {
+		err := config.NewEVMConfigurator().
+			Configure(suite.network.GetChainID())
+		suite.Require().NoError(err)
+	}
+
 }

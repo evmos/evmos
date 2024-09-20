@@ -60,25 +60,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
-	if !suite.enableLondonHF {
-		chainConfig := evmtypes.DefaultChainConfig()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		chainConfig.LondonBlock = &maxInt
-		chainConfig.ArrowGlacierBlock = &maxInt
-		chainConfig.GrayGlacierBlock = &maxInt
-		chainConfig.MergeNetsplitBlock = &maxInt
-		chainConfig.ShanghaiBlock = &maxInt
-		chainConfig.CancunBlock = &maxInt
-		err := config.NewEVMConfigurator().
-			WithChainConfig(&chainConfig).
-			Configure()
-		suite.Require().NoError(err)
-	} else {
-		chainConfig := evmtypes.DefaultChainConfig()
-		err := config.NewEVMConfigurator().
-			WithChainConfig(&chainConfig).Configure()
-		suite.Require().NoError(err)
-	}
+
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)
 	}
@@ -93,6 +75,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGenesis),
 	)
+
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
@@ -106,6 +89,27 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
+
+	if !suite.enableLondonHF {
+		eip155ChainID, err := types.ParseChainID(suite.network.GetChainID())
+		suite.Require().NoError(err)
+		chainConfig := config.DefaultChainConfig(eip155ChainID)
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = maxInt.BigInt()
+		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+		chainConfig.GrayGlacierBlock = maxInt.BigInt()
+		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+		chainConfig.ShanghaiBlock = maxInt.BigInt()
+		chainConfig.CancunBlock = maxInt.BigInt()
+		err = config.NewEVMConfigurator().
+			WithChainConfig(chainConfig).
+			Configure(suite.network.GetChainID())
+		suite.Require().NoError(err)
+	} else {
+		err := config.NewEVMConfigurator().
+			Configure(suite.network.GetChainID())
+		suite.Require().NoError(err)
+	}
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
 		Cdc:                    suite.network.App.AppCodec(),
