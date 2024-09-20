@@ -108,5 +108,4 @@ func (suite *KeeperTestSuite) SetupTest() {
 			Configure(suite.network.GetChainID())
 		suite.Require().NoError(err)
 	}
-
 }

@@ -1452,7 +1452,6 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBaseFee() {
-
 	suite.enableFeemarket = true
 	defer func() { suite.enableFeemarket = false }()
 	suite.SetupTest()
