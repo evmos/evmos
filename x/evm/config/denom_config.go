@@ -6,6 +6,10 @@
 
 package config
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 type Decimals uint32
 
 const (
@@ -34,6 +38,9 @@ func setEVMCoinDecimals(d Decimals) {
 
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
 func setEVMCoinDenom(denom string) {
+	if err := sdk.ValidateDenom(denom); err != nil {
+		panic(err)
+	}
 	evmCoinInfo.denom = denom
 }
 

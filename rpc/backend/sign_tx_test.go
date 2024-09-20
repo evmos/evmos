@@ -126,7 +126,6 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 
 			if tc.expPass {
 				// Sign the transaction and get the hash
-				// queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 
 				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 				msg := callArgsDefault.ToTransaction()

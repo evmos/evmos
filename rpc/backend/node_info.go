@@ -268,7 +268,14 @@ func (b *Backend) SetGasPrice(gasPrice hexutil.Big) bool {
 		b.logger.Debug("could not get the server config", "error", err.Error())
 		return false
 	}
+	c := b.GenerateMinGasCoin(gasPrice, appConf)
+	appConf.SetMinGasPrices(sdk.DecCoins{c})
+	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
+	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
+	return true
+}
 
+func (b *Backend) GenerateMinGasCoin(gasPrice hexutil.Big, appConf config.Config) sdk.DecCoin {
 	var unit string
 	minGasPrices := appConf.GetMinGasPrices()
 
@@ -280,11 +287,7 @@ func (b *Backend) SetGasPrice(gasPrice hexutil.Big) bool {
 	}
 
 	c := sdk.NewDecCoin(unit, sdkmath.NewIntFromBigInt(gasPrice.ToInt()))
-
-	appConf.SetMinGasPrices(sdk.DecCoins{c})
-	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
-	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
-	return true
+	return c
 }
 
 // UnprotectedAllowed returns the node configuration value for allowing

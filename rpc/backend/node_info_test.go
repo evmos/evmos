@@ -12,7 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	"github.com/evmos/evmos/v20/server/config"
 	"github.com/evmos/evmos/v20/types"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -54,43 +57,47 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	}
 }
 
-// TODO: need to mock `sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)`
-// func (suite *BackendTestSuite) TestSetGasPrice() {
-// 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
-// 	testCases := []struct {
-// 		name         string
-// 		registerMock func()
-// 		gasPrice     hexutil.Big
-// 		expOutput    bool
-// 	}{
-// 		{
-// 			"pass - cannot get server config",
-// 			func() {
-// 				suite.backend.clientCtx.Viper = viper.New()
-// 			},
-// 			*defaultGasPrice,
-// 			false,
-// 		},
-// 		{
-// 			"pass - cannot find coin denom",
-// 			func() {
-// 				suite.backend.clientCtx.Viper = viper.New()
-// 				suite.backend.clientCtx.Viper.Set("telemetry.global-labels", []interface{}{})
-// 			},
-// 			*defaultGasPrice,
-// 			false,
-// 		},
-// 	}
+func (suite *BackendTestSuite) TestGenerateMinGasCoin() {
+	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
+	testCases := []struct {
+		name           string
+		gasPrice       hexutil.Big
+		minGas         sdk.DecCoins
+		expectedOutput sdk.DecCoin
+	}{
+		{
+			"pass - empty min gas Coins (default denom)",
+			*defaultGasPrice,
+			sdk.DecCoins{},
+			sdk.DecCoin{
+				Denom:  evmconfig.GetDenom(),
+				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
+			},
+		},
+		{
+			"pass - different min gas Coin",
+			*defaultGasPrice,
+			sdk.DecCoins{sdk.NewDecCoin("test", math.NewInt(1))},
+			sdk.DecCoin{
+				Denom:  "test",
+				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
+			},
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
-// 			suite.SetupTest() // reset test and queries
-// 			tc.registerMock()
-// 			output := suite.backend.SetGasPrice(tc.gasPrice)
-// 			suite.Require().Equal(tc.expOutput, output)
-// 		})
-// 	}
-// }
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
+			suite.SetupTest() // reset test and queries
+			suite.backend.clientCtx.Viper = viper.New()
+
+			appConf := config.DefaultConfig()
+			appConf.SetMinGasPrices(tc.minGas)
+
+			output := suite.backend.GenerateMinGasCoin(tc.gasPrice, *appConf)
+			suite.Require().Equal(tc.expectedOutput, output)
+		})
+	}
+}
 
 // TODO: Combine these 2 into one test since the code is identical
 func (suite *BackendTestSuite) TestListAccounts() {
