@@ -65,10 +65,7 @@ func setBaseDenomWithChainID(chainID string) error {
 		if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
 			return err
 		}
-		if err := sdk.SetBaseDenom(types.BaseDenomTestnet); err != nil {
-			return err
-		}
-		return nil
+		return sdk.SetBaseDenom(types.BaseDenomTestnet)
 	}
 
 	// for mainnet, testing cases, it will default to aevmos
@@ -79,8 +76,5 @@ func setBaseDenomWithChainID(chainID string) error {
 	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
 		return err
 	}
-	if err := sdk.SetBaseDenom(types.BaseDenom); err != nil {
-		return err
-	}
-	return nil
+	return sdk.SetBaseDenom(types.BaseDenom)
 }
