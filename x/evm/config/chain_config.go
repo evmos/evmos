@@ -20,7 +20,6 @@ import (
 var chainConfig *geth.ChainConfig = nil
 
 func DefaultChainConfig(chainID string) *geth.ChainConfig {
-
 	if chainID == "" {
 		chainID = utils.MainnetChainID + "-1"
 	}
