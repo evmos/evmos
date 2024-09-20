@@ -15,9 +15,9 @@ import (
 
 var sealed = false
 
-// InitializeEVMConfiguration allows to setup the global configuration
+// InitializeAppConfiguration allows to setup the global configuration
 // for the EVM.
-func InitializeEVMConfiguration(chainID string) error {
+func InitializeAppConfiguration(chainID string) error {
 	if sealed {
 		return nil
 	}

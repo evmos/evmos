@@ -326,7 +326,7 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	if err := InitializeEVMConfiguration(bApp.ChainID()); err != nil {
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
 		panic(err)
 	}
 

@@ -11,7 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/ethereum/go-ethereum/params"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -37,21 +36,18 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 		}
 
-		baseDenom := config.GetDenom()
-		ethCfg := config.GetChainConfig().EthereumConfig(k.ChainID())
-
-		return FeeChecker(ctx, k, baseDenom, ethCfg, feeTx)
+		return feeChecker(ctx, k, feeTx)
 	}
 }
 
-// FeeChecker returns the effective fee and priority for a given transaction.
-func FeeChecker(
+// feeChecker returns the effective fee and priority for a given transaction.
+func feeChecker(
 	ctx sdk.Context,
 	k DynamicFeeEVMKeeper,
-	denom string,
-	ethConfig *params.ChainConfig,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
+	denom := config.GetDenom()
+	ethConfig := config.GetChainConfig().EthereumConfig(k.ChainID())
 	baseFee := k.GetBaseFee(ctx, ethConfig)
 	if baseFee == nil {
 		// london hardfork is not enabled: fallback to min-gas-prices logic

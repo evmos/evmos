@@ -45,9 +45,9 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		return ctx, err
 	}
 
-	// only allow user to pass in aevmos and stake native token as transaction fees
+	// only allow user to pass in the base denom as transaction fees
 	// allow use stake native tokens for fees is just for unit tests to pass
-	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && slices.Contains([]string{baseDenom, sdk.DefaultBondDenom}, feeCoins.GetDenomByIndex(0)))
+	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && slices.Contains([]string{baseDenom}, feeCoins.GetDenomByIndex(0)))
 	if !validFees && !simulate {
 		return ctx, fmt.Errorf("expected only use native token %s for fee, but got %s", baseDenom, feeCoins.String())
 	}
