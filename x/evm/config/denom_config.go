@@ -30,7 +30,7 @@ var evmCoinInfo EvmCoinInfo
 // of the EVM coin.
 func setEVMCoinDecimals(d Decimals) {
 	if d != SixDecimals && d != EighteenDecimals {
-		panic("evm does not support these decimals")
+		panic(fmt.Errorf("invalid decimal value %d; the evm supports only 6 and 18 decimals", d))
 	}
 
 	evmCoinInfo.decimals = d
