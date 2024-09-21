@@ -18,11 +18,11 @@ import (
 // opcodes are active based on Ethereum upgrades.
 var chainConfig *geth.ChainConfig
 
-const test_chainID string = "evmos_9002-1"
+const testChainID string = "evmos_9002-1"
 
 func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if chainID == "" {
-		chainID = test_chainID
+		chainID = testChainID
 	}
 
 	eip155ChainID, err := types.ParseChainID(chainID)
