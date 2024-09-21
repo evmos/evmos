@@ -705,11 +705,3 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 
 	return res, nil
 }
-
-// getChainID parse chainID from current context if not provided
-func getChainID(ctx sdk.Context, chainID int64) (*big.Int, error) {
-	if chainID == 0 {
-		return evmostypes.ParseChainID(ctx.ChainID())
-	}
-	return big.NewInt(chainID), nil
-}

@@ -150,16 +150,6 @@ def test_grpc_mode(evmos_cluster: Evmos):
             )
             assert rsp["code"] != 0, str(rsp)
             assert "invalid syntax" in rsp["message"]
-
-            # should work with both chain_id and proposer_address set
-            rsp = grpc_eth_call(
-                api_port,
-                msg,
-                chain_id=100,
-                proposer_address=proposer_addr,
-            )
-            assert "code" not in rsp, str(rsp)
-            assert 100 == int.from_bytes(base64.b64decode(rsp["ret"].encode()), "big")
         finally:
             proc.terminate()
             proc.wait()

@@ -12,21 +12,22 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
-var chainConfig *geth.ChainConfig = nil
+var chainConfig *geth.ChainConfig
+
+const test_chainID string = "evmos_9002-1"
 
 func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if chainID == "" {
-		chainID = utils.MainnetChainID + "-1"
+		chainID = test_chainID
 	}
 
 	eip155ChainID, err := types.ParseChainID(chainID)
 	if err != nil {
-		return nil
+		panic(err)
 	}
 	cfg := &geth.ChainConfig{
 		ChainID:                 eip155ChainID,

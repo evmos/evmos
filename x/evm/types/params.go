@@ -19,7 +19,6 @@ import (
 )
 
 var (
-
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles

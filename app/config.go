@@ -16,7 +16,7 @@ import (
 var sealed = false
 
 // InitializeAppConfiguration allows to setup the global configuration
-// for the EVM.
+// for the Evmos EVM.
 func InitializeAppConfiguration(chainID string) error {
 	if sealed {
 		return nil
