@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"slices"
 
+	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -18,9 +19,11 @@ import (
 // the EVM before starting the node. This means that all init genesis validations will be
 // applied to each change.
 type EVMConfigurator struct {
+	sealed                   bool
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
-	sealed                   bool
+	chainConfig              *geth.ChainConfig
+	evmDenom                 EvmCoinInfo
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -42,12 +45,32 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 	return ec
 }
 
+// WithChainConfig allows to define a custom `chainConfig` to be used in the
+// EVM.
+func (ec *EVMConfigurator) WithChainConfig(cc *geth.ChainConfig) *EVMConfigurator {
+	ec.chainConfig = cc
+	return ec
+}
+
+// WithEVMCoinInfo allows to define the denom and decimals of the token used as the
+// EVM token.
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigurator {
+	ec.evmDenom = EvmCoinInfo{denom: denom, decimals: d}
+	return ec
+}
+
 // Configure apply the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
 	if ec.sealed {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
+	}
+
+	setChainConfig(ec.chainConfig)
+
+	if ec.evmDenom.denom != "" && ec.evmDenom.decimals != 0 {
+		setEVMCoinInfo(ec.evmDenom)
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {

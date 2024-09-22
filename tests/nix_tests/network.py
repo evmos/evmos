@@ -133,7 +133,7 @@ def create_snapshots_dir(
     path, base_port, config, n_nodes=2
 ):  # pylint: disable=unused-argument
     for idx in range(n_nodes):
-        data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
+        data_snapshots_dir = path / "evmos_9002-1" / f"node{idx}" / "data" / "snapshots"
         os.makedirs(data_snapshots_dir, exist_ok=True)
 
 
@@ -215,7 +215,7 @@ def setup_custom_evmos(
             # cause with sdkv0.50 the port starts faster
             http_wait_for_block(ports.rpc_port(base_port), 2)
         yield Evmos(
-            path / "evmos_9000-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
+            path / "evmos_9002-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
         )
     finally:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)

@@ -29,6 +29,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	commonnetwork "github.com/evmos/evmos/v20/testutil/integration/common/network"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
@@ -98,7 +99,7 @@ var (
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
 	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100000000000000000000000") // 100k
+	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000") // 100k
 )
 
 // configureAndInitChain initializes the network with the given configuration.
@@ -264,8 +265,7 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 
 // GetChainConfig returns the network's chain config
 func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
-	params := n.app.EvmKeeper.GetParams(n.ctx)
-	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
+	return config.GetChainConfig()
 }
 
 // GetDenom returns the network's denom

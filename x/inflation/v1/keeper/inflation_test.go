@@ -16,6 +16,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	nAccs = int64(1)
+	nVals = int64(3)
+)
+
 func TestMintAndAllocateInflation(t *testing.T) {
 	var (
 		ctx sdk.Context
@@ -93,81 +98,96 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		nw  *network.UnitTestNetwork
 	)
 
-	nAccs := int64(1)
-	nVals := int64(3)
+	foundationAcc := []sdk.AccAddress{
+		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
+		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
+	}
+	teamAllocation := network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
 
-	// the total bonded tokens for the 4 accounts initialized on the setup (3 validators, 1 EOA)
-	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)                             // Add the allocation for the validators
-	bondedAmount = bondedAmount.Add(network.PrefundedAccountInitialBalance.MulRaw(nAccs)) // Add the allocation for the EOA
-	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmount)
+	// Genesis available tokens are defined by the testing suite setup:
+	//- Validators' self delegation.
+	//- Tokens delegated by only one EOA.
+	//- Free EOA tokens.
+	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
+	accsBondAmount := math.OneInt().MulRaw(nVals)
+	bondedAmount := valBondedAmt.Add(accsBondAmount)
 
 	testCases := []struct {
-		name             string
-		bankSupply       math.Int
-		malleate         func()
-		expInflationRate math.LegacyDec
+		name       string
+		bankSupply math.Int
+		malleate   func()
 	}{
 		{
 			"no epochs per period",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction),
 			func() {
 				nw.App.InflationKeeper.SetEpochsPerPeriod(ctx, 0)
 			},
-			math.LegacyZeroDec(),
 		},
 		{
 			"high supply",
-			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
+			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction),
 			func() {},
-			math.LegacyMustNewDecFromStr("5.729166666666666700"),
 		},
 		{
 			"low supply",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction),
 			func() {},
-			math.LegacyMustNewDecFromStr("17.187500000000000000"),
 		},
 		{
 			"zero circulating supply",
-			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction).Sub(bondedAmount),
+			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction),
 			func() {},
-			math.LegacyZeroDec(),
 		},
 	}
-	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
-			// reset
-			keyring := testkeyring.New(int(nAccs))
-			nw = network.NewUnitTestNetwork(
-				network.WithAmountOfValidators(int(nVals)),
-				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-			)
-			ctx = nw.GetContext()
+	for _, isTestnet := range []bool{false, true} {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("Case %s, mainnet = %t", tc.name, !isTestnet), func(t *testing.T) {
+				// This variable consider all non bonded tokens during genesis but the team
+				// allocation.
+				accsFreeAmount := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount)
 
-			// Team allocation is only set on mainnet
-			ctx = ctx.WithChainID("evmos_9001-1")
-			tc.malleate()
+				chainID := utils.MainnetChainID + "-1"
+				if isTestnet {
+					chainID = utils.TestnetChainID + "-1"
+					accsFreeAmount = accsFreeAmount.Add(teamAllocation)
+				}
+				// reset
+				keyring := testkeyring.New(int(nAccs))
+				nw = network.NewUnitTestNetwork(
+					network.WithChainID(chainID),
+					network.WithAmountOfValidators(int(nVals)),
+					network.WithPreFundedAccounts(append(keyring.GetAllAccAddrs(), foundationAcc...)...),
+				)
+				ctx = nw.GetContext()
 
-			// Mint coins to increase supply
-			coin := sdk.NewCoin(
-				types.DefaultInflationDenom,
-				tc.bankSupply,
-			)
-			decCoin := sdk.NewDecCoinFromCoin(coin)
-			err := nw.App.InflationKeeper.MintCoins(ctx, coin)
-			require.NoError(t, err)
+				tc.malleate()
 
-			teamAlloc := sdk.NewDecCoin(
-				types.DefaultInflationDenom,
-				sdk.TokensFromConsensusPower(int64(200_000_000), evmostypes.PowerReduction),
-			)
+				// Mint coins to increase supply
+				coin := sdk.NewCoin(
+					denomMint,
+					tc.bankSupply,
+				)
+				err := nw.App.InflationKeeper.MintCoins(ctx, coin)
+				require.NoError(t, err)
 
-			circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, types.DefaultInflationDenom)
-			require.Equal(t, decCoin.Add(bondedCoins).Sub(teamAlloc).Amount, circulatingSupply)
+				circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, denomMint)
+				expCirculatingSupply := math.LegacyNewDecFromInt(tc.bankSupply.Add(bondedAmount).Add(accsFreeAmount))
+				require.Equal(t, expCirculatingSupply, circulatingSupply)
 
-			inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, types.DefaultInflationDenom)
-			require.Equal(t, tc.expInflationRate, inflationRate)
-		})
+				epp := nw.App.InflationKeeper.GetEpochsPerPeriod(ctx)
+				epochsPerPeriod := math.LegacyNewDec(epp)
+
+				// If epochs per period is equal to zero we have a division by
+				// zero in the computai
+				epochMintProvision := nw.App.InflationKeeper.GetEpochMintProvision(ctx)
+
+				expInflationRate := epochMintProvision.Mul(epochsPerPeriod).Quo(expCirculatingSupply).Mul(math.LegacyNewDec(100))
+
+				inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, denomMint)
+				require.Equal(t, expInflationRate, inflationRate)
+			})
+		}
 	}
 }
 
@@ -176,40 +196,53 @@ func TestBondedRatio(t *testing.T) {
 		ctx sdk.Context
 		nw  *network.UnitTestNetwork
 	)
+
+	foundationAcc := []sdk.AccAddress{
+		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
+		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
+	}
+	teamAllocation := network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
+
+	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
+	accsBondAmount := math.OneInt().MulRaw(nVals)
+	bondedAmount := valBondedAmt.Add(accsBondAmount)
+
 	testCases := []struct {
-		name         string
-		isMainnet    bool
-		malleate     func()
-		expBondRatio math.LegacyDec
+		name      string
+		isMainnet bool
 	}{
 		{
 			"is mainnet",
 			true,
-			func() {},
-			math.LegacyZeroDec(),
 		},
 		{
 			"not mainnet",
 			false,
-			func() {},
-			math.LegacyMustNewDecFromStr("0.000029999100026999"),
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			totalSupply := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount).Add(bondedAmount)
+
 			chainID := utils.MainnetChainID + "-1"
 			if !tc.isMainnet {
 				chainID = utils.TestnetChainID + "-1"
+				totalSupply = totalSupply.Add(teamAllocation)
 			}
+
 			// reset
-			nw = network.NewUnitTestNetwork(network.WithChainID(chainID))
+			keyring := testkeyring.New(int(nAccs))
+			nw = network.NewUnitTestNetwork(
+				network.WithChainID(chainID),
+				network.WithAmountOfValidators(int(nVals)),
+				network.WithPreFundedAccounts(append(keyring.GetAllAccAddrs(), foundationAcc...)...),
+			)
 			ctx = nw.GetContext()
 
-			tc.malleate()
-
+			expBondedRatio := math.LegacyNewDecFromInt(bondedAmount).QuoInt(totalSupply)
 			bondRatio, err := nw.App.InflationKeeper.BondedRatio(ctx)
 			require.NoError(t, (err))
-			require.Equal(t, tc.expBondRatio, bondRatio)
+			require.Equal(t, expBondedRatio, bondRatio)
 		})
 	}
 }

@@ -26,7 +26,7 @@ import (
 	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	"github.com/evmos/evmos/v20/server/config"
 	"github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 )
 
 // Accounts returns the list of accounts available to this node.
@@ -268,28 +268,26 @@ func (b *Backend) SetGasPrice(gasPrice hexutil.Big) bool {
 		b.logger.Debug("could not get the server config", "error", err.Error())
 		return false
 	}
+	c := b.GenerateMinGasCoin(gasPrice, appConf)
+	appConf.SetMinGasPrices(sdk.DecCoins{c})
+	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
+	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
+	return true
+}
 
+func (b *Backend) GenerateMinGasCoin(gasPrice hexutil.Big, appConf config.Config) sdk.DecCoin {
 	var unit string
 	minGasPrices := appConf.GetMinGasPrices()
 
 	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
 	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		var err error
-		unit, err = sdk.GetBaseDenom()
-		if err != nil {
-			b.logger.Debug("could not get the denom of smallest unit registered", "error", err.Error())
-			return false
-		}
+		unit = evmconfig.GetDenom()
 	} else {
 		unit = minGasPrices[0].Denom
 	}
 
 	c := sdk.NewDecCoin(unit, sdkmath.NewIntFromBigInt(gasPrice.ToInt()))
-
-	appConf.SetMinGasPrices(sdk.DecCoins{c})
-	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
-	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
-	return true
+	return c
 }
 
 // UnprotectedAllowed returns the node configuration value for allowing
@@ -337,13 +335,10 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 // the node config. If set value is 0, it will default to 20.
 
 func (b *Backend) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return types.DefaultGasPrice
-	}
+	baseDenom := evmconfig.GetDenom()
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
+	amt := minGasPrice.AmountOf(baseDenom).TruncateInt64()
 	if amt == 0 {
 		return types.DefaultGasPrice
 	}

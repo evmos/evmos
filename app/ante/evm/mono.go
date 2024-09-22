@@ -15,6 +15,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -81,12 +82,12 @@ func NewMonoDecoratorUtils(
 	fmk FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(ek.ChainID())
+	ethCfg := config.GetChainConfig()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)
 	feeMarketParams := fmk.GetParams(ctx)
+	baseDenom := config.GetDenom()
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
@@ -101,9 +102,9 @@ func NewMonoDecoratorUtils(
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
-		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmParams.EvmDenom),
+		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(baseDenom),
 		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
-		EvmDenom:           evmParams.EvmDenom,
+		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
 		GasWanted:          0,

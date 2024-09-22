@@ -15,7 +15,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/staking/keeper"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 	"github.com/stretchr/testify/require"
@@ -25,7 +25,7 @@ func TestMsgDelegate(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		delegatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
@@ -142,7 +142,7 @@ func TestMsgCreateValidator(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		validatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)

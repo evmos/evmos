@@ -57,7 +57,7 @@ def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
 
 def test_basic(cluster):
     w3 = cluster.w3
-    assert w3.eth.chain_id == 9000
+    assert w3.eth.chain_id == 9002
 
 
 # Smart contract names

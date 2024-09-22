@@ -29,7 +29,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 	"github.com/evmos/evmos/v20/x/vesting/types"
@@ -58,7 +58,7 @@ var (
 	gasLimit                 uint64 = 400_000
 	gasPrice                        = remainingAmtToPayFees.QuoRaw(int64(gasLimit))
 	dest                            = utiltx.GenerateAddress()
-	stakeDenom                      = utils.BaseDenom
+	stakeDenom                      = evmostypes.BaseDenom
 	accountGasCoverage              = sdk.NewCoins(sdk.NewCoin(stakeDenom, remainingAmtToPayFees))
 	amt                             = testutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount
 	cliff                           = testutil.TestVestingSchedule.CliffMonths
@@ -874,7 +874,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
-			ok, vestedCoin := vested.Find(utils.BaseDenom)
+			ok, vestedCoin := vested.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
 			// save some balance to pay fees
 			delCoin := initialFreeCoins.Add(vestedCoin).Sub(accountGasCoverage...)[0]
@@ -896,7 +896,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			ok, vestedCoin := vestingAmtTotal.Find(utils.BaseDenom)
+			ok, vestedCoin := vestingAmtTotal.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
 			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
 			err := s.factory.Delegate(
@@ -952,7 +952,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can perform Ethereum tx with spendable balance", func() {
 			account := vestingAccs[0]
 			// save some balance to pay fees
-			ok, vestedCoin := vested.Find(utils.BaseDenom)
+			ok, vestedCoin := vested.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
 			txAmount := initialFreeCoins.Add(vestedCoin).Sub(accountGasCoverage...)[0].Amount
 
@@ -1667,7 +1667,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			totalDust := dustPerTx.Amount.MulInt64(8).TruncateInt()
 
 			// stake vested tokens
-			ok, vestedCoin := vested.Find(utils.BaseDenom)
+			ok, vestedCoin := vested.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
 			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees.MulRaw(3))))
 			err = s.factory.Delegate(
@@ -1753,7 +1753,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(vesting).To(Equal(unvested))
 
 			// stake vested tokens
-			ok, vestedCoin := vested.Find(utils.BaseDenom)
+			ok, vestedCoin := vested.Find(stakeDenom)
 			Expect(ok).To(BeTrue())
 			delCoin := vestedCoin.Add(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees.MulRaw(2))))
 			err = s.factory.Delegate(
@@ -2063,19 +2063,19 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 		// coinsNoNegAmount is a Coins struct with a positive and a negative amount of the same
 		// denomination.
 		coinsNoNegAmount = sdk.Coins{
-			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
+			sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1e18)},
 		}
 		// coinsWithNegAmount is a Coins struct with a positive and a negative amount of the same
 		// denomination.
 		coinsWithNegAmount = sdk.Coins{
-			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
-			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(-1e18)},
+			sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1e18)},
+			sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(-1e18)},
 		}
 		// coinsWithZeroAmount is a Coins struct with a positive and a zero amount of the same
 		// denomination.
 		coinsWithZeroAmount = sdk.Coins{
-			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)},
-			sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(0)},
+			sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(1e18)},
+			sdk.Coin{Denom: stakeDenom, Amount: math.NewInt(0)},
 		}
 		// gasPrice is the gas price to be used in the transactions executed by the vesting account so that
 		// the transaction fees can be deducted from the expected account balance
@@ -2204,7 +2204,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 					}
 				}
 
-				balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, utils.BaseDenom)
+				balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
 				Expect(err).To(BeNil())
 				prevBalance := balRes.Balance
 
@@ -2233,7 +2233,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 					Expect(res.IsOK()).To(BeTrue())
 					Expect(vacc.LockupPeriods).ToNot(BeEmpty(), "vesting account should have been funded")
 					// Check that the vesting account has the correct balance
-					balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, utils.BaseDenom)
+					balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
 					Expect(err).To(BeNil())
 					balance := balRes.Balance
 

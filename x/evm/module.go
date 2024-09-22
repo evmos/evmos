@@ -27,7 +27,7 @@ import (
 )
 
 // consensusVersion defines the current x/evm module consensus version.
-const consensusVersion = 7
+const consensusVersion = 8
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -137,7 +137,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	m := keeper.NewMigrator(*am.keeper, am.legacySubspace)
 
-	if err := cfg.RegisterMigration(types.ModuleName, 6, m.Migrate6to7); err != nil {
+	if err := cfg.RegisterMigration(types.ModuleName, 7, m.Migrate7to8); err != nil {
 		panic(err)
 	}
 }

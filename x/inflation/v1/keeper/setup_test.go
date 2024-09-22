@@ -7,10 +7,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
-
-var denomMint = types.DefaultInflationDenom
 
 type KeeperTestSuite struct {
 	suite.Suite
@@ -28,7 +25,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
-
 	suite.network = nw
 	suite.factory = tf
 	suite.handler = gh

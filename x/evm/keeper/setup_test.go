@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -61,21 +61,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	if !s.enableLondonHF {
-		evmGenesis := evmtypes.DefaultGenesisState()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-		customGenesis[evmtypes.ModuleName] = evmGenesis
-	}
-
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(config.GetDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -98,4 +86,20 @@ func (suite *KeeperTestSuite) SetupTest() {
 	s.factory = tf
 	s.handler = gh
 	s.keyring = keys
+
+	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
+	if !s.enableLondonHF {
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = maxInt.BigInt()
+		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+		chainConfig.GrayGlacierBlock = maxInt.BigInt()
+		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+		chainConfig.ShanghaiBlock = maxInt.BigInt()
+		chainConfig.CancunBlock = maxInt.BigInt()
+	}
+
+	err := config.NewEVMConfigurator().
+		WithChainConfig(chainConfig).
+		Configure()
+	suite.Require().NoError(err)
 }

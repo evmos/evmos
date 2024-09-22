@@ -6,13 +6,13 @@ package types
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 var DefaultTokenPairs = []TokenPair{
 	{
 		Erc20Address:  WEVMOSContractMainnet,
-		Denom:         utils.BaseDenom,
+		Denom:         evmostypes.BaseDenom,
 		Enabled:       true,
 		ContractOwner: OWNER_MODULE,
 	},

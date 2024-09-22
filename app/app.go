@@ -326,6 +326,10 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+		panic(err)
+	}
+
 	keys, memKeys, tkeys := StoreKeys()
 
 	app := &Evmos{

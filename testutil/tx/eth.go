@@ -21,7 +21,7 @@ import (
 
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/server/config"
-	"github.com/evmos/evmos/v20/utils"
+	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -38,6 +38,8 @@ func PrepareEthTx(
 	signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
+
+	baseDenom := evmconfig.GetDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -56,7 +58,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		txFee = txFee.Add(sdk.Coin{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {

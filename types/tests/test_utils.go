@@ -5,6 +5,7 @@ package tests
 
 import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 
 	UevmosDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
+		BaseDenom: evmostypes.BaseDenom,
 	}
 	UevmosIbcdenom = UevmosDenomtrace.IBCDenom()
 
@@ -34,7 +35,7 @@ var (
 
 	AevmosDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
+		BaseDenom: evmostypes.BaseDenom,
 	}
 	AevmosIbcdenom = AevmosDenomtrace.IBCDenom()
 )

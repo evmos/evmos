@@ -9,12 +9,12 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v20/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
@@ -35,7 +35,7 @@ func RegisterEvmosERC20Coins(
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}
-	coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(TokenToMint))
+	coin := sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(TokenToMint))
 	err = network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,
@@ -54,7 +54,7 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), utils.BaseDenom)
+	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), evmostypes.BaseDenom)
 	if !found {
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
