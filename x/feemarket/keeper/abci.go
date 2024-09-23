@@ -19,14 +19,20 @@ func (k *Keeper) BeginBlock(ctx sdk.Context) error {
 	baseFee := k.CalculateBaseFee(ctx)
 
 	// return immediately if base fee is nil
-	if baseFee == nil {
+	if baseFee.IsNil() {
 		return nil
 	}
 
 	k.SetBaseFee(ctx, baseFee)
 
 	defer func() {
-		telemetry.SetGauge(float32(baseFee.Int64()), "feemarket", "base_fee")
+		floatBaseFee, err := baseFee.Float64()
+		if err != nil {
+			ctx.Logger().Error("error converting base fee to float64", "error", err.Error())
+			return
+		}
+		// there'll be no panic if fails to convert to float32. Will only loose precision
+		telemetry.SetGauge(float32(floatBaseFee), "feemarket", "base_fee")
 	}()
 
 	// Store current base fee in event

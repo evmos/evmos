@@ -15,7 +15,7 @@ func TestCalculateBaseFee(t *testing.T) {
 	var (
 		nw             *network.UnitTestNetwork
 		ctx            sdk.Context
-		initialBaseFee math.Int
+		initialBaseFee math.LegacyDec
 	)
 
 	testCases := []struct {
@@ -64,7 +64,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			100,
 			math.LegacyZeroDec(),
-			func() *big.Int { return initialBaseFee.Add(math.NewInt(109375000)).BigInt() },
+			func() *big.Int { return initialBaseFee.Add(math.LegacyNewDec(109375000)).BigInt() },
 		},
 		{
 			"with BaseFee - parent block wanted more gas than its target, with higher min gas price (ElasticityMultiplier = 2)",
@@ -72,7 +72,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			100,
 			math.LegacyNewDec(1500000000),
-			func() *big.Int { return initialBaseFee.Add(math.NewInt(109375000)).BigInt() },
+			func() *big.Int { return initialBaseFee.Add(math.LegacyNewDec(109375000)).BigInt() },
 		},
 		{
 			"with BaseFee - Parent gas wanted smaller than parent gas target (ElasticityMultiplier = 2)",
@@ -80,7 +80,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			25,
 			math.LegacyZeroDec(),
-			func() *big.Int { return initialBaseFee.Sub(math.NewInt(54687500)).BigInt() },
+			func() *big.Int { return initialBaseFee.Sub(math.LegacyNewDec(54687500)).BigInt() },
 		},
 		{
 			"with BaseFee - Parent gas wanted smaller than parent gas target, with higher min gas price (ElasticityMultiplier = 2)",

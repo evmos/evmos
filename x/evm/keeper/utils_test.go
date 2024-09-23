@@ -53,13 +53,16 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Con
 	})
 	require.NoError(t, err)
 
+	baseFeeRes, err := suite.network.GetEvmClient().BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
+
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
 		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:   chainID,
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			GasTipCap: big.NewInt(1),
 			Input:     data,
 			Accesses:  &ethtypes.AccessList{},
@@ -104,6 +107,8 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	require.NoError(t, err)
 
 	nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
+	baseFeeRes, err := suite.network.GetEvmClient().BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -112,7 +117,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 			Nonce:     nonce,
 			To:        &contractAddr,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			GasTipCap: big.NewInt(1),
 			Input:     transferData,
 			Accesses:  &ethtypes.AccessList{},
@@ -164,6 +169,8 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	require.NoError(t, err)
 
 	nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), addr)
+	baseFeeRes, err := suite.network.GetEvmClient().BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	require.NoError(t, err)
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -172,7 +179,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
 			Input:     data,
-			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
+			GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 			Accesses:  &ethtypes.AccessList{},
 			GasTipCap: big.NewInt(1),
 		}

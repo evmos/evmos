@@ -20,7 +20,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var _ evm.DynamicFeeEVMKeeper = MockEVMKeeper{}
+var _ evm.FeeMarketKeeper = MockEVMKeeper{}
 
 type MockEVMKeeper struct {
 	BaseFee        *big.Int
@@ -32,14 +32,6 @@ func (m MockEVMKeeper) GetBaseFee(_ sdk.Context, _ *params.ChainConfig) *big.Int
 		return m.BaseFee
 	}
 	return nil
-}
-
-func (m MockEVMKeeper) GetParams(_ sdk.Context) evmtypes.Params {
-	return evmtypes.DefaultParams()
-}
-
-func (m MockEVMKeeper) ChainID() *big.Int {
-	return big.NewInt(9000)
 }
 
 func TestSDKTxFeeChecker(t *testing.T) {
@@ -64,7 +56,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	testCases := []struct {
 		name        string
 		ctx         sdk.Context
-		keeper      evm.DynamicFeeEVMKeeper
+		keeper      evm.FeeMarketKeeper
 		buildTx     func() sdk.FeeTx
 		expFees     string
 		expPriority int64
@@ -233,7 +225,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fees, priority, err := evm.NewDynamicFeeChecker(tc.keeper)(tc.ctx, tc.buildTx())
+			fees, priority, err := evm.NewDynamicFeeChecker(tc.feemarketkeeper)(tc.ctx, tc.buildTx())
 			if tc.expSuccess {
 				require.Equal(t, tc.expFees, fees.String())
 				require.Equal(t, tc.expPriority, priority)

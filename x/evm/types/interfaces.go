@@ -4,9 +4,9 @@ package types
 
 import (
 	context "context"
-	"math/big"
 
 	"cosmossdk.io/core/address"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -47,11 +47,11 @@ type StakingKeeper interface {
 	ValidatorAddressCodec() address.Codec
 }
 
-// FeeMarketKeeper
+// FeeMarketKeeper// FeeMarketKeeper
 type FeeMarketKeeper interface {
-	GetBaseFee(ctx sdk.Context) *big.Int
+	GetBaseFee(ctx sdk.Context) math.LegacyDec
 	GetParams(ctx sdk.Context) feemarkettypes.Params
-	CalculateBaseFee(ctx sdk.Context) *big.Int
+	CalculateBaseFee(ctx sdk.Context) math.LegacyDec
 }
 
 // Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.

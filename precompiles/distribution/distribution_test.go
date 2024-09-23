@@ -229,7 +229,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				Amount:    nil,
 				GasLimit:  100000,
 				GasPrice:  app.MainnetMinGasPrices.BigInt(),
-				GasFeeCap: baseFee,
+				GasFeeCap: baseFee.BigInt(),
 				GasTipCap: big.NewInt(1),
 				Accesses:  &gethtypes.AccessList{},
 			}
@@ -246,7 +246,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			ethChainID := s.network.GetEIP155ChainID()
 			signer := gethtypes.LatestSignerForChainID(ethChainID)
-			msg, err := signedMsg.AsMessage(signer, baseFee)
+			msg, err := signedMsg.AsMessage(signer, baseFee.BigInt())
 			s.Require().NoError(err, "failed to instantiate Ethereum message")
 
 			// Instantiate EVM
