@@ -251,6 +251,32 @@ func TestFixDenomMetadata(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "duplicated entry with corrupted key (IBC coin)",
+			setup: func() {
+				for _, m := range metaDatas {
+					nw.App.BankKeeper.SetDenomMetaData(ctx, m)
+				}
+				bk, ok := nw.App.BankKeeper.(bankkeeper.BaseKeeper)
+				require.True(t, ok)
+				ibcCoinMeta := metaDatas[len(metaDatas)-1]
+				corruptedKey := ibcCoinMeta.Base + "i"
+				err := bk.BaseViewKeeper.DenomMetadata.Set(ctx, corruptedKey, ibcCoinMeta)
+				require.NoError(t, err)
+				m, found := bk.GetDenomMetaData(ctx, ibcCoinMeta.Base)
+				require.True(t, found)
+				require.Equal(t, ibcCoinMeta, m)
+				m, found = bk.GetDenomMetaData(ctx, corruptedKey)
+				require.True(t, found)
+				require.Equal(t, ibcCoinMeta, m)
+				// there should be a duplicated entry
+				// on the denom metas list
+				res, err := nw.App.BankKeeper.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
+				require.NoError(t, err)
+				require.NotNil(t, res)
+				require.Len(t, res.Metadatas, len(metaDatas)+1)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
