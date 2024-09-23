@@ -5,13 +5,19 @@ package v20
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
+	"cosmossdk.io/log"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	"github.com/evmos/evmos/v20/utils"
 	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -22,6 +28,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
 	gk govkeeper.Keeper,
+	bk bankkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
@@ -35,6 +42,13 @@ func CreateUpgradeHandler(
 		logger.Debug("Updating expedited proposals params...")
 		if err := UpdateExpeditedPropsParams(ctx, gk); err != nil {
 			logger.Error("error while updating gov params", "error", err.Error())
+		}
+
+		if utils.IsTestnet(ctx.ChainID()) {
+			logger.Debug("Updating bank denom metadata...")
+			if err := FixDenomMetadata(ctx, logger, bk); err != nil {
+				logger.Error("error while updating bank denom metadata", "error", err.Error())
+			}
 		}
 
 		logger.Debug("Running module migrations...")
@@ -86,4 +100,47 @@ func UpdateExpeditedPropsParams(ctx sdk.Context, gv govkeeper.Keeper) error {
 		return err
 	}
 	return gv.Params.Set(ctx, params)
+}
+
+// NOTE: ONLY TESTNET
+// we need this because on testnet
+// some denom metadata keys are corrupted
+func FixDenomMetadata(ctx sdk.Context, logger log.Logger, bk bankkeeper.Keeper) error {
+	// use cache context to revert all changes if fails
+	cacheCtx, writeFn := ctx.CacheContext()
+	k, ok := bk.(bankkeeper.BaseKeeper)
+	if !ok {
+		return fmt.Errorf("invalid bank keeper type, expected: keeper.BaseKeeper, got: %T", bk)
+	}
+	res, err := k.DenomsMetadata(cacheCtx, &banktypes.QueryDenomsMetadataRequest{})
+	if err != nil {
+		return err
+	}
+	if res == nil {
+		return errors.New("denoms metadata response is nil")
+	}
+	metaDatas := res.Metadatas
+
+	// remove all entries
+	iterator, err := k.BaseViewKeeper.DenomMetadata.Iterate(cacheCtx, nil)
+	if err != nil {
+		return err
+	}
+	defer sdk.LogDeferred(logger, func() error { return iterator.Close() })
+
+	for ; iterator.Valid(); iterator.Next() {
+		key, err := iterator.Key()
+		if err != nil {
+			return err
+		}
+		k.BaseViewKeeper.DenomMetadata.Remove(cacheCtx, key)
+	}
+
+	// add all entries again with the key == meta.Base
+	for _, m := range metaDatas {
+		k.SetDenomMetaData(cacheCtx, m)
+	}
+
+	writeFn()
+	return nil
 }

@@ -3,9 +3,12 @@ package v20_test
 import (
 	"testing"
 
+	"cosmossdk.io/log"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	v20 "github.com/evmos/evmos/v20/app/upgrades/v20"
@@ -139,6 +142,140 @@ func TestUpdateExpeditedPropsParams(t *testing.T) {
 			require.NoError(t, err)
 
 			tc.postCheck()
+		})
+	}
+}
+
+var metaDatas = []banktypes.Metadata{
+	{
+		Description: "The native EVM, governance and staking token of the Evmos Hub",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:   "aevmos",
+				Aliases: []string{"attoevmos"},
+			},
+			{
+				Denom:    "evmos",
+				Exponent: 18,
+			},
+		},
+		Base:    "aevmos",
+		Display: "evmos",
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+	},
+	{
+		Description: "Cosmos coin token representation of 0x153A59d48AcEAbedbDCf7a13F67Ae52b434B810B",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom: "erc20/0x153A59d48AcEAbedbDCf7a13F67Ae52b434B810B",
+			},
+			{
+				Denom:    "WrappedEtherCeler",
+				Exponent: 18,
+			},
+		},
+		Base:    "erc20/0x153A59d48AcEAbedbDCf7a13F67Ae52b434B810B",
+		Display: "WrappedEtherCeler",
+		Name:    "erc20/0x153A59d48AcEAbedbDCf7a13F67Ae52b434B810B",
+		Symbol:  "ceWETH",
+	},
+	{
+		Description: "Staking derivative stATOM for staked ATOM by Stride",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:   "ibc/0830AFFC2F4F7CD24F9CEC07024FEA64CE3C5ABBC520DBD803BFA97BC3DCCA85",
+				Aliases: []string{"stuatom"},
+			},
+			{
+				Denom:    "statom",
+				Exponent: 6,
+			},
+		},
+		Base:    "ibc/0830AFFC2F4F7CD24F9CEC07024FEA64CE3C5ABBC520DBD803BFA97BC3DCCA85",
+		Display: "statom",
+		Name:    "Stride Staked Atom",
+		Symbol:  "stATOM",
+	},
+}
+
+func TestFixDenomMetadata(t *testing.T) {
+	var (
+		nw  *network.UnitTestNetwork
+		ctx sdk.Context
+	)
+	testCases := []struct {
+		name  string
+		setup func()
+	}{
+		{
+			name: "all keys are OK - no change",
+			setup: func() {
+				for _, m := range metaDatas {
+					nw.App.BankKeeper.SetDenomMetaData(ctx, m)
+				}
+			},
+		},
+		{
+			name: "all corrupted keys",
+			setup: func() {
+				bk, ok := nw.App.BankKeeper.(bankkeeper.BaseKeeper)
+				require.True(t, ok)
+				for _, m := range metaDatas {
+					corruptedKey := m.Base + "a"
+					err := bk.BaseViewKeeper.DenomMetadata.Set(ctx, corruptedKey, m)
+					require.NoError(t, err)
+					// check that cannot retrieve metadata with correct key
+					_, found := bk.GetDenomMetaData(ctx, m.Base)
+					require.False(t, found)
+				}
+			},
+		},
+		{
+			name: "some corrupted keys others OK",
+			setup: func() {
+				bk, ok := nw.App.BankKeeper.(bankkeeper.BaseKeeper)
+				require.True(t, ok)
+				corrupted := true
+				for _, m := range metaDatas {
+					key := m.Base
+					if corrupted {
+						key += "a"
+					}
+					err := bk.BaseViewKeeper.DenomMetadata.Set(ctx, key, m)
+					require.NoError(t, err)
+					// check that cannot retrieve metadata with correct key
+					_, found := bk.GetDenomMetaData(ctx, m.Base)
+					require.Equal(t, !corrupted, found)
+					corrupted = !corrupted
+				}
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			nw = network.NewUnitTestNetwork()
+			ctx = nw.GetContext()
+
+			// setup for testcase
+			tc.setup()
+
+			err := v20.FixDenomMetadata(ctx, log.NewNopLogger(), nw.App.BankKeeper)
+			require.NoError(t, err)
+
+			for _, m := range metaDatas {
+				res, err := nw.App.BankKeeper.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{Denom: m.Base})
+				require.NoError(t, err)
+				require.NotNil(t, res)
+				require.Equal(t, m, res.Metadata)
+			}
+
+			// check the denom meta length
+			res, err := nw.App.BankKeeper.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
+			require.NoError(t, err)
+			require.NotNil(t, res)
+			require.Len(t, res.Metadatas, len(metaDatas))
 		})
 	}
 }

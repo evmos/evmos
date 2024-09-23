@@ -1194,6 +1194,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.EvmKeeper,
 			app.GovKeeper,
+			app.BankKeeper,
 		),
 	)
 
