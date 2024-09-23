@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Decimals is a wrapper arounf uint32 to represent the decimal representation
+// Decimals is a wrapper around uint32 to represent the decimal representation
 // of a Cosmos coin.
 type Decimals uint32
 
