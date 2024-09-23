@@ -62,7 +62,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		GasFeeCap: big.NewInt(200),
 	}
 
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name      string

@@ -103,7 +103,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(evmconfig.GetDenom()), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(evmconfig.GetEVMCoinDenom()), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged

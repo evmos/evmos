@@ -53,7 +53,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
-	denom := config.GetDenom()
+	denom := config.GetEVMCoinDenom()
 
 	msgs := tx.GetMsgs()
 	if msgs == nil {

@@ -129,7 +129,7 @@ func (b *Backend) SendRawTransaction(data hexutil.Bytes) (common.Hash, error) {
 		return common.Hash{}, err
 	}
 
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 
 	cosmosTx, err := ethereumTx.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	if err != nil {

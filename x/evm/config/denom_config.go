@@ -52,7 +52,8 @@ func GetEVMCoinDecimals() Decimals {
 	return evmCoinInfo.decimals
 }
 
-func GetDenom() string {
+// GetEVMCoinDenom returns the denom used for the EVM coin.
+func GetEVMCoinDenom() string {
 	return evmCoinInfo.denom
 }
 
@@ -60,4 +61,16 @@ func GetDenom() string {
 func setEVMCoinInfo(evmdenom EvmCoinInfo) {
 	setEVMCoinDenom(evmdenom.denom)
 	setEVMCoinDecimals(evmdenom.decimals)
+}
+
+// ConversionFactor returns the conversion factor between the Decimals value and
+// the 18 decimals representation. This function does not check if the Decimal
+// instance is valid or not and by default returns the conversion factor of 1,
+// i.e. from 18 decimals to 18 decimals.
+func (d Decimals) ConversionFactor() int64 {
+	if d == SixDecimals {
+		return 1e12
+	}
+
+	return 1
 }

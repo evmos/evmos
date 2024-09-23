@@ -127,7 +127,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	// Build MsgCreateValidator
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),

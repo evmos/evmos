@@ -70,7 +70,7 @@ func (suite *BackendTestSuite) TestGenerateMinGasCoin() {
 			*defaultGasPrice,
 			sdk.DecCoins{},
 			sdk.DecCoin{
-				Denom:  evmconfig.GetDenom(),
+				Denom:  evmconfig.GetEVMCoinDenom(),
 				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
 			},
 		},

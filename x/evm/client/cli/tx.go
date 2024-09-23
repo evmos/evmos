@@ -60,7 +60,7 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			baseDenom := config.GetDenom()
+			baseDenom := config.GetEVMCoinDenom()
 
 			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 			if err != nil {

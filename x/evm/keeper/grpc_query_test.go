@@ -33,7 +33,7 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
-	baseDenom := evmconfig.GetDenom()
+	baseDenom := evmconfig.GetEVMCoinDenom()
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -191,7 +191,7 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
-	baseDenom := evmconfig.GetDenom()
+	baseDenom := evmconfig.GetEVMCoinDenom()
 
 	testCases := []struct {
 		msg           string
@@ -614,7 +614,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetDenom())
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetEVMCoinDenom())
 				value := balance.Amount.Add(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -633,7 +633,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetDenom())
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetEVMCoinDenom())
 				value := balance.Amount.Sub(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},

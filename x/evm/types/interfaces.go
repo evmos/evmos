@@ -67,3 +67,19 @@ type (
 		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
 	}
 )
+
+// BankWrapper defines the methods required by the wrapper around
+// the Cosmos SDK x/bank keeper that is used to manage an EVM coin
+// with a configurable value for decimals.
+type BankWrapper interface {
+	BankKeeper
+
+	// MintCoinsToAccount scales down (if applies) provided coins
+	// from 18 decimals to the decimals used to represent the EVM coin
+	// and mints that amount to the provided account.
+	MintCoinsToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	// BurnAccountCoins scales down (if applies) provided coins
+	// from 18 decimals to the decimals used to represent the EVM coin
+	// and burns that coins of the provided account.
+	BurnAccountCoins(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error
+}

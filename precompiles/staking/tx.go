@@ -234,7 +234,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin && msg.Amount.Denom == config.GetDenom() {
+	if !isCallerOrigin && msg.Amount.Denom == config.GetEVMCoinDenom() {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)
