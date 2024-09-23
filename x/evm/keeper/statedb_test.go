@@ -23,6 +23,7 @@ import (
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -689,7 +690,7 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 	suite.Require().NoError(err)
 
 	clientCtx := client.Context{}.WithTxConfig(suite.network.App.GetTxConfig())
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(config.GetChainConfig().ChainID)
 
 	txBuilder := clientCtx.TxConfig.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
