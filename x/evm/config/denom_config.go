@@ -12,10 +12,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Decimals is a wrapper arounf uint32 to represent the decimal representation
+// of a Cosmos coin.
 type Decimals uint32
 
 const (
-	SixDecimals      Decimals = 6
+	// SixDecimals is the Decimals used for Cosmos coin with 6 decimals.
+	SixDecimals Decimals = 6
+	// EighteenDecimals is the Decimals used for Cosmos coin with 18 decimals.
 	EighteenDecimals Decimals = 18
 )
 
@@ -26,6 +30,8 @@ type EvmCoinInfo struct {
 	decimals Decimals
 }
 
+// evmCoinInfo hold the information of the coin used in the EVM as gas token. It
+// can only be set via `EVMConfigurator` before starting the app.
 var evmCoinInfo EvmCoinInfo
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
@@ -64,9 +70,11 @@ func setEVMCoinInfo(evmdenom EvmCoinInfo) {
 }
 
 // ConversionFactor returns the conversion factor between the Decimals value and
-// the 18 decimals representation. This function does not check if the Decimal
-// instance is valid or not and by default returns the conversion factor of 1,
-// i.e. from 18 decimals to 18 decimals.
+// the 18 decimals representation, i.e. `EighteenDecimals`.
+//
+// NOTE: This function does not check if the Decimal instance is valid or
+// not and by default returns the conversion factor of 1, i.e. from 18 decimals
+// to 18 decimals.
 func (d Decimals) ConversionFactor() int64 {
 	if d == SixDecimals {
 		return 1e12

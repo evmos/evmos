@@ -262,7 +262,7 @@ func (k *Keeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) 
 	}
 }
 
-// GetAccountOrEmpty returns empty account if not exist
+// GetAccountOrEmpty returns empty account if not exist.
 func (k *Keeper) GetAccountOrEmpty(ctx sdk.Context, addr common.Address) statedb.Account {
 	acct := k.GetAccount(ctx, addr)
 	if acct != nil {
@@ -287,13 +287,15 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 	return acct.GetSequence()
 }
 
-// GetBalance load account's balance of gas token
+// GetBalance load account's balance of gas token.
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
-	baseDenom := config.GetEVMCoinDenom()
+
+	// The registered EVM coin is the one used as gas token.
+	evmDenom := config.GetEVMCoinDenom()
 
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, baseDenom)
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
 
 	return coin.Amount.BigInt()
 }
@@ -310,6 +312,7 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 	if !london {
 		return nil
 	}
+	// TODO: use wrapper.
 	baseFee := k.feeMarketKeeper.GetBaseFee(ctx)
 	if baseFee == nil {
 		// return 0 if feemarket not enabled.

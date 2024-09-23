@@ -17,7 +17,7 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// CallEVM performs a smart contract method call using given args
+// CallEVM performs a smart contract method call using given args.
 func (k Keeper) CallEVM(
 	ctx sdk.Context,
 	abi abi.ABI,
@@ -41,7 +41,7 @@ func (k Keeper) CallEVM(
 	return resp, nil
 }
 
-// CallEVMWithData performs a smart contract method call using contract data
+// CallEVMWithData performs a smart contract method call using contract data.
 func (k Keeper) CallEVMWithData(
 	ctx sdk.Context,
 	from common.Address,
