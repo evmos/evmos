@@ -126,14 +126,16 @@ func FixDenomMetadata(ctx sdk.Context, logger log.Logger, bk bankkeeper.Keeper) 
 	if err != nil {
 		return err
 	}
-	defer sdk.LogDeferred(logger, func() error { return iterator.Close() })
+	defer sdk.LogDeferred(logger, iterator.Close)
 
 	for ; iterator.Valid(); iterator.Next() {
 		key, err := iterator.Key()
 		if err != nil {
 			return err
 		}
-		k.BaseViewKeeper.DenomMetadata.Remove(cacheCtx, key)
+		if err := k.BaseViewKeeper.DenomMetadata.Remove(cacheCtx, key); err != nil {
+			return err
+		}
 	}
 
 	// add all entries again with the key == meta.Base
