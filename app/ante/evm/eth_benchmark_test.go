@@ -29,8 +29,10 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	s.SetupTest()
 	ctx := s.GetNetwork().GetContext()
 
+	evmChainID := config.GetChainConfig().ChainID
+
 	args := &evmtypes.EvmTxArgs{
-		ChainID:  s.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:  evmChainID,
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: uint64(1_000_000),

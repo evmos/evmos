@@ -38,7 +38,6 @@ type FeeMarketKeeper interface {
 
 // DynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
 type DynamicFeeEVMKeeper interface {
-	ChainID() *big.Int
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
 }

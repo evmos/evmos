@@ -43,8 +43,9 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		ctx = suite.GetNetwork().GetContext()
 	}
 
+	evmChainID := config.GetChainConfig().ChainID
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -53,7 +54,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 	}
 
 	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		To:        &to,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
@@ -166,7 +167,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+					ChainID:  config.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -185,7 +186,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+					ChainID:  config.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -203,7 +204,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+					ChainID:  config.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -221,7 +222,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+					ChainID:  config.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -243,7 +244,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+					ChainID:  config.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -919,9 +920,10 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
+	evmChainID := config.GetChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -931,7 +933,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	}
 
 	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -1082,9 +1084,10 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
+	evmChainID := config.GetChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -1095,7 +1098,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	}
 
 	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,

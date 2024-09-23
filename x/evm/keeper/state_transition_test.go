@@ -259,7 +259,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 			ethCfg := config.GetChainConfig()
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
-			signer := gethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
+			signer := gethtypes.LatestSignerForChainID(config.GetChainConfig().ChainID)
 
 			ctx := suite.network.GetContext().WithBlockHeight(tc.height)
 
