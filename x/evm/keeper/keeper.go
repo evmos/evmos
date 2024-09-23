@@ -52,9 +52,6 @@ type Keeper struct {
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
 
-	// chain ID number obtained from the context's chain id
-	eip155ChainID *big.Int
-
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
 

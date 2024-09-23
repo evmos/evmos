@@ -84,7 +84,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 	}
 }
 
-func BenchmarkTokenTransfer(b *testing.B) { //nolint:dupl
+func BenchmarkTokenTransfer(b *testing.B) {
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
@@ -147,7 +147,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 	})
 }
 
-func BenchmarkTokenMint(b *testing.B) { //nolint:dupl
+func BenchmarkTokenMint(b *testing.B) {
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
