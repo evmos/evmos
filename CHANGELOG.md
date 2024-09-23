@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (bank) [#2874](https://github.com/evmos/evmos/pull/2874) Fix corrupted denom metadata on testnet.
+
 ## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-19
 
 ### State Machine Breaking
