@@ -96,6 +96,7 @@ func (w BankWrapper) BurnAccountCoins(ctx context.Context, account sdk.AccAddres
 		}
 	}
 
+	// NOTE: amt is already converted so we need to use the x/bank method.
 	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, amt); err != nil {
 		return err
 	}
