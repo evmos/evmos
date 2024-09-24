@@ -86,7 +86,7 @@ func (va ClawbackVestingAccount) LockedCoins(blockTime time.Time) sdk.Coins {
 	// the delegated tokens as lockedUpVested tokens
 	// min(lockedUpVested, DelegatedFree)
 	//
-	// Consider that the "DelegatedFree" coins tracked on delegations refer to unvested tokens.
+	// Consider that the "DelegatedFree" coins tracked on delegations refer to vested tokens.
 	// These "free" (vested) tokens can be locked up or unlocked
 	lockedUpVestedDelegatedCoins := va.DelegatedFree.Min(va.GetLockedUpVestedCoins(blockTime))
 
