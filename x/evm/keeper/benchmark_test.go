@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
 
 	sdkmath "cosmossdk.io/math"
@@ -61,7 +62,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
 	msg := txBuilder(suite, contractAddr)
 	msg.From = suite.keyring.GetAddr(0).Hex()
-	err := msg.Sign(ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID()), krSigner)
+	err := msg.Sign(ethtypes.LatestSignerForChainID(config.GetChainConfig().ChainID), krSigner)
 	require.NoError(b, err)
 
 	b.ResetTimer()
@@ -83,7 +84,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 	}
 }
 
-func BenchmarkTokenTransfer(b *testing.B) { //nolint:dupl
+func BenchmarkTokenTransfer(b *testing.B) {
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
@@ -92,7 +93,7 @@ func BenchmarkTokenTransfer(b *testing.B) { //nolint:dupl
 		require.NoError(b, err)
 		nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  suite.network.App.EvmKeeper.ChainID(),
+			ChainID:  config.GetChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -113,7 +114,7 @@ func BenchmarkEmitLogs(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  suite.network.App.EvmKeeper.ChainID(),
+			ChainID:  config.GetChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -134,7 +135,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  suite.network.App.EvmKeeper.ChainID(),
+			ChainID:  config.GetChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -146,7 +147,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 	})
 }
 
-func BenchmarkTokenMint(b *testing.B) { //nolint:dupl
+func BenchmarkTokenMint(b *testing.B) {
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(b, err, "failed to load erc20 contract")
 
@@ -155,7 +156,7 @@ func BenchmarkTokenMint(b *testing.B) { //nolint:dupl
 		require.NoError(b, err)
 		nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  suite.network.App.EvmKeeper.ChainID(),
+			ChainID:  config.GetChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -177,7 +178,7 @@ func BenchmarkMessageCall(b *testing.B) {
 	require.NoError(b, err)
 	nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 	ethTxParams := &types.EvmTxArgs{
-		ChainID:  suite.network.App.EvmKeeper.ChainID(),
+		ChainID:  config.GetChainConfig().ChainID,
 		Nonce:    nonce,
 		To:       &contract,
 		Amount:   big.NewInt(0),
@@ -189,7 +190,7 @@ func BenchmarkMessageCall(b *testing.B) {
 
 	msg.From = suite.keyring.GetAddr(0).Hex()
 	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-	err = msg.Sign(ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID()), krSigner)
+	err = msg.Sign(ethtypes.LatestSignerForChainID(config.GetChainConfig().ChainID), krSigner)
 	require.NoError(b, err)
 
 	b.ResetTimer()

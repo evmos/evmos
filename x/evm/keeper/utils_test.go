@@ -4,18 +4,21 @@ import (
 	"encoding/json"
 	"math/big"
 
+	"github.com/stretchr/testify/require"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v20/server/config"
+
+	servercfg "github.com/evmos/evmos/v20/server/config"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/stretchr/testify/require"
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
@@ -28,7 +31,7 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
-	chainID := suite.network.App.EvmKeeper.ChainID()
+	chainID := evmconfig.GetChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -48,7 +51,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Con
 	require.NoError(t, err)
 	res, err := suite.network.GetEvmClient().EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
-		GasCap:          config.DefaultGasCap,
+		GasCap:          servercfg.DefaultGasCap,
 		ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
@@ -87,7 +90,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Con
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
 	ctx := suite.network.GetContext()
-	chainID := suite.network.App.EvmKeeper.ChainID()
+	chainID := evmconfig.GetChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -143,7 +146,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
 	ctx := suite.network.GetContext()
-	chainID := suite.network.App.EvmKeeper.ChainID()
+	chainID := evmconfig.GetChainConfig().ChainID
 
 	testMsgCall, err := testdata.LoadMessageCallContract()
 	require.NoError(t, err)
@@ -158,7 +161,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	res, err := suite.network.GetEvmClient().EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
-		GasCap:          config.DefaultGasCap,
+		GasCap:          servercfg.DefaultGasCap,
 		ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
