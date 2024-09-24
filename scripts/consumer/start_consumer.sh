@@ -87,13 +87,12 @@ sed -i -r "114s/.*/address = \"tcp:\/\/0.0.0.0:1318\"/" "$CONSUMER_HOME1"/config
 # Start the chain
 ./$CONSUMER_BINARY start \
        --home $CONSUMER_HOME \
-       --rpc.laddr http://${CONSUMER_RPC_LADDR} \
+       --rpc.laddr tcp://${CONSUMER_RPC_LADDR} \
        --grpc.address ${CONSUMER_GRPC_ADDR} \
        --address tcp://${NODE_IP}:26645 \
        --p2p.laddr tcp://${NODE_IP}:26646 \
        --grpc-web.enable=false \
-       --log_level trace \
-       --trace \
+       --rpc.pprof_laddr "" \
        &> $CONSUMER_HOME/logs &
 
 ./$CONSUMER_BINARY start \
@@ -103,8 +102,7 @@ sed -i -r "114s/.*/address = \"tcp:\/\/0.0.0.0:1318\"/" "$CONSUMER_HOME1"/config
        --address tcp://${NODE_IP}:26635 \
        --p2p.laddr tcp://${NODE_IP}:26636 \
        --grpc-web.enable=false \
-       --log_level trace \
-       --trace \
+       --rpc.pprof_laddr "" \
        &> $CONSUMER_HOME1/logs &
 sleep 10
 
