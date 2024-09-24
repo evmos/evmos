@@ -73,13 +73,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 			"account %s could not be converted to a base account", msg.VestingAddress,
 		)
 	}
-	// vesting accounts can only delegate vested (free) coins.
-	delegated, err := k.getDelegatedCoins(ctx, vestingAddress)
-	if err != nil {
-		return nil, err
-	}
 
-	baseVestingAcc := &sdkvesting.BaseVestingAccount{BaseAccount: baseAcc, DelegatedFree: delegated}
+	baseVestingAcc := &sdkvesting.BaseVestingAccount{BaseAccount: baseAcc}
 	vestingAcc := &types.ClawbackVestingAccount{
 		BaseVestingAccount: baseVestingAcc,
 		FunderAddress:      funderAddress.String(),
@@ -161,7 +156,7 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.VestingAddress, vestingAcc.FunderAddress)
 	}
 
-	err = k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+	err = k.addGrant(vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +385,6 @@ func (k Keeper) ConvertVestingAccount(
 // addGrant merges a new clawback vesting grant into an existing
 // ClawbackVestingAccount.
 func (k Keeper) addGrant(
-	ctx sdk.Context,
 	va *types.ClawbackVestingAccount,
 	grantStartTime int64,
 	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
@@ -425,13 +419,6 @@ func (k Keeper) addGrant(
 	va.LockupPeriods = newLockupPeriods
 	va.VestingPeriods = newVestingPeriods
 	va.OriginalVesting = va.OriginalVesting.Add(grantCoins...)
-
-	// vesting accounts can only delegate vested (free) coins.
-	delegated, err := k.getDelegatedCoins(ctx, va.GetAddress())
-	if err != nil {
-		return err
-	}
-	va.DelegatedFree = delegated
 
 	return nil
 }
@@ -476,24 +463,4 @@ func (k Keeper) transferClawback(
 
 	// Transfer clawback to the destination (funder)
 	return toClawBack, k.bankKeeper.SendCoins(ctx, address, destinationAddr, toClawBack)
-}
-
-// getDelegatedCoins is a helper function to get the delegated coins.
-// It accounts for the bonded and unbonding coins.
-func (k Keeper) getDelegatedCoins(ctx sdk.Context, addr sdk.AccAddress) (sdk.Coins, error) {
-	bondedAmt, err := k.stakingKeeper.GetDelegatorBonded(ctx, addr)
-	if err != nil {
-		return nil, err
-	}
-	unbondingAmt, err := k.stakingKeeper.GetDelegatorUnbonding(ctx, addr)
-	if err != nil {
-		return nil, err
-	}
-	delegatedAmt := bondedAmt.Add(unbondingAmt)
-	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return sdk.NewCoins(sdk.NewCoin(bondDenom, delegatedAmt)), nil
 }
