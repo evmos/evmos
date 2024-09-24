@@ -73,7 +73,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 			"account %s could not be converted to a base account", msg.VestingAddress,
 		)
 	}
-	// vesting accounts can only delegate unvested (free) coins.
+	// vesting accounts can only delegate vested (free) coins.
 	delegated, err := k.getDelegatedCoins(ctx, vestingAddress)
 	if err != nil {
 		return nil, err
@@ -426,7 +426,7 @@ func (k Keeper) addGrant(
 	va.VestingPeriods = newVestingPeriods
 	va.OriginalVesting = va.OriginalVesting.Add(grantCoins...)
 
-	// vesting accounts can only delegate unvested (free) coins.
+	// vesting accounts can only delegate vested (free) coins.
 	delegated, err := k.getDelegatedCoins(ctx, va.GetAddress())
 	if err != nil {
 		return err
