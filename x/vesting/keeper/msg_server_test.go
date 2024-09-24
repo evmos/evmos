@@ -161,7 +161,7 @@ func TestMsgFundVestingAccount(t *testing.T) {
 				require.NoError(t, err, "failed to fund funder account")
 				msgDelegate := stakingtypes.NewMsgDelegate(tc.vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
 				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
-				_, err := msgSrv.Delegate(ctx, msgDelegate)
+				_, err = msgSrv.Delegate(ctx, msgDelegate)
 				require.NoError(t, err, "failed to delegate")
 			}
 
