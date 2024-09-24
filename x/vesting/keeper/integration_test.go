@@ -564,7 +564,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			}
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -605,7 +605,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			}
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -642,7 +642,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			}
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -668,7 +668,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, &msg)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, &msg)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -694,7 +694,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			}
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -722,7 +722,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs[numVestAccounts] = &msg
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -752,7 +752,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs = append(msgs, &msg)
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
@@ -779,7 +779,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs := []sdk.Msg{&normAccMsg, &vestAccMsg}
 
 			txConfig := s.network.GetEncodingConfig().TxConfig
-			tx, err := utiltx.PrepareEthTx(txConfig, s.network.App, nil, msgs...)
+			tx, err := utiltx.PrepareEthTx(txConfig, nil, msgs...)
 			Expect(err).To(BeNil())
 
 			txBytes, err := txConfig.TxEncoder()(tx)
