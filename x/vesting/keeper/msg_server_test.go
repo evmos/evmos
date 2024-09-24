@@ -158,7 +158,7 @@ func TestMsgFundVestingAccount(t *testing.T) {
 				// in order to delegate from the future vesting account, we need to
 				// send it some funds
 				err = testutil.FundAccount(ctx, nw.App.BankKeeper, tc.vestingAddr, delegationCoins)
-				require.NoError(t, err, "failed to fund funder account")
+				require.NoError(t, err, "failed to fund vesting account")
 				msgDelegate := stakingtypes.NewMsgDelegate(tc.vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
 				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
 				_, err = msgSrv.Delegate(ctx, msgDelegate)
