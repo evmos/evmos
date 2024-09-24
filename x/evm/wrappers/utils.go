@@ -26,9 +26,7 @@ func convertEvmCoinTo18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 		return sdk.Coin{}, err
 	}
 
-	coin.Amount = newAmount
-
-	return coin, nil
+	return sdk.NewCoin(coin.Denom, newAmount), nil
 }
 
 // convertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its
@@ -45,9 +43,7 @@ func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 		return sdk.Coin{}, err
 	}
 
-	coin.Amount = newAmount
-
-	return coin, nil
+	return sdk.NewCoin(coin.Denom, newAmount), nil
 }
 
 // convertCoinsFrom18Decimals returns the given coins with the evm amount
@@ -58,7 +54,7 @@ func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 		if coin.Denom == evmDenom {
 			convertedCoin, err := convertEvmCoinFrom18Decimals(coins[i])
 			if err != nil {
-				return sdk.Coins{}, nil
+				return sdk.Coins{}, err
 			}
 			coins[i] = convertedCoin
 		}
