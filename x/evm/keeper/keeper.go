@@ -20,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -52,9 +51,6 @@ type Keeper struct {
 	feeMarketKeeper types.FeeMarketKeeper
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
-
-	// chain ID number obtained from the context's chain id
-	eip155ChainID *big.Int
 
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
@@ -110,25 +106,6 @@ func NewKeeper(
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
-}
-
-// WithChainID sets the chain id to the local variable in the keeper
-func (k *Keeper) WithChainID(ctx sdk.Context) {
-	chainID, err := evmostypes.ParseChainID(ctx.ChainID())
-	if err != nil {
-		panic(err)
-	}
-
-	if k.eip155ChainID != nil && k.eip155ChainID.Cmp(chainID) != 0 {
-		panic("chain id already set")
-	}
-
-	k.eip155ChainID = chainID
-}
-
-// ChainID returns the EIP155 chain ID for the EVM context
-func (k Keeper) ChainID() *big.Int {
-	return k.eip155ChainID
 }
 
 // ----------------------------------------------------------------------------

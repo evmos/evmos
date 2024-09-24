@@ -8,15 +8,19 @@ import (
 	ethante "github.com/evmos/evmos/v20/app/ante/evm"
 	"github.com/evmos/evmos/v20/testutil"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
-	ethSigner := ethtypes.LatestSignerForChainID(suite.GetNetwork().App.EvmKeeper.ChainID())
+
+	evmChainID := config.GetChainConfig().ChainID
+
+	ethSigner := ethtypes.LatestSignerForChainID(evmChainID)
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.GetNetwork().App.EvmKeeper.ChainID(),
+		ChainID:  evmChainID,
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
