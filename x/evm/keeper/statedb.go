@@ -125,19 +125,13 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 	case 1:
 		// mint
 		coins := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(delta)))
-		if err := k.bankWrapper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-			return err
-		}
-		if err := k.bankWrapper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, cosmosAddr, coins); err != nil {
+		if err := k.bankWrapper.MintCoinsToAccount(ctx, cosmosAddr, coins); err != nil {
 			return err
 		}
 	case -1:
 		// burn
 		coins := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(new(big.Int).Neg(delta))))
-		if err := k.bankWrapper.SendCoinsFromAccountToModule(ctx, cosmosAddr, types.ModuleName, coins); err != nil {
-			return err
-		}
-		if err := k.bankWrapper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+		if err := k.bankWrapper.BurnCoinsFromAccount(ctx, cosmosAddr, coins); err != nil {
 			return err
 		}
 	default:

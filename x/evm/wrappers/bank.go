@@ -39,9 +39,9 @@ func NewBankWrapper(
 func (w BankWrapper) GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress) (sdk.Coin, error) {
 	denom := config.GetEVMCoinDenom()
 
-	coin := w.BankKeeper.GetBalance(ctx, addr, denom)
+	coin := w.GetBalance(ctx, addr, denom)
 
-	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
+	convertedCoin, err := convertEvmCoinTo18Decimals(coin)
 	if err != nil {
 		return coin, err
 	}
@@ -52,74 +52,52 @@ func (w BankWrapper) GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress)
 // SendCoinsFromAccountToModule method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error {
-	evmDenom := config.GetEVMCoinDenom()
-	for i, coin := range amt {
-		if coin.Denom == evmDenom {
-			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
-			if err != nil {
-				return err
-			}
-			amt[i] = convertedCoin
-		}
+	coins, err := convertCoinsFrom18Decimals(amt)
+	if err != nil {
+		return err
 	}
-	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
+
+	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, coins)
 }
 
 // SendCoinsFromModuleToAccount wraps around the Cosmos SDK x/bank module's
 // SendCoinsFromModuleToAccount method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	evmDenom := config.GetEVMCoinDenom()
-	for i, coin := range amt {
-		if coin.Denom == evmDenom {
-			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
-			if err != nil {
-				return err
-			}
-			amt[i] = convertedCoin
-		}
+	coins, err := convertCoinsFrom18Decimals(amt)
+	if err != nil {
+		return err
 	}
+
 	// NOTE: amt is already converted so we need to use the x/bank method.
-	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt)
+	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, coins)
 }
 
-// MintCoinsToAccount convert the evm coin to the original decimal
+// MintCoinsToAccount converts the evm coin to the original decimal
 // representation if required, and mint requested coins to the provided account.
 func (w BankWrapper) MintCoinsToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	evmDenom := config.GetEVMCoinDenom()
-	for i, coin := range amt {
-		if coin.Denom == evmDenom {
-			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
-			if err != nil {
-				return err
-			}
-			amt[i] = convertedCoin
-		}
+	coins, err := convertCoinsFrom18Decimals(amt)
+	if err != nil {
+		return err
 	}
 
-	if err := w.MintCoins(ctx, types.ModuleName, amt); err != nil {
+	if err := w.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return err
 	}
 	// NOTE: amt is already converted so we need to use the x/bank method.
-	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, amt)
+	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, coins)
 }
 
-// BurnAccountCoins convert the evm coin to the original decimal representation
+// BurnCoinsFromAccount converts the evm coin to the original decimal representation
 // if required, and burn the requested coins from the given account.
-func (w BankWrapper) BurnAccountCoins(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error {
-	evmDenom := config.GetEVMCoinDenom()
-	for i, coin := range amt {
-		if coin.Denom == evmDenom {
-			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
-			if err != nil {
-				return err
-			}
-			amt[i] = convertedCoin
-		}
+func (w BankWrapper) BurnCoinsFromAccount(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error {
+	coins, err := convertCoinsFrom18Decimals(amt)
+	if err != nil {
+		return err
 	}
 
 	// NOTE: amt is already converted so we need to use the x/bank method.
-	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, amt); err != nil {
+	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, coins); err != nil {
 		return err
 	}
 	return w.BurnCoins(ctx, types.ModuleName, amt)

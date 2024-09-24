@@ -74,13 +74,13 @@ type (
 type BankWrapper interface {
 	BankKeeper
 
-	GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress, denom string) (sdk.Coin, error)
+	GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress) (sdk.Coin, error)
 	// MintCoinsToAccount scales down (if applies) provided coins
 	// from 18 decimals to the decimals used to represent the EVM coin
 	// and mints that amount to the provided account.
 	MintCoinsToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	// BurnAccountCoins scales down (if applies) provided coins
+	// BurnCoinsFromAccount scales down (if applies) provided coins
 	// from 18 decimals to the decimals used to represent the EVM coin
 	// and burns that coins of the provided account.
-	BurnAccountCoins(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error
+	BurnCoinsFromAccount(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error
 }
