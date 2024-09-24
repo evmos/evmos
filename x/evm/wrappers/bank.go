@@ -36,10 +36,16 @@ func NewBankWrapper(
 // GetBalance returns the balance of the given account converted to 18 decimals.
 // TODO: why do we allow to pass a denom if we can, and want, to handle only the
 // evm denom?
-func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin {
+func (w BankWrapper) GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress) (sdk.Coin, error) {
+	denom := config.GetEVMCoinDenom()
+
 	coin := w.BankKeeper.GetBalance(ctx, addr, denom)
 
-	return convertTo18DecimalsCoin(coin)
+	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
+	if err != nil {
+		return coin, err
+	}
+	return convertedCoin, nil
 }
 
 // SendCoinsFromAccountToModule wraps around the Cosmos SDK x/bank module's
@@ -49,7 +55,11 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAdd
 	evmDenom := config.GetEVMCoinDenom()
 	for i, coin := range amt {
 		if coin.Denom == evmDenom {
-			amt[i] = convertFrom18DecimalsCoin(amt[i])
+			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
+			if err != nil {
+				return err
+			}
+			amt[i] = convertedCoin
 		}
 	}
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, amt)
@@ -62,7 +72,11 @@ func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderMod
 	evmDenom := config.GetEVMCoinDenom()
 	for i, coin := range amt {
 		if coin.Denom == evmDenom {
-			amt[i] = convertFrom18DecimalsCoin(amt[i])
+			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
+			if err != nil {
+				return err
+			}
+			amt[i] = convertedCoin
 		}
 	}
 	// NOTE: amt is already converted so we need to use the x/bank method.
@@ -75,7 +89,11 @@ func (w BankWrapper) MintCoinsToAccount(ctx context.Context, recipientAddr sdk.A
 	evmDenom := config.GetEVMCoinDenom()
 	for i, coin := range amt {
 		if coin.Denom == evmDenom {
-			amt[i] = convertFrom18DecimalsCoin(amt[i])
+			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
+			if err != nil {
+				return err
+			}
+			amt[i] = convertedCoin
 		}
 	}
 
@@ -92,7 +110,11 @@ func (w BankWrapper) BurnAccountCoins(ctx context.Context, account sdk.AccAddres
 	evmDenom := config.GetEVMCoinDenom()
 	for i, coin := range amt {
 		if coin.Denom == evmDenom {
-			amt[i] = convertFrom18DecimalsCoin(amt[i])
+			convertedCoin, err := convertEvmCoinFrom18Decimals(amt[i])
+			if err != nil {
+				return err
+			}
+			amt[i] = convertedCoin
 		}
 	}
 

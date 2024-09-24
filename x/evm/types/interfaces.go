@@ -74,6 +74,7 @@ type (
 type BankWrapper interface {
 	BankKeeper
 
+	GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress, denom string) (sdk.Coin, error)
 	// MintCoinsToAccount scales down (if applies) provided coins
 	// from 18 decimals to the decimals used to represent the EVM coin
 	// and mints that amount to the provided account.

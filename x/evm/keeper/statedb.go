@@ -113,9 +113,12 @@ func (k *Keeper) ForEachStorage(ctx sdk.Context, addr common.Address, cb func(ke
 func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.Int) error {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
-	baseDenom := config.GetEVMCoinDenom()
+	coin, err := k.bankWrapper.GetEVMCoinBalance(ctx, cosmosAddr)
+	if err != nil {
+		return err
+	}
 
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, baseDenom)
+	baseDenom := config.GetEVMCoinDenom()
 	balance := coin.Amount.BigInt()
 	delta := new(big.Int).Sub(amount, balance)
 	switch delta.Sign() {
