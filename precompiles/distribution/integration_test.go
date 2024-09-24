@@ -609,7 +609,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// get base fee to use in tx to then calculate fee paid
 			bfQuery, err := s.grpcHandler.GetBaseFee()
 			Expect(err).To(BeNil(), "error while calling BaseFee")
-			gasPrice := bfQuery.BaseFee.BigInt()
+			gasPrice := bfQuery.BaseFee.TruncateInt().BigInt()
 			txArgs.GasPrice = gasPrice
 
 			claimRewardsCheck := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)

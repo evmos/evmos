@@ -86,9 +86,14 @@ func NewMonoDecoratorUtils(
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx)
-	feeMarketParams := fmk.GetParams(ctx)
 	baseDenom := config.GetDenom()
 
+	// get the gas prices adapted accordingly
+	// to the evm denom decimals
+	minGasPrice, err := ek.GetMinGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
 			evmtypes.ErrInvalidBaseFee,
@@ -103,7 +108,7 @@ func NewMonoDecoratorUtils(
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
 		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(baseDenom),
-		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
+		GlobalMinGasPrice:  minGasPrice,
 		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,

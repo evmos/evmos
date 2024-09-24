@@ -146,7 +146,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 			if err != nil {
 				return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to get base fee")
 			}
-			txArgs.GasFeeCap = baseFeeResp.BaseFee.BigInt()
+			txArgs.GasFeeCap = baseFeeResp.BaseFee.TruncateInt().BigInt()
 		}
 	}
 

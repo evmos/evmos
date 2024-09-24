@@ -262,7 +262,7 @@ var _ = Describe("Feemarket", func() {
 				})
 
 				It("should accept transactions with gasPrice >= baseFee", func() {
-					gasPrice := math.NewIntFromBigInt(baseFee.BigInt())
+					gasPrice := baseFee.TruncateInt()
 					txArgs.GasPrice = &gasPrice
 					tx, err := s.factory.BuildCosmosTx(privKey, txArgs)
 					Expect(err).To(BeNil())
@@ -294,7 +294,7 @@ var _ = Describe("Feemarket", func() {
 					Expect(res.Log).To(ContainSubstring("insufficient fee"))
 				})
 				It("should accept transactions with gasPrice >= baseFee", func() {
-					gasPrice := math.NewIntFromBigInt(baseFee.BigInt())
+					gasPrice := baseFee.TruncateInt()
 					txArgs.GasPrice = &gasPrice
 					res, err := s.factory.ExecuteCosmosTx(privKey, txArgs)
 					Expect(err).To(BeNil())
