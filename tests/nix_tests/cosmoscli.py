@@ -1154,7 +1154,7 @@ class CosmosCLI:
         if not base_fee:
             raise ValueError(f"failed to return base fee: {out_dict}")
 
-        return int(base_fee)
+        return float(base_fee)
 
     # ==========================
     #        AUTHZ Module
