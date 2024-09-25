@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"context"
-	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -73,6 +72,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 			"account %s could not be converted to a base account", msg.VestingAddress,
 		)
 	}
+
 	baseVestingAcc := &sdkvesting.BaseVestingAccount{BaseAccount: baseAcc}
 	vestingAcc := &types.ClawbackVestingAccount{
 		BaseVestingAccount: baseVestingAcc,
@@ -155,7 +155,7 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.VestingAddress, vestingAcc.FunderAddress)
 	}
 
-	err = k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+	err = vestingAcc.AddGrant(msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	if err != nil {
 		return nil, err
 	}
@@ -379,69 +379,6 @@ func (k Keeper) ConvertVestingAccount(
 	k.accountKeeper.SetAccount(ctx, baseAcc)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
-}
-
-// addGrant merges a new clawback vesting grant into an existing
-// ClawbackVestingAccount.
-func (k Keeper) addGrant(
-	ctx sdk.Context,
-	va *types.ClawbackVestingAccount,
-	grantStartTime int64,
-	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
-	grantCoins sdk.Coins,
-) error {
-	// check if the clawback vesting account has only been initialized and not yet funded --
-	// in that case it's necessary to update the vesting account with the given start time because this is set to zero in the initialization
-	if len(va.LockupPeriods) == 0 && len(va.VestingPeriods) == 0 {
-		va.StartTime = time.Unix(grantStartTime, 0).UTC()
-	}
-
-	// how much is really delegated?
-	vestingAddr := va.GetAddress()
-	bondedAmt, err := k.stakingKeeper.GetDelegatorBonded(ctx, vestingAddr)
-	if err != nil {
-		return err
-	}
-	unbondingAmt, err := k.stakingKeeper.GetDelegatorUnbonding(ctx, vestingAddr)
-	if err != nil {
-		return err
-	}
-	delegatedAmt := bondedAmt.Add(unbondingAmt)
-	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return err
-	}
-	delegated := sdk.NewCoins(sdk.NewCoin(bondDenom, delegatedAmt))
-
-	// modify schedules for the new grant
-	accStartTime := va.GetStartTime()
-	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(accStartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
-	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(
-		accStartTime,
-		grantStartTime,
-		va.GetVestingPeriods(),
-		grantVestingPeriods,
-	)
-
-	if newLockupStart != newVestingStart {
-		return errorsmod.Wrapf(
-			types.ErrVestingLockup,
-			"vesting start time calculation should match lockup start (%d ≠ %d)",
-			newVestingStart, newLockupStart,
-		)
-	}
-
-	va.StartTime = time.Unix(newLockupStart, 0).UTC()
-	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
-	va.LockupPeriods = newLockupPeriods
-	va.VestingPeriods = newVestingPeriods
-	va.OriginalVesting = va.OriginalVesting.Add(grantCoins...)
-
-	// cap DV at the current unvested amount, DF rounds out to current delegated
-	unvested := va.GetVestingCoins(ctx.BlockTime())
-	va.DelegatedVesting = delegated.Min(unvested)
-	va.DelegatedFree = delegated.Sub(va.DelegatedVesting...)
-	return nil
 }
 
 // transferClawback transfers unvested tokens in a ClawbackVestingAccount to
