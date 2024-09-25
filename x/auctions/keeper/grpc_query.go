@@ -5,7 +5,7 @@ package keeper
 
 import (
 	"context"
-
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/x/auctions/types"
 )
@@ -28,6 +28,7 @@ func (k Keeper) AuctionInfo(c context.Context, _ *types.QueryCurrentAuctionInfoR
 
 	currentRound := k.GetRound(ctx)
 	highestBid := k.GetHighestBid(ctx)
+	fmt.Println("bidder in auctionInfo", highestBid.Sender)
 	return &types.QueryCurrentAuctionInfoResponse{
 		Tokens:        filteredCoins,
 		CurrentRound:  currentRound,

@@ -128,9 +128,8 @@ func TestInitGenesis(t *testing.T) {
 
 			if tc.fundModuleAccount {
 				auctionModuleAddress := network.App.AccountKeeper.GetModuleAddress(types.ModuleName)
-				err := network.FundAccount(auctionModuleAddress, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
+				err := network.FundModuleAccount(types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
 				require.NoError(t, err, "failed during sending coin to module account")
-				require.NoError(t, network.NextBlock(), "failed to move to next block")
 				auctionModuleBalance := network.App.BankKeeper.GetBalance(network.GetContext(), auctionModuleAddress, utils.BaseDenom)
 				fmt.Println(auctionModuleBalance.Amount, moduleAccountBalance)
 				require.Equal(t, auctionModuleBalance.Amount, moduleAccountBalance)

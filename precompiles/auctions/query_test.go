@@ -2,6 +2,7 @@ package auctions_test
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v20/utils"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -9,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/precompiles/auctions"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 )
@@ -23,20 +23,21 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 		gas         uint64
 		expError    bool
 		errContains string
+		args        []interface{}
 		postCheck   func(bz []byte)
 	}{
 		{
 			"success - get auction info",
 			func(ctx sdk.Context) {
-				moduleAcc := s.network.App.AccountKeeper.GetModuleAddress(auctionstypes.ModuleName)
-				err := s.network.FundAccount(moduleAcc, types.NewCoins(types.NewCoin("uatom", math.NewInt(2e18))))
+				err := s.network.FundModuleAccount(auctionstypes.ModuleName, types.NewCoins(types.NewCoin(utils.BaseDenom, math.NewInt(1e18))))
 				s.Require().NoError(err)
-
+				err = s.network.FundModuleAccount(auctionstypes.ModuleName, types.NewCoins(types.NewCoin("uatom", math.NewInt(1e18))))
+				s.Require().NoError(err)
 				s.network.App.AuctionsKeeper.InitGenesis(ctx, auctionstypes.GenesisState{
 					Params: auctionstypes.DefaultParams(),
 					Bid: auctionstypes.Bid{
-						BidValue: types.NewCoin("aevmos", math.NewInt(1e18)),
-						Sender:   s.keyring.GetAddr(0).String(),
+						BidValue: types.NewCoin(utils.BaseDenom, math.NewInt(1e18)),
+						Sender:   s.keyring.GetAccAddr(0).String(),
 					},
 					Round: 1,
 				})
@@ -45,16 +46,16 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 			200000,
 			false,
 			"",
+			[]interface{}{},
 			func(bz []byte) {
 				var auctionInfo auctions.AuctionInfoOutput
 				err := s.precompile.UnpackIntoInterface(&auctionInfo, auctions.AuctionInfoMethod, bz)
 				s.Require().NoError(err)
 				s.Require().Equal(uint64(1), auctionInfo.AuctionInfo.CurrentRound)
 				s.Require().Equal(big.NewInt(1e18), auctionInfo.AuctionInfo.HighestBid.Amount)
-				s.Require().Equal(s.keyring.GetAddr(0), auctionInfo.AuctionInfo.BidderAddress)
 				s.Require().Equal("aevmos", auctionInfo.AuctionInfo.HighestBid.Denom)
 				s.Require().Equal(1, len(auctionInfo.AuctionInfo.Tokens))
-
+				s.Require().Equal(s.keyring.GetAddr(0), auctionInfo.AuctionInfo.BidderAddress)
 			},
 		},
 		{
@@ -62,7 +63,8 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 			func(ctx sdk.Context) {},
 			200000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 0, 1),
+			fmt.Sprintf(auctions.ErrInvalidInputLength, 1),
+			[]interface{}{big.NewInt(1)},
 			func(bz []byte) {},
 		},
 	}
@@ -79,7 +81,7 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 			contract, ctx := testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
 			// Run the query
-			bz, err := s.precompile.AuctionInfo(ctx, contract, &method, []interface{}{})
+			bz, err := s.precompile.AuctionInfo(ctx, contract, &method, tc.args)
 
 			if tc.expError {
 				s.Require().Error(err)

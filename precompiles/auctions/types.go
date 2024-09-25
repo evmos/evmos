@@ -88,7 +88,10 @@ func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Kee
 
 // FromResponse populates the AuctionInfoOutput from a QueryCurrentAuctionInfoResponse.
 func (ai *AuctionInfoOutput) FromResponse(res *auctionstypes.QueryCurrentAuctionInfoResponse) *AuctionInfoOutput {
-	senderBech := sdk.AccAddress(res.BidderAddress)
+	senderBech, err := sdk.AccAddressFromBech32(res.BidderAddress)
+	if err != nil {
+		return nil
+	}
 	senderHex := common.BytesToAddress(senderBech.Bytes())
 	ai.AuctionInfo.BidderAddress = senderHex
 	ai.AuctionInfo.HighestBid = cmn.Coin{
