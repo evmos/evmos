@@ -11,6 +11,7 @@ import (
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/precompiles/distribution"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -221,9 +222,11 @@ func (s *PrecompileTestSuite) TestRun() {
 			contract.Input = input
 
 			contractAddr := contract.Address()
+
+			evmChainID := config.GetChainConfig().ChainID
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EvmKeeper.ChainID(),
+				ChainID:   evmChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,

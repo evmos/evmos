@@ -8,58 +8,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/evm/keeper"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
-
-func (suite *KeeperTestSuite) TestWithChainID() {
-	testCases := []struct {
-		name       string
-		chainID    string
-		expChainID int64
-		expPanic   bool
-	}{
-		{
-			"fail - chainID is empty",
-			"",
-			0,
-			true,
-		},
-		{
-			"success - Evmos mainnet chain ID",
-			"evmos_9001-2",
-			9001,
-			false,
-		},
-		{
-			"success - Evmos testnet chain ID",
-			"evmos_9000-4",
-			9000,
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			keeper := keeper.Keeper{}
-			ctx := suite.network.GetContext().WithChainID(tc.chainID)
-
-			if tc.expPanic {
-				suite.Require().Panics(func() {
-					keeper.WithChainID(ctx)
-				})
-			} else {
-				suite.Require().NotPanics(func() {
-					keeper.WithChainID(ctx)
-					suite.Require().Equal(tc.expChainID, keeper.ChainID().Int64())
-				})
-			}
-		})
-	}
-}
 
 func (suite *KeeperTestSuite) TestBaseFee() {
 	testCases := []struct {
@@ -79,7 +32,6 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.enableFeemarket = tc.enableFeemarket
 			suite.enableLondonHF = tc.enableLondonHF
 			suite.SetupTest()
-			suite.Require().NoError(suite.network.App.EvmKeeper.BeginBlock(suite.network.GetContext()))
 			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext())
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})
