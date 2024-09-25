@@ -8,7 +8,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -34,18 +33,12 @@ func NewBankWrapper(
 }
 
 // GetBalance returns the balance of the given account converted to 18 decimals.
-// TODO: why do we allow to pass a denom if we can, and want, to handle only the
-// evm denom?
-func (w BankWrapper) GetEVMCoinBalance(ctx context.Context, addr sdk.AccAddress) (sdk.Coin, error) {
-	denom := config.GetEVMCoinDenom()
+func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin {
+	coin := w.BankKeeper.GetBalance(ctx, addr, denom)
 
-	coin := w.GetBalance(ctx, addr, denom)
+	convertedCoin := mustConvertEvmCoinTo18DecimalsUnchecked(coin)
 
-	convertedCoin, err := convertEvmCoinTo18Decimals(coin)
-	if err != nil {
-		return coin, err
-	}
-	return convertedCoin, nil
+	return convertedCoin
 }
 
 // SendCoinsFromAccountToModule wraps around the Cosmos SDK x/bank module's

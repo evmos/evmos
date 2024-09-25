@@ -268,9 +268,7 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
-	// The registered EVM coin is the one used as gas token.
 	evmDenom := config.GetEVMCoinDenom()
-
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
 	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
 

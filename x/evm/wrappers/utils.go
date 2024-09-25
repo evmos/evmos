@@ -12,6 +12,20 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/config"
 )
 
+// convertEvmCoinTo18DecimalsUnchecked convert the given coin from its original
+// representation into a 18 decimals one. The function panic if coin denom is
+// not the evm denom or in case of overflow.
+func mustConvertEvmCoinTo18DecimalsUnchecked(coin sdk.Coin) sdk.Coin {
+	if coin.Denom != config.GetEVMCoinDenom() {
+		panic(fmt.Sprintf("expected evm denom %s, received %s", config.GetEVMCoinDenom(), coin.Denom))
+	}
+
+	evmCoinDecimal := config.GetEVMCoinDecimals()
+	newAmount := coin.Amount.Mul(math.NewInt(evmCoinDecimal.ConversionFactor()))
+
+	return sdk.NewCoin(coin.Denom, newAmount)
+}
+
 // convertEvmCoinTo18Decimals converts the coin's Amount from its original
 // representation to 18 decimals. Return an error if the coin denom is not the
 // EVM denom or in case of overflow.
@@ -50,14 +64,17 @@ func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 // converted from the 18 decimals representation to the original one.
 func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 	evmDenom := config.GetEVMCoinDenom()
+	convertedCoins := make(sdk.Coins, len(coins))
+
 	for i, coin := range coins {
 		if coin.Denom == evmDenom {
 			convertedCoin, err := convertEvmCoinFrom18Decimals(coins[i])
 			if err != nil {
 				return sdk.Coins{}, err
 			}
-			coins[i] = convertedCoin
+			coin = convertedCoin
 		}
+		convertedCoins[i] = coin
 	}
 	return coins, nil
 }
