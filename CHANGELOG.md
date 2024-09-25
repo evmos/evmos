@@ -35,19 +35,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
-
-### State Machine Breaking
-
-- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
-
-## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-23
+## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-25
 
 ### State Machine Breaking
 
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (gov) [#2863](https://github.com/evmos/evmos/pull/2863) Fix denom, amount and period in expedited proposal params.
 - (bank) [#2874](https://github.com/evmos/evmos/pull/2874) Fix corrupted denom metadata on testnet.
+- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
 
 ### Improvements
 
