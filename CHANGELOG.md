@@ -40,8 +40,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
+<<<<<<< HEAD
 - (gov) [#2863](https://github.com/evmos/evmos/pull/2863) Fix denom, amount and period in expedited proposal params.
 - (bank) [#2874](https://github.com/evmos/evmos/pull/2874) Fix corrupted denom metadata on testnet.
+=======
+- (app) [#2860](https://github.com/evmos/evmos/pull/2860) Refactor to use `sdk.BaseDenom` and evm denom and added app configurator.
+- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
+>>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 
 ### Improvements
 
