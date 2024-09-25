@@ -26,7 +26,6 @@ import (
 )
 
 var (
-	nilCoins        sdk.Coins
 	vestAmount      = int64(1000)
 	baseDenom       = evmostypes.BaseDenom
 	balances        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
@@ -99,6 +98,7 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			vesting:      vestingPeriods,
 			initClawback: false,
 			expPass:      false,
+			errContains:  "account is not subject to clawback vesting",
 		},
 		{
 			name:               "true - fund existing vesting account",
@@ -230,7 +230,7 @@ func TestMsgFundVestingAccount(t *testing.T) {
 				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceFunder)
 				require.Equal(t, sdk.NewInt64Coin(baseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
 				require.Equal(t, tc.expDelegatedFree, vestAcc.DelegatedFree)
-				require.Equal(t, nilCoins, vestAcc.DelegatedVesting)
+				require.Empty(t, vestAcc.DelegatedVesting)
 				require.True(t, spendableBalanceVestingAddr.Amount.IsZero())
 			} else {
 				require.Error(t, err, tc.name)
@@ -386,12 +386,10 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
 				require.NoError(t, err)
-				err = testutil.FundAccount(ctx, nw.App.BankKeeper, vestingAddr, balances)
-				require.NoError(t, err)
-
-				// send some funds to vestingAddr to delegate
 				err = testutil.FundAccount(ctx, nw.App.BankKeeper, vestingAddr, delegationCoins)
 				require.NoError(t, err, "failed to fund vesting account")
+
+				// create a delegation for the vestingAcc
 				msgDelegate := stakingtypes.NewMsgDelegate(vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
 				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
 				_, err = msgSrv.Delegate(ctx, msgDelegate)
@@ -426,8 +424,8 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				vestAcc, ok := accI.(*types.ClawbackVestingAccount)
 				require.NotNil(t, accI, "expected account to be created")
 				require.True(t, ok, "expected account to be a clawback vesting account")
-				require.Equal(t, nilCoins, vestAcc.DelegatedFree)
-				require.Equal(t, nilCoins, vestAcc.DelegatedVesting)
+				require.Empty(t, vestAcc.DelegatedFree)
+				require.Empty(t, vestAcc.DelegatedVesting)
 			} else {
 				require.Error(t, err)
 				require.ErrorContains(t, err, tc.errContains)
