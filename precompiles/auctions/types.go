@@ -31,7 +31,7 @@ type AuctionInfo struct {
 // NewMsgBid creates a new MsgBid.
 func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid, error) {
 	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 2)
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
@@ -55,7 +55,7 @@ func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid, error
 // NewMsgDepositCoin creates a new MsgDepositCoin.
 func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Keeper.Keeper) (common.Address, common.Address, *auctionstypes.MsgDepositCoin, error) {
 	if len(args) != 3 {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, len(args), 3)
+		return common.Address{}, common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
