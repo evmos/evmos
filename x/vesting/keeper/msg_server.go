@@ -76,17 +76,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 		)
 	}
 
-<<<<<<< HEAD
 	baseAcc := ethAcc.GetBaseAccount()
-=======
-	baseAcc, ok := acc.(*authtypes.BaseAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
-			"account %s could not be converted to a base account", msg.VestingAddress,
-		)
-	}
-
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 	baseVestingAcc := &sdkvesting.BaseVestingAccount{BaseAccount: baseAcc}
 	vestingAcc := &types.ClawbackVestingAccount{
 		BaseVestingAccount: baseVestingAcc,

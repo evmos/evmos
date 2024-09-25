@@ -11,12 +11,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-<<<<<<< HEAD
-=======
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v20/contracts"
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 	"github.com/evmos/evmos/v20/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
@@ -26,29 +22,16 @@ import (
 )
 
 var (
-<<<<<<< HEAD
-	vestAmount     = int64(1000)
-	balances       = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, vestAmount))
-	quarter        = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
-	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	funder         = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	vestingAddr    = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
-	vestingPeriods = sdkvesting.Periods{
-=======
 	vestAmount      = int64(1000)
-	baseDenom       = evmostypes.BaseDenom
-	balances        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
-	delegationCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1e18))
-	quarter         = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
+	balances        = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, vestAmount))
+	delegationCoins = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 1e18))
+	quarter         = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
 	addr3           = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr4           = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	funder          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	vestingAddr     = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	lockupPeriods   = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods  = sdkvesting.Periods{
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
@@ -226,14 +209,9 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			res, err := nw.App.VestingKeeper.FundVestingAccount(ctx, msg)
 
 			expRes := &types.MsgFundVestingAccountResponse{}
-<<<<<<< HEAD
 			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, utils.BaseDenom)
 			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, utils.BaseDenom)
-=======
-			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, baseDenom)
-			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, baseDenom)
-			spendableBalanceVestingAddr := nw.App.BankKeeper.SpendableCoin(ctx, tc.vestingAddr, baseDenom)
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
+			spendableBalanceVestingAddr := nw.App.BankKeeper.SpendableCoin(ctx, tc.vestingAddr, utils.BaseDenom)
 
 			if tc.expPass {
 				require.NoError(t, err, tc.name)
@@ -241,20 +219,14 @@ func TestMsgFundVestingAccount(t *testing.T) {
 
 				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
 				require.NotNil(t, accI)
-<<<<<<< HEAD
-				require.IsType(t, &types.ClawbackVestingAccount{}, accI)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceFunder)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
-=======
 				vestAcc, ok := accI.(*types.ClawbackVestingAccount)
 				require.True(t, ok)
 
-				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceFunder)
-				require.Equal(t, sdk.NewInt64Coin(baseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
+				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceFunder)
+				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
 				require.Equal(t, tc.expDelegatedFree, vestAcc.DelegatedFree)
 				require.Empty(t, vestAcc.DelegatedVesting)
 				require.True(t, spendableBalanceVestingAddr.Amount.IsZero())
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 			} else {
 				require.Error(t, err, tc.name)
 				require.ErrorContains(t, err, tc.errContains)
@@ -396,7 +368,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		},
 		{
 			name: "success - with pre-existent delegation",
-			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
+			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
 				// fund the funder and vesting accounts from Bankkeeper
 				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
 				require.NoError(t, err)
@@ -409,10 +381,10 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				_, err = msgSrv.Delegate(ctx, msgDelegate)
 				require.NoError(t, err, "failed to delegate")
 
-				return vestingAddr
 			},
-			funder:  funderAddr,
-			expPass: true,
+			funder:      funderAddr,
+			vestingAddr: vestingAddr,
+			expPass:     true,
 		},
 	}
 
@@ -432,12 +404,8 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, &types.MsgCreateClawbackVestingAccountResponse{}, res)
 
-<<<<<<< HEAD
 				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
-=======
-				accI := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
 				vestAcc, ok := accI.(*types.ClawbackVestingAccount)
->>>>>>> 1d66cbc4 (fix(vesting): delegated on  addGrant (#2880))
 				require.NotNil(t, accI, "expected account to be created")
 				require.True(t, ok, "expected account to be a clawback vesting account")
 				require.Empty(t, vestAcc.DelegatedFree)
