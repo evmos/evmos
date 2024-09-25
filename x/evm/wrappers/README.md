@@ -14,9 +14,9 @@ representation commonly used in EVM-based systems.
 
 - **Balance Conversion:** Automatically converts balances to 18 decimals, the standard for EVM coins.
 - **Send and Receive Coins:** Handles sending coins between accounts and modules, ensuring proper conversion
-to and from the 18-decimal system.
+  to and from the 18-decimal system.
 - **Mint and Burn Coins:** Provides methods for minting and burning coins, with conversions applied
-as necessary.
+  as necessary.
 
 ## Conversion Logic
 
@@ -25,5 +25,5 @@ and EVM's 18-decimal standard:
 
 - `mustConvertEvmCoinTo18Decimals`: Converts a coin to 18 decimals.
 - `convertCoinsFrom18Decimals`: Converts coins from 18 decimals to their original representation.
-  
+
 Both methods convert only the evm denom amount.
