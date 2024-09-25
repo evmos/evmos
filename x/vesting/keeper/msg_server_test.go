@@ -380,7 +380,6 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
 				_, err = msgSrv.Delegate(ctx, msgDelegate)
 				require.NoError(t, err, "failed to delegate")
-
 			},
 			funder:      funderAddr,
 			vestingAddr: vestingAddr,
