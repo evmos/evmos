@@ -68,7 +68,7 @@ func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccA
 	if err := w.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, coinsToBurn); err != nil {
 		return errors.Wrap(err, "failed to burn coins from account in bank wrapper")
 	}
-	return w.BurnCoins(ctx, types.ModuleName, coinsToBurn)
+	return w.BankKeeper.BurnCoins(ctx, types.ModuleName, coinsToBurn)
 }
 
 // ------------------------------------------------------------------------------------------
