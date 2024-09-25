@@ -47,7 +47,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (app) [#2860](https://github.com/evmos/evmos/pull/2860) Refactor to use `sdk.BaseDenom` and evm denom and added app configurator.
 
-
 ### Improvements
 
 - (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
