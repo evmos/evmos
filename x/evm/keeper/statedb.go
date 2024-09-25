@@ -113,22 +113,19 @@ func (k *Keeper) ForEachStorage(ctx sdk.Context, addr common.Address, cb func(ke
 func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.Int) error {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
-	evmDenom := config.GetEVMCoinDenom()
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
 
 	balance := coin.Amount.BigInt()
 	delta := new(big.Int).Sub(amount, balance)
 	switch delta.Sign() {
 	case 1:
 		// mint
-		coins := sdk.NewCoins(sdk.NewCoin(evmDenom, sdkmath.NewIntFromBigInt(delta)))
-		if err := k.bankWrapper.MintCoinsToAccount(ctx, cosmosAddr, coins); err != nil {
+		if err := k.bankWrapper.MintAmountToAccount(ctx, cosmosAddr, sdkmath.NewIntFromBigInt(delta)); err != nil {
 			return err
 		}
 	case -1:
 		// burn
-		coins := sdk.NewCoins(sdk.NewCoin(evmDenom, sdkmath.NewIntFromBigInt(new(big.Int).Neg(delta))))
-		if err := k.bankWrapper.BurnCoinsFromAccount(ctx, cosmosAddr, coins); err != nil {
+		if err := k.bankWrapper.BurnAmountFromAccount(ctx, cosmosAddr, sdkmath.NewIntFromBigInt(delta)); err != nil {
 			return err
 		}
 	default:

@@ -47,15 +47,18 @@ func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 // converted from the 18 decimals representation to the original one.
 func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 	evmDenom := config.GetEVMCoinDenom()
-	convertedCoins := make(sdk.Coins, len(coins))
 
+	convertedCoins := make(sdk.Coins, len(coins))
 	for i, coin := range coins {
 		if coin.Denom == evmDenom {
-			convertedCoin, err := convertEvmCoinFrom18Decimals(coins[i])
+			evmCoinDecimal := config.GetEVMCoinDecimals()
+
+			newAmount, err := coin.Amount.SafeQuo(math.NewInt(evmCoinDecimal.ConversionFactor()))
 			if err != nil {
 				return sdk.Coins{}, err
 			}
-			coin = convertedCoin
+
+			coin = sdk.NewCoin(coin.Denom, newAmount)
 		}
 		convertedCoins[i] = coin
 	}

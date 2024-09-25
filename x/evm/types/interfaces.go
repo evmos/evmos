@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/core/address"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -74,12 +75,6 @@ type (
 type BankWrapper interface {
 	BankKeeper
 
-	// MintCoinsToAccount scales down (if applies) provided coins
-	// from 18 decimals to the decimals used to represent the EVM coin
-	// and mints that amount to the provided account.
-	MintCoinsToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	// BurnCoinsFromAccount scales down (if applies) provided coins
-	// from 18 decimals to the decimals used to represent the EVM coin
-	// and burns that coins of the provided account.
-	BurnCoinsFromAccount(ctx context.Context, account sdk.AccAddress, amt sdk.Coins) error
+	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt math.Int) error
+	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt math.Int) error
 }

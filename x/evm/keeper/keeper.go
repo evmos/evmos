@@ -268,9 +268,8 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
-	evmDenom := config.GetEVMCoinDenom()
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, evmDenom)
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
 
 	return coin.Amount.BigInt()
 }
