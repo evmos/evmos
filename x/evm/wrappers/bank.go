@@ -5,9 +5,10 @@ package wrappers
 
 import (
 	"context"
+	"math/big"
 
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -38,8 +39,8 @@ func NewBankWrapper(
 
 // MintAmountToAccount converts the given amount into the evm coin scaling
 // the amount to the original decimals, then mints that amount to the provided account.
-func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt math.Int) error {
-	coin := sdk.NewCoin(config.GetEVMCoinDenom(), amt)
+func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error {
+	coin := sdk.NewCoin(config.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amt))
 
 	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
 	if err != nil {
@@ -56,8 +57,8 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 
 // BurnAmountFromAccount convert the given amount into the evm coin scaling
 // the amount to the original decimals, then burns that quantity from the provided account.
-func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt math.Int) error {
-	coin := sdk.NewCoin(config.GetEVMCoinDenom(), amt)
+func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error {
+	coin := sdk.NewCoin(config.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amt))
 
 	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
 	if err != nil {
@@ -85,17 +86,17 @@ func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom 
 	return mustConvertEvmCoinTo18Decimals(coin)
 }
 
-// // SendCoinsFromAccountToModule wraps around the Cosmos SDK x/bank module's
-// // SendCoinsFromAccountToModule method to convert the evm coin, if present in
-// // the input, to its original representation.
-// func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, coins sdk.Coins) error {
-// 	convertedCoins, err := convertCoinsFrom18Decimals(coins)
-// 	if err != nil {
-// 		return errors.Wrap(err, "failed to send coins to module in bank wrapper")
-// 	}
-//
-// 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, convertedCoins)
-// }
+// SendCoinsFromAccountToModule wraps around the Cosmos SDK x/bank module's
+// SendCoinsFromAccountToModule method to convert the evm coin, if present in
+// the input, to its original representation.
+func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, coins sdk.Coins) error {
+	convertedCoins, err := convertCoinsFrom18Decimals(coins)
+	if err != nil {
+		return errors.Wrap(err, "failed to send coins to module in bank wrapper")
+	}
+
+	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, convertedCoins)
+}
 
 // SendCoinsFromModuleToAccount wraps around the Cosmos SDK x/bank module's
 // SendCoinsFromModuleToAccount method to convert the evm coin, if present in

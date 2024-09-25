@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	"cosmossdk.io/core/address"
-	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -75,6 +74,6 @@ type (
 type BankWrapper interface {
 	BankKeeper
 
-	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt math.Int) error
-	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt math.Int) error
+	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error
+	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error
 }

@@ -7,8 +7,6 @@ import (
 	"errors"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
-
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -115,17 +113,16 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 
 	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
 
-	balance := coin.Amount.BigInt()
-	delta := new(big.Int).Sub(amount, balance)
+	delta := new(big.Int).Sub(amount, coin.Amount.BigInt())
 	switch delta.Sign() {
 	case 1:
 		// mint
-		if err := k.bankWrapper.MintAmountToAccount(ctx, cosmosAddr, sdkmath.NewIntFromBigInt(delta)); err != nil {
+		if err := k.bankWrapper.MintAmountToAccount(ctx, cosmosAddr, delta); err != nil {
 			return err
 		}
 	case -1:
 		// burn
-		if err := k.bankWrapper.BurnAmountFromAccount(ctx, cosmosAddr, sdkmath.NewIntFromBigInt(delta)); err != nil {
+		if err := k.bankWrapper.BurnAmountFromAccount(ctx, cosmosAddr, delta); err != nil {
 			return err
 		}
 	default:
