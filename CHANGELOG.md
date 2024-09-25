@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
+
 ## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-23
 
 ### State Machine Breaking
