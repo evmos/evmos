@@ -76,5 +76,5 @@ func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 		}
 		convertedCoins[i] = coin
 	}
-	return coins, nil
+	return convertedCoins, nil
 }
