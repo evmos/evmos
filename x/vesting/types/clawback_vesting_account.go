@@ -7,6 +7,7 @@ import (
 	"errors"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
@@ -86,8 +87,8 @@ func (va ClawbackVestingAccount) LockedCoins(blockTime time.Time) sdk.Coins {
 	// the delegated tokens as lockedUpVested tokens
 	// min(lockedUpVested, DelegatedFree)
 	//
-	// Consider that the "DelegatedFree" coins tracked on delegations refer to unvested tokens.
-	// These "free" (unvested) tokens can be locked up or unlocked
+	// Consider that the "DelegatedFree" coins tracked on delegations refer to vested tokens.
+	// These "free" (vested) tokens can be locked up or unlocked
 	lockedUpVestedDelegatedCoins := va.DelegatedFree.Min(va.GetLockedUpVestedCoins(blockTime))
 
 	res, isNeg := va.OriginalVesting.SafeSub(va.GetUnlockedVestedCoins(blockTime).Add(lockedUpVestedDelegatedCoins...)...)
@@ -235,4 +236,44 @@ func (va ClawbackVestingAccount) ComputeClawback(
 // account's lockup periods
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
 	return !va.GetLockedUpCoins(blockTime).IsZero()
+}
+
+// AddGrant merges a new clawback vesting grant into an existing
+// ClawbackVestingAccount.
+func (va *ClawbackVestingAccount) AddGrant(
+	grantStartTime int64,
+	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
+	grantCoins sdk.Coins,
+) error {
+	// check if the clawback vesting account has only been initialized and not yet funded --
+	// in that case it's necessary to update the vesting account with the given start time because this is set to zero in the initialization
+	if len(va.LockupPeriods) == 0 && len(va.VestingPeriods) == 0 {
+		va.StartTime = time.Unix(grantStartTime, 0).UTC()
+	}
+
+	// modify schedules for the new grant
+	accStartTime := va.GetStartTime()
+	newLockupStart, newLockupEnd, newLockupPeriods := DisjunctPeriods(accStartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
+	newVestingStart, newVestingEnd, newVestingPeriods := DisjunctPeriods(
+		accStartTime,
+		grantStartTime,
+		va.GetVestingPeriods(),
+		grantVestingPeriods,
+	)
+
+	if newLockupStart != newVestingStart {
+		return errorsmod.Wrapf(
+			ErrVestingLockup,
+			"vesting start time calculation should match lockup start (%d ≠ %d)",
+			newVestingStart, newLockupStart,
+		)
+	}
+
+	va.StartTime = time.Unix(newLockupStart, 0).UTC()
+	va.EndTime = Max64(newLockupEnd, newVestingEnd)
+	va.LockupPeriods = newLockupPeriods
+	va.VestingPeriods = newVestingPeriods
+	va.OriginalVesting = va.OriginalVesting.Add(grantCoins...)
+
+	return nil
 }
