@@ -1440,6 +1440,15 @@
                   "type": "string",
                   "format": "uint64",
                   "title": "gas returns the estimated gas"
+                },
+                "ret": {
+                  "type": "string",
+                  "format": "byte",
+                  "title": "ret is the returned data from evm function (result or data supplied with revert\nopcode)"
+                },
+                "vm_error": {
+                  "type": "string",
+                  "title": "vm_error is the error returned by vm execution"
                 }
               },
               "title": "EstimateGasResponse defines EstimateGas response"
@@ -1696,99 +1705,12 @@
                   "description": "params define the evm module parameters.",
                   "type": "object",
                   "properties": {
-                    "evm_denom": {
-                      "type": "string",
-                      "description": "evm_denom represents the token denomination used to run the EVM state\ntransitions."
-                    },
                     "extra_eips": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "title": "extra_eips defines the additional EIPs for the vm.Config"
-                    },
-                    "chain_config": {
-                      "title": "chain_config defines the EVM chain configuration parameters",
-                      "type": "object",
-                      "properties": {
-                        "homestead_block": {
-                          "type": "string",
-                          "title": "homestead_block switch (nil no fork, 0 = already homestead)"
-                        },
-                        "dao_fork_block": {
-                          "type": "string",
-                          "title": "dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)"
-                        },
-                        "dao_fork_support": {
-                          "type": "boolean",
-                          "title": "dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork"
-                        },
-                        "eip150_block": {
-                          "type": "string",
-                          "title": "eip150_block: EIP150 implements the Gas price changes\n(https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)"
-                        },
-                        "eip150_hash": {
-                          "type": "string",
-                          "title": "eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)"
-                        },
-                        "eip155_block": {
-                          "type": "string",
-                          "title": "eip155_block: EIP155Block HF block"
-                        },
-                        "eip158_block": {
-                          "type": "string",
-                          "title": "eip158_block: EIP158 HF block"
-                        },
-                        "byzantium_block": {
-                          "type": "string",
-                          "title": "byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)"
-                        },
-                        "constantinople_block": {
-                          "type": "string",
-                          "title": "constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)"
-                        },
-                        "petersburg_block": {
-                          "type": "string",
-                          "title": "petersburg_block: Petersburg switch block (nil same as Constantinople)"
-                        },
-                        "istanbul_block": {
-                          "type": "string",
-                          "title": "istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)"
-                        },
-                        "muir_glacier_block": {
-                          "type": "string",
-                          "title": "muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)"
-                        },
-                        "berlin_block": {
-                          "type": "string",
-                          "title": "berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)"
-                        },
-                        "london_block": {
-                          "type": "string",
-                          "title": "london_block: London switch block (nil = no fork, 0 = already on london)"
-                        },
-                        "arrow_glacier_block": {
-                          "type": "string",
-                          "title": "arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-                        },
-                        "gray_glacier_block": {
-                          "type": "string",
-                          "title": "gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-                        },
-                        "merge_netsplit_block": {
-                          "type": "string",
-                          "title": "merge_netsplit_block: Virtual fork after The Merge to use as a network splitter"
-                        },
-                        "shanghai_block": {
-                          "type": "string",
-                          "title": "shanghai_block switch block (nil = no fork, 0 = already on shanghai)"
-                        },
-                        "cancun_block": {
-                          "type": "string",
-                          "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
-                        }
-                      },
-                      "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
                     },
                     "allow_unprotected_txs": {
                       "type": "boolean",
@@ -2894,7 +2816,7 @@
                       "title": "min_gas_multiplier bounds the minimum gas used to be charged\nto senders based on gas limit"
                     }
                   },
-                  "title": "Params defines the EVM module parameters"
+                  "title": "Params defines the feemarket module parameters"
                 }
               },
               "description": "QueryParamsResponse defines the response type for querying x/evm parameters."
@@ -22641,6 +22563,15 @@
           "type": "string",
           "format": "uint64",
           "title": "gas returns the estimated gas"
+        },
+        "ret": {
+          "type": "string",
+          "format": "byte",
+          "title": "ret is the returned data from evm function (result or data supplied with revert\nopcode)"
+        },
+        "vm_error": {
+          "type": "string",
+          "title": "vm_error is the error returned by vm execution"
         }
       },
       "title": "EstimateGasResponse defines EstimateGas response"
@@ -22809,99 +22740,12 @@
     "ethermint.evm.v1.Params": {
       "type": "object",
       "properties": {
-        "evm_denom": {
-          "type": "string",
-          "description": "evm_denom represents the token denomination used to run the EVM state\ntransitions."
-        },
         "extra_eips": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "title": "extra_eips defines the additional EIPs for the vm.Config"
-        },
-        "chain_config": {
-          "title": "chain_config defines the EVM chain configuration parameters",
-          "type": "object",
-          "properties": {
-            "homestead_block": {
-              "type": "string",
-              "title": "homestead_block switch (nil no fork, 0 = already homestead)"
-            },
-            "dao_fork_block": {
-              "type": "string",
-              "title": "dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)"
-            },
-            "dao_fork_support": {
-              "type": "boolean",
-              "title": "dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork"
-            },
-            "eip150_block": {
-              "type": "string",
-              "title": "eip150_block: EIP150 implements the Gas price changes\n(https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)"
-            },
-            "eip150_hash": {
-              "type": "string",
-              "title": "eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)"
-            },
-            "eip155_block": {
-              "type": "string",
-              "title": "eip155_block: EIP155Block HF block"
-            },
-            "eip158_block": {
-              "type": "string",
-              "title": "eip158_block: EIP158 HF block"
-            },
-            "byzantium_block": {
-              "type": "string",
-              "title": "byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)"
-            },
-            "constantinople_block": {
-              "type": "string",
-              "title": "constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)"
-            },
-            "petersburg_block": {
-              "type": "string",
-              "title": "petersburg_block: Petersburg switch block (nil same as Constantinople)"
-            },
-            "istanbul_block": {
-              "type": "string",
-              "title": "istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)"
-            },
-            "muir_glacier_block": {
-              "type": "string",
-              "title": "muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)"
-            },
-            "berlin_block": {
-              "type": "string",
-              "title": "berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)"
-            },
-            "london_block": {
-              "type": "string",
-              "title": "london_block: London switch block (nil = no fork, 0 = already on london)"
-            },
-            "arrow_glacier_block": {
-              "type": "string",
-              "title": "arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-            },
-            "gray_glacier_block": {
-              "type": "string",
-              "title": "gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-            },
-            "merge_netsplit_block": {
-              "type": "string",
-              "title": "merge_netsplit_block: Virtual fork after The Merge to use as a network splitter"
-            },
-            "shanghai_block": {
-              "type": "string",
-              "title": "shanghai_block switch block (nil = no fork, 0 = already on shanghai)"
-            },
-            "cancun_block": {
-              "type": "string",
-              "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
-            }
-          },
-          "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
         },
         "allow_unprotected_txs": {
           "type": "boolean",
@@ -23055,99 +22899,12 @@
           "description": "params define the evm module parameters.",
           "type": "object",
           "properties": {
-            "evm_denom": {
-              "type": "string",
-              "description": "evm_denom represents the token denomination used to run the EVM state\ntransitions."
-            },
             "extra_eips": {
               "type": "array",
               "items": {
                 "type": "string"
               },
               "title": "extra_eips defines the additional EIPs for the vm.Config"
-            },
-            "chain_config": {
-              "title": "chain_config defines the EVM chain configuration parameters",
-              "type": "object",
-              "properties": {
-                "homestead_block": {
-                  "type": "string",
-                  "title": "homestead_block switch (nil no fork, 0 = already homestead)"
-                },
-                "dao_fork_block": {
-                  "type": "string",
-                  "title": "dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)"
-                },
-                "dao_fork_support": {
-                  "type": "boolean",
-                  "title": "dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork"
-                },
-                "eip150_block": {
-                  "type": "string",
-                  "title": "eip150_block: EIP150 implements the Gas price changes\n(https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)"
-                },
-                "eip150_hash": {
-                  "type": "string",
-                  "title": "eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)"
-                },
-                "eip155_block": {
-                  "type": "string",
-                  "title": "eip155_block: EIP155Block HF block"
-                },
-                "eip158_block": {
-                  "type": "string",
-                  "title": "eip158_block: EIP158 HF block"
-                },
-                "byzantium_block": {
-                  "type": "string",
-                  "title": "byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)"
-                },
-                "constantinople_block": {
-                  "type": "string",
-                  "title": "constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)"
-                },
-                "petersburg_block": {
-                  "type": "string",
-                  "title": "petersburg_block: Petersburg switch block (nil same as Constantinople)"
-                },
-                "istanbul_block": {
-                  "type": "string",
-                  "title": "istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)"
-                },
-                "muir_glacier_block": {
-                  "type": "string",
-                  "title": "muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)"
-                },
-                "berlin_block": {
-                  "type": "string",
-                  "title": "berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)"
-                },
-                "london_block": {
-                  "type": "string",
-                  "title": "london_block: London switch block (nil = no fork, 0 = already on london)"
-                },
-                "arrow_glacier_block": {
-                  "type": "string",
-                  "title": "arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-                },
-                "gray_glacier_block": {
-                  "type": "string",
-                  "title": "gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)"
-                },
-                "merge_netsplit_block": {
-                  "type": "string",
-                  "title": "merge_netsplit_block: Virtual fork after The Merge to use as a network splitter"
-                },
-                "shanghai_block": {
-                  "type": "string",
-                  "title": "shanghai_block switch block (nil = no fork, 0 = already on shanghai)"
-                },
-                "cancun_block": {
-                  "type": "string",
-                  "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
-                }
-              },
-              "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
             },
             "allow_unprotected_txs": {
               "type": "boolean",
@@ -23445,7 +23202,7 @@
           "title": "min_gas_multiplier bounds the minimum gas used to be charged\nto senders based on gas limit"
         }
       },
-      "title": "Params defines the EVM module parameters"
+      "title": "Params defines the feemarket module parameters"
     },
     "ethermint.feemarket.v1.QueryBaseFeeResponse": {
       "type": "object",
@@ -23507,7 +23264,7 @@
               "title": "min_gas_multiplier bounds the minimum gas used to be charged\nto senders based on gas limit"
             }
           },
-          "title": "Params defines the EVM module parameters"
+          "title": "Params defines the feemarket module parameters"
         }
       },
       "description": "QueryParamsResponse defines the response type for querying x/evm parameters."

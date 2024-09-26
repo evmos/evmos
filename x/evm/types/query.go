@@ -24,3 +24,8 @@ func (m QueryTraceBlockRequest) UnpackInterfaces(unpacker codectypes.AnyUnpacker
 	}
 	return nil
 }
+
+// Failed returns if the contract execution failed in vm errors
+func (egr EstimateGasResponse) Failed() bool {
+	return len(egr.VmError) > 0
+}

@@ -128,3 +128,34 @@ def test_block_gas_limit(evmos_cluster):
         send_transaction(evmos_cluster.w3, burn_gas_tx, KEYS["validator"])
     except Exception as error:
         assert "exceeds block gas limit" in error.args[0]["message"]
+
+
+def test_estimate_gas_revert(cluster):
+    w3 = cluster.w3
+    call = w3.provider.make_request
+
+    validator = ADDRS["validator"]
+    contract, _ = deploy_contract(
+        w3,
+        CONTRACTS["TestRevert"],
+    )
+
+    method = "eth_estimateGas"
+
+    def do_call(data):
+        params = {"from": validator, "to": contract.address, "data": data}
+        return call(method, [params])["error"]
+
+    # revertWithMsg
+    error = do_call("0x9ffb86a5")
+    assert error["code"] == 3
+    assert error["message"] == "execution reverted: Function has been reverted"
+    assert (
+        error["data"]
+        == "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001a46756e6374696f6e20686173206265656e207265766572746564000000000000"
+    )  # noqa: E501
+
+    # revertWithoutMsg
+    error = do_call("0x3246485d")
+    assert error["code"] == -32000
+    assert error["message"] == "execution reverted"
