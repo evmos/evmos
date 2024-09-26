@@ -39,6 +39,7 @@ DEFAULT_DENOM = "aevmos"
 WEVMOS_ADDRESS = Web3.toChecksumAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
+    "TestRevert": "TestRevert.sol",
     "Greeter": "Greeter.sol",
     "BurnGas": "BurnGas.sol",
     "TestChainID": "ChainID.sol",
