@@ -55,7 +55,7 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, coinsToMint)
 }
 
-// BurnAmountFromAccount convert the given amount into the evm coin scaling
+// BurnAmountFromAccount converts the given amount into the evm coin scaling
 // the amount to the original decimals, then burns that quantity from the provided account.
 func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error {
 	coin := sdk.Coin{Denom: config.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}

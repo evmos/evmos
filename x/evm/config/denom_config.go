@@ -9,6 +9,8 @@ package config
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -75,10 +77,10 @@ func setEVMCoinInfo(evmdenom EvmCoinInfo) {
 // NOTE: This function does not check if the Decimal instance is valid or
 // not and by default returns the conversion factor of 1, i.e. from 18 decimals
 // to 18 decimals.
-func (d Decimals) ConversionFactor() int64 {
+func (d Decimals) ConversionFactor() math.Int {
 	if d == SixDecimals {
-		return 1e12
+		return math.NewInt(1e12)
 	}
 
-	return 1
+	return math.NewInt(1)
 }

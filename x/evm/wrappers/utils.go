@@ -6,14 +6,13 @@ package wrappers
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v20/x/evm/config"
 )
 
-// convertEvmCoinTo18DecimalsUnchecked convert the given coin from its original
-// representation into a 18 decimals one. The function panic if coin denom is
+// mustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
+// representation into a 18 decimals. The function panics if coin denom is
 // not the evm denom or in case of overflow.
 func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	if coin.Denom != config.GetEVMCoinDenom() {
@@ -21,7 +20,7 @@ func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	}
 
 	evmCoinDecimal := config.GetEVMCoinDecimals()
-	newAmount := coin.Amount.Mul(math.NewInt(evmCoinDecimal.ConversionFactor()))
+	newAmount := coin.Amount.Mul(evmCoinDecimal.ConversionFactor())
 
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}
 }
@@ -35,7 +34,7 @@ func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 	}
 
 	evmCoinDecimal := config.GetEVMCoinDecimals()
-	newAmount, err := coin.Amount.SafeQuo(math.NewInt(evmCoinDecimal.ConversionFactor()))
+	newAmount, err := coin.Amount.SafeQuo(evmCoinDecimal.ConversionFactor())
 	if err != nil {
 		return sdk.Coin{}, err
 	}
@@ -43,17 +42,17 @@ func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}, nil
 }
 
-// convertCoinsFrom18Decimals returns the given coins with the evm amount
-// converted from the 18 decimals representation to the original one.
+// convertCoinsFrom18Decimals returns the given coins with the Amount of the evm
+// coin converted from the 18 decimals representation to the original one.
 func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 	evmDenom := config.GetEVMCoinDenom()
 
 	convertedCoins := make(sdk.Coins, len(coins))
 	for i, coin := range coins {
 		if coin.Denom == evmDenom {
-			evmCoinDecimal := config.GetEVMCoinDecimals()
+			evmCoinDecimals := config.GetEVMCoinDecimals()
 
-			newAmount, err := coin.Amount.SafeQuo(math.NewInt(evmCoinDecimal.ConversionFactor()))
+			newAmount, err := coin.Amount.SafeQuo(evmCoinDecimals.ConversionFactor())
 			if err != nil {
 				return sdk.Coins{}, err
 			}
