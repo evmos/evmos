@@ -122,7 +122,7 @@ func (k *Keeper) SetBalance(ctx sdk.Context, addr common.Address, amount *big.In
 		}
 	case -1:
 		// burn
-		if err := k.bankWrapper.BurnAmountFromAccount(ctx, cosmosAddr, delta); err != nil {
+		if err := k.bankWrapper.BurnAmountFromAccount(ctx, cosmosAddr, new(big.Int).Neg(delta)); err != nil {
 			return err
 		}
 	default:
