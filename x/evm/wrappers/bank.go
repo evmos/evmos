@@ -40,14 +40,14 @@ func NewBankWrapper(
 // MintAmountToAccount converts the given amount into the evm coin scaling
 // the amount to the original decimals, then mints that amount to the provided account.
 func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error {
-	coin := sdk.NewCoin(config.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amt))
+	coin := sdk.Coin{Denom: config.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
 	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
 	if err != nil {
 		return errors.Wrap(err, "failed to mint coin to account in bank wrapper")
 	}
 
-	coinsToMint := sdk.NewCoins(convertedCoin)
+	coinsToMint := sdk.Coins{convertedCoin}
 	if err := w.BankKeeper.MintCoins(ctx, types.ModuleName, coinsToMint); err != nil {
 		return errors.Wrap(err, "failed to mint coins to account in bank wrapper")
 	}
@@ -58,14 +58,14 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 // BurnAmountFromAccount convert the given amount into the evm coin scaling
 // the amount to the original decimals, then burns that quantity from the provided account.
 func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error {
-	coin := sdk.NewCoin(config.GetEVMCoinDenom(), sdkmath.NewIntFromBigInt(amt))
+	coin := sdk.Coin{Denom: config.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
 	convertedCoin, err := convertEvmCoinFrom18Decimals(coin)
 	if err != nil {
 		return errors.Wrap(err, "failed to burn coins from account in bank wrapper")
 	}
 
-	coinsToBurn := sdk.NewCoins(convertedCoin)
+	coinsToBurn := sdk.Coins{convertedCoin}
 	if err := w.BankKeeper.SendCoinsFromAccountToModule(ctx, account, types.ModuleName, coinsToBurn); err != nil {
 		return errors.Wrap(err, "failed to burn coins from account in bank wrapper")
 	}
