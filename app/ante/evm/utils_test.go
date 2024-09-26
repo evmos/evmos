@@ -551,7 +551,6 @@ func (suite *AnteTestSuite) CreateTestSignedMultisigTx(privKeys []cryptotypes.Pr
 func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey, signMode signing.SignMode, msg sdk.Msg, chainID string, gas uint64, signType string) client.TxBuilder {
 	pubKey := privKey.PubKey()
 
-	fmt.Println("HERE CREATE SINGLE SIGNED TX")
 	suite.RegisterAccountIfNil(pubKey, big.NewInt(10_000_000_000))
 
 	txBuilder := suite.createBaseTxBuilder(msg, gas)
