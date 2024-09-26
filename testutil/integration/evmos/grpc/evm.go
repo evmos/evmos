@@ -37,7 +37,7 @@ func (gqh *IntegrationHandler) EstimateGas(args []byte, gasCap uint64) (*evmtype
 		}
 		return nil, evmtypes.NewExecErrorWithReason(res.Ret)
 	}
-	
+
 	return res, err
 }
 
