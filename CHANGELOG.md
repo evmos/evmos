@@ -66,10 +66,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 - (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
+<<<<<<< HEAD
 
 ### Bug Fixes
 
 - (deps) [#2854](https://github.com/evmos/evmos/pull/2854) Bump IBC-go to `v8.5.1`.
+=======
+- (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
+- (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
+- (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
+- (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
+- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
+>>>>>>> 30ef9024 (chore(api): use func to return txData (#2884))
 
 ## [v19.2.0](https://github.com/evmos/evmos/releases/tag/v19.2.0) - 2024-08-19
 
