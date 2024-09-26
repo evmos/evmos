@@ -90,10 +90,7 @@ func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom 
 // SendCoinsFromAccountToModule method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, coins sdk.Coins) error {
-	convertedCoins, err := convertCoinsFrom18Decimals(coins)
-	if err != nil {
-		return errors.Wrap(err, "failed to send coins to module in bank wrapper")
-	}
+	convertedCoins := convertCoinsFrom18Decimals(coins)
 
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, convertedCoins)
 }
@@ -102,10 +99,7 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAdd
 // SendCoinsFromModuleToAccount method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, coins sdk.Coins) error {
-	convertedCoins, err := convertCoinsFrom18Decimals(coins)
-	if err != nil {
-		return errors.Wrap(err, "failed to send coins to account in bank wrapper")
-	}
+	convertedCoins := convertCoinsFrom18Decimals(coins)
 
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, convertedCoins)
 }

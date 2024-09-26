@@ -26,25 +26,21 @@ func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 }
 
 // convertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its
-// original representation. Return an error if the coin denom is not the EVM
-// denom or in case of underflow.
+// original representation. Return an error if the coin denom is not the EVM.
 func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
 	if coin.Denom != config.GetEVMCoinDenom() {
 		return sdk.Coin{}, fmt.Errorf("expected coin denom %s, received %s", config.GetEVMCoinDenom(), coin.Denom)
 	}
 
 	evmCoinDecimal := config.GetEVMCoinDecimals()
-	newAmount, err := coin.Amount.SafeQuo(evmCoinDecimal.ConversionFactor())
-	if err != nil {
-		return sdk.Coin{}, err
-	}
+	newAmount := coin.Amount.Quo(evmCoinDecimal.ConversionFactor())
 
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}, nil
 }
 
 // convertCoinsFrom18Decimals returns the given coins with the Amount of the evm
 // coin converted from the 18 decimals representation to the original one.
-func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
+func convertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
 	evmDenom := config.GetEVMCoinDenom()
 
 	convertedCoins := make(sdk.Coins, len(coins))
@@ -52,14 +48,11 @@ func convertCoinsFrom18Decimals(coins sdk.Coins) (sdk.Coins, error) {
 		if coin.Denom == evmDenom {
 			evmCoinDecimals := config.GetEVMCoinDecimals()
 
-			newAmount, err := coin.Amount.SafeQuo(evmCoinDecimals.ConversionFactor())
-			if err != nil {
-				return sdk.Coins{}, err
-			}
+			newAmount := coin.Amount.Quo(evmCoinDecimals.ConversionFactor())
 
 			coin = sdk.Coin{Denom: coin.Denom, Amount: newAmount}
 		}
 		convertedCoins[i] = coin
 	}
-	return convertedCoins, nil
+	return convertedCoins
 }

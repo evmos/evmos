@@ -85,7 +85,7 @@ func (d Decimals) ConversionFactor() math.Int {
 	return math.NewInt(1)
 }
 
-func SetEVMCoindTEST(evmdenom EvmCoinInfo) {
+func SetEVMCoinTEST(evmdenom EvmCoinInfo) {
 	setEVMCoinDenom(evmdenom.Denom)
 	setEVMCoinDecimals(evmdenom.Decimals)
 }
