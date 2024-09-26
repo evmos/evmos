@@ -12,11 +12,13 @@ import (
 )
 
 // supportedTxs holds the Ethereum transaction types
-// supported by Evmos
-var supportedTxs = map[string]TxDataV2{
-	"/ethermint.evm.v1.DynamicFeeTx": &DynamicFeeTx{},
-	"/ethermint.evm.v1.AccessListTx": &AccessListTx{},
-	"/ethermint.evm.v1.LegacyTx":     &LegacyTx{},
+// supported by Evmos.
+// Use a function to return a new pointer and avoid
+// possible reuse or racing conditions when using the same pointer
+var supportedTxs = map[string]func() TxDataV2{
+	"/ethermint.evm.v1.DynamicFeeTx": func() TxDataV2 { return &DynamicFeeTx{} },
+	"/ethermint.evm.v1.AccessListTx": func() TxDataV2 { return &AccessListTx{} },
+	"/ethermint.evm.v1.LegacyTx":     func() TxDataV2 { return &LegacyTx{} },
 }
 
 // getSender extracts the sender address from the signature values using the latest signer for the given chainID.
@@ -37,10 +39,11 @@ func GetSigners(msg protov2.Message) ([][]byte, error) {
 		return nil, fmt.Errorf("invalid type, expected MsgEthereumTx and got %T", msg)
 	}
 
-	txData, found := supportedTxs[msgEthTx.Data.TypeUrl]
+	txDataFn, found := supportedTxs[msgEthTx.Data.TypeUrl]
 	if !found {
 		return nil, fmt.Errorf("invalid TypeUrl %s", msgEthTx.Data.TypeUrl)
 	}
+	txData := txDataFn()
 
 	// msgEthTx.Data is a message (DynamicFeeTx, LegacyTx or AccessListTx)
 	if err := msgEthTx.Data.UnmarshalTo(txData); err != nil {
