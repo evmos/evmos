@@ -287,20 +287,6 @@ func (b *Backend) SetTxDefaults(args evmtypes.TransactionArgs) (evmtypes.Transac
 	return args, nil
 }
 
-// handleRevertError returns revert related error.
-func (b *Backend) handleRevertError(vmError string, ret []byte) error {
-	if len(vmError) > 0 {
-		if vmError != vm.ErrExecutionReverted.Error() {
-			return status.Error(codes.Internal, vmError)
-		}
-		if len(ret) == 0 {
-			return errors.New(vmError)
-		}
-		return evmtypes.NewExecErrorWithReason(ret)
-	}
-	return nil
-}
-
 // EstimateGas returns an estimate of gas usage for the given smart contract call.
 func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rpctypes.BlockNumber) (hexutil.Uint64, error) {
 	blockNr := rpctypes.EthPendingBlockNumber
@@ -333,7 +319,7 @@ func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rp
 	if err != nil {
 		return 0, err
 	}
-	if err = b.handleRevertError(res.VmError, res.Ret); err != nil {
+	if err = handleRevertError(res.VmError, res.Ret); err != nil {
 		return 0, err
 	}
 	return hexutil.Uint64(res.Gas), nil
@@ -385,7 +371,7 @@ func (b *Backend) DoCall(
 		return nil, err
 	}
 
-	if err = b.handleRevertError(res.VmError, res.Ret); err != nil {
+	if err = handleRevertError(res.VmError, res.Ret); err != nil {
 		return nil, err
 	}
 
@@ -425,4 +411,18 @@ func (b *Backend) GasPrice() (*hexutil.Big, error) {
 	}
 
 	return (*hexutil.Big)(result), nil
+}
+
+// handleRevertError returns revert related error.
+func handleRevertError(vmError string, ret []byte) error {
+	if len(vmError) > 0 {
+		if vmError != vm.ErrExecutionReverted.Error() {
+			return status.Error(codes.Internal, vmError)
+		}
+		if len(ret) == 0 {
+			return errors.New(vmError)
+		}
+		return evmtypes.NewExecErrorWithReason(ret)
+	}
+	return nil
 }
