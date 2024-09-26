@@ -3,7 +3,7 @@ module github.com/evmos/evmos/v20
 go 1.22.2
 
 require (
-	cosmossdk.io/api v0.7.5
+	cosmossdk.io/api v0.7.6
 	cosmossdk.io/client/v2 v2.0.0-beta.5
 	cosmossdk.io/core v0.12.0
 	cosmossdk.io/errors v1.0.1
