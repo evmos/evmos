@@ -52,7 +52,7 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 		return errors.Wrap(err, "failed to mint coins to account in bank wrapper")
 	}
 
-	return w.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, coinsToMint)
+	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipientAddr, coinsToMint)
 }
 
 // BurnAmountFromAccount convert the given amount into the evm coin scaling
