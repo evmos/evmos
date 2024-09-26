@@ -292,7 +292,7 @@ func (b *Backend) SetTxDefaults(args evmtypes.TransactionArgs) (evmtypes.Transac
 }
 
 // handleRevertError returns revert related error.
-func (b *Backend) handleRevertError(vmError string, ret []byte) error {
+func handleRevertError(vmError string, ret []byte) error {
 	if len(vmError) > 0 {
 		if vmError != vm.ErrExecutionReverted.Error() {
 			return status.Error(codes.Internal, vmError)
@@ -337,7 +337,7 @@ func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rp
 	if err != nil {
 		return 0, err
 	}
-	if err = b.handleRevertError(res.VmError, res.Ret); err != nil {
+	if err = handleRevertError(res.VmError, res.Ret); err != nil {
 		return 0, err
 	}
 	return hexutil.Uint64(res.Gas), nil
@@ -389,7 +389,7 @@ func (b *Backend) DoCall(
 		return nil, err
 	}
 
-	if err = b.handleRevertError(res.VmError, res.Ret); err != nil {
+	if err = handleRevertError(res.VmError, res.Ret); err != nil {
 		return nil, err
 	}
 
