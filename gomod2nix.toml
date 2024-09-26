@@ -201,8 +201,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-ZkEUImxBBo8Q/6c7tVR0rybpLbtlplzvgfLl5xvtV00="
   [mod."github.com/cosmos/iavl"]
-    version = "v1.1.2"
-    hash = "sha256-fhh5fN1BMDxbF4PobERMQdIb9vIrxaSl0tRXas0WKmc="
+    version = "v1.2.0"
+    hash = "sha256-NYSt6LOGyspP6eZXo9e5+2MFwyrWxD/rp2dRTtlWg2E="
   [mod."github.com/cosmos/ibc-apps/modules/rate-limiting/v8"]
     version = "v8.0.0"
     hash = "sha256-yUFKT1ZWcOhT68L8xQmi5X0VLwo1gXJrL8AMcML2d8s="
@@ -219,8 +219,8 @@ schema = 3
     version = "v0.13.3"
     hash = "sha256-4f73odipfgWku0/gK2UtXbrBXvj8kT9sg4IhnfAP/S0="
   [mod."github.com/cosmos/rosetta"]
-    version = "v0.50.9"
-    hash = "sha256-OJQhD0YxJ5v8hqXNJytt6gBAN62Hpyxi18/74Z4Rz08="
+    version = "v0.50.10"
+    hash = "sha256-AuCQSGBR6vThqSpA+w0oQTQenGwem1pcLe4tNTg078Q="
   [mod."github.com/cosmos/rosetta-sdk-go"]
     version = "v0.10.0"
     hash = "sha256-WmLq9E9mYV+ms6Tdb43lCoAy6cowkDnK4bvX/ApDzLY="
