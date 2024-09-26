@@ -28,8 +28,8 @@ const (
 // EvmCoinInfo struct holds the name and decimals of the EVM denom. The EVM denom
 // is the token used to pay fees in the EVM.
 type EvmCoinInfo struct {
-	denom    string
-	decimals Decimals
+	Denom    string
+	Decimals Decimals
 }
 
 // evmCoinInfo hold the information of the coin used in the EVM as gas token. It
@@ -43,7 +43,7 @@ func setEVMCoinDecimals(d Decimals) {
 		panic(fmt.Errorf("invalid decimal value %d; the evm supports only 6 and 18 decimals", d))
 	}
 
-	evmCoinInfo.decimals = d
+	evmCoinInfo.Decimals = d
 }
 
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
@@ -51,24 +51,24 @@ func setEVMCoinDenom(denom string) {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		panic(err)
 	}
-	evmCoinInfo.denom = denom
+	evmCoinInfo.Denom = denom
 }
 
 // GetEVMCoinDecimals returns the decimals used in the representation of the EVM
 // coin.
 func GetEVMCoinDecimals() Decimals {
-	return evmCoinInfo.decimals
+	return evmCoinInfo.Decimals
 }
 
 // GetEVMCoinDenom returns the denom used for the EVM coin.
 func GetEVMCoinDenom() string {
-	return evmCoinInfo.denom
+	return evmCoinInfo.Denom
 }
 
 // setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
 func setEVMCoinInfo(evmdenom EvmCoinInfo) {
-	setEVMCoinDenom(evmdenom.denom)
-	setEVMCoinDecimals(evmdenom.decimals)
+	setEVMCoinDenom(evmdenom.Denom)
+	setEVMCoinDecimals(evmdenom.Decimals)
 }
 
 // ConversionFactor returns the conversion factor between the Decimals value and
@@ -83,4 +83,9 @@ func (d Decimals) ConversionFactor() math.Int {
 	}
 
 	return math.NewInt(1)
+}
+
+func SetEVMCoindTEST(evmdenom EvmCoinInfo) {
+	setEVMCoinDenom(evmdenom.Denom)
+	setEVMCoinDecimals(evmdenom.Decimals)
 }
