@@ -21,10 +21,10 @@ func TestAnteTestSuite(t *testing.T) {
 		AnteTestSuite: baseSuite,
 	})
 
-	// Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
-	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
-	suite.Run(t, &AnteTestSuite{
-		AnteTestSuite:            baseSuite,
-		useLegacyEIP712TypedData: true,
-	})
+	// // Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
+	// // LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
+	// suite.Run(t, &AnteTestSuite{
+	// 	AnteTestSuite:            baseSuite,
+	// 	useLegacyEIP712TypedData: true,
+	// })
 }

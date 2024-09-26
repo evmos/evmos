@@ -448,14 +448,19 @@ func (suite *AnteTestSuite) generateMultikeySignatures(signMode signing.SignMode
 	return signatures
 }
 
-// RegisterAccount creates an account with the keeper and populates the initial balance
-func (suite *AnteTestSuite) RegisterAccount(pubKey cryptotypes.PubKey, balance *big.Int) {
+// RegisterAccountIfNil creates an account with the keeper and populates the
+// initial balance if it is not already stored in the account keeper.
+func (suite *AnteTestSuite) RegisterAccountIfNil(pubKey cryptotypes.PubKey, balance *big.Int) {
 	ctx := suite.GetNetwork().GetContext()
-	acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(pubKey.Address()))
-	suite.GetNetwork().App.AccountKeeper.SetAccount(ctx, acc)
+	address := sdk.AccAddress(pubKey.Address())
 
-	err := suite.GetNetwork().App.EvmKeeper.SetBalance(ctx, common.BytesToAddress(pubKey.Address()), balance)
-	suite.Require().NoError(err)
+	account := suite.GetNetwork().App.AccountKeeper.GetAccount(ctx, address)
+	if account == nil {
+		acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, address)
+		suite.GetNetwork().App.AccountKeeper.SetAccount(ctx, acc)
+		err := suite.GetNetwork().App.EvmKeeper.SetBalance(ctx, common.BytesToAddress(pubKey.Address()), balance)
+		suite.Require().NoError(err)
+	}
 }
 
 // createSignerBytes generates sign doc bytes using the given parameters
@@ -513,7 +518,7 @@ func (suite *AnteTestSuite) CreateTestSignedMultisigTx(privKeys []cryptotypes.Pr
 	numKeys := len(privKeys)
 	multiKey := kmultisig.NewLegacyAminoPubKey(numKeys, pubKeys)
 
-	suite.RegisterAccount(multiKey, big.NewInt(10000000000))
+	suite.RegisterAccountIfNil(multiKey, big.NewInt(10000000000))
 
 	txBuilder := suite.createBaseTxBuilder(msg, gas)
 
@@ -546,7 +551,8 @@ func (suite *AnteTestSuite) CreateTestSignedMultisigTx(privKeys []cryptotypes.Pr
 func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey, signMode signing.SignMode, msg sdk.Msg, chainID string, gas uint64, signType string) client.TxBuilder {
 	pubKey := privKey.PubKey()
 
-	suite.RegisterAccount(pubKey, big.NewInt(10000000000))
+	fmt.Println("HERE CREATE SINGLE SIGNED TX")
+	suite.RegisterAccountIfNil(pubKey, big.NewInt(10_000_000_000))
 
 	txBuilder := suite.createBaseTxBuilder(msg, gas)
 
