@@ -48,7 +48,7 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 	}
 
 	coinsToMint := sdk.NewCoins(convertedCoin)
-	if err := w.MintCoins(ctx, types.ModuleName, coinsToMint); err != nil {
+	if err := w.BankKeeper.MintCoins(ctx, types.ModuleName, coinsToMint); err != nil {
 		return errors.Wrap(err, "failed to mint coins to account in bank wrapper")
 	}
 
