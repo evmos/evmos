@@ -74,10 +74,9 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 				}
 			}()
 
-			config.SetEVMCoinTEST(tc.evmCoinInfo)
+			config.NewEVMConfigurator().WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted := mustConvertEvmCoinTo18Decimals(tc.coin)
-
 			if !tc.expPanic {
 				require.Equal(t, tc.expCoin, coinConverted, "expected a different coin")
 			}
@@ -138,7 +137,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			config.SetEVMCoinTEST(tc.evmCoinInfo)
+			config.NewEVMConfigurator().WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted, err := convertEvmCoinFrom18Decimals(tc.coin)
 
@@ -196,7 +195,7 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			config.SetEVMCoinTEST(tc.evmCoinInfo)
+			config.NewEVMConfigurator().WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted := convertCoinsFrom18Decimals(tc.coins)
 			require.Equal(t, tc.expCoins, coinConverted, "expected a different coin")
