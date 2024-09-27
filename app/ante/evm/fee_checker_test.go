@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -23,7 +24,6 @@ var _ evm.FeeMarketKeeper = MockFeemarketKeeper{}
 
 type MockFeemarketKeeper struct {
 	BaseFee        math.LegacyDec
-	EnableLondonHF bool
 }
 
 func (m MockFeemarketKeeper) GetBaseFee(_ sdk.Context) math.LegacyDec {
@@ -66,6 +66,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 		ctx         sdk.Context
 		keeper      evm.FeeMarketKeeper
 		buildTx     func() sdk.FeeTx
+		londonEnabled     bool
 		expFees     string
 		expPriority int64
 		expSuccess  bool
@@ -77,6 +78,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				return encodingConfig.TxConfig.NewTxBuilder().GetTx()
 			},
+			false,
 			"",
 			0,
 			true,
@@ -88,6 +90,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				return encodingConfig.TxConfig.NewTxBuilder().GetTx()
 			},
+			false,
 			"",
 			0,
 			false,
@@ -102,6 +105,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(10))))
 				return txBuilder.GetTx()
 			},
+			false,
 			"10aevmos",
 			0,
 			true,
@@ -113,6 +117,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				return encodingConfig.TxConfig.NewTxBuilder().GetTx()
 			},
+			false,
 			"",
 			0,
 			true,
@@ -121,13 +126,14 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"fail, dynamic fee",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(1),
+				BaseFee: math.LegacyNewDec(1),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 				txBuilder.SetGasLimit(1)
 				return txBuilder.GetTx()
 			},
+			true,
 			"",
 			0,
 			false,
@@ -136,7 +142,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(10),
+				 BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -144,6 +150,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(10))))
 				return txBuilder.GetTx()
 			},
+			true,
 			"10aevmos",
 			0,
 			true,
@@ -152,7 +159,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee priority",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(10),
+				BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -160,6 +167,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
 				return txBuilder.GetTx()
 			},
+			true,
 			"10000010aevmos",
 			10,
 			true,
@@ -168,7 +176,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee empty tipFeeCap",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(10),
+				 BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -180,6 +188,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetExtensionOptions(option)
 				return txBuilder.GetTx()
 			},
+			true,
 			"10aevmos",
 			0,
 			true,
@@ -188,7 +197,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee tipFeeCap",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(10),
+				 BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -202,6 +211,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetExtensionOptions(option)
 				return txBuilder.GetTx()
 			},
+			true,
 			"5000010aevmos",
 			5,
 			true,
@@ -210,7 +220,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"fail, negative dynamic fee tipFeeCap",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				EnableLondonHF: true, BaseFee: math.LegacyNewDec(10),
+				BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -225,6 +235,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetExtensionOptions(option)
 				return txBuilder.GetTx()
 			},
+			true,
 			"",
 			0,
 			false,
@@ -233,6 +244,12 @@ func TestSDKTxFeeChecker(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			cfg := config.GetChainConfig()
+			if !tc.londonEnabled {
+				cfg.LondonBlock = big.NewInt(10000)
+			} else {
+				cfg.LondonBlock = big.NewInt(0)
+			}
 			fees, priority, err := evm.NewDynamicFeeChecker(tc.keeper)(tc.ctx, tc.buildTx())
 			if tc.expSuccess {
 				require.Equal(t, tc.expFees, fees.String())
