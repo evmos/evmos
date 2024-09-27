@@ -17,8 +17,8 @@ message Params {
   reserved 2, 3;
   // extra_eips defines the additional EIPs for the vm.Config
   repeated string extra_eips = 4 [(gogoproto.customname) = "ExtraEIPs", (gogoproto.moretags) = "yaml:\"extra_eips\""];
-  
-  reserved 5; 
+
+  reserved 5;
   reserved "chain_config";
   // allow_unprotected_txs defines if replay-protected (i.e non EIP155
   // signed) transactions can be executed on the state machine.
