@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: "1.22"
           check-latest: true
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
@@ -27,7 +27,7 @@ jobs:
             *.toml
             tests/e2e/*
             Dockerfile
-            .github/workflows/e2e-test*      
+            .github/workflows/e2e-test*
       - name: Test E2E
         run: |
           make test-e2e
@@ -37,7 +37,7 @@ jobs:
     outputs:
       test_matrix: ${{ steps.set_matrix.outputs.test_matrix }}
     steps:
-      - uses: actions/checkout@v4  
+      - uses: actions/checkout@v4
       - name: Set up test file matrix to run nix tests in parallel
         id: set_matrix
         run: |
@@ -86,7 +86,7 @@ jobs:
   test-nix:
     needs: test-files-matrix
     permissions:
-      contents: write       
+      contents: write
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -94,7 +94,7 @@ jobs:
     steps:
       - name: Determine token
         id: token_check
-        run: | 
+        run: |
           if [ -n "${{ secrets.E2E_PAT }}" ]; then
             TOKEN=${{ secrets.E2E_PAT }}
           else
@@ -103,9 +103,9 @@ jobs:
           echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          token: ${{ steps.token_check.outputs.token }}        
+          token: ${{ steps.token_check.outputs.token }}
       - name: Install Nix
-        uses: cachix/install-nix-action@V28
+        uses: cachix/install-nix-action@v29
         with:
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
@@ -132,7 +132,7 @@ jobs:
         run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
-      - uses: stefanzweifel/git-auto-commit-action@v5   
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: update gomod2nix.toml file
-          file_pattern: '*.toml'
+          file_pattern: "*.toml"
