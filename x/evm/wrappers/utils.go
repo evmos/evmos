@@ -6,6 +6,7 @@ package wrappers
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v20/x/evm/config"
@@ -23,6 +24,14 @@ func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	newAmount := coin.Amount.Mul(evmCoinDecimal.ConversionFactor())
 
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}
+}
+
+// ConvertAmountToLegacy18Decimals convert the given amount into a 18 decimals
+// representation.
+func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
+	evmCoinDecimal := config.GetEVMCoinDecimals()
+
+	return amt.Mul(sdkmath.LegacyNewDecFromInt(evmCoinDecimal.ConversionFactor()))
 }
 
 // convertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its

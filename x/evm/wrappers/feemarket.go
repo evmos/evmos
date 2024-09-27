@@ -41,7 +41,7 @@ func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	if config.GetEVMCoinDecimals() == config.EighteenDecimals {
 		return baseFee.TruncateInt().BigInt()
 	}
-	return types.Convert6To18DecimalsLegacyDec(baseFee).TruncateInt().BigInt()
+	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
 // CalculateBaseFee returns the calculated base fee converted to 18 decimals
@@ -53,15 +53,13 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	if config.GetEVMCoinDecimals() == config.EighteenDecimals {
 		return baseFee.TruncateInt().BigInt()
 	}
-	return types.Convert6To18DecimalsLegacyDec(baseFee).TruncateInt().BigInt()
+	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
 // GetParams returns the params converted to 18 decimals
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
-	if config.GetEVMCoinDecimals() == config.SixDecimals {
-		params.BaseFee = types.Convert6To18DecimalsLegacyDec(params.BaseFee)
-		params.MinGasPrice = types.Convert6To18DecimalsLegacyDec(params.MinGasPrice)
-	}
+	params.BaseFee = ConvertAmountTo18DecimalsLegacy(params.BaseFee)
+	params.MinGasPrice = ConvertAmountTo18DecimalsLegacy(params.MinGasPrice)
 	return params
 }
