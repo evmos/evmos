@@ -8,12 +8,14 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
 	_ sdk.Msg = &MsgConvertERC20{}
+	_ sdk.Msg = &MsgConvertCoin{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -84,4 +86,36 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgConvertCoin) ValidateBasic() error {
+	if err := ValidateErc20Denom(msg.Coin.Denom); err != nil {
+		if err := ibctransfertypes.ValidateIBCDenom(msg.Coin.Denom); err != nil {
+			return err
+		}
+	}
+
+	if !msg.Coin.Amount.IsPositive() {
+		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "cannot mint a non-positive amount")
+	}
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errorsmod.Wrap(err, "invalid sender address")
+	}
+	if !common.IsHexAddress(msg.Receiver) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid receiver hex address %s", msg.Receiver)
+	}
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg MsgConvertCoin) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgConvertCoin) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{addr}
 }
