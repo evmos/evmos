@@ -30,7 +30,7 @@ func (m MockFeemarketKeeper) GetBaseFee(_ sdk.Context) math.LegacyDec {
 	return m.BaseFee
 }
 
-func (m MockFeemarketKeeper) GetBaseFeeEnabled(ctx sdk.Context) bool {
+func (m MockFeemarketKeeper) GetBaseFeeEnabled(_ sdk.Context) bool {
 	return true
 }
 
@@ -38,7 +38,7 @@ func (m MockFeemarketKeeper) AddTransientGasWanted(_ sdk.Context, _ uint64) (uin
 	return 0, nil
 }
 
-func (m MockFeemarketKeeper) GetParams(ctx sdk.Context) (params feemarkettypes.Params) {
+func (m MockFeemarketKeeper) GetParams(_ sdk.Context) (params feemarkettypes.Params) {
 	return feemarkettypes.DefaultParams()
 }
 

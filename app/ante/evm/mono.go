@@ -79,7 +79,6 @@ func NewMonoDecorator(
 func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek EVMKeeper,
-	fmk FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
 	ethCfg := config.GetChainConfig()
@@ -137,7 +136,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper, md.feeMarketKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
