@@ -37,33 +37,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
 - (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`
-
-<<<<<<< HEAD
-## [v19.2.0] - 2024-08-19
-=======
-### Improvements
-
-- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
-- (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
-- (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
-- (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
-- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
-- (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
-- (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
-- (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
-- (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
-- (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
-- (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.
-- (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
-- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
 
 ### Bug Fixes
 
 - (erc20) [#2892](https://github.com/evmos/evmos/pull/2892) Keep `MsgConvertCoin` interface registered for backwards compatibility.
 
 ## [v19.2.0](https://github.com/evmos/evmos/releases/tag/v19.2.0) - 2024-08-19
->>>>>>> 9c452dee (chore(erc20): keep MsgConvertCoin interface registered (#2892))
 
 ### State Machine Breaking
 

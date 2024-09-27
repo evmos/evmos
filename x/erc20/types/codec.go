@@ -62,10 +62,5 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
-<<<<<<< HEAD
-=======
 	cdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
-	cdc.RegisterConcrete(&MsgRegisterERC20{}, registerERC20, nil)
-	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
->>>>>>> 9c452dee (chore(erc20): keep MsgConvertCoin interface registered (#2892))
 }
