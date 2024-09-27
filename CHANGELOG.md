@@ -65,6 +65,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
 - (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
 
+## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
+
 ### Bug Fixes
 
 - (erc20) [#2892](https://github.com/evmos/evmos/pull/2892) Keep `MsgConvertCoin` interface registered for backwards compatibility.
