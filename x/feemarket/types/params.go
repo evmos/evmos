@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	// DefaultBaseFee is 0.1 for the ICS Evmos chain
-	DefaultBaseFee = math.LegacyNewDecWithPrec(100000000000, 2)
+	// DefaultBaseFee for the Evmos chain
+	DefaultBaseFee = math.LegacyNewDec(1_000_000_000)
 	// DefaultMinGasMultiplier is 0.5 or 50%
 	DefaultMinGasMultiplier = math.LegacyNewDecWithPrec(50, 2)
 	// DefaultMinGasPrice is 0 (i.e disabled)

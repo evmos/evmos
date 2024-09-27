@@ -48,7 +48,7 @@ type StakingKeeper interface {
 	ValidatorAddressCodec() address.Codec
 }
 
-// FeeMarketKeeper// FeeMarketKeeper
+// FeeMarketKeeper defines the expected interfaces needed for the feemarket
 type FeeMarketKeeper interface {
 	GetBaseFee(ctx sdk.Context) math.LegacyDec
 	GetParams(ctx sdk.Context) feemarkettypes.Params

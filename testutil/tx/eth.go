@@ -106,7 +106,7 @@ func CreateEthTx(
 
 	baseFeeRes, err := appEvmos.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	if err != nil {
-		return nil, err
+		return nil, errorsmod.Wrap(err, "failed to get fee during eth tx creation")
 	}
 	baseFee := baseFeeRes.BaseFee.BigInt()
 

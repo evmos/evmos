@@ -134,25 +134,3 @@ func BinSearch(lo, hi uint64, executable func(uint64) (bool, *MsgEthereumTxRespo
 func EffectiveGasPrice(baseFee, feeCap, tipCap *big.Int) *big.Int {
 	return math.BigMin(new(big.Int).Add(tipCap, baseFee), feeCap)
 }
-
-// scaleFactor constant for scaling 18 decimals <-> 6 decimals
-const scaleFactor = 1e12
-
-// Convert6To18DecimalsBigInt converts a big Int to 18 decimals from 6
-func Convert6To18DecimalsBigInt(amt *big.Int) *big.Int {
-	return new(big.Int).Mul(amt, big.NewInt(scaleFactor))
-}
-
-// Convert18To6DecimalsBigInt converts a big Int to 6 decimals from 18
-func Convert18To6DecimalsBigInt(amt *big.Int) *big.Int {
-	return new(big.Int).Quo(amt, big.NewInt(scaleFactor))
-}
-
-// ZeroExtraDecimalsBigInt replaces all extra decimals by zero of an amount with 18 decimals in big.Int.
-func ZeroExtraDecimalsBigInt(amt *big.Int) *big.Int {
-	if amt.Sign() == 0 {
-		return amt
-	}
-	scaledDown := Convert18To6DecimalsBigInt(amt)
-	return Convert6To18DecimalsBigInt(scaledDown)
-}
