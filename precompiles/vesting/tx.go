@@ -124,7 +124,7 @@ func (p *Precompile) FundVestingAccount(
 		}
 
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-		amt := vestingCoins.AmountOf(config.GetDenom()).BigInt()
+		amt := vestingCoins.AmountOf(config.GetEVMCoinDenom()).BigInt()
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
@@ -191,7 +191,7 @@ func (p *Precompile) Clawback(
 	if isContractCaller {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB when calling
 		// the precompile from another contract.
-		clawbackAmt := response.Coins.AmountOf(config.GetDenom()).BigInt()
+		clawbackAmt := response.Coins.AmountOf(config.GetEVMCoinDenom()).BigInt()
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(accountAddr, clawbackAmt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(destAddr, clawbackAmt, cmn.Add),

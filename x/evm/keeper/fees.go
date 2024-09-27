@@ -55,8 +55,10 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 		return errorsmod.Wrapf(err, "account not found for sender %s", from)
 	}
 
-	// deduct the full gas cost from the user balance
-	if err := authante.DeductFees(k.bankKeeper, ctx, signerAcc, fees); err != nil {
+	// deduct the full gas cost from the user balance. Notice that it is used
+	// the bankWrapper to properly convert fees from the 18 decimals
+	// representation to the original one before calling into the bank keeper.
+	if err := authante.DeductFees(k.bankWrapper, ctx, signerAcc, fees); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct full gas cost %s from the user %s balance", fees, from)
 	}
 

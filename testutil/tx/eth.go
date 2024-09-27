@@ -38,7 +38,7 @@ func PrepareEthTx(
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
 
-	baseDenom := evmconfig.GetDenom()
+	baseDenom := evmconfig.GetEVMCoinDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {

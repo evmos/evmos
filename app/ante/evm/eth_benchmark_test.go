@@ -78,7 +78,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
-				baseDenom := config.GetDenom()
+				baseDenom := config.GetEVMCoinDenom()
 				fees := sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 

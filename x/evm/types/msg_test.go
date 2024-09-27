@@ -119,7 +119,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			tc.msg.Data = nil
 		}
 
-		baseDenom := config.GetDenom()
+		baseDenom := config.GetEVMCoinDenom()
 
 		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 		if tc.expError {

@@ -109,9 +109,9 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	if p.tokenPair.Denom == config.GetDenom() {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
+	if p.tokenPair.Denom == config.GetEVMCoinDenom() {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(config.GetEVMCoinDenom()).BigInt(), cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(config.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {

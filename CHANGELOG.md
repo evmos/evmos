@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (app) [#2860](https://github.com/evmos/evmos/pull/2860) Refactor to use `sdk.BaseDenom` and evm denom and added app configurator.
 - (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
+- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`
 
 ### Improvements
 
@@ -60,7 +61,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
 - (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
+- (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.
 - (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
+- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
 
 ## [v19.2.0](https://github.com/evmos/evmos/releases/tag/v19.2.0) - 2024-08-19
 

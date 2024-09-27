@@ -14,11 +14,12 @@ import (
 	"github.com/evmos/evmos/v20/types"
 )
 
+// testChainID represents the ChainID used for the purpose of testing.
+const testChainID string = "evmos_9002-1"
+
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
 var chainConfig *geth.ChainConfig
-
-const testChainID string = "evmos_9002-1"
 
 func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if chainID == "" {

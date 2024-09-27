@@ -258,7 +258,7 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)

@@ -63,7 +63,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		GasFeeCap: big.NewInt(200),
 	}
 
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name      string
@@ -603,12 +603,13 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		{
 			"passes - Single-signer EIP-712",
 			func() sdk.Tx {
+				evmDenom := config.GetEVMCoinDenom()
 				msg := banktypes.NewMsgSend(
 					sdk.AccAddress(privKey.PubKey().Address()),
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"evmos",
+							evmDenom,
 							sdkmath.NewInt(1),
 						),
 					),

@@ -503,7 +503,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext())
 			priority := evmtypes.GetTxPriority(txData, baseFee)
 
-			baseDenom := config.GetDenom()
+			baseDenom := config.GetEVMCoinDenom()
 
 			fees, err := keeper.VerifyFee(txData, baseDenom, baseFee, false, false, suite.network.GetContext().IsCheckTx())
 			if tc.expectPassVerify {

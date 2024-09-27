@@ -54,7 +54,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	//      london hardfork enableness
 	nw := network.New()
 	encodingConfig := nw.GetEncodingConfig()
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(baseDenom, math.NewInt(10)))
 
 	genesisCtx := sdk.NewContext(nil, tmproto.Header{}, false, log.NewNopLogger())
