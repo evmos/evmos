@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (erc20) [#2892](https://github.com/evmos/evmos/pull/2892) Keep `MsgConvertCoin` interface registered for backwards compatibility.
+
 ## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-26
 
 ### State Machine Breaking
