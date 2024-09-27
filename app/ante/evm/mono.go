@@ -86,7 +86,7 @@ func NewMonoDecoratorUtils(
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx)
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 
 	// get the gas prices adapted accordingly
 	// to the evm denom decimals

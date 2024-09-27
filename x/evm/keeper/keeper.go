@@ -52,7 +52,7 @@ type Keeper struct {
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
-	feeMarketWrapper *FeeMarketWrapper
+	feeMarketWrapper *wrappers.FeeMarketWrapper
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
 
@@ -92,6 +92,7 @@ func NewKeeper(
 	}
 
 	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
+	feeMarkerWrapper := wrappers.NewFeeMarketWrapper(fmk)
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
@@ -100,7 +101,7 @@ func NewKeeper(
 		accountKeeper:    ak,
 		bankWrapper:      bankWrapper,
 		stakingKeeper:    sk,
-		feeMarketWrapper: NewFeeMarketWrapper(fmk),
+		feeMarketWrapper: feeMarkerWrapper,
 		storeKey:         storeKey,
 		transientKey:     transientKey,
 		tracer:           tracer,
