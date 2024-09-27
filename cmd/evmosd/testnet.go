@@ -163,7 +163,7 @@ Example:
 
 			args.baseFee, err = math.LegacyNewDecFromStr(baseFee)
 			if err != nil {
-				return fmt.Errorf("invalid value for --base-fee. expected a int or decimal number greater than or equal to 0 but got %s and err %s", baseFee, err.Error())
+				return fmt.Errorf("invalid value for --base-fee. failed during the conversion from string %s to decimal. err %s", baseFee, err.Error())
 			}
 			if args.baseFee.IsNil() || args.baseFee.IsNegative() {
 				return fmt.Errorf("invalid value for --base-fee. expected a int or decimal number greater than or equal to 0 but got %s", baseFee)

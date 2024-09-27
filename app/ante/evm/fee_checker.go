@@ -48,18 +48,18 @@ func feeChecker(
 ) (sdk.Coins, int64, error) {
 	denom := config.GetEVMCoinDenom()
 	ethConfig := config.GetChainConfig()
-	baseFee := k.GetBaseFee(ctx)
 
+	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
+		// london hardfork is not enabled: fallback to min-gas-prices logic
+		return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
+	}
+
+	baseFee := k.GetBaseFee(ctx)
 	// if baseFee is nil because it is disabled
 	// or not found, consider it as 0
 	// so the DynamicFeeTx logic can be applied
 	if baseFee.IsNil() {
 		baseFee = sdkmath.LegacyZeroDec()
-	}
-
-	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
-		// london hardfork is not enabled: fallback to min-gas-prices logic
-		return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 	}
 
 	// default to `MaxInt64` when there's no extension option.
