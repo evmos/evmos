@@ -28,7 +28,7 @@ var (
 const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
-	convertCoinName  = "evmos/MsgConvertCoin" // keep it for backwards compatiblity when querying txs
+	convertCoinName  = "evmos/MsgConvertCoin" // keep it for backwards compatibility when querying txs
 	updateParams     = "evmos/erc20/MsgUpdateParams"
 	registerERC20    = "evmos/erc20/MsgRegisterERC20"
 	toggleConversion = "evmos/erc20/MsgToggleConversion"
@@ -44,7 +44,7 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgConvertCoin{}, // keep it for backwards compatiblity when querying txs
+		&MsgConvertCoin{}, // keep it for backwards compatibility when querying txs
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
 		&MsgRegisterERC20{},
