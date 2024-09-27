@@ -3,6 +3,10 @@
 The wrapper package defines wrappers around Cosmos SDK modules required to
 handle coins with different representation of the decimals inside the x/evm module.
 
+All wrapper implementations should be used only for transaction executions that
+involves the EVM. When a keeper is required as a dependency for another Cosmos
+SDK module, it should be used the original <MODULE>Keeper.
+
 ## BankWrapper
 
 This package contains the `BankWrapper`, a wrapper around the Cosmos SDK bank keeper that is designed
