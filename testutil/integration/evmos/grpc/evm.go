@@ -46,3 +46,9 @@ func (gqh *IntegrationHandler) GetEvmParams() (*evmtypes.QueryParamsResponse, er
 	evmClient := gqh.network.GetEvmClient()
 	return evmClient.Params(context.Background(), &evmtypes.QueryParamsRequest{})
 }
+
+// GetEvmParams returns the EVM module params.
+func (gqh *IntegrationHandler) GetEvmBaseFee() (*evmtypes.QueryBaseFeeResponse, error) {
+	evmClient := gqh.network.GetEvmClient()
+	return evmClient.BaseFee(context.Background(), &evmtypes.QueryBaseFeeRequest{})
+}

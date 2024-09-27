@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
@@ -38,9 +37,6 @@ func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	if baseFee.IsNil() {
 		return nil
 	}
-	if config.GetEVMCoinDecimals() == config.EighteenDecimals {
-		return baseFee.TruncateInt().BigInt()
-	}
 	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
@@ -49,9 +45,6 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.CalculateBaseFee(ctx)
 	if baseFee.IsNil() {
 		return nil
-	}
-	if config.GetEVMCoinDecimals() == config.EighteenDecimals {
-		return baseFee.TruncateInt().BigInt()
 	}
 	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }

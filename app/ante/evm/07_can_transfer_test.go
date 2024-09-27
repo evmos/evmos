@@ -62,7 +62,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), tc.name), func() {
-			baseFeeResp, err := grpcHandler.GetBaseFee()
+			baseFeeResp, err := grpcHandler.GetEvmBaseFee()
 			suite.Require().NoError(err)
 			ethCfg := unitNetwork.GetEVMChainConfig()
 			evmParams, err := grpcHandler.GetEvmParams()
@@ -87,7 +87,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 				unitNetwork.GetContext(),
 				unitNetwork.App.EvmKeeper,
 				coreMsg,
-				baseFeeResp.BaseFee.TruncateInt().BigInt(),
+				baseFeeResp.BaseFee.BigInt(),
 				ethCfg,
 				evmParams.Params,
 				tc.isLondon,

@@ -31,7 +31,7 @@ func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 	evmCoinDecimal := config.GetEVMCoinDecimals()
 
-	return amt.Mul(sdkmath.LegacyNewDecFromInt(evmCoinDecimal.ConversionFactor()))
+	return amt.MulInt(evmCoinDecimal.ConversionFactor())
 }
 
 // convertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its

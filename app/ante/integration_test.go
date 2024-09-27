@@ -85,16 +85,16 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			prevBalanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
 			Expect(err).To(BeNil())
 
-			baseFeeRes, err := s.grpcHandler.GetBaseFee()
+			baseFeeRes, err := s.grpcHandler.GetEvmBaseFee()
 			Expect(err).To(BeNil())
 
-			gasPrice := math.NewIntFromBigInt(baseFeeRes.BaseFee.BigInt())
+			gasPrice := baseFeeRes.BaseFee
 
 			res, err := s.factory.ExecuteCosmosTx(
 				priv,
 				commonfactory.CosmosTxArgs{
 					Msgs:     []sdk.Msg{msg},
-					GasPrice: &gasPrice,
+					GasPrice: gasPrice,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -105,7 +105,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			Expect(err).To(BeNil())
 
 			// fees should be deducted from balance
-			feesAmt := math.NewInt(res.GasWanted).Mul(gasPrice)
+			feesAmt := math.NewInt(res.GasWanted).Mul(*gasPrice)
 			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(prevBalanceRes.Balance.Amount.Sub(transferAmt).Sub(feesAmt)))
