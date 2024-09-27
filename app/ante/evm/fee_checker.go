@@ -46,7 +46,7 @@ func feeChecker(
 	k DynamicFeeEVMKeeper,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
-	denom := config.GetDenom()
+	denom := config.GetEVMCoinDenom()
 	ethConfig := config.GetChainConfig()
 	baseFee := k.GetBaseFee(ctx, ethConfig)
 	if baseFee == nil {

@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -43,8 +44,11 @@ type Keeper struct {
 
 	// access to account state
 	accountKeeper types.AccountKeeper
-	// update balance and accounting operations with coins
-	bankKeeper types.BankKeeper
+
+	// bankWrapper is used to convert the Cosmos SDK coin used in the EVM to the
+	// proper decimal representation.
+	bankWrapper types.BankWrapper
+
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
@@ -87,12 +91,14 @@ func NewKeeper(
 		panic(err)
 	}
 
+	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
+
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
 		cdc:             cdc,
 		authority:       authority,
 		accountKeeper:   ak,
-		bankKeeper:      bankKeeper,
+		bankWrapper:     bankWrapper,
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		storeKey:        storeKey,
@@ -233,7 +239,7 @@ func (k *Keeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) 
 	}
 }
 
-// GetAccountOrEmpty returns empty account if not exist
+// GetAccountOrEmpty returns empty account if not exist.
 func (k *Keeper) GetAccountOrEmpty(ctx sdk.Context, addr common.Address) statedb.Account {
 	acct := k.GetAccount(ctx, addr)
 	if acct != nil {
@@ -258,11 +264,13 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 	return acct.GetSequence()
 }
 
-// GetBalance load account's balance of gas token
+// GetBalance load account's balance of gas token.
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
-	baseDenom := config.GetDenom()
-	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, baseDenom)
+
+	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
+
 	return coin.Amount.BigInt()
 }
 
@@ -278,6 +286,7 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 	if !london {
 		return nil
 	}
+	// TODO: use wrapper.
 	baseFee := k.feeMarketKeeper.GetBaseFee(ctx)
 	if baseFee == nil {
 		// return 0 if feemarket not enabled.

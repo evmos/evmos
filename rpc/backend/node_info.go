@@ -281,7 +281,7 @@ func (b *Backend) GenerateMinGasCoin(gasPrice hexutil.Big, appConf config.Config
 
 	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
 	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		unit = evmconfig.GetDenom()
+		unit = evmconfig.GetEVMCoinDenom()
 	} else {
 		unit = minGasPrices[0].Denom
 	}
@@ -335,7 +335,7 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 // the node config. If set value is 0, it will default to 20.
 
 func (b *Backend) RPCMinGasPrice() int64 {
-	baseDenom := evmconfig.GetDenom()
+	baseDenom := evmconfig.GetEVMCoinDenom()
 
 	minGasPrice := b.cfg.GetMinGasPrices()
 	amt := minGasPrice.AmountOf(baseDenom).TruncateInt64()

@@ -40,7 +40,8 @@ const (
 	defaultTraceTimeout = 5 * time.Second
 )
 
-// Account implements the Query/Account gRPC method
+// Account implements the Query/Account gRPC method. The method returns the
+// balance of the account in 18 decimals representation.
 func (k Keeper) Account(c context.Context, req *types.QueryAccountRequest) (*types.QueryAccountResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -132,7 +133,8 @@ func (k Keeper) ValidatorAccount(c context.Context, req *types.QueryValidatorAcc
 	return &res, nil
 }
 
-// Balance implements the Query/Balance gRPC method
+// Balance implements the Query/Balance gRPC method. The method returns the 18
+// decimal representation of the account balance.
 func (k Keeper) Balance(c context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -329,9 +331,9 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 
 	// Recap the highest gas limit with account's available balance.
 	if msg.GasFeeCap().BitLen() != 0 {
-		baseDenom := config.GetDenom()
+		baseDenom := config.GetEVMCoinDenom()
 
-		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), baseDenom)
+		balance := k.bankWrapper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), baseDenom)
 		available := balance.Amount
 		transfer := "0"
 		if args.Value != nil {

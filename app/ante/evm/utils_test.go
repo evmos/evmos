@@ -127,7 +127,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	// Build MsgCreateValidator
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),
@@ -451,9 +451,9 @@ func (suite *AnteTestSuite) generateMultikeySignatures(signMode signing.SignMode
 // RegisterAccount creates an account with the keeper and populates the initial balance
 func (suite *AnteTestSuite) RegisterAccount(pubKey cryptotypes.PubKey, balance *big.Int) {
 	ctx := suite.GetNetwork().GetContext()
+
 	acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(pubKey.Address()))
 	suite.GetNetwork().App.AccountKeeper.SetAccount(ctx, acc)
-
 	err := suite.GetNetwork().App.EvmKeeper.SetBalance(ctx, common.BytesToAddress(pubKey.Address()), balance)
 	suite.Require().NoError(err)
 }
@@ -546,7 +546,7 @@ func (suite *AnteTestSuite) CreateTestSignedMultisigTx(privKeys []cryptotypes.Pr
 func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey, signMode signing.SignMode, msg sdk.Msg, chainID string, gas uint64, signType string) client.TxBuilder {
 	pubKey := privKey.PubKey()
 
-	suite.RegisterAccount(pubKey, big.NewInt(10000000000))
+	suite.RegisterAccount(pubKey, big.NewInt(10_000_000_000))
 
 	txBuilder := suite.createBaseTxBuilder(msg, gas)
 

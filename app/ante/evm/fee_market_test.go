@@ -25,7 +25,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	baseDenom := config.GetDenom()
+	baseDenom := config.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name              string

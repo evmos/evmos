@@ -22,7 +22,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	return evmconfig.GetDenom()
+	return evmconfig.GetEVMCoinDenom()
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
