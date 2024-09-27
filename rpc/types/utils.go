@@ -12,12 +12,12 @@ import (
 	cmttypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -233,15 +233,15 @@ func NewRPCTransaction(
 // BaseFeeFromEvents parses the feemarket basefee from cosmos events
 func BaseFeeFromEvents(events []abci.Event) *big.Int {
 	for _, event := range events {
-		if event.Type != feemarkettypes.EventTypeFeeMarket {
+		if event.Type != evmtypes.EventTypeFeeMarket {
 			continue
 		}
 
 		for _, attr := range event.Attributes {
-			if attr.Key == feemarkettypes.AttributeKeyBaseFee {
-				result, success := new(big.Int).SetString(attr.Value, 10)
+			if attr.Key == evmtypes.AttributeKeyBaseFee {
+				result, success := sdkmath.NewIntFromString(attr.Value)
 				if success {
-					return result
+					return result.BigInt()
 				}
 
 				return nil

@@ -34,7 +34,8 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 	_ module.HasABCIGenesis = AppModule{}
 
-	_ appmodule.HasEndBlocker = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker   = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the evm module.
@@ -139,6 +140,12 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 7, m.Migrate7to8); err != nil {
 		panic(err)
 	}
+}
+
+// BeginBlock returns the begin block for the evm module.
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return am.keeper.BeginBlock(c)
 }
 
 // EndBlock returns the end blocker for the evm module. It returns no validator
