@@ -23,7 +23,7 @@ import (
 var _ evm.FeeMarketKeeper = MockFeemarketKeeper{}
 
 type MockFeemarketKeeper struct {
-	BaseFee        math.LegacyDec
+	BaseFee math.LegacyDec
 }
 
 func (m MockFeemarketKeeper) GetBaseFee(_ sdk.Context) math.LegacyDec {
@@ -62,14 +62,14 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	deliverTxCtx := sdk.NewContext(nil, tmproto.Header{Height: 1}, false, log.NewNopLogger())
 
 	testCases := []struct {
-		name        string
-		ctx         sdk.Context
-		keeper      evm.FeeMarketKeeper
-		buildTx     func() sdk.FeeTx
-		londonEnabled     bool
-		expFees     string
-		expPriority int64
-		expSuccess  bool
+		name          string
+		ctx           sdk.Context
+		keeper        evm.FeeMarketKeeper
+		buildTx       func() sdk.FeeTx
+		londonEnabled bool
+		expFees       string
+		expPriority   int64
+		expSuccess    bool
 	}{
 		{
 			"success, genesis tx",
@@ -142,7 +142,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				 BaseFee: math.LegacyNewDec(10),
+				BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -176,7 +176,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee empty tipFeeCap",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				 BaseFee: math.LegacyNewDec(10),
+				BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -197,7 +197,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			"success, dynamic fee tipFeeCap",
 			deliverTxCtx,
 			MockFeemarketKeeper{
-				 BaseFee: math.LegacyNewDec(10),
+				BaseFee: math.LegacyNewDec(10),
 			},
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
