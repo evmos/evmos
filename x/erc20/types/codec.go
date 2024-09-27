@@ -28,6 +28,7 @@ var (
 const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
+	convertCoinName  = "evmos/MsgConvertCoin" // keep it for backwards compatibility when querying txs
 	updateParams     = "evmos/erc20/MsgUpdateParams"
 )
 
@@ -41,6 +42,7 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
+		&MsgConvertCoin{}, // keep it for backwards compatibility when querying txs
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
 	)
@@ -60,4 +62,10 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
+<<<<<<< HEAD
+=======
+	cdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
+	cdc.RegisterConcrete(&MsgRegisterERC20{}, registerERC20, nil)
+	cdc.RegisterConcrete(&MsgToggleConversion{}, toggleConversion, nil)
+>>>>>>> 9c452dee (chore(erc20): keep MsgConvertCoin interface registered (#2892))
 }
