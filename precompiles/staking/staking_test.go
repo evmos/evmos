@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +18,6 @@ import (
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/precompiles/authorization"
 	"github.com/evmos/evmos/v20/precompiles/staking"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -253,7 +253,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(s.bondDenom, math.NewInt(1000))
 				err = s.network.App.BankKeeper.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
@@ -381,7 +381,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(s.bondDenom, math.NewInt(1000))
 				err = s.network.App.BankKeeper.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
@@ -446,7 +446,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EvmKeeper.ChainID(),
+				ChainID:   config.GetChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
@@ -462,7 +462,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Instantiate config
 			proposerAddress := ctx.BlockHeader().ProposerAddress
-			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EvmKeeper.ChainID())
+			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress)
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
 			// Instantiate EVM

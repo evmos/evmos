@@ -15,6 +15,8 @@ import (
 )
 
 func TestInitCmd(t *testing.T) {
+	err := app.InitializeAppConfiguration("evmos_9001-1")
+	require.NoError(t, err)
 	target := t.TempDir()
 
 	rootCmd, _ := evmosd.NewRootCmd()
@@ -26,7 +28,7 @@ func TestInitCmd(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, utils.TestnetChainID+"-1"),
 	})
 
-	err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
+	err = svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
 	require.NoError(t, err)
 }
 

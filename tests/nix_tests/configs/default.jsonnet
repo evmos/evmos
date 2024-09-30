@@ -1,6 +1,6 @@
 {
   dotenv: '../../../scripts/.env',
-  'evmos_9000-1': {
+  'evmos_9002-1': {
     'account-prefix': 'evmos',
     'coin-type': 60,
     cmd: 'evmosd',
@@ -53,11 +53,6 @@
         },
       },
       app_state: {
-        evm: {
-          params: {
-            evm_denom: 'aevmos',
-          },
-        },
         crisis: {
           constant_fee: {
             denom: 'aevmos',

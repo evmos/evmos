@@ -39,6 +39,7 @@ DEFAULT_DENOM = "aevmos"
 WEVMOS_ADDRESS = Web3.toChecksumAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
+    "TestRevert": "TestRevert.sol",
     "Greeter": "Greeter.sol",
     "BurnGas": "BurnGas.sol",
     "TestChainID": "ChainID.sol",
@@ -488,7 +489,7 @@ local default = import '{tests_dir}/configs/{file_name}.jsonnet';
 
 default {{
   dotenv: '{root_dir}/scripts/.env',
-  'evmos_9000-1'+: {{
+  'evmos_9002-1'+: {{
     cmd: 'evmosd-rocksdb',
     'app-config'+: {{
       'app-db-backend': 'rocksdb',
@@ -533,7 +534,7 @@ def update_node_cmd(path, cmd, i):
     ini = configparser.RawConfigParser()
     ini.read(ini_path)
     for section in ini.sections():
-        if section == f"program:evmos_9000-1-node{i}":
+        if section == f"program:evmos_9002-1-node{i}":
             ini[section].update(
                 {
                     "command": f"{cmd} start --home %(here)s/node{i}",
@@ -565,7 +566,7 @@ def update_evmos_bin(
     """
 
     def inner(path, base_port, config):  # pylint: disable=unused-argument
-        chain_id = "evmos_9000-1"
+        chain_id = "evmos_9002-1"
         # by default, there're 2 nodes
         # need to update the bin in all these
         for i in nodes:

@@ -13,7 +13,7 @@ import (
 	evmosutil "github.com/evmos/evmos/v20/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 
@@ -77,7 +77,7 @@ func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(ctx sdk.Context, 
 	msgArgs := []interface{}{funder, vestingAddr, false}
 	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
 	s.Require().NoError(err)
-	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
+	err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))))
 	s.Require().NoError(err)
 	_, err = s.network.App.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 	s.Require().NoError(err)

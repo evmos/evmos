@@ -111,25 +111,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: true,
 		},
 		{
-			name:     "empty genesis",
-			genState: &GenesisState{},
-			expPass:  false,
-		},
-		{
 			name:     "copied genesis",
 			genState: NewGenesisState(DefaultGenesisState().Params, DefaultGenesisState().Accounts),
 			expPass:  true,
-		},
-		{
-			name: "invalid genesis",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: common.Address{}.String(),
-					},
-				},
-			},
-			expPass: false,
 		},
 		{
 			name: "invalid genesis account",
@@ -169,45 +153,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-			},
-			expPass: false,
-		},
-		{
-			name: "duplicated tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid params",
-			genState: &GenesisState{
-				Params: Params{},
 			},
 			expPass: false,
 		},

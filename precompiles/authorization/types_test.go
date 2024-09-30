@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v20/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -57,7 +57,7 @@ func TestCheckApprovalArgs(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, _, err := authorization.CheckApprovalArgs(tc.args, utils.BaseDenom)
+			_, _, _, err := authorization.CheckApprovalArgs(tc.args, evmostypes.BaseDenom)
 			if tc.expErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.ErrContains)

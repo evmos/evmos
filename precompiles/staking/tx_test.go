@@ -842,7 +842,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and update the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)})
+		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(2e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
 		//			s.keyring.GetAddr(0),
@@ -864,7 +864,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and delete the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})
+		//		err := s.CreateAuthorization(s.keyring.GetAddr(0), staking.DelegateAuthz, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
 		//			s.keyring.GetAddr(0),

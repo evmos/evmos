@@ -18,7 +18,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 
@@ -189,7 +188,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), utils.BaseDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), is.network.GetDenom())
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -332,7 +331,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), utils.BaseDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), is.network.GetDenom())
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))

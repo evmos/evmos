@@ -10,13 +10,23 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evm "github.com/evmos/evmos/v20/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
+
+// FoundationWallets contains the address of the foundation that held tokens to
+// be distributed to the team. Tokens allocated to these wallets are excluded
+// from the circulating supply.
+var FoundationWallets = []string{
+	"0x29fDcB7b64B84fD54D0fB0E04A8f6B062046fc6F",
+	"0x83ef4C096F9A9daC61081121CCE30578fe437182",
+	"0x7F98F5891780Dc73984da11b5499A70F31A6b2A8",
+	"0xCdf843a5102cc1B3098940552faA9e6F39b3Bb61",
+}
 
 var ParamsKey = []byte("Params")
 
 var (
-	DefaultInflationDenom         = evm.DefaultEVMDenom
+	DefaultInflationDenom         = evmostypes.BaseDenom
 	DefaultInflation              = true
 	DefaultExponentialCalculation = ExponentialCalculation{
 		A:             math.LegacyNewDec(int64(300_000_000)),

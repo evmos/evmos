@@ -10,7 +10,6 @@ import (
 	cosmosante "github.com/evmos/evmos/v20/app/ante/cosmos"
 	"github.com/evmos/evmos/v20/testutil"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 var execTypes = []struct {
@@ -23,7 +22,8 @@ var execTypes = []struct {
 }
 
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
-	denom := utils.BaseDenom
+	denom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
@@ -120,7 +120,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				return txBuilder.GetTx()
 			},
 			false,
-			"provided fee < minimum global fee",
+			"expected only use native token",
 			true,
 		},
 		{

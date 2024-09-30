@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	"github.com/evmos/evmos/v20/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
@@ -58,7 +57,9 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPairID() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name  string
@@ -85,7 +86,9 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPair() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name string
@@ -113,7 +116,9 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 
 func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 	var ctx sdk.Context
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 	id := pair.GetID()
 
 	testCases := []struct {
@@ -152,7 +157,9 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 
 func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
 	var ctx sdk.Context
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name string

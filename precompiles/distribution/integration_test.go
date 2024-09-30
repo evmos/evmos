@@ -20,7 +20,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
@@ -51,7 +51,7 @@ var (
 	txArgs evmtypes.EvmTxArgs
 	// minExpRewardOrCommission is the minimun coins expected for validator's rewards or commission
 	// required for the tests
-	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, testRewardsAmt))
+	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(evmostypes.BaseDenom, testRewardsAmt))
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {

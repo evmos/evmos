@@ -25,25 +25,12 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			name:    "valid",
-			params:  NewParams(DefaultEVMDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
+			params:  NewParams(false, extraEips, nil, nil, DefaultAccessControl),
 			expPass: true,
-		},
-		{
-			name:        "empty",
-			params:      Params{},
-			errContains: "invalid denom: ", // NOTE: this returns the first error that occurs
-		},
-		{
-			name: "invalid evm denom",
-			params: Params{
-				EvmDenom: "@!#!@$!@5^32",
-			},
-			errContains: "invalid denom: @!#!@$!@5^32",
 		},
 		{
 			name: "invalid eip",
 			params: Params{
-				EvmDenom:  DefaultEVMDenom,
 				ExtraEIPs: []string{"os_1000000"},
 			},
 			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
@@ -51,7 +38,6 @@ func TestParamsValidate(t *testing.T) {
 		{
 			name: "unsorted precompiles",
 			params: Params{
-				EvmDenom: DefaultEVMDenom,
 				ActiveStaticPrecompiles: []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
@@ -87,7 +73,7 @@ func TestParamsValidate(t *testing.T) {
 
 func TestParamsEIPs(t *testing.T) {
 	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
-	params := NewParams("ara", false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl)
+	params := NewParams(false, extraEips, nil, nil, DefaultAccessControl)
 	actual := params.EIPs()
 
 	require.Equal(t, []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}, actual)

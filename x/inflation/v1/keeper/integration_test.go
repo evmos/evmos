@@ -21,6 +21,7 @@ var (
 	epochNumber int64
 	skipped     uint64
 	provision   math.LegacyDec
+	denomMint   = types.DefaultInflationDenom
 )
 
 func TestKeeperIntegrationTestSuite(t *testing.T) {

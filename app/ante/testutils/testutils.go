@@ -20,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
@@ -59,15 +60,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
-	if !suite.enableLondonHF {
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-	}
+
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)
 	}
@@ -82,6 +75,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGenesis),
 	)
+
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
@@ -95,6 +89,21 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
+
+	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
+	if !suite.enableLondonHF {
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = maxInt.BigInt()
+		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+		chainConfig.GrayGlacierBlock = maxInt.BigInt()
+		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+		chainConfig.ShanghaiBlock = maxInt.BigInt()
+		chainConfig.CancunBlock = maxInt.BigInt()
+	}
+	err := config.NewEVMConfigurator().
+		WithChainConfig(chainConfig).
+		Configure()
+	suite.Require().NoError(err)
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
 		Cdc:                    suite.network.App.AppCodec(),

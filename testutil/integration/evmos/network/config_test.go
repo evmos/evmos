@@ -11,14 +11,14 @@ import (
 	grpchandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestWithBalances(t *testing.T) {
-	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 1e18))
+	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(evmostypes.BaseDenom, 1e18))
 	key2Balance := sdk.NewCoins(
-		sdk.NewInt64Coin(utils.BaseDenom, 2e18),
+		sdk.NewInt64Coin(evmostypes.BaseDenom, 2e18),
 		sdk.NewInt64Coin("other", 3e18),
 	)
 

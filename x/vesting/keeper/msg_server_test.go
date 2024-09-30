@@ -11,27 +11,32 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v20/contracts"
 	"github.com/evmos/evmos/v20/testutil"
 	evmosfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 var (
-	vestAmount     = int64(1000)
-	balances       = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, vestAmount))
-	quarter        = sdk.NewCoins(sdk.NewInt64Coin(utils.BaseDenom, 250))
-	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	funder         = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	vestingAddr    = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
-	vestingPeriods = sdkvesting.Periods{
+	vestAmount      = int64(1000)
+	baseDenom       = evmostypes.BaseDenom
+	balances        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
+	delegationCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1e18))
+	quarter         = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
+	addr3           = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr4           = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	funder          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	vestingAddr     = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	lockupPeriods   = sdkvesting.Periods{{Length: 5000, Amount: balances}}
+	vestingPeriods  = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
@@ -52,8 +57,13 @@ func TestMsgFundVestingAccount(t *testing.T) {
 		// preFundClawback determines if the clawback vesting account should be already be funded before the test case
 		// this is used to test merging new vesting amounts to existing lockup and vesting schedules
 		preFundClawback bool
-		expPass         bool
-		errContains     string
+		// preExistentDelegation determines if the account should have a delegation before being converted to vesting account
+		preExistentDelegation bool
+		// withDelegation determines if the account should have a delegation after being converted to vesting account
+		withDelegation   bool
+		expPass          bool
+		errContains      string
+		expDelegatedFree sdk.Coins
 	}{
 		{
 			name:         "pass - lockup and vesting defined",
@@ -88,6 +98,7 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			vesting:      vestingPeriods,
 			initClawback: false,
 			expPass:      false,
+			errContains:  "account is not subject to clawback vesting",
 		},
 		{
 			name:               "true - fund existing vesting account",
@@ -99,6 +110,42 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			initClawback:       true,
 			preFundClawback:    true,
 			expPass:            true,
+		},
+		{
+			name:                  "true - create vesting account with pre existing delegation",
+			funder:                funder,
+			vestingAddr:           vestingAddr,
+			lockup:                lockupPeriods,
+			vesting:               vestingPeriods,
+			initClawback:          true,
+			preExistentDelegation: true,
+			expPass:               true,
+		},
+		{
+			name:                  "true - fund existing vesting account with pre existing delegation",
+			funder:                funder,
+			vestingAddr:           vestingAddr,
+			lockup:                lockupPeriods,
+			vesting:               vestingPeriods,
+			expectExtraBalance:    vestAmount,
+			initClawback:          true,
+			preExistentDelegation: true,
+			preFundClawback:       true,
+			expPass:               true,
+		},
+		{
+			name:                  "true - fund existing vesting account with delegations pre and post creation",
+			funder:                funder,
+			vestingAddr:           vestingAddr,
+			lockup:                lockupPeriods,
+			vesting:               vestingPeriods,
+			expectExtraBalance:    vestAmount,
+			initClawback:          true,
+			preExistentDelegation: true,
+			withDelegation:        true,
+			preFundClawback:       true,
+			expPass:               true,
+			expDelegatedFree:      delegationCoins,
 		},
 	}
 	for _, tc := range testCases {
@@ -112,6 +159,17 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			require.NoError(t, err, "failed to fund target account")
 			err = nw.App.BankKeeper.SendCoins(ctx, tc.vestingAddr, tc.funder, balances)
 			require.NoError(t, err, "failed to send tokens to funder account")
+
+			if tc.preExistentDelegation {
+				// in order to delegate from the future vesting account, we need to
+				// send it some funds
+				err = testutil.FundAccount(ctx, nw.App.BankKeeper, tc.vestingAddr, delegationCoins)
+				require.NoError(t, err, "failed to fund vesting account")
+				msgDelegate := stakingtypes.NewMsgDelegate(tc.vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
+				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
+				_, err = msgSrv.Delegate(ctx, msgDelegate)
+				require.NoError(t, err, "failed to delegate")
+			}
 
 			// create a clawback vesting account if necessary
 			if tc.initClawback {
@@ -133,6 +191,17 @@ func TestMsgFundVestingAccount(t *testing.T) {
 				require.NoError(t, err, "failed to fund vesting account")
 			}
 
+			if tc.withDelegation {
+				// in order to delegate from the vesting account, we need to
+				// send it some funds
+				err = testutil.FundAccount(ctx, nw.App.BankKeeper, tc.vestingAddr, delegationCoins)
+				require.NoError(t, err, "failed to fund vesting account")
+				msgDelegate := stakingtypes.NewMsgDelegate(tc.vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
+				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
+				_, err = msgSrv.Delegate(ctx, msgDelegate)
+				require.NoError(t, err, "failed to delegate")
+			}
+
 			// fund the vesting account
 			msg := types.NewMsgFundVestingAccount(
 				tc.funder,
@@ -145,8 +214,9 @@ func TestMsgFundVestingAccount(t *testing.T) {
 			res, err := nw.App.VestingKeeper.FundVestingAccount(ctx, msg)
 
 			expRes := &types.MsgFundVestingAccountResponse{}
-			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, utils.BaseDenom)
-			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, utils.BaseDenom)
+			balanceFunder := nw.App.BankKeeper.GetBalance(ctx, tc.funder, baseDenom)
+			balanceVestingAddr := nw.App.BankKeeper.GetBalance(ctx, tc.vestingAddr, baseDenom)
+			spendableBalanceVestingAddr := nw.App.BankKeeper.SpendableCoin(ctx, tc.vestingAddr, baseDenom)
 
 			if tc.expPass {
 				require.NoError(t, err, tc.name)
@@ -154,9 +224,14 @@ func TestMsgFundVestingAccount(t *testing.T) {
 
 				accI := nw.App.AccountKeeper.GetAccount(ctx, tc.vestingAddr)
 				require.NotNil(t, accI)
-				require.IsType(t, &types.ClawbackVestingAccount{}, accI)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceFunder)
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
+				vestAcc, ok := accI.(*types.ClawbackVestingAccount)
+				require.True(t, ok)
+
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceFunder)
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, vestAmount+tc.expectExtraBalance), balanceVestingAddr)
+				require.Equal(t, tc.expDelegatedFree, vestAcc.DelegatedFree)
+				require.Empty(t, vestAcc.DelegatedVesting)
+				require.True(t, spendableBalanceVestingAddr.Amount.IsZero())
 			} else {
 				require.Error(t, err, tc.name)
 				require.ErrorContains(t, err, tc.errContains)
@@ -305,6 +380,26 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			funder:  funderAddr,
 			expPass: true,
 		},
+		{
+			name: "success - with pre-existent delegation",
+			malleate: func(funder sdk.AccAddress) sdk.AccAddress {
+				// fund the funder and vesting accounts from Bankkeeper
+				err := testutil.FundAccount(ctx, nw.App.BankKeeper, funder, balances)
+				require.NoError(t, err)
+				err = testutil.FundAccount(ctx, nw.App.BankKeeper, vestingAddr, delegationCoins)
+				require.NoError(t, err, "failed to fund vesting account")
+
+				// create a delegation for the vestingAcc
+				msgDelegate := stakingtypes.NewMsgDelegate(vestingAddr.String(), nw.GetValidators()[0].OperatorAddress, delegationCoins[0])
+				msgSrv := stakingkeeper.NewMsgServerImpl(nw.App.StakingKeeper.Keeper)
+				_, err = msgSrv.Delegate(ctx, msgDelegate)
+				require.NoError(t, err, "failed to delegate")
+
+				return vestingAddr
+			},
+			funder:  funderAddr,
+			expPass: true,
+		},
 	}
 
 	for _, tc := range testcases {
@@ -326,8 +421,11 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				require.Equal(t, &types.MsgCreateClawbackVestingAccountResponse{}, res)
 
 				accI := nw.App.AccountKeeper.GetAccount(ctx, vestingAddr)
+				vestAcc, ok := accI.(*types.ClawbackVestingAccount)
 				require.NotNil(t, accI, "expected account to be created")
-				require.IsType(t, &types.ClawbackVestingAccount{}, accI, "expected account to be a clawback vesting account")
+				require.True(t, ok, "expected account to be a clawback vesting account")
+				require.Empty(t, vestAcc.DelegatedFree)
+				require.Empty(t, vestAcc.DelegatedVesting)
 			} else {
 				require.Error(t, err)
 				require.ErrorContains(t, err, tc.errContains)
@@ -490,8 +588,8 @@ func TestMsgClawback(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, fundRes)
 
-				balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, utils.BaseDenom)
-				require.Equal(t, balanceVestingAcc, sdk.NewInt64Coin(utils.BaseDenom, 1000))
+				balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, baseDenom)
+				require.Equal(t, balanceVestingAcc, sdk.NewInt64Coin(baseDenom, 1000))
 			}
 
 			tc.malleate()
@@ -500,10 +598,10 @@ func TestMsgClawback(t *testing.T) {
 			msg := types.NewMsgClawback(tc.funder, vestingAddr, tc.clawbackDest)
 			res, err := nw.App.VestingKeeper.Clawback(ctx, msg)
 
-			balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, utils.BaseDenom)
-			balanceClaw := nw.App.BankKeeper.GetBalance(ctx, tc.clawbackDest, utils.BaseDenom)
+			balanceVestingAcc := nw.App.BankKeeper.GetBalance(ctx, vestingAddr, baseDenom)
+			balanceClaw := nw.App.BankKeeper.GetBalance(ctx, tc.clawbackDest, baseDenom)
 			if len(tc.clawbackDest) == 0 {
-				balanceClaw = nw.App.BankKeeper.GetBalance(ctx, tc.funder, utils.BaseDenom)
+				balanceClaw = nw.App.BankKeeper.GetBalance(ctx, tc.funder, baseDenom)
 			}
 
 			if tc.expPass {
@@ -511,7 +609,7 @@ func TestMsgClawback(t *testing.T) {
 
 				expRes := &types.MsgClawbackResponse{Coins: balances}
 				require.Equal(t, expRes, res, "expected full balances to be clawed back")
-				require.Equal(t, sdk.NewInt64Coin(utils.BaseDenom, 0), balanceVestingAcc)
+				require.Equal(t, sdk.NewInt64Coin(baseDenom, 0), balanceVestingAcc)
 				require.Equal(t, balances[0], balanceClaw)
 			} else {
 				require.Error(t, err)

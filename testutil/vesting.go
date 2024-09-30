@@ -6,7 +6,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/evmos/evmos/v20/utils"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 type vestingSchedule struct {
@@ -31,7 +31,7 @@ type vestingSchedule struct {
 var (
 	TestVestingSchedule vestingSchedule
 	// Monthly vesting period
-	stakeDenom    = utils.BaseDenom
+	stakeDenom    = evmostypes.BaseDenom
 	amt           = math.NewInt(1e17)
 	vestingLength = int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt    = sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
