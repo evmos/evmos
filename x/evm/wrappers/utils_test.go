@@ -1,15 +1,18 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package wrappers
+package wrappers_test
 
 import (
+	"fmt"
+	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/config"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
 	"github.com/stretchr/testify/require"
 )
@@ -76,7 +79,7 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 
 			config.SetEVMCoinTEST(tc.evmCoinInfo)
 
-			coinConverted := mustConvertEvmCoinTo18Decimals(tc.coin)
+			coinConverted := wrappers.MustConvertEvmCoinTo18Decimals(tc.coin)
 
 			if !tc.expPanic {
 				require.Equal(t, tc.expCoin, coinConverted, "expected a different coin")
@@ -140,7 +143,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			config.SetEVMCoinTEST(tc.evmCoinInfo)
 
-			coinConverted, err := convertEvmCoinFrom18Decimals(tc.coin)
+			coinConverted, err := wrappers.ConvertEvmCoinFrom18Decimals(tc.coin)
 
 			if !tc.expErr {
 				require.NoError(t, err)
@@ -198,8 +201,63 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			config.SetEVMCoinTEST(tc.evmCoinInfo)
 
-			coinConverted := convertCoinsFrom18Decimals(tc.coins)
+			coinConverted := wrappers.ConvertCoinsFrom18Decimals(tc.coins)
 			require.Equal(t, tc.expCoins, coinConverted, "expected a different coin")
 		})
+	}
+}
+
+func TestZeroExtraDecimalsBigInt(t *testing.T) {
+	testCases := []struct {
+		name string
+		amt  *big.Int
+		exp  *big.Int
+	}{
+		{
+			name: "almost 1: 0.99999...",
+			amt:  big.NewInt(999999999999),
+			exp:  big.NewInt(0),
+		},
+		{
+			name: "decimal < 5: 1.4",
+			amt:  big.NewInt(14e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal < 5: 1.499999999999",
+			amt:  big.NewInt(1499999999999),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal == 5: 1.5",
+			amt:  big.NewInt(15e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "decimal > 5: 1.9",
+			amt:  big.NewInt(19e11),
+			exp:  big.NewInt(1e12),
+		},
+		{
+			name: "1 wei",
+			amt:  big.NewInt(1),
+			exp:  big.NewInt(0),
+		},
+	}
+
+	for _, cfg := range []config.EvmCoinInfo{
+		{Denom: types.BaseDenom, Decimals: config.SixDecimals},
+		{Denom: types.BaseDenom, Decimals: config.EighteenDecimals},
+	} {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
+				config.SetEVMCoinTEST(cfg)
+				res := wrappers.AdjustExtraDecimalsBigInt(tc.amt)
+				if cfg.Decimals == config.EighteenDecimals {
+					tc.exp = tc.amt
+				}
+				require.Equal(t, tc.exp, res)
+			})
+		}
 	}
 }
