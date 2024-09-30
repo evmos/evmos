@@ -27,7 +27,7 @@ import (
 )
 
 // consensusVersion defines the current x/feemarket module consensus version.
-const consensusVersion = 4
+const consensusVersion = 5
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -129,6 +129,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
 	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
+		panic(err)
+	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 4, m.Migrate4to5); err != nil {
 		panic(err)
 	}
 }
