@@ -22,7 +22,7 @@ const testChainID string = "evmos_9002-1"
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
-var chainConfig *ChainConfig
+var chainConfig *geth.ChainConfig
 
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
@@ -114,19 +114,19 @@ func DefaultChainConfig(chainID string) *ChainConfig {
 // default values. The method is private because it should only be called once
 // in the EVMConfigurator.
 func SetChainConfig(cc *ChainConfig) {
+	config := DefaultChainConfig("")
 	if cc != nil {
-		chainConfig = cc
-	} else {
-		chainConfig = DefaultChainConfig("")
+		config = cc
 	}
-	if err := chainConfig.Validate(); err != nil {
+	if err := config.Validate(); err != nil {
 		panic(err)
 	}
+	chainConfig = config.EthereumConfig(nil)
 }
 
 // GetChainConfig returns the `chainConfig` used in the EVM.
 func GetChainConfig() *geth.ChainConfig {
-	return chainConfig.EthereumConfig(nil)
+	return chainConfig
 }
 
 func getBlockValue(block *sdkmath.Int) *big.Int {
