@@ -22,7 +22,7 @@ type FeeMarketWrapper struct {
 }
 
 // NewFeeMarketWrapper creates a new feemarket Keeper wrapper instance.
-// The BankWrapper is used to manage an evm denom with 6 or 18 decimals
+// The BankWrapper is used to manage an evm denom with 6 or 18 decimals.
 func NewFeeMarketWrapper(
 	fk types.FeeMarketKeeper,
 ) *FeeMarketWrapper {
@@ -31,7 +31,7 @@ func NewFeeMarketWrapper(
 	}
 }
 
-// GetBaseFee returns the base fee converted to 18 decimals
+// GetBaseFee returns the base fee converted to 18 decimals.
 func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.GetBaseFee(ctx)
 	if baseFee.IsNil() {
@@ -40,7 +40,7 @@ func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
-// CalculateBaseFee returns the calculated base fee converted to 18 decimals
+// CalculateBaseFee returns the calculated base fee converted to 18 decimals.
 func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	baseFee := w.FeeMarketKeeper.CalculateBaseFee(ctx)
 	if baseFee.IsNil() {
@@ -49,7 +49,7 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
-// GetParams returns the params converted to 18 decimals
+// GetParams returns the params with associated fees values converted to 18 decimals.
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
 	params.BaseFee = ConvertAmountTo18DecimalsLegacy(params.BaseFee)
