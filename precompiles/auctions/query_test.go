@@ -40,7 +40,6 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 					},
 					Round: 1,
 				})
-
 			},
 			200000,
 			false,

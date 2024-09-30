@@ -3,9 +3,10 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v20/x/auctions/types"
 	"math/big"
 	"testing"
+
+	"github.com/evmos/evmos/v20/x/auctions/types"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 

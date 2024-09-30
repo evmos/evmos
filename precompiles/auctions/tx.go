@@ -36,10 +36,8 @@ func (p *Precompile) Bid(
 		return nil, err
 	}
 
-	var (
-		// isCallerSender is true when the contract caller is the same as the sender
-		isCallerSender = contract.CallerAddress == sender
-	)
+	// isCallerSender is true when the contract caller is the same as the sender
+	isCallerSender := contract.CallerAddress == sender
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
