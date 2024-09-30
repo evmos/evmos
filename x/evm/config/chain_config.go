@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
-// The config package provides a convinient way to modify x/evm params and values.
+// The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
 package config
@@ -17,10 +17,13 @@ import (
 // testChainID represents the ChainID used for the purpose of testing.
 const testChainID string = "evmos_9002-1"
 
-// chainConfig is the chain configuration used in the EVM to defined which
+// chainConfig is the chain configuration used in the EVM to define which
 // opcodes are active based on Ethereum upgrades.
 var chainConfig *geth.ChainConfig
 
+// DefaultChainConfig returns a reference to the default `ChainConfig` in which
+// all Ethereum upgrades happen at block 0. This means that all opcodes are
+// active.
 func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if chainID == "" {
 		chainID = testChainID
@@ -30,27 +33,28 @@ func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if err != nil {
 		panic(err)
 	}
+	blockZero := big.NewInt(0)
 	cfg := &geth.ChainConfig{
 		ChainID:                 eip155ChainID,
-		HomesteadBlock:          big.NewInt(0),
-		DAOForkBlock:            big.NewInt(0),
+		HomesteadBlock:          blockZero,
+		DAOForkBlock:            blockZero,
 		DAOForkSupport:          true,
-		EIP150Block:             big.NewInt(0),
+		EIP150Block:             blockZero,
 		EIP150Hash:              common.Hash{},
-		EIP155Block:             big.NewInt(0),
-		EIP158Block:             big.NewInt(0),
-		ByzantiumBlock:          big.NewInt(0),
-		ConstantinopleBlock:     big.NewInt(0),
-		PetersburgBlock:         big.NewInt(0),
-		IstanbulBlock:           big.NewInt(0),
-		MuirGlacierBlock:        big.NewInt(0),
-		BerlinBlock:             big.NewInt(0),
-		LondonBlock:             big.NewInt(0),
-		ArrowGlacierBlock:       big.NewInt(0),
-		GrayGlacierBlock:        big.NewInt(0),
-		MergeNetsplitBlock:      big.NewInt(0),
-		ShanghaiBlock:           big.NewInt(0),
-		CancunBlock:             big.NewInt(0),
+		EIP155Block:             blockZero,
+		EIP158Block:             blockZero,
+		ByzantiumBlock:          blockZero,
+		ConstantinopleBlock:     blockZero,
+		PetersburgBlock:         blockZero,
+		IstanbulBlock:           blockZero,
+		MuirGlacierBlock:        blockZero,
+		BerlinBlock:             blockZero,
+		LondonBlock:             blockZero,
+		ArrowGlacierBlock:       blockZero,
+		GrayGlacierBlock:        blockZero,
+		MergeNetsplitBlock:      blockZero,
+		ShanghaiBlock:           blockZero,
+		CancunBlock:             blockZero,
 		TerminalTotalDifficulty: nil,
 		Ethash:                  nil,
 		Clique:                  nil,
@@ -67,6 +71,8 @@ func setChainConfig(cc *geth.ChainConfig) {
 		return
 	}
 
+	// If no reference to a ChainConfig is passed, fallback to a ChainConfig for
+	// a test chain.
 	chainConfig = DefaultChainConfig("")
 }
 
