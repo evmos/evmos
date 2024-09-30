@@ -7,8 +7,6 @@
 package config
 
 import (
-	"math/big"
-
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/types"
@@ -33,7 +31,7 @@ func DefaultChainConfig(chainID string) *geth.ChainConfig {
 	if err != nil {
 		panic(err)
 	}
-	blockZero := big.NewInt(0)
+	blockZero := common.Big0
 	cfg := &geth.ChainConfig{
 		ChainID:                 eip155ChainID,
 		HomesteadBlock:          blockZero,

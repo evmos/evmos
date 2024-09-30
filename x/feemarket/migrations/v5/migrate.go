@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
-// MigrateStore migrates the x/evm module state from the consensus version 4 to
+// MigrateStore migrates the x/feemarket module state from the consensus version 4 to
 // version 5. Specifically, it converts the base fee from Int to LegacyDec.
 func MigrateStore(
 	ctx sdk.Context,
