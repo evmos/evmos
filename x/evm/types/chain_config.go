@@ -13,7 +13,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/types"
 )
@@ -27,13 +26,13 @@ var chainConfig *ChainConfig
 
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
-func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
-	cId := big.NewInt(int64(cc.ChainId))
+func (cc ChainConfig) EthereumConfig(chainID *big.Int) *geth.ChainConfig {
+	cID := big.NewInt(int64(cc.ChainId)) //#nosec G115
 	if chainID != nil {
-		cId = chainID
+		cID = chainID
 	}
-	return &params.ChainConfig{
-		ChainID:                 cId,
+	return &geth.ChainConfig{
+		ChainID:                 cID,
 		HomesteadBlock:          getBlockValue(cc.HomesteadBlock),
 		DAOForkBlock:            getBlockValue(cc.DAOForkBlock),
 		DAOForkSupport:          cc.DAOForkSupport,
