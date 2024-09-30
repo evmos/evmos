@@ -16,7 +16,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/auctions/types"
 )
 
@@ -69,7 +68,7 @@ func TestInitGenesis(t *testing.T) {
 				bid := network.App.AuctionsKeeper.GetHighestBid(ctx)
 				expBid := types.Bid{
 					Sender:   existentAccAddress.String(),
-					BidValue: sdk.NewCoin(utils.BaseDenom, moduleAccountBalance),
+					BidValue: sdk.NewCoin(types.BidDenom, moduleAccountBalance),
 				}
 				assert.Equal(t, expBid, bid, "expected a different bid")
 				round := network.App.AuctionsKeeper.GetRound(ctx)
@@ -128,9 +127,9 @@ func TestInitGenesis(t *testing.T) {
 
 			if tc.fundModuleAccount {
 				auctionModuleAddress := network.App.AccountKeeper.GetModuleAddress(types.ModuleName)
-				err := network.FundModuleAccount(types.ModuleName, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, moduleAccountBalance)))
+				err := network.FundModuleAccount(types.ModuleName, sdk.NewCoins(sdk.NewCoin(types.BidDenom, moduleAccountBalance)))
 				require.NoError(t, err, "failed during sending coin to module account")
-				auctionModuleBalance := network.App.BankKeeper.GetBalance(network.GetContext(), auctionModuleAddress, utils.BaseDenom)
+				auctionModuleBalance := network.App.BankKeeper.GetBalance(network.GetContext(), auctionModuleAddress, types.BidDenom)
 				fmt.Println(auctionModuleBalance.Amount, moduleAccountBalance)
 				require.Equal(t, auctionModuleBalance.Amount, moduleAccountBalance)
 			}

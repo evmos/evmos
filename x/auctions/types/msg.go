@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 var (
@@ -37,8 +36,8 @@ func (msg MsgBid) ValidateBasic() error {
 		return errors.Wrap(err, "invalid sender address")
 	}
 
-	if msg.Amount.Denom != utils.BaseDenom {
-		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom should be %s", utils.BaseDenom)
+	if msg.Amount.Denom != BidDenom {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom should be %s", BidDenom)
 	}
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero or negative")
@@ -72,8 +71,8 @@ func (msg MsgDepositCoin) ValidateBasic() error {
 		return errors.Wrap(err, "invalid sender address")
 	}
 
-	if msg.Amount.Denom == utils.BaseDenom {
-		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom cannot be be %s", utils.BaseDenom)
+	if msg.Amount.Denom == BidDenom {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "denom cannot be be %s", BidDenom)
 	}
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "amount cannot be zero or negative")

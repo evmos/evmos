@@ -37,8 +37,6 @@ func (p *Precompile) Bid(
 	}
 
 	var (
-		// isCallerOrigin is true when the contract caller is the same as the origin
-		isCallerOrigin = contract.CallerAddress == origin
 		// isCallerSender is true when the contract caller is the same as the sender
 		isCallerSender = contract.CallerAddress == sender
 	)
@@ -55,7 +53,6 @@ func (p *Precompile) Bid(
 	}
 
 	// TODO: Do we need a generic Authz or a custom one here?
-
 	msgBid.Sender = sdk.AccAddress(sender.Bytes()).String()
 	_, err = p.auctionsKeeper.Bid(ctx, msgBid)
 	if err != nil {
@@ -66,13 +63,6 @@ func (p *Precompile) Bid(
 	// emits an event for the Bid transaction.
 	if err := p.EmitBidEvent(ctx, stateDB, sender, currentRound, msgBid.Amount.Amount.BigInt()); err != nil {
 		return nil, err
-	}
-
-	if !isCallerOrigin {
-		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
-		// when calling the precompile from a smart contract
-		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(sender, msgBid.Amount.Amount.BigInt(), cmn.Sub))
 	}
 
 	return cmn.TrueValue, nil
@@ -122,6 +112,8 @@ func (p *Precompile) DepositCoin(
 		return nil, err
 	}
 
+	// TODO: We need to check if the denom is the same as the ATOM IBC Voucher denom
+	// TODO: replace before mainnet
 	if !isCallerOrigin {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 		// when calling the precompile from a smart contract

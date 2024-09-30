@@ -5,7 +5,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/auctions/types"
 )
 
 // removeBaseCoinFromCoins returns an sdk.Coins removing the
@@ -13,7 +13,7 @@ import (
 func removeBaseCoinFromCoins(coins sdk.Coins) sdk.Coins {
 	remainingCoins := sdk.NewCoins()
 	for _, coin := range coins {
-		if coin.Denom != utils.BaseDenom {
+		if coin.Denom != types.BidDenom {
 			remainingCoins = remainingCoins.Add(coin)
 		}
 	}

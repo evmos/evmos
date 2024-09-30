@@ -15,6 +15,9 @@ const (
 
 	// AuctionCollectorName the name of the asset auction collector module account
 	AuctionCollectorName = "auction_collector"
+
+	// BidDenom the denomination of the bid
+	BidDenom = "aevmos"
 )
 
 // prefix bytes for the auctions persistent store

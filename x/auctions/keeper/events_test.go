@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v20/x/auctions/types"
 	"math/big"
 	"testing"
 
@@ -14,7 +15,6 @@ import (
 
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testtx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/auctions/keeper"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
@@ -32,14 +32,14 @@ func TestEmitEndAuctionEvent(t *testing.T) {
 	}{
 		{
 			name:    "success - one coin",
-			coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, amt)},
+			coins:   sdk.Coins{sdk.NewCoin(types.BidDenom, amt)},
 			round:   1,
 			burnAmt: amt,
 			expPass: true,
 		},
 		{
 			name:    "success - many coins",
-			coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, amt), sdk.NewCoin("atest", amt.SubRaw(5e5)), sdk.NewCoin("axmpl", amt.SubRaw(2e12))},
+			coins:   sdk.Coins{sdk.NewCoin(types.BidDenom, amt), sdk.NewCoin("atest", amt.SubRaw(5e5)), sdk.NewCoin("axmpl", amt.SubRaw(2e12))},
 			round:   1,
 			burnAmt: amt,
 			expPass: true,

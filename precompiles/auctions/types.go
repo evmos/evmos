@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/utils"
 	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
 )
 
@@ -45,8 +44,12 @@ func NewMsgBid(args []interface{}) (common.Address, *auctionstypes.MsgBid, error
 	}
 
 	msgBid := &auctionstypes.MsgBid{
-		Amount: sdk.Coin{Amount: sdkmath.NewIntFromBigInt(amount), Denom: utils.BaseDenom},
+		Amount: sdk.Coin{Amount: sdkmath.NewIntFromBigInt(amount), Denom: auctionstypes.BidDenom},
 		Sender: sdk.AccAddress(sender.Bytes()).String(),
+	}
+
+	if err := msgBid.ValidateBasic(); err != nil {
+		return common.Address{}, nil, err
 	}
 
 	return sender, msgBid, nil
@@ -81,6 +84,10 @@ func NewMsgDepositCoin(args []interface{}, ctx sdk.Context, erc20Keeper erc20Kee
 	msgDepositCoin := &auctionstypes.MsgDepositCoin{
 		Amount: sdk.Coin{Amount: sdkmath.NewIntFromBigInt(amount), Denom: denom},
 		Sender: sdk.AccAddress(sender.Bytes()).String(),
+	}
+
+	if err := msgDepositCoin.ValidateBasic(); err != nil {
+		return common.Address{}, common.Address{}, nil, err
 	}
 
 	return sender, tokenAddress, msgDepositCoin, nil

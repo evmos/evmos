@@ -12,7 +12,6 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/evmos/evmos/v20/utils"
 	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,10 +30,10 @@ func TestHookAfterEpochEnd(t *testing.T) {
 
 	validSenderAddr, _ := testutiltx.NewAccAddressAndKey()
 	// Token used in the bid.
-	bidAmount := sdk.NewCoin(utils.BaseDenom, math.NewInt(1))
+	bidAmount := sdk.NewCoin(types.BidDenom, math.NewInt(1))
 	emptyBid := types.Bid{
 		Sender:   "",
-		BidValue: sdk.Coin{Denom: utils.BaseDenom, Amount: math.ZeroInt()},
+		BidValue: sdk.Coin{Denom: types.BidDenom, Amount: math.ZeroInt()},
 	}
 	existingBid := types.Bid{
 		Sender:   validSenderAddr.String(),
@@ -48,7 +47,7 @@ func TestHookAfterEpochEnd(t *testing.T) {
 	}
 	// Coin used to simulate accrued tokens to auction.
 	feeCoin := sdk.NewInt64Coin("fee", 1)
-	zeroCoin := sdk.NewInt64Coin(utils.BaseDenom, 0)
+	zeroCoin := sdk.NewInt64Coin(types.BidDenom, 0)
 
 	// Value required in the hook but not used.
 	unusedEpochNumber := int64(0)

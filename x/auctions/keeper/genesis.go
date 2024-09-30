@@ -9,7 +9,6 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/auctions/types"
 )
 
@@ -35,7 +34,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genesisState types.GenesisState) {
 		}
 
 		auctionModuleAddress := k.accountKeeper.GetModuleAddress(types.ModuleName)
-		auctionModuleBalance := k.bankKeeper.GetBalance(ctx, auctionModuleAddress, utils.BaseDenom)
+		auctionModuleBalance := k.bankKeeper.GetBalance(ctx, auctionModuleAddress, types.BidDenom)
 
 		if auctionModuleBalance.Amount.LT(bidAmount) {
 			panic(errors.New("auction module account does not hold enough balance"))

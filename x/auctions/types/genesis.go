@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/utils"
 )
 
 // DefaultGenesisState sets default auctions genesis state.
@@ -18,7 +17,7 @@ func DefaultGenesisState() *GenesisState {
 		},
 		Bid: Bid{
 			Sender:   "",
-			BidValue: sdk.NewCoin(utils.BaseDenom, math.ZeroInt()),
+			BidValue: sdk.NewCoin(BidDenom, math.ZeroInt()),
 		},
 		Round: 0,
 	}
@@ -35,8 +34,8 @@ func NewGenesisState(params Params, bid Bid, round uint64) *GenesisState {
 
 // Validate performs basic genesis state validation returning an error upon any failure.
 func (gs GenesisState) Validate() error {
-	if gs.Bid.BidValue.Denom != utils.BaseDenom {
-		return errors.Wrapf(ErrInvalidDenom, "bid denom should be %s", utils.BaseDenom)
+	if gs.Bid.BidValue.Denom != BidDenom {
+		return errors.Wrapf(ErrInvalidDenom, "bid denom should be %s", BidDenom)
 	}
 
 	if gs.Bid.BidValue.IsNegative() {

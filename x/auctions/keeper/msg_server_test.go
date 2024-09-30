@@ -16,7 +16,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/auctions/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,7 +47,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expPreviousBidderAmount: sdkmath.ZeroInt(),
@@ -59,7 +58,7 @@ func TestBid(t *testing.T) {
 			malleate: func() {
 				// Send coins from the valid sender to an empty account. In this
 				// way we can easily verify the expected final balance.
-				emptyAccountCoin := sdk.NewCoin(utils.BaseDenom, bidAmount.Sub(previousBidAmount))
+				emptyAccountCoin := sdk.NewCoin(types.BidDenom, bidAmount.Sub(previousBidAmount))
 				err := network.App.BankKeeper.SendCoins(network.GetContext(), validSenderKey.AccAddr, emptyAddress, sdk.NewCoins(emptyAccountCoin))
 				assert.NoError(t, err, "failed to send coins from valid sender to empty account")
 				bigMsg := &types.MsgBid{
@@ -72,11 +71,11 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			postCheck: func() {
-				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, utils.BaseDenom)
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, types.BidDenom)
 				assert.Equal(t, resp.Amount, bidAmount.Sub(previousBidAmount))
 			},
 			expPreviousBidderAmount: bidAmount.Sub(previousBidAmount),
@@ -98,7 +97,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expErr:      true,
@@ -109,7 +108,7 @@ func TestBid(t *testing.T) {
 			malleate: func() {
 				bigMsg := &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount.Add(sdkmath.NewInt(1))),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount.Add(sdkmath.NewInt(1))),
 				}
 				_, err := network.App.AuctionsKeeper.Bid(network.GetContext(), bigMsg)
 				assert.NoError(t, err, "failed to create setup bid")
@@ -117,7 +116,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expErr:      true,
@@ -128,7 +127,7 @@ func TestBid(t *testing.T) {
 			malleate: func() {
 				bigMsg := &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 				_, err := network.App.AuctionsKeeper.Bid(network.GetContext(), bigMsg)
 				assert.NoError(t, err, "failed to create setup bid")
@@ -136,7 +135,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expErr:      true,
@@ -148,7 +147,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: "",
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expErr:      true,
@@ -160,7 +159,7 @@ func TestBid(t *testing.T) {
 			input: func() *types.MsgBid {
 				return &types.MsgBid{
 					Sender: emptyAddress.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, bidAmount),
+					Amount: sdk.NewCoin(types.BidDenom, bidAmount),
 				}
 			},
 			expErr:      true,
@@ -187,7 +186,7 @@ func TestBid(t *testing.T) {
 			} else {
 				assert.NoError(t, err, "error not expected")
 
-				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, utils.BaseDenom)
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), emptyAddress, types.BidDenom)
 				assert.Equal(t, resp.Amount, tc.expPreviousBidderAmount)
 			}
 		})
@@ -215,13 +214,13 @@ func TestDepositCoin(t *testing.T) {
 			name: "pass",
 			malleate: func() {
 				auctionCollectorAddress := network.App.AccountKeeper.GetModuleAddress(types.AuctionCollectorName)
-				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, utils.BaseDenom)
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, types.BidDenom)
 				assert.Equal(t, resp.Amount.Equal(sdkmath.ZeroInt()), true, "auction collector not empty")
 			},
 			input: func() *types.MsgDepositCoin {
 				return &types.MsgDepositCoin{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
+					Amount: sdk.NewCoin(types.BidDenom, depositAmount),
 				}
 			},
 			expDepositAmount: depositAmount,
@@ -243,7 +242,7 @@ func TestDepositCoin(t *testing.T) {
 			input: func() *types.MsgDepositCoin {
 				return &types.MsgDepositCoin{
 					Sender: validSenderKey.AccAddr.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
+					Amount: sdk.NewCoin(types.BidDenom, depositAmount),
 				}
 			},
 			expErr:      true,
@@ -256,7 +255,7 @@ func TestDepositCoin(t *testing.T) {
 			input: func() *types.MsgDepositCoin {
 				return &types.MsgDepositCoin{
 					Sender: "",
-					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
+					Amount: sdk.NewCoin(types.BidDenom, depositAmount),
 				}
 			},
 			expErr:      true,
@@ -269,7 +268,7 @@ func TestDepositCoin(t *testing.T) {
 			input: func() *types.MsgDepositCoin {
 				return &types.MsgDepositCoin{
 					Sender: emptyAddress.String(),
-					Amount: sdk.NewCoin(utils.BaseDenom, depositAmount),
+					Amount: sdk.NewCoin(types.BidDenom, depositAmount),
 				}
 			},
 			expErr:      true,
@@ -297,7 +296,7 @@ func TestDepositCoin(t *testing.T) {
 				assert.NoError(t, err, "error not expected")
 
 				auctionCollectorAddress := network.App.AccountKeeper.GetModuleAddress(types.AuctionCollectorName)
-				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, utils.BaseDenom)
+				resp := network.App.BankKeeper.GetBalance(network.GetContext(), auctionCollectorAddress, types.BidDenom)
 				assert.Equal(t, resp.Amount, tc.expDepositAmount, "expected the auction collector to have the deposit")
 			}
 		})

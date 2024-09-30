@@ -2,7 +2,6 @@ package auctions_test
 
 import (
 	"fmt"
-	"github.com/evmos/evmos/v20/utils"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -29,14 +28,14 @@ func (s *PrecompileTestSuite) TestAuctionInfo() {
 		{
 			"success - get auction info",
 			func(ctx sdk.Context) {
-				err := s.network.FundModuleAccount(auctionstypes.ModuleName, types.NewCoins(types.NewCoin(utils.BaseDenom, math.NewInt(1e18))))
+				err := s.network.FundModuleAccount(auctionstypes.ModuleName, types.NewCoins(types.NewCoin(auctionstypes.BidDenom, math.NewInt(1e18))))
 				s.Require().NoError(err)
 				err = s.network.FundModuleAccount(auctionstypes.ModuleName, types.NewCoins(types.NewCoin("uatom", math.NewInt(1e18))))
 				s.Require().NoError(err)
 				s.network.App.AuctionsKeeper.InitGenesis(ctx, auctionstypes.GenesisState{
 					Params: auctionstypes.DefaultParams(),
 					Bid: auctionstypes.Bid{
-						BidValue: types.NewCoin(utils.BaseDenom, math.NewInt(1e18)),
+						BidValue: types.NewCoin(auctionstypes.BidDenom, math.NewInt(1e18)),
 						Sender:   s.keyring.GetAccAddr(0).String(),
 					},
 					Round: 1,

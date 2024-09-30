@@ -18,7 +18,6 @@ import (
 	testutil "github.com/evmos/evmos/v20/testutil"
 	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/auctions/types"
 )
 
@@ -43,7 +42,7 @@ func TestAuctionInfo(t *testing.T) {
 			expResp: types.QueryCurrentAuctionInfoResponse{
 				Tokens:        nil,
 				CurrentRound:  0,
-				HighestBid:    sdk.NewCoin(utils.BaseDenom, math.NewInt(0)),
+				HighestBid:    sdk.NewCoin(types.BidDenom, math.NewInt(0)),
 				BidderAddress: "",
 			},
 			expPass: true,
@@ -51,12 +50,12 @@ func TestAuctionInfo(t *testing.T) {
 		{
 			name: "success - with non empty bid",
 			malleate: func() {
-				network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), validBidderAddr.String(), sdk.NewInt64Coin(utils.BaseDenom, 1))
+				network.App.AuctionsKeeper.SetHighestBid(network.GetContext(), validBidderAddr.String(), sdk.NewInt64Coin(types.BidDenom, 1))
 			},
 			expResp: types.QueryCurrentAuctionInfoResponse{
 				Tokens:        nil,
 				CurrentRound:  0,
-				HighestBid:    sdk.NewCoin(utils.BaseDenom, math.NewInt(1)),
+				HighestBid:    sdk.NewCoin(types.BidDenom, math.NewInt(1)),
 				BidderAddress: validBidderAddr.String(),
 			},
 			expPass:     true,
@@ -85,7 +84,7 @@ func TestAuctionInfo(t *testing.T) {
 			expResp: types.QueryCurrentAuctionInfoResponse{
 				Tokens:        sdk.NewCoins(ibcCoin, anotherNativeCoin),
 				CurrentRound:  0,
-				HighestBid:    sdk.NewCoin(utils.BaseDenom, math.NewInt(0)),
+				HighestBid:    sdk.NewCoin(types.BidDenom, math.NewInt(0)),
 				BidderAddress: "",
 			},
 			expPass:     true,
