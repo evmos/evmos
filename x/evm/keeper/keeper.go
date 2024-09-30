@@ -299,8 +299,8 @@ func (k Keeper) GetMinGasMultiplier(ctx sdk.Context) math.LegacyDec {
 
 // GetMinGasPrice returns the MinGasPrice param from the fee market module
 // adapted according to the evm denom decimals
-func (k Keeper) GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error) {
-	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice, nil
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) math.LegacyDec {
+	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice
 }
 
 // ResetTransientGasUsed reset gas used to prepare for execution of current cosmos tx, called in ante handler.

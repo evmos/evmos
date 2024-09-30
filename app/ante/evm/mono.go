@@ -87,18 +87,16 @@ func NewMonoDecoratorUtils(
 	baseFee := ek.GetBaseFee(ctx)
 	baseDenom := config.GetEVMCoinDenom()
 
-	// get the gas prices adapted accordingly
-	// to the evm denom decimals
-	minGasPrice, err := ek.GetMinGasPrice(ctx)
-	if err != nil {
-		return nil, err
-	}
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
 			evmtypes.ErrInvalidBaseFee,
 			"base fee is supported but evm block context value is nil",
 		)
 	}
+
+	// get the gas prices adapted accordingly
+	// to the evm denom decimals
+	minGasPrice := ek.GetMinGasPrice(ctx)
 
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
@@ -146,7 +144,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
 	}
 
-	// Use the lowest priority of all the messages as the final one.
 	for i, msg := range msgs {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
@@ -160,6 +157,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
+			// FIX: Mempool dec should be converted
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}

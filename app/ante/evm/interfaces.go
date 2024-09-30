@@ -32,7 +32,7 @@ type EVMKeeper interface { //nolint: revive
 	GetBaseFee(ctx sdk.Context) *big.Int
 	// GetMinGasPrice returns the MinGasPrice param from the fee market module
 	// adapted according to the evm denom decimals
-	GetMinGasPrice(ctx sdk.Context) (math.LegacyDec, error)
+	GetMinGasPrice(ctx sdk.Context) math.LegacyDec
 }
 
 type FeeMarketKeeper interface {
