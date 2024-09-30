@@ -18,6 +18,7 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/config"
 	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
@@ -98,13 +99,14 @@ func NewMonoDecoratorUtils(
 	// to the evm denom decimals
 	minGasPrice := ek.GetMinGasPrice(ctx)
 
+	mempoolMinGasPrice := wrappers.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
 		EthConfig:          ethCfg,
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
-		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(baseDenom),
+		MempoolMinGasPrice: mempoolMinGasPrice,
 		GlobalMinGasPrice:  minGasPrice,
 		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
