@@ -200,7 +200,7 @@ def test_native_tx_priority(evmos_cluster):
                 tx, tc["from"], max_priority_price=tc.get("max_priority_price")
             )
         )
-        gas_price = int(tc["gas_prices"].removesuffix("aevmos"))
+        gas_price = float(tc["gas_prices"].removesuffix("aevmos"))
         expect_priorities.append(
             min(
                 get_max_priority_price(tc.get("max_priority_price")),
