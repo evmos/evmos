@@ -90,15 +90,15 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
 
-	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
+	chainConfig := evmtypes.DefaultChainConfig(suite.network.GetChainID())
 	if !suite.enableLondonHF {
 		maxInt := sdkmath.NewInt(math.MaxInt64)
-		chainConfig.LondonBlock = maxInt.BigInt()
-		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
-		chainConfig.GrayGlacierBlock = maxInt.BigInt()
-		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
-		chainConfig.ShanghaiBlock = maxInt.BigInt()
-		chainConfig.CancunBlock = maxInt.BigInt()
+		chainConfig.LondonBlock = &maxInt
+		chainConfig.ArrowGlacierBlock = &maxInt
+		chainConfig.GrayGlacierBlock = &maxInt
+		chainConfig.MergeNetsplitBlock = &maxInt
+		chainConfig.ShanghaiBlock = &maxInt
+		chainConfig.CancunBlock = &maxInt
 	}
 	err := config.NewEVMConfigurator().
 		WithChainConfig(chainConfig).

@@ -12,8 +12,8 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // NewDynamicFeeChecker returns a `TxFeeChecker` that applies a dynamic fee to
@@ -46,8 +46,8 @@ func feeChecker(
 	k DynamicFeeEVMKeeper,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
-	denom := config.GetEVMCoinDenom()
-	ethConfig := config.GetChainConfig()
+	denom := evmtypes.GetEVMCoinDenom()
+	ethConfig := evmtypes.GetChainConfig()
 	baseFee := k.GetBaseFee(ctx, ethConfig)
 	if baseFee == nil {
 		// london hardfork is not enabled: fallback to min-gas-prices logic

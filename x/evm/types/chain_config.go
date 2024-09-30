@@ -1,24 +1,37 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+//
+// This config provides a convinient way to modify x/evm params and values.
+// Its primary purpose is to be used during application initialization.
+
 package types
 
 import (
 	"math/big"
-	"strings"
 
 	sdkmath "cosmossdk.io/math"
-
-	errorsmod "cosmossdk.io/errors"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
+	geth "github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v20/types"
 )
+
+// testChainID represents the ChainID used for the purpose of testing.
+const testChainID string = "evmos_9002-1"
+
+// chainConfig is the chain configuration used in the EVM to defined which
+// opcodes are active based on Ethereum upgrades.
+var chainConfig *ChainConfig
 
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
 func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
+	cId := big.NewInt(int64(cc.ChainId))
+	if chainID != nil {
+		cId = chainID
+	}
 	return &params.ChainConfig{
-		ChainID:                 chainID,
+		ChainID:                 cId,
 		HomesteadBlock:          getBlockValue(cc.HomesteadBlock),
 		DAOForkBlock:            getBlockValue(cc.DAOForkBlock),
 		DAOForkSupport:          cc.DAOForkSupport,
@@ -44,8 +57,16 @@ func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
 	}
 }
 
-// DefaultChainConfig returns default evm parameters.
-func DefaultChainConfig() ChainConfig {
+func DefaultChainConfig(chainID string) *ChainConfig {
+	if chainID == "" {
+		chainID = testChainID
+	}
+
+	eip155ChainID, err := types.ParseChainID(chainID)
+	if err != nil {
+		panic(err)
+	}
+
 	homesteadBlock := sdkmath.ZeroInt()
 	daoForkBlock := sdkmath.ZeroInt()
 	eip150Block := sdkmath.ZeroInt()
@@ -63,8 +84,8 @@ func DefaultChainConfig() ChainConfig {
 	mergeNetsplitBlock := sdkmath.ZeroInt()
 	shanghaiBlock := sdkmath.ZeroInt()
 	cancunBlock := sdkmath.ZeroInt()
-
-	return ChainConfig{
+	cfg := &ChainConfig{
+		ChainId:             eip155ChainID.Uint64(),
 		HomesteadBlock:      &homesteadBlock,
 		DAOForkBlock:        &daoForkBlock,
 		DAOForkSupport:      true,
@@ -85,6 +106,24 @@ func DefaultChainConfig() ChainConfig {
 		ShanghaiBlock:       &shanghaiBlock,
 		CancunBlock:         &cancunBlock,
 	}
+	return cfg
+}
+
+// SetChainConfig allows to set the `chainConfig` variable modifying the
+// default values. The method is private because it should only be called once
+// in the EVMConfigurator.
+func SetChainConfig(cc *ChainConfig) {
+	if cc != nil {
+		chainConfig = cc
+		return
+	}
+
+	chainConfig = DefaultChainConfig("")
+}
+
+// GetChainConfig returns the `chainConfig` used in the EVM.
+func GetChainConfig() *geth.ChainConfig {
+	return chainConfig.EthereumConfig(nil)
 }
 
 func getBlockValue(block *sdkmath.Int) *big.Int {
@@ -93,91 +132,4 @@ func getBlockValue(block *sdkmath.Int) *big.Int {
 	}
 
 	return block.BigInt()
-}
-
-// Validate performs a basic validation of the ChainConfig params. The function will return an error
-// if any of the block values is uninitialized (i.e nil) or if the EIP150Hash is an invalid hash.
-func (cc ChainConfig) Validate() error {
-	if err := validateBlock(cc.HomesteadBlock); err != nil {
-		return errorsmod.Wrap(err, "homesteadBlock")
-	}
-	if err := validateBlock(cc.DAOForkBlock); err != nil {
-		return errorsmod.Wrap(err, "daoForkBlock")
-	}
-	if err := validateBlock(cc.EIP150Block); err != nil {
-		return errorsmod.Wrap(err, "eip150Block")
-	}
-	if err := validateHash(cc.EIP150Hash); err != nil {
-		return err
-	}
-	if err := validateBlock(cc.EIP155Block); err != nil {
-		return errorsmod.Wrap(err, "eip155Block")
-	}
-	if err := validateBlock(cc.EIP158Block); err != nil {
-		return errorsmod.Wrap(err, "eip158Block")
-	}
-	if err := validateBlock(cc.ByzantiumBlock); err != nil {
-		return errorsmod.Wrap(err, "byzantiumBlock")
-	}
-	if err := validateBlock(cc.ConstantinopleBlock); err != nil {
-		return errorsmod.Wrap(err, "constantinopleBlock")
-	}
-	if err := validateBlock(cc.PetersburgBlock); err != nil {
-		return errorsmod.Wrap(err, "petersburgBlock")
-	}
-	if err := validateBlock(cc.IstanbulBlock); err != nil {
-		return errorsmod.Wrap(err, "istanbulBlock")
-	}
-	if err := validateBlock(cc.MuirGlacierBlock); err != nil {
-		return errorsmod.Wrap(err, "muirGlacierBlock")
-	}
-	if err := validateBlock(cc.BerlinBlock); err != nil {
-		return errorsmod.Wrap(err, "berlinBlock")
-	}
-	if err := validateBlock(cc.LondonBlock); err != nil {
-		return errorsmod.Wrap(err, "londonBlock")
-	}
-	if err := validateBlock(cc.ArrowGlacierBlock); err != nil {
-		return errorsmod.Wrap(err, "arrowGlacierBlock")
-	}
-	if err := validateBlock(cc.GrayGlacierBlock); err != nil {
-		return errorsmod.Wrap(err, "GrayGlacierBlock")
-	}
-	if err := validateBlock(cc.MergeNetsplitBlock); err != nil {
-		return errorsmod.Wrap(err, "MergeNetsplitBlock")
-	}
-	if err := validateBlock(cc.ShanghaiBlock); err != nil {
-		return errorsmod.Wrap(err, "ShanghaiBlock")
-	}
-	if err := validateBlock(cc.CancunBlock); err != nil {
-		return errorsmod.Wrap(err, "CancunBlock")
-	}
-	// NOTE: chain ID is not needed to check config order
-	if err := cc.EthereumConfig(nil).CheckConfigForkOrder(); err != nil {
-		return errorsmod.Wrap(err, "invalid config fork order")
-	}
-	return nil
-}
-
-func validateHash(hex string) error {
-	if hex != "" && strings.TrimSpace(hex) == "" {
-		return errorsmod.Wrap(ErrInvalidChainConfig, "hash cannot be blank")
-	}
-
-	return nil
-}
-
-func validateBlock(block *sdkmath.Int) error {
-	// nil value means that the fork has not yet been applied
-	if block == nil {
-		return nil
-	}
-
-	if block.IsNegative() {
-		return errorsmod.Wrapf(
-			ErrInvalidChainConfig, "block value cannot be negative: %s", block,
-		)
-	}
-
-	return nil
 }

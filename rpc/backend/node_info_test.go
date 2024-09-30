@@ -14,7 +14,7 @@ import (
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
 	"github.com/evmos/evmos/v20/server/config"
 	"github.com/evmos/evmos/v20/types"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
@@ -70,7 +70,7 @@ func (suite *BackendTestSuite) TestGenerateMinGasCoin() {
 			*defaultGasPrice,
 			sdk.DecCoins{},
 			sdk.DecCoin{
-				Denom:  evmconfig.GetEVMCoinDenom(),
+				Denom:  evmtypes.GetEVMCoinDenom(),
 				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
 			},
 		},

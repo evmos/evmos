@@ -14,7 +14,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -60,7 +59,7 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			baseDenom := config.GetEVMCoinDenom()
+			baseDenom := types.GetEVMCoinDenom()
 
 			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 			if err != nil {

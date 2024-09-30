@@ -12,7 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v20/ethereum/eip712"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
@@ -72,7 +73,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	nw := network.New()
 	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = evmconfig.GetEVMCoinDenom()
+	suite.denom = evmtypes.GetEVMCoinDenom()
 
 	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
 }

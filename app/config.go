@@ -11,6 +11,7 @@ import (
 	"github.com/evmos/evmos/v20/utils"
 	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 var sealed = false
@@ -32,12 +33,12 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
-	ethCfg := evmconfig.DefaultChainConfig(chainID)
+	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
 	err = evmconfig.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, evmconfig.EighteenDecimals).
+		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).
 		Configure()
 	if err != nil {
 		return err

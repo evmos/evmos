@@ -4,7 +4,7 @@
 // The config package provides a convinient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-package config
+package types
 
 import (
 	"fmt"
@@ -65,8 +65,8 @@ func GetEVMCoinDenom() string {
 	return evmCoinInfo.Denom
 }
 
-// setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
-func setEVMCoinInfo(evmdenom EvmCoinInfo) {
+// SetEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
+func SetEVMCoinInfo(evmdenom EvmCoinInfo) {
 	setEVMCoinDenom(evmdenom.Denom)
 	setEVMCoinDecimals(evmdenom.Decimals)
 }
