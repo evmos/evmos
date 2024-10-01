@@ -20,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
@@ -100,7 +99,10 @@ func (suite *AnteTestSuite) SetupTest() {
 		chainConfig.ShanghaiBlock = &maxInt
 		chainConfig.CancunBlock = &maxInt
 	}
-	err := config.NewEVMConfigurator().
+
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestChainConfig()
+	err := configurator.
 		WithChainConfig(chainConfig).
 		Configure()
 	suite.Require().NoError(err)
