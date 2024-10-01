@@ -8,12 +8,15 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// CheckMempoolFee checks if the provided fee is at least as large as the local validator's
+// CheckMempoolFee checks if the provided fee is at least as large as the local
+// validator's one. The fee computation assumes that both price and fee are
+// represented in 18 decimals.
 func CheckMempoolFee(fee, mempoolMinGasPrice, gasLimit sdkmath.LegacyDec, isLondon bool) error {
 	if isLondon {
 		return nil
 	}
 
+	// The minimum fee accepted by the node receiving the transaction.
 	requiredFee := mempoolMinGasPrice.Mul(gasLimit)
 
 	if fee.LT(requiredFee) {

@@ -36,7 +36,7 @@ func CheckSenderBalance(
 	if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
 		return errorsmod.Wrapf(
 			errortypes.ErrInsufficientFunds,
-			"sender balance < tx cost (%s < %s)", balance, txData.Cost(),
+			"sender balance < tx cost (%s < %s)", balance, cost,
 		)
 	}
 	return nil

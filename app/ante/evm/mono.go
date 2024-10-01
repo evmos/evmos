@@ -77,16 +77,20 @@ func NewMonoDecorator(
 // These utilities are extracted once at the beginning of the ante handle process,
 // and are used throughout the entire decorator chain.
 // This avoids redundant calls to the keeper and thus improves speed of transaction processing.
+// All prices, fees and balances are converted into 18 decimals here to be
+// correctly used in the EVM.
 func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek EVMKeeper,
 ) (*DecoratorUtils, error) {
-	evmParams := ek.GetParams(ctx)
 	ethCfg := config.GetChainConfig()
+	baseDenom := config.GetEVMCoinDenom()
+
+	evmParams := ek.GetParams(ctx)
+	baseFee := ek.GetBaseFee(ctx)
+
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
-	baseFee := ek.GetBaseFee(ctx)
-	baseDenom := config.GetEVMCoinDenom()
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
@@ -97,9 +101,12 @@ func NewMonoDecoratorUtils(
 
 	// get the gas prices adapted accordingly
 	// to the evm denom decimals
-	minGasPrice := ek.GetMinGasPrice(ctx)
+	globalMinGasPrice := ek.GetMinGasPrice(ctx)
 
+	// Mempool gas price should be scaled to the 18 decimals representation. If
+	// it is already a 18 decimal token, this is a no-op.
 	mempoolMinGasPrice := wrappers.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
+
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
 		EthConfig:          ethCfg,
@@ -107,7 +114,7 @@ func NewMonoDecoratorUtils(
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
 		MempoolMinGasPrice: mempoolMinGasPrice,
-		GlobalMinGasPrice:  minGasPrice,
+		GlobalMinGasPrice:  globalMinGasPrice,
 		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
@@ -159,7 +166,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
-			// FIX: Mempool dec should be converted
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}
@@ -167,6 +173,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 3. min gas price (global min fee)
 		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
+			// If the base fee is not empty, we compute the effective gas
+			// price. The gas limit is specified by the used, while the price is
+			// given by the minimum between the max price paid for the entire tx, and
+			// the sum between the price for the tip and the base fee.
 			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
@@ -199,7 +209,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 6. account balance verification
 		fromAddr := common.HexToAddress(ethMsg.From)
-		// TODO: Use account from AccountKeeper instead
+		// We get the account with the balance from the EVM keeper because it is
+		// using a wrapper of the bank keeper as a dependency to scale all
+		// balances to 18 decimals.
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(
 			ctx,
