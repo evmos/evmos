@@ -38,8 +38,7 @@ func NewEVMConfigurator() *EVMConfigurator {
 	return &EVMConfigurator{}
 }
 
-// WithExtendedEips allows to add to the go-ethereum activators map the provided
-// EIP activators.
+// WithExtendedEips allows you to add the provided EIP activators to the go-ethereum activators map.
 func (ec *EVMConfigurator) WithExtendedEips(extendedEIPs map[string]func(*vm.JumpTable)) *EVMConfigurator {
 	ec.extendedEIPs = extendedEIPs
 	return ec
@@ -52,15 +51,13 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 	return ec
 }
 
-// WithChainConfig allows to define a custom `chainConfig` to be used in the
-// EVM.
+// WithChainConfig allows you to define a custom `chainConfig` to be used in the EVM.
 func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
 	ec.chainConfig = cc
 	return ec
 }
 
-// WithEVMCoinInfo allows to define the denom and decimals of the token used as the
-// EVM token.
+// WithEVMCoinInfo allows you to define the denom and decimals of the token used as the EVM token.
 func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigurator {
 	ec.evmDenom = EvmCoinInfo{Denom: denom, Decimals: d}
 	return ec
@@ -98,7 +95,7 @@ func (ec *EVMConfigurator) Configure() error {
 		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
 
-	// After applying modifier the configurator is sealed. This way, it is not possible
+	// After applying modifications, the configurator is sealed. This way, it is not possible
 	// to call the configure method twice.
 	ec.sealed = true
 
