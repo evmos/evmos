@@ -20,7 +20,6 @@ import (
 
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evm "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -60,7 +59,7 @@ func DeployContract(
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := config.GetChainConfig().ChainID
+	chainID := evm.GetChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
 
@@ -106,7 +105,7 @@ func DeployContractWithFactory(
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ExecTxResult, error) {
-	chainID := config.GetChainConfig().ChainID
+	chainID := evm.GetChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
 	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)

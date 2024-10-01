@@ -1,10 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
-// The config package provides a convinient way to modify x/evm params and values.
+// The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-package config
+//go:build !test
+// +build !test
+
+package types
 
 import (
 	"fmt"
@@ -34,7 +37,7 @@ type EvmCoinInfo struct {
 
 // evmCoinInfo hold the information of the coin used in the EVM as gas token. It
 // can only be set via `EVMConfigurator` before starting the app.
-var evmCoinInfo EvmCoinInfo
+var evmCoinInfo *EvmCoinInfo
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
@@ -67,6 +70,10 @@ func GetEVMCoinDenom() string {
 
 // setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
 func setEVMCoinInfo(evmdenom EvmCoinInfo) {
+	if evmCoinInfo != nil {
+		panic("EVM coin info already set")
+	}
+	evmCoinInfo = new(EvmCoinInfo)
 	setEVMCoinDenom(evmdenom.Denom)
 	setEVMCoinDecimals(evmdenom.Decimals)
 }
@@ -83,9 +90,4 @@ func (d Decimals) ConversionFactor() math.Int {
 	}
 
 	return math.NewInt(1)
-}
-
-func SetEVMCoinTEST(evmdenom EvmCoinInfo) {
-	setEVMCoinDenom(evmdenom.Denom)
-	setEVMCoinDecimals(evmdenom.Decimals)
 }

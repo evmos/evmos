@@ -21,7 +21,6 @@ import (
 
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/server/config"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -34,11 +33,11 @@ func PrepareEthTx(
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
 
-	signer := ethtypes.LatestSignerForChainID(evmconfig.GetChainConfig().ChainID)
+	signer := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
 
-	baseDenom := evmconfig.GetEVMCoinDenom()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -102,7 +101,7 @@ func CreateEthTx(
 ) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
 	nonce := appEvmos.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115
@@ -121,7 +120,7 @@ func CreateEthTx(
 
 	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
 	if privKey != nil {
-		signer := ethtypes.LatestSignerForChainID(evmconfig.GetChainConfig().ChainID)
+		signer := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
 		err := msgEthereumTx.Sign(signer, NewSigner(privKey))
 		if err != nil {
 			return nil, err

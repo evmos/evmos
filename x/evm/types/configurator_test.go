@@ -1,20 +1,18 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package config_test
+package types_test
 
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/stretchr/testify/require"
-
 	"github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEVMConfigurator(t *testing.T) {
-	evmConfigurator := config.NewEVMConfigurator()
+	evmConfigurator := types.NewEVMConfigurator()
 	err := evmConfigurator.Configure()
 	require.NoError(t, err)
 
@@ -26,17 +24,17 @@ func TestEVMConfigurator(t *testing.T) {
 func TestExtendedEips(t *testing.T) {
 	testCases := []struct {
 		name        string
-		malleate    func() *config.EVMConfigurator
+		malleate    func() *types.EVMConfigurator
 		expPass     bool
 		errContains string
 	}{
 		{
 			"fail - eip already present in activators return an error",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				extendedEIPs := map[string]func(*vm.JumpTable){
 					"ethereum_3855": func(_ *vm.JumpTable) {},
 				}
-				ec := config.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
+				ec := types.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
 				return ec
 			},
 			false,
@@ -44,11 +42,11 @@ func TestExtendedEips(t *testing.T) {
 		},
 		{
 			"success - new default extra eips without duplication added",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				extendedEIPs := map[string]func(*vm.JumpTable){
 					"evmos_0": func(_ *vm.JumpTable) {},
 				}
-				ec := config.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
+				ec := types.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
 				return ec
 			},
 			true,
@@ -58,6 +56,7 @@ func TestExtendedEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
+		ec.ResetTestChainConfig()
 		err := ec.Configure()
 
 		if tc.expPass {
@@ -73,16 +72,16 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	defaultExtraEIPsSnapshot := types.DefaultExtraEIPs
 	testCases := []struct {
 		name        string
-		malleate    func() *config.EVMConfigurator
+		malleate    func() *types.EVMConfigurator
 		postCheck   func()
 		expPass     bool
 		errContains string
 	}{
 		{
 			"fail - invalid eip name",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1_000"}
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -94,10 +93,10 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		},
 		{
 			"fail - duplicate default EIP entiries",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1000"}
 				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, "os_1000")
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -109,9 +108,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		},
 		{
 			"success - empty default extra eip",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				var extendedDefaultExtraEIPs []string
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -122,9 +121,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 		},
 		{
 			"success - extra default eip added",
-			func() *config.EVMConfigurator {
+			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1001"}
-				ec := config.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -139,6 +138,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ec := tc.malleate()
+			ec.ResetTestChainConfig()
 			err := ec.Configure()
 
 			if tc.expPass {
