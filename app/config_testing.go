@@ -64,19 +64,23 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 // base denom for the chain. The function registers different values based on
 // the chainID to allow different configurations in mainnet and testnet.
 func setBaseDenomWithChainID(chainID string) error {
-	// only set to aevmos on testnet
 	if utils.IsTestnet(chainID) {
-		if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
-			return err
-		}
-		if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-			return err
-		}
-		return sdk.SetBaseDenom(types.BaseDenomTestnet)
+		return setTestnetBaseDenom()
 	}
+	return setMainnetBaseDenom()
+}
 
-	// for mainnet, testing cases, it will default to aevmos
-	// sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()) //nolint:errcheck
+func setTestnetBaseDenom() error {
+	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
+		return err
+	}
+	if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+		return err
+	}
+	return sdk.SetBaseDenom(types.BaseDenomTestnet)
+}
+
+func setMainnetBaseDenom() error {
 	if err := sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
