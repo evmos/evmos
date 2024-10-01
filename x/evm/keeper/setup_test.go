@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	// because we'll need to set them again when resetting the chain config
 	denom := evmtypes.GetEVMCoinDenom()
 	decimals := evmtypes.GetEVMCoinDecimals()
-	
+
 	configurator := evmtypes.NewEVMConfigurator()
 	configurator.ResetTestChainConfig()
 	err := configurator.

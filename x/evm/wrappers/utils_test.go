@@ -254,9 +254,9 @@ func TestZeroExtraDecimalsBigInt(t *testing.T) {
 	for _, cfg := range []evmtypes.EvmCoinInfo{
 		{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
 		{Denom: types.BaseDenom, Decimals: evmtypes.EighteenDecimals},
-		} {
-			for _, tc := range testCases {
-				t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
+	} {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
 				configurator := evmtypes.NewEVMConfigurator()
 				configurator.ResetTestChainConfig()
 				configurator.WithEVMCoinInfo(cfg.Denom, cfg.Decimals).Configure()
