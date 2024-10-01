@@ -127,11 +127,6 @@ func setChainConfig(cc *ChainConfig) {
 	chainConfig = config.EthereumConfig(nil)
 }
 
-// GetChainConfig returns the `chainConfig` used in the EVM.
-func GetChainConfig() *geth.ChainConfig {
-	return chainConfig
-}
-
 func getBlockValue(block *sdkmath.Int) *big.Int {
 	if block == nil || block.IsNegative() {
 		return nil

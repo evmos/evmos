@@ -98,7 +98,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 		chainConfig.CancunBlock = &maxInt
 	}
 
-	err := evmtypes.NewEVMConfigurator().
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestChainConfig()
+	err := configurator.
 		WithChainConfig(chainConfig).
 		Configure()
 	suite.Require().NoError(err)

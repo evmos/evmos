@@ -103,6 +103,7 @@ func (ec *EVMConfigurator) Configure() error {
 }
 
 func (ec *EVMConfigurator) ResetTestChainConfig() {
+	vm.ResetActivators()
 	testChainConfig = nil
 }
 
@@ -121,6 +122,6 @@ func setTestChainConfig(cc *ChainConfig) {
 }
 
 // GetChainConfig returns the `testChainConfig` used in the EVM.
-func GetTestChainConfig() *geth.ChainConfig {
+func GetChainConfig() *geth.ChainConfig {
 	return testChainConfig
 }

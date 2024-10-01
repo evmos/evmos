@@ -1,8 +1,8 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-//go:build !test
-// +build !test
+//go:build test
+// +build test
 
 package app
 
@@ -37,7 +37,9 @@ func InitializeAppConfiguration(chainID string) error {
 
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
-	err = evmtypes.NewEVMConfigurator().
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestChainConfig()
+	err = configurator.
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).

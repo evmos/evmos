@@ -102,7 +102,7 @@ func (ec *EVMConfigurator) ResetTestChainConfig() {
 	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
 }
 
-// GetChainConfig returns the `testChainConfig` used in the EVM.
-func GetTestChainConfig() *geth.ChainConfig {
-	panic("this is only implemented with the 'test' build flag.")
+// GetChainConfig returns the `chainConfig` used in the EVM.
+func GetChainConfig() *geth.ChainConfig {
+	return chainConfig
 }

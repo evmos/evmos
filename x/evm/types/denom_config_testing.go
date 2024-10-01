@@ -4,8 +4,8 @@
 // The config package provides a convinient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-//go:build !test
-// +build !test
+//go:build test
+// +build test
 
 package types
 
@@ -35,9 +35,9 @@ type EvmCoinInfo struct {
 	Decimals Decimals
 }
 
-// evmCoinInfo hold the information of the coin used in the EVM as gas token. It
+// testingEvmCoinInfo hold the information of the coin used in the EVM as gas token. It
 // can only be set via `EVMConfigurator` before starting the app.
-var evmCoinInfo *EvmCoinInfo
+var testingEvmCoinInfo *EvmCoinInfo
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
@@ -46,7 +46,7 @@ func setEVMCoinDecimals(d Decimals) {
 		panic(fmt.Errorf("invalid decimal value %d; the evm supports only 6 and 18 decimals", d))
 	}
 
-	evmCoinInfo.Decimals = d
+	testingEvmCoinInfo.Decimals = d
 }
 
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
@@ -54,26 +54,24 @@ func setEVMCoinDenom(denom string) {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		panic(err)
 	}
-	evmCoinInfo.Denom = denom
+	testingEvmCoinInfo.Denom = denom
 }
 
 // GetEVMCoinDecimals returns the decimals used in the representation of the EVM
 // coin.
 func GetEVMCoinDecimals() Decimals {
-	return evmCoinInfo.Decimals
+	return testingEvmCoinInfo.Decimals
 }
 
 // GetEVMCoinDenom returns the denom used for the EVM coin.
 func GetEVMCoinDenom() string {
-	return evmCoinInfo.Denom
+	return testingEvmCoinInfo.Denom
 }
 
 // SetEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
 func SetEVMCoinInfo(evmdenom EvmCoinInfo) {
-	if evmCoinInfo != nil {
-		panic("EVM coin info already set")
-	}
-	evmCoinInfo = new(EvmCoinInfo)
+	// for testing build we allow to overwrite the evm coin info
+	testingEvmCoinInfo = new(EvmCoinInfo)
 	setEVMCoinDenom(evmdenom.Denom)
 	setEVMCoinDecimals(evmdenom.Decimals)
 }

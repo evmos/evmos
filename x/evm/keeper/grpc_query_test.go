@@ -1492,7 +1492,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				chainConfig.MergeNetsplitBlock = &maxInt
 				chainConfig.ShanghaiBlock = &maxInt
 				chainConfig.CancunBlock = &maxInt
-				err := types.NewEVMConfigurator().
+				configurator := types.NewEVMConfigurator()
+				configurator.ResetTestChainConfig()
+				err := configurator.
 					WithChainConfig(chainConfig).
 					Configure()
 				suite.Require().NoError(err)
@@ -1540,8 +1542,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 
 			suite.Require().NoError(suite.network.NextBlock())
-			err = types.NewEVMConfigurator().
-				Configure()
+			configurator := types.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			err = configurator.Configure()
 			suite.Require().NoError(err)
 		})
 	}

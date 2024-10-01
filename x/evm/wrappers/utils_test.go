@@ -77,7 +77,7 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 				}
 			}()
 
-			evmtypes.SetEVMCoinTEST(tc.evmCoinInfo)
+			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
 
 			coinConverted := wrappers.MustConvertEvmCoinTo18Decimals(tc.coin)
 
@@ -141,7 +141,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			evmtypes.SetEVMCoinTEST(tc.evmCoinInfo)
+			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
 
 			coinConverted, err := wrappers.ConvertEvmCoinFrom18Decimals(tc.coin)
 
@@ -199,7 +199,7 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			evmtypes.SetEVMCoinTEST(tc.evmCoinInfo)
+			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
 
 			coinConverted := wrappers.ConvertCoinsFrom18Decimals(tc.coins)
 			require.Equal(t, tc.expCoins, coinConverted, "expected a different coin")
@@ -251,7 +251,7 @@ func TestZeroExtraDecimalsBigInt(t *testing.T) {
 	} {
 		for _, tc := range testCases {
 			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
-				evmtypes.SetEVMCoinTEST(cfg)
+				evmtypes.SetEVMCoinInfo(cfg)
 				res := wrappers.AdjustExtraDecimalsBigInt(tc.amt)
 				if cfg.Decimals == evmtypes.EighteenDecimals {
 					tc.exp = tc.amt
