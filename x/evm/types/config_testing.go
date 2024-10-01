@@ -76,7 +76,7 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
-		SetEVMCoinInfo(ec.evmDenom)
+		setTestingEVMCoinInfo(ec.evmDenom)
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
@@ -104,6 +104,7 @@ func (ec *EVMConfigurator) Configure() error {
 
 func (ec *EVMConfigurator) ResetTestChainConfig() {
 	vm.ResetActivators()
+	resetEVMCoinInfo()
 	testChainConfig = nil
 }
 

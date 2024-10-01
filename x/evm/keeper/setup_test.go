@@ -97,11 +97,16 @@ func (suite *KeeperTestSuite) SetupTest() {
 		chainConfig.ShanghaiBlock = &maxInt
 		chainConfig.CancunBlock = &maxInt
 	}
-
+	// get the denom and decimals set on chain initialization
+	// because we'll need to set them again when resetting the chain config
+	denom := evmtypes.GetEVMCoinDenom()
+	decimals := evmtypes.GetEVMCoinDecimals()
+	
 	configurator := evmtypes.NewEVMConfigurator()
 	configurator.ResetTestChainConfig()
 	err := configurator.
 		WithChainConfig(chainConfig).
+		WithEVMCoinInfo(denom, decimals).
 		Configure()
 	suite.Require().NoError(err)
 }

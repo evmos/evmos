@@ -74,7 +74,7 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
-		SetEVMCoinInfo(ec.evmDenom)
+		setEVMCoinInfo(ec.evmDenom)
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {

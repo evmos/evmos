@@ -100,10 +100,16 @@ func (suite *AnteTestSuite) SetupTest() {
 		chainConfig.CancunBlock = &maxInt
 	}
 
+	// get the denom and decimals set when initialized the chain
+	// to set them again
+	// when resetting the chain config
+	denom := evmtypes.GetEVMCoinDenom()
+	decimals := evmtypes.GetEVMCoinDecimals()
 	configurator := evmtypes.NewEVMConfigurator()
 	configurator.ResetTestChainConfig()
 	err := configurator.
 		WithChainConfig(chainConfig).
+		WithEVMCoinInfo(denom, decimals).
 		Configure()
 	suite.Require().NoError(err)
 

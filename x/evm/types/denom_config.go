@@ -68,8 +68,8 @@ func GetEVMCoinDenom() string {
 	return evmCoinInfo.Denom
 }
 
-// SetEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
-func SetEVMCoinInfo(evmdenom EvmCoinInfo) {
+// setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
+func setEVMCoinInfo(evmdenom EvmCoinInfo) {
 	if evmCoinInfo != nil {
 		panic("EVM coin info already set")
 	}

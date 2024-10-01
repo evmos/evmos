@@ -77,7 +77,9 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 				}
 			}()
 
-			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
+			configurator := evmtypes.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted := wrappers.MustConvertEvmCoinTo18Decimals(tc.coin)
 
@@ -141,7 +143,9 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
+			configurator := evmtypes.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted, err := wrappers.ConvertEvmCoinFrom18Decimals(tc.coin)
 
@@ -199,7 +203,9 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			evmtypes.SetEVMCoinInfo(tc.evmCoinInfo)
+			configurator := evmtypes.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure()
 
 			coinConverted := wrappers.ConvertCoinsFrom18Decimals(tc.coins)
 			require.Equal(t, tc.expCoins, coinConverted, "expected a different coin")
@@ -248,10 +254,12 @@ func TestZeroExtraDecimalsBigInt(t *testing.T) {
 	for _, cfg := range []evmtypes.EvmCoinInfo{
 		{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
 		{Denom: types.BaseDenom, Decimals: evmtypes.EighteenDecimals},
-	} {
-		for _, tc := range testCases {
-			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
-				evmtypes.SetEVMCoinInfo(cfg)
+		} {
+			for _, tc := range testCases {
+				t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
+				configurator := evmtypes.NewEVMConfigurator()
+				configurator.ResetTestChainConfig()
+				configurator.WithEVMCoinInfo(cfg.Denom, cfg.Decimals).Configure()
 				res := wrappers.AdjustExtraDecimalsBigInt(tc.amt)
 				if cfg.Decimals == evmtypes.EighteenDecimals {
 					tc.exp = tc.amt
