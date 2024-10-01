@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
-// This config provides a convinient way to modify x/evm params and values.
+// This config provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
 package types
@@ -28,7 +28,7 @@ var chainConfig *geth.ChainConfig
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
 func (cc ChainConfig) EthereumConfig(chainID *big.Int) *geth.ChainConfig {
-	cID := big.NewInt(int64(cc.ChainId)) //#nosec G115
+	cID := new(big.Int).SetUint64(cc.ChainId)
 	if chainID != nil {
 		cID = chainID
 	}
@@ -116,7 +116,7 @@ func DefaultChainConfig(chainID string) *ChainConfig {
 // in the EVMConfigurator.
 func setChainConfig(cc *ChainConfig) error {
 	if chainConfig != nil {
-		return errors.New("chainConfig already set. Cannot set again the chainConfig.")
+		return errors.New("chainConfig already set. Cannot set again the chainConfig")
 	}
 	config := DefaultChainConfig("")
 	if cc != nil {
@@ -126,7 +126,7 @@ func setChainConfig(cc *ChainConfig) error {
 		return err
 	}
 	chainConfig = config.EthereumConfig(nil)
-	
+
 	return nil
 }
 
