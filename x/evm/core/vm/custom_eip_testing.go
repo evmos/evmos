@@ -1,8 +1,8 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-//go:build !test
-// +build !test
+//go:build test
+// +build test
 
 package vm
 
@@ -13,6 +13,16 @@ import (
 
 	"golang.org/x/exp/maps"
 )
+
+var originalActivators = map[string]func(*JumpTable){
+	"ethereum_3855": enable3855,
+	"ethereum_3529": enable3529,
+	"ethereum_3198": enable3198,
+	"ethereum_2929": enable2929,
+	"ethereum_2200": enable2200,
+	"ethereum_1884": enable1884,
+	"ethereum_1344": enable1344,
+}
 
 // OpCodeInfo contains information required to identify an EVM operation.
 type OpCodeInfo struct {
@@ -45,6 +55,14 @@ func ExtendActivators(eips map[string]func(*JumpTable)) error {
 		activators[k] = eips[k]
 	}
 	return nil
+}
+
+// ResetActivators resets activators to the original go ethereum activators map
+func ResetActivators() {
+	activators = make(map[string]func(*JumpTable))
+	for k, v := range originalActivators {
+		activators[k] = v
+	}
 }
 
 // ExtendOperations returns an instance of the new operation and register it in the list

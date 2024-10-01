@@ -10,7 +10,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -446,7 +445,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   config.GetChainConfig().ChainID,
+				ChainID:   evmtypes.GetChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,

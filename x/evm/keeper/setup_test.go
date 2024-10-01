@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/x/evm/config"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -63,7 +63,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(config.GetEVMCoinDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.GetEVMCoinDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -87,19 +87,26 @@ func (suite *KeeperTestSuite) SetupTest() {
 	s.handler = gh
 	s.keyring = keys
 
-	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
+	chainConfig := evmtypes.DefaultChainConfig(suite.network.GetChainID())
 	if !s.enableLondonHF {
 		maxInt := sdkmath.NewInt(math.MaxInt64)
-		chainConfig.LondonBlock = maxInt.BigInt()
-		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
-		chainConfig.GrayGlacierBlock = maxInt.BigInt()
-		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
-		chainConfig.ShanghaiBlock = maxInt.BigInt()
-		chainConfig.CancunBlock = maxInt.BigInt()
+		chainConfig.LondonBlock = &maxInt
+		chainConfig.ArrowGlacierBlock = &maxInt
+		chainConfig.GrayGlacierBlock = &maxInt
+		chainConfig.MergeNetsplitBlock = &maxInt
+		chainConfig.ShanghaiBlock = &maxInt
+		chainConfig.CancunBlock = &maxInt
 	}
+	// get the denom and decimals set on chain initialization
+	// because we'll need to set them again when resetting the chain config
+	denom := evmtypes.GetEVMCoinDenom()       //nolint:staticcheck
+	decimals := evmtypes.GetEVMCoinDecimals() //nolint:staticcheck
 
-	err := config.NewEVMConfigurator().
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestChainConfig()
+	err := configurator.
 		WithChainConfig(chainConfig).
+		WithEVMCoinInfo(denom, decimals).
 		Configure()
 	suite.Require().NoError(err)
 }

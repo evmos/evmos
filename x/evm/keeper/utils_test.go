@@ -15,14 +15,13 @@ import (
 
 	servercfg "github.com/evmos/evmos/v20/server/config"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/keeper/testdata"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	return evmconfig.GetEVMCoinDenom()
+	return evmtypes.GetEVMCoinDenom()
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
@@ -31,7 +30,7 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -90,7 +89,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Con
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
 	ctx := suite.network.GetContext()
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -146,7 +145,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
 	ctx := suite.network.GetContext()
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 
 	testMsgCall, err := testdata.LoadMessageCallContract()
 	require.NoError(t, err)

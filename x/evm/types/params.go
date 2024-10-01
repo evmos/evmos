@@ -8,7 +8,6 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
@@ -195,15 +194,6 @@ func validateAllowlistAddresses(i interface{}) error {
 	return nil
 }
 
-func validateEVMDenom(i interface{}) error {
-	denom, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter EVM denom type: %T", i)
-	}
-
-	return sdk.ValidateDenom(denom)
-}
-
 func validateBool(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
@@ -237,15 +227,6 @@ func validateEIPs(i interface{}) error {
 	}
 
 	return nil
-}
-
-func validateChainConfig(i interface{}) error {
-	cfg, ok := i.(ChainConfig)
-	if !ok {
-		return fmt.Errorf("invalid chain config type: %T", i)
-	}
-
-	return cfg.Validate()
 }
 
 // ValidatePrecompiles checks if the precompile addresses are valid and unique.
