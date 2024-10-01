@@ -12,6 +12,7 @@ package types
 import (
 	"fmt"
 	"slices"
+	"errors"
 
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
@@ -73,7 +74,9 @@ func (ec *EVMConfigurator) Configure() error {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	setTestChainConfig(ec.chainConfig)
+	if err := setTestChainConfig(ec.chainConfig); err != nil {
+		return err
+	}
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
 		SetEVMCoinInfo(ec.evmDenom)
@@ -107,18 +110,19 @@ func (ec *EVMConfigurator) ResetTestChainConfig() {
 	testChainConfig = nil
 }
 
-func setTestChainConfig(cc *ChainConfig) {
+func setTestChainConfig(cc *ChainConfig) error {
 	if testChainConfig != nil {
-		panic("chainConfig already set. Cannot set again the chainConfig. Call the configurators ResetTestChainConfig method before configuring a new chain.")
+		return errors.New("chainConfig already set. Cannot set again the chainConfig. Call the configurators ResetTestChainConfig method before configuring a new chain.")
 	}
 	config := DefaultChainConfig("")
 	if cc != nil {
 		config = cc
 	}
 	if err := config.Validate(); err != nil {
-		panic(err)
+		return err
 	}
 	testChainConfig = config.EthereumConfig(nil)
+	return nil
 }
 
 // GetChainConfig returns the `testChainConfig` used in the EVM.

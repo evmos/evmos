@@ -69,7 +69,9 @@ func (ec *EVMConfigurator) Configure() error {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	setChainConfig(ec.chainConfig)
+	if err := setChainConfig(ec.chainConfig); err != nil {
+		return err
+	}
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
 		SetEVMCoinInfo(ec.evmDenom)
