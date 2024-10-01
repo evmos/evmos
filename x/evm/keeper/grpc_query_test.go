@@ -23,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
@@ -1493,7 +1492,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				chainConfig.MergeNetsplitBlock = &maxInt
 				chainConfig.ShanghaiBlock = &maxInt
 				chainConfig.CancunBlock = &maxInt
-				err := evmconfig.NewEVMConfigurator().
+				err := types.NewEVMConfigurator().
 					WithChainConfig(chainConfig).
 					Configure()
 				suite.Require().NoError(err)
@@ -1541,7 +1540,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 
 			suite.Require().NoError(suite.network.NextBlock())
-			err = evmconfig.NewEVMConfigurator().
+			err = types.NewEVMConfigurator().
 				Configure()
 			suite.Require().NoError(err)
 		})

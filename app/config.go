@@ -9,7 +9,6 @@ import (
 	"github.com/evmos/evmos/v20/app/eips"
 	"github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -35,7 +34,7 @@ func InitializeAppConfiguration(chainID string) error {
 
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
-	err = evmconfig.NewEVMConfigurator().
+	err = evmtypes.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).

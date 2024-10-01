@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
@@ -99,7 +98,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 		chainConfig.CancunBlock = &maxInt
 	}
 
-	err := config.NewEVMConfigurator().
+	err := evmtypes.NewEVMConfigurator().
 		WithChainConfig(chainConfig).
 		Configure()
 	suite.Require().NoError(err)

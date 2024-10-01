@@ -110,10 +110,13 @@ func DefaultChainConfig(chainID string) *ChainConfig {
 	return cfg
 }
 
-// SetChainConfig allows to set the `chainConfig` variable modifying the
+// setChainConfig allows to set the `chainConfig` variable modifying the
 // default values. The method is private because it should only be called once
 // in the EVMConfigurator.
-func SetChainConfig(cc *ChainConfig) {
+func setChainConfig(cc *ChainConfig) {
+	if chainConfig != nil {
+		panic("chainConfig already set. Cannot set again the chainConfig.")
+	}
 	config := DefaultChainConfig("")
 	if cc != nil {
 		config = cc

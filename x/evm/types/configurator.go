@@ -4,14 +4,17 @@
 // The config package provides a convinient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-package config
+//go:build !test
+// +build !test
+
+package types
 
 import (
 	"fmt"
 	"slices"
 
+	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EVMConfigurator allows to extend x/evm module configurations. The configurator modifies
@@ -21,8 +24,8 @@ type EVMConfigurator struct {
 	sealed                   bool
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
-	chainConfig              *types.ChainConfig
-	evmDenom                 types.EvmCoinInfo
+	chainConfig              *ChainConfig
+	evmDenom                 EvmCoinInfo
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -46,15 +49,15 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 
 // WithChainConfig allows to define a custom `chainConfig` to be used in the
 // EVM.
-func (ec *EVMConfigurator) WithChainConfig(cc *types.ChainConfig) *EVMConfigurator {
+func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
 	ec.chainConfig = cc
 	return ec
 }
 
 // WithEVMCoinInfo allows to define the denom and decimals of the token used as the
 // EVM token.
-func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d types.Decimals) *EVMConfigurator {
-	ec.evmDenom = types.EvmCoinInfo{Denom: denom, Decimals: d}
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigurator {
+	ec.evmDenom = EvmCoinInfo{Denom: denom, Decimals: d}
 	return ec
 }
 
@@ -66,10 +69,10 @@ func (ec *EVMConfigurator) Configure() error {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	types.SetChainConfig(ec.chainConfig)
+	setChainConfig(ec.chainConfig)
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
-		types.SetEVMCoinInfo(ec.evmDenom)
+		SetEVMCoinInfo(ec.evmDenom)
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
@@ -77,15 +80,15 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
-		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+		if slices.Contains(DefaultExtraEIPs, eip) {
+			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, DefaultExtraEIPs)
 		}
 
 		if err := vm.ValidateEIPName(eip); err != nil {
 			return fmt.Errorf("error configuring EVMConfigurator: %s", err)
 		}
 
-		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
+		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
 
 	// After applying modifier the configurator is sealed. This way, it is not possible
@@ -93,4 +96,13 @@ func (ec *EVMConfigurator) Configure() error {
 	ec.sealed = true
 
 	return nil
+}
+
+func (ec *EVMConfigurator) ResetTestChainConfig() {
+	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
+}
+
+// GetChainConfig returns the `testChainConfig` used in the EVM.
+func GetTestChainConfig() *geth.ChainConfig {
+	panic("this is only implemented with the 'test' build flag.")
 }
