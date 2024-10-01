@@ -1,9 +1,10 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,13 +20,13 @@ func newIntPtr(i int64) *sdkmath.Int {
 func TestChainConfigValidate(t *testing.T) {
 	testCases := []struct {
 		name     string
-		config   ChainConfig
+		config   types.ChainConfig
 		expError bool
 	}{
-		{"default", DefaultChainConfig(), false},
+		{"default", *types.DefaultChainConfig(""), false},
 		{
 			"valid",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -46,7 +47,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"valid with nil values",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      nil,
 				DAOForkBlock:        nil,
 				EIP150Block:         nil,
@@ -67,19 +68,19 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"empty",
-			ChainConfig{},
+			types.ChainConfig{},
 			false,
 		},
 		{
 			"invalid HomesteadBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(-1),
 			},
 			true,
 		},
 		{
 			"invalid DAOForkBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(-1),
 			},
@@ -87,7 +88,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid EIP150Block",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(0),
 				EIP150Block:    newIntPtr(-1),
@@ -96,7 +97,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid EIP150Hash",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(0),
 				EIP150Block:    newIntPtr(0),
@@ -106,7 +107,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid EIP155Block",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(0),
 				EIP150Block:    newIntPtr(0),
@@ -117,7 +118,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid EIP158Block",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(0),
 				EIP150Block:    newIntPtr(0),
@@ -129,7 +130,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid ByzantiumBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock: newIntPtr(0),
 				DAOForkBlock:   newIntPtr(0),
 				EIP150Block:    newIntPtr(0),
@@ -142,7 +143,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid ConstantinopleBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -156,7 +157,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid PetersburgBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -171,7 +172,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid IstanbulBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -187,7 +188,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid MuirGlacierBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -204,7 +205,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid BerlinBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -222,7 +223,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid LondonBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -241,7 +242,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid ArrowGlacierBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -261,7 +262,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid GrayGlacierBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -282,7 +283,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid MergeNetsplitBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -304,7 +305,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid fork order - skip HomesteadBlock",
-			ChainConfig{
+			types.ChainConfig{
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
 				EIP150Hash:          defaultEIP150Hash,
@@ -322,7 +323,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid ShanghaiBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),
@@ -345,7 +346,7 @@ func TestChainConfigValidate(t *testing.T) {
 		},
 		{
 			"invalid CancunBlock",
-			ChainConfig{
+			types.ChainConfig{
 				HomesteadBlock:      newIntPtr(0),
 				DAOForkBlock:        newIntPtr(0),
 				EIP150Block:         newIntPtr(0),

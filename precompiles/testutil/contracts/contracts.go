@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	evmosutil "github.com/evmos/evmos/v20/testutil"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -70,7 +69,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.ExecTxR
 
 	// Create MsgEthereumTx that calls the contract
 	msg := evmtypes.NewTx(&evmtypes.EvmTxArgs{
-		ChainID:   config.GetChainConfig().ChainID,
+		ChainID:   evmtypes.GetChainConfig().ChainID,
 		Nonce:     nonce,
 		To:        &args.ContractAddr,
 		Amount:    args.Amount,

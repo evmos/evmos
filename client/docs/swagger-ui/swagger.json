@@ -2151,6 +2151,14 @@
             "type": "string"
           },
           {
+            "name": "trace_config.overrides.chain_id",
+            "description": "chain_id is the id of the chain (EIP-155).",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
             "name": "trace_config.enable_memory",
             "description": "enable_memory switches memory capture.",
             "in": "query",
@@ -2501,6 +2509,14 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "trace_config.overrides.chain_id",
+            "description": "chain_id is the id of the chain (EIP-155).",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
           },
           {
             "name": "trace_config.enable_memory",
@@ -22552,6 +22568,11 @@
         "cancun_block": {
           "type": "string",
           "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
+        },
+        "chain_id": {
+          "type": "string",
+          "format": "uint64",
+          "title": "chain_id is the id of the chain (EIP-155)"
         }
       },
       "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
@@ -23148,6 +23169,11 @@
             "cancun_block": {
               "type": "string",
               "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
+            },
+            "chain_id": {
+              "type": "string",
+              "format": "uint64",
+              "title": "chain_id is the id of the chain (EIP-155)"
             }
           },
           "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."

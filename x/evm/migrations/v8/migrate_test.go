@@ -26,7 +26,7 @@ func TestMigrate(t *testing.T) {
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)
 
-	chainConfig := types.DefaultChainConfig()
+	chainConfig := types.DefaultChainConfig(ctx.ChainID())
 	bz, err := json.Marshal(chainConfig)
 	require.NoError(t, err)
 	var chainCfgV7 v7types.V7ChainConfig

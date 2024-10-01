@@ -8,7 +8,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
@@ -33,7 +32,7 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.enableFeemarket = tc.enableFeemarket
 			suite.enableLondonHF = tc.enableLondonHF
 			suite.SetupTest()
-			ethCfg := config.GetChainConfig()
+			ethCfg := evmtypes.GetChainConfig()
 			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext(), ethCfg)
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})

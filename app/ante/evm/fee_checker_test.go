@@ -16,7 +16,6 @@ import (
 	"github.com/evmos/evmos/v20/app/ante/evm"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -54,7 +53,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	//      london hardfork enableness
 	nw := network.New()
 	encodingConfig := nw.GetEncodingConfig()
-	baseDenom := config.GetEVMCoinDenom()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(baseDenom, math.NewInt(10)))
 
 	genesisCtx := sdk.NewContext(nil, tmproto.Header{}, false, log.NewNopLogger())

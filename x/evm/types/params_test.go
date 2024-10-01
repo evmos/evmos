@@ -80,8 +80,6 @@ func TestParamsEIPs(t *testing.T) {
 }
 
 func TestParamsValidatePriv(t *testing.T) {
-	require.Error(t, validateEVMDenom(false))
-	require.NoError(t, validateEVMDenom("inj"))
 	require.Error(t, validateBool(""))
 	require.NoError(t, validateBool(true))
 	require.Error(t, validateEIPs(""))
@@ -92,34 +90,6 @@ func TestParamsValidatePriv(t *testing.T) {
 	require.Error(t, validateChannels(false))
 	require.Error(t, validateChannels(int64(123)))
 	require.Error(t, validateChannels(""))
-}
-
-func TestValidateChainConfig(t *testing.T) {
-	testCases := []struct {
-		name     string
-		i        interface{}
-		expError bool
-	}{
-		{
-			"invalid chain config type",
-			"string",
-			true,
-		},
-		{
-			"valid chain config type",
-			DefaultChainConfig(),
-			false,
-		},
-	}
-	for _, tc := range testCases {
-		err := validateChainConfig(tc.i)
-
-		if tc.expError {
-			require.Error(t, err, tc.name)
-		} else {
-			require.NoError(t, err, tc.name)
-		}
-	}
 }
 
 func TestIsLondon(t *testing.T) {

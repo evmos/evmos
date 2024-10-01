@@ -17,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
@@ -269,7 +268,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, types.GetEVMCoinDenom())
 
 	return coin.Amount.BigInt()
 }

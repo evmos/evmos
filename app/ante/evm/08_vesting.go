@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
@@ -53,7 +52,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
-	denom := config.GetEVMCoinDenom()
+	denom := evmtypes.GetEVMCoinDenom()
 
 	msgs := tx.GetMsgs()
 	if msgs == nil {

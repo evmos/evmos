@@ -8,14 +8,13 @@ import (
 	ethante "github.com/evmos/evmos/v20/app/ante/evm"
 	"github.com/evmos/evmos/v20/testutil"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
 
-	evmChainID := config.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetChainConfig().ChainID
 
 	ethSigner := ethtypes.LatestSignerForChainID(evmChainID)
 

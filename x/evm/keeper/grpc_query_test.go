@@ -23,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmconfig "github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
@@ -33,7 +32,7 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
-	baseDenom := evmconfig.GetEVMCoinDenom()
+	baseDenom := types.GetEVMCoinDenom()
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -191,7 +190,7 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
-	baseDenom := evmconfig.GetEVMCoinDenom()
+	baseDenom := types.GetEVMCoinDenom()
 
 	testCases := []struct {
 		msg           string
@@ -614,7 +613,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetEVMCoinDenom())
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), types.GetEVMCoinDenom())
 				value := balance.Amount.Add(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -633,7 +632,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetEVMCoinDenom())
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), types.GetEVMCoinDenom())
 				value := balance.Amount.Sub(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -1485,15 +1484,17 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			func() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
-				chainConfig := evmconfig.DefaultChainConfig(suite.network.GetChainID())
+				chainConfig := types.DefaultChainConfig(suite.network.GetChainID())
 				maxInt := sdkmath.NewInt(math.MaxInt64)
-				chainConfig.LondonBlock = maxInt.BigInt()
-				chainConfig.ArrowGlacierBlock = maxInt.BigInt()
-				chainConfig.GrayGlacierBlock = maxInt.BigInt()
-				chainConfig.MergeNetsplitBlock = maxInt.BigInt()
-				chainConfig.ShanghaiBlock = maxInt.BigInt()
-				chainConfig.CancunBlock = maxInt.BigInt()
-				err := evmconfig.NewEVMConfigurator().
+				chainConfig.LondonBlock = &maxInt
+				chainConfig.ArrowGlacierBlock = &maxInt
+				chainConfig.GrayGlacierBlock = &maxInt
+				chainConfig.MergeNetsplitBlock = &maxInt
+				chainConfig.ShanghaiBlock = &maxInt
+				chainConfig.CancunBlock = &maxInt
+				configurator := types.NewEVMConfigurator()
+				configurator.ResetTestChainConfig()
+				err := configurator.
 					WithChainConfig(chainConfig).
 					Configure()
 				suite.Require().NoError(err)
@@ -1541,8 +1542,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 
 			suite.Require().NoError(suite.network.NextBlock())
-			err = evmconfig.NewEVMConfigurator().
-				Configure()
+			configurator := types.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			err = configurator.Configure()
 			suite.Require().NoError(err)
 		})
 	}
