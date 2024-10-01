@@ -13,6 +13,7 @@ DEFAULT_GAS = "250000"
 
 
 class ChainCommand:
+
     def __init__(self, cmd):
         self.cmd = cmd
 
