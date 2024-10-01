@@ -84,6 +84,10 @@ func feeChecker(
 	}
 
 	gas := sdkmath.NewIntFromUint64(feeTx.GetGas())
+	if gas.IsZero() {
+		return nil, 0, errorsmod.Wrap(errortypes.ErrInvalidRequest, "gas cannot be zero")
+	}
+
 	feeCoins := feeTx.GetFee()
 	feeAmtDec := sdkmath.LegacyNewDecFromInt(feeCoins.AmountOfNoDenomValidation(denom))
 
