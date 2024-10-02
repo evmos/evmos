@@ -124,7 +124,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			if strings.Contains(tc.name, "nil data") {
 				tc.msg.Data = nil
 			}
-			
+
 			baseDenom := types.GetEVMCoinDenom()
 
 			tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
