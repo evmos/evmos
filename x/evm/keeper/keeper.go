@@ -91,7 +91,7 @@ func NewKeeper(
 	}
 
 	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
-	feeMarkerWrapper := wrappers.NewFeeMarketWrapper(fmk)
+	feeMarketWrapper := wrappers.NewFeeMarketWrapper(fmk)
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
@@ -100,7 +100,7 @@ func NewKeeper(
 		accountKeeper:    ak,
 		bankWrapper:      bankWrapper,
 		stakingKeeper:    sk,
-		feeMarketWrapper: feeMarkerWrapper,
+		feeMarketWrapper: feeMarketWrapper,
 		storeKey:         storeKey,
 		transientKey:     transientKey,
 		tracer:           tracer,
