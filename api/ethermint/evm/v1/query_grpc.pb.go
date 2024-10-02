@@ -22,18 +22,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Account_FullMethodName          = "/ethermint.evm.v1.Query/Account"
-	Query_CosmosAccount_FullMethodName    = "/ethermint.evm.v1.Query/CosmosAccount"
-	Query_ValidatorAccount_FullMethodName = "/ethermint.evm.v1.Query/ValidatorAccount"
-	Query_Balance_FullMethodName          = "/ethermint.evm.v1.Query/Balance"
-	Query_Storage_FullMethodName          = "/ethermint.evm.v1.Query/Storage"
-	Query_Code_FullMethodName             = "/ethermint.evm.v1.Query/Code"
-	Query_Params_FullMethodName           = "/ethermint.evm.v1.Query/Params"
-	Query_EthCall_FullMethodName          = "/ethermint.evm.v1.Query/EthCall"
-	Query_EstimateGas_FullMethodName      = "/ethermint.evm.v1.Query/EstimateGas"
-	Query_TraceTx_FullMethodName          = "/ethermint.evm.v1.Query/TraceTx"
-	Query_TraceBlock_FullMethodName       = "/ethermint.evm.v1.Query/TraceBlock"
-	Query_BaseFee_FullMethodName          = "/ethermint.evm.v1.Query/BaseFee"
+	Query_Account_FullMethodName           = "/ethermint.evm.v1.Query/Account"
+	Query_CosmosAccount_FullMethodName     = "/ethermint.evm.v1.Query/CosmosAccount"
+	Query_ValidatorAccount_FullMethodName  = "/ethermint.evm.v1.Query/ValidatorAccount"
+	Query_Balance_FullMethodName           = "/ethermint.evm.v1.Query/Balance"
+	Query_Storage_FullMethodName           = "/ethermint.evm.v1.Query/Storage"
+	Query_Code_FullMethodName              = "/ethermint.evm.v1.Query/Code"
+	Query_Params_FullMethodName            = "/ethermint.evm.v1.Query/Params"
+	Query_EthCall_FullMethodName           = "/ethermint.evm.v1.Query/EthCall"
+	Query_EstimateGas_FullMethodName       = "/ethermint.evm.v1.Query/EstimateGas"
+	Query_TraceTx_FullMethodName           = "/ethermint.evm.v1.Query/TraceTx"
+	Query_TraceBlock_FullMethodName        = "/ethermint.evm.v1.Query/TraceBlock"
+	Query_BaseFee_FullMethodName           = "/ethermint.evm.v1.Query/BaseFee"
+	Query_GlobalMinGasPrice_FullMethodName = "/ethermint.evm.v1.Query/GlobalMinGasPrice"
 )
 
 // QueryClient is the client API for Query service.
@@ -67,6 +68,11 @@ type QueryClient interface {
 	// BaseFee queries the base fee of the parent block of the current block,
 	// it's similar to feemarket module's method, but also checks london hardfork status.
 	BaseFee(ctx context.Context, in *QueryBaseFeeRequest, opts ...grpc.CallOption) (*QueryBaseFeeResponse, error)
+	// GlobalMinGasPrice queries the MinGasPrice
+	// it's similar to feemarket module's method,
+	// but makes the conversion to 18 decimals
+	// when the evm denom is 6 decimals
+	GlobalMinGasPrice(ctx context.Context, in *QueryGlobalMinGasPriceRequest, opts ...grpc.CallOption) (*QueryGlobalMinGasPriceResponse, error)
 }
 
 type queryClient struct {
@@ -185,6 +191,15 @@ func (c *queryClient) BaseFee(ctx context.Context, in *QueryBaseFeeRequest, opts
 	return out, nil
 }
 
+func (c *queryClient) GlobalMinGasPrice(ctx context.Context, in *QueryGlobalMinGasPriceRequest, opts ...grpc.CallOption) (*QueryGlobalMinGasPriceResponse, error) {
+	out := new(QueryGlobalMinGasPriceResponse)
+	err := c.cc.Invoke(ctx, Query_GlobalMinGasPrice_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
@@ -216,6 +231,11 @@ type QueryServer interface {
 	// BaseFee queries the base fee of the parent block of the current block,
 	// it's similar to feemarket module's method, but also checks london hardfork status.
 	BaseFee(context.Context, *QueryBaseFeeRequest) (*QueryBaseFeeResponse, error)
+	// GlobalMinGasPrice queries the MinGasPrice
+	// it's similar to feemarket module's method,
+	// but makes the conversion to 18 decimals
+	// when the evm denom is 6 decimals
+	GlobalMinGasPrice(context.Context, *QueryGlobalMinGasPriceRequest) (*QueryGlobalMinGasPriceResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -258,6 +278,9 @@ func (UnimplementedQueryServer) TraceBlock(context.Context, *QueryTraceBlockRequ
 }
 func (UnimplementedQueryServer) BaseFee(context.Context, *QueryBaseFeeRequest) (*QueryBaseFeeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BaseFee not implemented")
+}
+func (UnimplementedQueryServer) GlobalMinGasPrice(context.Context, *QueryGlobalMinGasPriceRequest) (*QueryGlobalMinGasPriceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GlobalMinGasPrice not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -488,6 +511,24 @@ func _Query_BaseFee_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_GlobalMinGasPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGlobalMinGasPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).GlobalMinGasPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_GlobalMinGasPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).GlobalMinGasPrice(ctx, req.(*QueryGlobalMinGasPriceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -542,6 +583,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BaseFee",
 			Handler:    _Query_BaseFee_Handler,
+		},
+		{
+			MethodName: "GlobalMinGasPrice",
+			Handler:    _Query_GlobalMinGasPrice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

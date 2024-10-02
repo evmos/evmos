@@ -338,10 +338,10 @@ func (b *Backend) RPCMinGasPrice() int64 {
 	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(baseDenom).TruncateInt64()
-	if amt == 0 {
-		return types.DefaultGasPrice
+	amt := minGasPrice.AmountOf(baseDenom)
+	if amt.IsNil() || amt.IsZero() {
+		amt = sdkmath.LegacyNewDec(types.DefaultGasPrice)
 	}
 
-	return amt
+	return evmtypes.ConvertAmountTo18DecimalsLegacy(amt).TruncateInt64()
 }

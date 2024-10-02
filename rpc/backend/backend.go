@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -84,7 +83,7 @@ type EVMBackend interface {
 	// Chain Info
 	ChainID() (*hexutil.Big, error)
 	ChainConfig() *params.ChainConfig
-	GlobalMinGasPrice() (math.LegacyDec, error)
+	GlobalMinGasPrice() (*big.Int, error)
 	BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error)
 	CurrentHeader() (*ethtypes.Header, error)
 	PendingTransactions() ([]*sdk.Tx, error)

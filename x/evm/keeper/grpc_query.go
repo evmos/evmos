@@ -708,3 +708,10 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 
 	return res, nil
 }
+
+// GlobalMinGasPrice implements the Query/GlobalMinGasPrice gRPC method
+func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasPriceRequest) (*types.QueryGlobalMinGasPriceResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minGasPrice := k.GetMinGasPrice(ctx).TruncateInt()
+	return &types.QueryGlobalMinGasPriceResponse{MinGasPrice: minGasPrice}, nil
+}
