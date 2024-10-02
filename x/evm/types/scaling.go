@@ -8,7 +8,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 )
 
 // MustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
