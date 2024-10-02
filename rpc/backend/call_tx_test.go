@@ -461,6 +461,7 @@ func (suite *BackendTestSuite) TestGasPrice() {
 				feeMarketClient := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
 				RegisterFeeMarketParams(feeMarketClient, 1)
 				RegisterParams(queryClient, &header, 1)
+				RegisterGlobalMinGasPrice(queryClient, 1)
 				_, err := RegisterBlock(client, 1, nil)
 				suite.Require().NoError(err)
 				_, err = RegisterBlockResults(client, 1)
