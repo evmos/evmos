@@ -48,7 +48,7 @@ type EVMBackend interface {
 	RPCGasCap() uint64            // global gas cap for eth_call over rpc: DoS protection
 	RPCEVMTimeout() time.Duration // global timeout for eth_call over rpc: DoS protection
 	RPCTxFeeCap() float64         // RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for send-transaction variants. The unit is ether.
-	RPCMinGasPrice() int64
+	RPCMinGasPrice() *big.Int
 
 	// Sign Tx
 	Sign(address common.Address, data hexutil.Bytes) (hexutil.Bytes, error)
