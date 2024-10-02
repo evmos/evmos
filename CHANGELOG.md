@@ -67,6 +67,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
 - (evm) [#2897](https://github.com/evmos/evmos/pull/2897) Adjust extra decimals in `AddBalance` and `SubBalance` methods on `stateObject` in state DB.
 - (evm) [#2898](https://github.com/evmos/evmos/pull/2898) Refactor to use `ChainConfig` from `evm/types`.
+- (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
 
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
