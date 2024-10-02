@@ -34,7 +34,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(newCtx, tx, simulate)
 }
 
-// SetupContextAndResetTransientGas modify the context to be used in the
+// SetupContextAndResetTransientGas modifies the context to be used in the
 // execution of the ante handler associated with an EVM transaction. Previous
 // gas consumed is reset in the transient store.
 func SetupContextAndResetTransientGas(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
