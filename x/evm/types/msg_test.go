@@ -22,6 +22,7 @@ import (
 
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/encoding"
+	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -91,8 +92,8 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 		Nonce:     0,
 		To:        &suite.to,
 		GasLimit:  100000,
-		GasPrice:  big.NewInt(1),
-		GasFeeCap: big.NewInt(1),
+		GasPrice:  big.NewInt(1e18),
+		GasFeeCap: big.NewInt(1e18),
 		GasTipCap: big.NewInt(0),
 		Input:     []byte("test"),
 	}
@@ -112,24 +113,38 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			true,
 		},
 	}
+	for _, cfg := range []types.EvmCoinInfo{
+		{Denom: evmostypes.BaseDenom, Decimals: types.SixDecimals},
+		{Denom: evmostypes.BaseDenom, Decimals: types.EighteenDecimals},
+	} {
+		for _, tc := range testCases {
+			configurator := types.NewEVMConfigurator()
+			configurator.ResetTestChainConfig()
+			suite.Require().NoError(configurator.WithEVMCoinInfo(cfg.Denom, cfg.Decimals).Configure())
+			if strings.Contains(tc.name, "nil data") {
+				tc.msg.Data = nil
+			}
 
-	for _, tc := range testCases {
-		if strings.Contains(tc.name, "nil data") {
-			tc.msg.Data = nil
-		}
+			baseDenom := types.GetEVMCoinDenom()
 
-		baseDenom := types.GetEVMCoinDenom()
+			tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
+			if tc.expError {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
 
-		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
-		if tc.expError {
-			suite.Require().Error(err)
-		} else {
-			suite.Require().NoError(err)
+				suite.Require().Empty(tx.GetMemo())
+				suite.Require().Empty(tx.GetTimeoutHeight())
+				suite.Require().Equal(uint64(100000), tx.GetGas())
 
-			suite.Require().Empty(tx.GetMemo())
-			suite.Require().Empty(tx.GetTimeoutHeight())
-			suite.Require().Equal(uint64(100000), tx.GetGas())
-			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(100000))), tx.GetFee())
+				expFeeAmt := sdkmath.NewIntFromBigInt(evmTx.GasPrice).MulRaw(int64(evmTx.GasLimit)) //#nosec
+				expFee := sdk.NewCoins(sdk.NewCoin(baseDenom, expFeeAmt))
+				if cfg.Decimals == types.SixDecimals {
+					scaledAmt := expFeeAmt.QuoRaw(1e12)
+					expFee = sdk.NewCoins(sdk.NewCoin(baseDenom, scaledAmt))
+				}
+				suite.Require().Equal(expFee, tx.GetFee())
+			}
 		}
 	}
 }
