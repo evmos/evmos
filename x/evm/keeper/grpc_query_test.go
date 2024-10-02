@@ -1518,21 +1518,24 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			true,
 		},
 	}
+
+	// Save initial configure to restore it between tests
+	denom := types.GetEVMCoinDenom()
+	decimals := types.GetEVMCoinDecimals()
+	chainConfig := types.DefaultChainConfig(suite.network.GetChainID())
+
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
 			// Set necessary params
 			tc.setParams()
-
 			// Get the expected response
 			expResp := tc.getExpResp()
-
 			// Function under test
 			res, err := suite.network.GetEvmClient().BaseFee(
 				suite.network.GetContext(),
 				&types.QueryBaseFeeRequest{},
 			)
-
 			if tc.expPass {
 				suite.Require().NotNil(res)
 				suite.Require().Equal(expResp, res, tc.name)
@@ -1540,11 +1543,13 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			} else {
 				suite.Require().Error(err)
 			}
-
 			suite.Require().NoError(suite.network.NextBlock())
 			configurator := types.NewEVMConfigurator()
 			configurator.ResetTestChainConfig()
-			err = configurator.Configure()
+			err = configurator.
+				WithChainConfig(chainConfig).
+				WithEVMCoinInfo(denom, decimals).
+				Configure()
 			suite.Require().NoError(err)
 		})
 	}
