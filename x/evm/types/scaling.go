@@ -25,12 +25,28 @@ func MustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}
 }
 
+// ConvertAmountTo18Decimals convert the given amount into a 18 decimals
+// representation.
+func ConvertAmountTo18Decimals(amt sdkmath.Int) sdkmath.Int {
+	evmCoinDecimal := GetEVMCoinDecimals()
+
+	return amt.Mul(evmCoinDecimal.ConversionFactor())
+}
+
 // ConvertAmountToLegacy18Decimals convert the given amount into a 18 decimals
 // representation.
 func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 	evmCoinDecimal := GetEVMCoinDecimals()
 
 	return amt.MulInt(evmCoinDecimal.ConversionFactor())
+}
+
+// ConvertAmountTo18DecimalsBigInt convert the given amount into a 18 decimals
+// representation.
+func ConvertAmountTo18DecimalsBigInt(amt *big.Int) *big.Int {
+	evmCoinDecimal := GetEVMCoinDecimals()
+
+	return new(big.Int).Mul(amt, evmCoinDecimal.ConversionFactor().BigInt())
 }
 
 // ConvertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its
@@ -59,6 +75,25 @@ func ConvertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
 			newAmount := coin.Amount.Quo(evmCoinDecimals.ConversionFactor())
 
 			coin = sdk.Coin{Denom: coin.Denom, Amount: newAmount}
+		}
+		convertedCoins[i] = coin
+	}
+	return convertedCoins
+}
+
+// ConvertCoinsTo18Decimals returns the given coins with the Amount of the evm
+// coin converted into the 18 decimals representation.
+func ConvertCoinsTo18Decimals(coins sdk.Coins) sdk.Coins {
+	evmDenom := GetEVMCoinDenom()
+
+	convertedCoins := make(sdk.Coins, len(coins))
+	for i, coin := range coins {
+		if coin.Denom == evmDenom {
+			evmCoinDecimals := GetEVMCoinDecimals()
+
+			newAmount := coin.Amount.Mul(evmCoinDecimals.ConversionFactor())
+
+			coin = sdk.Coin{Denom: evmDenom, Amount: newAmount}
 		}
 		convertedCoins[i] = coin
 	}

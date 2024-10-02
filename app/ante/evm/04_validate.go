@@ -12,9 +12,8 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// ValidateMsg validates an Ethereum specific message type and returns an error if invalid
-//
-// It checks the following requirements:
+// ValidateMsg validates an Ethereum specific message type and returns an error
+// if invalid. It checks the following requirements:
 // - nil MUST be passed as the from address
 // - If the transaction is a contract creation or call, the corresponding operation must be enabled in the EVM parameters
 func ValidateMsg(
@@ -42,8 +41,8 @@ func checkDisabledCreateCall(
 	blockCreate := permissions.Create.AccessType == evmtypes.AccessTypeRestricted
 	blockCall := permissions.Call.AccessType == evmtypes.AccessTypeRestricted
 
-	// return error if contract creation or call are disabled through governance
-	// and the transaction is trying to create a contract or call a contract
+	// return error if contract creation or call are disabled
+	// and the transaction is trying to create a contract or call a contract.
 	if blockCreate && to == nil {
 		return errorsmod.Wrap(evmtypes.ErrCreateDisabled, "failed to create new contract")
 	} else if blockCall && to != nil {
@@ -99,13 +98,19 @@ func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	return authInfo.Fee, nil
 }
 
+// CheckTxFee checks if the Amount and GasLimit fields of the txFeeInfo input
+// are equal to the txFee coins and the txGasLimit value.
+// The function expects txFeeInfo to contains coins in the original decimal
+// representation.
 func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) error {
 	if txFeeInfo == nil {
 		return nil
 	}
 
-	if !txFeeInfo.Amount.Equal(txFee) {
-		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", txFeeInfo.Amount, txFee)
+	convertedAmount := evmtypes.ConvertCoinsTo18Decimals(txFeeInfo.Amount)
+
+	if !convertedAmount.Equal(txFee) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", convertedAmount, txFee)
 	}
 
 	if txFeeInfo.GasLimit != txGasLimit {
