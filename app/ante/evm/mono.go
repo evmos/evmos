@@ -117,19 +117,24 @@ func NewMonoDecoratorUtils(
 		GlobalMinGasPrice:  globalMinGasPrice,
 		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
-		TxGasLimit:         0,
 		GasWanted:          0,
 		MinPriority:        int64(math.MaxInt64),
-		TxFee:              sdk.Coins{},
+		// TxGAsLimit and TxFee are set to zero because they are updated
+		// summing up the values of all messages contained in a tx.
+		TxGasLimit: 0,
+		TxFee:      sdk.Coins{},
 	}, nil
 }
 
-// AnteHandle handles the entire decorator chain using a mono decorator.
+// AnteHandle handles the entire decorator chain for EVM transactions using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 
 	var txFeeInfo *txtypes.Fee
 	if !ctx.IsReCheckTx() {
+		// NOTE: txFeeInfo is associated with the Cosmos stack, not the EVM. For
+		// this reason, the fee is represented in the original decimals and
+		// should be converted later when used.
 		txFeeInfo, err = ValidateTx(tx)
 		if err != nil {
 			return ctx, err
@@ -255,11 +260,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		if err := CheckVesting(
 			ctx,
-			md.bankKeeper,
+			md.evmKeeper,
 			acc,
 			accountExpenses,
 			value,
-			decUtils.EvmDenom,
 		); err != nil {
 			return ctx, err
 		}
@@ -312,7 +316,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			txData.Fee(),
 			decUtils.EvmDenom,
 		)
+		// Update the fee to be paid for the tx adding the fee specified for the
+		// current message.
 		decUtils.TxFee = txFee
+		// Update the transaction gas limit adding the gas specified in the
+		// current message.
 		decUtils.TxGasLimit += gas
 
 		// 10. increment sequence

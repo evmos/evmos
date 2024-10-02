@@ -5,6 +5,7 @@ package wrappers
 
 import (
 	"fmt"
+	"math/big"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,6 +33,14 @@ func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 	evmCoinDecimal := config.GetEVMCoinDecimals()
 
 	return amt.MulInt(evmCoinDecimal.ConversionFactor())
+}
+
+// ConvertAmountTo18DecimalsBigInt convert the given amount into a 18 decimals
+// representation.
+func ConvertAmountTo18DecimalsBigInt(amt *big.Int) *big.Int {
+	evmCoinDecimal := config.GetEVMCoinDecimals()
+
+	return new(big.Int).Mul(amt, evmCoinDecimal.ConversionFactor().BigInt())
 }
 
 // ConvertAmountToLegacy18 convert the given amount into a 18 decimals
