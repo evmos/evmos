@@ -80,7 +80,7 @@ var _ = Describe("Feemarket", func() {
 				// local min-gas-prices is 10aevmos
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
-				params.BaseFee = math.ZeroInt()
+				params.BaseFee = math.LegacyNewDec(0)
 				err := testutils.UpdateFeeMarketParams(
 					testutils.UpdateParamsInput{
 						Tf:      s.factory,
@@ -148,7 +148,7 @@ var _ = Describe("Feemarket", func() {
 				// local min-gas-prices is 10aevmos
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
-				params.BaseFee = math.ZeroInt()
+				params.BaseFee = math.LegacyNewDec(0)
 
 				err := testutils.UpdateFeeMarketParams(
 					testutils.UpdateParamsInput{
@@ -213,7 +213,7 @@ var _ = Describe("Feemarket", func() {
 		Context("with MinGasPrices (feemarket param) < min-gas-prices (local)", func() {
 			// minGasPrices is the feemarket MinGasPrices
 			const minGasPrices int64 = 7
-			baseFee := math.NewInt(15)
+			baseFee := math.LegacyNewDec(15)
 
 			BeforeEach(func() {
 				// local min-gas-prices is 10aevmos
@@ -262,7 +262,7 @@ var _ = Describe("Feemarket", func() {
 				})
 
 				It("should accept transactions with gasPrice >= baseFee", func() {
-					gasPrice := baseFee
+					gasPrice := baseFee.TruncateInt()
 					txArgs.GasPrice = &gasPrice
 					tx, err := s.factory.BuildCosmosTx(privKey, txArgs)
 					Expect(err).To(BeNil())
@@ -294,7 +294,7 @@ var _ = Describe("Feemarket", func() {
 					Expect(res.Log).To(ContainSubstring("insufficient fee"))
 				})
 				It("should accept transactions with gasPrice >= baseFee", func() {
-					gasPrice := baseFee
+					gasPrice := baseFee.TruncateInt()
 					txArgs.GasPrice = &gasPrice
 					res, err := s.factory.ExecuteCosmosTx(privKey, txArgs)
 					Expect(err).To(BeNil())
@@ -332,7 +332,7 @@ var _ = Describe("Feemarket", func() {
 
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
-				params.BaseFee = math.NewInt(baseFee)
+				params.BaseFee = math.LegacyNewDec(baseFee)
 
 				// Note that the tests run the same transactions with `gasLimit =
 				// 200_000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
@@ -526,7 +526,7 @@ var _ = Describe("Feemarket", func() {
 					// local min-gas-prices is 10aevmos
 					params := fmkttypes.DefaultParams()
 					params.MinGasPrice = math.LegacyNewDec(minGasPrices)
-					params.BaseFee = math.NewInt(baseFee)
+					params.BaseFee = math.LegacyNewDec(baseFee)
 
 					// Note that the tests run the same transactions with `gasLimit =
 					// 200_000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
@@ -620,7 +620,7 @@ var _ = Describe("Feemarket", func() {
 					// local min-gas-prices is 10aevmos
 					params := fmkttypes.DefaultParams()
 					params.MinGasPrice = math.LegacyNewDec(minGasPrices)
-					params.BaseFee = math.NewInt(baseFee)
+					params.BaseFee = math.LegacyNewDec(baseFee)
 
 					err := testutils.UpdateFeeMarketParams(
 						testutils.UpdateParamsInput{

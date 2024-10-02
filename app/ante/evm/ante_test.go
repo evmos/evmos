@@ -32,7 +32,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 
 	setup := func() {
 		suite.WithFeemarketEnabled(false)
-		baseFee := sdkmath.NewInt(100)
+		baseFee := sdkmath.LegacyNewDec(100)
 		suite.WithBaseFee(&baseFee)
 		suite.SetupTest() // reset
 

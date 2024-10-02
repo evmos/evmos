@@ -76,7 +76,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			s.SetupTest()
 			ctx := s.network.GetContext()
 
-			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
+			baseFee := s.network.App.EvmKeeper.GetBaseFee(ctx)
 
 			// malleate testcase
 			caller, input := tc.malleate()

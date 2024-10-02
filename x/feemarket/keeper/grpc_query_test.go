@@ -48,11 +48,10 @@ func TestQueryParams(t *testing.T) {
 
 func TestQueryBaseFee(t *testing.T) {
 	var (
-		aux            sdkmath.Int
 		expRes         *types.QueryBaseFeeResponse
 		nw             *network.UnitTestNetwork
 		ctx            sdk.Context
-		initialBaseFee sdkmath.Int
+		initialBaseFee sdkmath.LegacyDec
 	)
 
 	testCases := []struct {
@@ -70,11 +69,10 @@ func TestQueryBaseFee(t *testing.T) {
 		{
 			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdkmath.OneInt().BigInt()
+				baseFee := sdkmath.LegacyNewDec(1)
 				nw.App.FeeMarketKeeper.SetBaseFee(ctx, baseFee)
 
-				aux = sdkmath.NewIntFromBigInt(baseFee)
-				expRes = &types.QueryBaseFeeResponse{BaseFee: &aux}
+				expRes = &types.QueryBaseFeeResponse{BaseFee: &baseFee}
 			},
 			true,
 		},
@@ -85,7 +83,7 @@ func TestQueryBaseFee(t *testing.T) {
 			nw = network.NewUnitTestNetwork()
 			ctx = nw.GetContext()
 			qc := nw.GetFeeMarketClient()
-			initialBaseFee = sdkmath.NewIntFromBigInt(nw.App.FeeMarketKeeper.GetBaseFee(ctx))
+			initialBaseFee = nw.App.FeeMarketKeeper.GetBaseFee(ctx)
 
 			tc.malleate()
 

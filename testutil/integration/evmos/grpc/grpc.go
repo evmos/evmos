@@ -23,6 +23,7 @@ type Handler interface {
 	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)
 	EstimateGas(args []byte, GasCap uint64) (*evmtypes.EstimateGasResponse, error)
 	GetEvmParams() (*evmtypes.QueryParamsResponse, error)
+	GetEvmBaseFee() (*evmtypes.QueryBaseFeeResponse, error)
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)

@@ -607,10 +607,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			}
 
 			// get base fee to use in tx to then calculate fee paid
-			bfQuery, err := s.grpcHandler.GetBaseFee()
+			bfQuery, err := s.grpcHandler.GetEvmBaseFee()
 			Expect(err).To(BeNil(), "error while calling BaseFee")
-			gasPrice := bfQuery.BaseFee
-			txArgs.GasPrice = gasPrice.BigInt()
+			gasPrice := bfQuery.BaseFee.BigInt()
+			txArgs.GasPrice = gasPrice
 
 			claimRewardsCheck := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
 
@@ -630,10 +630,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 
 			// get the fee paid and calculate the expFinalBalance
-			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed))
+			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed).BigInt(), gasPrice)
 			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom).TruncateInt()
 			// expected balance is initial + rewards - fee
-			expBalanceAmt := initialBalance.Amount.Add(accruedRewardsAmt).Sub(fee)
+			expBalanceAmt := initialBalance.Amount.Add(accruedRewardsAmt).Sub(math.NewIntFromBigInt(fee))
 
 			finalBalance := queryRes.Balance
 			Expect(finalBalance.Amount).To(Equal(expBalanceAmt), "expected final balance to be equal to initial balance + rewards - fees")

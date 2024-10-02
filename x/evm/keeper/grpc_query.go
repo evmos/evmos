@@ -474,7 +474,7 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 	}
 
 	// compute and use base fee of the height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -568,7 +568,7 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	}
 
 	// compute and use base fee of height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -698,8 +698,7 @@ func (k *Keeper) traceTx(
 func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types.QueryBaseFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	ethCfg := types.GetChainConfig()
-	baseFee := k.GetBaseFee(ctx, ethCfg)
+	baseFee := k.GetBaseFee(ctx)
 
 	res := &types.QueryBaseFeeResponse{}
 	if baseFee != nil {

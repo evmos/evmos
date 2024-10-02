@@ -292,13 +292,17 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	nw := suite.GetNetwork()
+
+	res, err := suite.GetNetwork().GetEvmClient().BaseFee(suite.GetNetwork().GetContext(), &evmtypes.QueryBaseFeeRequest{})
+	suite.Require().NoError(err)
+
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   nw.GetEIP155ChainID(),
 		Nonce:     0,
 		GasLimit:  gasLimit,
-		GasFeeCap: nw.App.FeeMarketKeeper.GetBaseFee(nw.GetContext()),
+		GasFeeCap: res.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},
