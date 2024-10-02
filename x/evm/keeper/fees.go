@@ -42,8 +42,7 @@ func CheckSenderBalance(
 	return nil
 }
 
-// DeductTxCostsFromUserBalance deducts the fees from the user balance. Returns an
-// error if the specified sender address does not exist or the account balance is not sufficient.
+// DeductTxCostsFromUserBalance deducts the fees from the user balance.
 func (k *Keeper) DeductTxCostsFromUserBalance(
 	ctx sdk.Context,
 	fees sdk.Coins,
@@ -55,7 +54,7 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 		return errorsmod.Wrapf(err, "account not found for sender %s", from)
 	}
 
-	// deduct the full gas cost from the user balance. Notice that it is used
+	// Deduct fees from the user balance. Notice that it is used
 	// the bankWrapper to properly convert fees from the 18 decimals
 	// representation to the original one before calling into the bank keeper.
 	if err := authante.DeductFees(k.bankWrapper, ctx, signerAcc, fees); err != nil {

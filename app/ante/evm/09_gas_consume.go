@@ -68,7 +68,6 @@ func ConsumeFeesAndEmitEvent(
 }
 
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
-// If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
 func deductFees(
 	ctx sdktypes.Context,
 	keepers *ConsumeGasKeepers,
