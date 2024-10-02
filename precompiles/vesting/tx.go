@@ -12,8 +12,8 @@ import (
 
 	"github.com/evmos/evmos/v20/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 const (
@@ -124,7 +124,7 @@ func (p *Precompile) FundVestingAccount(
 		}
 
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-		amt := vestingCoins.AmountOf(config.GetEVMCoinDenom()).BigInt()
+		amt := vestingCoins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
@@ -191,7 +191,7 @@ func (p *Precompile) Clawback(
 	if isContractCaller {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB when calling
 		// the precompile from another contract.
-		clawbackAmt := response.Coins.AmountOf(config.GetEVMCoinDenom()).BigInt()
+		clawbackAmt := response.Coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(accountAddr, clawbackAmt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(destAddr, clawbackAmt, cmn.Add),

@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v20/rpc/types"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
@@ -293,7 +292,7 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 	suite.Require().NoError(err)
 
 	rlpEncodedBz, _ := rlp.EncodeToBytes(ethTx.AsTransaction())
-	baseDenom := config.GetEVMCoinDenom()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 	cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txBytes, _ := suite.backend.clientCtx.TxConfig.TxEncoder()(cosmosTx)
 
