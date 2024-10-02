@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package wrappers_test
+package types_test
 
 import (
 	"fmt"
@@ -12,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
 	"github.com/stretchr/testify/require"
 )
@@ -81,7 +80,7 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 			configurator.ResetTestChainConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure())
 
-			coinConverted := wrappers.MustConvertEvmCoinTo18Decimals(tc.coin)
+			coinConverted := evmtypes.MustConvertEvmCoinTo18Decimals(tc.coin)
 
 			if !tc.expPanic {
 				require.Equal(t, tc.expCoin, coinConverted, "expected a different coin")
@@ -147,7 +146,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 			configurator.ResetTestChainConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure())
 
-			coinConverted, err := wrappers.ConvertEvmCoinFrom18Decimals(tc.coin)
+			coinConverted, err := evmtypes.ConvertEvmCoinFrom18Decimals(tc.coin)
 
 			if !tc.expErr {
 				require.NoError(t, err)
@@ -207,7 +206,7 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 			configurator.ResetTestChainConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure())
 
-			coinConverted := wrappers.ConvertCoinsFrom18Decimals(tc.coins)
+			coinConverted := evmtypes.ConvertCoinsFrom18Decimals(tc.coins)
 			require.Equal(t, tc.expCoins, coinConverted, "expected a different coin")
 		})
 	}
@@ -260,7 +259,7 @@ func TestZeroExtraDecimalsBigInt(t *testing.T) {
 				configurator := evmtypes.NewEVMConfigurator()
 				configurator.ResetTestChainConfig()
 				require.NoError(t, configurator.WithEVMCoinInfo(cfg.Denom, cfg.Decimals).Configure())
-				res := wrappers.AdjustExtraDecimalsBigInt(tc.amt)
+				res := evmtypes.AdjustExtraDecimalsBigInt(tc.amt)
 				if cfg.Decimals == evmtypes.EighteenDecimals {
 					tc.exp = tc.amt
 				}
