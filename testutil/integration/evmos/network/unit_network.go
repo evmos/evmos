@@ -54,3 +54,14 @@ func (n *UnitTestNetwork) FundAccount(addr sdktypes.AccAddress, coins sdktypes.C
 
 	return n.app.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, coins)
 }
+
+// FundModuleAccount funds the given module account with the given amount of coins.
+func (n *UnitTestNetwork) FundModuleAccount(moduleName string, coins sdktypes.Coins) error {
+	ctx := n.GetContext()
+
+	if err := n.app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins); err != nil {
+		return err
+	}
+
+	return n.app.BankKeeper.SendCoinsFromModuleToModule(ctx, inflationtypes.ModuleName, moduleName, coins)
+}

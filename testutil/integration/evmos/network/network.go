@@ -9,6 +9,8 @@ import (
 	"math/big"
 	"time"
 
+	auctionstypes "github.com/evmos/evmos/v20/x/auctions/types"
+
 	sdkmath "cosmossdk.io/math"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
@@ -52,6 +54,7 @@ type Network interface {
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 	GetVestingClient() vestingtypes.QueryClient
+	GetAuctionsClient() auctionstypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
