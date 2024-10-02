@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package wrappers
+package types
 
 import (
 	"fmt"
@@ -9,28 +9,34 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/evmos/evmos/v20/x/evm/config"
 )
 
-// mustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
+// MustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
 // representation into a 18 decimals. The function panics if coin denom is
 // not the evm denom or in case of overflow.
-func mustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
-	if coin.Denom != config.GetEVMCoinDenom() {
-		panic(fmt.Sprintf("expected evm denom %s, received %s", config.GetEVMCoinDenom(), coin.Denom))
+func MustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
+	if coin.Denom != GetEVMCoinDenom() {
+		panic(fmt.Sprintf("expected evm denom %s, received %s", GetEVMCoinDenom(), coin.Denom))
 	}
 
-	evmCoinDecimal := config.GetEVMCoinDecimals()
+	evmCoinDecimal := GetEVMCoinDecimals()
 	newAmount := coin.Amount.Mul(evmCoinDecimal.ConversionFactor())
 
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}
 }
 
+// ConvertAmountTo18Decimals convert the given amount into a 18 decimals
+// representation.
+func ConvertAmountTo18Decimals(amt sdkmath.Int) sdkmath.Int {
+	evmCoinDecimal := GetEVMCoinDecimals()
+
+	return amt.Mul(evmCoinDecimal.ConversionFactor())
+}
+
 // ConvertAmountToLegacy18Decimals convert the given amount into a 18 decimals
 // representation.
 func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
-	evmCoinDecimal := config.GetEVMCoinDecimals()
+	evmCoinDecimal := GetEVMCoinDecimals()
 
 	return amt.MulInt(evmCoinDecimal.ConversionFactor())
 }
@@ -38,45 +44,37 @@ func ConvertAmountTo18DecimalsLegacy(amt sdkmath.LegacyDec) sdkmath.LegacyDec {
 // ConvertAmountTo18DecimalsBigInt convert the given amount into a 18 decimals
 // representation.
 func ConvertAmountTo18DecimalsBigInt(amt *big.Int) *big.Int {
-	evmCoinDecimal := config.GetEVMCoinDecimals()
+	evmCoinDecimal := GetEVMCoinDecimals()
 
 	return new(big.Int).Mul(amt, evmCoinDecimal.ConversionFactor().BigInt())
 }
 
-// ConvertAmountToLegacy18 convert the given amount into a 18 decimals
-// representation.
-func ConvertAmountTo18Decimals(amt sdkmath.Int) sdkmath.Int {
-	evmCoinDecimal := config.GetEVMCoinDecimals()
-
-	return amt.Mul(evmCoinDecimal.ConversionFactor())
-}
-
-// convertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its
+// ConvertEvmCoinFrom18Decimals converts the coin's Amount from 18 decimals to its
 // original representation. Return an error if the coin denom is not the EVM.
-func convertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
-	if coin.Denom != config.GetEVMCoinDenom() {
-		return sdk.Coin{}, fmt.Errorf("expected coin denom %s, received %s", config.GetEVMCoinDenom(), coin.Denom)
+func ConvertEvmCoinFrom18Decimals(coin sdk.Coin) (sdk.Coin, error) {
+	if coin.Denom != GetEVMCoinDenom() {
+		return sdk.Coin{}, fmt.Errorf("expected coin denom %s, received %s", GetEVMCoinDenom(), coin.Denom)
 	}
 
-	evmCoinDecimal := config.GetEVMCoinDecimals()
+	evmCoinDecimal := GetEVMCoinDecimals()
 	newAmount := coin.Amount.Quo(evmCoinDecimal.ConversionFactor())
 
 	return sdk.Coin{Denom: coin.Denom, Amount: newAmount}, nil
 }
 
-// convertCoinsFrom18Decimals returns the given coins with the Amount of the evm
+// ConvertCoinsFrom18Decimals returns the given coins with the Amount of the evm
 // coin converted from the 18 decimals representation to the original one.
-func convertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
-	evmDenom := config.GetEVMCoinDenom()
+func ConvertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
+	evmDenom := GetEVMCoinDenom()
 
 	convertedCoins := make(sdk.Coins, len(coins))
 	for i, coin := range coins {
 		if coin.Denom == evmDenom {
-			evmCoinDecimals := config.GetEVMCoinDecimals()
+			evmCoinDecimals := GetEVMCoinDecimals()
 
 			newAmount := coin.Amount.Quo(evmCoinDecimals.ConversionFactor())
 
-			coin = sdk.Coin{Denom: evmDenom, Amount: newAmount}
+			coin = sdk.Coin{Denom: coin.Denom, Amount: newAmount}
 		}
 		convertedCoins[i] = coin
 	}
@@ -86,12 +84,12 @@ func convertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
 // ConvertCoinsTo18Decimals returns the given coins with the Amount of the evm
 // coin converted into the 18 decimals representation.
 func ConvertCoinsTo18Decimals(coins sdk.Coins) sdk.Coins {
-	evmDenom := config.GetEVMCoinDenom()
+	evmDenom := GetEVMCoinDenom()
 
 	convertedCoins := make(sdk.Coins, len(coins))
 	for i, coin := range coins {
 		if coin.Denom == evmDenom {
-			evmCoinDecimals := config.GetEVMCoinDecimals()
+			evmCoinDecimals := GetEVMCoinDecimals()
 
 			newAmount := coin.Amount.Mul(evmCoinDecimals.ConversionFactor())
 
@@ -100,4 +98,18 @@ func ConvertCoinsTo18Decimals(coins sdk.Coins) sdk.Coins {
 		convertedCoins[i] = coin
 	}
 	return convertedCoins
+}
+
+// AdjustExtraDecimalsBigInt replaces all extra decimals by zero of an amount with 18 decimals in big.Int when having a decimal configuration different than 18 decimals
+func AdjustExtraDecimalsBigInt(amt *big.Int) *big.Int {
+	if amt.Sign() == 0 {
+		return amt
+	}
+	dec := GetEVMCoinDecimals()
+	if dec == EighteenDecimals {
+		return amt
+	}
+	scaleFactor := dec.ConversionFactor()
+	scaledDown := new(big.Int).Quo(amt, scaleFactor.BigInt())
+	return new(big.Int).Mul(scaledDown, scaleFactor.BigInt())
 }

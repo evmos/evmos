@@ -10,8 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/x/evm/config"
-	"github.com/evmos/evmos/v20/x/evm/wrappers"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
@@ -41,7 +40,7 @@ func CheckVesting(
 		return nil
 	}
 
-	newExpensesConverted := wrappers.ConvertAmountTo18DecimalsBigInt(newExpenses)
+	newExpensesConverted := evmtypes.ConvertAmountTo18DecimalsBigInt(newExpenses)
 	// Check to make sure that the account does not exceed its spendable balances.
 	// This transaction would fail in processing, so we should prevent it from
 	// moving past the AnteHandler.
@@ -84,7 +83,7 @@ func UpdateAccountExpenses(
 	// Get the account balance via EVM Keeper to be sure to have a 18 decimals
 	// representation of the address balance.
 	baseAmount := evmKeeper.GetBalance(ctx, common.BytesToAddress(address.Bytes()))
-	denom := config.GetEVMCoinDenom()
+	denom := evmtypes.GetEVMCoinDenom()
 	balance := sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(baseAmount)}
 
 	// Short-circuit if the balance is zero, since we require a non-zero balance to cover
@@ -100,7 +99,7 @@ func UpdateAccountExpenses(
 	if !ok {
 		lockedBalance = sdk.Coin{Denom: denom, Amount: math.ZeroInt()}
 	}
-	lockedBalance.Amount = wrappers.ConvertAmountTo18Decimals(lockedBalance.Amount)
+	lockedBalance.Amount = evmtypes.ConvertAmountTo18Decimals(lockedBalance.Amount)
 
 	spendableValue := big.NewInt(0)
 	if spendableBalance, err := balance.SafeSub(lockedBalance); err == nil {

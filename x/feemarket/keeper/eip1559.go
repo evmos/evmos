@@ -64,6 +64,10 @@ func (k Keeper) CalculateBaseFee(ctx sdk.Context) sdkmath.LegacyDec {
 		return parentBaseFee
 	}
 
+	if parentGasTargetInt.IsZero() {
+		return sdkmath.LegacyZeroDec()
+	}
+
 	if parentGasUsed > parentGasTarget {
 		// If the parent block used more gas than its target, the baseFee should
 		// increase.

@@ -19,10 +19,8 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/evmos/evmos/v20/x/evm/wrappers"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
@@ -89,7 +87,7 @@ func NewMonoDecoratorUtils(
 	baseFee := ek.GetBaseFee(ctx)
 
 	blockHeight := big.NewInt(ctx.BlockHeight())
-	ethCfg := config.GetChainConfig()
+	ethCfg := evmtypes.GetChainConfig()
 	rules := ethCfg.Rules(blockHeight, true)
 
 	if rules.IsLondon && baseFee == nil {
@@ -105,8 +103,8 @@ func NewMonoDecoratorUtils(
 
 	// Mempool gas price should be scaled to the 18 decimals representation. If
 	// it is already a 18 decimal token, this is a no-op.
-	baseDenom := config.GetEVMCoinDenom()
-	mempoolMinGasPrice := wrappers.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
+	baseDenom := evmtypes.GetEVMCoinDenom()
+	mempoolMinGasPrice := evmtypes.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
 
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
@@ -132,8 +130,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// accounts.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 
-	ethCfg := config.GetChainConfig()
-	baseDenom := config.GetEVMCoinDenom()
+	ethCfg := evmtypes.GetChainConfig()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	var txFeeInfo *txtypes.Fee
 	if !ctx.IsReCheckTx() {
@@ -187,6 +185,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		//
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
+			// FIX: Mempool dec should be converted
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}

@@ -1,8 +1,8 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-//go:build !test
-// +build !test
+//go:build test
+// +build test
 
 package app
 
@@ -16,15 +16,10 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var sealed = false
-
 // InitializeAppConfiguration allows to setup the global configuration
-// for the Evmos EVM.
+// for tests within the Evmos EVM. We're not using the sealed flag
+// and resetting the configuration to the provided one on every test setup
 func InitializeAppConfiguration(chainID string) error {
-	if sealed {
-		return nil
-	}
-
 	// set the base denom considering if its mainnet or testnet
 	if err := setBaseDenomWithChainID(chainID); err != nil {
 		return err
@@ -37,7 +32,10 @@ func InitializeAppConfiguration(chainID string) error {
 
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
-	err = evmtypes.NewEVMConfigurator().
+	configurator := evmtypes.NewEVMConfigurator()
+	// reset configuration to set the new one
+	configurator.ResetTestChainConfig()
+	err = configurator.
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).
@@ -46,7 +44,6 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
-	sealed = true
 	return nil
 }
 
@@ -68,22 +65,34 @@ func setBaseDenomWithChainID(chainID string) error {
 	return setMainnetBaseDenom()
 }
 
-func setTestnetBaseDenom() error {
+func setTestnetBaseDenom() (err error) {
+	// Defer setting the base denom, and capture any potential error from it.
+	// So when failing because the denom was already registered, we ignore it and set
+	// the corresponding denom to be base denom
+	defer func() {
+		err = sdk.SetBaseDenom(types.BaseDenomTestnet)
+	}()
 	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
 		return err
 	}
 	if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
 		return err
 	}
-	return sdk.SetBaseDenom(types.BaseDenomTestnet)
+	return err
 }
 
-func setMainnetBaseDenom() error {
+func setMainnetBaseDenom() (err error) {
+	// Defer setting the base denom, and capture any potential error from it.
+	// So when failing because the denom was already registered, we ignore it and set
+	// the corresponding denom to be base denom
+	defer func() {
+		err = sdk.SetBaseDenom(types.BaseDenom)
+	}()
 	if err := sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
 	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
 		return err
 	}
-	return sdk.SetBaseDenom(types.BaseDenom)
+	return err
 }

@@ -1,10 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
-// The config package provides a convinient way to modify x/evm params and values.
+// The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-package config
+//go:build !test
+// +build !test
+
+package types
 
 import (
 	"fmt"
@@ -12,7 +15,6 @@ import (
 
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EVMConfigurator allows to extend x/evm module configurations. The configurator modifies
@@ -22,7 +24,7 @@ type EVMConfigurator struct {
 	sealed                   bool
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
-	chainConfig              *geth.ChainConfig
+	chainConfig              *ChainConfig
 	evmDenom                 EvmCoinInfo
 }
 
@@ -47,7 +49,7 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 
 // WithChainConfig allows to define a custom `chainConfig` to be used in the
 // EVM.
-func (ec *EVMConfigurator) WithChainConfig(cc *geth.ChainConfig) *EVMConfigurator {
+func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
 	ec.chainConfig = cc
 	return ec
 }
@@ -59,7 +61,7 @@ func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigu
 	return ec
 }
 
-// Configure apply the changes to the virtual machine configuration.
+// Configure applies the changes to the virtual machine configuration.
 func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
@@ -67,7 +69,9 @@ func (ec *EVMConfigurator) Configure() error {
 		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
-	setChainConfig(ec.chainConfig)
+	if err := setChainConfig(ec.chainConfig); err != nil {
+		return err
+	}
 
 	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
 		setEVMCoinInfo(ec.evmDenom)
@@ -78,15 +82,15 @@ func (ec *EVMConfigurator) Configure() error {
 	}
 
 	for _, eip := range ec.extendedDefaultExtraEIPs {
-		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+		if slices.Contains(DefaultExtraEIPs, eip) {
+			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, DefaultExtraEIPs)
 		}
 
 		if err := vm.ValidateEIPName(eip); err != nil {
 			return fmt.Errorf("error configuring EVMConfigurator: %s", err)
 		}
 
-		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
+		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
 
 	// After applying modifier the configurator is sealed. This way, it is not possible
@@ -94,4 +98,13 @@ func (ec *EVMConfigurator) Configure() error {
 	ec.sealed = true
 
 	return nil
+}
+
+func (ec *EVMConfigurator) ResetTestChainConfig() {
+	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
+}
+
+// GetChainConfig returns the `chainConfig` used in the EVM.
+func GetChainConfig() *geth.ChainConfig {
+	return chainConfig
 }

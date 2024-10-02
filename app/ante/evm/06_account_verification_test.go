@@ -100,7 +100,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), tc.name), func() {
 			// Perform test logic
-			statedbAccount, txArgs := tc.generateAccountAndArgs()
+			_, txArgs := tc.generateAccountAndArgs()
 			txData, err := txArgs.ToTxData()
 			suite.Require().NoError(err)
 
@@ -108,7 +108,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			err = evm.VerifyAccountBalance(
 				unitNetwork.GetContext(),
 				unitNetwork.App.AccountKeeper,
-				statedbAccount,
+				unitNetwork.App.EvmKeeper,
 				senderKey.Addr,
 				txData,
 			)

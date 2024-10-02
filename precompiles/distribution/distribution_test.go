@@ -11,7 +11,6 @@ import (
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/precompiles/distribution"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -213,7 +212,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			// setup basic test suite
 			s.SetupTest()
 			ctx = s.network.GetContext()
-			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
+			baseFee := s.network.App.EvmKeeper.GetBaseFee(ctx)
 
 			// malleate testcase
 			caller, input := tc.malleate()
@@ -223,7 +222,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			contractAddr := contract.Address()
 
-			evmChainID := config.GetChainConfig().ChainID
+			evmChainID := evmtypes.GetChainConfig().ChainID
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
 				ChainID:   evmChainID,
@@ -232,7 +231,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				Amount:    nil,
 				GasLimit:  100000,
 				GasPrice:  app.MainnetMinGasPrices.BigInt(),
-				GasFeeCap: baseFee.BigInt(),
+				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &gethtypes.AccessList{},
 			}
@@ -249,7 +248,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			ethChainID := s.network.GetEIP155ChainID()
 			signer := gethtypes.LatestSignerForChainID(ethChainID)
-			msg, err := signedMsg.AsMessage(signer, baseFee.BigInt())
+			msg, err := signedMsg.AsMessage(signer, baseFee)
 			s.Require().NoError(err, "failed to instantiate Ethereum message")
 
 			// Instantiate EVM

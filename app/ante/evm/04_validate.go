@@ -10,7 +10,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/evmos/evmos/v20/x/evm/wrappers"
 )
 
 // ValidateMsg validates an Ethereum specific message type and returns an error
@@ -109,7 +108,7 @@ func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) erro
 		return nil
 	}
 
-	convertedAmount := wrappers.ConvertCoinsTo18Decimals(txFeeInfo.Amount)
+	convertedAmount := evmtypes.ConvertCoinsTo18Decimals(txFeeInfo.Amount)
 
 	if !convertedAmount.Equal(txFee) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", convertedAmount, txFee)

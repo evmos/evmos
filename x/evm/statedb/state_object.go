@@ -100,6 +100,7 @@ func (s *stateObject) markSuicided() {
 // AddBalance adds amount to s's balance.
 // It is used to add funds to the destination account of a transfer.
 func (s *stateObject) AddBalance(amount *big.Int) {
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}
@@ -109,6 +110,7 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 // SubBalance removes amount from s's balance.
 // It is used to remove funds from the origin account of a transfer.
 func (s *stateObject) SubBalance(amount *big.Int) {
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}

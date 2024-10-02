@@ -17,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
@@ -92,7 +91,7 @@ func NewKeeper(
 	}
 
 	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
-	feeMarkerWrapper := wrappers.NewFeeMarketWrapper(fmk)
+	feeMarketWrapper := wrappers.NewFeeMarketWrapper(fmk)
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
@@ -101,7 +100,7 @@ func NewKeeper(
 		accountKeeper:    ak,
 		bankWrapper:      bankWrapper,
 		stakingKeeper:    sk,
-		feeMarketWrapper: feeMarkerWrapper,
+		feeMarketWrapper: feeMarketWrapper,
 		storeKey:         storeKey,
 		transientKey:     transientKey,
 		tracer:           tracer,
@@ -270,7 +269,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
 
 	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
-	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, config.GetEVMCoinDenom())
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, types.GetEVMCoinDenom())
 
 	return coin.Amount.BigInt()
 }
@@ -280,7 +279,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 // - `0`: london hardfork enabled but feemarket is not enabled.
 // - `n`: both london hardfork and feemarket are enabled.
 func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
-	ethCfg := config.GetChainConfig()
+	ethCfg := types.GetChainConfig()
 	if !types.IsLondon(ethCfg, ctx.BlockHeight()) {
 		return nil
 	}

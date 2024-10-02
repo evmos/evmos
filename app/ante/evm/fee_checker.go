@@ -12,7 +12,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -46,8 +45,8 @@ func feeChecker(
 	k FeeMarketKeeper,
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
-	denom := config.GetEVMCoinDenom()
-	ethConfig := config.GetChainConfig()
+	denom := types.GetEVMCoinDenom()
+	ethConfig := types.GetChainConfig()
 
 	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
 		// london hardfork is not enabled: fallback to min-gas-prices logic
@@ -84,6 +83,10 @@ func feeChecker(
 	}
 
 	gas := sdkmath.NewIntFromUint64(feeTx.GetGas())
+	if gas.IsZero() {
+		return nil, 0, errorsmod.Wrap(errortypes.ErrInvalidRequest, "gas cannot be zero")
+	}
+
 	feeCoins := feeTx.GetFee()
 	feeAmtDec := sdkmath.LegacyNewDecFromInt(feeCoins.AmountOfNoDenomValidation(denom))
 
