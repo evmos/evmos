@@ -29,7 +29,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	commonnetwork "github.com/evmos/evmos/v20/testutil/integration/common/network"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
@@ -265,7 +264,7 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 
 // GetChainConfig returns the network's chain config
 func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
-	return config.GetChainConfig()
+	return evmtypes.GetChainConfig()
 }
 
 // GetDenom returns the network's denom

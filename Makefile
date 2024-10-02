@@ -360,9 +360,9 @@ test-e2e:
 
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
-	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
+	go test -tags=test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else
-	go test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
+	go test -tags=test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
 endif
 
 test-import:
@@ -392,7 +392,7 @@ run-nix-tests:
 .PHONY: run-nix-tests
 
 benchmark:
-	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
+	@go test -tags=test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 .PHONY: benchmark
 
 ###############################################################################

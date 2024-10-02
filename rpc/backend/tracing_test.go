@@ -14,7 +14,6 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v20/indexer"
 	"github.com/evmos/evmos/v20/rpc/backend/mocks"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -37,7 +36,7 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx.From = from.String()
 	_ = msgEthereumTx.Sign(ethSigner, suite.signer)
 
-	baseDenom := config.GetEVMCoinDenom()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txBz, _ := txEncoder(tx)

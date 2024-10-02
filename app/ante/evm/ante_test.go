@@ -19,7 +19,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/config"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -43,7 +42,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		ctx = suite.GetNetwork().GetContext()
 	}
 
-	evmChainID := config.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetChainConfig().ChainID
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,
 		Nonce:     0,
@@ -63,7 +62,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		GasFeeCap: big.NewInt(200),
 	}
 
-	baseDenom := config.GetEVMCoinDenom()
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name      string
@@ -167,7 +166,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  config.GetChainConfig().ChainID,
+					ChainID:  evmtypes.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -186,7 +185,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  config.GetChainConfig().ChainID,
+					ChainID:  evmtypes.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -204,7 +203,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  config.GetChainConfig().ChainID,
+					ChainID:  evmtypes.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -222,7 +221,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  config.GetChainConfig().ChainID,
+					ChainID:  evmtypes.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -244,7 +243,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				nonce, err := suite.GetNetwork().App.AccountKeeper.GetSequence(ctx, suite.GetKeyring().GetAccAddr(0))
 				suite.Require().NoError(err)
 				ethTxParams := evmtypes.EvmTxArgs{
-					ChainID:  config.GetChainConfig().ChainID,
+					ChainID:  evmtypes.GetChainConfig().ChainID,
 					To:       &to,
 					Nonce:    nonce,
 					Amount:   big.NewInt(10),
@@ -603,7 +602,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		{
 			"passes - Single-signer EIP-712",
 			func() sdk.Tx {
-				evmDenom := config.GetEVMCoinDenom()
+				evmDenom := evmtypes.GetEVMCoinDenom()
 				msg := banktypes.NewMsgSend(
 					sdk.AccAddress(privKey.PubKey().Address()),
 					addr[:],
@@ -921,7 +920,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
-	evmChainID := config.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,
@@ -1085,7 +1084,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
-	evmChainID := config.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,

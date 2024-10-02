@@ -12,7 +12,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v20/x/evm/config"
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -40,7 +39,7 @@ func NewBankWrapper(
 // MintAmountToAccount converts the given amount into the evm coin scaling
 // the amount to the original decimals, then mints that amount to the provided account.
 func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error {
-	coin := sdk.Coin{Denom: config.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
+	coin := sdk.Coin{Denom: types.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
 	convertedCoin, err := ConvertEvmCoinFrom18Decimals(coin)
 	if err != nil {
@@ -58,7 +57,7 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 // BurnAmountFromAccount converts the given amount into the evm coin scaling
 // the amount to the original decimals, then burns that quantity from the provided account.
 func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error {
-	coin := sdk.Coin{Denom: config.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
+	coin := sdk.Coin{Denom: types.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
 	convertedCoin, err := ConvertEvmCoinFrom18Decimals(coin)
 	if err != nil {

@@ -20,8 +20,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 
-	"github.com/evmos/evmos/v20/x/evm/config"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/stretchr/testify/suite"
 )
@@ -70,7 +68,7 @@ func TestPostTestSuite(t *testing.T) {
 }
 
 func (s *PostTestSuite) BuildEthTx() sdk.Tx {
-	chainID := config.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 
 	nonce := s.unitNetwork.App.EvmKeeper.GetNonce(
 		s.unitNetwork.GetContext(),
