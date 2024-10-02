@@ -41,7 +41,7 @@ func NewBankWrapper(
 func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error {
 	coin := sdk.Coin{Denom: types.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
-	convertedCoin, err := ConvertEvmCoinFrom18Decimals(coin)
+	convertedCoin, err := types.ConvertEvmCoinFrom18Decimals(coin)
 	if err != nil {
 		return errors.Wrap(err, "failed to mint coin to account in bank wrapper")
 	}
@@ -59,7 +59,7 @@ func (w BankWrapper) MintAmountToAccount(ctx context.Context, recipientAddr sdk.
 func (w BankWrapper) BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error {
 	coin := sdk.Coin{Denom: types.GetEVMCoinDenom(), Amount: sdkmath.NewIntFromBigInt(amt)}
 
-	convertedCoin, err := ConvertEvmCoinFrom18Decimals(coin)
+	convertedCoin, err := types.ConvertEvmCoinFrom18Decimals(coin)
 	if err != nil {
 		return errors.Wrap(err, "failed to burn coins from account in bank wrapper")
 	}
@@ -82,14 +82,14 @@ func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom 
 	// representation used in the evm.
 	coin := w.BankKeeper.GetBalance(ctx, addr, denom)
 
-	return MustConvertEvmCoinTo18Decimals(coin)
+	return types.MustConvertEvmCoinTo18Decimals(coin)
 }
 
 // SendCoinsFromAccountToModule wraps around the Cosmos SDK x/bank module's
 // SendCoinsFromAccountToModule method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, coins sdk.Coins) error {
-	convertedCoins := ConvertCoinsFrom18Decimals(coins)
+	convertedCoins := types.ConvertCoinsFrom18Decimals(coins)
 
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, convertedCoins)
 }
@@ -98,7 +98,7 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAdd
 // SendCoinsFromModuleToAccount method to convert the evm coin, if present in
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, coins sdk.Coins) error {
-	convertedCoins := ConvertCoinsFrom18Decimals(coins)
+	convertedCoins := types.ConvertCoinsFrom18Decimals(coins)
 
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, convertedCoins)
 }

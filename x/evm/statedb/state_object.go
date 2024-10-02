@@ -11,7 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/evmos/evmos/v20/x/evm/wrappers"
 )
 
 // Account is the Ethereum consensus representation of accounts.
@@ -101,7 +100,7 @@ func (s *stateObject) markSuicided() {
 // AddBalance adds amount to s's balance.
 // It is used to add funds to the destination account of a transfer.
 func (s *stateObject) AddBalance(amount *big.Int) {
-	amount = wrappers.AdjustExtraDecimalsBigInt(amount)
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}
@@ -111,7 +110,7 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 // SubBalance removes amount from s's balance.
 // It is used to remove funds from the origin account of a transfer.
 func (s *stateObject) SubBalance(amount *big.Int) {
-	amount = wrappers.AdjustExtraDecimalsBigInt(amount)
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}
