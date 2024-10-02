@@ -656,8 +656,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-bnr6c7a0nqo2HyGqxHk0kEZCEsjLYkPbAVY9WzaZ30o="
   [mod."github.com/tidwall/gjson"]
-    version = "v1.17.3"
-    hash = "sha256-zui8S4qlfFXNLartKynJbYqeM/MW3f3eDbojIvh/KS8="
+    version = "v1.18.0"
+    hash = "sha256-CO6hqDu8Y58Po6A01e5iTpwiUBQ5khUZsw7czaJHw0I="
   [mod."github.com/tidwall/match"]
     version = "v1.1.1"
     hash = "sha256-M2klhPId3Q3T3VGkSbOkYl/2nLHnsG+yMbXkPkyrRdg="
