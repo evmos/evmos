@@ -37,7 +37,7 @@ func (w FeeMarketWrapper) GetBaseFee(ctx sdk.Context) *big.Int {
 	if baseFee.IsNil() {
 		return nil
 	}
-	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
+	return types.ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
 // CalculateBaseFee returns the calculated base fee converted to 18 decimals.
@@ -46,13 +46,13 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 	if baseFee.IsNil() {
 		return nil
 	}
-	return ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
+	return types.ConvertAmountTo18DecimalsLegacy(baseFee).TruncateInt().BigInt()
 }
 
 // GetParams returns the params with associated fees values converted to 18 decimals.
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
-	params.BaseFee = ConvertAmountTo18DecimalsLegacy(params.BaseFee)
-	params.MinGasPrice = ConvertAmountTo18DecimalsLegacy(params.MinGasPrice)
+	params.BaseFee = types.ConvertAmountTo18DecimalsLegacy(params.BaseFee)
+	params.MinGasPrice = types.ConvertAmountTo18DecimalsLegacy(params.MinGasPrice)
 	return params
 }
