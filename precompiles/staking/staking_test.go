@@ -432,7 +432,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			s.SetupTest()
 			ctx = s.network.GetContext().WithBlockTime(time.Now())
 
-			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
+			baseFee := s.network.App.EvmKeeper.GetBaseFee(ctx)
 
 			delegator := s.keyring.GetKey(0)
 			grantee := s.keyring.GetKey(1)

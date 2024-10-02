@@ -35,7 +35,7 @@ type AnteTestSuite struct {
 
 	anteHandler     sdk.AnteHandler
 	enableFeemarket bool
-	baseFee         *sdkmath.Int
+	baseFee         *sdkmath.LegacyDec
 	enableLondonHF  bool
 	evmParamsOption func(*evmtypes.Params)
 }
@@ -126,7 +126,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
-		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.network.App.EvmKeeper),
+		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.network.App.FeeMarketKeeper),
 	})
 
 	suite.anteHandler = anteHandler
@@ -140,7 +140,7 @@ func (suite *AnteTestSuite) WithLondonHardForkEnabled(enabled bool) {
 	suite.enableLondonHF = enabled
 }
 
-func (suite *AnteTestSuite) WithBaseFee(baseFee *sdkmath.Int) {
+func (suite *AnteTestSuite) WithBaseFee(baseFee *sdkmath.LegacyDec) {
 	suite.baseFee = baseFee
 }
 

@@ -143,7 +143,7 @@ config {
         },
         extension_options: [{
           type: 'ethermint_dynamic_fee',
-          value: '1000000',
+          value: '1000000000000000000000000', # this changed from BigInt to LegacyDec type, so in this case, the integer part is 1000000
         }],
       },
       {

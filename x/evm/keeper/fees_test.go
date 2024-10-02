@@ -498,9 +498,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			tx.From = tc.from
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)
-
-			ethCfg := evmtypes.GetChainConfig()
-			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext(), ethCfg)
+			baseFee := suite.network.App.EvmKeeper.GetBaseFee(suite.network.GetContext())
 			priority := evmtypes.GetTxPriority(txData, baseFee)
 
 			baseDenom := evmtypes.GetEVMCoinDenom()
@@ -513,7 +511,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 					suite.Require().Equal(
 						fees,
 						sdk.NewCoins(
-							sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(txData.EffectiveFee(baseFee))),
+							sdk.NewCoin(baseDenom, sdkmath.NewIntFromBigInt(txData.EffectiveFee(baseFee.TruncateInt().BigInt()))),
 						),
 						"valid test %d failed, fee value is wrong  - '%s'", i, tc.name,
 					)

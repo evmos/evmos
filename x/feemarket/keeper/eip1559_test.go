@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -15,7 +14,7 @@ func TestCalculateBaseFee(t *testing.T) {
 	var (
 		nw             *network.UnitTestNetwork
 		ctx            sdk.Context
-		initialBaseFee math.Int
+		initialBaseFee math.LegacyDec
 	)
 
 	testCases := []struct {
@@ -24,7 +23,7 @@ func TestCalculateBaseFee(t *testing.T) {
 		blockHeight          int64
 		parentBlockGasWanted uint64
 		minGasPrice          math.LegacyDec
-		expFee               func() *big.Int
+		expFee               func() math.LegacyDec
 	}{
 		{
 			"without BaseFee",
@@ -40,7 +39,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			0,
 			0,
 			math.LegacyZeroDec(),
-			func() *big.Int { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee.BigInt() },
+			func() math.LegacyDec { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee },
 		},
 		{
 			"with BaseFee - parent block wanted the same gas as its target (ElasticityMultiplier = 2)",
@@ -48,7 +47,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			50,
 			math.LegacyZeroDec(),
-			func() *big.Int { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee.BigInt() },
+			func() math.LegacyDec { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee },
 		},
 		{
 			"with BaseFee - parent block wanted the same gas as its target, with higher min gas price (ElasticityMultiplier = 2)",
@@ -56,7 +55,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			50,
 			math.LegacyNewDec(1500000000),
-			func() *big.Int { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee.BigInt() },
+			func() math.LegacyDec { return nw.App.FeeMarketKeeper.GetParams(ctx).BaseFee },
 		},
 		{
 			"with BaseFee - parent block wanted more gas than its target (ElasticityMultiplier = 2)",
@@ -64,7 +63,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			100,
 			math.LegacyZeroDec(),
-			func() *big.Int { return initialBaseFee.Add(math.NewInt(109375000)).BigInt() },
+			func() math.LegacyDec { return initialBaseFee.Add(math.LegacyNewDec(109375000)) },
 		},
 		{
 			"with BaseFee - parent block wanted more gas than its target, with higher min gas price (ElasticityMultiplier = 2)",
@@ -72,7 +71,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			100,
 			math.LegacyNewDec(1500000000),
-			func() *big.Int { return initialBaseFee.Add(math.NewInt(109375000)).BigInt() },
+			func() math.LegacyDec { return initialBaseFee.Add(math.LegacyNewDec(109375000)) },
 		},
 		{
 			"with BaseFee - Parent gas wanted smaller than parent gas target (ElasticityMultiplier = 2)",
@@ -80,7 +79,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			25,
 			math.LegacyZeroDec(),
-			func() *big.Int { return initialBaseFee.Sub(math.NewInt(54687500)).BigInt() },
+			func() math.LegacyDec { return initialBaseFee.Sub(math.LegacyNewDec(54687500)) },
 		},
 		{
 			"with BaseFee - Parent gas wanted smaller than parent gas target, with higher min gas price (ElasticityMultiplier = 2)",
@@ -88,7 +87,7 @@ func TestCalculateBaseFee(t *testing.T) {
 			1,
 			25,
 			math.LegacyNewDec(1500000000),
-			func() *big.Int { return big.NewInt(1500000000) },
+			func() math.LegacyDec { return math.LegacyNewDec(1500000000) },
 		},
 	}
 	for _, tc := range testCases {
@@ -121,7 +120,7 @@ func TestCalculateBaseFee(t *testing.T) {
 
 			fee := nw.App.FeeMarketKeeper.CalculateBaseFee(ctx)
 			if tc.NoBaseFee {
-				require.Nil(t, fee, tc.name)
+				require.True(t, fee.IsNil(), tc.name)
 			} else {
 				require.Equal(t, tc.expFee(), fee, tc.name)
 			}

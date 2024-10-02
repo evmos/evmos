@@ -78,14 +78,12 @@ func NewMonoDecorator(
 func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek EVMKeeper,
-	fmk FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
 	ethCfg := evmtypes.GetChainConfig()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
-	baseFee := ek.GetBaseFee(ctx, ethCfg)
-	feeMarketParams := fmk.GetParams(ctx)
+	baseFee := ek.GetBaseFee(ctx)
 	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	if rules.IsLondon && baseFee == nil {
@@ -95,14 +93,19 @@ func NewMonoDecoratorUtils(
 		)
 	}
 
+	// get the gas prices adapted accordingly
+	// to the evm denom decimals
+	minGasPrice := ek.GetMinGasPrice(ctx)
+
+	mempoolMinGasPrice := evmtypes.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
 		EthConfig:          ethCfg,
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
-		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(baseDenom),
-		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
+		MempoolMinGasPrice: mempoolMinGasPrice,
+		GlobalMinGasPrice:  minGasPrice,
 		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
@@ -131,7 +134,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper, md.feeMarketKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
@@ -141,7 +144,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
 	}
 
-	// Use the lowest priority of all the messages as the final one.
 	for i, msg := range msgs {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
@@ -155,6 +157,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
+			// FIX: Mempool dec should be converted
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}

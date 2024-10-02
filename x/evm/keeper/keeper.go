@@ -51,7 +51,7 @@ type Keeper struct {
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
-	feeMarketKeeper types.FeeMarketKeeper
+	feeMarketWrapper *wrappers.FeeMarketWrapper
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
 
@@ -91,20 +91,21 @@ func NewKeeper(
 	}
 
 	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
+	feeMarketWrapper := wrappers.NewFeeMarketWrapper(fmk)
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
-		cdc:             cdc,
-		authority:       authority,
-		accountKeeper:   ak,
-		bankWrapper:     bankWrapper,
-		stakingKeeper:   sk,
-		feeMarketKeeper: fmk,
-		storeKey:        storeKey,
-		transientKey:    transientKey,
-		tracer:          tracer,
-		erc20Keeper:     erc20Keeper,
-		ss:              ss,
+		cdc:              cdc,
+		authority:        authority,
+		accountKeeper:    ak,
+		bankWrapper:      bankWrapper,
+		stakingKeeper:    sk,
+		feeMarketWrapper: feeMarketWrapper,
+		storeKey:         storeKey,
+		transientKey:     transientKey,
+		tracer:           tracer,
+		erc20Keeper:      erc20Keeper,
+		ss:               ss,
 	}
 }
 
@@ -277,16 +278,12 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 // - `nil`: london hardfork not enabled.
 // - `0`: london hardfork enabled but feemarket is not enabled.
 // - `n`: both london hardfork and feemarket are enabled.
-func (k Keeper) GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int {
-	return k.getBaseFee(ctx, types.IsLondon(ethCfg, ctx.BlockHeight()))
-}
-
-func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
-	if !london {
+func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
+	ethCfg := types.GetChainConfig()
+	if !types.IsLondon(ethCfg, ctx.BlockHeight()) {
 		return nil
 	}
-	// TODO: use wrapper.
-	baseFee := k.feeMarketKeeper.GetBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.GetBaseFee(ctx)
 	if baseFee == nil {
 		// return 0 if feemarket not enabled.
 		baseFee = big.NewInt(0)
@@ -296,7 +293,13 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 
 // GetMinGasMultiplier returns the MinGasMultiplier param from the fee market module
 func (k Keeper) GetMinGasMultiplier(ctx sdk.Context) math.LegacyDec {
-	return k.feeMarketKeeper.GetParams(ctx).MinGasMultiplier
+	return k.feeMarketWrapper.GetParams(ctx).MinGasMultiplier
+}
+
+// GetMinGasPrice returns the MinGasPrice param from the fee market module
+// adapted according to the evm denom decimals
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) math.LegacyDec {
+	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice
 }
 
 // ResetTransientGasUsed reset gas used to prepare for execution of current cosmos tx, called in ante handler.

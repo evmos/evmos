@@ -89,7 +89,7 @@ func (tf *baseTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (
 			return sdktypes.Coins{}, errorsmod.Wrap(err, "failed to get base fee")
 		}
 		price := resp.BaseFee
-		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}} //#nosec G115
+		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulInt64(int64(gasLimit)).TruncateInt()}} //#nosec G115
 	}
 	return fees, nil
 }
