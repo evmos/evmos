@@ -67,7 +67,26 @@ func convertCoinsFrom18Decimals(coins sdk.Coins) sdk.Coins {
 
 			newAmount := coin.Amount.Quo(evmCoinDecimals.ConversionFactor())
 
-			coin = sdk.Coin{Denom: coin.Denom, Amount: newAmount}
+			coin = sdk.Coin{Denom: evmDenom, Amount: newAmount}
+		}
+		convertedCoins[i] = coin
+	}
+	return convertedCoins
+}
+
+// ConvertCoinsTo18Decimals returns the given coins with the Amount of the evm
+// coin converted into the 18 decimals representation.
+func ConvertCoinsTo18Decimals(coins sdk.Coins) sdk.Coins {
+	evmDenom := config.GetEVMCoinDenom()
+
+	convertedCoins := make(sdk.Coins, len(coins))
+	for i, coin := range coins {
+		if coin.Denom == evmDenom {
+			evmCoinDecimals := config.GetEVMCoinDecimals()
+
+			newAmount := coin.Amount.Mul(evmCoinDecimals.ConversionFactor())
+
+			coin = sdk.Coin{Denom: evmDenom, Amount: newAmount}
 		}
 		convertedCoins[i] = coin
 	}
