@@ -260,7 +260,7 @@ func (tx DynamicFeeTx) Validate() error {
 
 // Fee returns gasprice * gaslimit.
 func (tx DynamicFeeTx) Fee() *big.Int {
-	return fee(tx.GetGasFeeCap(), tx.GasLimit)
+	return fee(tx.GetGasFeeCap(), tx.GetGas())
 }
 
 // Cost returns amount + gasprice * gaslimit.
@@ -275,7 +275,7 @@ func (tx *DynamicFeeTx) EffectiveGasPrice(baseFee *big.Int) *big.Int {
 
 // EffectiveFee returns effective_gasprice * gaslimit.
 func (tx DynamicFeeTx) EffectiveFee(baseFee *big.Int) *big.Int {
-	return fee(tx.EffectiveGasPrice(baseFee), tx.GasLimit)
+	return fee(tx.EffectiveGasPrice(baseFee), tx.GetGas())
 }
 
 // EffectiveCost returns amount + effective_gasprice * gaslimit.

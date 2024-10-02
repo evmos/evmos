@@ -21,10 +21,12 @@ import (
 func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,
-	account *statedb.Account,
+	evmKeeper EVMKeeper,
 	from common.Address,
 	txData evmtypes.TxData,
 ) error {
+	account := evmKeeper.GetAccount(ctx, from)
+
 	// Only EOA are allowed to send transactions.
 	if account != nil && account.IsContract() {
 		return errorsmod.Wrapf(

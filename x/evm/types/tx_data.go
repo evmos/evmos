@@ -39,7 +39,7 @@ type TxData interface {
 	AsEthereumData() ethtypes.TxData
 	Validate() error
 
-	// static fee
+	// Fee returns the maximum fee a sender of a message is willing to pay.
 	Fee() *big.Int
 	// Cost returns the total cost of a transaction before executing any smart
 	// contract call. This means it should return the fee the user has to pay
@@ -47,7 +47,10 @@ type TxData interface {
 	Cost() *big.Int
 
 	// effective gasPrice/fee/cost according to current base fee
+	// EffectiveGasPrice returns the price for the gas used in a transaction
+	// based on the transaction type.
 	EffectiveGasPrice(baseFee *big.Int) *big.Int
+	// EffectiveFee returns the fees a user is willing to pay for a transaction.
 	EffectiveFee(baseFee *big.Int) *big.Int
 	EffectiveCost(baseFee *big.Int) *big.Int
 }

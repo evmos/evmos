@@ -82,7 +82,7 @@ func UnpackTxData(any *codectypes.Any) (TxData, error) {
 
 	txData, ok := any.GetCachedValue().(TxData)
 	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnpackAny, "cannot unpack Any into TxData %T", any)
+		return nil, errorsmod.Wrapf(errortypes.ErrUnpackAny, "cannot unpack Any into TxData")
 	}
 
 	return txData, nil

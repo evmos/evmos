@@ -8,12 +8,16 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+
 	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
 	"github.com/evmos/evmos/v20/x/evm/config"
 	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
@@ -37,11 +41,9 @@ type MonoDecorator struct {
 
 type DecoratorUtils struct {
 	EvmParams          evmtypes.Params
-	EthConfig          *params.ChainConfig
 	Rules              params.Rules
 	Signer             ethtypes.Signer
 	BaseFee            *big.Int
-	EvmDenom           string
 	MempoolMinGasPrice sdkmath.LegacyDec
 	GlobalMinGasPrice  sdkmath.LegacyDec
 	BlockTxIndex       uint64
@@ -83,13 +85,11 @@ func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek EVMKeeper,
 ) (*DecoratorUtils, error) {
-	ethCfg := config.GetChainConfig()
-	baseDenom := config.GetEVMCoinDenom()
-
 	evmParams := ek.GetParams(ctx)
 	baseFee := ek.GetBaseFee(ctx)
 
 	blockHeight := big.NewInt(ctx.BlockHeight())
+	ethCfg := config.GetChainConfig()
 	rules := ethCfg.Rules(blockHeight, true)
 
 	if rules.IsLondon && baseFee == nil {
@@ -105,17 +105,16 @@ func NewMonoDecoratorUtils(
 
 	// Mempool gas price should be scaled to the 18 decimals representation. If
 	// it is already a 18 decimal token, this is a no-op.
+	baseDenom := config.GetEVMCoinDenom()
 	mempoolMinGasPrice := wrappers.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(baseDenom))
 
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
-		EthConfig:          ethCfg,
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
 		MempoolMinGasPrice: mempoolMinGasPrice,
 		GlobalMinGasPrice:  globalMinGasPrice,
-		EvmDenom:           baseDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		GasWanted:          0,
 		MinPriority:        int64(math.MaxInt64),
@@ -128,7 +127,13 @@ func NewMonoDecoratorUtils(
 
 // AnteHandle handles the entire decorator chain for EVM transactions using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	// accountExpenses is used to keeper track of the expenses associated with
+	// the sender of the tx. This struct is required to properly manage vesting
+	// accounts.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
+
+	ethCfg := config.GetChainConfig()
+	baseDenom := config.GetEVMCoinDenom()
 
 	var txFeeInfo *txtypes.Fee
 	if !ctx.IsReCheckTx() {
@@ -141,8 +146,14 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 	}
 
+	// All transactions must implement GasTx.
+	_, ok := tx.(authante.GasTx)
+	if !ok {
+		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected GasTx", tx)
+	}
+
 	// 1. setup ctx
-	ctx, err = SetupContext(ctx, tx, md.evmKeeper)
+	ctx, err = SetupContextAndResetTransientGas(ctx, tx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
@@ -158,8 +169,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
 	}
 
+	// NOTE: the protocol does not support multiple EVM messages currently so
+	// this loop will complete after the first message.
 	for i, msg := range msgs {
-		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
+		ethMsg, txData, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
 		}
@@ -169,6 +182,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
+		// TODO: computation for mempool and global fee can be made using only
+		// the price instead of the fee. This would save some computation.
+		//
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
@@ -176,27 +192,27 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			}
 		}
 
-		// 3. min gas price (global min fee)
 		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
-			// If the base fee is not empty, we compute the effective gas
-			// price. The gas limit is specified by the used, while the price is
-			// given by the minimum between the max price paid for the entire tx, and
-			// the sum between the price for the tip and the base fee.
+			// If the base fee is not empty, we compute the effective gas price
+			// according to current base fee price. The gas limit is specified
+			// by the user, while the price is given by the minimum between the
+			// max price paid for the entire tx, and the sum between the price
+			// for the tip and the base fee.
 			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
 
+		// 3. min gas price (global min fee)
 		if err := CheckGlobalFee(fee, decUtils.GlobalMinGasPrice, gasLimit); err != nil {
 			return ctx, err
 		}
 
 		// 4. validate msg contents
-		err = ValidateMsg(
+		if err := ValidateMsg(
 			decUtils.EvmParams,
 			txData,
-			from,
-		)
-		if err != nil {
+			ethMsg.GetFrom(),
+		); err != nil {
 			return ctx, err
 		}
 
@@ -209,19 +225,17 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		// NOTE: sender address has been verified and cached
-		from = ethMsg.GetFrom()
+		from := ethMsg.GetFrom()
+		fromAddr := common.BytesToAddress(from)
 
 		// 6. account balance verification
-		fromAddr := common.HexToAddress(ethMsg.From)
 		// We get the account with the balance from the EVM keeper because it is
 		// using a wrapper of the bank keeper as a dependency to scale all
 		// balances to 18 decimals.
-		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(
 			ctx,
 			md.accountKeeper,
-			account,
+			md.evmKeeper,
 			fromAddr,
 			txData,
 		); err != nil {
@@ -242,7 +256,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			md.evmKeeper,
 			coreMsg,
 			decUtils.BaseFee,
-			decUtils.EthConfig,
+			ethCfg,
 			decUtils.EvmParams,
 			decUtils.Rules.IsLondon,
 		); err != nil {
@@ -250,10 +264,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 8. vesting
-		value := txData.GetValue()
 		acc := md.accountKeeper.GetAccount(ctx, from)
+		// safety check: shouldn't happen since if account is nil it is set in
+		// account balance verification step.
+		// the
 		if acc == nil {
-			// safety check: shouldn't happen
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
 				"account %s does not exist", acc)
 		}
@@ -263,7 +278,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			md.evmKeeper,
 			acc,
 			accountExpenses,
-			value,
+			txData.GetValue(),
 		); err != nil {
 			return ctx, err
 		}
@@ -271,7 +286,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// 9. gas consumption
 		msgFees, err := evmkeeper.VerifyFee(
 			txData,
-			decUtils.EvmDenom,
+			baseDenom,
 			decUtils.BaseFee,
 			decUtils.Rules.IsHomestead,
 			decUtils.Rules.IsIstanbul,
@@ -298,7 +313,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		gasWanted := UpdateCumulativeGasWanted(
 			ctx,
-			txData.GetGas(),
+			gas,
 			md.maxGasWanted,
 			decUtils.GasWanted,
 		)
@@ -314,7 +329,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		txFee := UpdateCumulativeTxFee(
 			decUtils.TxFee,
 			txData.Fee(),
-			decUtils.EvmDenom,
+			baseDenom,
 		)
 		// Update the fee to be paid for the tx adding the fee specified for the
 		// current message.
