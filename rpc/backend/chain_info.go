@@ -52,6 +52,9 @@ func (b *Backend) GlobalMinGasPrice() (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, fmt.Errorf("GlobalMinGasPrice query returned a nil response")
+	}
 	return res.MinGasPrice.BigInt(), nil
 }
 
