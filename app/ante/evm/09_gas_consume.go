@@ -6,7 +6,6 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -132,18 +131,4 @@ func CheckBlockGasLimit(ctx sdktypes.Context, gasWanted uint64, minPriority int6
 		WithPriority(minPriority)
 
 	return ctx, nil
-}
-
-// UpdateCumulativeTxFee updates the cumulative transaction fee
-func UpdateCumulativeTxFee(
-	cumulativeTxFee sdktypes.Coins,
-	msgFee *big.Int,
-	denom string,
-) sdktypes.Coins {
-	return cumulativeTxFee.Add(
-		sdktypes.Coin{
-			Denom:  denom,
-			Amount: sdkmath.NewIntFromBigInt(msgFee),
-		},
-	)
 }

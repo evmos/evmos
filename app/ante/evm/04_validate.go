@@ -4,11 +4,14 @@ package evm
 
 import (
 	"errors"
+	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
+
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -102,14 +105,15 @@ func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 // are equal to the txFee coins and the txGasLimit value.
 // The function expects txFeeInfo to contains coins in the original decimal
 // representation.
-func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) error {
+func CheckTxFee(txFeeInfo *tx.Fee, txFee *big.Int, txGasLimit uint64) error {
 	if txFeeInfo == nil {
 		return nil
 	}
 
-	convertedAmount := evmtypes.ConvertCoinsFrom18Decimals(txFee)
+	convertedAmount := sdkmath.NewIntFromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(txFee))
 
-	if !txFeeInfo.Amount.Equal(convertedAmount) {
+	baseDenom := evmtypes.GetEVMCoinDenom()
+	if !txFeeInfo.Amount.AmountOf(baseDenom).Equal(convertedAmount) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", txFeeInfo.Amount, convertedAmount)
 	}
 

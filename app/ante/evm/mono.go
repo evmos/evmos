@@ -47,7 +47,7 @@ type DecoratorUtils struct {
 	TxGasLimit         uint64
 	GasWanted          uint64
 	MinPriority        int64
-	TxFee              sdk.Coins
+	TxFee              *big.Int
 }
 
 // NewMonoDecorator creates a new MonoDecorator
@@ -116,7 +116,7 @@ func NewMonoDecoratorUtils(
 		// TxGasLimit and TxFee are set to zero because they are updated
 		// summing up the values of all messages contained in a tx.
 		TxGasLimit: 0,
-		TxFee:      sdk.Coins{},
+		TxFee:      new(big.Int),
 	}, nil
 }
 
@@ -316,14 +316,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		)
 		decUtils.MinPriority = minPriority
 
-		txFee := UpdateCumulativeTxFee(
-			decUtils.TxFee,
-			txData.Fee(),
-			baseDenom,
-		)
 		// Update the fee to be paid for the tx adding the fee specified for the
 		// current message.
-		decUtils.TxFee = txFee
+		decUtils.TxFee = new(big.Int).Add(decUtils.TxFee, txData.Fee())
 		// Update the transaction gas limit adding the gas specified in the
 		// current message.
 		decUtils.TxGasLimit += gas
