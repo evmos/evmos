@@ -59,7 +59,6 @@ func TestConvertEvmCoinTo18Decimals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-
 			configurator := evmtypes.NewEVMConfigurator()
 			configurator.ResetTestChainConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure())
