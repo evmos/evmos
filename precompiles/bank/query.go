@@ -40,7 +40,7 @@ func (p Precompile) Balances(
 	i := 0
 	balances := make([]Balance, 0)
 
-	p.bankKeeper.IterateAccountBalances(ctx, account, func(coin sdk.Coin) bool {
+	p.bankWrapper.IterateAccountBalances(ctx, account, func(coin sdk.Coin) bool {
 		defer func() { i++ }()
 
 		// NOTE: we already charged for a single balanceOf request so we don't
@@ -77,7 +77,7 @@ func (p Precompile) TotalSupply(
 	i := 0
 	totalSupply := make([]Balance, 0)
 
-	p.bankKeeper.IterateTotalSupply(ctx, func(coin sdk.Coin) bool {
+	p.bankWrapper.IterateTotalSupply(ctx, func(coin sdk.Coin) bool {
 		defer func() { i++ }()
 
 		// NOTE: we already charged for a single totalSupply request so we don't
@@ -120,7 +120,7 @@ func (p Precompile) SupplyOf(
 		return method.Outputs.Pack(big.NewInt(0))
 	}
 
-	supply := p.bankKeeper.GetSupply(ctx, tokenPair.Denom)
+	supply := p.bankWrapper.GetSupply(ctx, tokenPair.Denom)
 
 	return method.Outputs.Pack(supply.Amount.BigInt())
 }

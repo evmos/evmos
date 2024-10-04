@@ -14,6 +14,7 @@ import (
 	erc20keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 )
 
 const (
@@ -37,7 +38,7 @@ var f embed.FS
 // Precompile defines the bank precompile
 type Precompile struct {
 	cmn.Precompile
-	bankKeeper  bankkeeper.Keeper
+	bankWrapper evmtypes.BankWrapper
 	erc20Keeper erc20keeper.Keeper
 }
 
@@ -60,7 +61,7 @@ func NewPrecompile(
 			KvGasConfig:          storetypes.GasConfig{},
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
-		bankKeeper:  bankKeeper,
+		bankWrapper: wrappers.NewBankWrapper(bankKeeper),
 		erc20Keeper: erc20Keeper,
 	}
 

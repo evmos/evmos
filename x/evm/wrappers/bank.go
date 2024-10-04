@@ -7,10 +7,13 @@ import (
 	"context"
 	"math/big"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -101,4 +104,52 @@ func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderMod
 	convertedCoins := types.ConvertCoinsFrom18Decimals(coins)
 
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, convertedCoins)
+}
+
+// IterateTotalSupply iterates over the total supply calling the given cb (callback) function
+// with the balance of each coin.
+// The iteration stops if the callback returns true.
+// In case of the EVM coin, scales the value to 18 decimals if corresponds
+func (k BankWrapper) IterateTotalSupply(ctx context.Context, cb func(sdk.Coin) bool) {
+	err := k.BankKeeper.(bankkeeper.BaseKeeper).Supply.Walk(ctx, nil, func(s string, m math.Int) (bool, error) {
+		coin := sdk.NewCoin(s, m)
+		if coin.Denom == types.GetEVMCoinDenom() {
+			coin = types.MustConvertEvmCoinTo18Decimals(coin)
+		}
+		return cb(coin), nil
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+// IterateAccountBalances iterates over the balances of a single account and
+// provides the token balance to a callback. If true is returned from the
+// callback, iteration is halted.
+// In case of the EVM coin, scales the value to 18 decimals if corresponds
+func (k BankWrapper) IterateAccountBalances(ctx context.Context, addr sdk.AccAddress, cb func(sdk.Coin) bool) {
+	err := k.BankKeeper.(bankkeeper.BaseKeeper).Balances.Walk(ctx, collections.NewPrefixedPairRange[sdk.AccAddress, string](addr), func(key collections.Pair[sdk.AccAddress, string], value math.Int) (stop bool, err error) {
+		coin := sdk.NewCoin(key.K2(), value)
+		if coin.Denom == types.GetEVMCoinDenom() {
+			coin = types.MustConvertEvmCoinTo18Decimals(coin)
+		}
+		return cb(coin), nil
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+// GetSupply retrieves the Supply from store
+// In case of the EVM coin, scales the value to 18 decimals if corresponds
+func (k BankWrapper) GetSupply(ctx context.Context, denom string) sdk.Coin {
+	amt, err := k.BankKeeper.(bankkeeper.BaseKeeper).Supply.Get(ctx, denom)
+	if err != nil {
+		return sdk.NewCoin(denom, math.ZeroInt())
+	}
+	coin := sdk.NewCoin(denom, amt)
+	if coin.Denom == types.GetEVMCoinDenom() {
+		coin = types.MustConvertEvmCoinTo18Decimals(coin)
+	}
+	return coin
 }
