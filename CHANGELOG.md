@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
+
 ## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-27
 
 ### State Machine Breaking
@@ -43,12 +49,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (gov) [#2863](https://github.com/evmos/evmos/pull/2863) Fix denom, amount and period in expedited proposal params.
 - (bank) [#2874](https://github.com/evmos/evmos/pull/2874) Fix corrupted denom metadata on testnet.
 - (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
-<<<<<<< HEAD
-=======
-- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
-- (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
-- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
->>>>>>> 82e0ff4b (fix(erc20): validation considering EIP-55 (#2696) (#2913))
 
 ### Improvements
 
