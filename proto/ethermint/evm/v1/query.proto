@@ -81,7 +81,7 @@ service Query {
   // GlobalMinGasPrice queries the MinGasPrice
   // it's similar to feemarket module's method,
   // but makes the conversion to 18 decimals
-  // when the evm denom is 6 decimals
+  // when the evm denom is represented with a different precision.
   rpc GlobalMinGasPrice(QueryGlobalMinGasPriceRequest) returns (QueryGlobalMinGasPriceResponse) {
     option (google.api.http).get = "/evmos/evm/v1/min_gas_price";
   }
