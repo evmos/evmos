@@ -7,6 +7,8 @@
 package app
 
 import (
+	"errors"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
@@ -34,13 +36,17 @@ func InitializeAppConfiguration(chainID string) error {
 	if err != nil {
 		return err
 	}
+	baseDenomUnit, found := sdk.GetDenomUnit(baseDenom)
+	if !found {
+		return errors.New("base denom unit not registered")
+	}
 
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
 	err = evmtypes.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).
+		WithEVMCoinInfo(baseDenom, baseDenomUnit.RoundInt64()).
 		Configure()
 	if err != nil {
 		return err
