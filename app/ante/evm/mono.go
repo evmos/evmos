@@ -318,7 +318,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// Update the fee to be paid for the tx adding the fee specified for the
 		// current message.
-		decUtils.TxFee = new(big.Int).Add(decUtils.TxFee, txData.Fee())
+		decUtils.TxFee.Add(decUtils.TxFee, txData.Fee())
+
 		// Update the transaction gas limit adding the gas specified in the
 		// current message.
 		decUtils.TxGasLimit += gas
