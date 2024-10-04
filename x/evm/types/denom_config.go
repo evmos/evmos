@@ -27,7 +27,20 @@ const (
 
 // Decimals is a wrapper around uint32 to represent the decimal representation
 // of a Cosmos coin.
-type Decimals uint32
+type Decimals uint64
+
+// Validate checks if the Decimals instance represent a supported decimals value
+// or not.
+func (d Decimals) Validate() error {
+	switch d {
+	case SixDecimals:
+		return nil
+	case EighteenDecimals:
+		return nil
+	default:
+		return fmt.Errorf("received unsupported decimals: %d", d)
+	}
+}
 
 // ConversionFactor returns the conversion factor between the Decimals value and
 // the 18 decimals representation, i.e. `EighteenDecimals`.
@@ -58,8 +71,8 @@ var evmCoinInfo *EvmCoinInfo
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
 func setEVMCoinDecimals(d Decimals) {
-	if d != SixDecimals && d != EighteenDecimals {
-		panic(fmt.Errorf("invalid decimal value %d; the evm supports only 6 and 18 decimals", d))
+	if err := d.Validate(); err != nil {
+		panic(err)
 	}
 
 	evmCoinInfo.Decimals = d
