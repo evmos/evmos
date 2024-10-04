@@ -86,13 +86,16 @@ func (p *Precompile) ClaimRewards(
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	// this happens when the precompile is called from a smart contract
-	if contract.CallerAddress != origin {
+	if contract.CallerAddress != origin && totalCoins.AmountOf(evmtypes.GetEVMCoinDenom()).IsPositive() {
 		// rewards go to the withdrawer address
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorAddr)
 		if err != nil {
 			return nil, err
 		}
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+		// need to scale the amount to 18 dec (if corresponds)
+		_, coin := totalCoins.Find(evmtypes.GetEVMCoinDenom())
+		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -165,13 +168,17 @@ func (p *Precompile) WithdrawDelegatorRewards(
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if contract.CallerAddress != origin {
+	if contract.CallerAddress != origin && res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).IsPositive() {
 		// rewards go to the withdrawer address
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorHexAddr)
 		if err != nil {
 			return nil, err
 		}
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+		// need to scale the amount to 18 dec (if corresponds)
+		_, coin := res.Amount.Find(evmtypes.GetEVMCoinDenom())
+		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
@@ -211,13 +218,17 @@ func (p *Precompile) WithdrawValidatorCommission(
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if contract.CallerAddress != origin {
+	if contract.CallerAddress != origin && res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).IsPositive() {
 		// commissions go to the withdrawer address
 		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, validatorHexAddr)
 		if err != nil {
 			return nil, err
 		}
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+		// need to scale the amount to 18 dec (if corresponds)
+		_, coin := res.Amount.Find(evmtypes.GetEVMCoinDenom())
+		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
@@ -257,8 +268,12 @@ func (p *Precompile) FundCommunityPool(
 	// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-	if contract.CallerAddress != origin {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Sub))
+	if contract.CallerAddress != origin && msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).IsPositive() {
+		// need to scale the amount to 18 dec (if corresponds)
+		_, coin := msg.Amount.Find(evmtypes.GetEVMCoinDenom())
+		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, coin.Amount.BigInt(), cmn.Sub))
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {

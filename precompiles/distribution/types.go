@@ -17,6 +17,7 @@ import (
 	"github.com/evmos/evmos/v20/cmd/config"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	evmostypes "github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
@@ -160,6 +161,11 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 		Depositor: sdk.AccAddress(depositorAddress.Bytes()).String(),
 		Amount:    sdk.Coins{sdk.Coin{Denom: evmostypes.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
 	}
+
+	// the provided amount is within the EVM, so in case it is
+	// the EVM denom, will be with 18 decimals. So we need to scale it
+	// to the 'real' precision when executing on the cosmos module
+	msg.Amount = evmtypes.ConvertCoinsFrom18Decimals(msg.Amount)
 
 	return msg, depositorAddress, nil
 }
