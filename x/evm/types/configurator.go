@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"slices"
 
-	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
@@ -102,9 +101,4 @@ func (ec *EVMConfigurator) Configure() error {
 
 func (ec *EVMConfigurator) ResetTestChainConfig() {
 	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
-}
-
-// GetChainConfig returns the `chainConfig` used in the EVM.
-func GetChainConfig() *geth.ChainConfig {
-	return chainConfig
 }

@@ -25,6 +25,11 @@ const testChainID string = "evmos_9002-1"
 // opcodes are active based on Ethereum upgrades.
 var chainConfig *geth.ChainConfig
 
+// GetChainConfig returns the `chainConfig` used in the EVM.
+func GetChainConfig() *geth.ChainConfig {
+	return chainConfig
+}
+
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
 func (cc ChainConfig) EthereumConfig(chainID *big.Int) *geth.ChainConfig {
