@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -49,7 +48,7 @@ type EVMBackend interface {
 	RPCGasCap() uint64            // global gas cap for eth_call over rpc: DoS protection
 	RPCEVMTimeout() time.Duration // global timeout for eth_call over rpc: DoS protection
 	RPCTxFeeCap() float64         // RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for send-transaction variants. The unit is ether.
-	RPCMinGasPrice() int64
+	RPCMinGasPrice() *big.Int
 
 	// Sign Tx
 	Sign(address common.Address, data hexutil.Bytes) (hexutil.Bytes, error)
@@ -84,7 +83,7 @@ type EVMBackend interface {
 	// Chain Info
 	ChainID() (*hexutil.Big, error)
 	ChainConfig() *params.ChainConfig
-	GlobalMinGasPrice() (math.LegacyDec, error)
+	GlobalMinGasPrice() (*big.Int, error)
 	BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error)
 	CurrentHeader() (*ethtypes.Header, error)
 	PendingTransactions() ([]*sdk.Tx, error)

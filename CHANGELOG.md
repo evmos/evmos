@@ -69,6 +69,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2897](https://github.com/evmos/evmos/pull/2897) Adjust extra decimals in `AddBalance` and `SubBalance` methods on `stateObject` in state DB.
 - (evm) [#2898](https://github.com/evmos/evmos/pull/2898) Refactor to use `ChainConfig` from `evm/types`.
 - (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
+- (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 

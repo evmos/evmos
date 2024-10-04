@@ -77,6 +77,14 @@ service Query {
   rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
     option (google.api.http).get = "/evmos/evm/v1/base_fee";
   }
+
+  // GlobalMinGasPrice queries the MinGasPrice
+  // it's similar to feemarket module's method,
+  // but makes the conversion to 18 decimals
+  // when the evm denom is represented with a different precision.
+  rpc GlobalMinGasPrice(QueryGlobalMinGasPriceRequest) returns (QueryGlobalMinGasPriceResponse) {
+    option (google.api.http).get = "/evmos/evm/v1/min_gas_price";
+  }
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
@@ -309,4 +317,13 @@ message QueryBaseFeeRequest {}
 message QueryBaseFeeResponse {
   // base_fee is the EIP1559 base fee
   string base_fee = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+}
+
+// QueryGlobalMinGasPriceRequest defines the request type for querying the GlobalMinGasPrice
+message QueryGlobalMinGasPriceRequest {}
+
+// QueryGlobalMinGasPriceResponse returns the GlobalMinGasPrice.
+message QueryGlobalMinGasPriceResponse {
+  // min_gas_price is the feemarket's min_gas_price
+  string min_gas_price = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
 }

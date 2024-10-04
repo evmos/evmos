@@ -23,21 +23,21 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice int64
+		expMinGasPrice *big.Int
 		expPass        bool
 	}{
 		{
 			"pass - default gas price",
 			func() {
 			},
-			types.DefaultGasPrice,
+			big.NewInt(types.DefaultGasPrice),
 			true,
 		},
 		{
 			"pass - min gas price is 0",
 			func() {
 			},
-			types.DefaultGasPrice,
+			big.NewInt(types.DefaultGasPrice),
 			true,
 		},
 	}

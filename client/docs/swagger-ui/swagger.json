@@ -78,7 +78,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/epochs/v1/epochs": {
@@ -227,7 +229,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/erc20/v1/params": {
@@ -302,7 +306,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/erc20/v1/token_pairs": {
@@ -442,7 +448,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/erc20/v1/token_pairs/{token}": {
@@ -532,7 +540,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/circulating_supply": {
@@ -596,7 +606,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/epoch_mint_provision": {
@@ -659,7 +671,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/inflation_rate": {
@@ -714,7 +728,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/params": {
@@ -823,7 +839,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/period": {
@@ -879,7 +897,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/inflation/v1/skipped_epochs": {
@@ -935,7 +955,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/vesting/v2/balances/{address}": {
@@ -1043,7 +1065,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/account/{address}": {
@@ -1119,7 +1143,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/balances/{address}": {
@@ -1186,7 +1212,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/base_fee": {
@@ -1244,7 +1272,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/codes/{address}": {
@@ -1312,7 +1342,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/cosmos_account/{address}": {
@@ -1389,7 +1421,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/estimate_gas": {
@@ -1491,7 +1525,9 @@
             "format": "int64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/eth_call": {
@@ -1650,7 +1686,69 @@
             "format": "int64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/evmos/evm/v1/min_gas_price": {
+      "get": {
+        "summary": "GlobalMinGasPrice queries the MinGasPrice\nit's similar to feemarket module's method,\nbut makes the conversion to 18 decimals\nwhen the evm denom is 6 decimals",
+        "operationId": "GlobalMinGasPrice",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "min_gas_price": {
+                  "type": "string",
+                  "title": "min_gas_price is the feemarket's min_gas_price"
+                }
+              },
+              "description": "QueryGlobalMinGasPriceResponse returns the GlobalMinGasPrice."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/params": {
@@ -1790,7 +1888,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/storage/{address}/{key}": {
@@ -1864,7 +1964,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/trace_block": {
@@ -2185,7 +2287,9 @@
             "format": "int64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/trace_tx": {
@@ -2543,7 +2647,9 @@
             "format": "int64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/evm/v1/validator_account/{cons_address}": {
@@ -2620,7 +2726,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/feemarket/v1/base_fee": {
@@ -2675,7 +2783,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/feemarket/v1/block_gas": {
@@ -2731,7 +2841,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/evmos/feemarket/v1/params": {
@@ -2820,7 +2932,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/channels/{channel_id}/ports/{port_id}/escrow_address": {
@@ -2891,7 +3005,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/denom_hashes/{trace}": {
@@ -2955,7 +3071,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/denom_traces": {
@@ -3080,7 +3198,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/denom_traces/{hash}": {
@@ -3154,7 +3274,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/denoms/{denom}/total_escrow": {
@@ -3225,7 +3347,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/apps/transfer/v1/params": {
@@ -3290,7 +3414,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/client_states": {
@@ -3431,7 +3557,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/client_states/{client_id}": {
@@ -3532,7 +3660,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/client_status/{client_id}": {
@@ -3598,7 +3728,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/consensus_states/{client_id}": {
@@ -3759,7 +3891,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/consensus_states/{client_id}/heights": {
@@ -3898,7 +4032,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/consensus_states/{client_id}/revision/{revision_number}/height/{revision_height}": {
@@ -4022,7 +4158,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/params": {
@@ -4089,7 +4227,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/upgraded_client_states": {
@@ -4159,7 +4299,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/upgraded_consensus_states": {
@@ -4229,7 +4371,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/client/v1/verify_membership": {
@@ -4354,7 +4498,9 @@
             }
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/client_connections/{client_id}": {
@@ -4446,7 +4592,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/connections": {
@@ -4654,7 +4802,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/connections/{connection_id}": {
@@ -4812,7 +4962,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/connections/{connection_id}/client_state": {
@@ -4924,7 +5076,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/connections/{connection_id}/consensus_state/revision/{revision_number}/height/{revision_height}": {
@@ -5043,7 +5197,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/connection/v1/params": {
@@ -5108,7 +5264,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels": {
@@ -5310,7 +5468,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}": {
@@ -5465,7 +5625,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/client_state": {
@@ -5584,7 +5746,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/consensus_state/revision/{revision_number}/height/{revision_height}": {
@@ -5712,7 +5876,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/next_sequence": {
@@ -5809,7 +5975,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/next_sequence_send": {
@@ -5906,7 +6074,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_acknowledgements": {
@@ -6087,7 +6257,9 @@
             "collectionFormat": "multi"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_acks/{sequence}": {
@@ -6192,7 +6364,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_commitments": {
@@ -6361,7 +6535,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_commitments/{packet_ack_sequences}/unreceived_acks": {
@@ -6469,7 +6645,9 @@
             "minItems": 1
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_commitments/{packet_commitment_sequences}/unreceived_packets": {
@@ -6577,7 +6755,9 @@
             "minItems": 1
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_commitments/{sequence}": {
@@ -6682,7 +6862,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/packet_receipts/{sequence}": {
@@ -6786,7 +6968,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/upgrade": {
@@ -6940,7 +7124,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/channels/{channel_id}/ports/{port_id}/upgrade_error": {
@@ -7045,7 +7231,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/connections/{connection}/channels": {
@@ -7254,7 +7442,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/ibc/core/channel/v1/params": {
@@ -7342,7 +7532,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/account_info/{address}": {
@@ -7438,7 +7630,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/accounts": {
@@ -7568,7 +7762,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/accounts/{address}": {
@@ -7646,7 +7842,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/address_by_id/{id}": {
@@ -7723,7 +7921,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/bech32": {
@@ -7781,7 +7981,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/bech32/{address_bytes}": {
@@ -7848,7 +8050,9 @@
             "format": "byte"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/bech32/{address_string}": {
@@ -7915,7 +8119,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/module_accounts": {
@@ -7988,7 +8194,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/module_accounts/{name}": {
@@ -8065,7 +8273,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/auth/v1beta1/params": {
@@ -8145,7 +8355,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/authz/v1beta1/grants": {
@@ -8304,7 +8516,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/authz/v1beta1/grants/grantee/{grantee}": {
@@ -8456,7 +8670,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/authz/v1beta1/grants/granter/{granter}": {
@@ -8608,7 +8824,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/balances/{address}": {
@@ -8746,7 +8964,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/balances/{address}/by_denom": {
@@ -8825,7 +9045,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/denom_owners/{denom}": {
@@ -8965,7 +9187,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/denom_owners_by_query": {
@@ -9105,7 +9329,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/denoms_metadata": {
@@ -9276,7 +9502,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/denoms_metadata/{denom}": {
@@ -9396,7 +9624,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/denoms_metadata_by_query_string": {
@@ -9516,7 +9746,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/params": {
@@ -9592,7 +9824,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/send_enabled": {
@@ -9726,7 +9960,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/spendable_balances/{address}": {
@@ -9857,7 +10093,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/spendable_balances/{address}/by_denom": {
@@ -9937,7 +10175,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/supply": {
@@ -10061,7 +10301,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/bank/v1beta1/supply/by_denom": {
@@ -10134,7 +10376,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/community_pool": {
@@ -10201,7 +10445,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/delegators/{delegator_address}/rewards": {
@@ -10305,7 +10551,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/delegators/{delegator_address}/rewards/{validator_address}": {
@@ -10388,7 +10636,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/delegators/{delegator_address}/validators": {
@@ -10455,7 +10705,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/delegators/{delegator_address}/withdraw_address": {
@@ -10519,7 +10771,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/params": {
@@ -10590,7 +10844,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/validators/{validator_address}": {
@@ -10686,7 +10942,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/validators/{validator_address}/commission": {
@@ -10767,7 +11025,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/validators/{validator_address}/outstanding_rewards": {
@@ -10848,7 +11108,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/distribution/v1beta1/validators/{validator_address}/slashes": {
@@ -10995,7 +11257,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/feegrant/v1beta1/allowance/{granter}/{grantee}": {
@@ -11095,7 +11359,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/feegrant/v1beta1/allowances/{grantee}": {
@@ -11244,7 +11510,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/feegrant/v1beta1/issued/{granter}": {
@@ -11394,7 +11662,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/evidence/v1beta1/evidence": {
@@ -11523,7 +11793,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/evidence/v1beta1/evidence/{hash}": {
@@ -11609,7 +11881,9 @@
             "format": "byte"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/params/{params_type}": {
@@ -11729,7 +12003,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals": {
@@ -11970,7 +12246,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}": {
@@ -12131,7 +12409,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}/deposits": {
@@ -12284,7 +12564,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}/deposits/{depositor}": {
@@ -12386,7 +12668,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}/tally": {
@@ -12472,7 +12756,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}/votes": {
@@ -12647,7 +12933,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1beta1/proposals/{proposal_id}/votes/{voter}": {
@@ -12771,7 +13059,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/constitution": {
@@ -12828,7 +13118,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/params/{params_type}": {
@@ -13039,7 +13331,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals": {
@@ -13313,7 +13607,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}": {
@@ -13507,7 +13803,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}/deposits": {
@@ -13660,7 +13958,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}/deposits/{depositor}": {
@@ -13762,7 +14062,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}/tally": {
@@ -13848,7 +14150,9 @@
             "format": "uint64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}/votes": {
@@ -14015,7 +14319,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/gov/v1/proposals/{proposal_id}/votes/{voter}": {
@@ -14131,7 +14437,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/slashing/v1beta1/params": {
@@ -14207,7 +14515,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/slashing/v1beta1/signing_infos": {
@@ -14351,7 +14661,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/slashing/v1beta1/signing_infos/{cons_address}": {
@@ -14445,7 +14757,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/delegations/{delegator_addr}": {
@@ -14603,7 +14917,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/delegators/{delegator_addr}/redelegations": {
@@ -14846,7 +15162,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/delegators/{delegator_addr}/unbonding_delegations": {
@@ -15019,7 +15337,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators": {
@@ -15271,7 +15591,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators/{validator_addr}": {
@@ -15471,7 +15793,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/historical_info/{height}": {
@@ -15769,7 +16093,9 @@
             "format": "int64"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/params": {
@@ -15856,7 +16182,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/pool": {
@@ -15922,7 +16250,9 @@
             }
           }
         },
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators": {
@@ -16174,7 +16504,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}": {
@@ -16367,7 +16699,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations": {
@@ -16524,7 +16858,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/{delegator_addr}": {
@@ -16630,7 +16966,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/{delegator_addr}/unbonding_delegation": {
@@ -16752,7 +17090,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/staking/v1beta1/validators/{validator_addr}/unbonding_delegations": {
@@ -16925,7 +17265,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Query"]
+        "tags": [
+          "Query"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/decode": {
@@ -16995,7 +17337,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/decode/amino": {
@@ -17070,7 +17414,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/encode": {
@@ -17140,7 +17486,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/encode/amino": {
@@ -17215,7 +17563,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/simulate": {
@@ -17360,7 +17710,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/txs": {
@@ -17467,7 +17819,11 @@
             "in": "query",
             "required": false,
             "type": "string",
-            "enum": ["ORDER_BY_UNSPECIFIED", "ORDER_BY_ASC", "ORDER_BY_DESC"],
+            "enum": [
+              "ORDER_BY_UNSPECIFIED",
+              "ORDER_BY_ASC",
+              "ORDER_BY_DESC"
+            ],
             "default": "ORDER_BY_UNSPECIFIED"
           },
           {
@@ -17494,7 +17850,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       },
       "post": {
         "summary": "BroadcastTx broadcast transaction.",
@@ -17716,7 +18074,9 @@
             }
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/txs/block/{height}": {
@@ -17816,7 +18176,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/tx/v1beta1/txs/{hash}": {
@@ -17876,7 +18238,9 @@
             "type": "string"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/abci_query": {
@@ -18014,7 +18378,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/blocks/latest": {
@@ -19431,7 +19797,9 @@
             }
           }
         },
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/blocks/{height}": {
@@ -20857,7 +21225,9 @@
             "format": "int64"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/node_info": {
@@ -21012,7 +21382,9 @@
             }
           }
         },
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/syncing": {
@@ -21069,7 +21441,9 @@
             }
           }
         },
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/validatorsets/latest": {
@@ -21218,7 +21592,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/cosmos/base/tendermint/v1beta1/validatorsets/{height}": {
@@ -21374,7 +21750,9 @@
             "type": "boolean"
           }
         ],
-        "tags": ["Service"]
+        "tags": [
+          "Service"
+        ]
       }
     }
   },
@@ -21588,7 +21966,11 @@
     },
     "evmos.erc20.v1.Owner": {
       "type": "string",
-      "enum": ["OWNER_UNSPECIFIED", "OWNER_MODULE", "OWNER_EXTERNAL"],
+      "enum": [
+        "OWNER_UNSPECIFIED",
+        "OWNER_MODULE",
+        "OWNER_EXTERNAL"
+      ],
       "default": "OWNER_UNSPECIFIED",
       "description": "Owner enumerates the ownership of a ERC20 contract.\n\n - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.\n - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.\n - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account."
     },
@@ -21667,7 +22049,11 @@
             "contract_owner": {
               "title": "contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)",
               "type": "string",
-              "enum": ["OWNER_UNSPECIFIED", "OWNER_MODULE", "OWNER_EXTERNAL"],
+              "enum": [
+                "OWNER_UNSPECIFIED",
+                "OWNER_MODULE",
+                "OWNER_EXTERNAL"
+              ],
               "default": "OWNER_UNSPECIFIED",
               "description": "Owner enumerates the ownership of a ERC20 contract.\n\n - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.\n - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.\n - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account."
             }
@@ -21701,7 +22087,11 @@
               "contract_owner": {
                 "title": "contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)",
                 "type": "string",
-                "enum": ["OWNER_UNSPECIFIED", "OWNER_MODULE", "OWNER_EXTERNAL"],
+                "enum": [
+                  "OWNER_UNSPECIFIED",
+                  "OWNER_MODULE",
+                  "OWNER_EXTERNAL"
+                ],
                 "default": "OWNER_UNSPECIFIED",
                 "description": "Owner enumerates the ownership of a ERC20 contract.\n\n - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.\n - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.\n - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account."
               }
@@ -21747,7 +22137,11 @@
         "contract_owner": {
           "title": "contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)",
           "type": "string",
-          "enum": ["OWNER_UNSPECIFIED", "OWNER_MODULE", "OWNER_EXTERNAL"],
+          "enum": [
+            "OWNER_UNSPECIFIED",
+            "OWNER_MODULE",
+            "OWNER_EXTERNAL"
+          ],
           "default": "OWNER_UNSPECIFIED",
           "description": "Owner enumerates the ownership of a ERC20 contract.\n\n - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.\n - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.\n - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account."
         }
@@ -22578,6 +22972,16 @@
         }
       },
       "description": "QueryCosmosAccountResponse is the response type for the Query/CosmosAccount\nRPC method."
+    },
+    "ethermint.evm.v1.QueryGlobalMinGasPriceResponse": {
+      "type": "object",
+      "properties": {
+        "min_gas_price": {
+          "type": "string",
+          "title": "min_gas_price is the feemarket's min_gas_price"
+        }
+      },
+      "description": "QueryGlobalMinGasPriceResponse returns the GlobalMinGasPrice."
     },
     "ethermint.evm.v1.QueryParamsResponse": {
       "type": "object",
@@ -24368,7 +24772,11 @@
     },
     "ibc.core.channel.v1.Order": {
       "type": "string",
-      "enum": ["ORDER_NONE_UNSPECIFIED", "ORDER_UNORDERED", "ORDER_ORDERED"],
+      "enum": [
+        "ORDER_NONE_UNSPECIFIED",
+        "ORDER_UNORDERED",
+        "ORDER_ORDERED"
+      ],
       "default": "ORDER_NONE_UNSPECIFIED",
       "description": "- ORDER_NONE_UNSPECIFIED: zero-value for channel ordering\n - ORDER_UNORDERED: packets can be delivered in any order, which may differ from the order in\nwhich they were sent.\n - ORDER_ORDERED: packets are delivered exactly in the order which they were sent",
       "title": "Order defines if a channel is ORDERED or UNORDERED"
@@ -33643,7 +34051,11 @@
     },
     "cosmos.tx.v1beta1.OrderBy": {
       "type": "string",
-      "enum": ["ORDER_BY_UNSPECIFIED", "ORDER_BY_ASC", "ORDER_BY_DESC"],
+      "enum": [
+        "ORDER_BY_UNSPECIFIED",
+        "ORDER_BY_ASC",
+        "ORDER_BY_DESC"
+      ],
       "default": "ORDER_BY_UNSPECIFIED",
       "description": "- ORDER_BY_UNSPECIFIED: ORDER_BY_UNSPECIFIED specifies an unknown sorting order. OrderBy defaults\nto ASC in this case.\n - ORDER_BY_ASC: ORDER_BY_ASC defines ascending order\n - ORDER_BY_DESC: ORDER_BY_DESC defines descending order",
       "title": "OrderBy defines the sorting order"

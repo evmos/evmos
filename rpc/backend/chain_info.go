@@ -47,12 +47,15 @@ func (b *Backend) ChainConfig() *params.ChainConfig {
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket
-func (b *Backend) GlobalMinGasPrice() (math.LegacyDec, error) {
-	res, err := b.queryClient.FeeMarket.Params(b.ctx, &feemarkettypes.QueryParamsRequest{})
+func (b *Backend) GlobalMinGasPrice() (*big.Int, error) {
+	res, err := b.queryClient.GlobalMinGasPrice(b.ctx, &evmtypes.QueryGlobalMinGasPriceRequest{})
 	if err != nil {
-		return math.LegacyZeroDec(), err
+		return nil, err
 	}
-	return res.Params.MinGasPrice, nil
+	if res == nil {
+		return nil, fmt.Errorf("GlobalMinGasPrice query returned a nil response")
+	}
+	return res.MinGasPrice.BigInt(), nil
 }
 
 // BaseFee returns the base fee tracked by the Fee Market module.
