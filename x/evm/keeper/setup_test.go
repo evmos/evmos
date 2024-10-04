@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	configurator.ResetTestChainConfig()
 	err := configurator.
 		WithChainConfig(chainConfig).
-		WithEVMCoinInfo(denom, decimals).
+		WithEVMCoinInfo(denom, int64(decimals)).
 		Configure()
 	suite.Require().NoError(err)
 }

@@ -10,6 +10,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -70,20 +71,22 @@ var evmCoinInfo *EvmCoinInfo
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
-func setEVMCoinDecimals(d Decimals) {
+func setEVMCoinDecimals(d Decimals) error {
 	if err := d.Validate(); err != nil {
-		panic(err)
+		return err
 	}
 
 	evmCoinInfo.Decimals = d
+	return nil
 }
 
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
-func setEVMCoinDenom(denom string) {
+func setEVMCoinDenom(denom string) error {
 	if err := sdk.ValidateDenom(denom); err != nil {
-		panic(err)
+		return err
 	}
 	evmCoinInfo.Denom = denom
+	return nil
 }
 
 // GetEVMCoinDecimals returns the decimals used in the representation of the EVM
@@ -98,11 +101,18 @@ func GetEVMCoinDenom() string {
 }
 
 // setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
-func setEVMCoinInfo(evmdenom EvmCoinInfo) {
+func setEVMCoinInfo(eci EvmCoinInfo) error {
 	if evmCoinInfo != nil {
-		panic("EVM coin info already set")
+		return errors.New("EVM coin info already set")
 	}
+
 	evmCoinInfo = new(EvmCoinInfo)
-	setEVMCoinDenom(evmdenom.Denom)
-	setEVMCoinDecimals(evmdenom.Decimals)
+
+	if err := setEVMCoinDenom(eci.Denom); err != nil {
+		return err
+	}
+	if err := setEVMCoinDecimals(eci.Decimals); err != nil {
+		return err
+	}
+	return nil
 }

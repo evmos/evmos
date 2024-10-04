@@ -73,8 +73,8 @@ func (ec *EVMConfigurator) Configure() error {
 		return err
 	}
 
-	if ec.evmCoinInfo.Denom != "" && ec.evmCoinInfo.Decimals != 0 {
-		setEVMCoinInfo(ec.evmCoinInfo)
+	if err := setEVMCoinInfo(ec.evmCoinInfo); err != nil {
+		return err
 	}
 
 	if err := extendDefaultExtraEIPs(ec.extendedDefaultExtraEIPs); err != nil {
@@ -85,7 +85,7 @@ func (ec *EVMConfigurator) Configure() error {
 		return err
 	}
 
-	// After applying modifier the configurator is sealed. This way, it is not possible
+	// After applying modifiers the configurator is sealed. This way, it is not possible
 	// to call the configure method twice.
 	ec.sealed = true
 
