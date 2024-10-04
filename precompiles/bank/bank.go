@@ -38,7 +38,7 @@ var f embed.FS
 // Precompile defines the bank precompile
 type Precompile struct {
 	cmn.Precompile
-	bankWrapper evmtypes.BankWrapper
+	bankWrapper *wrappers.BankWrapper
 	erc20Keeper erc20keeper.Keeper
 }
 
@@ -61,7 +61,7 @@ func NewPrecompile(
 			KvGasConfig:          storetypes.GasConfig{},
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
-		bankWrapper: wrappers.NewBankWrapper(bankKeeper),
+		bankWrapper: wrappers.NewBankWrapper(bankKeeper.(bankkeeper.BaseKeeper)),
 		erc20Keeper: erc20Keeper,
 	}
 

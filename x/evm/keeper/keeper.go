@@ -12,6 +12,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -46,7 +47,7 @@ type Keeper struct {
 
 	// bankWrapper is used to convert the Cosmos SDK coin used in the EVM to the
 	// proper decimal representation.
-	bankWrapper types.BankWrapper
+	bankWrapper *wrappers.BankWrapper
 
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
@@ -90,7 +91,7 @@ func NewKeeper(
 		panic(err)
 	}
 
-	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
+	bankWrapper := wrappers.NewBankWrapper(bankKeeper.(bankkeeper.BaseKeeper))
 	feeMarketWrapper := wrappers.NewFeeMarketWrapper(fmk)
 
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations

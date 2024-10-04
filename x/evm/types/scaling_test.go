@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
+func TestConvertEvmCoinTo18Decimals(t *testing.T) {
 	baseCoinZero := sdk.Coin{Denom: types.BaseDenom, Amount: math.NewInt(0)}
 
 	testCases := []struct {
@@ -24,67 +24,49 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 		evmCoinInfo evmtypes.EvmCoinInfo
 		coin        sdk.Coin
 		expCoin     sdk.Coin
-		expPanic    bool
 	}{
 		{
 			name:        "pass - zero amount 18 decimals",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.EighteenDecimals},
 			coin:        baseCoinZero,
-			expPanic:    false,
 			expCoin:     baseCoinZero,
 		},
 		{
 			name:        "pass - zero amount 6 decimals",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
 			coin:        baseCoinZero,
-			expPanic:    false,
 			expCoin:     baseCoinZero,
 		},
 		{
 			name:        "pass - no conversion with 18 decimals",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.EighteenDecimals},
 			coin:        sdk.Coin{Denom: types.BaseDenom, Amount: math.NewInt(10)},
-			expPanic:    false,
 			expCoin:     sdk.Coin{Denom: types.BaseDenom, Amount: math.NewInt(10)},
 		},
 		{
 			name:        "pass - conversion with 6 decimals",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
 			coin:        sdk.Coin{Denom: types.BaseDenom, Amount: math.NewInt(1)},
-			expPanic:    false,
 			expCoin:     sdk.Coin{Denom: types.BaseDenom, Amount: math.NewInt(1e12)},
 		},
 		{
-			name:        "panic - not evm denom",
+			name:        "pass - not evm denom - no-op",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
 			coin:        sdk.Coin{Denom: "evmos", Amount: math.NewInt(1)},
-			expPanic:    true,
+			expCoin:     sdk.Coin{Denom: "evmos", Amount: math.NewInt(1)},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			defer func() {
-				if r := recover(); r != nil {
-					if tc.expPanic {
-						require.NotNil(t, r, "expected test to panic")
-					} else {
-						t.Errorf("unexpected panic: %v", r)
-					}
-				} else if tc.expPanic {
-					t.Errorf("expected panic but did not occur")
-				}
-			}()
 
 			configurator := evmtypes.NewEVMConfigurator()
 			configurator.ResetTestChainConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, tc.evmCoinInfo.Decimals).Configure())
 
-			coinConverted := evmtypes.MustConvertEvmCoinTo18Decimals(tc.coin)
+			coinConverted := evmtypes.ConvertEvmCoinTo18Decimals(tc.coin)
 
-			if !tc.expPanic {
-				require.Equal(t, tc.expCoin, coinConverted, "expected a different coin")
-			}
+			require.Equal(t, tc.expCoin, coinConverted, "expected a different coin")
 		})
 	}
 }

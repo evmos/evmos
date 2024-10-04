@@ -51,7 +51,7 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.bankWrapper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
 	}
@@ -75,7 +75,7 @@ func (p Precompile) Symbol(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.bankWrapper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Symbol)
 	}
@@ -99,7 +99,7 @@ func (p Precompile) Decimals(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.bankWrapper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
 		denomTrace, err := ibc.GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 		if err != nil {
@@ -152,7 +152,7 @@ func (p Precompile) TotalSupply(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	supply := p.bankKeeper.GetSupply(ctx, p.tokenPair.Denom)
+	supply := p.bankWrapper.GetSupply(ctx, p.tokenPair.Denom)
 
 	return method.Outputs.Pack(supply.Amount.BigInt())
 }
@@ -171,7 +171,7 @@ func (p Precompile) BalanceOf(
 		return nil, err
 	}
 
-	balance := p.bankKeeper.GetBalance(ctx, account.Bytes(), p.tokenPair.Denom)
+	balance := p.bankWrapper.GetBalance(ctx, account.Bytes(), p.tokenPair.Denom)
 
 	return method.Outputs.Pack(balance.Amount.BigInt())
 }
@@ -225,6 +225,10 @@ func GetAuthzExpirationAndAllowance(
 			"expected authorization to be a %T", banktypes.SendAuthorization{},
 		)
 	}
+
+	// allowance should be stored with the 'real' precision
+	// and scaled when queried or used
+	// TODO: create an authzKeeper wrapper to use in the precompiles
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)
 	return authorization, expiration, allowance.BigInt(), nil

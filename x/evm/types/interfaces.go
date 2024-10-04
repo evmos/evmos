@@ -4,7 +4,6 @@ package types
 
 import (
 	context "context"
-	"math/big"
 
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/math"
@@ -71,13 +70,3 @@ type (
 		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
 	}
 )
-
-// BankWrapper defines the methods required by the wrapper around
-// the Cosmos SDK x/bank keeper that is used to manage an EVM coin
-// with a configurable value for decimals.
-type BankWrapper interface {
-	BankKeeper
-
-	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error
-	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error
-}

@@ -92,14 +92,18 @@ func (p *Precompile) transfer(
 
 	var prevAllowance *big.Int
 	if ownerIsSpender {
-		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
+		// Here we cannot use the bank wrapper because
+		// there's a type check on the NewMsgServerImpl func.
+		// So we need to scale the amount here
+		msg.Amount = evmtypes.ConvertCoinsFrom18Decimals(msg.Amount)
+		msgSrv := bankkeeper.NewMsgServerImpl(p.bankWrapper.BaseKeeper)
 		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
 			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "%s", err.Error()))
 		}
-
+		// TODO deal with the conversion in the authz wrapper
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
 
@@ -110,8 +114,11 @@ func (p *Precompile) transfer(
 	}
 
 	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+		// use the original amount with 18 dec
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(from, amount, cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, amount, cmn.Add),
+		)
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {

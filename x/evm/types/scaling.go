@@ -11,12 +11,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// MustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
-// representation into a 18 decimals. The function panics if coin denom is
-// not the evm denom or in case of overflow.
-func MustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
+// ConvertEvmCoinTo18Decimals converts the EVM coin's Amount from its original
+// representation into a 18 decimals.
+func ConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	if coin.Denom != GetEVMCoinDenom() {
-		panic(fmt.Sprintf("expected evm denom %s, received %s", GetEVMCoinDenom(), coin.Denom))
+		return coin
 	}
 
 	evmCoinDecimal := GetEVMCoinDecimals()

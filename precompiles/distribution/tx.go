@@ -94,7 +94,7 @@ func (p *Precompile) ClaimRewards(
 		}
 		// need to scale the amount to 18 dec (if corresponds)
 		_, coin := totalCoins.Find(evmtypes.GetEVMCoinDenom())
-		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+		coin = evmtypes.ConvertEvmCoinTo18Decimals(coin)
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
 
@@ -176,7 +176,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 		}
 		// need to scale the amount to 18 dec (if corresponds)
 		_, coin := res.Amount.Find(evmtypes.GetEVMCoinDenom())
-		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+		coin = evmtypes.ConvertEvmCoinTo18Decimals(coin)
 
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
@@ -226,7 +226,7 @@ func (p *Precompile) WithdrawValidatorCommission(
 		}
 		// need to scale the amount to 18 dec (if corresponds)
 		_, coin := res.Amount.Find(evmtypes.GetEVMCoinDenom())
-		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+		coin = evmtypes.ConvertEvmCoinTo18Decimals(coin)
 
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, coin.Amount.BigInt(), cmn.Add))
 	}
@@ -271,7 +271,7 @@ func (p *Precompile) FundCommunityPool(
 	if contract.CallerAddress != origin && msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).IsPositive() {
 		// need to scale the amount to 18 dec (if corresponds)
 		_, coin := msg.Amount.Find(evmtypes.GetEVMCoinDenom())
-		coin = evmtypes.MustConvertEvmCoinTo18Decimals(coin)
+		coin = evmtypes.ConvertEvmCoinTo18Decimals(coin)
 
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, coin.Amount.BigInt(), cmn.Sub))
 	}

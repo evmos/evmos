@@ -11,6 +11,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,7 +49,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 type Precompile struct {
 	cmn.Precompile
 	tokenPair      erc20types.TokenPair
-	bankKeeper     bankkeeper.Keeper
+	bankWrapper    *wrappers.BankWrapper
 	transferKeeper transferkeeper.Keeper
 }
 
@@ -68,13 +69,13 @@ func NewPrecompile(
 	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
-			AuthzKeeper:          authzKeeper,
+			AuthzKeeper:          authzKeeper, // TODO create an authz wrapper and use it here and other precompiles
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			KvGasConfig:          storetypes.GasConfig{},
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
-		bankKeeper:     bankKeeper,
+		bankWrapper:    wrappers.NewBankWrapper(bankKeeper.(bankkeeper.BaseKeeper)),
 		transferKeeper: transferKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
