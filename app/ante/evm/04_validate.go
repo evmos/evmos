@@ -107,10 +107,10 @@ func CheckTxFee(txFeeInfo *tx.Fee, txFee sdktypes.Coins, txGasLimit uint64) erro
 		return nil
 	}
 
-	convertedAmount := evmtypes.ConvertCoinsTo18Decimals(txFeeInfo.Amount)
+	convertedAmount := evmtypes.ConvertCoinsFrom18Decimals(txFee)
 
-	if !convertedAmount.Equal(txFee) {
-		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", convertedAmount, txFee)
+	if !txFeeInfo.Amount.Equal(convertedAmount) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", txFeeInfo.Amount, convertedAmount)
 	}
 
 	if txFeeInfo.GasLimit != txGasLimit {

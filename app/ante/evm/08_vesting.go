@@ -43,11 +43,10 @@ func CheckVesting(
 		return nil
 	}
 
-	newExpensesConverted := evmtypes.ConvertAmountTo18DecimalsBigInt(newExpenses)
 	// Check to make sure that the account does not exceed its spendable balances.
 	// This transaction would fail in processing, so we should prevent it from
 	// moving past the AnteHandler.
-	expenses, err := UpdateAccountExpenses(ctx, evmKeeper, accountExpenses, clawbackAccount, newExpensesConverted)
+	expenses, err := UpdateAccountExpenses(ctx, evmKeeper, accountExpenses, clawbackAccount, newExpenses)
 	if err != nil {
 		return err
 	}
@@ -86,27 +85,28 @@ func UpdateAccountExpenses(
 	// Get the account balance via EVM Keeper to be sure to have a 18 decimals
 	// representation of the address balance.
 	baseAmount := evmKeeper.GetBalance(ctx, common.BytesToAddress(address.Bytes()))
-	denom := evmtypes.GetEVMCoinDenom()
-	balance := sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(baseAmount)}
 
-	// Short-circuit if the balance is zero, since we require a non-zero balance to cover
+	// Short-circuit if the amount of base token is zero, since we require a non-zero balance to cover
 	// gas fees at a minimum (these are defined to be non-zero). Note that this check
 	// should be removed if the BaseFee definition is changed such that it can be zero.
-	if balance.IsZero() {
+	if baseAmount.Sign() == 0 {
 		return nil, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
 			"account has no balance to execute transaction: %s", addrStr)
 	}
 
+	// Get only base denom locked coins.
 	lockedBalances := account.LockedCoins(ctx.BlockTime())
-	ok, lockedBalance := lockedBalances.Find(denom)
-	if !ok {
-		lockedBalance = sdk.Coin{Denom: denom, Amount: math.ZeroInt()}
+	lockedBaseAmount := math.ZeroInt()
+	ok, lockedBaseBalance := lockedBalances.Find(evmtypes.GetEVMCoinDenom())
+	if ok {
+		lockedBaseAmount = lockedBaseBalance.Amount
 	}
-	lockedBalance.Amount = evmtypes.ConvertAmountTo18Decimals(lockedBalance.Amount)
+
+	lockedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(lockedBaseAmount.BigInt())
 
 	spendableValue := big.NewInt(0)
-	if spendableBalance, err := balance.SafeSub(lockedBalance); err == nil {
-		spendableValue = spendableBalance.Amount.BigInt()
+	if amountDiff := new(big.Int).Sub(baseAmount, lockedAmount); amountDiff.Sign() > 0 {
+		spendableValue = amountDiff
 	}
 
 	expenses = &EthVestingExpenseTracker{

@@ -113,7 +113,7 @@ func NewMonoDecoratorUtils(
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		GasWanted:          0,
 		MinPriority:        int64(math.MaxInt64),
-		// TxGAsLimit and TxFee are set to zero because they are updated
+		// TxGasLimit and TxFee are set to zero because they are updated
 		// summing up the values of all messages contained in a tx.
 		TxGasLimit: 0,
 		TxFee:      sdk.Coins{},
@@ -122,7 +122,7 @@ func NewMonoDecoratorUtils(
 
 // AnteHandle handles the entire decorator chain for EVM transactions using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// accountExpenses is used to keeper track of the expenses associated with
+	// accountExpenses is used to keep track of the expenses associated with
 	// the sender of the tx. This struct is required to properly manage vesting
 	// accounts.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
