@@ -91,22 +91,20 @@ func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) 
 func UnpackEthMsg(msg sdk.Msg) (
 	ethMsg *MsgEthereumTx,
 	txData TxData,
-	from sdk.AccAddress,
 	err error,
 ) {
 	msgEthTx, ok := msg.(*MsgEthereumTx)
 	if !ok {
-		return nil, nil, nil, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*MsgEthereumTx)(nil))
+		return nil, nil, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*MsgEthereumTx)(nil))
 	}
 
 	txData, err = UnpackTxData(msgEthTx.Data)
 	if err != nil {
-		return nil, nil, nil, errorsmod.Wrap(err, "failed to unpack tx data any for tx")
+		return nil, nil, errorsmod.Wrap(err, "failed to unpack tx data any for tx")
 	}
 
 	// sender address should be in the tx cache from the previous AnteHandle call
-	from = msgEthTx.GetFrom()
-	return msgEthTx, txData, from, nil
+	return msgEthTx, txData, nil
 }
 
 // BinSearch executes the binary search and hone in on an executable gas limit
