@@ -26,9 +26,8 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-// Decimals is a wrapper around uint64 to represent the decimal representation
-// of a Cosmos coin.
-type Decimals uint32
+// Decimals represents the decimal representation of a Cosmos coin.
+type Decimals uint8
 
 // Validate checks if the Decimals instance represent a supported decimals value
 // or not.
@@ -73,7 +72,7 @@ var evmCoinInfo *EvmCoinInfo
 // of the EVM coin.
 func setEVMCoinDecimals(d Decimals) error {
 	if err := d.Validate(); err != nil {
-		return err
+		return fmt.Errorf("setting EVM coin decimals: %w", err)
 	}
 
 	evmCoinInfo.Decimals = d
@@ -83,7 +82,7 @@ func setEVMCoinDecimals(d Decimals) error {
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
 func setEVMCoinDenom(denom string) error {
 	if err := sdk.ValidateDenom(denom); err != nil {
-		return err
+		return fmt.Errorf("setting EVM coin denom: %w", err)
 	}
 	evmCoinInfo.Denom = denom
 	return nil
@@ -111,8 +110,5 @@ func setEVMCoinInfo(eci EvmCoinInfo) error {
 	if err := setEVMCoinDenom(eci.Denom); err != nil {
 		return err
 	}
-	if err := setEVMCoinDecimals(eci.Decimals); err != nil {
-		return err
-	}
-	return nil
+	return setEVMCoinDecimals(eci.Decimals)
 }
