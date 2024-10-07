@@ -16,27 +16,17 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var (
-	sealed = false
-	// firstCall is used to discriminate between the call to the InitializeAppConfiguration for the CLI client or for the node operator.
-	firstCall = true
-)
+var sealed = false
 
 // InitializeAppConfiguration allows to setup the global configuration
 // for the Evmos EVM.
 func InitializeAppConfiguration(chainID string) error {
-	// When calling any CLI command, it creates a tempApp inside RootCmdHandler that will be overwritten later if needed.
-	// The configurator can be set with a dirty state only once
-	if chainID == "" {
-		if firstCall {
-			firstCall = false
-			return nil
-		} else {
-			panic("calling configurator twice with invalid chainID")
-		}
+	if sealed {
+		return nil
 	}
 
-	if sealed {
+	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
+	if chainID == "" {
 		return nil
 	}
 
@@ -62,10 +52,6 @@ func InitializeAppConfiguration(chainID string) error {
 	}
 
 	sealed = true
-
-	// if the first call was made with the correct chainID (a call without Cobra CLI as entrypoint), it no longer accept empty string as a valid chainID
-	firstCall = false
-
 	return nil
 }
 
