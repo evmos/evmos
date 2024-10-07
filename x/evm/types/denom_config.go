@@ -10,6 +10,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -25,9 +26,21 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-// Decimals is a wrapper around uint32 to represent the decimal representation
-// of a Cosmos coin.
-type Decimals uint32
+// Decimals represents the decimal representation of a Cosmos coin.
+type Decimals uint8
+
+// Validate checks if the Decimals instance represent a supported decimals value
+// or not.
+func (d Decimals) Validate() error {
+	switch d {
+	case SixDecimals:
+		return nil
+	case EighteenDecimals:
+		return nil
+	default:
+		return fmt.Errorf("received unsupported decimals: %d", d)
+	}
+}
 
 // ConversionFactor returns the conversion factor between the Decimals value and
 // the 18 decimals representation, i.e. `EighteenDecimals`.
@@ -57,20 +70,22 @@ var evmCoinInfo *EvmCoinInfo
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
-func setEVMCoinDecimals(d Decimals) {
-	if d != SixDecimals && d != EighteenDecimals {
-		panic(fmt.Errorf("invalid decimal value %d; the evm supports only 6 and 18 decimals", d))
+func setEVMCoinDecimals(d Decimals) error {
+	if err := d.Validate(); err != nil {
+		return fmt.Errorf("setting EVM coin decimals: %w", err)
 	}
 
 	evmCoinInfo.Decimals = d
+	return nil
 }
 
 // setEVMCoinDenom allows to define the denom of the coin used in the EVM.
-func setEVMCoinDenom(denom string) {
+func setEVMCoinDenom(denom string) error {
 	if err := sdk.ValidateDenom(denom); err != nil {
-		panic(err)
+		return fmt.Errorf("setting EVM coin denom: %w", err)
 	}
 	evmCoinInfo.Denom = denom
+	return nil
 }
 
 // GetEVMCoinDecimals returns the decimals used in the representation of the EVM
@@ -85,11 +100,15 @@ func GetEVMCoinDenom() string {
 }
 
 // setEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
-func setEVMCoinInfo(evmdenom EvmCoinInfo) {
+func setEVMCoinInfo(eci EvmCoinInfo) error {
 	if evmCoinInfo != nil {
-		panic("EVM coin info already set")
+		return errors.New("EVM coin info already set")
 	}
+
 	evmCoinInfo = new(EvmCoinInfo)
-	setEVMCoinDenom(evmdenom.Denom)
-	setEVMCoinDecimals(evmdenom.Decimals)
+
+	if err := setEVMCoinDenom(eci.Denom); err != nil {
+		return err
+	}
+	return setEVMCoinDecimals(eci.Decimals)
 }
