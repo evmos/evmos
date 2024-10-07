@@ -49,6 +49,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
 - (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
 - (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
+- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
 
 ### Improvements
 
@@ -69,6 +70,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2898](https://github.com/evmos/evmos/pull/2898) Refactor to use `ChainConfig` from `evm/types`.
 - (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
 - (ante) [#2907](https://github.com/evmos/evmos/pull/2907) Add support for custom base denom decimals in the ante for EVM txs.
+- (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
