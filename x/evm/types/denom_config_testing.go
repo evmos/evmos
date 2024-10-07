@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Decimals is a wrapper around uint32 to represent the decimal representation
+// Decimals is a wrapper around uint64 to represent the decimal representation
 // of a Cosmos coin.
-type Decimals uint32
+type Decimals uint64
 
 const (
 	// SixDecimals is the Decimals used for Cosmos coin with 6 decimals.
