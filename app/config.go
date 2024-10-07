@@ -40,7 +40,7 @@ func InitializeAppConfiguration(chainID string) error {
 	err = evmtypes.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).
+		WithEVMCoinInfo(baseDenom, uint8(evmtypes.EighteenDecimals)).
 		Configure()
 	if err != nil {
 		return err
