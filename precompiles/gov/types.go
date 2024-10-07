@@ -91,6 +91,42 @@ func NewMsgVote(args []interface{}) (*govv1.MsgVote, common.Address, error) {
 	return msg, voterAddress, nil
 }
 
+// NewMsgVoteWeighted creates a new MsgVoteWeighted instance.
+func NewMsgVoteWeighted(args []interface{}) (*govv1.MsgVoteWeighted, common.Address, error) {
+	if len(args) != 4 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+	}
+
+	voterAddress, ok := args[0].(common.Address)
+	if !ok || voterAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidVoter, args[0])
+	}
+
+	proposalID, ok := args[1].(uint64)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, args[1])
+	}
+
+	options, ok := args[2].(govv1.WeightedVoteOptions)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidWeightedVoteOptions, args[2])
+	}
+
+	metadata, ok := args[3].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidMetadata, args[3])
+	}
+
+	msg := &govv1.MsgVoteWeighted{
+		ProposalId: proposalID,
+		Voter:      sdk.AccAddress(voterAddress.Bytes()).String(),
+		Options:    options,
+		Metadata:   metadata,
+	}
+
+	return msg, voterAddress, nil
+}
+
 // ParseVotesArgs parses the arguments for the Votes query.
 func ParseVotesArgs(method *abi.Method, args []interface{}) (*govv1.QueryVotesRequest, error) {
 	if len(args) != 2 {

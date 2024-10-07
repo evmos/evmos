@@ -795,7 +795,7 @@ func NewEvmos(
 	app.setAnteHandler(app.txConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
-	app.setupUpgradeHandlers()
+	app.setupUpgradeHandlers(appOpts)
 
 	// At startup, after all modules have been registered, check that all prot
 	// annotations are correct.
@@ -1190,7 +1190,7 @@ func initParamsKeeper(
 	return paramsKeeper
 }
 
-func (app *Evmos) setupUpgradeHandlers() {
+func (app *Evmos) setupUpgradeHandlers(appOpts servertypes.AppOptions) {
 	// v20 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v20.UpgradeName,
