@@ -275,3 +275,9 @@ func RegisterBalanceError(queryClient *mocks.EVMQueryClient, addr common.Address
 	queryClient.On("Balance", rpc.ContextWithHeight(height), &evmtypes.QueryBalanceRequest{Address: addr.String()}).
 		Return(nil, errortypes.ErrInvalidRequest)
 }
+
+// GlobalMinGasPrice
+func RegisterGlobalMinGasPrice(queryClient *mocks.EVMQueryClient, height int64) {
+	queryClient.On("GlobalMinGasPrice", rpc.ContextWithHeight(height), &evmtypes.QueryGlobalMinGasPriceRequest{}).
+		Return(&evmtypes.QueryGlobalMinGasPriceResponse{MinGasPrice: math.OneInt()}, nil)
+}

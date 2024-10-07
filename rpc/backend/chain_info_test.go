@@ -290,17 +290,17 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice math.LegacyDec
+		expMinGasPrice *big.Int
 		expPass        bool
 	}{
 		{
-			"fail - Can't get FeeMarket params",
+			"pass - get GlobalMinGasPrice",
 			func() {
-				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
-				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
+				qc := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				RegisterGlobalMinGasPrice(qc, 1)
 			},
-			math.LegacyZeroDec(),
-			false,
+			big.NewInt(1),
+			true,
 		},
 	}
 
