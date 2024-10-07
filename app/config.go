@@ -18,6 +18,7 @@ import (
 
 var (
 	sealed    = false
+        // firstCall is used to discriminate between the call to the InitializeAppConfiguration for the CLI client or for the node operator.
 	firstCall = true
 )
 
