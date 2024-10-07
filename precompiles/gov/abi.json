@@ -60,12 +60,6 @@
           "internalType": "struct WeightedVoteOption[]",
           "name": "options",
           "type": "tuple[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "metadata",
-          "type": "string"
         }
       ],
       "name": "VoteWeighted",

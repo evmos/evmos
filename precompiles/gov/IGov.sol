@@ -52,8 +52,7 @@ interface IGov {
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
     /// @param options the options for voter
-    /// @param metadata the metadata for voter send
-    event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options, string metadata);
+    event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
 
     /// TRANSACTIONS
 

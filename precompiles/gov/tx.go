@@ -64,7 +64,7 @@ func (p Precompile) VoteWeighted(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, voterHexAddr, err := NewMsgVoteWeighted(args)
+	msg, voterHexAddr, options, err := NewMsgVoteWeighted(method, args)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (p Precompile) VoteWeighted(
 		return nil, err
 	}
 
-	if err = p.EmitVoteWeightedEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, msg.Options); err != nil {
+	if err = p.EmitVoteWeightedEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, options); err != nil {
 		return nil, err
 	}
 

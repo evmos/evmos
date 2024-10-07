@@ -5,8 +5,6 @@ package gov
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -55,7 +53,7 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 }
 
 // EmitVoteWeightedEvent creates a new event emitted on a VoteWeighted transaction.
-func (p Precompile) EmitVoteWeightedEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddress common.Address, proposalID uint64, options govv1.WeightedVoteOptions) error {
+func (p Precompile) EmitVoteWeightedEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddress common.Address, proposalID uint64, options WeightedVoteOptions) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeVoteWeighted]
 	topics := make([]common.Hash, 2)
