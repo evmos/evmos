@@ -25,7 +25,7 @@ type EVMConfigurator struct {
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
 	chainConfig              *ChainConfig
-	evmDenom                 EvmCoinInfo
+	evmCoinInfo              EvmCoinInfo
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -56,8 +56,8 @@ func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
 
 // WithEVMCoinInfo allows to define the denom and decimals of the token used as the
 // EVM token.
-func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, d Decimals) *EVMConfigurator {
-	ec.evmDenom = EvmCoinInfo{Denom: denom, Decimals: d}
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, decimals uint8) *EVMConfigurator {
+	ec.evmCoinInfo = EvmCoinInfo{Denom: denom, Decimals: Decimals(decimals)}
 	return ec
 }
 
@@ -73,15 +73,27 @@ func (ec *EVMConfigurator) Configure() error {
 		return err
 	}
 
-	if ec.evmDenom.Denom != "" && ec.evmDenom.Decimals != 0 {
-		setEVMCoinInfo(ec.evmDenom)
+	if err := setEVMCoinInfo(ec.evmCoinInfo); err != nil {
+		return err
+	}
+
+	if err := extendDefaultExtraEIPs(ec.extendedDefaultExtraEIPs); err != nil {
+		return err
 	}
 
 	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
 		return err
 	}
 
-	for _, eip := range ec.extendedDefaultExtraEIPs {
+	// After applying modifiers the configurator is sealed. This way, it is not possible
+	// to call the configure method twice.
+	ec.sealed = true
+
+	return nil
+}
+
+func extendDefaultExtraEIPs(extraEIPs []string) error {
+	for _, eip := range extraEIPs {
 		if slices.Contains(DefaultExtraEIPs, eip) {
 			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, DefaultExtraEIPs)
 		}
@@ -92,11 +104,6 @@ func (ec *EVMConfigurator) Configure() error {
 
 		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
-
-	// After applying modifier the configurator is sealed. This way, it is not possible
-	// to call the configure method twice.
-	ec.sealed = true
-
 	return nil
 }
 
