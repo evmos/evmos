@@ -310,7 +310,7 @@ func TestConvertBigIntFrom18DecimalsToLegacyDec(t *testing.T) {
 			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
 				configurator := evmtypes.NewEVMConfigurator()
 				configurator.ResetTestChainConfig()
-				require.NoError(t, configurator.WithEVMCoinInfo(cfg.Denom, cfg.Decimals).Configure())
+				require.NoError(t, configurator.WithEVMCoinInfo(cfg.Denom, uint8(cfg.Decimals)).Configure())
 				res := evmtypes.ConvertBigIntFrom18DecimalsToLegacyDec(tc.amt)
 				exp := math.LegacyNewDecFromBigInt(tc.amt)
 				if cfg.Decimals == evmtypes.SixDecimals {
