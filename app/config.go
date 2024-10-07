@@ -25,6 +25,11 @@ func InitializeAppConfiguration(chainID string) error {
 		return nil
 	}
 
+	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
+	if chainID == "" {
+		return nil
+	}
+
 	// set the base denom considering if its mainnet or testnet
 	if err := setBaseDenomWithChainID(chainID); err != nil {
 		return err
