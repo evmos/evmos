@@ -45,7 +45,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	cointypes "github.com/evmos/evmos/v20/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
@@ -282,7 +282,7 @@ func initAppConfig() (string, interface{}) {
 	if err != nil {
 		// NOTE: We need to provide a default base denom for the tempApp created by the RootCmd
 		// FIXME: if we remove the min gas price default config, this will no longer be needed
-		baseDenom = cointypes.BaseDenom
+		baseDenom = evmostypes.BaseDenom
 	}
 	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
 
