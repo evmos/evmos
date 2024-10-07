@@ -71,6 +71,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
 - (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 
+### Bug Fixes
+
+- (cli) [#2921](https://github.com/evmos/evmos/pull/2921) Use default denomination when using rootCmd.
+
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
 ### Bug Fixes
