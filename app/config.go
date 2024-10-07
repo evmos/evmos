@@ -17,10 +17,22 @@ import (
 )
 
 var sealed = false
+var firstCall = true
 
 // InitializeAppConfiguration allows to setup the global configuration
 // for the Evmos EVM.
 func InitializeAppConfiguration(chainID string) error {
+	// When calling any CLI command will create a tempApp inside RootCmdHandler, that will be overwritten if needed.
+	// The configurator can be set with a dirty state only once
+	if chainID == "" {
+		if firstCall {
+			firstCall = false
+			return nil
+		} else {
+			panic("calling configurator twice with invalid chainID")
+		}
+	}
+
 	if sealed {
 		return nil
 	}
