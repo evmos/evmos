@@ -734,8 +734,8 @@ schema = 3
     version = "v0.0.0-20240719175910-8a7402abbf56"
     hash = "sha256-mHEPy0vbd/pFwq5ZAEKaehCeYVQLEFDGnXAoVgkCLPo="
   [mod."golang.org/x/net"]
-    version = "v0.29.0"
-    hash = "sha256-dH9Rdf5T04KJ4B5WvIZh12ogMbADWiWgIt77nvPTk2k="
+    version = "v0.30.0"
+    hash = "sha256-i1f6wJHfFq0nKtbuY7twZ7uPyUbRYHVjd3uy0SS06mU="
   [mod."golang.org/x/oauth2"]
     version = "v0.22.0"
     hash = "sha256-3gmmXfCcxYBMaXmKRzGBpX01h4lMenFPkqWT9TwqIBE="
