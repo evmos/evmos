@@ -39,12 +39,17 @@ type TxData interface {
 	AsEthereumData() ethtypes.TxData
 	Validate() error
 
-	// static fee
+	// Fee returns the maximum fee a sender of a message is willing to pay.
 	Fee() *big.Int
+	// Cost returns the total cost of a transaction before executing any smart
+	// contract call. This means it should return the fee the user has to pay
+	// plus the amount of tokens they want to transfer.
 	Cost() *big.Int
 
-	// effective gasPrice/fee/cost according to current base fee
+	// EffectiveGasPrice returns the price for the gas used in a transaction
+	// based on the transaction type.
 	EffectiveGasPrice(baseFee *big.Int) *big.Int
+	// EffectiveFee returns the fees a user is willing to pay for a transaction.
 	EffectiveFee(baseFee *big.Int) *big.Int
 	EffectiveCost(baseFee *big.Int) *big.Int
 }
@@ -69,11 +74,16 @@ func NewTxDataFromTx(tx *ethtypes.Transaction) (TxData, error) {
 	return txData, nil
 }
 
+// fee returns the fee for a transaction given by the gas price time the gas.
 func fee(gasPrice *big.Int, gas uint64) *big.Int {
 	gasLimit := new(big.Int).SetUint64(gas)
 	return new(big.Int).Mul(gasPrice, gasLimit)
 }
 
+// cost returns the sum of the fee and value. If value is nil it returns only
+// the fee. This function is made to be used in the ante handler to compute the
+// total cost of a transaction given by the fee the user has to pay and the
+// amount they want to transfer.
 func cost(fee, value *big.Int) *big.Int {
 	if value != nil {
 		return new(big.Int).Add(fee, value)

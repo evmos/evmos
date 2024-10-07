@@ -21,14 +21,14 @@ import (
 // If fee is high enough, then call next AnteHandler
 // CONTRACT: Tx must implement FeeTx to use MinGasPriceDecorator
 type MinGasPriceDecorator struct {
-	feesKeeper evmante.FeeMarketKeeper
-	evmKeeper  evmante.EVMKeeper
+	feemarketKeeper evmante.FeeMarketKeeper
+	evmKeeper       evmante.EVMKeeper
 }
 
 // NewMinGasPriceDecorator creates a new MinGasPriceDecorator instance used only for
 // Cosmos transactions.
 func NewMinGasPriceDecorator(fk evmante.FeeMarketKeeper, ek evmante.EVMKeeper) MinGasPriceDecorator {
-	return MinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
+	return MinGasPriceDecorator{feemarketKeeper: fk, evmKeeper: ek}
 }
 
 func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
@@ -37,7 +37,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected sdk.FeeTx", tx)
 	}
 
-	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
+	minGasPrice := mpd.feemarketKeeper.GetParams(ctx).MinGasPrice
 
 	feeCoins := feeTx.GetFee()
 	baseDenom, err := sdk.GetBaseDenom()

@@ -27,25 +27,33 @@ func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
 }
 
 func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	newCtx, err = SetupContext(ctx, tx, esc.evmKeeper)
+	newCtx, err = SetupContextAndResetTransientGas(ctx, tx, esc.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
 	return next(newCtx, tx, simulate)
 }
 
-func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
+// SetupContextAndResetTransientGas modifies the context to be used in the
+// execution of the ante handler associated with an EVM transaction. Previous
+// gas consumed is reset in the transient store.
+func SetupContextAndResetTransientGas(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
 	// all transactions must implement GasTx
 	_, ok := tx.(authante.GasTx)
 	if !ok {
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected GasTx", tx)
 	}
 
-	// We need to set up an empty gas config so that the gas is consistent with Ethereum.
+	// To have gas consumption consistent with Ethereum, we need to:
+	//     1. Set an empty gas config for both KV and transient store.
+	//     2. Set an infinite gas meter.
 	newCtx := evmante.BuildEvmExecutionCtx(ctx).
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
+
 	// Reset transient gas used to prepare the execution of current cosmos tx.
 	// Transient gas-used is necessary to sum the gas-used of cosmos tx, when it contains multiple eth msgs.
+	// TODO: add more context here to explain why gas used is reset. Not clear
+	// from docstring.
 	evmKeeper.ResetTransientGasUsed(ctx)
 
 	return newCtx, nil

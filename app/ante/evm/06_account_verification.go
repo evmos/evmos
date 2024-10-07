@@ -25,7 +25,7 @@ func VerifyAccountBalance(
 	from common.Address,
 	txData evmtypes.TxData,
 ) error {
-	// check whether the sender address is EOA
+	// Only EOA are allowed to send transactions.
 	if account != nil && account.IsContract() {
 		return errorsmod.Wrapf(
 			errortypes.ErrInvalidType,

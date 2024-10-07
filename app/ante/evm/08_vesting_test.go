@@ -160,11 +160,10 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 			// Function under test
 			err := evm.CheckVesting(
 				unitNetwork.GetContext(),
-				unitNetwork.App.BankKeeper,
+				unitNetwork.App.EvmKeeper,
 				account,
 				accountExpenses,
 				addedExpense.BigInt(),
-				unitNetwork.GetDenom(),
 			)
 
 			if tc.expectedError != nil {
