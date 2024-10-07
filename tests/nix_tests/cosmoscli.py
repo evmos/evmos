@@ -1065,8 +1065,10 @@ class CosmosCLI:
     # ==========================
 
     def build_evm_tx(self, tx, signed):
-        # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos, to support 6 decimals we need to pass another argument
-        # NOTE: this function is only used to validate that the ethereum message can not be inside an authz transaction, so its content is not important
+        # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
+        # to support 6 decimals we need to pass another argument
+        # NOTE: this function is only used to validate that the ethereum message can not be inside an
+        # authz transaction, so its content is not important
         r_b64 = base64.b64encode(
             signed["r"].to_bytes((signed["r"].bit_length() + 7) // 8, "big")
         ).decode("utf-8")
