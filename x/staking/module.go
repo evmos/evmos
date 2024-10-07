@@ -4,15 +4,11 @@
 package staking
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 
 	"cosmossdk.io/core/appmodule"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/exported"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -86,41 +82,4 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 4, m.Migrate4to5); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 4 to 5: %v", types.ModuleName, err))
 	}
-}
-
-// InitGenesis delegates the InitGenesis call to the underlying x/staking module,
-// however, it returns no validator updates as validators are tracked via the
-// consumer chain's x/cvv/consumer module and so this module is not responsible
-// for returning the initial validator set.
-//
-// Note: InitGenesis is not called during the soft upgrade of a module
-// (as a part of a changeover from standalone -> consumer chain),
-// so there is no special handling needed in this method for a consumer being in the pre-CCV state.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
-
-	cdc.MustUnmarshalJSON(data, &genesisState)
-	_ = am.keeper.InitGenesis(ctx, &genesisState)
-
-	return []abci.ValidatorUpdate{}
-}
-
-// EndBlock delegates the EndBlock call to the underlying x/staking module,
-// however, it returns no validator updates as validators are tracked via the
-// consumer chain's x/cvv/consumer module and so this module is not responsible
-// for returning the initial validator set.
-//
-// Note: This method does not require any special handling for PreCCV being true
-// (as a part of the changeover from standalone -> consumer chain).
-// The ccv consumer Endblocker is ordered to run before the staking Endblocker,
-// so if PreCCV is true during one block, the ccv consumer Enblocker will return the proper validator updates,
-// the PreCCV flag will be toggled to false, and no validator updates should be returned by this method.
-
-func (am AppModule) EndBlock(context context.Context) ([]abci.ValidatorUpdate, error) {
-	ctx := sdk.UnwrapSDKContext(context)
-	_, err := am.keeper.BlockValidatorUpdates(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return []abci.ValidatorUpdate{}, nil
 }
