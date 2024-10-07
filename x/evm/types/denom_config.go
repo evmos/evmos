@@ -26,9 +26,9 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-// Decimals is a wrapper around uint32 to represent the decimal representation
+// Decimals is a wrapper around uint64 to represent the decimal representation
 // of a Cosmos coin.
-type Decimals uint64
+type Decimals uint32
 
 // Validate checks if the Decimals instance represent a supported decimals value
 // or not.

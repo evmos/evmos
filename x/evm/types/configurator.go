@@ -56,7 +56,7 @@ func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
 
 // WithEVMCoinInfo allows to define the denom and decimals of the token used as the
 // EVM token.
-func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, decimals int64) *EVMConfigurator {
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, decimals uint32) *EVMConfigurator {
 	ec.evmCoinInfo = EvmCoinInfo{Denom: denom, Decimals: Decimals(decimals)}
 	return ec
 }
