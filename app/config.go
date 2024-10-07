@@ -16,8 +16,10 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var sealed = false
-var firstCall = true
+var (
+	sealed    = false
+	firstCall = true
+)
 
 // InitializeAppConfiguration allows to setup the global configuration
 // for the Evmos EVM.
