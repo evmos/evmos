@@ -25,7 +25,7 @@ var (
 // InitializeAppConfiguration allows to setup the global configuration
 // for the Evmos EVM.
 func InitializeAppConfiguration(chainID string) error {
-	// When calling any CLI command will create a tempApp inside RootCmdHandler, that will be overwritten if needed.
+	// When calling any CLI command, it creates a tempApp inside RootCmdHandler that will be overwritten later if needed.
 	// The configurator can be set with a dirty state only once
 	if chainID == "" {
 		if firstCall {
@@ -62,6 +62,10 @@ func InitializeAppConfiguration(chainID string) error {
 	}
 
 	sealed = true
+
+	// if the first call was made with the correct chainID (a call without Cobra CLI as entrypoint), it no longer accept empty string as a valid chainID
+	firstCall = false
+
 	return nil
 }
 
