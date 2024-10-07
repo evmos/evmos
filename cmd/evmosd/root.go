@@ -141,6 +141,10 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 				return err
 			}
 
+			// If the chainID was set in a flag or in the client.toml file, we can init the config here.
+			// NOTE: if it is not set, it will default to "" and the function will be a no-op call.
+			app.InitializeAppConfiguration(initClientCtx.ChainID)
+
 			// override the app and tendermint configuration
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
