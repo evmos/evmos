@@ -241,7 +241,10 @@ func (p *Precompile) Delegate(
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 		// when calling the precompile from a smart contract
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, msg.Amount.Amount.BigInt(), cmn.Sub))
+
+		// Need to scale the amount to 18 decimals for the EVM balance change entry
+		scaledCoin := evmtypes.MustConvertEvmCoinTo18Decimals(msg.Amount)
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, scaledCoin.Amount.BigInt(), cmn.Sub))
 	}
 
 	return method.Outputs.Pack(true)
