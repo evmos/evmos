@@ -132,7 +132,7 @@ def test_authz_nested_msg(evmos_cluster):
 
     # save the eth tx to nest inside a MsgExec to a json file
     with tempfile.NamedTemporaryFile("w") as tx_file:
-        json.dump(cli.build_evm_tx(tx_call.rawTransaction.hex()), tx_file)
+        json.dump(cli.build_evm_tx(tx, tx_call), tx_file)
         tx_file.flush()
 
         # create the tx with the MsgExec with the eth tx generated previously

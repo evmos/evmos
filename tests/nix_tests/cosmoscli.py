@@ -1,3 +1,4 @@
+import base64
 import json
 import re
 import tempfile
@@ -1063,20 +1064,70 @@ class CosmosCLI:
     #        EVM Module
     # ==========================
 
-    def build_evm_tx(self, raw_tx: str, **kwargs):
-        return json.loads(
-            self.raw(
-                "tx",
-                "evm",
-                "raw",
-                raw_tx,
-                "--generate-only",
-                home=self.data_dir,
-                chain_id=self.chain_id,
-                keyring_backend="test",
-                **kwargs,
-            )
-        )
+    def build_evm_tx(self, tx, signed):
+        # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
+        # to support 6 decimals we need to pass another argument
+        # NOTE: this function is only used to validate that the ethereum message can not be inside an
+        # authz transaction, so its content is not important
+        r_b64 = base64.b64encode(
+            signed["r"].to_bytes((signed["r"].bit_length() + 7) // 8, "big")
+        ).decode("utf-8")
+        s_b64 = base64.b64encode(
+            signed["s"].to_bytes((signed["s"].bit_length() + 7) // 8, "big")
+        ).decode("utf-8")
+        v_b64 = base64.b64encode(
+            signed["v"].to_bytes((signed["v"].bit_length() + 7) // 8, "big")
+        ).decode("utf-8")
+        data_b64 = base64.b64encode(bytes.fromhex(tx["data"][2:])).decode("utf-8")
+        return {
+            "body": {
+                "messages": [
+                    {
+                        "@type": "/ethermint.evm.v1.MsgEthereumTx",
+                        "data": {
+                            "@type": "/ethermint.evm.v1.DynamicFeeTx",
+                            "chain_id": str(tx["chainId"]),
+                            "nonce": str(tx["nonce"]),
+                            "gas_tip_cap": str(tx["maxPriorityFeePerGas"]),
+                            "gas_fee_cap": str(tx["maxFeePerGas"]),
+                            "gas": str(tx["gas"]),
+                            "to": tx["to"],
+                            "value": str(tx["value"]),
+                            "data": data_b64,
+                            "accesses": [],
+                            "v": v_b64,
+                            "r": r_b64,
+                            "s": s_b64,
+                        },
+                        "size": 0,
+                        "hash": signed["hash"].hex(),
+                        "from": tx["from"],
+                    }
+                ],
+                "memo": "",
+                "timeout_height": "0",
+                "extension_options": [
+                    {"@type": "/ethermint.evm.v1.ExtensionOptionsEthereumTx"}
+                ],
+                "non_critical_extension_options": [],
+            },
+            "auth_info": {
+                "signer_infos": [],
+                "fee": {
+                    "amount": [
+                        {
+                            "denom": "aevmos",
+                            "amount": str(int(tx["gas"]) * int(tx["maxFeePerGas"])),
+                        }
+                    ],
+                    "gas_limit": str(tx["gas"]),
+                    "payer": "",
+                    "granter": "",
+                },
+                "tip": None,
+            },
+            "signatures": [],
+        }
 
     def evm_params(self, **kwargs):
         default_kwargs = {
