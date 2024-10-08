@@ -315,7 +315,8 @@ interface StakingI is authorization.AuthorizationI {
     /// delegator address to the validator address.
     /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin being delegated
+    /// @param amount The amount of bond denomination being delegated
+    /// This amount has the bond denomination precision stored in the bank metadata.
     /// @param newShares The new delegation shares being held
     event Delegate(
         address indexed delegatorAddress,
@@ -328,7 +329,8 @@ interface StakingI is authorization.AuthorizationI {
     /// validator address to the delegator address.
     /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin being unbonded
+    /// @param amount The amount of bond denomination being unbonded
+    /// This amount has the bond denomination precision stored in the bank metadata.
     /// @param completionTime The time at which the unbonding is completed
     event Unbond(
         address indexed delegatorAddress,
@@ -342,7 +344,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @param delegatorAddress The address of the delegator
     /// @param validatorSrcAddress The address of the validator from which the delegation is retracted
     /// @param validatorDstAddress The address of the validator to which the delegation is directed
-    /// @param amount The amount of Coin being redelegated
+    /// @param amount The amount of bond denomination being redelegated
+    /// This amount has the bond denomination precision stored in the bank metadata.
     /// @param completionTime The time at which the redelegation is completed
     event Redelegate(
         address indexed delegatorAddress,
@@ -356,7 +359,8 @@ interface StakingI is authorization.AuthorizationI {
     /// that are in the process of unbonding from the validator address are bonded again.
     /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin that was in the unbonding process which is to be canceled
+    /// @param amount The amount of bond denomination that was in the unbonding process which is to be canceled
+    /// This amount has the bond denomination precision stored in the bank metadata.
     /// @param creationHeight The block height at which the unbonding of a delegation was initiated
     event CancelUnbondingDelegation(
         address indexed delegatorAddress,
