@@ -219,7 +219,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				gasUsed := Max(bank.GasBalanceOf, len(balances)*bank.GasBalanceOf)
+				gasUsed := Max(bank.GasBalances, len(balances)*bank.GasBalances)
 				// Here increasing the GasBalanceOf will increase the use of gas so they will never be equal
 				Expect(gasUsed).To(BeNumerically("<=", ethRes.GasUsed))
 			})
@@ -362,7 +362,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				gasUsed := Max(bank.GasBalanceOf, len(balances)*bank.GasBalanceOf)
+				gasUsed := Max(bank.GasBalances, len(balances)*bank.GasBalances)
 				// Here increasing the GasBalanceOf will increase the use of gas so they will never be equal
 				Expect(gasUsed).To(BeNumerically("<=", ethRes.GasUsed))
 			})
