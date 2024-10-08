@@ -69,7 +69,7 @@ func (p Precompile) EmitVoteWeightedEvent(ctx sdk.Context, stateDB vm.StateDB, v
 
 	// Prepare the event data
 	arguments := abi.Arguments{event.Inputs[1], event.Inputs[2]}
-	packed, err := arguments.Pack(proposalID, options) //nolint:gosec // G115
+	packed, err := arguments.Pack(proposalID, options)
 	if err != nil {
 		return err
 	}
