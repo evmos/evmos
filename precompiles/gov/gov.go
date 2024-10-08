@@ -104,6 +104,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// gov transactions
 	case VoteMethod:
 		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
+	case VoteWeightedMethod:
+		bz, err = p.VoteWeighted(ctx, evm.Origin, contract, stateDB, method, args)
 	// gov queries
 	case GetVoteMethod:
 		bz, err = p.GetVote(ctx, method, contract, args)
@@ -134,9 +136,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //
 // Available gov transactions are:
 //   - Vote
+//   - VoteWeighted
 func (Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
-	case VoteMethod:
+	case VoteMethod, VoteWeightedMethod:
 		return true
 	default:
 		return false
