@@ -1,5 +1,9 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+//
+// The bank package contains the implementation of the x/bank module precompile.
+// The precompiles returns all bank's information in the original decimals
+// representation stored in the module.
 
 package bank
 
