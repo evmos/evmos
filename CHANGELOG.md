@@ -73,6 +73,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 - (app) [#2914](https://github.com/evmos/evmos/pull/2914) Refactor App configurator to abstract `Decimals` type and use validation.
 
+### Bug Fixes
+
+- (cli) [#2921](https://github.com/evmos/evmos/pull/2921) Use default denomination when using rootCmd.
+
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
 ### Bug Fixes

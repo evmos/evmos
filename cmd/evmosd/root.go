@@ -45,6 +45,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
@@ -138,6 +139,12 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
+			}
+
+			// If the chainID was set in a flag or in the client.toml file, we can init the config here.
+			// NOTE: if it is not set, it will default to "" and the function will be a no-op call.
+			if err := app.InitializeAppConfiguration(initClientCtx.ChainID); err != nil {
+				return fmt.Errorf("failed to initialize app configuration: %w", err)
 			}
 
 			// override the app and tendermint configuration
@@ -279,7 +286,9 @@ func txCommand() *cobra.Command {
 func initAppConfig() (string, interface{}) {
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
-		panic(err)
+		// NOTE: We need to provide a default base denom for the tempApp created by the RootCmd
+		// FIXME: if we remove the min gas price default config, this will no longer be needed
+		baseDenom = evmostypes.BaseDenom
 	}
 	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
 
