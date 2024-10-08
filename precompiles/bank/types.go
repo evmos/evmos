@@ -12,7 +12,7 @@ import (
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
-// Balance contains the amount for a corresponding ERC-20 contract address
+// Balance contains the amount for a corresponding ERC-20 contract address.
 type Balance struct {
 	ContractAddress common.Address
 	Amount          *big.Int

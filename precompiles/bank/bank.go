@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	// GasBalanceOf defines the gas cost for a single ERC-20 balanceOf query
-	GasBalanceOf = 2_851
+	// GasBalances defines the gas cost for a single ERC-20 balanceOf query
+	GasBalances = 2_851
 
 	// GasTotalSupply defines the gas cost for a single ERC-20 totalSupply query
 	GasTotalSupply = 2_477
@@ -41,7 +41,7 @@ type Precompile struct {
 	erc20Keeper erc20keeper.Keeper
 }
 
-// NewPrecompile creates a new bank Precompile instance as a
+// NewPrecompile creates a new bank Precompile instance implementing the
 // PrecompiledContract interface.
 func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
@@ -85,11 +85,9 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	// NOTE: Charge the amount of gas required for a single ERC-20
-	// balanceOf or totalSupply query
 	switch method.Name {
 	case BalancesMethod:
-		return GasBalanceOf
+		return GasBalances
 	case TotalSupplyMethod:
 		return GasTotalSupply
 	case SupplyOfMethod:
