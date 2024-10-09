@@ -110,8 +110,10 @@ func (p *Precompile) transfer(
 	}
 
 	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+		// add the entries to the statedb journal in 18 decimals
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(amount)
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, convertedAmount, cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, convertedAmount, cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
