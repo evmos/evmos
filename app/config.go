@@ -77,7 +77,7 @@ func setTestnetBaseDenom() error {
 	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	// the registration of the base denom automatically set the base denom.
+	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
 	return sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit))
 }
 
