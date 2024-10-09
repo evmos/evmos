@@ -4,6 +4,7 @@
 package bank
 
 import (
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,8 +24,10 @@ const (
 	SupplyOfMethod = "supplyOf"
 )
 
-// Balances returns all the native token balances (address, amount) for a given
-// account. This method charges the account the corresponding value of an ERC-20
+// Balances returns given account's balances of all tokens registered in the x/bank module
+// and the corresponding ERC20 address (address, amount). The amount returned for each token
+// has the original decimals precision stored in the x/bank.
+// This method charges the account the corresponding value of an ERC-20
 // balanceOf call for each token returned.
 func (p Precompile) Balances(
 	ctx sdk.Context,
@@ -34,7 +37,7 @@ func (p Precompile) Balances(
 ) ([]byte, error) {
 	account, err := ParseBalancesArgs(args)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error calling account balances in bank precompile: %s", err)
 	}
 
 	i := 0
@@ -46,7 +49,7 @@ func (p Precompile) Balances(
 		// NOTE: we already charged for a single balanceOf request so we don't
 		// need to charge on the first iteration
 		if i > 0 {
-			ctx.GasMeter().ConsumeGas(GasBalanceOf, "ERC-20 extension balances method")
+			ctx.GasMeter().ConsumeGas(GasBalances, "ERC-20 extension balances method")
 		}
 
 		contractAddress, err := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
@@ -65,7 +68,9 @@ func (p Precompile) Balances(
 	return method.Outputs.Pack(balances)
 }
 
-// TotalSupply returns the total supply of all the native tokens.
+// TotalSupply returns the total supply of all tokens registered in the x/bank
+// module. The amount returned for each token has the original
+// decimals precision stored in the x/bank.
 // This method charges the account the corresponding value of a ERC-20 totalSupply
 // call for each token returned.
 func (p Precompile) TotalSupply(
@@ -102,7 +107,11 @@ func (p Precompile) TotalSupply(
 	return method.Outputs.Pack(totalSupply)
 }
 
-// SupplyOf returns the total native supply of a given registered erc20 token.
+// SupplyOf returns the total supply of a given registered erc20 token
+// from the x/bank module. If the ERC20 token doesn't have a registered
+// TokenPair, the method returns a supply of zero.
+// The amount returned with this query has the original decimals precision
+// stored in the x/bank.
 func (p Precompile) SupplyOf(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -111,7 +120,7 @@ func (p Precompile) SupplyOf(
 ) ([]byte, error) {
 	erc20ContractAddress, err := ParseSupplyOfArgs(args)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting the supply in bank precompile: %s", err)
 	}
 
 	tokenPairID := p.erc20Keeper.GetERC20Map(ctx, erc20ContractAddress)
