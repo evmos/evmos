@@ -928,7 +928,17 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abc
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
+// flag to avoid running the fork logic
+// on every block. Should only run once.
+// If restarting the node after forking,
+// this flag should be 'true' (or remove the ScheduleForkUpgrade)
+var forked = false
+
 func (app *Evmos) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	if !forked {
+		app.ScheduleForkUpgrade(ctx)
+		forked = true
+	}
 	return app.mm.PreBlock(ctx)
 }
 
@@ -1194,6 +1204,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.EvmKeeper,
 			app.GovKeeper,
+			app.StakingKeeper.Keeper,
+			app.BankKeeper,
 		),
 	)
 
