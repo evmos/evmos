@@ -28,27 +28,6 @@ const (
 	EighteenDecimals Decimals = 18
 )
 
-// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
-// that allows initializing the app with different coin info based on the
-// chain id
-var ChainsCoinInfo = map[string]EvmCoinInfo{
-	utils.MainnetChainID: {
-		Denom:        types.BaseDenom,
-		DisplayDenom: types.DisplayDenom,
-		Decimals:     EighteenDecimals,
-	},
-	utils.TestnetChainID: {
-		Denom:        types.BaseDenomTestnet,
-		DisplayDenom: types.DisplayDenomTestnet,
-		Decimals:     EighteenDecimals,
-	},
-	utils.SixDecChainID: {
-		Denom:        types.BaseDenom,
-		DisplayDenom: types.DisplayDenom,
-		Decimals:     SixDecimals,
-	},
-}
-
 // Decimals represents the decimal representation of a Cosmos coin.
 type Decimals uint8
 
@@ -91,6 +70,27 @@ type EvmCoinInfo struct {
 // evmCoinInfo hold the information of the coin used in the EVM as gas token. It
 // can only be set via `EVMConfigurator` before starting the app.
 var evmCoinInfo *EvmCoinInfo
+
+// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// that allows initializing the app with different coin info based on the
+// chain id
+var ChainsCoinInfo = map[string]EvmCoinInfo{
+	utils.MainnetChainID: {
+		Denom:        types.BaseDenom,
+		DisplayDenom: types.DisplayDenom,
+		Decimals:     EighteenDecimals,
+	},
+	utils.TestnetChainID: {
+		Denom:        types.BaseDenomTestnet,
+		DisplayDenom: types.DisplayDenomTestnet,
+		Decimals:     EighteenDecimals,
+	},
+	utils.SixDecChainID: {
+		Denom:        types.BaseDenom,
+		DisplayDenom: types.DisplayDenom,
+		Decimals:     SixDecimals,
+	},
+}
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
