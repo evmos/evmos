@@ -32,17 +32,17 @@ const (
 // that allows initializing the app with different coin info based on the
 // chain id
 var ChainsCoinInfo map[string]EvmCoinInfo = map[string]EvmCoinInfo{
-	utils.MainnetChainID: EvmCoinInfo{
+	utils.MainnetChainID: {
 		Denom:        types.BaseDenom,
 		DisplayDenom: types.DisplayDenom,
 		Decimals:     EighteenDecimals,
 	},
-	utils.TestnetChainID: EvmCoinInfo{
+	utils.TestnetChainID: {
 		Denom:        types.BaseDenomTestnet,
 		DisplayDenom: types.DisplayDenomTestnet,
 		Decimals:     EighteenDecimals,
 	},
-	utils.SixDecChainID: EvmCoinInfo{
+	utils.SixDecChainID: {
 		Denom:        types.BaseDenom,
 		DisplayDenom: types.DisplayDenom,
 		Decimals:     SixDecimals,
