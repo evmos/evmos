@@ -15,4 +15,12 @@ const (
 	ErrInvalidOption = "invalid option %s "
 	// ErrInvalidMetadata invalid metadata.
 	ErrInvalidMetadata = "invalid metadata %s "
+	// ErrInvalidWeightedVoteOptions invalid weighted vote options.
+	ErrInvalidWeightedVoteOptions = "invalid weighted vote options %s "
+	// ErrInvalidWeightedVoteOption invalid weighted vote option.
+	ErrInvalidWeightedVoteOption = "invalid weighted vote option %s "
+	// ErrInvalidWeightedVoteOptionType invalid weighted vote option type.
+	ErrInvalidWeightedVoteOptionType = "invalid weighted vote option type %s "
+	// ErrInvalidWeightedVoteOptionWeight invalid weighted vote option weight.
+	ErrInvalidWeightedVoteOptionWeight = "invalid weighted vote option weight %s "
 )

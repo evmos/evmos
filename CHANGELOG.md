@@ -54,6 +54,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
 - (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
 - (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
@@ -73,6 +74,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#2907](https://github.com/evmos/evmos/pull/2907) Add support for custom base denom decimals in the ante for EVM txs.
 - (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 - (app) [#2914](https://github.com/evmos/evmos/pull/2914) Refactor App configurator to abstract `Decimals` type and use validation.
+- (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different evm denom precision.
 
 ### Bug Fixes
 

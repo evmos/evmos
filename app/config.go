@@ -77,18 +77,14 @@ func setTestnetBaseDenom() error {
 	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	if err := sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		return err
-	}
-	return sdk.SetBaseDenom(types.BaseDenomTestnet)
+	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	return sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit))
 }
 
 func setMainnetBaseDenom() error {
 	if err := sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	if err := sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
-		return err
-	}
-	return sdk.SetBaseDenom(types.BaseDenom)
+	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	return sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit))
 }

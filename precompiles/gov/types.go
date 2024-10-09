@@ -24,6 +24,13 @@ type EventVote struct {
 	Option     uint8
 }
 
+// EventVoteWeighted defines the event data for the VoteWeighted transaction.
+type EventVoteWeighted struct {
+	Voter      common.Address
+	ProposalId uint64 //nolint:revive,stylecheck
+	Options    WeightedVoteOptions
+}
+
 // VotesInput defines the input for the Votes query.
 type VotesInput struct {
 	ProposalId uint64 //nolint:revive,stylecheck
@@ -54,6 +61,9 @@ type WeightedVoteOption struct {
 	Option uint8
 	Weight string
 }
+
+// WeightedVoteOptions defines a slice of WeightedVoteOption.
+type WeightedVoteOptions []WeightedVoteOption
 
 // NewMsgVote creates a new MsgVote instance.
 func NewMsgVote(args []interface{}) (*govv1.MsgVote, common.Address, error) {
@@ -89,6 +99,52 @@ func NewMsgVote(args []interface{}) (*govv1.MsgVote, common.Address, error) {
 	}
 
 	return msg, voterAddress, nil
+}
+
+// NewMsgVoteWeighted creates a new MsgVoteWeighted instance.
+func NewMsgVoteWeighted(method *abi.Method, args []interface{}) (*govv1.MsgVoteWeighted, common.Address, WeightedVoteOptions, error) {
+	if len(args) != 4 {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+	}
+
+	voterAddress, ok := args[0].(common.Address)
+	if !ok || voterAddress == (common.Address{}) {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf(ErrInvalidVoter, args[0])
+	}
+
+	proposalID, ok := args[1].(uint64)
+	if !ok {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf(ErrInvalidProposalID, args[1])
+	}
+
+	// Unpack the input struct
+	var options WeightedVoteOptions
+	arguments := abi.Arguments{method.Inputs[2]}
+	if err := arguments.Copy(&options, []interface{}{args[2]}); err != nil {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf("error while unpacking args to Options struct: %s", err)
+	}
+
+	weightedOptions := make([]*govv1.WeightedVoteOption, len(options))
+	for i, option := range options {
+		weightedOptions[i] = &govv1.WeightedVoteOption{
+			Option: govv1.VoteOption(option.Option),
+			Weight: option.Weight,
+		}
+	}
+
+	metadata, ok := args[3].(string)
+	if !ok {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf(ErrInvalidMetadata, args[3])
+	}
+
+	msg := &govv1.MsgVoteWeighted{
+		ProposalId: proposalID,
+		Voter:      sdk.AccAddress(voterAddress.Bytes()).String(),
+		Options:    weightedOptions,
+		Metadata:   metadata,
+	}
+
+	return msg, voterAddress, options, nil
 }
 
 // ParseVotesArgs parses the arguments for the Votes query.
