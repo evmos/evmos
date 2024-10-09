@@ -34,9 +34,9 @@ const (
 // EvmCoinInfo struct holds the name and decimals of the EVM denom. The EVM denom
 // is the token used to pay fees in the EVM.
 type EvmCoinInfo struct {
-	Denom    string
+	Denom        string
 	DisplayDenom string
-	Decimals Decimals
+	Decimals     Decimals
 }
 
 // ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
