@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "IGov",
   "sourceName": "solidity/precompiles/gov/IGov.sol",
-  "abi": [
+  "abi":[
     {
       "anonymous": false,
       "inputs": [
@@ -26,6 +26,43 @@
         }
       ],
       "name": "Vote",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "components": [
+            {
+              "internalType": "enum VoteOption",
+              "name": "option",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "weight",
+              "type": "string"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct WeightedVoteOption[]",
+          "name": "options",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "VoteWeighted",
       "type": "event"
     },
     {
@@ -212,6 +249,52 @@
         }
       ],
       "name": "vote",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "components": [
+            {
+              "internalType": "enum VoteOption",
+              "name": "option",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "weight",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct WeightedVoteOption[]",
+          "name": "options",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "string",
+          "name": "metadata",
+          "type": "string"
+        }
+      ],
+      "name": "voteWeighted",
       "outputs": [
         {
           "internalType": "bool",
