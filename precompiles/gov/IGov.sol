@@ -48,6 +48,12 @@ interface IGov {
     /// @param option the option for voter
     event Vote(address indexed voter, uint64 proposalId, uint8 option);
 
+    /// @dev VoteWeighted defines an Event emitted when a proposal voted.
+    /// @param voter the address of the voter
+    /// @param proposalId the proposal of id
+    /// @param options the options for voter
+    event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
+
     /// TRANSACTIONS
 
     /// @dev vote defines a method to add a vote on a specific proposal.
@@ -63,6 +69,19 @@ interface IGov {
         string memory metadata
     ) external returns (bool success);
 
+    /// @dev voteWeighted defines a method to add a vote on a specific proposal.
+    /// @param voter The address of the voter
+    /// @param proposalId The proposal id
+    /// @param options The options for voter
+    /// @param metadata The metadata for voter send
+    /// @return success Whether the transaction was successful or not
+    function voteWeighted(
+        address voter,
+        uint64 proposalId,
+        WeightedVoteOption[] calldata options,
+        string memory metadata
+    ) external returns (bool success);
+     
     /// QUERIES
 
     /// @dev getVote returns the vote of a single voter for a

@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
 - (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
 - (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.

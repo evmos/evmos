@@ -131,6 +131,81 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 	})
 
+	Describe("Execute VoteWeighted transaction", func() {
+		const method = gov.VoteWeightedMethod
+
+		BeforeEach(func() {
+			callArgs.MethodName = method
+		})
+
+		It("should return error if the provided gasLimit is too low", func() {
+			txArgs.GasLimit = 30000
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				proposalID,
+				[]gov.WeightedVoteOption{
+					{Option: 1, Weight: "0.5"},
+					{Option: 2, Weight: "0.5"},
+				},
+				metadata,
+			}
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, outOfGasCheck)
+			Expect(err).To(BeNil())
+
+			// tally result should remain unchanged
+			proposal, _ := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposalID)
+			_, _, tallyResult, err := s.network.App.GovKeeper.Tally(s.network.GetContext(), proposal)
+			Expect(err).To(BeNil())
+			Expect(tallyResult.YesCount).To(Equal("0"), "expected tally result to remain unchanged")
+		})
+
+		It("should return error if the origin is different than the voter", func() {
+			callArgs.Args = []interface{}{
+				differentAddr,
+				proposalID,
+				[]gov.WeightedVoteOption{
+					{Option: 1, Weight: "0.5"},
+					{Option: 2, Weight: "0.5"},
+				},
+				metadata,
+			}
+
+			voterSetCheck := defaultLogCheck.WithErrContains(gov.ErrDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, voterSetCheck)
+			Expect(err).To(BeNil())
+		})
+
+		It("should vote weighted success", func() {
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				proposalID,
+				[]gov.WeightedVoteOption{
+					{Option: 1, Weight: "0.7"},
+					{Option: 2, Weight: "0.3"},
+				},
+				metadata,
+			}
+
+			voterSetCheck := passCheck.WithExpEvents(gov.EventTypeVoteWeighted)
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, voterSetCheck)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+
+			// tally result should be updated
+			proposal, _ := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposalID)
+			_, _, tallyResult, err := s.network.App.GovKeeper.Tally(s.network.GetContext(), proposal)
+			Expect(err).To(BeNil())
+
+			expectedYesCount := math.NewInt(21e17) // 70% of 3e18
+			Expect(tallyResult.YesCount).To(Equal(expectedYesCount.String()), "expected tally result yes count updated")
+
+			expectedAbstainCount := math.NewInt(9e17) // 30% of 3e18
+			Expect(tallyResult.AbstainCount).To(Equal(expectedAbstainCount.String()), "expected tally result no count updated")
+		})
+	})
+
 	// =====================================
 	// 				QUERIES
 	// =====================================
@@ -176,6 +251,59 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(out.Vote.Options).To(HaveLen(1))
 				Expect(out.Vote.Options[0].Option).To(Equal(option))
 				Expect(out.Vote.Options[0].Weight).To(Equal(math.LegacyOneDec().String()))
+			})
+		})
+
+		Context("weighted vote query", func() {
+			method := gov.GetVoteMethod
+			BeforeEach(func() {
+				// submit a weighted vote
+				voteArgs := factory.CallArgs{
+					ContractABI: s.precompile.ABI,
+					MethodName:  gov.VoteWeightedMethod,
+					Args: []interface{}{
+						s.keyring.GetAddr(0),
+						proposalID,
+						[]gov.WeightedVoteOption{
+							{Option: 1, Weight: "0.7"},
+							{Option: 2, Weight: "0.3"},
+						},
+						metadata,
+					},
+				}
+
+				voterSetCheck := passCheck.WithExpEvents(gov.EventTypeVoteWeighted)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, voteArgs, voterSetCheck)
+				Expect(err).To(BeNil(), "error while calling the precompile")
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			It("should return a weighted vote", func() {
+				callArgs.MethodName = method
+				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
+				txArgs.GasLimit = 200_000
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.VoteOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Vote.Voter).To(Equal(s.keyring.GetAddr(0)))
+				Expect(out.Vote.ProposalId).To(Equal(proposalID))
+				Expect(out.Vote.Metadata).To(Equal(metadata))
+				Expect(out.Vote.Options).To(HaveLen(2))
+				Expect(out.Vote.Options[0].Option).To(Equal(uint8(1)))
+				Expect(out.Vote.Options[0].Weight).To(Equal("0.7"))
+				Expect(out.Vote.Options[1].Option).To(Equal(uint8(2)))
+				Expect(out.Vote.Options[1].Weight).To(Equal("0.3"))
 			})
 		})
 
