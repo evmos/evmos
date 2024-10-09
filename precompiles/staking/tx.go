@@ -243,8 +243,8 @@ func (p *Precompile) Delegate(
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 
 		// Need to scale the amount to 18 decimals for the EVM balance change entry
-		scaledCoin := evmtypes.MustConvertEvmCoinTo18Decimals(msg.Amount)
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, scaledCoin.Amount.BigInt(), cmn.Sub))
+		scaledAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.Amount.BigInt())
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, scaledAmt, cmn.Sub))
 	}
 
 	return method.Outputs.Pack(true)
