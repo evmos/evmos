@@ -58,8 +58,8 @@ func EnableGovPrecompile(ctx sdk.Context, ek *evmkeeper.Keeper) error {
 	return ek.SetParams(ctx, params)
 }
 
-func UpdateExpeditedPropsParams(ctx sdk.Context, gv govkeeper.Keeper) error {
-	params, err := gv.Params.Get(ctx)
+func UpdateExpeditedPropsParams(ctx sdk.Context, gk govkeeper.Keeper) error {
+	params, err := gk.Params.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -83,5 +83,5 @@ func UpdateExpeditedPropsParams(ctx sdk.Context, gv govkeeper.Keeper) error {
 	if err := params.ValidateBasic(); err != nil {
 		return err
 	}
-	return gv.Params.Set(ctx, params)
+	return gk.Params.Set(ctx, params)
 }
