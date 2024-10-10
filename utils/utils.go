@@ -31,8 +31,8 @@ const (
 	SixDecChainID = "evmosix_9000"
 
 	// Chain IDs used in the testing suite.
-	TestChainID6Dec  = "tevmos_9000-6"
-	TestChainID18Dec = "tevmos_9000-18"
+	TestChainID6Dec  = "tevmos_9000"
+	TestChainID18Dec = "tevmos_9000"
 )
 
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
