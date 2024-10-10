@@ -24,8 +24,9 @@ var (
 	// defaultCoinInfo is the default coin info used
 	// when the coin info is not specified
 	defaultCoinInfo = EvmCoinInfo{
-		Denom:    types.BaseDenom,
-		Decimals: EighteenDecimals,
+		Denom:        types.BaseDenom,
+		DisplayDenom: types.DisplayDenom,
+		Decimals:     EighteenDecimals,
 	}
 )
 
