@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+- (upgrade) [#2933](https://github.com/evmos/evmos/pull/2933) Update upgrade handler logic for `v20` release.
+
 ## [v20.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc3) - 2024-10-08
 
 ### State Machine Breaking
