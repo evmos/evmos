@@ -71,24 +71,38 @@ type EvmCoinInfo struct {
 // can only be set via `EVMConfigurator` before starting the app.
 var evmCoinInfo *EvmCoinInfo
 
+type ChainInfo struct {
+	evmCoin   EvmCoinInfo
+	configure bool
+}
+
 // ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
 // that allows initializing the app with different coin info based on the
 // chain id
-var ChainsCoinInfo = map[string]EvmCoinInfo{
+var ChainsInfo = map[string]ChainInfo{
 	utils.MainnetChainID: {
-		Denom:        types.BaseDenom,
-		DisplayDenom: types.DisplayDenom,
-		Decimals:     EighteenDecimals,
+		EvmCoinInfo{
+			Denom:        types.BaseDenom,
+			DisplayDenom: types.DisplayDenom,
+			Decimals:     EighteenDecimals,
+		},
+		true,
 	},
 	utils.TestnetChainID: {
-		Denom:        types.BaseDenomTestnet,
-		DisplayDenom: types.DisplayDenomTestnet,
-		Decimals:     EighteenDecimals,
+		EvmCoinInfo{
+			Denom:        types.BaseDenomTestnet,
+			DisplayDenom: types.DisplayDenomTestnet,
+			Decimals:     EighteenDecimals,
+		},
+		true,
 	},
 	utils.SixDecChainID: {
-		Denom:        types.BaseDenom,
-		DisplayDenom: types.DisplayDenom,
-		Decimals:     SixDecimals,
+		EvmCoinInfo{
+			Denom:        types.BaseDenom,
+			DisplayDenom: types.DisplayDenom,
+			Decimals:     SixDecimals,
+		},
+		true,
 	},
 }
 
