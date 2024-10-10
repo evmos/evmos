@@ -17,9 +17,6 @@ import (
 	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
 )
 
-// PrecompileAddress of the distribution EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000801"
-
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
