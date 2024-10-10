@@ -76,6 +76,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#2907](https://github.com/evmos/evmos/pull/2907) Add support for custom base denom decimals in the ante for EVM txs.
 - (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 - (app) [#2914](https://github.com/evmos/evmos/pull/2914) Refactor App configurator to abstract `Decimals` type and use validation.
+- (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different evm denom precision.
+- (config) [#2932](https://github.com/evmos/evmos/pull/2932) Add chains coin info map for app initialization.
 - (precompiles) [#2928](https://github.com/evmos/evmos/pull/2928) Vesting: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 
