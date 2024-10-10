@@ -15,6 +15,9 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 // Decimals is a wrapper around uint64 to represent the decimal representation
@@ -31,8 +34,30 @@ const (
 // EvmCoinInfo struct holds the name and decimals of the EVM denom. The EVM denom
 // is the token used to pay fees in the EVM.
 type EvmCoinInfo struct {
-	Denom    string
-	Decimals Decimals
+	Denom        string
+	DisplayDenom string
+	Decimals     Decimals
+}
+
+// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// that allows initializing the app with different coin info based on the
+// chain id
+var ChainsCoinInfo = map[string]EvmCoinInfo{
+	utils.MainnetChainID: {
+		Denom:        types.BaseDenom,
+		DisplayDenom: types.DisplayDenom,
+		Decimals:     EighteenDecimals,
+	},
+	utils.TestnetChainID: {
+		Denom:        types.BaseDenomTestnet,
+		DisplayDenom: types.DisplayDenomTestnet,
+		Decimals:     EighteenDecimals,
+	},
+	utils.SixDecChainID: {
+		Denom:        types.BaseDenom,
+		DisplayDenom: types.DisplayDenom,
+		Decimals:     SixDecimals,
+	},
 }
 
 // testingEvmCoinInfo hold the information of the coin used in the EVM as gas token. It

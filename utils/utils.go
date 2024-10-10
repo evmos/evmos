@@ -27,8 +27,8 @@ const (
 	MainnetChainID = "evmos_9001"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
 	TestnetChainID = "evmos_9000"
-	// TestingChainID defines the Evmos EIP155 chain ID for integration test
-	TestingChainID = "test_9000"
+	// SixDecChainID defines the Evmos EIP155 chain ID with 6 decimals precision
+	SixDecChainID = "evmosix_9000"
 )
 
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
@@ -67,12 +67,6 @@ func IsMainnet(chainID string) bool {
 // IsTestnet returns true if the chain-id has the Evmos testnet EIP155 chain prefix.
 func IsTestnet(chainID string) bool {
 	return strings.HasPrefix(chainID, TestnetChainID)
-}
-
-// IsTesting returns true if the chain-id has the "test" prefix.
-// NOTE: for tests only
-func IsTesting(chainID string) bool {
-	return strings.HasPrefix(chainID, TestingChainID)
 }
 
 // IsSupportedKey returns true if the pubkey type is supported by the chain

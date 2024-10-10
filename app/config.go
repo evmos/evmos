@@ -10,7 +10,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
@@ -30,8 +29,13 @@ func InitializeAppConfiguration(chainID string) error {
 		return nil
 	}
 
-	// set the base denom considering if its mainnet or testnet
-	if err := setBaseDenomWithChainID(chainID); err != nil {
+	coinInfo, found := evmtypes.ChainsCoinInfo[chainID]
+	if !found {
+		// default to mainnet coin info
+		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	}
+
+	if err := setBaseDenom(coinInfo); err != nil {
 		return err
 	}
 
@@ -45,7 +49,7 @@ func InitializeAppConfiguration(chainID string) error {
 	err = evmtypes.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, uint8(evmtypes.EighteenDecimals)).
+		WithEVMCoinInfo(baseDenom, uint8(coinInfo.Decimals)).
 		Configure()
 	if err != nil {
 		return err
@@ -63,28 +67,13 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 	"evmos_2": eips.Enable0002,
 }
 
-// setBaseDenomWithChainID registers the display denom and base denom and sets the
+// setBaseDenom registers the display denom and base denom and sets the
 // base denom for the chain. The function registers different values based on
-// the chainID to allow different configurations in mainnet and testnet.
-func setBaseDenomWithChainID(chainID string) error {
-	if utils.IsTestnet(chainID) {
-		return setTestnetBaseDenom()
-	}
-	return setMainnetBaseDenom()
-}
-
-func setTestnetBaseDenom() error {
-	if err := sdk.RegisterDenom(types.DisplayDenomTestnet, math.LegacyOneDec()); err != nil {
+// the EvmCoinInfo to allow different configurations in mainnet and testnet.
+func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
+	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
 	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
-	return sdk.RegisterDenom(types.BaseDenomTestnet, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit))
-}
-
-func setMainnetBaseDenom() error {
-	if err := sdk.RegisterDenom(types.DisplayDenom, math.LegacyOneDec()); err != nil {
-		return err
-	}
-	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
-	return sdk.RegisterDenom(types.BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit))
+	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
