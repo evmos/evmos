@@ -21,9 +21,6 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v20/x/vesting/keeper"
 )
 
-// PrecompileAddress of the vesting EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000803"
-
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
