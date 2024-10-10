@@ -35,7 +35,6 @@ func InitializeAppConfiguration(chainID string) error {
 		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
 	}
 
-	// set the base denom considering if its mainnet or testnet
 	if err := setBaseDenom(coinInfo); err != nil {
 		return err
 	}
