@@ -14,11 +14,20 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v20/types"
 )
 
-// testingEvmCoinInfo hold the information of the coin used in the EVM as gas token. It
-// can only be set via `EVMConfigurator` before starting the app.
-var testingEvmCoinInfo *EvmCoinInfo
+var (
+	// testingEvmCoinInfo hold the information of the coin used in the EVM as gas token. It
+	// can only be set via `EVMConfigurator` before starting the app.
+	testingEvmCoinInfo *EvmCoinInfo
+	// defaultCoinInfo is the default coin info used
+	// when the coin info is not specified
+	defaultCoinInfo = EvmCoinInfo{
+		Denom:    types.BaseDenom,
+		Decimals: EighteenDecimals,
+	}
+)
 
 // setEVMCoinDecimals allows to define the decimals used in the representation
 // of the EVM coin.
@@ -57,6 +66,11 @@ func setTestingEVMCoinInfo(eci EvmCoinInfo) error {
 		return errors.New("testing EVM coin info already set. Make sure you run the configurator's ResetTestChainConfig before trying to set a new evm coin info")
 	}
 	testingEvmCoinInfo = new(EvmCoinInfo)
+	// fill up the denom with default values
+	// if EvmCoinInfo is not defined
+	if eci.Denom == "" {
+		eci = defaultCoinInfo
+	}
 	if err := setEVMCoinDenom(eci.Denom); err != nil {
 		return err
 	}
