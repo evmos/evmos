@@ -29,14 +29,14 @@ func InitializeAppConfiguration(chainID string) error {
 		return nil
 	}
 
-	coinInfo, found := evmtypes.ChainsCoinInfo[chainID]
+	chainInfo, found := evmtypes.ChainsInfo[chainID]
 	if !found {
 		// default to mainnet coin info
-		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+		chainInfo = evmtypes.ChainsInfo[utils.MainnetChainID]
 	}
 
 	// set the base denom considering if its mainnet or testnet
-	if err := setBaseDenom(coinInfo); err != nil {
+	if err := setBaseDenom(chainInfo.EvmCoin); err != nil {
 		return err
 	}
 
@@ -45,12 +45,16 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
+	if !chainInfo.Configure {
+		return nil
+	}
+
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
 	err = evmtypes.NewEVMConfigurator().
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, uint8(coinInfo.Decimals)).
+		WithEVMCoinInfo(baseDenom, uint8(chainInfo.EvmCoin.Decimals)).
 		Configure()
 	if err != nil {
 		return err

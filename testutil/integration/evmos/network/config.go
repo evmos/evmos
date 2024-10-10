@@ -15,6 +15,7 @@ import (
 	testtx "github.com/evmos/evmos/v20/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Config defines the configuration for a chain.
@@ -31,6 +32,7 @@ type Config struct {
 	otherCoinDenom     []string
 	operatorsAddrs     []sdktypes.AccAddress
 	customBaseAppOpts  []func(*baseapp.BaseApp)
+	evmConfigurator    evmtypes.EVMConfigurator
 }
 
 type CustomGenesisState map[string]interface{}
@@ -38,8 +40,12 @@ type CustomGenesisState map[string]interface{}
 // DefaultConfig returns the default configuration for a chain.
 func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
+
+	// CREATE default configurator that can be changed with the new field in the
+	// Config.
+
 	return Config{
-		chainID:            utils.MainnetChainID + "-1",
+		chainID:            utils.TestChainID18Dec + "-1",
 		eip155ChainID:      big.NewInt(9001),
 		amountOfValidators: 3,
 		// Only one account besides the validators

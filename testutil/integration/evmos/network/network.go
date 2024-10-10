@@ -128,6 +128,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
+	// CALL the configure
+
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
 		validators:  validators,
