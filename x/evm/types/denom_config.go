@@ -72,8 +72,8 @@ type EvmCoinInfo struct {
 var evmCoinInfo *EvmCoinInfo
 
 type ChainInfo struct {
-	evmCoin   EvmCoinInfo
-	configure bool
+	EvmCoin   EvmCoinInfo
+	Configure bool
 }
 
 // ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
@@ -103,6 +103,14 @@ var ChainsInfo = map[string]ChainInfo{
 			Decimals:     SixDecimals,
 		},
 		true,
+	},
+	utils.TestChainID18Dec: {
+		EvmCoinInfo{
+			Denom:        types.BaseDenom,
+			DisplayDenom: types.DisplayDenom,
+			Decimals:     EighteenDecimals,
+		},
+		false,
 	},
 }
 

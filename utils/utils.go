@@ -29,6 +29,10 @@ const (
 	TestnetChainID = "evmos_9000"
 	// SixDecChainID defines the Evmos EIP155 chain ID with 6 decimals precision
 	SixDecChainID = "evmosix_9000"
+
+	// Chain IDs used in the testing suite.
+	TestChainID6Dec  = "tevmos_9000-6"
+	TestChainID18Dec = "tevmos_9000-18"
 )
 
 // EthHexToCosmosAddr takes a given Hex string and derives a Cosmos SDK account address
