@@ -50,11 +50,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
 - (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
 - (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
+- (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
+
 
 ### Improvements
 
-- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922) Add 'VoteWeighted' transaction to gov precompile.
 - (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
 - (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
