@@ -123,12 +123,16 @@ func (p *Precompile) FundVestingAccount(
 			vestingCoins = lockedUpCoins
 		}
 
-		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-		amt := vestingCoins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()
-		p.SetBalanceChangeEntries(
-			cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
-			cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
-		)
+		evmDenomAmt := vestingCoins.AmountOf(evmtypes.GetEVMCoinDenom())
+		if evmDenomAmt.IsPositive() {
+			// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+			// Need to scale the amount to 18 decimals for the EVM balance change entry
+			amt := evmtypes.ConvertAmountTo18DecimalsBigInt(evmDenomAmt.BigInt())
+			p.SetBalanceChangeEntries(
+				cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
+				cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
+			)
+		}
 	}
 
 	if err = p.EmitFundVestingAccountEvent(ctx, stateDB, msg, funderAddr, vestingAddr, lockupPeriods, vestingPeriods); err != nil {
@@ -188,10 +192,12 @@ func (p *Precompile) Clawback(
 		return nil, err
 	}
 
-	if isContractCaller {
+	evmDenomAmt := response.Coins.AmountOf(evmtypes.GetEVMCoinDenom())
+	if isContractCaller && evmDenomAmt.IsPositive() {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB when calling
 		// the precompile from another contract.
-		clawbackAmt := response.Coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()
+		// Need to scale the amount to 18 decimals for the EVM balance change entry
+		clawbackAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(evmDenomAmt.BigInt())
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(accountAddr, clawbackAmt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(destAddr, clawbackAmt, cmn.Add),
