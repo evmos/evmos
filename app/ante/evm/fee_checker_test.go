@@ -243,7 +243,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cfg := evmtypes.GetChainConfig()
+			cfg := evmtypes.GetEthChainConfig()
 			if !tc.londonEnabled {
 				cfg.LondonBlock = big.NewInt(10000)
 			} else {

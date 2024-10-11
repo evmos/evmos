@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
-	chainID := evmtypes.GetChainConfig().ChainID
+	chainID := evmtypes.GetEthChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -92,7 +92,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Con
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
 	ctx := suite.network.GetContext()
-	chainID := evmtypes.GetChainConfig().ChainID
+	chainID := evmtypes.GetEthChainConfig().ChainID
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -150,7 +150,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
 	ctx := suite.network.GetContext()
-	chainID := evmtypes.GetChainConfig().ChainID
+	chainID := evmtypes.GetEthChainConfig().ChainID
 
 	testMsgCall, err := testdata.LoadMessageCallContract()
 	require.NoError(t, err)

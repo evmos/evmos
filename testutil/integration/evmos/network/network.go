@@ -264,7 +264,7 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 
 // GetChainConfig returns the network's chain config
 func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
-	return evmtypes.GetChainConfig()
+	return evmtypes.GetEthChainConfig()
 }
 
 // GetDenom returns the network's denom

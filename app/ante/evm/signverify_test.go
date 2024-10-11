@@ -14,7 +14,7 @@ import (
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
 
-	evmChainID := evmtypes.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetEthChainConfig().ChainID
 
 	ethSigner := ethtypes.LatestSignerForChainID(evmChainID)
 

@@ -27,6 +27,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCodeCmd(),
 		GetAccountCmd(),
 		GetParamsCmd(),
+		GetConfigCmd(),
 	)
 	return cmd
 }
@@ -161,6 +162,34 @@ func GetParamsCmd() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetConfigCmd queries the evm configuration
+func GetConfigCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "config",
+		Short: "Get the evm config",
+		Long:  "Get the evm configuration values.",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Config(cmd.Context(), &types.QueryConfigRequest{})
 			if err != nil {
 				return err
 			}
