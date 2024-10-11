@@ -1070,8 +1070,8 @@ class CosmosCLI:
             )
         )[
             "config"
-        ]["evm_denom"]
-    
+        ]["denom"]
+
     def build_evm_tx(self, tx, signed):
         # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
         # to support 6 decimals we need to pass another argument
@@ -1484,7 +1484,7 @@ class CosmosCLI:
             )
         )
         return res["host_zone"]
-    
+
     def default_gas_price(self):
         gas_price = Decimal(self.query_base_fee() * 1.2)
         # round to 6 decimal places

@@ -15,6 +15,7 @@ from .network import (
 from .utils import (
     ADDRS,
     eth_to_bech32,
+    evm6dec_ibc_config,
     memiavl_config,
     setup_stride,
     update_evmos_bin,
@@ -41,6 +42,11 @@ IBC_CHAINS_META = {
         "chain_name": "evmos_9002-1",
         "bin": "evmosd",
         "denom": "aevmos",
+    },
+    "evmos_6dec": {
+        "chain_name": "evmosics_9000-1",
+        "bin": "evmosd",
+        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
     },
     "evmos-rocksdb": {
         "chain_name": "evmos_9002-1",
@@ -73,7 +79,7 @@ IBC_CHAINS_META = {
         "denom": "uatom",
     },
 }
-EVM_CHAINS = ["evmos_9002", "chainmain-1"]
+EVM_CHAINS = ["evmos_9002", "evmosics_9000", "chainmain-1"]
 
 
 class IBCNetwork(NamedTuple):
@@ -85,6 +91,7 @@ def get_evmos_generator(
     tmp_path: Path,
     file: str,
     is_rocksdb: bool = False,
+    is_6dec: bool = False,
     stride_included: bool = False,
     custom_scenario: str | None = None,
 ):
@@ -101,6 +108,13 @@ def get_evmos_generator(
             Path(__file__).parent / file,
             chain_binary="evmosd-rocksdb",
             post_init=create_snapshots_dir,
+        )
+    elif is_6dec:
+        file = evm6dec_ibc_config(tmp_path, file)
+        gen = setup_custom_evmos(
+            tmp_path,
+            46710,
+            Path(__file__).parent / file,
         )
     else:
         file = f"configs/{file}.jsonnet"
@@ -157,6 +171,7 @@ def prepare_network(
                 tmp_path,
                 file,
                 "-rocksdb" in chain,
+                "-6dec" in chain,
                 "stride" in chain_names,
                 custom_scenario,
             )

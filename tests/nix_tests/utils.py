@@ -91,6 +91,7 @@ PROPOSAL_STATUS_PASSED = 3
 PROPOSAL_STATUS_REJECTED = 4
 PROPOSAL_STATUS_FAILED = 5
 
+EVMOS_6DEC_CHAIN_ID="evmosics_9000-1"
 EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
     'app-config'+:{
       'minimum-gas-prices': '0ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
@@ -117,10 +118,10 @@ EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
       coins: '30000000000000000000000aevmos,3000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
       mnemonic: '${SIGNER2_MNEMONIC}',
     }],
-    'genesis'+: {
-      'app_state'+: {
-        'feemarket'+:{
-          'params'+: { 
+    genesis: {
+      app_state: {
+        feemarket:{
+          params: { 
               base_fee: "0.1",
           },
         },
@@ -562,13 +563,11 @@ def evm6dec_config(tmp_path: Path, file_name):
     root_dir = os.path.join(tests_dir, "..", "..")
     jsonnet_content = f"""
 local default = import '{tests_dir}/configs/{file_name}.jsonnet';
-default + {{
-  dotenv: '{root_dir}/scripts/.env',
-  {EVM_6DEC_CONF}
-}} - {{
-  'evmos_9002-1'
+{{
+ dotenv: '{root_dir}/scripts/.env',
+ {EVM_6DEC_CONF}
 }}
-    """
+"""
 
     # Write the JSONnet content to the file
     file_path = tmp_path / "configs" / f"{file_name}-6dec.jsonnet"
@@ -589,7 +588,7 @@ def evm6dec_ibc_config(tmp_path: Path, file_name):
     root_dir = os.path.join(tests_dir, "..", "..")
     jsonnet_content = f"""
 local default = import '{tests_dir}/configs/{file_name}.jsonnet';
-default + {{
+{{
   dotenv: '{root_dir}/scripts/.env',
   {EVM_6DEC_CONF}
   relayer: default.relayer + {{
@@ -607,8 +606,6 @@ default + {{
       default.relayer.chains
     ),
   }},
-}} - {{
-  'evmos_9002-1'
 }}
     """
 

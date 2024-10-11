@@ -10,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import http_wait_for_block, memiavl_config, supervisorctl, wait_for_port
+from .utils import EVMOS_6DEC_CHAIN_ID, evm6dec_config, http_wait_for_block, memiavl_config, supervisorctl, wait_for_port
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -139,6 +139,7 @@ def setup_evmos_6dec(path, base_port, long_timeout_commit=False):
         path,
         base_port,
         cfg,
+        chain_id=EVMOS_6DEC_CHAIN_ID
     )
 
 # for memiavl need to create the data/snapshots dir
@@ -200,7 +201,7 @@ def setup_geth(path, base_port):
 
 
 def setup_custom_evmos(
-    path, base_port, config, post_init=None, chain_binary=None, wait_port=True
+    path, base_port, config, post_init=None, chain_binary=None, wait_port=True, chain_id="evmos_9002-1"
 ):
     cmd = [
         "pystarport",
@@ -229,7 +230,7 @@ def setup_custom_evmos(
             # cause with sdkv0.50 the port starts faster
             http_wait_for_block(ports.rpc_port(base_port), 2)
         yield Evmos(
-            path / "evmos_9002-1", chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
+            path / chain_id, chain_binary=chain_binary or DEFAULT_CHAIN_BINARY
         )
     finally:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
