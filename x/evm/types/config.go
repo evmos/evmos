@@ -47,7 +47,7 @@ func (ec *EVMConfigurator) Configure() error {
 	return nil
 }
 
-func (ec *EVMConfigurator) ResetTestChainConfig() {
+func (ec *EVMConfigurator) ResetTestConfig() {
 	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
 }
 

@@ -52,7 +52,7 @@ func (ec *EVMConfigurator) Configure() error {
 	return nil
 }
 
-func (ec *EVMConfigurator) ResetTestChainConfig() {
+func (ec *EVMConfigurator) ResetTestConfig() {
 	vm.ResetActivators()
 	resetEVMCoinInfo()
 	testChainConfig = nil
@@ -60,7 +60,7 @@ func (ec *EVMConfigurator) ResetTestChainConfig() {
 
 func setTestChainConfig(cc *ChainConfig) error {
 	if testChainConfig != nil {
-		return errors.New("chainConfig already set. Cannot set again the chainConfig. Call the configurators ResetTestChainConfig method before configuring a new chain.")
+		return errors.New("chainConfig already set. Cannot set again the chainConfig. Call the configurators ResetTestConfig method before configuring a new chain.")
 	}
 	config := DefaultChainConfig("")
 	if cc != nil {

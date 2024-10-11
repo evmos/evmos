@@ -64,7 +64,7 @@ func GetEVMCoinDenom() string {
 // SetEVMCoinInfo allows to define denom and decimals of the coin used in the EVM.
 func setTestingEVMCoinInfo(eci EvmCoinInfo) error {
 	if testingEvmCoinInfo != nil {
-		return errors.New("testing EVM coin info already set. Make sure you run the configurator's ResetTestChainConfig before trying to set a new evm coin info")
+		return errors.New("testing EVM coin info already set. Make sure you run the configurator's ResetTestConfig before trying to set a new evm coin info")
 	}
 	testingEvmCoinInfo = new(EvmCoinInfo)
 	// fill up the denom with default values

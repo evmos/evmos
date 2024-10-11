@@ -4,16 +4,24 @@
 //go:build test
 // +build test
 
+// This file is used to allow the testing of EVM configuration initialization
+// without the need to introduce testing requirements in the final binary. In
+// this case, the file provides the possibility to restore the EIP activator
+// functions to the initial state without the need to compile ResetActivators
+// in the final binary.
+
 package vm
 
-var originalActivators = map[string]func(*JumpTable){
-	"ethereum_3855": enable3855,
-	"ethereum_3529": enable3529,
-	"ethereum_3198": enable3198,
-	"ethereum_2929": enable2929,
-	"ethereum_2200": enable2200,
-	"ethereum_1884": enable1884,
-	"ethereum_1344": enable1344,
+var originalActivators = make(map[string]func(*JumpTable))
+
+func init() {
+	keys := GetActivatorsEipNames()
+
+	originalActivators = make(map[string]func(*JumpTable), len(keys))
+
+	for _, k := range keys {
+		originalActivators[k] = activators[k]
+	}
 }
 
 // ResetActivators resets activators to the original go ethereum activators map
