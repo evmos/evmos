@@ -717,7 +717,7 @@ func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasP
 }
 
 // Config implements the Query/Config gRPC method
-func (k Keeper) Config(c context.Context, _ *types.QueryConfigRequest) (*types.QueryConfigResponse, error) {
+func (k Keeper) Config(_ context.Context, _ *types.QueryConfigRequest) (*types.QueryConfigResponse, error) {
 	config := types.GetChainConfig()
 	config.Denom = types.GetEVMCoinDenom()
 	config.Decimals = uint64(types.GetEVMCoinDecimals())
