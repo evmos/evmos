@@ -83,7 +83,7 @@ func NewMonoDecoratorUtils(
 	ek EVMKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx)
@@ -127,7 +127,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// accounts.
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	var txFeeInfo *txtypes.Fee

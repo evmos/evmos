@@ -46,7 +46,7 @@ func feeChecker(
 	feeTx sdk.FeeTx,
 ) (sdk.Coins, int64, error) {
 	denom := types.GetEVMCoinDenom()
-	ethConfig := types.GetChainConfig()
+	ethConfig := types.GetEthChainConfig()
 
 	if !types.IsLondon(ethConfig, ctx.BlockHeight()) {
 		// london hardfork is not enabled: fallback to min-gas-prices logic

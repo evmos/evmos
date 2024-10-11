@@ -15,7 +15,7 @@ import (
 // EVMConfig creates the EVMConfig based on current state
 func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress) (*statedb.EVMConfig, error) {
 	params := k.GetParams(ctx)
-	ethCfg := types.GetChainConfig()
+	ethCfg := types.GetEthChainConfig()
 
 	// get the coinbase address from the block proposer
 	coinbase, err := k.GetCoinbaseAddress(ctx, proposerAddress)

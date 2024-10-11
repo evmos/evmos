@@ -35,6 +35,7 @@ const (
 	Query_TraceBlock_FullMethodName        = "/ethermint.evm.v1.Query/TraceBlock"
 	Query_BaseFee_FullMethodName           = "/ethermint.evm.v1.Query/BaseFee"
 	Query_GlobalMinGasPrice_FullMethodName = "/ethermint.evm.v1.Query/GlobalMinGasPrice"
+	Query_Config_FullMethodName            = "/ethermint.evm.v1.Query/Config"
 )
 
 // QueryClient is the client API for Query service.
@@ -71,8 +72,10 @@ type QueryClient interface {
 	// GlobalMinGasPrice queries the MinGasPrice
 	// it's similar to feemarket module's method,
 	// but makes the conversion to 18 decimals
-	// when the evm denom is 6 decimals
+	// when the evm denom is represented with a different precision.
 	GlobalMinGasPrice(ctx context.Context, in *QueryGlobalMinGasPriceRequest, opts ...grpc.CallOption) (*QueryGlobalMinGasPriceResponse, error)
+	// Config queries the EVM configuration
+	Config(ctx context.Context, in *QueryConfigRequest, opts ...grpc.CallOption) (*QueryConfigResponse, error)
 }
 
 type queryClient struct {
@@ -200,6 +203,15 @@ func (c *queryClient) GlobalMinGasPrice(ctx context.Context, in *QueryGlobalMinG
 	return out, nil
 }
 
+func (c *queryClient) Config(ctx context.Context, in *QueryConfigRequest, opts ...grpc.CallOption) (*QueryConfigResponse, error) {
+	out := new(QueryConfigResponse)
+	err := c.cc.Invoke(ctx, Query_Config_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
@@ -234,8 +246,10 @@ type QueryServer interface {
 	// GlobalMinGasPrice queries the MinGasPrice
 	// it's similar to feemarket module's method,
 	// but makes the conversion to 18 decimals
-	// when the evm denom is 6 decimals
+	// when the evm denom is represented with a different precision.
 	GlobalMinGasPrice(context.Context, *QueryGlobalMinGasPriceRequest) (*QueryGlobalMinGasPriceResponse, error)
+	// Config queries the EVM configuration
+	Config(context.Context, *QueryConfigRequest) (*QueryConfigResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -281,6 +295,9 @@ func (UnimplementedQueryServer) BaseFee(context.Context, *QueryBaseFeeRequest) (
 }
 func (UnimplementedQueryServer) GlobalMinGasPrice(context.Context, *QueryGlobalMinGasPriceRequest) (*QueryGlobalMinGasPriceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GlobalMinGasPrice not implemented")
+}
+func (UnimplementedQueryServer) Config(context.Context, *QueryConfigRequest) (*QueryConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Config not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -529,6 +546,24 @@ func _Query_GlobalMinGasPrice_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Config_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Config(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Config_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Config(ctx, req.(*QueryConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -587,6 +622,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GlobalMinGasPrice",
 			Handler:    _Query_GlobalMinGasPrice_Handler,
+		},
+		{
+			MethodName: "Config",
+			Handler:    _Query_Config_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

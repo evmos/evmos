@@ -80,6 +80,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (config) [#2932](https://github.com/evmos/evmos/pull/2932) Add chains coin info map for app initialization.
 - (precompiles) [#2928](https://github.com/evmos/evmos/pull/2928) Vesting: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
+- (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
 
 ### Bug Fixes
 

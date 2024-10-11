@@ -103,7 +103,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	decimals := evmtypes.GetEVMCoinDecimals() //nolint:staticcheck
 
 	configurator := evmtypes.NewEVMConfigurator()
-	configurator.ResetTestChainConfig()
+	configurator.ResetTestConfig()
 	err := configurator.
 		WithChainConfig(chainConfig).
 		WithEVMCoinInfo(denom, uint8(decimals)).
