@@ -73,7 +73,6 @@ func setTestChainConfig(cc *ChainConfig) error {
 	return nil
 }
 
-
 // GetEthChainConfig returns the `chainConfig` used in the EVM (geth type).
 func GetEthChainConfig() *geth.ChainConfig {
 	return testChainConfig.EthereumConfig(nil)
