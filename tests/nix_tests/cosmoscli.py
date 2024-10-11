@@ -1,4 +1,5 @@
 import base64
+from decimal import ROUND_UP, Decimal
 import json
 import re
 import tempfile
@@ -9,7 +10,6 @@ from pystarport.utils import build_cli_args_safe, interact
 
 from .utils import DEFAULT_DENOM
 
-DEFAULT_GAS_PRICE = f"5000000000000{DEFAULT_DENOM}"
 DEFAULT_GAS = "250000"
 
 
@@ -350,7 +350,7 @@ class CosmosCLI:
         )
 
     def transfer(self, from_, to, coins, generate_only=False, **kwargs):
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         res = self.raw(
             "tx",
             "bank",
@@ -533,9 +533,7 @@ class CosmosCLI:
         )
 
     def delegate_amount(self, to_addr, amount, from_addr, **kwargs):
-        kwargs.setdefault(
-            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         return json.loads(
             self.raw(
                 "tx",
@@ -686,10 +684,7 @@ class CosmosCLI:
     #         GOV module
     # ==========================
     def gov_proposal(self, proposer, proposal_file_name, **kwargs):
-        kwargs.setdefault(
-            "gas_prices",
-            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         kwargs.setdefault("gas", DEFAULT_GAS)
         return json.loads(
             self.raw(
@@ -710,7 +705,7 @@ class CosmosCLI:
 
     def gov_legacy_proposal(self, proposer, kind, proposal, **kwargs):
         method = "submit-legacy-proposal"
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         if kind == "software-upgrade":
             return json.loads(
                 self.raw(
@@ -796,10 +791,7 @@ class CosmosCLI:
             )
 
     def gov_vote(self, voter, proposal_id, option, **kwargs):
-        kwargs.setdefault(
-            "gas_prices",
-            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         kwargs.setdefault("gas", str(int(DEFAULT_GAS) + 200_000))
         return json.loads(
             self.raw(
@@ -1064,6 +1056,22 @@ class CosmosCLI:
     #        EVM Module
     # ==========================
 
+    def evm_denom(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "evm",
+                "config",
+                **(default_kwargs | kwargs),
+            )
+        )[
+            "config"
+        ]["evm_denom"]
+    
     def build_evm_tx(self, tx, signed):
         # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
         # to support 6 decimals we need to pass another argument
@@ -1307,9 +1315,7 @@ class CosmosCLI:
         return rsp
 
     def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
-        kwargs.setdefault(
-            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         return json.loads(
             self.raw(
                 "tx",
@@ -1330,9 +1336,7 @@ class CosmosCLI:
     def fund_vesting_acc(
         self, address: str, funder: str, lockup_file: str, vesting_file: str, **kwargs
     ):
-        kwargs.setdefault(
-            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         return json.loads(
             self.raw(
                 "tx",
@@ -1357,9 +1361,7 @@ class CosmosCLI:
     #       ERC20 Module
     # ==========================
     def convert_coin(self, coin: str, account: str, **kwargs):
-        kwargs.setdefault(
-            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         return json.loads(
             self.raw(
                 "tx",
@@ -1377,10 +1379,7 @@ class CosmosCLI:
         )
 
     def convert_erc20(self, contract_address: str, amount: int, account: str, **kwargs):
-        kwargs.setdefault(
-            "gas_prices",
-            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         kwargs.setdefault("gas", 1_700_000)
         return json.loads(
             self.raw(
@@ -1485,6 +1484,12 @@ class CosmosCLI:
             )
         )
         return res["host_zone"]
+    
+    def default_gas_price(self):
+        gas_price = Decimal(self.query_base_fee() * 1.2)
+        # round to 6 decimal places
+        gp_rounded = gas_price.quantize(Decimal("1.000000"), rounding=ROUND_UP)
+        return f"{gp_rounded}{self.evm_denom()}"
 
     #   TODO: create different classes for each chains CLI
     # ==========================
