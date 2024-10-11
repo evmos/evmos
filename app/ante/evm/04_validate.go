@@ -110,7 +110,7 @@ func CheckTxFee(txFeeInfo *tx.Fee, txFee *big.Int, txGasLimit uint64) error {
 		return nil
 	}
 
-	convertedAmount := sdkmath.NewIntFromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(txFee))
+	convertedAmount := sdkmath.NewIntFromBigInt(evmtypes.ConvertAmountFrom18DecimalsBigInt(txFee))
 
 	baseDenom := evmtypes.GetEVMCoinDenom()
 	if !txFeeInfo.Amount.AmountOf(baseDenom).Equal(convertedAmount) {
