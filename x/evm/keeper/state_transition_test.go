@@ -255,10 +255,10 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			ethCfg := types.GetChainConfig()
+			ethCfg := types.GetEthChainConfig()
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
-			signer := gethtypes.LatestSignerForChainID(types.GetChainConfig().ChainID)
+			signer := gethtypes.LatestSignerForChainID(types.GetEthChainConfig().ChainID)
 
 			ctx := suite.network.GetContext().WithBlockHeight(tc.height)
 
@@ -543,13 +543,13 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(types.GetChainConfig(), cfg.ChainConfig)
+	suite.Require().Equal(types.GetEthChainConfig(), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
-	networkConfig := types.GetChainConfig()
+	networkConfig := types.GetEthChainConfig()
 	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 

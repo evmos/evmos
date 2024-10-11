@@ -279,7 +279,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 // - `0`: london hardfork enabled but feemarket is not enabled.
 // - `n`: both london hardfork and feemarket are enabled.
 func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
-	ethCfg := types.GetChainConfig()
+	ethCfg := types.GetEthChainConfig()
 	if !types.IsLondon(ethCfg, ctx.BlockHeight()) {
 		return nil
 	}

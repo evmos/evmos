@@ -68,7 +68,7 @@ func TestPostTestSuite(t *testing.T) {
 }
 
 func (s *PostTestSuite) BuildEthTx() sdk.Tx {
-	chainID := evmtypes.GetChainConfig().ChainID
+	chainID := evmtypes.GetEthChainConfig().ChainID
 
 	nonce := s.unitNetwork.App.EvmKeeper.GetNonce(
 		s.unitNetwork.GetContext(),
