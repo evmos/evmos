@@ -1493,7 +1493,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				chainConfig.ShanghaiBlock = &maxInt
 				chainConfig.CancunBlock = &maxInt
 				configurator := types.NewEVMConfigurator()
-				configurator.ResetTestChainConfig()
+				configurator.ResetTestConfig()
 				err := configurator.
 					WithChainConfig(chainConfig).
 					Configure()
@@ -1545,7 +1545,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 			suite.Require().NoError(suite.network.NextBlock())
 			configurator := types.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			err = configurator.
 				WithChainConfig(chainConfig).
 				WithEVMCoinInfo(denom, uint8(decimals)).

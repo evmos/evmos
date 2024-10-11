@@ -4,9 +4,6 @@
 // The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-//go:build !test
-// +build !test
-
 package types
 
 import (
@@ -73,8 +70,4 @@ func extendDefaultExtraEIPs(extraEIPs []string) error {
 		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
 	return nil
-}
-
-func (ec *EVMConfigurator) ResetTestChainConfig() {
-	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
 }
