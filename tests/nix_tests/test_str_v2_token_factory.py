@@ -10,7 +10,7 @@ TOKEN_FACTORY_IBC_DENOM = (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """Prepare the network"""
     name = "str-v2-token-factory"
