@@ -91,6 +91,42 @@ PROPOSAL_STATUS_PASSED = 3
 PROPOSAL_STATUS_REJECTED = 4
 PROPOSAL_STATUS_FAILED = 5
 
+EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
+    'app-config'+:{
+      'minimum-gas-prices': '0ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    },
+    'validators':[{
+      coins: '10001000000000000000000aevmos,1000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      staked: '1000000000000000000aevmos',
+      mnemonic: '${VALIDATOR1_MNEMONIC}',
+    },{
+      coins: '10001000000000000000000aevmos,1000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      staked: '1000000000000000000aevmos',
+      mnemonic: '${VALIDATOR2_MNEMONIC}',
+    }],
+    'accounts':[{
+      name: 'community',
+      coins: '10000000000000000000000aevmos,1000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${COMMUNITY_MNEMONIC}',
+    },{
+      name: 'signer1',
+      coins: '20000000000000000000000aevmos,2000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${SIGNER1_MNEMONIC}',
+    },{
+      name: 'signer2',
+      coins: '30000000000000000000000aevmos,3000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      mnemonic: '${SIGNER2_MNEMONIC}',
+    }],
+    'genesis'+: {
+      'app_state'+: {
+        'feemarket'+:{
+          'params'+: { 
+              base_fee: "0.1",
+          },
+        },
+      },
+    },
+  },"""
 
 def wasm_binaries_path(filename):
     return Path(__file__).parent / "cosmwasm/artifacts/" / filename
@@ -509,6 +545,75 @@ default {{
 
     # Write the JSONnet content to the file
     file_path = tmp_path / "configs" / f"{file_name}-memiavl.jsonnet"
+    os.makedirs(file_path.parent, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(jsonnet_content)
+
+    return file_path
+
+
+def evm6dec_config(tmp_path: Path, file_name):
+    """
+    Creates a new JSONnet config file with IBC uatom as the EVM denom
+    and with 6 decimals.
+    It takes as base the provided JSONnet file
+    """
+    tests_dir = str(Path(__file__).parent)
+    root_dir = os.path.join(tests_dir, "..", "..")
+    jsonnet_content = f"""
+local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+default + {{
+  dotenv: '{root_dir}/scripts/.env',
+  {EVM_6DEC_CONF}
+}} - {{
+  'evmos_9002-1'
+}}
+    """
+
+    # Write the JSONnet content to the file
+    file_path = tmp_path / "configs" / f"{file_name}-6dec.jsonnet"
+    os.makedirs(file_path.parent, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(jsonnet_content)
+
+    return file_path
+
+
+def evm6dec_ibc_config(tmp_path: Path, file_name):
+    """
+    Creates a new JSONnet IBC config file with IBC uatom as the EVM denom
+    and with 6 decimals.
+    It takes as base the provided JSONnet file
+    """
+    tests_dir = str(Path(__file__).parent)
+    root_dir = os.path.join(tests_dir, "..", "..")
+    jsonnet_content = f"""
+local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+default + {{
+  dotenv: '{root_dir}/scripts/.env',
+  {EVM_6DEC_CONF}
+  relayer: default.relayer + {{
+    chains: std.map(
+      function(chain)
+        if chain.id == 'evmos_9002-1' then
+          chain + {{
+            id: 'evmosics_9000-1',
+            gas_price: {{
+              price: 200000,
+              denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+            }},
+          }}
+        else chain,
+      default.relayer.chains
+    ),
+  }},
+}} - {{
+  'evmos_9002-1'
+}}
+    """
+
+    # Write the JSONnet content to the file
+    file_path = tmp_path / "configs" / f"{file_name}-6dec.jsonnet"
     os.makedirs(file_path.parent, exist_ok=True)
     with open(file_path, "w") as f:
         f.write(jsonnet_content)

@@ -126,6 +126,20 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
     cfg = Path(__file__).parent / config
     yield from setup_custom_evmos(path, base_port, cfg)
 
+def setup_evmos_6dec(path, base_port, long_timeout_commit=False):
+    """
+    setup_evmos_6dec returns an Evmos chain with
+    and EVM with 6 decimals and a "0.1" base fee.
+    """
+    config = evm6dec_config(
+        path, "default" if long_timeout_commit is False else "long_timeout_commit"
+    )
+    cfg = Path(__file__).parent / config
+    yield from setup_custom_evmos(
+        path,
+        base_port,
+        cfg,
+    )
 
 # for memiavl need to create the data/snapshots dir
 # for the nodes
