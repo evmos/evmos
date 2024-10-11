@@ -53,7 +53,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
 
-
 ### Improvements
 
 - (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922) Add 'VoteWeighted' transaction to gov precompile.
@@ -76,11 +75,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#2907](https://github.com/evmos/evmos/pull/2907) Add support for custom base denom decimals in the ante for EVM txs.
 - (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
 - (app) [#2914](https://github.com/evmos/evmos/pull/2914) Refactor App configurator to abstract `Decimals` type and use validation.
-- (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different evm denom precision.
-- (config) [#2932](https://github.com/evmos/evmos/pull/2932) Add chains coin info map for app initialization.
+- (app) [#2932](https://github.com/evmos/evmos/pull/2932) Add chains coin info map for app initialization.
 - (precompiles) [#2928](https://github.com/evmos/evmos/pull/2928) Vesting: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
+- (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
 
 ### Bug Fixes
 

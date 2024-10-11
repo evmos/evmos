@@ -99,6 +99,9 @@ func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAdd
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, coins sdk.Coins) error {
 	convertedCoins := types.ConvertCoinsFrom18Decimals(coins)
+	if convertedCoins.IsZero() {
+		return nil
+	}
 
 	return w.BankKeeper.SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, convertedCoins)
 }
