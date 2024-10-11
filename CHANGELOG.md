@@ -53,7 +53,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
 
-
 ### Improvements
 
 - (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922) Add 'VoteWeighted' transaction to gov precompile.
