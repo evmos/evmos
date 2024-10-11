@@ -56,7 +56,7 @@ func TestExtendedEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
-		ec.ResetTestChainConfig()
+		ec.ResetTestConfig()
 		err := ec.Configure()
 
 		if tc.expPass {
@@ -138,7 +138,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ec := tc.malleate()
-			ec.ResetTestChainConfig()
+			ec.ResetTestConfig()
 			err := ec.Configure()
 
 			if tc.expPass {

@@ -119,7 +119,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 	} {
 		for _, tc := range testCases {
 			configurator := types.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			suite.Require().NoError(configurator.WithEVMCoinInfo(cfg.Denom, uint8(cfg.Decimals)).Configure())
 			if strings.Contains(tc.name, "nil data") {
 				tc.msg.Data = nil

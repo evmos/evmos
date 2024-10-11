@@ -39,7 +39,7 @@ func InitializeAppConfiguration(chainID string) error {
 
 	configurator := evmtypes.NewEVMConfigurator()
 	// reset configuration to set the new one
-	configurator.ResetTestChainConfig()
+	configurator.ResetTestConfig()
 	err = configurator.
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
