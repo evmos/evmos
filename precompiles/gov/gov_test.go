@@ -87,7 +87,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 
-			evmChainID := evmtypes.GetChainConfig().ChainID
+			evmChainID := evmtypes.GetEthChainConfig().ChainID
 			txArgs := evmtypes.EvmTxArgs{
 				ChainID:   evmChainID,
 				Nonce:     0,

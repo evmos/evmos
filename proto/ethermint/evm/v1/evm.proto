@@ -147,6 +147,10 @@ message ChainConfig {
       [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.moretags) = "yaml:\"cancun_block\""];
   // chain_id is the id of the chain (EIP-155)
   uint64 chain_id = 24;
+  // denom is the denomination used on the EVM
+  string denom = 25;
+  // decimals is the real decimal precision of the denomination used on the EVM
+  uint64 decimals = 26;
 }
 
 // State represents a single Storage key value pair item.

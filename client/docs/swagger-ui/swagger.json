@@ -1347,6 +1347,159 @@
         ]
       }
     },
+    "/evmos/evm/v1/config": {
+      "get": {
+        "summary": "Config queries the EVM configuration",
+        "operationId": "Config",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "config": {
+                  "title": "config is the evm configuration",
+                  "type": "object",
+                  "properties": {
+                    "homestead_block": {
+                      "type": "string",
+                      "title": "homestead_block switch (nil no fork, 0 = already homestead)"
+                    },
+                    "dao_fork_block": {
+                      "type": "string",
+                      "title": "dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)"
+                    },
+                    "dao_fork_support": {
+                      "type": "boolean",
+                      "title": "dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork"
+                    },
+                    "eip150_block": {
+                      "type": "string",
+                      "title": "eip150_block: EIP150 implements the Gas price changes\n(https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)"
+                    },
+                    "eip150_hash": {
+                      "type": "string",
+                      "title": "eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)"
+                    },
+                    "eip155_block": {
+                      "type": "string",
+                      "title": "eip155_block: EIP155Block HF block"
+                    },
+                    "eip158_block": {
+                      "type": "string",
+                      "title": "eip158_block: EIP158 HF block"
+                    },
+                    "byzantium_block": {
+                      "type": "string",
+                      "title": "byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)"
+                    },
+                    "constantinople_block": {
+                      "type": "string",
+                      "title": "constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)"
+                    },
+                    "petersburg_block": {
+                      "type": "string",
+                      "title": "petersburg_block: Petersburg switch block (nil same as Constantinople)"
+                    },
+                    "istanbul_block": {
+                      "type": "string",
+                      "title": "istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)"
+                    },
+                    "muir_glacier_block": {
+                      "type": "string",
+                      "title": "muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)"
+                    },
+                    "berlin_block": {
+                      "type": "string",
+                      "title": "berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)"
+                    },
+                    "london_block": {
+                      "type": "string",
+                      "title": "london_block: London switch block (nil = no fork, 0 = already on london)"
+                    },
+                    "arrow_glacier_block": {
+                      "type": "string",
+                      "title": "arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)"
+                    },
+                    "gray_glacier_block": {
+                      "type": "string",
+                      "title": "gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)"
+                    },
+                    "merge_netsplit_block": {
+                      "type": "string",
+                      "title": "merge_netsplit_block: Virtual fork after The Merge to use as a network splitter"
+                    },
+                    "shanghai_block": {
+                      "type": "string",
+                      "title": "shanghai_block switch block (nil = no fork, 0 = already on shanghai)"
+                    },
+                    "cancun_block": {
+                      "type": "string",
+                      "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
+                    },
+                    "chain_id": {
+                      "type": "string",
+                      "format": "uint64",
+                      "title": "chain_id is the id of the chain (EIP-155)"
+                    },
+                    "denom": {
+                      "type": "string",
+                      "title": "denom is the denomination used on the EVM"
+                    },
+                    "decimals": {
+                      "type": "string",
+                      "format": "uint64",
+                      "title": "decimals is the real decimal precision of the denomination used on the EVM"
+                    }
+                  },
+                  "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
+                }
+              },
+              "description": "QueryConfigResponse returns the EVM Config."
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Must be a valid serialized protocol buffer of the above specified type."
+                      }
+                    },
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    },
     "/evmos/evm/v1/cosmos_account/{address}": {
       "get": {
         "summary": "CosmosAccount queries an Ethereum account's Cosmos Address.",
@@ -1693,7 +1846,7 @@
     },
     "/evmos/evm/v1/min_gas_price": {
       "get": {
-        "summary": "GlobalMinGasPrice queries the MinGasPrice\nit's similar to feemarket module's method,\nbut makes the conversion to 18 decimals\nwhen the evm denom is 6 decimals",
+        "summary": "GlobalMinGasPrice queries the MinGasPrice\nit's similar to feemarket module's method,\nbut makes the conversion to 18 decimals\nwhen the evm denom is represented with a different precision.",
         "operationId": "GlobalMinGasPrice",
         "responses": {
           "200": {
@@ -2219,6 +2372,21 @@
             "format": "uint64"
           },
           {
+            "name": "trace_config.overrides.denom",
+            "description": "denom is the denomination used on the EVM.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_config.overrides.decimals",
+            "description": "decimals is the real decimal precision of the denomination used on the EVM.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
             "name": "trace_config.enable_memory",
             "description": "enable_memory switches memory capture.",
             "in": "query",
@@ -2573,6 +2741,21 @@
           {
             "name": "trace_config.overrides.chain_id",
             "description": "chain_id is the id of the chain (EIP-155).",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "trace_config.overrides.denom",
+            "description": "denom is the denomination used on the EVM.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_config.overrides.decimals",
+            "description": "decimals is the real decimal precision of the denomination used on the EVM.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -22633,6 +22816,15 @@
           "type": "string",
           "format": "uint64",
           "title": "chain_id is the id of the chain (EIP-155)"
+        },
+        "denom": {
+          "type": "string",
+          "title": "denom is the denomination used on the EVM"
+        },
+        "decimals": {
+          "type": "string",
+          "format": "uint64",
+          "title": "decimals is the real decimal precision of the denomination used on the EVM"
         }
       },
       "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
@@ -22953,6 +23145,109 @@
       },
       "description": "QueryCodeResponse is the response type for the Query/Code RPC\nmethod."
     },
+    "ethermint.evm.v1.QueryConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "title": "config is the evm configuration",
+          "type": "object",
+          "properties": {
+            "homestead_block": {
+              "type": "string",
+              "title": "homestead_block switch (nil no fork, 0 = already homestead)"
+            },
+            "dao_fork_block": {
+              "type": "string",
+              "title": "dao_fork_block corresponds to TheDAO hard-fork switch block (nil no fork)"
+            },
+            "dao_fork_support": {
+              "type": "boolean",
+              "title": "dao_fork_support defines whether the nodes supports or opposes the DAO hard-fork"
+            },
+            "eip150_block": {
+              "type": "string",
+              "title": "eip150_block: EIP150 implements the Gas price changes\n(https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork)"
+            },
+            "eip150_hash": {
+              "type": "string",
+              "title": "eip150_hash: EIP150 HF hash (needed for header only clients as only gas pricing changed)"
+            },
+            "eip155_block": {
+              "type": "string",
+              "title": "eip155_block: EIP155Block HF block"
+            },
+            "eip158_block": {
+              "type": "string",
+              "title": "eip158_block: EIP158 HF block"
+            },
+            "byzantium_block": {
+              "type": "string",
+              "title": "byzantium_block: Byzantium switch block (nil no fork, 0 = already on byzantium)"
+            },
+            "constantinople_block": {
+              "type": "string",
+              "title": "constantinople_block: Constantinople switch block (nil no fork, 0 = already activated)"
+            },
+            "petersburg_block": {
+              "type": "string",
+              "title": "petersburg_block: Petersburg switch block (nil same as Constantinople)"
+            },
+            "istanbul_block": {
+              "type": "string",
+              "title": "istanbul_block: Istanbul switch block (nil no fork, 0 = already on istanbul)"
+            },
+            "muir_glacier_block": {
+              "type": "string",
+              "title": "muir_glacier_block: Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated)"
+            },
+            "berlin_block": {
+              "type": "string",
+              "title": "berlin_block: Berlin switch block (nil = no fork, 0 = already on berlin)"
+            },
+            "london_block": {
+              "type": "string",
+              "title": "london_block: London switch block (nil = no fork, 0 = already on london)"
+            },
+            "arrow_glacier_block": {
+              "type": "string",
+              "title": "arrow_glacier_block: Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)"
+            },
+            "gray_glacier_block": {
+              "type": "string",
+              "title": "gray_glacier_block: EIP-5133 (bomb delay) switch block (nil = no fork, 0 = already activated)"
+            },
+            "merge_netsplit_block": {
+              "type": "string",
+              "title": "merge_netsplit_block: Virtual fork after The Merge to use as a network splitter"
+            },
+            "shanghai_block": {
+              "type": "string",
+              "title": "shanghai_block switch block (nil = no fork, 0 = already on shanghai)"
+            },
+            "cancun_block": {
+              "type": "string",
+              "title": "cancun_block switch block (nil = no fork, 0 = already on cancun)"
+            },
+            "chain_id": {
+              "type": "string",
+              "format": "uint64",
+              "title": "chain_id is the id of the chain (EIP-155)"
+            },
+            "denom": {
+              "type": "string",
+              "title": "denom is the denomination used on the EVM"
+            },
+            "decimals": {
+              "type": "string",
+              "format": "uint64",
+              "title": "decimals is the real decimal precision of the denomination used on the EVM"
+            }
+          },
+          "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."
+        }
+      },
+      "description": "QueryConfigResponse returns the EVM Config."
+    },
     "ethermint.evm.v1.QueryCosmosAccountResponse": {
       "type": "object",
       "properties": {
@@ -23244,6 +23539,15 @@
               "type": "string",
               "format": "uint64",
               "title": "chain_id is the id of the chain (EIP-155)"
+            },
+            "denom": {
+              "type": "string",
+              "title": "denom is the denomination used on the EVM"
+            },
+            "decimals": {
+              "type": "string",
+              "format": "uint64",
+              "title": "decimals is the real decimal precision of the denomination used on the EVM"
             }
           },
           "description": "ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values\ninstead of *big.Int."

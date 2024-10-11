@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"slices"
 
-	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
@@ -61,37 +60,6 @@ func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, decimals uint8) *EVMCon
 	return ec
 }
 
-// Configure applies the changes to the virtual machine configuration.
-func (ec *EVMConfigurator) Configure() error {
-	// If Configure method has been already used in the object, return
-	// an error to avoid overriding configuration.
-	if ec.sealed {
-		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
-	}
-
-	if err := setChainConfig(ec.chainConfig); err != nil {
-		return err
-	}
-
-	if err := setEVMCoinInfo(ec.evmCoinInfo); err != nil {
-		return err
-	}
-
-	if err := extendDefaultExtraEIPs(ec.extendedDefaultExtraEIPs); err != nil {
-		return err
-	}
-
-	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
-		return err
-	}
-
-	// After applying modifiers the configurator is sealed. This way, it is not possible
-	// to call the configure method twice.
-	ec.sealed = true
-
-	return nil
-}
-
 func extendDefaultExtraEIPs(extraEIPs []string) error {
 	for _, eip := range extraEIPs {
 		if slices.Contains(DefaultExtraEIPs, eip) {
@@ -109,9 +77,4 @@ func extendDefaultExtraEIPs(extraEIPs []string) error {
 
 func (ec *EVMConfigurator) ResetTestChainConfig() {
 	panic("this is only implemented with the 'test' build flag. Make sure you're running your tests using the '-tags=test' flag.")
-}
-
-// GetChainConfig returns the `chainConfig` used in the EVM.
-func GetChainConfig() *geth.ChainConfig {
-	return chainConfig
 }

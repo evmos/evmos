@@ -14,7 +14,7 @@ func (suite *AnteTestSuite) TestSignatures() {
 	privKey := suite.GetKeyring().GetPrivKey(0)
 	to := utiltx.GenerateAddress()
 
-	evmChainID := evmtypes.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetEthChainConfig().ChainID
 
 	txArgs := evmtypes.EvmTxArgs{
 		ChainID:  evmChainID,

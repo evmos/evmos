@@ -20,7 +20,7 @@ import (
 
 // testChainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
-var testChainConfig *geth.ChainConfig
+var testChainConfig *ChainConfig
 
 // EVMConfigurator allows to extend x/evm module configurations. The configurator modifies
 // the EVM before starting the node. This means that all init genesis validations will be
@@ -119,11 +119,17 @@ func setTestChainConfig(cc *ChainConfig) error {
 	if err := config.Validate(); err != nil {
 		return err
 	}
-	testChainConfig = config.EthereumConfig(nil)
+	testChainConfig = config
 	return nil
 }
 
-// GetChainConfig returns the `testChainConfig` used in the EVM.
-func GetChainConfig() *geth.ChainConfig {
+
+// GetEthChainConfig returns the `chainConfig` used in the EVM (geth type).
+func GetEthChainConfig() *geth.ChainConfig {
+	return testChainConfig.EthereumConfig(nil)
+}
+
+// GetChainConfig returns the `chainConfig`.
+func GetChainConfig() *ChainConfig {
 	return testChainConfig
 }

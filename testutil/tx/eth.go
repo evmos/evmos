@@ -33,7 +33,7 @@ func PrepareEthTx(
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
 
-	signer := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
+	signer := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
 
@@ -101,7 +101,7 @@ func CreateEthTx(
 ) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
-	chainID := evmtypes.GetChainConfig().ChainID
+	chainID := evmtypes.GetEthChainConfig().ChainID
 
 	baseFeeRes, err := appEvmos.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	if err != nil {
@@ -126,7 +126,7 @@ func CreateEthTx(
 
 	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
 	if privKey != nil {
-		signer := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
+		signer := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 		err := msgEthereumTx.Sign(signer, NewSigner(privKey))
 		if err != nil {
 			return nil, err
