@@ -17,6 +17,7 @@ def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("account")
     yield from setup_evmos(path, 26700, long_timeout_commit=True)
 
+
 @pytest.fixture(scope="module")
 def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("account-6dec")
@@ -24,6 +25,7 @@ def custom_evmos_6dec(tmp_path_factory):
         path,
         46777,
     )
+
 
 # ATM rocksdb build is not supported for sdkv0.50
 # This is due to cronos dependencies (versionDB, memIAVL)
@@ -53,7 +55,7 @@ def cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb, geth
         evmos_ws.use_websocket()
         yield evmos_ws
     elif provider == "evmos-6dec":
-        yield custom_evmos_6dec        
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     elif provider == "geth":

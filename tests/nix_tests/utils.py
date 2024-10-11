@@ -91,7 +91,7 @@ PROPOSAL_STATUS_PASSED = 3
 PROPOSAL_STATUS_REJECTED = 4
 PROPOSAL_STATUS_FAILED = 5
 
-EVMOS_6DEC_CHAIN_ID="evmosics_9000-1"
+EVMOS_6DEC_CHAIN_ID = "evmosics_9000-1"
 EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
     'app-config'+:{
       'minimum-gas-prices': '0ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
@@ -128,6 +128,7 @@ EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
       },
     },
   }"""
+
 
 def wasm_binaries_path(filename):
     return Path(__file__).parent / "cosmwasm/artifacts/" / filename
