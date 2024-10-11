@@ -10,7 +10,7 @@ from .ibc_utils import (
 from .utils import parse_events_rpc, wait_for_fn
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos-6dec"])
 def ibc(request, tmp_path_factory):
     """
     prepare IBC network with an evmos chain
@@ -50,10 +50,11 @@ def test_ibc_transfer_with_hermes(ibc):
     # assert that the relayer transactions do enables the
     # dynamic fee extension option.
     cli = ibc.chains["evmos"].cosmos_cli()
+    fee_denom = cli.evm_denom()
     criteria = "message.action='/ibc.core.channel.v1.MsgChannelOpenInit'"
     tx = cli.tx_search(criteria)["txs"][0]
     events = parse_events_rpc(tx["events"])
-    fee = int(events["tx"]["fee"].removesuffix("aevmos"))
+    fee = int(events["tx"]["fee"].removesuffix(fee_denom))
     gas = int(tx["gas_wanted"])
     # the effective fee is decided by the max_priority_fee (base fee is zero)
     # rather than the normal gas price

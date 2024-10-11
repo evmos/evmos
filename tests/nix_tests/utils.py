@@ -127,7 +127,7 @@ EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
         },
       },
     },
-  },"""
+  }"""
 
 def wasm_binaries_path(filename):
     return Path(__file__).parent / "cosmwasm/artifacts/" / filename
@@ -565,7 +565,7 @@ def evm6dec_config(tmp_path: Path, file_name):
 local default = import '{tests_dir}/configs/{file_name}.jsonnet';
 {{
  dotenv: '{root_dir}/scripts/.env',
- {EVM_6DEC_CONF}
+ {EVM_6DEC_CONF},
 }}
 """
 
@@ -588,9 +588,19 @@ def evm6dec_ibc_config(tmp_path: Path, file_name):
     root_dir = os.path.join(tests_dir, "..", "..")
     jsonnet_content = f"""
 local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+
+// Function to check if a key is a chain configuration (based on your specific criteria)
+local isChainConfig(key) = std.isObject(default[key]) && std.objectHas(default[key], 'validators');
+
+// Collect all the chain configurations, excluding 'evmos_9002-1'
+local other_chains = {{
+  [key]: default[key] for key in std.objectFields(default) if isChainConfig(key) && key != 'evmos_9002-1'
+}};
+
 {{
   dotenv: '{root_dir}/scripts/.env',
-  {EVM_6DEC_CONF}
+  {EVM_6DEC_CONF} + other_chains,
+  // update the relayer configuration
   relayer: default.relayer + {{
     chains: std.map(
       function(chain)

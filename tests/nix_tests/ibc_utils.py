@@ -14,6 +14,7 @@ from .network import (
 )
 from .utils import (
     ADDRS,
+    EVMOS_6DEC_CHAIN_ID,
     eth_to_bech32,
     evm6dec_ibc_config,
     memiavl_config,
@@ -43,7 +44,7 @@ IBC_CHAINS_META = {
         "bin": "evmosd",
         "denom": "aevmos",
     },
-    "evmos_6dec": {
+    "evmos-6dec": {
         "chain_name": "evmosics_9000-1",
         "bin": "evmosd",
         "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
@@ -115,6 +116,7 @@ def get_evmos_generator(
             tmp_path,
             46710,
             Path(__file__).parent / file,
+            chain_id=EVMOS_6DEC_CHAIN_ID
         )
     else:
         file = f"configs/{file}.jsonnet"
