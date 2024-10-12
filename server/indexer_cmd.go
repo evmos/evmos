@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v20/indexer"
 )
 
+// NewIndexTxCmd creates a new Cobra command to index historical Ethereum transactions.
 func NewIndexTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "index-eth-tx [backward|forward]",
