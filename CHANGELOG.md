@@ -37,7 +37,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
 - (upgrade) [#2933](https://github.com/evmos/evmos/pull/2933) Update upgrade handler logic for `v20` release.
+
+### Improvements
+
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
 
 ## [v20.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc3) - 2024-10-08
 
