@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "IGov",
   "sourceName": "solidity/precompiles/gov/IGov.sol",
-  "abi":[
+  "abi": [
     {
       "anonymous": false,
       "inputs": [
