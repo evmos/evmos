@@ -1,8 +1,9 @@
 package gov_test
 
 import (
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"math/big"
+
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
