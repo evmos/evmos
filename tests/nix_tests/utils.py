@@ -599,7 +599,7 @@ local other_chains = {{
 
 {{
   dotenv: '{root_dir}/scripts/.env',
-  {EVM_6DEC_CONF} + other_chains,
+  {EVM_6DEC_CONF},
   // update the relayer configuration
   relayer: default.relayer + {{
     chains: std.map(
@@ -616,7 +616,7 @@ local other_chains = {{
       default.relayer.chains
     ),
   }},
-}}
+}} + other_chains
     """
 
     # Write the JSONnet content to the file
