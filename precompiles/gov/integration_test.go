@@ -364,7 +364,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 
 		// TODO: Can't add deposit manually without the precompile transaction available ?
-		//Context("deposit query", func() {
+		// Context("deposit query", func() {
 		//	method := gov.GetDepositMethod
 		//	BeforeEach(func() {
 		//		callArgs.MethodName = method
@@ -392,9 +392,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		//		Expect(out.Deposit.Amount[0].Denom).To(Equal(s.network.GetDenom()))
 		//		Expect(out.Deposit.Amount[0].Amount.Cmp(big.NewInt(1e18))).To(Equal(0))
 		//	})
-		//})
+		// })
 		//
-		//Context("deposits query", func() {
+		// Context("deposits query", func() {
 		//	method := gov.GetDepositsMethod
 		//	BeforeEach(func() {
 		//		callArgs.MethodName = method
@@ -432,7 +432,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		//			Expect(d.Amount[0].Amount.Cmp(big.NewInt(100))).To(Equal(0))
 		//		}
 		//	})
-		//})
+		// })
 
 		Context("tally result query", func() {
 			method := gov.GetTallyResultMethod

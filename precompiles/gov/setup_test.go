@@ -44,7 +44,10 @@ func (s *PrecompileTestSuite) SetupTest() {
 	inOneHour := now.Add(time.Hour)
 
 	var err error
-	any, err := types.NewAnyWithValue(TestProposal[0])
+	anyMessage, err := types.NewAnyWithValue(TestProposal[0])
+	if err != nil {
+		panic(err)
+	}
 	prop := &govv1.Proposal{
 		Id:              1,
 		Status:          govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
@@ -56,7 +59,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Title:           "test prop",
 		Summary:         "test prop",
 		Proposer:        keyring.GetAccAddr(0).String(),
-		Messages:        []*types.Any{any},
+		Messages:        []*types.Any{anyMessage},
 	}
 
 	govGen := govv1.DefaultGenesisState()

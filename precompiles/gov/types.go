@@ -67,7 +67,7 @@ type WeightedVoteOptions []WeightedVoteOption
 
 // DepositInput defines the input for the Deposit query.
 type DepositInput struct {
-	ProposalId uint64
+	ProposalId uint64 //nolint:revive,stylecheck
 	Depositor  common.Address
 }
 
@@ -78,7 +78,7 @@ type DepositOutput struct {
 
 // DepositsInput defines the input for the Deposits query.
 type DepositsInput struct {
-	ProposalId uint64
+	ProposalId uint64 //nolint:revive,stylecheck
 	Pagination query.PageRequest
 }
 
@@ -95,7 +95,7 @@ type TallyResultOutput struct {
 
 // DepositData represents information about a deposit on a proposal
 type DepositData struct {
-	ProposalId uint64         `abi:"proposalId"`
+	ProposalId uint64         `abi:"proposalId"` //nolint:revive,stylecheck
 	Depositor  common.Address `abi:"depositor"`
 	Amount     []cmn.Coin     `abi:"amount"`
 }

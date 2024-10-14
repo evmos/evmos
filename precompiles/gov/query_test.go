@@ -233,7 +233,7 @@ func (s *PrecompileTestSuite) TestGetDeposit() {
 				s.Require().NoError(err)
 				s.Require().Equal(tc.expPropNumber, out.Deposit.ProposalId)
 				s.Require().Equal(common.BytesToAddress(depositor.Bytes()), out.Deposit.Depositor)
-				s.Require().Equal([]cmn.Coin{{"aevmos", big.NewInt(100)}}, out.Deposit.Amount)
+				s.Require().Equal([]cmn.Coin{{Denom: "aevmos", Amount: big.NewInt(100)}}, out.Deposit.Amount)
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)
