@@ -58,17 +58,6 @@ struct TallyResultData {
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {
 
-    /// @dev Deposit defines an Event emitted when a deposit is made on a proposal.
-    /// @param depositor the address of the depositor
-    /// @param proposalId the proposal id
-    /// @param amount the amount deposited
-    event Deposit(address indexed depositor, uint64 proposalId, Coin[] amount);
-
-    /// @dev TallyResult defines an Event emitted when a proposal is tallied.
-    /// @param proposalId the proposal id
-    /// @param result the tally result
-    event TallyResult(uint64 indexed proposalId, TallyResultData result);
-
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id

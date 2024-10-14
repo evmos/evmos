@@ -4,6 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -38,6 +42,9 @@ func (s *PrecompileTestSuite) SetupTest() {
 	customGen := network.CustomGenesisState{}
 	now := time.Now().UTC()
 	inOneHour := now.Add(time.Hour)
+
+	var err error
+	any, err := types.NewAnyWithValue(TestProposal[0])
 	prop := &govv1.Proposal{
 		Id:              1,
 		Status:          govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
@@ -49,8 +56,11 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Title:           "test prop",
 		Summary:         "test prop",
 		Proposer:        keyring.GetAccAddr(0).String(),
+		Messages:        []*types.Any{any},
 	}
+
 	govGen := govv1.DefaultGenesisState()
+	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
 
@@ -66,7 +76,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.network = nw
 
-	var err error
 	if s.precompile, err = gov.NewPrecompile(
 		s.network.App.GovKeeper,
 		s.network.App.AuthzKeeper,
