@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/stretchr/testify/suite"
 )
 
