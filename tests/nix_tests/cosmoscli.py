@@ -1077,16 +1077,18 @@ class CosmosCLI:
             "node": self.node_rpc,
             "output": "json",
         }
-        return int(json.loads(
-            self.raw(
-                "q",
-                "evm",
-                "config",
-                **(default_kwargs | kwargs),
-            )
-        )[
-            "config"
-        ]["decimals"])
+        return int(
+            json.loads(
+                self.raw(
+                    "q",
+                    "evm",
+                    "config",
+                    **(default_kwargs | kwargs),
+                )
+            )[
+                "config"
+            ]["decimals"]
+        )
 
     def build_evm_tx(self, tx, signed):
         # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
