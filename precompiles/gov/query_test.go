@@ -190,13 +190,8 @@ func (s *PrecompileTestSuite) TestGetDeposit() {
 		errContains   string
 	}{
 		{
-			name: "valid query",
-			malleate: func() {
-				_, err := s.network.App.GovKeeper.SubmitProposal(s.network.GetContext(), TestProposal, "", "Proposal", "testing proposal", s.keyring.GetAccAddr(0), false)
-				s.Require().NoError(err)
-				_, err = s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), 1, depositor, sdk.NewCoins(sdk.NewCoin(s.network.GetDenom(), math.NewInt(100))))
-				s.Require().NoError(err)
-			},
+			name:          "valid query",
+			malleate:      func() {},
 			propNumber:    uint64(1),
 			expPropNumber: uint64(1),
 			expPass:       true,
@@ -255,10 +250,6 @@ func (s *PrecompileTestSuite) TestGetDeposits() {
 		{
 			name: "valid query",
 			malleate: func() []gov.DepositData {
-				_, err := s.network.App.GovKeeper.SubmitProposal(s.network.GetContext(), TestProposal, "", "Proposal", "testing proposal", s.keyring.GetAccAddr(0), false)
-				s.Require().NoError(err)
-				_, err = s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.network.GetDenom(), math.NewInt(100))))
-				s.Require().NoError(err)
 				return []gov.DepositData{
 					{ProposalId: 1, Depositor: s.keyring.GetAddr(0), Amount: []cmn.Coin{{Denom: s.network.GetDenom(), Amount: big.NewInt(100)}}},
 				}

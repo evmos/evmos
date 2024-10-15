@@ -4,6 +4,9 @@ import (
 	"testing"
 	"time"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,10 +65,21 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Messages:        []*types.Any{anyMessage},
 	}
 
+	bankGen := banktypes.DefaultGenesisState()
+	bankGen.Balances = []banktypes.Balance{{
+		Address: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		Coins:   sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(100))),
+	}}
 	govGen := govv1.DefaultGenesisState()
+	govGen.Deposits = []*govv1.Deposit{{
+		ProposalId: 1,
+		Depositor:  keyring.GetAccAddr(0).String(),
+		Amount:     sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(100))),
+	}}
 	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
+	customGen[banktypes.ModuleName] = bankGen
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
