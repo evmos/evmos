@@ -133,12 +133,19 @@ func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress
 }
 
 // createBalances creates balances for the given accounts and coin
-func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes.Balance {
+func createBalances(accounts []sdktypes.AccAddress, denoms []string, denomsDecimals map[string]evmtypes.Decimals) []banktypes.Balance {
 	slices.Sort(denoms)
 	numberOfAccounts := len(accounts)
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
-		coins[i] = sdktypes.NewCoin(denom, PrefundedAccountInitialBalance)
+		amount := PrefundedAccountInitialBalance
+		dec, found := denomsDecimals[denom]
+		// If the denom is not in the map, the 18 decimals representation is
+		// used.
+		if found {
+			amount = amount.Quo(dec.ConversionFactor())
+		}
+		coins[i] = sdktypes.NewCoin(denom, amount)
 	}
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
 	for _, acc := range accounts {

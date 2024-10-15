@@ -12,9 +12,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	testtx "github.com/evmos/evmos/v20/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Config defines the configuration for a chain.
@@ -23,10 +25,11 @@ import (
 type Config struct {
 	chainID            string
 	eip155ChainID      *big.Int
+	baseCoin           CoinInfo
+	evmCoin            CoinInfo
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	balances           []banktypes.Balance
-	denom              string
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
 	operatorsAddrs     []sdktypes.AccAddress
@@ -35,18 +38,38 @@ type Config struct {
 
 type CustomGenesisState map[string]interface{}
 
+type CoinInfo struct {
+	Denom    string
+	Decimals evmtypes.Decimals
+}
+
 // DefaultConfig returns the default configuration for a chain.
 func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
+
+	// Default chain and coins info are mainnet values.
+	chainID := utils.MainnetChainID + "-1"
+	eip155ChainID, err := evmostypes.ParseChainID(chainID)
+	if err != nil {
+		panic("chain ID with invalid eip155 value")
+	}
+	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	// baseCoin is used for both base and evm coin.
+	baseCoin := CoinInfo{
+		Denom:    coinInfo.Denom,
+		Decimals: coinInfo.Decimals,
+	}
+
 	return Config{
-		chainID:            utils.MainnetChainID + "-1",
-		eip155ChainID:      big.NewInt(9001),
+		chainID:            chainID,
+		eip155ChainID:      eip155ChainID,
+		baseCoin:           baseCoin,
+		evmCoin:            baseCoin,
 		amountOfValidators: 3,
 		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
-		denom:              evmostypes.BaseDenom,
 		customGenesisState: nil,
 	}
 }
@@ -62,7 +85,17 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
-		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, cfg.denom))
+
+		basisCoins := []string{cfg.baseCoin.Denom}
+		basisDecimals := map[string]evmtypes.Decimals{
+			cfg.baseCoin.Denom: cfg.baseCoin.Decimals,
+		}
+		if cfg.baseCoin.Denom != cfg.evmCoin.Denom {
+			basisCoins = append(basisCoins, cfg.evmCoin.Denom)
+			basisDecimals[cfg.evmCoin.Denom] = cfg.evmCoin.Decimals
+		}
+
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, basisCoins...), basisDecimals)
 	}
 
 	// append validators to genesis accounts and balances
@@ -90,9 +123,17 @@ func WithChainID(chainID string) ConfigOption {
 	if err != nil {
 		panic(err)
 	}
+
+	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	baseCoin := CoinInfo{
+		Denom:    coinInfo.Denom,
+		Decimals: coinInfo.Decimals,
+	}
 	return func(cfg *Config) {
 		cfg.chainID = chainID
 		cfg.eip155ChainID = chainIDNum
+		cfg.baseCoin = baseCoin
+		cfg.evmCoin = baseCoin
 	}
 }
 
@@ -118,10 +159,19 @@ func WithBalances(balances ...banktypes.Balance) ConfigOption {
 	}
 }
 
-// WithDenom sets the denom for the network.
-func WithDenom(denom string) ConfigOption {
+// WithBaseCoin sets the denom and decimals for the base coin in the network.
+func WithBaseCoin(denom string, decimals uint8) ConfigOption {
 	return func(cfg *Config) {
-		cfg.denom = denom
+		cfg.baseCoin.Denom = denom
+		cfg.baseCoin.Decimals = evmtypes.Decimals(decimals)
+	}
+}
+
+// WithEvmCoin sets the denom and decimals for the evm coin in the network.
+func WithEvmCoin(denom string, decimals uint8) ConfigOption {
+	return func(cfg *Config) {
+		cfg.evmCoin.Denom = denom
+		cfg.evmCoin.Decimals = evmtypes.Decimals(decimals)
 	}
 }
 

@@ -27,7 +27,7 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 	proposerAccAddr := sdk.AccAddress(proposerPriv.PubKey().Address()).String()
 	proposal, err := govv1.NewMsgSubmitProposal(
 		msgs,
-		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e18))),
+		sdk.NewCoins(sdk.NewCoin(network.GetBaseDenom(), math.NewInt(1e18))),
 		proposerAccAddr,
 		"",
 		title,
@@ -52,7 +52,7 @@ func SubmitLegacyProposal(tf factory.TxFactory, network network.Network, propose
 
 	msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
 		proposal,
-		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e18))),
+		sdk.NewCoins(sdk.NewCoin(network.GetBaseDenom(), math.NewInt(1e18))),
 		proposerAccAddr,
 	)
 	if err != nil {
