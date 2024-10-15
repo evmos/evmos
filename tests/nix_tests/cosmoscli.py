@@ -1072,6 +1072,22 @@ class CosmosCLI:
             "config"
         ]["denom"]
 
+    def evm_decimals(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return int(json.loads(
+            self.raw(
+                "q",
+                "evm",
+                "config",
+                **(default_kwargs | kwargs),
+            )
+        )[
+            "config"
+        ]["decimals"])
+
     def build_evm_tx(self, tx, signed):
         # NOTE: this assumes that the fee is in 18 decimals and denom is aevmos,
         # to support 6 decimals we need to pass another argument

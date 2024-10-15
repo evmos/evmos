@@ -91,6 +91,7 @@ PROPOSAL_STATUS_PASSED = 3
 PROPOSAL_STATUS_REJECTED = 4
 PROPOSAL_STATUS_FAILED = 5
 
+SCALE_FACTOR_6DEC = 1e12
 EVMOS_6DEC_CHAIN_ID = "evmosics_9000-1"
 EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
     'app-config'+:{
@@ -118,10 +119,10 @@ EVM_6DEC_CONF = """'evmosics_9000-1': default['evmos_9002-1'] + {
       coins: '30000000000000000000000aevmos,3000000000000000000ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
       mnemonic: '${SIGNER2_MNEMONIC}',
     }],
-    genesis: {
-      app_state: {
-        feemarket:{
-          params: { 
+    'genesis'+: {
+      'app_state'+: {
+        'feemarket'+:{
+          'params'+: { 
               base_fee: "0.1",
           },
         },
@@ -609,9 +610,13 @@ local other_chains = {{
           chain + {{
             id: 'evmosics_9000-1',
             gas_price: {{
-              price: 200000,
+              price: 0.08,
               denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
             }},
+            extension_options: [{{
+                type: 'ethermint_dynamic_fee',
+                value: '1000000000000', # this changed from BigInt to LegacyDec type, so in this case, the resulting value is 0.000001
+            }}],
           }}
         else chain,
       default.relayer.chains

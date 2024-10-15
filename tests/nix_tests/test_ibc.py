@@ -1,3 +1,4 @@
+import math
 import pytest
 
 from .ibc_utils import (
@@ -7,10 +8,10 @@ from .ibc_utils import (
     hermes_transfer,
     prepare_network,
 )
-from .utils import parse_events_rpc, wait_for_fn
+from .utils import SCALE_FACTOR_6DEC, parse_events_rpc, wait_for_fn
 
 
-@pytest.fixture(scope="module", params=["evmos-6dec"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     prepare IBC network with an evmos chain
@@ -32,10 +33,12 @@ def test_ibc_transfer_with_hermes(ibc):
     """
     test ibc transfer tokens with hermes cli
     """
-    amt = hermes_transfer(ibc)
+    cli = ibc.chains["evmos"].cosmos_cli()
+    evmos_chain_id = cli.chain_id
+    amt = hermes_transfer(ibc, dst_chain_name=evmos_chain_id)
     # ibc denom of the basecro sent
     dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"
-    dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
+    dst_addr = cli.address("signer2")
     old_dst_balance = get_balance(ibc.chains["evmos"], dst_addr, dst_denom)
     new_dst_balance = 0
 
@@ -49,16 +52,19 @@ def test_ibc_transfer_with_hermes(ibc):
 
     # assert that the relayer transactions do enables the
     # dynamic fee extension option.
-    cli = ibc.chains["evmos"].cosmos_cli()
     fee_denom = cli.evm_denom()
     criteria = "message.action='/ibc.core.channel.v1.MsgChannelOpenInit'"
     tx = cli.tx_search(criteria)["txs"][0]
     events = parse_events_rpc(tx["events"])
     fee = int(events["tx"]["fee"].removesuffix(fee_denom))
     gas = int(tx["gas_wanted"])
+
+    scale_factor = 1
+    if cli.evm_decimals() == 6:
+        scale_factor = SCALE_FACTOR_6DEC
     # the effective fee is decided by the max_priority_fee (base fee is zero)
     # rather than the normal gas price
-    assert fee == gas * 1000000
+    assert fee == int(math.ceil(gas * 1000000 / scale_factor))
 
 
 def test_evmos_ibc_transfer(ibc):
@@ -83,6 +89,7 @@ def test_evmos_ibc_transfer(ibc):
         f"{amt}{src_denom}",
         "channel-0",
         1,
+        fees=f"0{cli.evm_denom()}",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
 
@@ -121,6 +128,7 @@ def test_evmos_ibc_transfer_acknowledgement_error(ibc):
         f"{amt}{src_denom}",
         "channel-0",
         1,
+        fees=f"0{cli.evm_denom()}",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
 
