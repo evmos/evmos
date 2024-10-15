@@ -22,7 +22,9 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v20/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v20/precompiles/vesting"
+	"github.com/evmos/evmos/v20/precompiles/werc20"
 	erc20Keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
@@ -95,6 +97,18 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
+	tokenPair := erc20types.NewTokenPair(common.HexToAddress(erc20types.WEVMOSContractMainnet), types.GetEVMCoinDenom(), erc20types.OWNER_MODULE)
+	wevmosPrecompile, err := werc20.NewPrecompile(
+		tokenPair,
+		bankKeeper,
+		authzKeeper,
+		transferKeeper,
+	)
+
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate wevmos precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -106,6 +120,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
+	precompiles[wevmosPrecompile.Address()] = wevmosPrecompile
 	return precompiles
 }
 
