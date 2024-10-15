@@ -15,6 +15,7 @@ def custom_evmos(tmp_path_factory):
         Path(__file__).parent / "configs/discard-abci-resp.jsonnet",
     )
 
+
 @pytest.fixture(scope="module")
 def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("no-abci-resp-6dec")
@@ -22,8 +23,9 @@ def custom_evmos_6dec(tmp_path_factory):
         path,
         46810,
         evm6dec_config(path, "discard-abci-resp"),
-        chain_id=EVMOS_6DEC_CHAIN_ID
+        chain_id=EVMOS_6DEC_CHAIN_ID,
     )
+
 
 @pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
