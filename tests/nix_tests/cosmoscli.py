@@ -806,10 +806,7 @@ class CosmosCLI:
     def gov_deposit(
         self, depositor, proposal_id, amount, denom=DEFAULT_DENOM, **kwargs
     ):
-        kwargs.setdefault(
-            "gas_prices",
-            f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}",
-        )
+        kwargs.setdefault("gas_prices", self.default_gas_price())
         kwargs.setdefault("gas", 600_000)
         return json.loads(
             self.raw(

@@ -283,7 +283,8 @@ def approve_proposal(n, proposal_id, **kwargs):
     cli = n.cosmos_cli()
 
     # make the deposit (1 aevmos)
-    rsp = cli.gov_deposit("signer2", proposal_id, 1)
+    # 'aevmos' is always the gov denom for the current tests
+    rsp = cli.gov_deposit("signer2", proposal_id, 1, denom="aevmos", **kwargs)
     assert rsp["code"] == 0, rsp["raw_log"]
     wait_for_new_blocks(cli, 1)
 
