@@ -104,7 +104,6 @@ func NewAvailableStaticPrecompiles(
 		authzKeeper,
 		transferKeeper,
 	)
-
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate wevmos precompile: %w", err))
 	}
