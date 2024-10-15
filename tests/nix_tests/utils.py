@@ -740,3 +740,28 @@ def erc20_transfer(w3, erc20_contract_addr, from_addr, to_addr, amount, key):
         {"from": from_addr}
     )
     return send_transaction(w3, tx, key)
+
+
+def amount_of(balances, denom):
+    """
+    Takes a []sdk.Balance as input and
+    returns the amount of the specified denom
+    """
+    for balance in balances:
+        if balance["denom"] != denom:
+            continue
+        return int(balance["amount"])
+    return 0
+
+
+def amount_of_dec_coin(balances, denom):
+    """
+    Takes a []sdk.DecCoin as input and
+    returns the amount of the specified denom
+    """
+    for balance in balances:
+        if denom in balance:
+            # Extract the numeric part (before 'denom')
+            amt = balance.split(denom)[0]
+            return round(float(amt))
+    return 0

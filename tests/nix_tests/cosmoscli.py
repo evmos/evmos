@@ -422,18 +422,10 @@ class CosmosCLI:
             )
         )
         if "pool" not in res:
-            return 0
+            return []
         if res["pool"] is None or len(res["pool"]) == 0:
-            return 0
-        if "amount" in res["pool"][0]:
-            return float(res["pool"][0]["amount"])
-        # the amount is returned in a string with
-        # the amount and denom, e.g. '10aevmos'
-        numbers = re.findall(r"\d+", res["pool"][0])
-        if numbers:
-            amount = numbers[0]
-            return float(amount)
-        return 0
+            return []
+        return res["pool"]
 
     def distribution_reward(self, delegator_addr):
         coin = json.loads(
