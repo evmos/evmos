@@ -1,4 +1,5 @@
 import json
+from math import e
 
 import pytest
 
@@ -8,6 +9,7 @@ from .ibc_utils import (
     OSMO_IBC_DENOM,
     assert_ready,
     get_balance,
+    get_balances,
     prepare_network,
     setup_denom_trace,
 )
@@ -18,6 +20,8 @@ from .utils import (
     CONTRACTS,
     KEYS,
     MAX_UINT256,
+    SCALE_FACTOR_6DEC,
+    amount_of,
     check_error,
     debug_trace_tx,
     decode_bech32,
@@ -30,7 +34,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -962,7 +966,7 @@ def test_ibc_transfer_with_authorization(
         wait_for_fn("allowance has changed", check_allowance_set)
 
     # get the balances previous to the transfer to validate them after the tx
-    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_address, src_denom)
+    src_balances_prev = get_balances(ibc.chains["evmos"], src_address)
     dst_balance_prev = get_balance(
         ibc.chains["chainmain"], dst_address, EVMOS_IBC_DENOM
     )
@@ -994,6 +998,13 @@ def test_ibc_transfer_with_authorization(
     )
     fees = receipt.gasUsed * evmos_gas_price
 
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    decimals = cli.evm_decimals()
+    if decimals == 6:
+        fees = int(round(fees / SCALE_FACTOR_6DEC))
+
     # check ibc-transfer event was emitted
     transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
     assert transfer_event.address == "0x0000000000000000000000000000000000000802"
@@ -1003,7 +1014,7 @@ def test_ibc_transfer_with_authorization(
     # assert transfer_event.args.receiver == dst_addr
     assert transfer_event.args.sourcePort == "transfer"
     assert transfer_event.args.sourceChannel == "channel-0"
-    assert transfer_event.args.denom == "aevmos"
+    assert transfer_event.args.denom == src_denom
     assert transfer_event.args.amount == transfer_amt
     assert transfer_event.args.memo == ""
 
@@ -1032,9 +1043,23 @@ def test_ibc_transfer_with_authorization(
     assert final_contract_balance == 0
 
     # signer2 (src) balance should be reduced by the fees paid
-    src_amount_evmos_final = get_balance(ibc.chains["evmos"], src_address, src_denom)
+    src_balances_final = get_balances(ibc.chains["evmos"], src_address)
 
-    assert src_amount_evmos_final == src_amount_evmos_prev - fees - transfer_amt
+    evm_denom = cli.evm_denom()
+    if src_denom == evm_denom:
+        assert (
+            amount_of(src_balances_final, src_denom)
+            == amount_of(src_balances_prev, src_denom) - fees - transfer_amt
+        )
+    else:
+        assert (
+            amount_of(src_balances_final, src_denom)
+            == amount_of(src_balances_prev, src_denom) - transfer_amt
+        )
+        assert (
+            amount_of(src_balances_final, evm_denom)
+            == amount_of(src_balances_prev, evm_denom) - fees
+        )
 
     # dst_address should have received the IBC coins
     dst_balance_final = 0
@@ -1099,7 +1124,7 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
 
     wait_for_fn("allowance has changed", check_allowance_set)
 
-    src_starting_balance = get_balance(ibc.chains["evmos"], src_adr, "aevmos")
+    src_starting_balances = get_balances(ibc.chains["evmos"], src_adr)
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
@@ -1113,6 +1138,13 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     assert receipt.status == 1
     fees = receipt.gasUsed * evmos_gas_price
 
+    # check if evm has 6 dec,
+    # actual fees and amt will have 6 dec
+    # instead of 18
+    decimals = evmos.cosmos_cli().evm_decimals()
+    if decimals == 6:
+        fees = int(round(fees / SCALE_FACTOR_6DEC))
+
     final_dest_balance = dest_starting_balance
 
     def check_dest_balance():
@@ -1125,8 +1157,23 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     wait_for_fn("destination balance change", check_dest_balance)
     assert final_dest_balance == dest_starting_balance + amt
 
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_adr, src_denom)
-    assert src_final_amount_evmos == src_starting_balance - amt - fees
+    src_final_balances = get_balances(ibc.chains["evmos"], src_adr)
+
+    evm_denom = evmos.cosmos_cli().evm_denom()
+    if evm_denom == src_denom:
+        assert (
+            amount_of(src_final_balances, src_denom)
+            == amount_of(src_starting_balances, src_denom) - amt - fees
+        )
+    else:
+        assert (
+            amount_of(src_final_balances, src_denom)
+            == amount_of(src_starting_balances, src_denom) - amt
+        )
+        assert (
+            amount_of(src_final_balances, evm_denom)
+            == amount_of(src_starting_balances, evm_denom) - fees
+        )
 
     counter_after = eth_contract.functions.counter().call()
     assert counter_after == 0
@@ -1192,6 +1239,8 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     evmos: Evmos = ibc.chains["evmos"]
     w3 = evmos.w3
 
+    # TODO refactor this to use the evm_denom
+    # and consider 6 dec cases
     channel = "channel-0"
     amt = 1000000000000000000
     src_denom = "aevmos"
