@@ -48,7 +48,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	inOneHour := now.Add(time.Hour)
 
 	var err error
-	anyMessage, err := types.NewAnyWithValue(TestProposal[0])
+	anyMessage, err := types.NewAnyWithValue(TestProposalMsgs[0])
 	if err != nil {
 		panic(err)
 	}

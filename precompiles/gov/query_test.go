@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -23,16 +24,11 @@ var (
 	_, _, addr = testdata.KeyTestPubAddr()
 	// gov account authority address
 	govAcct = authtypes.NewModuleAddress(govtypes.ModuleName)
-	// TestProposal creates and returns a test proposal message.
-	TestProposal = getTestProposal()
-)
-
-// getTestProposal creates and returns a test proposal message.
-func getTestProposal() []sdk.Msg {
-	return []sdk.Msg{
-		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(1000)))),
+	// TestProposalMsgs are msgs used on a proposal.
+	TestProposalMsgs = []sdk.Msg{
+		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1000)))),
 	}
-}
+)
 
 func (s *PrecompileTestSuite) TestGetVotes() {
 	var ctx sdk.Context
@@ -305,7 +301,7 @@ func (s *PrecompileTestSuite) TestGetTallyResult() {
 		{
 			name: "valid query",
 			malleate: func() gov.TallyResultData {
-				proposal, err := s.network.App.GovKeeper.SubmitProposal(s.network.GetContext(), TestProposal, "", "Proposal", "testing proposal", s.keyring.GetAccAddr(0), false)
+				proposal, err := s.network.App.GovKeeper.SubmitProposal(s.network.GetContext(), TestProposalMsgs, "", "Proposal", "testing proposal", s.keyring.GetAccAddr(0), false)
 				s.Require().NoError(err)
 				votingStarted, err := s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.network.GetDenom(), math.NewInt(100))))
 				s.Require().NoError(err)
