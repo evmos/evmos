@@ -38,7 +38,7 @@ struct WeightedVoteOption {
     string weight;
 }
 
-/// @dev Deposit represents information about a deposit on a proposal
+/// @dev DepositData represents information about a deposit on a proposal
 struct DepositData {
     uint64 proposalId;
     address depositor;
