@@ -23,4 +23,6 @@ const (
 	ErrInvalidWeightedVoteOptionType = "invalid weighted vote option type %s "
 	// ErrInvalidWeightedVoteOptionWeight invalid weighted vote option weight.
 	ErrInvalidWeightedVoteOptionWeight = "invalid weighted vote option weight %s "
+	// ErrInvalidDepositor invalid depositor.
+	ErrInvalidDepositor = "invalid depositor %s "
 )

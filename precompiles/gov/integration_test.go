@@ -3,11 +3,11 @@
 package gov_test
 
 import (
+	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/query"
-
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
@@ -361,6 +361,118 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					Expect(v.Options[0].Option).To(Equal(option))
 					Expect(v.Options[0].Weight).To(Equal(math.LegacyOneDec().String()))
 				}
+			})
+		})
+
+		Context("deposit query", func() {
+			method := gov.GetDepositMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+			})
+
+			It("should return a deposit", func() {
+				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
+				txArgs.GasLimit = 200_000
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.DepositOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Deposit.ProposalId).To(Equal(proposalID))
+				Expect(out.Deposit.Depositor).To(Equal(s.keyring.GetAddr(0)))
+				Expect(out.Deposit.Amount).To(HaveLen(1))
+				Expect(out.Deposit.Amount[0].Denom).To(Equal(s.network.GetDenom()))
+				Expect(out.Deposit.Amount[0].Amount.Cmp(big.NewInt(100))).To(Equal(0))
+			})
+		})
+
+		Context("deposits query", func() {
+			method := gov.GetDepositsMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+			})
+
+			It("should return all deposits", func() {
+				callArgs.Args = []interface{}{
+					proposalID,
+					query.PageRequest{
+						Limit:      10,
+						CountTotal: true,
+					},
+				}
+				txArgs.GasLimit = 200_000
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.DepositsOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.PageResponse.Total).To(Equal(uint64(1)))
+				Expect(out.PageResponse.NextKey).To(Equal([]byte{}))
+				Expect(out.Deposits).To(HaveLen(1))
+				for _, d := range out.Deposits {
+					Expect(d.ProposalId).To(Equal(proposalID))
+					Expect(d.Amount).To(HaveLen(1))
+					Expect(d.Amount[0].Denom).To(Equal(s.network.GetDenom()))
+					Expect(d.Amount[0].Amount.Cmp(big.NewInt(100))).To(Equal(0))
+				}
+			})
+		})
+
+		Context("tally result query", func() {
+			method := gov.GetTallyResultMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+				voteArgs := factory.CallArgs{
+					ContractABI: s.precompile.ABI,
+					MethodName:  gov.VoteMethod,
+					Args: []interface{}{
+						s.keyring.GetAddr(0), proposalID, option, metadata,
+					},
+				}
+
+				voterSetCheck := passCheck.WithExpEvents(gov.EventTypeVote)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, voteArgs, voterSetCheck)
+				Expect(err).To(BeNil(), "error while calling the precompile")
+				Expect(s.network.NextBlock()).To(BeNil())
+			})
+
+			It("should return the tally result", func() {
+				callArgs.Args = []interface{}{proposalID}
+				txArgs.GasLimit = 200_000
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.TallyResultOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.TallyResult.Yes).To(Equal("3000000000000000000"))
+				Expect(out.TallyResult.Abstain).To(Equal("0"))
+				Expect(out.TallyResult.No).To(Equal("0"))
+				Expect(out.TallyResult.NoWithVeto).To(Equal("0"))
 			})
 		})
 	})

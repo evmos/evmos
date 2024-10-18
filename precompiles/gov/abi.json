@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "IGov",
   "sourceName": "solidity/precompiles/gov/IGov.sol",
-  "abi":[
+  "abi": [
     {
       "anonymous": false,
       "inputs": [
@@ -64,6 +64,197 @@
       ],
       "name": "VoteWeighted",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "depositor",
+          "type": "address"
+        }
+      ],
+      "name": "getDeposit",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "proposalId",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "depositor",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "denom",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Coin[]",
+              "name": "amount",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct DepositData",
+          "name": "deposit",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "key",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint64",
+              "name": "offset",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "limit",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bool",
+              "name": "countTotal",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "reverse",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct PageRequest",
+          "name": "pagination",
+          "type": "tuple"
+        }
+      ],
+      "name": "getDeposits",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "proposalId",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "depositor",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "denom",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Coin[]",
+              "name": "amount",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct DepositData[]",
+          "name": "deposits",
+          "type": "tuple[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "nextKey",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint64",
+              "name": "total",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct PageResponse",
+          "name": "pageResponse",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "proposalId",
+          "type": "uint64"
+        }
+      ],
+      "name": "getTallyResult",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "yes",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "abstain",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "no",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "noWithVeto",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct TallyResultData",
+          "name": "tallyResult",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [
