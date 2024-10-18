@@ -364,7 +364,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			})
 		})
 
-		// TODO: Can't add deposit manually without the precompile transaction available ?
 		Context("deposit query", func() {
 			method := gov.GetDepositMethod
 			BeforeEach(func() {
