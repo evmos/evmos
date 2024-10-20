@@ -22,7 +22,6 @@ linters:
     - misspell
     - nakedret
     - prealloc
-    - exportloopref
     - staticcheck
     - stylecheck
     - typecheck
@@ -31,7 +30,10 @@ linters:
     - unused
     - nolintlint
     - asciicheck
+<<<<<<< HEAD
     - exportloopref
+=======
+>>>>>>> cb53cf0a (feat(gov-precompile): Added getDeposit, getDeposits and getTallyResults queries, unit and integration tests. (#2941))
     - gofumpt
     - gomodguard
 
