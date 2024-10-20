@@ -19,7 +19,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -69,15 +69,15 @@ func (s *PrecompileTestSuite) SetupTest() {
 	bankGen := banktypes.DefaultGenesisState()
 	bankGen.Balances = []banktypes.Balance{{
 		Address: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))),
 	}}
 	govGen := govv1.DefaultGenesisState()
 	govGen.Deposits = []*govv1.Deposit{{
 		ProposalId: 1,
 		Depositor:  keyring.GetAccAddr(0).String(),
-		Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		Amount:     sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))),
 	}}
-	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100)))
+	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
 	customGen[banktypes.ModuleName] = bankGen

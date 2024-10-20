@@ -4,7 +4,7 @@ import (
 	"math/big"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -26,7 +26,7 @@ var (
 	govAcct = authtypes.NewModuleAddress(govtypes.ModuleName)
 	// TestProposalMsgs are msgs used on a proposal.
 	TestProposalMsgs = []sdk.Msg{
-		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1000)))),
+		banktypes.NewMsgSend(govAcct, addr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1000)))),
 	}
 )
 
