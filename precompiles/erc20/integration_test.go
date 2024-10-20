@@ -73,7 +73,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.handler = gh
 	is.keyring = keys
 
-	is.bondDenom = nw.GetDenom()
+	is.bondDenom = nw.GetBaseDenom()
 
 	erc20Gen := genesis[erc20types.ModuleName].(*erc20types.GenesisState)
 	is.precompile = is.setupERC20Precompile(is.tokenDenom, erc20Gen.TokenPairs)
@@ -1145,7 +1145,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("it should return zero if balance only exists for other tokens", func(callType CallType) {
 				sender := is.keyring.GetKey(0)
 				address := utiltx.GenerateAddress()
-				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 100)}
 
 				// Fund account with some tokens
 				err := is.factory.FundAccount(is.keyring.GetKey(0), sender.AccAddr, fundCoins)
@@ -1285,7 +1285,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType CallType) {
 				grantee := is.keyring.GetKey(1)
 				granter := is.keyring.GetKey(0)
-				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 100)}
 
 				is.setupSendAuthz(grantee.AccAddr, granter.Priv, authzCoins)
 
@@ -1416,7 +1416,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 					// set up a previous authorization
@@ -1447,7 +1447,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 					doubleTokenCoin := sdk.NewInt64Coin(is.tokenDenom, 200)
 
@@ -1478,7 +1478,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
 
 					// set up a previous authorization
@@ -1630,7 +1630,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 
 					// set up a previous authorization
 					is.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
@@ -2288,7 +2288,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			var bondCoins sdk.Coins
 
 			BeforeEach(func() {
-				bondCoins = sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+				bondCoins = sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 				is.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
 			})
 
@@ -2345,7 +2345,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			BeforeEach(func() {
 				authzCoins = sdk.NewCoins(
-					sdk.NewInt64Coin(is.network.GetDenom(), 100),
+					sdk.NewInt64Coin(is.network.GetBaseDenom(), 100),
 					sdk.NewInt64Coin(is.tokenDenom, 200),
 				)
 
@@ -2428,7 +2428,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// Check that only the spend limit in the network denomination remains
-				bondDenom := is.network.GetDenom()
+				bondDenom := is.network.GetBaseDenom()
 				expCoins := sdk.Coins{sdk.NewCoin(bondDenom, authzCoins.AmountOf(bondDenom))}
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, expCoins)
 			},
