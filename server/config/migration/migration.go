@@ -39,7 +39,6 @@ func PlanBuilder(from *tomledit.Document, _ string) transform.Plan {
 
 	diffs := confix.DiffKeys(from, target)
 	for _, diff := range diffs {
-		diff := diff
 		kv := diff.KV
 
 		var step transform.Step
