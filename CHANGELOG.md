@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
+- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
 
 ## [v20.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc3) - 2024-10-08
 
@@ -88,27 +89,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
 - (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
 - (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
-<<<<<<< HEAD
-=======
-- (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
-- (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
-- (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
-- (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.
-- (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
-- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
-- (evm) [#2897](https://github.com/evmos/evmos/pull/2897) Adjust extra decimals in `AddBalance` and `SubBalance` methods on `stateObject` in state DB.
-- (evm) [#2898](https://github.com/evmos/evmos/pull/2898) Refactor to use `ChainConfig` from `evm/types`.
-- (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
-- (ante) [#2907](https://github.com/evmos/evmos/pull/2907) Add support for custom base denom decimals in the ante for EVM txs.
-- (rpc) [#2908](https://github.com/evmos/evmos/pull/2908) Refactor JSON-RPC gas prices to support denom with different precision.
-- (app) [#2914](https://github.com/evmos/evmos/pull/2914) Refactor App configurator to abstract `Decimals` type and use validation.
-- (app) [#2932](https://github.com/evmos/evmos/pull/2932) Add chains coin info map for app initialization.
-- (precompiles) [#2928](https://github.com/evmos/evmos/pull/2928) Vesting: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
-- (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
-- (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
-- (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
-- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
->>>>>>> cb53cf0a (feat(gov-precompile): Added getDeposit, getDeposits and getTallyResults queries, unit and integration tests. (#2941))
 
 ### Bug Fixes
 
