@@ -30,7 +30,6 @@ linters:
     - unused
     - nolintlint
     - asciicheck
-    - copyloopvar
     - gofumpt
     - gomodguard
 
