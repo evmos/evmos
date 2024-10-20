@@ -61,7 +61,6 @@ func AddCommands(
 }
 
 // ConnectTmWS connects to a Tendermint WebSocket (WS) server.
-// 
 // Parameters:
 // - tmRPCAddr: The RPC address of the Tendermint server.
 // - tmEndpoint: The WebSocket endpoint on the Tendermint server.
@@ -95,7 +94,6 @@ func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger log.Logger) *rpcclient.WSC
 }
 
 // MountGRPCWebServices mounts gRPC-Web services on specific HTTP POST routes.
-//
 // Parameters:
 // - router: The HTTP router instance to mount the routes on (using mux.Router).
 // - grpcWeb: The wrapped gRPC-Web server that will handle incoming gRPC-Web and WebSocket requests.

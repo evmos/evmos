@@ -219,7 +219,6 @@ which accepts a path for the resulting pprof file.
 }
 
 // startStandAlone starts an ABCI server in stand-alone mode.
-//
 // Parameters:
 // - svrCtx: The context object that holds server configurations, logger, and other stateful information.
 // - opts: Options for starting the server, including functions for creating the application and opening the database.
@@ -505,7 +504,6 @@ func OpenIndexerDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) 
 }
 
 // openTraceWriter opens a trace writer if a trace store file is specified.
-//
 // Parameters:
 // - traceWriterFile: The path to the trace store file. If this is an empty string, no file will be opened.
 func openTraceWriter(traceWriterFile string) (w io.Writer, err error) {
@@ -596,7 +594,6 @@ func startGrpcServer(
 }
 
 // startAPIServer starts an API server based on the provided configuration and application context.
-//
 // Parameters:
 // - ctx: The context used for managing the server's lifecycle, allowing for graceful shutdown.
 // - svrCtx: The server context containing configuration, logger, and other stateful components.
@@ -634,7 +631,6 @@ func startAPIServer(
 }
 
 // startJSONRPCServer starts a JSON-RPC server based on the provided configuration.
-//
 // Parameters:
 // - svrCtx: The server context containing configuration, logger, and stateful components.
 // - clientCtx: The client context, which may be updated with additional chain information.
@@ -672,7 +668,6 @@ func startJSONRPCServer(
 }
 
 // startRosettaServer starts a Rosetta API server based on the provided configuration.
-//
 // Parameters:
 // - svrCtx: The server context containing configuration and logging utilities.
 // - clientCtx: The client context, which includes the codec and interface registry for the Rosetta server.
