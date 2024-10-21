@@ -22,7 +22,6 @@ linters:
     - misspell
     - nakedret
     - prealloc
-    - exportloopref
     - staticcheck
     - stylecheck
     - typecheck
@@ -31,7 +30,6 @@ linters:
     - unused
     - nolintlint
     - asciicheck
-    - loopvar
     - gofumpt
     - gomodguard
 
