@@ -5,6 +5,7 @@ package werc20
 
 import (
 	"embed"
+	"fmt"
 
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
@@ -32,6 +33,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for WERC20.
 type Precompile struct {
 	*erc20.Precompile
+	bankKeeper bankkeeper.Keeper
 }
 
 const (
@@ -62,7 +64,7 @@ func NewPrecompile(
 
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("erc20Precompile is nil")
 	}
 
 	// use the IWERC20 ABI
@@ -70,6 +72,7 @@ func NewPrecompile(
 
 	return &Precompile{
 		Precompile: erc20Precompile,
+		bankKeeper: bankKeeper,
 	}, nil
 }
 
@@ -100,9 +103,9 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return DepositRequiredGas
 	case WithdrawMethod:
 		return WithdrawRequiredGas
+	default:
+		return p.Precompile.RequiredGas(input)
 	}
-
-	return p.Precompile.RequiredGas(input)
 }
 
 // Run executes the precompiled contract WERC20 methods defined in the ABI.
@@ -121,7 +124,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
-		bz, err = p.Deposit()
+		bz, err = p.Deposit(ctx, contract)
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
 		bz, err = p.Withdraw()

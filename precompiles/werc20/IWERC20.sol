@@ -17,10 +17,10 @@ interface IWERC20 {
     /// @param wad The amount of native tokens withdrawn.
     event Withdrawal(address indexed src, uint256 wad);
 
-    /// @dev Default fallback payable function. Calls the deposit method.
+    /// @dev Default fallback payable function. Must call the deposit method in implementing contracts.
     fallback() external payable;
 
-    /// @dev Default receive payable function. Calls the deposit method.
+    /// @dev Default receive payable function. Must call the deposit method in implementing contracts.
     receive() external payable;
 
     /// @dev Deposits native tokens in exchange for wrapped ERC20 token.
