@@ -7,8 +7,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmos "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 const (
@@ -32,7 +32,7 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract) ([]byte, err
 	precompileAccAddr := sdk.AccAddress(p.Address().Bytes())
 
 	// Send the coins back to the sender
-	err := p.bankKeeper.SendCoins(ctx, precompileAccAddr, senderAccAddress, sdk.NewCoins(sdk.NewCoin(evmos.BaseDenom, math.NewIntFromBigInt(depositedAmount))))
+	err := p.bankKeeper.SendCoins(ctx, precompileAccAddr, senderAccAddress, sdk.NewCoins(sdk.NewCoin(types.GetEVMCoinDenom(), math.NewIntFromBigInt(depositedAmount))))
 	if err != nil {
 		return nil, err
 	}
