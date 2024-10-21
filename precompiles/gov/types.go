@@ -65,6 +65,49 @@ type WeightedVoteOption struct {
 // WeightedVoteOptions defines a slice of WeightedVoteOption.
 type WeightedVoteOptions []WeightedVoteOption
 
+// DepositInput defines the input for the Deposit query.
+type DepositInput struct {
+	ProposalId uint64 //nolint:revive,stylecheck
+	Depositor  common.Address
+}
+
+// DepositOutput defines the output for the Deposit query.
+type DepositOutput struct {
+	Deposit DepositData
+}
+
+// DepositsInput defines the input for the Deposits query.
+type DepositsInput struct {
+	ProposalId uint64 //nolint:revive,stylecheck
+	Pagination query.PageRequest
+}
+
+// DepositsOutput defines the output for the Deposits query.
+type DepositsOutput struct {
+	Deposits     []DepositData      `abi:"deposits"`
+	PageResponse query.PageResponse `abi:"pageResponse"`
+}
+
+// TallyResultOutput defines the output for the TallyResult query.
+type TallyResultOutput struct {
+	TallyResult TallyResultData
+}
+
+// DepositData represents information about a deposit on a proposal
+type DepositData struct {
+	ProposalId uint64         `abi:"proposalId"` //nolint:revive,stylecheck
+	Depositor  common.Address `abi:"depositor"`
+	Amount     []cmn.Coin     `abi:"amount"`
+}
+
+// TallyResultData represents the tally result of a proposal
+type TallyResultData struct {
+	Yes        string
+	Abstain    string
+	No         string
+	NoWithVeto string
+}
+
 // NewMsgVote creates a new MsgVote instance.
 func NewMsgVote(args []interface{}) (*govv1.MsgVote, common.Address, error) {
 	if len(args) != 4 {
@@ -235,4 +278,119 @@ func (vo *VoteOutput) FromResponse(res *govv1.QueryVoteResponse) *VoteOutput {
 	}
 	vo.Vote.Options = options
 	return vo
+}
+
+// ParseDepositArgs parses the arguments for the Deposit query.
+func ParseDepositArgs(args []interface{}) (*govv1.QueryDepositRequest, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	proposalID, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidProposalID, args[0])
+	}
+
+	depositor, ok := args[1].(common.Address)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidDepositor, args[1])
+	}
+
+	depositorAccAddr := sdk.AccAddress(depositor.Bytes())
+	return &govv1.QueryDepositRequest{
+		ProposalId: proposalID,
+		Depositor:  depositorAccAddr.String(),
+	}, nil
+}
+
+// ParseDepositsArgs parses the arguments for the Deposits query.
+func ParseDepositsArgs(method *abi.Method, args []interface{}) (*govv1.QueryDepositsRequest, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	var input DepositsInput
+	if err := method.Inputs.Copy(&input, args); err != nil {
+		return nil, fmt.Errorf("error while unpacking args to DepositsInput: %s", err)
+	}
+
+	return &govv1.QueryDepositsRequest{
+		ProposalId: input.ProposalId,
+		Pagination: &input.Pagination,
+	}, nil
+}
+
+// ParseTallyResultArgs parses the arguments for the TallyResult query.
+func ParseTallyResultArgs(args []interface{}) (*govv1.QueryTallyResultRequest, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
+	proposalID, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidProposalID, args[0])
+	}
+
+	return &govv1.QueryTallyResultRequest{
+		ProposalId: proposalID,
+	}, nil
+}
+
+func (do *DepositOutput) FromResponse(res *govv1.QueryDepositResponse) *DepositOutput {
+	hexDepositor, err := utils.Bech32ToHexAddr(res.Deposit.Depositor)
+	if err != nil {
+		return nil
+	}
+	coins := make([]cmn.Coin, len(res.Deposit.Amount))
+	for i, c := range res.Deposit.Amount {
+		coins[i] = cmn.Coin{
+			Denom:  c.Denom,
+			Amount: c.Amount.BigInt(),
+		}
+	}
+	do.Deposit = DepositData{
+		ProposalId: res.Deposit.ProposalId,
+		Depositor:  hexDepositor,
+		Amount:     coins,
+	}
+	return do
+}
+
+func (do *DepositsOutput) FromResponse(res *govv1.QueryDepositsResponse) *DepositsOutput {
+	do.Deposits = make([]DepositData, len(res.Deposits))
+	for i, d := range res.Deposits {
+		hexDepositor, err := utils.Bech32ToHexAddr(d.Depositor)
+		if err != nil {
+			return nil
+		}
+		coins := make([]cmn.Coin, len(d.Amount))
+		for j, c := range d.Amount {
+			coins[j] = cmn.Coin{
+				Denom:  c.Denom,
+				Amount: c.Amount.BigInt(),
+			}
+		}
+		do.Deposits[i] = DepositData{
+			ProposalId: d.ProposalId,
+			Depositor:  hexDepositor,
+			Amount:     coins,
+		}
+	}
+	if res.Pagination != nil {
+		do.PageResponse = query.PageResponse{
+			NextKey: res.Pagination.NextKey,
+			Total:   res.Pagination.Total,
+		}
+	}
+	return do
+}
+
+func (tro *TallyResultOutput) FromResponse(res *govv1.QueryTallyResultResponse) *TallyResultOutput {
+	tro.TallyResult = TallyResultData{
+		Yes:        res.Tally.YesCount,
+		Abstain:    res.Tally.AbstainCount,
+		No:         res.Tally.NoCount,
+		NoWithVeto: res.Tally.NoWithVetoCount,
+	}
+	return tro
 }

@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
+- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
 
 ## [v20.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc3) - 2024-10-08
 
