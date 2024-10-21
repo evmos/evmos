@@ -151,6 +151,7 @@ func (e EvmosSECP256K1) displayEIP712Hash(typedData apitypes.TypedData) error {
 	return nil
 }
 
+// connectToLedgerApp connects to the Ledger hardware wallet and initializes the wallet instance.
 func (e *EvmosSECP256K1) connectToLedgerApp() (sdkledger.SECP256K1, error) {
 	// Instantiate new Ledger object
 	ledger, err := usbwallet.NewLedgerHub()

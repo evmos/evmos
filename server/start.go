@@ -218,6 +218,10 @@ which accepts a path for the resulting pprof file.
 	return cmd
 }
 
+// startStandAlone starts an ABCI server in stand-alone mode.
+// Parameters:
+// - svrCtx: The context object that holds server configurations, logger, and other stateful information.
+// - opts: Options for starting the server, including functions for creating the application and opening the database.
 func startStandAlone(svrCtx *server.Context, opts StartOptions) error {
 	addr := svrCtx.Viper.GetString(srvflags.Address)
 	transport := svrCtx.Viper.GetString(srvflags.Transport)
@@ -499,6 +503,9 @@ func OpenIndexerDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) 
 	return dbm.NewDB("evmindexer", backendType, dataDir)
 }
 
+// openTraceWriter opens a trace writer if a trace store file is specified.
+// Parameters:
+// - traceWriterFile: The path to the trace store file. If this is an empty string, no file will be opened.
 func openTraceWriter(traceWriterFile string) (w io.Writer, err error) {
 	if traceWriterFile == "" {
 		return
@@ -527,6 +534,7 @@ func getCtx(svrCtx *server.Context, block bool) (*errgroup.Group, context.Contex
 	return g, ctx
 }
 
+// startGrpcServer starts a gRPC server based on the provided configuration.
 func startGrpcServer(
 	ctx context.Context,
 	svrCtx *server.Context,
@@ -585,6 +593,16 @@ func startGrpcServer(
 	return grpcSrv, clientCtx, nil
 }
 
+// startAPIServer starts an API server based on the provided configuration and application context.
+// Parameters:
+// - ctx: The context used for managing the server's lifecycle, allowing for graceful shutdown.
+// - svrCtx: The server context containing configuration, logger, and other stateful components.
+// - clientCtx: The client context, which provides necessary information for API operations.
+// - g: An errgroup.Group for managing goroutines and handling errors concurrently.
+// - svrCfg: The server configuration that specifies whether the API server is enabled and other settings.
+// - app: The application instance that registers API routes.
+// - grpcSrv: A pointer to the gRPC server, which may be used by the API server.
+// - metrics: A telemetry metrics instance for monitoring API server performance.
 func startAPIServer(
 	ctx context.Context,
 	svrCtx *server.Context,
@@ -612,6 +630,15 @@ func startAPIServer(
 	return apiSrv
 }
 
+// startJSONRPCServer starts a JSON-RPC server based on the provided configuration.
+// Parameters:
+// - svrCtx: The server context containing configuration, logger, and stateful components.
+// - clientCtx: The client context, which may be updated with additional chain information.
+// - g: An errgroup.Group to manage concurrent goroutines and error handling.
+// - config: The server configuration that specifies whether the JSON-RPC server is enabled and other settings.
+// - genDocProvider: A function that provides the Genesis document, used to retrieve the chain ID.
+// - cmtRPCAddr: The address of the CometBFT RPC server for WebSocket connections.
+// - idxer: The EVM transaction indexer for indexing transactions.
 func startJSONRPCServer(
 	svrCtx *server.Context,
 	clientCtx client.Context,
@@ -640,6 +667,12 @@ func startJSONRPCServer(
 	return
 }
 
+// startRosettaServer starts a Rosetta API server based on the provided configuration.
+// Parameters:
+// - svrCtx: The server context containing configuration and logging utilities.
+// - clientCtx: The client context, which includes the codec and interface registry for the Rosetta server.
+// - g: An errgroup.Group to manage goroutines and handle errors concurrently.
+// - config: The main server configuration, including Rosetta and gRPC settings.
 func startRosettaServer(
 	svrCtx *server.Context,
 	clientCtx client.Context,
@@ -688,7 +721,7 @@ func startRosettaServer(
 	return nil
 }
 
-// returns a function which returns the genesis doc from the genesis file.
+// GenDocProvider returns a function which returns the genesis doc from the genesis file.
 func GenDocProvider(cfg *cmtcfg.Config) func() (*cmttypes.GenesisDoc, error) {
 	return func() (*cmttypes.GenesisDoc, error) {
 		appGenesis, err := genutiltypes.AppGenesisFromFile(cfg.GenesisFile())
