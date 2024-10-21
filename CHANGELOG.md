@@ -35,46 +35,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
-
-### State Machine Breaking
-
-- (upgrade) [#2933](https://github.com/evmos/evmos/pull/2933) Update upgrade handler logic for `v20` release.
-
-### Improvements
-
-- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
-- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
-
-## [v20.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc3) - 2024-10-08
-
-### State Machine Breaking
-
-- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
-
-## [v20.0.0-rc2](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc2) - 2024-09-27
+## [v20.0.0](https://github.com/evmos/evmos/releases/tag/v20.0.0) - 2024-10-21
 
 ### State Machine Breaking
 
 - (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (gov) [#2863](https://github.com/evmos/evmos/pull/2863) Fix denom, amount and period in expedited proposal params.
-- (bank) [#2874](https://github.com/evmos/evmos/pull/2874) Fix corrupted denom metadata on testnet.
+- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
+- (upgrade) [#2933](https://github.com/evmos/evmos/pull/2933) Update upgrade handler logic for `v20` release.
 - (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
-
-### Improvements
-
-- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
-- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
-- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`
-
-### Bug Fixes
-
-- (erc20) [#2892](https://github.com/evmos/evmos/pull/2892) Keep `MsgConvertCoin` interface registered for backwards compatibility.
-
-## [v20.0.0-rc1](https://github.com/evmos/evmos/releases/tag/v20.0.0-rc1) - 2024-09-16
-
-### State Machine Breaking
-
 - (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.5.0`.
 - (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
 - (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
@@ -83,6 +52,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922)  Add 'VoteWeighted' transaction to gov precompile.
+- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
+- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
+- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
+- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`
 - (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
 - (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
 - (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
@@ -92,6 +66,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (erc20) [#2892](https://github.com/evmos/evmos/pull/2892) Keep `MsgConvertCoin` interface registered for backwards compatibility.
 - (deps) [#2854](https://github.com/evmos/evmos/pull/2854) Bump IBC-go to `v8.5.1`.
 
 ## [v19.2.0](https://github.com/evmos/evmos/releases/tag/v19.2.0) - 2024-08-19
