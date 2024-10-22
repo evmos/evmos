@@ -257,3 +257,189 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestMint() {
+	method := s.precompile.Methods[erc20.MintMethod]
+	fromAddr := s.keyring.GetKey(0).Addr
+
+	testcases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func()
+		expErr      bool
+		errContains string
+	}{
+		{
+			"fail - negative amount",
+			func() []interface{} {
+				return []interface{}{toAddr, big.NewInt(-1)}
+			},
+			func() {},
+			true,
+			"-1xmpl: invalid coins",
+		},
+		{
+			"fail - invalid to address",
+			func() []interface{} {
+				return []interface{}{"", big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"invalid to address",
+		},
+		{
+			"fail - invalid amount",
+			func() []interface{} {
+				return []interface{}{toAddr, ""}
+			},
+			func() {},
+			true,
+			"invalid amount",
+		},
+		{
+			"fail - not enough balance",
+			func() []interface{} {
+				return []interface{}{toAddr, big.NewInt(1)}
+			},
+			func() {},
+			true,
+			erc20.ErrTransferAmountExceedsBalance.Error(),
+		},
+		// {
+		// 	"fail - invalid address",
+		// 	func() []interface{} {
+		// 		// TODO: add address 0
+		// 		return []interface{}{"", big.NewInt(100)}
+		// 	},
+		// 	func() {},
+		// 	true,
+		// 	"invalid to address",
+		// },
+		{
+			"pass",
+			func() []interface{} {
+				return []interface{}{toAddr, big.NewInt(100)}
+			},
+			func() {
+				toAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), toAddr.Bytes(), tokenDenom)
+				s.Require().Equal(big.NewInt(100), toAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
+			},
+			false,
+			"",
+		},
+	}
+
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			s.SetupTest()
+			stateDB := s.network.GetStateDB()
+
+			var contract *vm.Contract
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), fromAddr, s.precompile, 0)
+
+			// Mint some coins to the module account and then send to the from address
+			err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+			s.Require().NoError(err, "failed to mint coins")
+			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, fromAddr.Bytes(), XMPLCoin)
+			s.Require().NoError(err, "failed to send coins from module to account")
+
+			_, err = s.precompile.Mint(ctx, contract, stateDB, &method, tc.malleate())
+			if tc.expErr {
+				s.Require().Error(err, "expected transfer transaction to fail")
+				s.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")
+			} else {
+				s.Require().NoError(err, "expected transfer transaction succeeded")
+				tc.postCheck()
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestBurn() {
+	method := s.precompile.Methods[erc20.BurnMethod]
+	fromAddr := utiltx.GenerateAddress()
+	testcases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func()
+		expErr      bool
+		errContains string
+	}{
+		{
+			"fail - negative amount",
+			func() []interface{} {
+				return []interface{}{fromAddr, big.NewInt(-1)}
+			},
+			func() {},
+			true,
+			"-1xmpl: invalid coins",
+		},
+		{
+			"fail - invalid to address",
+			func() []interface{} {
+				return []interface{}{"", big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"invalid to address",
+		},
+		{
+			"fail - invalid amount",
+			func() []interface{} {
+				return []interface{}{fromAddr, ""}
+			},
+			func() {},
+			true,
+			"invalid amount",
+		},
+		{
+			"fail - not enough balance",
+			func() []interface{} {
+				return []interface{}{fromAddr, big.NewInt(2e18)}
+			},
+			func() {},
+			true,
+			erc20.ErrTransferAmountExceedsBalance.Error(),
+		},
+		{
+			"pass",
+			func() []interface{} {
+				return []interface{}{fromAddr, big.NewInt(100)}
+			},
+			func() {
+				fromAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), fromAddr.Bytes(), tokenDenom)
+				s.Require().Equal(big.NewInt(100), fromAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
+			},
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			s.SetupTest()
+			stateDB := s.network.GetStateDB()
+
+			var contract *vm.Contract
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), fromAddr, s.precompile, 0)
+
+			// Mint some coins to the module account and then send to the from address
+			err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+			s.Require().NoError(err, "failed to mint coins")
+			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, fromAddr.Bytes(), XMPLCoin)
+			s.Require().NoError(err, "failed to send coins from module to account")
+
+			_, err = s.precompile.Mint(ctx, contract, stateDB, &method, tc.malleate())
+			if tc.expErr {
+				s.Require().Error(err, "expected transfer transaction to fail")
+				s.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")
+			} else {
+				s.Require().NoError(err, "expected transfer transaction succeeded")
+				tc.postCheck()
+			}
+		})
+	}
+}

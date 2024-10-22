@@ -110,6 +110,10 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return GasIncreaseAllowance
 	case auth.DecreaseAllowanceMethod:
 		return GasDecreaseAllowance
+	case MintMethod:
+		return GasTransfer
+	case BurnMethod:
+		return GasTransfer
 	// ERC-20 queries
 	case NameMethod:
 		return GasName
@@ -162,7 +166,9 @@ func (Precompile) IsTransaction(methodName string) bool {
 		TransferFromMethod,
 		auth.ApproveMethod,
 		auth.IncreaseAllowanceMethod,
-		auth.DecreaseAllowanceMethod:
+		auth.DecreaseAllowanceMethod,
+		MintMethod,
+		BurnMethod:
 		return true
 	default:
 		return false
@@ -189,6 +195,10 @@ func (p *Precompile) HandleMethod(
 		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
+	case MintMethod:
+		bz, err = p.Mint(ctx, contract, stateDB, method, args)
+	case BurnMethod:
+		bz, err = p.Burn(ctx, contract, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
 		bz, err = p.Name(ctx, contract, stateDB, method, args)

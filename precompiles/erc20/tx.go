@@ -3,6 +3,7 @@
 package erc20
 
 import (
+	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -25,6 +26,10 @@ const (
 	// TransferFromMethod defines the ABI method name for the ERC-20 transferFrom
 	// transaction.
 	TransferFromMethod = "transferFrom"
+	// MintMethod defines the ABI method name for the ERC-20 mint transaction.
+	MintMethod = "mint"
+	// BurnMethod defines the ABI method name for the ERC-20 burn transaction.
+	BurnMethod = "burn"
 )
 
 // SendMsgURL defines the authorization type for MsgSend
@@ -90,6 +95,7 @@ func (p *Precompile) transfer(
 	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
 	ownerIsSpender := spender.Equals(owner)
 
+	fmt.Println("ownerIsSpender", ownerIsSpender, spender.String(), owner.String())
 	var prevAllowance *big.Int
 	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
@@ -97,12 +103,13 @@ func (p *Precompile) transfer(
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
+			fmt.Println("err 2", err)
 			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
 		}
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
-
+	fmt.Println("err", err)
 	if err != nil {
 		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
@@ -139,4 +146,36 @@ func (p *Precompile) transfer(
 	}
 
 	return method.Outputs.Pack(true)
+}
+
+// Mint executes a mint of the caller's tokens.
+func (p *Precompile) Mint(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	to, amount, err := ParseMintArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.transfer(ctx, contract, stateDB, method, common.Address{}, to, amount)
+}
+
+// Burn executes a burn of the caller's tokens.
+func (p *Precompile) Burn(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	from, amount, err := ParseBurnArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.transfer(ctx, contract, stateDB, method, from, common.Address{}, amount)
 }
