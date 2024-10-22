@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package vm
 
@@ -83,27 +83,27 @@ func TestExtendActivators(t *testing.T) {
 		{
 			"success - single new activator",
 			map[string]func(*JumpTable){
-				"evmos_0": func(jt *JumpTable) {},
+				"eidon-chain_0": func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
 				eips := GetActivatorsEipNames()
-				require.ElementsMatch(t, append(eips_snapshot, "evmos_0"), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, "eidon-chain_0"), eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"success - multiple new activators",
 			map[string]func(*JumpTable){
-				"evmos_1": func(jt *JumpTable) {},
-				"evmos_2": func(jt *JumpTable) {},
+				"eidon-chain_1": func(jt *JumpTable) {},
+				"eidon-chain_2": func(jt *JumpTable) {},
 			},
 			true,
 			"",
 			func() {
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, "eidon-chain_0", "eidon-chain_1", "eidon-chain_2"), eips, "expected eips number to be equal")
 			},
 		},
 		{
@@ -116,13 +116,13 @@ func TestExtendActivators(t *testing.T) {
 			func() {
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, "eidon-chain_0", "eidon-chain_1", "eidon-chain_2"), eips, "expected eips number to be equal")
 			},
 		},
 		{
 			"fail - valid activator is not stored if a repeated is present",
 			map[string]func(*JumpTable){
-				"evmos_3":       func(jt *JumpTable) {},
+				"eidon-chain_3":       func(jt *JumpTable) {},
 				"ethereum_3855": func(jt *JumpTable) {},
 			},
 			false,
@@ -130,7 +130,7 @@ func TestExtendActivators(t *testing.T) {
 			func() {
 				eips := GetActivatorsEipNames()
 				// since we are working with a global function, tests are not independent
-				require.ElementsMatch(t, append(eips_snapshot, "evmos_0", "evmos_1", "evmos_2"), eips, "expected eips number to be equal")
+				require.ElementsMatch(t, append(eips_snapshot, "eidon-chain_0", "eidon-chain_1", "eidon-chain_2"), eips, "expected eips number to be equal")
 			},
 		},
 	}

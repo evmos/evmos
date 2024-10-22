@@ -15,20 +15,20 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/utils"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/x/erc20"
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 )
 
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *app.Evmos
+	app     *app.Eidon-chain
 	genesis types.GenesisState
 }
 

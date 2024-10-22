@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

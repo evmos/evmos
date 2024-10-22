@@ -9,9 +9,9 @@ from .utils import (
 )
 
 
-def test_trace_blk(evmos_cluster):
-    w3 = evmos_cluster.w3
-    cli = evmos_cluster.cosmos_cli()
+def test_trace_blk(eidon-chain_cluster):
+    w3 = eidon-chain_cluster.w3
+    cli = eidon-chain_cluster.cosmos_cli()
     acc = derive_new_account(3)
     sender = acc.address
     # fund new sender
@@ -39,7 +39,7 @@ def test_trace_blk(evmos_cluster):
         res = w3.eth.wait_for_transaction_receipt(txhash)
         assert res.status == 1
 
-    url = f"http://127.0.0.1:{ports.evmrpc_port(evmos_cluster.base_port(0))}"
+    url = f"http://127.0.0.1:{ports.evmrpc_port(eidon-chain_cluster.base_port(0))}"
     params = {
         "method": "debug_traceBlockByNumber",
         "params": [hex(blk + 1)],

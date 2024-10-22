@@ -1,17 +1,17 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package factory
 
 import (
 	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
-	// ChainID is the chain's id in cosmos format, e.g. 'evmos_9000-1'
+	// ChainID is the chain's id in cosmos format, e.g. 'eidon-chain_9000-1'
 	ChainID string
 	// Gas to be used on the tx
 	Gas uint64

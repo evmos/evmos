@@ -1,17 +1,17 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.erc20.v1;
+package eidon-chain.erc20.v1;
 
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
-import "evmos/erc20/v1/genesis.proto";
+import "eidon-chain/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/erc20/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
@@ -19,7 +19,7 @@ service Msg {
   // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
   // contract that is registered on the token mapping.
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
-    option (google.api.http).get = "/evmos/erc20/v1/tx/convert_erc20";
+    option (google.api.http).get = "/eidon-chain/erc20/v1/tx/convert_erc20";
   };
   // UpdateParams defines a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
@@ -35,7 +35,7 @@ service Msg {
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
 // coin.
 message MsgConvertERC20 {
-  option (amino.name) = "evmos/MsgConvertERC20";
+  option (amino.name) = "eidon-chain/MsgConvertERC20";
   option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
@@ -68,7 +68,7 @@ message MsgConvertCoinResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParams {
-  option (amino.name) = "evmos/x/erc20/MsgUpdateParams";
+  option (amino.name) = "eidon-chain/x/erc20/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -87,7 +87,7 @@ message MsgUpdateParamsResponse {}
 // MsgRegisterERC20 is the Msg/RegisterERC20 request type for registering
 // an Erc20 contract token pair.
 message MsgRegisterERC20 {
-  option (amino.name) = "evmos/x/erc20/MsgRegisterERC20";
+  option (amino.name) = "eidon-chain/x/erc20/MsgRegisterERC20";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -104,7 +104,7 @@ message MsgRegisterERC20Response {}
 // MsgToggleConversion is the Msg/MsgToggleConversion request type for toggling
 // an Erc20 contract conversion capability.
 message MsgToggleConversion {
-  option (amino.name) = "evmos/x/erc20/MsgToggleConversion";
+  option (amino.name) = "eidon-chain/x/erc20/MsgToggleConversion";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.

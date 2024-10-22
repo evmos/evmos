@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/cmd/config"
-	"github.com/evmos/evmos/v20/precompiles/bech32"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/Eidon-AI/eidon-chain/v20/cmd/config"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/bech32"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestNewPrecompile() {
@@ -105,7 +105,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			"invalid bech32 human readable prefix (HRP)",
 		},
 		{
-			"pass - hex to bech32 account (evmos)",
+			"pass - hex to bech32 account (eidon-chain)",
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
@@ -128,7 +128,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			"",
 		},
 		{
-			"pass - hex to bech32 validator operator (evmosvaloper)",
+			"pass - hex to bech32 validator operator (eidon-chainvaloper)",
 			func() *vm.Contract {
 				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
 				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
@@ -154,7 +154,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			"",
 		},
 		{
-			"pass - hex to bech32 consensus address (evmosvalcons)",
+			"pass - hex to bech32 consensus address (eidon-chainvalcons)",
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package keeper
 
@@ -18,14 +18,14 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v20/ibc"
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/ibc"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
 // converting an IBC Coin to their ERC20 representation.
 // For the conversion to succeed, the IBC denomination must have previously been
-// registered via governance. Note that the native staking denomination (e.g. "aevmos"),
+// registered via governance. Note that the native staking denomination (e.g. "aeidon-chain"),
 // is excluded from the conversion.
 //
 // CONTRACT: This middleware MUST be executed transfer after the ICS20 OnRecvPacket
@@ -221,7 +221,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return nil
 		}
 
-		// assume that all module accounts on Evmos need to have their tokens in the
+		// assume that all module accounts on Eidon-chain need to have their tokens in the
 		// IBC representation as opposed to ERC20
 		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 		if types.IsModuleAccount(senderAcc) {

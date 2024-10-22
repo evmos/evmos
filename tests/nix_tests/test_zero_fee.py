@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from web3 import Web3
 
-from .network import create_snapshots_dir, setup_custom_evmos
+from .network import create_snapshots_dir, setup_custom_eidon-chain
 from .utils import (
     ADDRS,
     KEYS,
@@ -15,8 +15,8 @@ from .utils import (
 
 
 @pytest.fixture(scope="module")
-def custom_evmos(tmp_path_factory):
-    yield from setup_custom_evmos(
+def custom_eidon-chain(tmp_path_factory):
+    yield from setup_custom_eidon-chain(
         tmp_path_factory.mktemp("zero-fee"),
         26900,
         Path(__file__).parent / "configs/zero-fee.jsonnet",
@@ -24,38 +24,38 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def custom_evmos_rocksdb(tmp_path_factory):
+def custom_eidon-chain_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("zero-fee-rocksdb")
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         path,
         26810,
         memiavl_config(path, "zero-fee"),
         post_init=create_snapshots_dir,
-        chain_binary="evmosd-rocksdb",
+        chain_binary="eidond-rocksdb",
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-rocksdb"])
+def eidon-chain_cluster(request, custom_eidon-chain, custom_eidon-chain_rocksdb):
     """
-    run on evmos and
-    evmos built with rocksdb (memIAVL + versionDB)
+    run on eidon-chain and
+    eidon-chain built with rocksdb (memIAVL + versionDB)
     """
     provider = request.param
-    if provider == "evmos":
-        yield custom_evmos
-    elif provider == "evmos-rocksdb":
-        yield custom_evmos_rocksdb
+    if provider == "eidon-chain":
+        yield custom_eidon-chain
+    elif provider == "eidon-chain-rocksdb":
+        yield custom_eidon-chain_rocksdb
     else:
         raise NotImplementedError
 
 
-def test_cosmos_tx(evmos_cluster):
+def test_cosmos_tx(eidon-chain_cluster):
     """
     test basic cosmos transaction works with zero fees
     """
-    denom = "aevmos"
-    cli = evmos_cluster.cosmos_cli()
+    denom = "aeidon-chain"
+    cli = eidon-chain_cluster.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
     receiver = eth_to_bech32(ADDRS["signer2"])
     amt = 1000
@@ -91,11 +91,11 @@ def test_cosmos_tx(evmos_cluster):
     assert old_src_balance - amt == new_src_balance
 
 
-def test_eth_tx(evmos_cluster):
+def test_eth_tx(eidon-chain_cluster):
     """
     test basic Ethereum transaction works with zero fees
     """
-    w3: Web3 = evmos_cluster.w3
+    w3: Web3 = eidon-chain_cluster.w3
 
     sender = ADDRS["signer1"]
     receiver = ADDRS["signer2"]

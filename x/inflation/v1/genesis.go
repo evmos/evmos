@@ -1,13 +1,13 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package inflation
 
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/keeper"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 // InitGenesis import module genesis

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package erc20
 
@@ -10,10 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v20/ibc"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/ibc"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // Errors that have formatted information are defined here as a string.

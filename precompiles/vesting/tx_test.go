@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package vesting_test
 
 import (
@@ -13,25 +13,25 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	"github.com/evmos/evmos/v20/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v20/testutil"
-	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/vesting"
+	eidon-chainutil "github.com/Eidon-AI/eidon-chain/v20/testutil"
+	eidon-chainutiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 var (
-	baseDenom        = evmostypes.BaseDenom
+	baseDenom        = eidon-chaintypes.BaseDenom
 	balances         = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(1000)}}
 	quarter          = []cmn.Coin{{Denom: baseDenom, Amount: big.NewInt(250)}}
 	balancesSdkCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1000))
 	quarterSdkCoins  = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
-	toAddr           = evmosutiltx.GenerateAddress()
-	funderAddr       = evmosutiltx.GenerateAddress()
-	diffFunderAddr   = evmosutiltx.GenerateAddress()
+	toAddr           = eidon-chainutiltx.GenerateAddress()
+	funderAddr       = eidon-chainutiltx.GenerateAddress()
+	diffFunderAddr   = eidon-chainutiltx.GenerateAddress()
 	lockupPeriods    = []vesting.Period{{Length: 5000, Amount: balances}}
 	sdkLockupPeriods = []sdkvesting.Period{{Length: 5000, Amount: balancesSdkCoins}}
 	vestingPeriods   = []vesting.Period{
@@ -72,7 +72,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 		{
 			name: "fail - different origin than vesting address",
 			malleate: func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := eidon-chainutiltx.GenerateAddress()
 				return []interface{}{
 					funderAddr,
 					differentAddr,
@@ -158,7 +158,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 		{
 			name: "fail - different origin than funder address",
 			malleate: func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := eidon-chainutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					toAddr,
@@ -175,7 +175,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 			"success",
 			func() []interface{} {
 				s.CreateTestClawbackVestingAccount(ctx, s.keyring.GetAddr(0), toAddr)
-				err = evmosutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100))))
+				err = eidon-chainutil.FundAccount(ctx, s.network.App.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100))))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 					toAddr,
@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 		{
 			name: "fail - different origin than funder address",
 			malleate: func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := eidon-chainutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					toAddr,
@@ -327,7 +327,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 		{
 			name: "fail - different origin than funder address",
 			malleate: func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := eidon-chainutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					toAddr,

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package ante
 
@@ -14,12 +14,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
-	evmante "github.com/evmos/evmos/v20/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmante "github.com/Eidon-AI/eidon-chain/v20/app/ante/evm"
+	anteutils "github.com/Eidon-AI/eidon-chain/v20/app/ante/utils"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
-// HandlerOptions defines the list of module keepers required to run the Evmos
+// HandlerOptions defines the list of module keepers required to run the Eidon-chain
 // AnteHandler decorators.
 type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec

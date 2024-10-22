@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -14,17 +14,17 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-// EvmosVersions is a custom comparator for sorting semver version strings.
-type EvmosVersions []string
+// Eidon-chainVersions is a custom comparator for sorting semver version strings.
+type Eidon-chainVersions []string
 
 // Len is the number of stored versions.
-func (v EvmosVersions) Len() int { return len(v) }
+func (v Eidon-chainVersions) Len() int { return len(v) }
 
 // Swap swaps the elements with indexes i and j. It is needed to sort the slice.
-func (v EvmosVersions) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
+func (v Eidon-chainVersions) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
 
 // Less compares semver versions strings properly
-func (v EvmosVersions) Less(i, j int) bool {
+func (v Eidon-chainVersions) Less(i, j int) bool {
 	v1, err := version.NewVersion(v[i])
 	if err != nil {
 		panic(fmt.Sprintf("couldn't interpret version as SemVer string: %s: %s", v[i], err.Error()))
@@ -39,7 +39,7 @@ func (v EvmosVersions) Less(i, j int) bool {
 }
 
 // ProposalVersion is an enum to represent the type of upgrade proposal to be used
-// based on the Evmos version.
+// based on the Eidon-chain version.
 //
 // This is required since the way to submit an upgrade proposal has changed between
 // different SDK versions.
@@ -59,7 +59,7 @@ func CheckUpgradeProposalVersion(version string) ProposalVersion {
 	}
 
 	// if version is lower than v10.x.x, then it's using SDK v0.46
-	cmp := EvmosVersions([]string{version, "v10.0.0", "v20.0.0"})
+	cmp := Eidon-chainVersions([]string{version, "v10.0.0", "v20.0.0"})
 	var proposalVersion ProposalVersion
 	switch {
 	case cmp.Less(0, 1):
@@ -108,12 +108,12 @@ func RetrieveUpgradesList(upgradesPath string) ([]string, error) {
 		versions = append(versions, v[1:len(v)-1])
 	}
 
-	sort.Sort(EvmosVersions(versions))
+	sort.Sort(Eidon-chainVersions(versions))
 
 	return versions, nil
 }
 
-// ExportState executes the  'docker cp' command to copy container .evmosd dir
+// ExportState executes the  'docker cp' command to copy container .eidond dir
 // to the specified target dir (local)
 //
 // See https://docs.docker.com/engine/reference/commandline/cp/
@@ -122,7 +122,7 @@ func (m *Manager) ExportState(targetDir string) error {
 	cmd := exec.Command(
 		"docker",
 		"cp",
-		fmt.Sprintf("%s:/root/.evmosd", m.ContainerID()),
+		fmt.Sprintf("%s:/root/.eidond", m.ContainerID()),
 		targetDir,
 	)
 	return cmd.Run()

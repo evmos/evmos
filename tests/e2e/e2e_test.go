@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// TestUpgrade tests if an Evmos node can be upgraded from one version to another.
+// TestUpgrade tests if an Eidon-chain node can be upgraded from one version to another.
 // It iterates through the list of scheduled upgrades, that are defined using the input
 // arguments to the make command. The function then submits a proposal to upgrade the chain,
 // and finally upgrades the chain.

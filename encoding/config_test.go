@@ -8,9 +8,9 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v20/encoding"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 func TestTxEncoding(t *testing.T) {

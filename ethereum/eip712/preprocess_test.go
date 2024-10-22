@@ -15,13 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v20/cmd/config"
-	"github.com/evmos/evmos/v20/encoding"
-	"github.com/evmos/evmos/v20/ethereum/eip712"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/cmd/config"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	"github.com/Eidon-AI/eidon-chain/v20/ethereum/eip712"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,7 +32,7 @@ var (
 		encoding.MakeConfig().TxConfig,
 	)
 )
-var feePayerAddress = "evmos17xpfvakm2amg962yls6f84z3kell8c5ljcjw34"
+var feePayerAddress = "eidon-chain17xpfvakm2amg962yls6f84z3kell8c5ljcjw34"
 
 type TestCaseStruct struct {
 	txBuilder              client.TxBuilder
@@ -211,7 +211,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	msgSend := banktypes.MsgSend{
 		FromAddress: feePayerAddress,
-		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
+		ToAddress:   "eidon-chain12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
 				denom,

@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/contracts"
-	testfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	testhandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	testfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	testhandler "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	testnetwork "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

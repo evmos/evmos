@@ -1,20 +1,20 @@
 {
   "metadata": [
     {
-      "description": "The native staking and governance token of the Evmos chain",
+      "description": "The native staking and governance token of the Eidon-chain chain",
       "denom_units": [
         {
-          "denom": "aevmos",
+          "denom": "aeidon-chain",
           "exponent": 0
         },
         {
-          "denom": "evmos",
+          "denom": "eidon-chain",
           "exponent": 18
         }
       ],
-      "base": "aevmos",
-      "display": "aevmos",
-      "name": "aevmos",
+      "base": "aeidon-chain",
+      "display": "aeidon-chain",
+      "name": "aeidon-chain",
       "symbol": "EVMOS"
     },
     {

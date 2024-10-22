@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package types_test
 
@@ -10,8 +10,8 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -57,7 +57,7 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 		{
 			name:        "panic - not evm denom",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
-			coin:        sdk.Coin{Denom: "evmos", Amount: math.NewInt(1)},
+			coin:        sdk.Coin{Denom: "eidon-chain", Amount: math.NewInt(1)},
 			expPanic:    true,
 		},
 	}
@@ -135,7 +135,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 		{
 			name:        "fail - not evm denom",
 			evmCoinInfo: evmtypes.EvmCoinInfo{Denom: types.BaseDenom, Decimals: evmtypes.SixDecimals},
-			coin:        sdk.Coin{Denom: "evmos", Amount: math.NewInt(1)},
+			coin:        sdk.Coin{Denom: "eidon-chain", Amount: math.NewInt(1)},
 			expErr:      true,
 		},
 	}

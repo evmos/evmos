@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package coordinator
 
 import (
@@ -9,9 +9,9 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	evmosibc "github.com/evmos/evmos/v20/ibc/testing"
-	"github.com/evmos/evmos/v20/testutil/integration/common/network"
-	ibcchain "github.com/evmos/evmos/v20/testutil/integration/ibc/chain"
+	eidon-chainibc "github.com/Eidon-AI/eidon-chain/v20/ibc/testing"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/network"
+	ibcchain "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/ibc/chain"
 )
 
 // Coordinator is the interface that defines the methods that are used to
@@ -29,7 +29,7 @@ type Coordinator interface {
 	// GetDummyChainsIDs returns the chainIDs for all dummy chains.
 	GetDummyChainsIDs() []string
 	// GetPath returns the transfer path for the chain ids 'a' and 'b'
-	GetPath(a, b string) *evmosibc.Path
+	GetPath(a, b string) *eidon-chainibc.Path
 	// GetChainSenderAcc returns the sender account for the specified chain
 	GetChainSenderAcc(chainID string) sdk.AccountI
 	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
@@ -90,11 +90,11 @@ func (c *IntegrationCoordinator) GetDummyChainsIDs() []string {
 }
 
 // GetPath returns the transfer path for the chain ids 'a' and 'b'
-func (c *IntegrationCoordinator) GetPath(a, b string) *evmosibc.Path {
+func (c *IntegrationCoordinator) GetPath(a, b string) *eidon-chainibc.Path {
 	chainA := c.coord.GetChain(a)
 	chainB := c.coord.GetChain(b)
 
-	return evmosibc.NewTransferPath(chainA, chainB)
+	return eidon-chainibc.NewTransferPath(chainA, chainB)
 }
 
 // GetChain returns the TestChain for a given chainID.
@@ -132,7 +132,7 @@ func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv c
 // for both chains. The channels created are connected to the ibc-transfer application.
 func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 	path := c.GetPath(a, b)
-	evmosibc.SetupPath(c.coord, path)
+	eidon-chainibc.SetupPath(c.coord, path)
 
 	return IBCConnection{
 		EndpointA: Endpoint{

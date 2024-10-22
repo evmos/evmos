@@ -267,11 +267,11 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "feemarket", "v1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"eidon-chain", "feemarket", "v1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_BaseFee_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "feemarket", "v1", "base_fee"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_BaseFee_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"eidon-chain", "feemarket", "v1", "base_fee"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_BlockGas_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "feemarket", "v1", "block_gas"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_BlockGas_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"eidon-chain", "feemarket", "v1", "block_gas"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

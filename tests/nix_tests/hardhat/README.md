@@ -16,6 +16,6 @@ npm run typechain
 If you inspect the `package.json` file, you will notice that
 the `typechain` command calls the `get-contracts` script.
 This script copies all the Solidity smart contracts from the `precompiles`
-directory of the evmos repository.
+directory of the eidon-chain repository.
 Thus, you don't need to add these contracts to the `contracts` directory,
 these will be automatically included for you to use them on tests.

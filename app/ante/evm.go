@@ -1,11 +1,11 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package ante
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmante "github.com/evmos/evmos/v20/app/ante/evm"
+	evmante "github.com/Eidon-AI/eidon-chain/v20/app/ante/evm"
 )
 
 func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {

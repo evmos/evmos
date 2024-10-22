@@ -9,17 +9,17 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v20/precompiles/bank"
-	"github.com/evmos/evmos/v20/precompiles/bank/testdata"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/bank"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/bank/testdata"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	testutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	inflationtypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -33,7 +33,7 @@ var is *IntegrationTestSuite
 // unit testis.
 type IntegrationTestSuite struct {
 	bondDenom, tokenDenom string
-	evmosAddr, xmplAddr   common.Address
+	eidon-chainAddr, xmplAddr   common.Address
 
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
@@ -75,7 +75,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
 	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
-	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
+	is.eidonAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
 	err = is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: math.NewInt(1e18)}})
@@ -110,7 +110,7 @@ var _ = Describe("Bank Extension -", func() {
 		contractData ContractData
 		passCheck    testutil.LogCheckArgs
 
-		evmosTotalSupply, _ = new(big.Int).SetString("200003000000000000000000", 10)
+		eidon-chainTotalSupply, _ = new(big.Int).SetString("200003000000000000000000", 10)
 		xmplTotalSupply, _  = new(big.Int).SetString("200000000000000000000000", 10)
 	)
 
@@ -235,21 +235,21 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount).To(Equal(evmosTotalSupply))
+				Expect(balances[0].Amount).To(Equal(eidon-chainTotalSupply))
 				Expect(balances[1].Amount).To(Equal(xmplTotalSupply))
 			})
 		})
 
 		Context("supplyOf query", func() {
-			It("should return the supply of Evmos", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, is.evmosAddr)
+			It("should return the supply of Eidon-chain", func() {
+				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, is.eidonAddr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(evmosTotalSupply))
+				Expect(out[0].(*big.Int)).To(Equal(eidon-chainTotalSupply))
 			})
 
 			It("should return the supply of XMPL", func() {
@@ -378,21 +378,21 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount).To(Equal(evmosTotalSupply))
+				Expect(balances[0].Amount).To(Equal(eidon-chainTotalSupply))
 				Expect(balances[1].Amount).To(Equal(xmplTotalSupply))
 			})
 		})
 
 		Context("supplyOf query", func() {
-			It("should return the supply of Evmos", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, is.evmosAddr)
+			It("should return the supply of Eidon-chain", func() {
+				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, is.eidonAddr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(evmosTotalSupply))
+				Expect(out[0].(*big.Int)).To(Equal(eidon-chainTotalSupply))
 			})
 
 			It("should return the supply of XMPL", func() {

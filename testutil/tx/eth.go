@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package tx
 
 import (
@@ -19,9 +19,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/server/config"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/server/config"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // PrepareEthTx creates an ethereum tx and signs it with the provided messages and private key.
@@ -92,7 +92,7 @@ func PrepareEthTx(
 // Should this not be the case, just pass in zero.
 func CreateEthTx(
 	ctx sdk.Context,
-	appEvmos *app.Evmos,
+	appEidon-chain *app.Eidon-chain,
 	privKey cryptotypes.PrivKey,
 	from sdk.AccAddress,
 	dest sdk.AccAddress,
@@ -103,14 +103,14 @@ func CreateEthTx(
 	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := evmtypes.GetEthChainConfig().ChainID
 
-	baseFeeRes, err := appEvmos.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	baseFeeRes, err := appEidon-chain.EvmKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get fee during eth tx creation")
 	}
 	baseFee := baseFeeRes.BaseFee.BigInt()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
-	nonce := appEvmos.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115
+	nonce := appEidon-chain.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115
 	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,

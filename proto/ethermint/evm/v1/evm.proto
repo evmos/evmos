@@ -1,16 +1,16 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
 package ethermint.evm.v1;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/evm/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/evm/types";
 
 // Params defines the EVM module parameters
 message Params {
-  option (amino.name) = "evmos/x/evm/Params";
+  option (amino.name) = "eidon-chain/x/evm/Params";
   reserved 1;
   reserved "evm_denom";
   // enable_create and enable call have been deprecated

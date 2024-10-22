@@ -4,7 +4,7 @@ pragma solidity >=0.8.17;
 import "../IERC20.sol" as erc20Precompile;
 
 /// @title ERC20TestCaller
-/// @author Evmos Core Team
+/// @author Eidon-chain Core Team
 /// @dev This contract is used to test external contract calls to the ERC20 precompile.
 contract ERC20TestCaller {
     erc20Precompile.IERC20 public token;

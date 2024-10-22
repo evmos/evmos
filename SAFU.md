@@ -45,7 +45,7 @@ vulnerabilities and post-exploits:
 
 Tharsis Labs Ltd. (the ”Team”) commits to not pursue legal action against white
 hats who act in accordance with the Arrangement for vulnerabilities found in the
-Evmos blockchain (chain ID: 9001).
+Eidon-chain blockchain (chain ID: 9001).
 
 ### Timeline
 
@@ -54,7 +54,7 @@ Dropbox from the moment they obtain the tokens from the exploited vulnerability.
 After this time, the Team will assume that the hacker is acting maliciously and
 against this Arrangement if they haven’t transferred the full amount of tokens.
 
-Evmos guarantees that the claiming for the funds process to begin not after 30
+Eidon-chain guarantees that the claiming for the funds process to begin not after 30
 days (Claim Delay) of the transfer or during the next upgrade. This is due to
 the fact that transfers will need to be executed during an upgrade. We expect
 this process to become automatic after a dedicated trustless Cosmos module is
@@ -62,7 +62,7 @@ incorporated for this purpose.
 
 If the whitehat doesn’t reclaim the tokens transferred before the 30th day from
 the transfer day (Sender Claim Interval), the tokens will be reclaimed and
-transferred to the Evmos community pool (aka. community treasury).
+transferred to the Eidon-chain community pool (aka. community treasury).
 
 ### Reward Policy
 
@@ -74,16 +74,16 @@ hacker can secure from 1 atto EVMOS (1e-18 EVMOS or the equivalent unit of 1 wei
 on Ethereum).
 
 We encourage whitehat hackers to report undisclosed vulnerabilities using the
-<security@evmos.org> email.
+<security@eidon-chain.org> email.
 
 ## Dropbox for Protocol Funds
 
-The following Dropbox address is available on the Evmos blockchain for
+The following Dropbox address is available on the Eidon-chain blockchain for
 transferring secured funds by whitehats:
 
 |         | Bech32 Format                                | Hex Format                                 |
 | ------- | -------------------------------------------- | ------------------------------------------ |
-| Dropbox | evmos1c6jdy4gy86s69auueqwfjs86vse7kz3grxm9h2 | 0xc6A4d255043ea1A2F79CC81c9940FA6433eb0A28 |
+| Dropbox | eidon-chain1c6jdy4gy86s69auueqwfjs86vse7kz3grxm9h2 | 0xc6A4d255043ea1A2F79CC81c9940FA6433eb0A28 |
 
 While the original purpose for the Dropbox address is to primarily help secure
 vulnerable EVMOS tokens, it can also be used as a general purpose escrow account

@@ -1,14 +1,14 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.epochs.v1;
+package eidon-chain.epochs.v1;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/epochs/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/epochs/types";
 
 // EpochInfo defines the message interface containing the relevant informations about
 // an epoch.

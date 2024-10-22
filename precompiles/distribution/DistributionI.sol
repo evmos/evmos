@@ -32,7 +32,7 @@ struct DelegationDelegatorReward {
     DecCoin[] reward;
 }
 
-/// @author Evmos Team
+/// @author Eidon-chain Team
 /// @title Distribution Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Distribution
 /// @custom:address 0x0000000000000000000000000000000000000801

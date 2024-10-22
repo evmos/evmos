@@ -15,9 +15,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/testutil/integration/common/factory"
-	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/factory"
+	testutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {

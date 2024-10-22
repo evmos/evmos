@@ -1,11 +1,11 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package tests
 
 import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
 )
 
 var (
@@ -21,11 +21,11 @@ var (
 	}
 	UatomIbcdenom = UatomDenomtrace.IBCDenom()
 
-	UevmosDenomtrace = transfertypes.DenomTrace{
+	Ueidon-chainDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: evmostypes.BaseDenom,
+		BaseDenom: eidon-chaintypes.BaseDenom,
 	}
-	UevmosIbcdenom = UevmosDenomtrace.IBCDenom()
+	Ueidon-chainIbcdenom = Ueidon-chainDenomtrace.IBCDenom()
 
 	UatomOsmoDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0/transfer/channel-1",
@@ -33,9 +33,9 @@ var (
 	}
 	UatomOsmoIbcdenom = UatomOsmoDenomtrace.IBCDenom()
 
-	AevmosDenomtrace = transfertypes.DenomTrace{
+	Aeidon-chainDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: evmostypes.BaseDenom,
+		BaseDenom: eidon-chaintypes.BaseDenom,
 	}
-	AevmosIbcdenom = AevmosDenomtrace.IBCDenom()
+	Aeidon-chainIbcdenom = Aeidon-chainDenomtrace.IBCDenom()
 )

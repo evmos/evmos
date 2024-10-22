@@ -19,8 +19,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_events_proto_init()
-	md_EventRegisterPair = File_evmos_erc20_v1_events_proto.Messages().ByName("EventRegisterPair")
+	file_eidon-chain_erc20_v1_events_proto_init()
+	md_EventRegisterPair = File_eidon-chain_erc20_v1_events_proto.Messages().ByName("EventRegisterPair")
 	fd_EventRegisterPair_denom = md_EventRegisterPair.Fields().ByName("denom")
 	fd_EventRegisterPair_erc20_address = md_EventRegisterPair.Fields().ByName("erc20_address")
 }
@@ -34,7 +34,7 @@ func (x *EventRegisterPair) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EventRegisterPair) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_events_proto_msgTypes[0]
+	mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -117,15 +117,15 @@ func (x *fastReflection_EventRegisterPair) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventRegisterPair) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
 		return x.Denom != ""
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
 		return x.Erc20Address != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -137,15 +137,15 @@ func (x *fastReflection_EventRegisterPair) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventRegisterPair) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
 		x.Denom = ""
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
 		x.Erc20Address = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -157,17 +157,17 @@ func (x *fastReflection_EventRegisterPair) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventRegisterPair) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
 		value := x.Erc20Address
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -183,15 +183,15 @@ func (x *fastReflection_EventRegisterPair) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventRegisterPair) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
 		x.Denom = value.Interface().(string)
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
 		x.Erc20Address = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -207,15 +207,15 @@ func (x *fastReflection_EventRegisterPair) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventRegisterPair) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
-		panic(fmt.Errorf("field denom of message evmos.erc20.v1.EventRegisterPair is not mutable"))
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
-		panic(fmt.Errorf("field erc20_address of message evmos.erc20.v1.EventRegisterPair is not mutable"))
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
+		panic(fmt.Errorf("field denom of message eidon-chain.erc20.v1.EventRegisterPair is not mutable"))
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
+		panic(fmt.Errorf("field erc20_address of message eidon-chain.erc20.v1.EventRegisterPair is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -224,15 +224,15 @@ func (x *fastReflection_EventRegisterPair) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventRegisterPair) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventRegisterPair.denom":
+	case "eidon-chain.erc20.v1.EventRegisterPair.denom":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventRegisterPair.erc20_address":
+	case "eidon-chain.erc20.v1.EventRegisterPair.erc20_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventRegisterPair"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventRegisterPair"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventRegisterPair does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -242,7 +242,7 @@ func (x *fastReflection_EventRegisterPair) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_EventRegisterPair) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.EventRegisterPair", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.EventRegisterPair", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -503,8 +503,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_events_proto_init()
-	md_EventToggleTokenConversion = File_evmos_erc20_v1_events_proto.Messages().ByName("EventToggleTokenConversion")
+	file_eidon-chain_erc20_v1_events_proto_init()
+	md_EventToggleTokenConversion = File_eidon-chain_erc20_v1_events_proto.Messages().ByName("EventToggleTokenConversion")
 	fd_EventToggleTokenConversion_denom = md_EventToggleTokenConversion.Fields().ByName("denom")
 	fd_EventToggleTokenConversion_erc20_address = md_EventToggleTokenConversion.Fields().ByName("erc20_address")
 }
@@ -518,7 +518,7 @@ func (x *EventToggleTokenConversion) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EventToggleTokenConversion) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_events_proto_msgTypes[1]
+	mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,15 +601,15 @@ func (x *fastReflection_EventToggleTokenConversion) Range(f func(protoreflect.Fi
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventToggleTokenConversion) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
 		return x.Denom != ""
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
 		return x.Erc20Address != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -621,15 +621,15 @@ func (x *fastReflection_EventToggleTokenConversion) Has(fd protoreflect.FieldDes
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventToggleTokenConversion) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
 		x.Denom = ""
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
 		x.Erc20Address = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -641,17 +641,17 @@ func (x *fastReflection_EventToggleTokenConversion) Clear(fd protoreflect.FieldD
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventToggleTokenConversion) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
 		value := x.Erc20Address
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -667,15 +667,15 @@ func (x *fastReflection_EventToggleTokenConversion) Get(descriptor protoreflect.
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventToggleTokenConversion) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
 		x.Denom = value.Interface().(string)
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
 		x.Erc20Address = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -691,15 +691,15 @@ func (x *fastReflection_EventToggleTokenConversion) Set(fd protoreflect.FieldDes
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventToggleTokenConversion) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
-		panic(fmt.Errorf("field denom of message evmos.erc20.v1.EventToggleTokenConversion is not mutable"))
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
-		panic(fmt.Errorf("field erc20_address of message evmos.erc20.v1.EventToggleTokenConversion is not mutable"))
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
+		panic(fmt.Errorf("field denom of message eidon-chain.erc20.v1.EventToggleTokenConversion is not mutable"))
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
+		panic(fmt.Errorf("field erc20_address of message eidon-chain.erc20.v1.EventToggleTokenConversion is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -708,15 +708,15 @@ func (x *fastReflection_EventToggleTokenConversion) Mutable(fd protoreflect.Fiel
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventToggleTokenConversion) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventToggleTokenConversion.denom":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.denom":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventToggleTokenConversion.erc20_address":
+	case "eidon-chain.erc20.v1.EventToggleTokenConversion.erc20_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventToggleTokenConversion"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventToggleTokenConversion"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventToggleTokenConversion does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -726,7 +726,7 @@ func (x *fastReflection_EventToggleTokenConversion) NewField(fd protoreflect.Fie
 func (x *fastReflection_EventToggleTokenConversion) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.EventToggleTokenConversion", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.EventToggleTokenConversion", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -990,8 +990,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_events_proto_init()
-	md_EventConvertCoin = File_evmos_erc20_v1_events_proto.Messages().ByName("EventConvertCoin")
+	file_eidon-chain_erc20_v1_events_proto_init()
+	md_EventConvertCoin = File_eidon-chain_erc20_v1_events_proto.Messages().ByName("EventConvertCoin")
 	fd_EventConvertCoin_sender = md_EventConvertCoin.Fields().ByName("sender")
 	fd_EventConvertCoin_receiver = md_EventConvertCoin.Fields().ByName("receiver")
 	fd_EventConvertCoin_amount = md_EventConvertCoin.Fields().ByName("amount")
@@ -1008,7 +1008,7 @@ func (x *EventConvertCoin) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EventConvertCoin) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_events_proto_msgTypes[2]
+	mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1109,21 +1109,21 @@ func (x *fastReflection_EventConvertCoin) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventConvertCoin) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
 		return x.Sender != ""
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
 		return x.Receiver != ""
-	case "evmos.erc20.v1.EventConvertCoin.amount":
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
 		return x.Amount != ""
-	case "evmos.erc20.v1.EventConvertCoin.denom":
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
 		return x.Denom != ""
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
 		return x.Erc20Address != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1135,21 +1135,21 @@ func (x *fastReflection_EventConvertCoin) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertCoin) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
 		x.Sender = ""
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
 		x.Receiver = ""
-	case "evmos.erc20.v1.EventConvertCoin.amount":
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
 		x.Amount = ""
-	case "evmos.erc20.v1.EventConvertCoin.denom":
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
 		x.Denom = ""
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
 		x.Erc20Address = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1161,26 +1161,26 @@ func (x *fastReflection_EventConvertCoin) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventConvertCoin) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
 		value := x.Sender
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
 		value := x.Receiver
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertCoin.amount":
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
 		value := x.Amount
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertCoin.denom":
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
 		value := x.Erc20Address
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1196,21 +1196,21 @@ func (x *fastReflection_EventConvertCoin) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertCoin) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
 		x.Sender = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
 		x.Receiver = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertCoin.amount":
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
 		x.Amount = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertCoin.denom":
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
 		x.Denom = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
 		x.Erc20Address = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1226,21 +1226,21 @@ func (x *fastReflection_EventConvertCoin) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertCoin) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
-		panic(fmt.Errorf("field sender of message evmos.erc20.v1.EventConvertCoin is not mutable"))
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
-		panic(fmt.Errorf("field receiver of message evmos.erc20.v1.EventConvertCoin is not mutable"))
-	case "evmos.erc20.v1.EventConvertCoin.amount":
-		panic(fmt.Errorf("field amount of message evmos.erc20.v1.EventConvertCoin is not mutable"))
-	case "evmos.erc20.v1.EventConvertCoin.denom":
-		panic(fmt.Errorf("field denom of message evmos.erc20.v1.EventConvertCoin is not mutable"))
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
-		panic(fmt.Errorf("field erc20_address of message evmos.erc20.v1.EventConvertCoin is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
+		panic(fmt.Errorf("field sender of message eidon-chain.erc20.v1.EventConvertCoin is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
+		panic(fmt.Errorf("field receiver of message eidon-chain.erc20.v1.EventConvertCoin is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
+		panic(fmt.Errorf("field amount of message eidon-chain.erc20.v1.EventConvertCoin is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
+		panic(fmt.Errorf("field denom of message eidon-chain.erc20.v1.EventConvertCoin is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
+		panic(fmt.Errorf("field erc20_address of message eidon-chain.erc20.v1.EventConvertCoin is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1249,21 +1249,21 @@ func (x *fastReflection_EventConvertCoin) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventConvertCoin) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertCoin.sender":
+	case "eidon-chain.erc20.v1.EventConvertCoin.sender":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertCoin.receiver":
+	case "eidon-chain.erc20.v1.EventConvertCoin.receiver":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertCoin.amount":
+	case "eidon-chain.erc20.v1.EventConvertCoin.amount":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertCoin.denom":
+	case "eidon-chain.erc20.v1.EventConvertCoin.denom":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertCoin.erc20_address":
+	case "eidon-chain.erc20.v1.EventConvertCoin.erc20_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertCoin"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertCoin"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertCoin does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1273,7 +1273,7 @@ func (x *fastReflection_EventConvertCoin) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_EventConvertCoin) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.EventConvertCoin", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.EventConvertCoin", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1666,8 +1666,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_events_proto_init()
-	md_EventConvertERC20 = File_evmos_erc20_v1_events_proto.Messages().ByName("EventConvertERC20")
+	file_eidon-chain_erc20_v1_events_proto_init()
+	md_EventConvertERC20 = File_eidon-chain_erc20_v1_events_proto.Messages().ByName("EventConvertERC20")
 	fd_EventConvertERC20_sender = md_EventConvertERC20.Fields().ByName("sender")
 	fd_EventConvertERC20_receiver = md_EventConvertERC20.Fields().ByName("receiver")
 	fd_EventConvertERC20_amount = md_EventConvertERC20.Fields().ByName("amount")
@@ -1684,7 +1684,7 @@ func (x *EventConvertERC20) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EventConvertERC20) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_events_proto_msgTypes[3]
+	mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1785,21 +1785,21 @@ func (x *fastReflection_EventConvertERC20) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EventConvertERC20) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
 		return x.Sender != ""
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
 		return x.Receiver != ""
-	case "evmos.erc20.v1.EventConvertERC20.amount":
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
 		return x.Amount != ""
-	case "evmos.erc20.v1.EventConvertERC20.denom":
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
 		return x.Denom != ""
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
 		return x.ContractAddress != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1811,21 +1811,21 @@ func (x *fastReflection_EventConvertERC20) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertERC20) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
 		x.Sender = ""
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
 		x.Receiver = ""
-	case "evmos.erc20.v1.EventConvertERC20.amount":
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
 		x.Amount = ""
-	case "evmos.erc20.v1.EventConvertERC20.denom":
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
 		x.Denom = ""
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
 		x.ContractAddress = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1837,26 +1837,26 @@ func (x *fastReflection_EventConvertERC20) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EventConvertERC20) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
 		value := x.Sender
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
 		value := x.Receiver
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertERC20.amount":
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
 		value := x.Amount
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertERC20.denom":
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
 		value := x.ContractAddress
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1872,21 +1872,21 @@ func (x *fastReflection_EventConvertERC20) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertERC20) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
 		x.Sender = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
 		x.Receiver = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertERC20.amount":
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
 		x.Amount = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertERC20.denom":
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
 		x.Denom = value.Interface().(string)
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
 		x.ContractAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1902,21 +1902,21 @@ func (x *fastReflection_EventConvertERC20) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EventConvertERC20) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
-		panic(fmt.Errorf("field sender of message evmos.erc20.v1.EventConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
-		panic(fmt.Errorf("field receiver of message evmos.erc20.v1.EventConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.EventConvertERC20.amount":
-		panic(fmt.Errorf("field amount of message evmos.erc20.v1.EventConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.EventConvertERC20.denom":
-		panic(fmt.Errorf("field denom of message evmos.erc20.v1.EventConvertERC20 is not mutable"))
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
-		panic(fmt.Errorf("field contract_address of message evmos.erc20.v1.EventConvertERC20 is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
+		panic(fmt.Errorf("field sender of message eidon-chain.erc20.v1.EventConvertERC20 is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
+		panic(fmt.Errorf("field receiver of message eidon-chain.erc20.v1.EventConvertERC20 is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
+		panic(fmt.Errorf("field amount of message eidon-chain.erc20.v1.EventConvertERC20 is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
+		panic(fmt.Errorf("field denom of message eidon-chain.erc20.v1.EventConvertERC20 is not mutable"))
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
+		panic(fmt.Errorf("field contract_address of message eidon-chain.erc20.v1.EventConvertERC20 is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1925,21 +1925,21 @@ func (x *fastReflection_EventConvertERC20) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EventConvertERC20) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.EventConvertERC20.sender":
+	case "eidon-chain.erc20.v1.EventConvertERC20.sender":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertERC20.receiver":
+	case "eidon-chain.erc20.v1.EventConvertERC20.receiver":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertERC20.amount":
+	case "eidon-chain.erc20.v1.EventConvertERC20.amount":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertERC20.denom":
+	case "eidon-chain.erc20.v1.EventConvertERC20.denom":
 		return protoreflect.ValueOfString("")
-	case "evmos.erc20.v1.EventConvertERC20.contract_address":
+	case "eidon-chain.erc20.v1.EventConvertERC20.contract_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.EventConvertERC20"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.EventConvertERC20"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.EventConvertERC20 does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1949,7 +1949,7 @@ func (x *fastReflection_EventConvertERC20) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_EventConvertERC20) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.EventConvertERC20", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.EventConvertERC20", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2332,14 +2332,14 @@ func (x *fastReflection_EventConvertERC20) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/erc20/v1/events.proto
+// source: eidon-chain/erc20/v1/events.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -2363,7 +2363,7 @@ type EventRegisterPair struct {
 func (x *EventRegisterPair) Reset() {
 	*x = EventRegisterPair{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_events_proto_msgTypes[0]
+		mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2377,7 +2377,7 @@ func (*EventRegisterPair) ProtoMessage() {}
 
 // Deprecated: Use EventRegisterPair.ProtoReflect.Descriptor instead.
 func (*EventRegisterPair) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_events_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_erc20_v1_events_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *EventRegisterPair) GetDenom() string {
@@ -2409,7 +2409,7 @@ type EventToggleTokenConversion struct {
 func (x *EventToggleTokenConversion) Reset() {
 	*x = EventToggleTokenConversion{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_events_proto_msgTypes[1]
+		mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2423,7 +2423,7 @@ func (*EventToggleTokenConversion) ProtoMessage() {}
 
 // Deprecated: Use EventToggleTokenConversion.ProtoReflect.Descriptor instead.
 func (*EventToggleTokenConversion) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_events_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_erc20_v1_events_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *EventToggleTokenConversion) GetDenom() string {
@@ -2461,7 +2461,7 @@ type EventConvertCoin struct {
 func (x *EventConvertCoin) Reset() {
 	*x = EventConvertCoin{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_events_proto_msgTypes[2]
+		mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2475,7 +2475,7 @@ func (*EventConvertCoin) ProtoMessage() {}
 
 // Deprecated: Use EventConvertCoin.ProtoReflect.Descriptor instead.
 func (*EventConvertCoin) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_events_proto_rawDescGZIP(), []int{2}
+	return file_eidon-chain_erc20_v1_events_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *EventConvertCoin) GetSender() string {
@@ -2534,7 +2534,7 @@ type EventConvertERC20 struct {
 func (x *EventConvertERC20) Reset() {
 	*x = EventConvertERC20{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_events_proto_msgTypes[3]
+		mi := &file_eidon-chain_erc20_v1_events_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2548,7 +2548,7 @@ func (*EventConvertERC20) ProtoMessage() {}
 
 // Deprecated: Use EventConvertERC20.ProtoReflect.Descriptor instead.
 func (*EventConvertERC20) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_events_proto_rawDescGZIP(), []int{3}
+	return file_eidon-chain_erc20_v1_events_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *EventConvertERC20) GetSender() string {
@@ -2586,9 +2586,9 @@ func (x *EventConvertERC20) GetContractAddress() string {
 	return ""
 }
 
-var File_evmos_erc20_v1_events_proto protoreflect.FileDescriptor
+var File_eidon-chain_erc20_v1_events_proto protoreflect.FileDescriptor
 
-var file_evmos_erc20_v1_events_proto_rawDesc = []byte{
+var file_eidon-chain_erc20_v1_events_proto_rawDesc = []byte{
 	0x0a, 0x1b, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31,
 	0x2f, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e, 0x65,
 	0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x22, 0x4e, 0x0a,
@@ -2637,25 +2637,25 @@ var file_evmos_erc20_v1_events_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_erc20_v1_events_proto_rawDescOnce sync.Once
-	file_evmos_erc20_v1_events_proto_rawDescData = file_evmos_erc20_v1_events_proto_rawDesc
+	file_eidon-chain_erc20_v1_events_proto_rawDescOnce sync.Once
+	file_eidon-chain_erc20_v1_events_proto_rawDescData = file_eidon-chain_erc20_v1_events_proto_rawDesc
 )
 
-func file_evmos_erc20_v1_events_proto_rawDescGZIP() []byte {
-	file_evmos_erc20_v1_events_proto_rawDescOnce.Do(func() {
-		file_evmos_erc20_v1_events_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_erc20_v1_events_proto_rawDescData)
+func file_eidon-chain_erc20_v1_events_proto_rawDescGZIP() []byte {
+	file_eidon-chain_erc20_v1_events_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_erc20_v1_events_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_erc20_v1_events_proto_rawDescData)
 	})
-	return file_evmos_erc20_v1_events_proto_rawDescData
+	return file_eidon-chain_erc20_v1_events_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_erc20_v1_events_proto_goTypes = []interface{}{
-	(*EventRegisterPair)(nil),          // 0: evmos.erc20.v1.EventRegisterPair
-	(*EventToggleTokenConversion)(nil), // 1: evmos.erc20.v1.EventToggleTokenConversion
-	(*EventConvertCoin)(nil),           // 2: evmos.erc20.v1.EventConvertCoin
-	(*EventConvertERC20)(nil),          // 3: evmos.erc20.v1.EventConvertERC20
+var file_eidon-chain_erc20_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_eidon-chain_erc20_v1_events_proto_goTypes = []interface{}{
+	(*EventRegisterPair)(nil),          // 0: eidon-chain.erc20.v1.EventRegisterPair
+	(*EventToggleTokenConversion)(nil), // 1: eidon-chain.erc20.v1.EventToggleTokenConversion
+	(*EventConvertCoin)(nil),           // 2: eidon-chain.erc20.v1.EventConvertCoin
+	(*EventConvertERC20)(nil),          // 3: eidon-chain.erc20.v1.EventConvertERC20
 }
-var file_evmos_erc20_v1_events_proto_depIdxs = []int32{
+var file_eidon-chain_erc20_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -2663,13 +2663,13 @@ var file_evmos_erc20_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_evmos_erc20_v1_events_proto_init() }
-func file_evmos_erc20_v1_events_proto_init() {
-	if File_evmos_erc20_v1_events_proto != nil {
+func init() { file_eidon-chain_erc20_v1_events_proto_init() }
+func file_eidon-chain_erc20_v1_events_proto_init() {
+	if File_eidon-chain_erc20_v1_events_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_erc20_v1_events_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_events_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventRegisterPair); i {
 			case 0:
 				return &v.state
@@ -2681,7 +2681,7 @@ func file_evmos_erc20_v1_events_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_events_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_events_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventToggleTokenConversion); i {
 			case 0:
 				return &v.state
@@ -2693,7 +2693,7 @@ func file_evmos_erc20_v1_events_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_events_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_events_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventConvertCoin); i {
 			case 0:
 				return &v.state
@@ -2705,7 +2705,7 @@ func file_evmos_erc20_v1_events_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_events_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_events_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventConvertERC20); i {
 			case 0:
 				return &v.state
@@ -2722,18 +2722,18 @@ func file_evmos_erc20_v1_events_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_erc20_v1_events_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_erc20_v1_events_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_evmos_erc20_v1_events_proto_goTypes,
-		DependencyIndexes: file_evmos_erc20_v1_events_proto_depIdxs,
-		MessageInfos:      file_evmos_erc20_v1_events_proto_msgTypes,
+		GoTypes:           file_eidon-chain_erc20_v1_events_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_erc20_v1_events_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_erc20_v1_events_proto_msgTypes,
 	}.Build()
-	File_evmos_erc20_v1_events_proto = out.File
-	file_evmos_erc20_v1_events_proto_rawDesc = nil
-	file_evmos_erc20_v1_events_proto_goTypes = nil
-	file_evmos_erc20_v1_events_proto_depIdxs = nil
+	File_eidon-chain_erc20_v1_events_proto = out.File
+	file_eidon-chain_erc20_v1_events_proto_rawDesc = nil
+	file_eidon-chain_erc20_v1_events_proto_goTypes = nil
+	file_eidon-chain_erc20_v1_events_proto_depIdxs = nil
 }

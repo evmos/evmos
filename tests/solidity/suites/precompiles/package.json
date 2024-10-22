@@ -1,13 +1,13 @@
 {
   "name": "precompiles",
   "version": "1.0.0",
-  "author": "Evmos team",
+  "author": "Eidon-chain team",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "get-contracts": "mkdir -p ./contracts/evmos && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../../precompiles/ ./contracts/evmos/",
-    "clean-contracts": "rm -rf ./contracts/evmos/*",
+    "get-contracts": "mkdir -p ./contracts/eidon-chain && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../../precompiles/ ./contracts/eidon-chain/",
+    "clean-contracts": "rm -rf ./contracts/eidon-chain/*",
     "test-ganache": "yarn hardhat test",
-    "test-evmos": "yarn get-contracts && yarn hardhat test --network evmos && yarn clean-contracts"
+    "test-eidon-chain": "yarn get-contracts && yarn hardhat test --network eidon-chain && yarn clean-contracts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",

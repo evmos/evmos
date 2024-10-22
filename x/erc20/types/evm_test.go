@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.18;
 
-import "./evmos/ics20/ICS20I.sol";
-import "./evmos/common/Types.sol";
+import "./eidon-chain/ics20/ICS20I.sol";
+import "./eidon-chain/common/Types.sol";
 
 
 contract ICS20FromContract {

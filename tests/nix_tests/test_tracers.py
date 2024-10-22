@@ -25,7 +25,7 @@ def test_tracers(cluster):
 
     tx_res = eth_rpc.make_request("debug_traceTransaction", [tx_hash])
 
-    # Order of fields is different on evmos and geth
+    # Order of fields is different on eidon-chain and geth
     compare_fields(
         tx_res["result"],
         EXPECTED_STRUCT_TRACER,
@@ -39,7 +39,7 @@ def test_tracers(cluster):
     fields = ["to", "from", "gas", "gasUsed", "input", "output", "type", "value"]
     compare_fields(tx_res["result"], EXPECTED_CALLTRACERS, fields)
 
-    # geth works with this format, while evmos throws a parsing error
+    # geth works with this format, while eidon-chain throws a parsing error
     tx_res = eth_rpc.make_request(
         "debug_traceTransaction",
         [tx_hash, {"tracer": "callTracer", "tracerConfig": {"onlyTopCall": True}}],

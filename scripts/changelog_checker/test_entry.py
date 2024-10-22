@@ -18,7 +18,7 @@ class TestEntry:
     """
 
     example = (
-        "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) "
+        "- (distribution-precompile) [#1949](https://github.com/Eidon-AI/eidon-chain/pull/1949) "
         + "Add `ClaimRewards` custom transaction."
     )
 
@@ -31,13 +31,13 @@ class TestEntry:
 
     def test_pass_includes_link(self):
         example = (
-            "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) "
+            "- (evm) [#1851](https://github.com/Eidon-AI/eidon-chain/pull/1851) "
             + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
             + "(`PUSH0` opcode) during upgrade."
         )
         entry = Entry(example)
         ok = entry.parse()
-        assert entry.link == "https://github.com/evmos/evmos/pull/1851"
+        assert entry.link == "https://github.com/Eidon-AI/eidon-chain/pull/1851"
         assert entry.description == (
             "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) "
             + "(`PUSH0` opcode) during upgrade."
@@ -47,7 +47,7 @@ class TestEntry:
         assert entry.fixed == example
 
     def test_fail_has_backslash_in_link(self):
-        example = r"- (evm) [\#1851](https://github.com/evmos/evmos/pull/1851) Test."
+        example = r"- (evm) [\#1851](https://github.com/Eidon-AI/eidon-chain/pull/1851) Test."
         entry = Entry(example)
         ok = entry.parse()
         assert entry.problems == [
@@ -58,26 +58,26 @@ class TestEntry:
 
     def test_entry_wrong_pr_link_and_missing_dot(self):
         entry = Entry(
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948) "
+            "- (distribution-precompile) [#1949](https://github.com/Eidon-AI/eidon-chain/pull/1948) "
             + "Add `ClaimRewards` custom transaction"
         )
         assert entry.parse() is False
         assert entry.fixed == self.example
         assert entry.problems == [
-            'PR link is not matching PR number 1949: "https://github.com/evmos/evmos/pull/1948"',
+            'PR link is not matching PR number 1949: "https://github.com/Eidon-AI/eidon-chain/pull/1948"',
             'PR description should end with a dot: "Add `ClaimRewards` custom transaction"',
         ]
 
     def test_malformed_entry(self):
         malformed_example = (
-            "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"
+            "- (distribution-precompile) [#194tps://github.com/Eidon-AI/eidon-chain/pull/1"
         )
         entry = Entry(malformed_example)
         assert entry.parse() is False
         assert entry.fixed == malformed_example
         assert entry.problems == [
             "Malformed entry: "
-            + '"- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"'
+            + '"- (distribution-precompile) [#194tps://github.com/Eidon-AI/eidon-chain/pull/1"'
         ]
 
 
@@ -99,7 +99,7 @@ class TestCheckCategory:
 
 
 class TestCheckLink:
-    example = "https://github.com/evmos/evmos/pull/1949"
+    example = "https://github.com/Eidon-AI/eidon-chain/pull/1949"
 
     def test_pass(self):
         fixed, problems = check_link(self.example, 1949)
@@ -107,17 +107,17 @@ class TestCheckLink:
         assert not problems
 
     def test_wrong_base_url(self):
-        fixed, problems = check_link("https://github.com/evmds/evmos/pull/1949", 1949)
+        fixed, problems = check_link("https://github.com/evmds/eidon-chain/pull/1949", 1949)
         assert fixed == self.example
         assert problems == [
-            'PR link should point to evmos repository: "https://github.com/evmds/evmos/pull/1949"'
+            'PR link should point to eidon-chain repository: "https://github.com/evmds/eidon-chain/pull/1949"'
         ]
 
     def test_wrong_pr_number(self):
-        fixed, problems = check_link("https://github.com/evmos/evmos/pull/1948", 1949)
+        fixed, problems = check_link("https://github.com/Eidon-AI/eidon-chain/pull/1948", 1949)
         assert fixed == self.example
         assert problems == [
-            'PR link is not matching PR number 1949: "https://github.com/evmos/evmos/pull/1948"'
+            'PR link is not matching PR number 1949: "https://github.com/Eidon-AI/eidon-chain/pull/1948"'
         ]
 
 

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package distribution_test
 
 import (
@@ -11,18 +11,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v20/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/precompiles/distribution"
-	"github.com/evmos/evmos/v20/precompiles/staking"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	"github.com/evmos/evmos/v20/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/distribution"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/staking"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil/contracts"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	testutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	testutiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -51,7 +51,7 @@ var (
 	txArgs evmtypes.EvmTxArgs
 	// minExpRewardOrCommission is the minimun coins expected for validator's rewards or commission
 	// required for the tests
-	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(evmostypes.BaseDenom, testRewardsAmt))
+	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(eidon-chaintypes.BaseDenom, testRewardsAmt))
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {

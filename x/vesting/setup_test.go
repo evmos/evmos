@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -16,7 +16,7 @@ type VestingTestSuite struct {
 	suite.Suite
 
 	ctx        sdk.Context
-	app        *app.Evmos
+	app        *app.Eidon-chain
 	address    common.Address
 	validators []stakingtypes.Validator
 	privKey    cryptotypes.PrivKey

@@ -5,10 +5,10 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	testutiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/x/vesting/keeper"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 	"github.com/stretchr/testify/require"
 )
 

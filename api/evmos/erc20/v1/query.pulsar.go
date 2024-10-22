@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryTokenPairsRequest = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryTokenPairsRequest")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryTokenPairsRequest = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryTokenPairsRequest")
 	fd_QueryTokenPairsRequest_pagination = md_QueryTokenPairsRequest.Fields().ByName("pagination")
 }
 
@@ -36,7 +36,7 @@ func (x *QueryTokenPairsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTokenPairsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[0]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -113,13 +113,13 @@ func (x *fastReflection_QueryTokenPairsRequest) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTokenPairsRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -131,13 +131,13 @@ func (x *fastReflection_QueryTokenPairsRequest) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -149,14 +149,14 @@ func (x *fastReflection_QueryTokenPairsRequest) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTokenPairsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -172,13 +172,13 @@ func (x *fastReflection_QueryTokenPairsRequest) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -194,16 +194,16 @@ func (x *fastReflection_QueryTokenPairsRequest) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageRequest)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -212,14 +212,14 @@ func (x *fastReflection_QueryTokenPairsRequest) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTokenPairsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsRequest.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination":
 		m := new(v1beta1.PageRequest)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -229,7 +229,7 @@ func (x *fastReflection_QueryTokenPairsRequest) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_QueryTokenPairsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryTokenPairsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryTokenPairsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -509,8 +509,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryTokenPairsResponse = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryTokenPairsResponse")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryTokenPairsResponse = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryTokenPairsResponse")
 	fd_QueryTokenPairsResponse_token_pairs = md_QueryTokenPairsResponse.Fields().ByName("token_pairs")
 	fd_QueryTokenPairsResponse_pagination = md_QueryTokenPairsResponse.Fields().ByName("pagination")
 }
@@ -524,7 +524,7 @@ func (x *QueryTokenPairsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTokenPairsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[1]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,15 +607,15 @@ func (x *fastReflection_QueryTokenPairsResponse) Range(f func(protoreflect.Field
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTokenPairsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		return len(x.TokenPairs) != 0
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -627,15 +627,15 @@ func (x *fastReflection_QueryTokenPairsResponse) Has(fd protoreflect.FieldDescri
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		x.TokenPairs = nil
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -647,20 +647,20 @@ func (x *fastReflection_QueryTokenPairsResponse) Clear(fd protoreflect.FieldDesc
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTokenPairsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		if len(x.TokenPairs) == 0 {
 			return protoreflect.ValueOfList(&_QueryTokenPairsResponse_1_list{})
 		}
 		listValue := &_QueryTokenPairsResponse_1_list{list: &x.TokenPairs}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -676,17 +676,17 @@ func (x *fastReflection_QueryTokenPairsResponse) Get(descriptor protoreflect.Fie
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		lv := value.List()
 		clv := lv.(*_QueryTokenPairsResponse_1_list)
 		x.TokenPairs = *clv.list
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -702,22 +702,22 @@ func (x *fastReflection_QueryTokenPairsResponse) Set(fd protoreflect.FieldDescri
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		if x.TokenPairs == nil {
 			x.TokenPairs = []*TokenPair{}
 		}
 		value := &_QueryTokenPairsResponse_1_list{list: &x.TokenPairs}
 		return protoreflect.ValueOfList(value)
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageResponse)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -726,17 +726,17 @@ func (x *fastReflection_QueryTokenPairsResponse) Mutable(fd protoreflect.FieldDe
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTokenPairsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairsResponse.token_pairs":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs":
 		list := []*TokenPair{}
 		return protoreflect.ValueOfList(&_QueryTokenPairsResponse_1_list{list: &list})
-	case "evmos.erc20.v1.QueryTokenPairsResponse.pagination":
+	case "eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination":
 		m := new(v1beta1.PageResponse)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -746,7 +746,7 @@ func (x *fastReflection_QueryTokenPairsResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_QueryTokenPairsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryTokenPairsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryTokenPairsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1030,8 +1030,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryTokenPairRequest = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryTokenPairRequest")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryTokenPairRequest = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryTokenPairRequest")
 	fd_QueryTokenPairRequest_token = md_QueryTokenPairRequest.Fields().ByName("token")
 }
 
@@ -1044,7 +1044,7 @@ func (x *QueryTokenPairRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTokenPairRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[2]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,13 +1121,13 @@ func (x *fastReflection_QueryTokenPairRequest) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTokenPairRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
 		return x.Token != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1139,13 +1139,13 @@ func (x *fastReflection_QueryTokenPairRequest) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
 		x.Token = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1157,14 +1157,14 @@ func (x *fastReflection_QueryTokenPairRequest) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTokenPairRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
 		value := x.Token
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1180,13 +1180,13 @@ func (x *fastReflection_QueryTokenPairRequest) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
 		x.Token = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1202,13 +1202,13 @@ func (x *fastReflection_QueryTokenPairRequest) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
-		panic(fmt.Errorf("field token of message evmos.erc20.v1.QueryTokenPairRequest is not mutable"))
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
+		panic(fmt.Errorf("field token of message eidon-chain.erc20.v1.QueryTokenPairRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1217,13 +1217,13 @@ func (x *fastReflection_QueryTokenPairRequest) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTokenPairRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairRequest.token":
+	case "eidon-chain.erc20.v1.QueryTokenPairRequest.token":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1233,7 +1233,7 @@ func (x *fastReflection_QueryTokenPairRequest) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_QueryTokenPairRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryTokenPairRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryTokenPairRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1450,8 +1450,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryTokenPairResponse = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryTokenPairResponse")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryTokenPairResponse = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryTokenPairResponse")
 	fd_QueryTokenPairResponse_token_pair = md_QueryTokenPairResponse.Fields().ByName("token_pair")
 }
 
@@ -1464,7 +1464,7 @@ func (x *QueryTokenPairResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTokenPairResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[3]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1541,13 +1541,13 @@ func (x *fastReflection_QueryTokenPairResponse) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTokenPairResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		return x.TokenPair != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1559,13 +1559,13 @@ func (x *fastReflection_QueryTokenPairResponse) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		x.TokenPair = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1577,14 +1577,14 @@ func (x *fastReflection_QueryTokenPairResponse) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTokenPairResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		value := x.TokenPair
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1600,13 +1600,13 @@ func (x *fastReflection_QueryTokenPairResponse) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		x.TokenPair = value.Message().Interface().(*TokenPair)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1622,16 +1622,16 @@ func (x *fastReflection_QueryTokenPairResponse) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTokenPairResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		if x.TokenPair == nil {
 			x.TokenPair = new(TokenPair)
 		}
 		return protoreflect.ValueOfMessage(x.TokenPair.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1640,14 +1640,14 @@ func (x *fastReflection_QueryTokenPairResponse) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTokenPairResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryTokenPairResponse.token_pair":
+	case "eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair":
 		m := new(TokenPair)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryTokenPairResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryTokenPairResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryTokenPairResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1657,7 +1657,7 @@ func (x *fastReflection_QueryTokenPairResponse) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_QueryTokenPairResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryTokenPairResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryTokenPairResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1884,8 +1884,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryParamsRequest = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryParamsRequest")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryParamsRequest = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryParamsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryParamsRequest)(nil)
@@ -1897,7 +1897,7 @@ func (x *QueryParamsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[4]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1970,9 +1970,9 @@ func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1986,9 +1986,9 @@ func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2002,9 +2002,9 @@ func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2022,9 +2022,9 @@ func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2042,9 +2042,9 @@ func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2055,9 +2055,9 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2067,7 +2067,7 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryParamsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryParamsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2241,8 +2241,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_query_proto_init()
-	md_QueryParamsResponse = File_evmos_erc20_v1_query_proto.Messages().ByName("QueryParamsResponse")
+	file_eidon-chain_erc20_v1_query_proto_init()
+	md_QueryParamsResponse = File_eidon-chain_erc20_v1_query_proto.Messages().ByName("QueryParamsResponse")
 	fd_QueryParamsResponse_params = md_QueryParamsResponse.Fields().ByName("params")
 }
 
@@ -2255,7 +2255,7 @@ func (x *QueryParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_query_proto_msgTypes[5]
+	mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2332,13 +2332,13 @@ func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2350,13 +2350,13 @@ func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2368,14 +2368,14 @@ func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2391,13 +2391,13 @@ func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2413,16 +2413,16 @@ func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2431,14 +2431,14 @@ func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.QueryParamsResponse.params":
+	case "eidon-chain.erc20.v1.QueryParamsResponse.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2448,7 +2448,7 @@ func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.QueryParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.QueryParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2670,14 +2670,14 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/erc20/v1/query.proto
+// source: eidon-chain/erc20/v1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -2700,7 +2700,7 @@ type QueryTokenPairsRequest struct {
 func (x *QueryTokenPairsRequest) Reset() {
 	*x = QueryTokenPairsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[0]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2714,7 +2714,7 @@ func (*QueryTokenPairsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryTokenPairsRequest.ProtoReflect.Descriptor instead.
 func (*QueryTokenPairsRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *QueryTokenPairsRequest) GetPagination() *v1beta1.PageRequest {
@@ -2740,7 +2740,7 @@ type QueryTokenPairsResponse struct {
 func (x *QueryTokenPairsResponse) Reset() {
 	*x = QueryTokenPairsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[1]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2754,7 +2754,7 @@ func (*QueryTokenPairsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryTokenPairsResponse.ProtoReflect.Descriptor instead.
 func (*QueryTokenPairsResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryTokenPairsResponse) GetTokenPairs() []*TokenPair {
@@ -2785,7 +2785,7 @@ type QueryTokenPairRequest struct {
 func (x *QueryTokenPairRequest) Reset() {
 	*x = QueryTokenPairRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[2]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2799,7 +2799,7 @@ func (*QueryTokenPairRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryTokenPairRequest.ProtoReflect.Descriptor instead.
 func (*QueryTokenPairRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryTokenPairRequest) GetToken() string {
@@ -2823,7 +2823,7 @@ type QueryTokenPairResponse struct {
 func (x *QueryTokenPairResponse) Reset() {
 	*x = QueryTokenPairResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[3]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2837,7 +2837,7 @@ func (*QueryTokenPairResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryTokenPairResponse.ProtoReflect.Descriptor instead.
 func (*QueryTokenPairResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryTokenPairResponse) GetTokenPair() *TokenPair {
@@ -2857,7 +2857,7 @@ type QueryParamsRequest struct {
 func (x *QueryParamsRequest) Reset() {
 	*x = QueryParamsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[4]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2871,7 +2871,7 @@ func (*QueryParamsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsRequest.ProtoReflect.Descriptor instead.
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{4}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 // QueryParamsResponse is the response type for the Query/Params RPC
@@ -2888,7 +2888,7 @@ type QueryParamsResponse struct {
 func (x *QueryParamsResponse) Reset() {
 	*x = QueryParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_query_proto_msgTypes[5]
+		mi := &file_eidon-chain_erc20_v1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2902,7 +2902,7 @@ func (*QueryParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsResponse.ProtoReflect.Descriptor instead.
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_query_proto_rawDescGZIP(), []int{5}
+	return file_eidon-chain_erc20_v1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *QueryParamsResponse) GetParams() *Params {
@@ -2912,9 +2912,9 @@ func (x *QueryParamsResponse) GetParams() *Params {
 	return nil
 }
 
-var File_evmos_erc20_v1_query_proto protoreflect.FileDescriptor
+var File_eidon-chain_erc20_v1_query_proto protoreflect.FileDescriptor
 
-var file_evmos_erc20_v1_query_proto_rawDesc = []byte{
+var file_eidon-chain_erc20_v1_query_proto_rawDesc = []byte{
 	0x0a, 0x1a, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31,
 	0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e, 0x65, 0x76,
 	0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x1a, 0x11, 0x61, 0x6d,
@@ -3000,42 +3000,42 @@ var file_evmos_erc20_v1_query_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_erc20_v1_query_proto_rawDescOnce sync.Once
-	file_evmos_erc20_v1_query_proto_rawDescData = file_evmos_erc20_v1_query_proto_rawDesc
+	file_eidon-chain_erc20_v1_query_proto_rawDescOnce sync.Once
+	file_eidon-chain_erc20_v1_query_proto_rawDescData = file_eidon-chain_erc20_v1_query_proto_rawDesc
 )
 
-func file_evmos_erc20_v1_query_proto_rawDescGZIP() []byte {
-	file_evmos_erc20_v1_query_proto_rawDescOnce.Do(func() {
-		file_evmos_erc20_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_erc20_v1_query_proto_rawDescData)
+func file_eidon-chain_erc20_v1_query_proto_rawDescGZIP() []byte {
+	file_eidon-chain_erc20_v1_query_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_erc20_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_erc20_v1_query_proto_rawDescData)
 	})
-	return file_evmos_erc20_v1_query_proto_rawDescData
+	return file_eidon-chain_erc20_v1_query_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_evmos_erc20_v1_query_proto_goTypes = []interface{}{
-	(*QueryTokenPairsRequest)(nil),  // 0: evmos.erc20.v1.QueryTokenPairsRequest
-	(*QueryTokenPairsResponse)(nil), // 1: evmos.erc20.v1.QueryTokenPairsResponse
-	(*QueryTokenPairRequest)(nil),   // 2: evmos.erc20.v1.QueryTokenPairRequest
-	(*QueryTokenPairResponse)(nil),  // 3: evmos.erc20.v1.QueryTokenPairResponse
-	(*QueryParamsRequest)(nil),      // 4: evmos.erc20.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),     // 5: evmos.erc20.v1.QueryParamsResponse
+var file_eidon-chain_erc20_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_eidon-chain_erc20_v1_query_proto_goTypes = []interface{}{
+	(*QueryTokenPairsRequest)(nil),  // 0: eidon-chain.erc20.v1.QueryTokenPairsRequest
+	(*QueryTokenPairsResponse)(nil), // 1: eidon-chain.erc20.v1.QueryTokenPairsResponse
+	(*QueryTokenPairRequest)(nil),   // 2: eidon-chain.erc20.v1.QueryTokenPairRequest
+	(*QueryTokenPairResponse)(nil),  // 3: eidon-chain.erc20.v1.QueryTokenPairResponse
+	(*QueryParamsRequest)(nil),      // 4: eidon-chain.erc20.v1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),     // 5: eidon-chain.erc20.v1.QueryParamsResponse
 	(*v1beta1.PageRequest)(nil),     // 6: cosmos.base.query.v1beta1.PageRequest
-	(*TokenPair)(nil),               // 7: evmos.erc20.v1.TokenPair
+	(*TokenPair)(nil),               // 7: eidon-chain.erc20.v1.TokenPair
 	(*v1beta1.PageResponse)(nil),    // 8: cosmos.base.query.v1beta1.PageResponse
-	(*Params)(nil),                  // 9: evmos.erc20.v1.Params
+	(*Params)(nil),                  // 9: eidon-chain.erc20.v1.Params
 }
-var file_evmos_erc20_v1_query_proto_depIdxs = []int32{
-	6, // 0: evmos.erc20.v1.QueryTokenPairsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	7, // 1: evmos.erc20.v1.QueryTokenPairsResponse.token_pairs:type_name -> evmos.erc20.v1.TokenPair
-	8, // 2: evmos.erc20.v1.QueryTokenPairsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	7, // 3: evmos.erc20.v1.QueryTokenPairResponse.token_pair:type_name -> evmos.erc20.v1.TokenPair
-	9, // 4: evmos.erc20.v1.QueryParamsResponse.params:type_name -> evmos.erc20.v1.Params
-	0, // 5: evmos.erc20.v1.Query.TokenPairs:input_type -> evmos.erc20.v1.QueryTokenPairsRequest
-	2, // 6: evmos.erc20.v1.Query.TokenPair:input_type -> evmos.erc20.v1.QueryTokenPairRequest
-	4, // 7: evmos.erc20.v1.Query.Params:input_type -> evmos.erc20.v1.QueryParamsRequest
-	1, // 8: evmos.erc20.v1.Query.TokenPairs:output_type -> evmos.erc20.v1.QueryTokenPairsResponse
-	3, // 9: evmos.erc20.v1.Query.TokenPair:output_type -> evmos.erc20.v1.QueryTokenPairResponse
-	5, // 10: evmos.erc20.v1.Query.Params:output_type -> evmos.erc20.v1.QueryParamsResponse
+var file_eidon-chain_erc20_v1_query_proto_depIdxs = []int32{
+	6, // 0: eidon-chain.erc20.v1.QueryTokenPairsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	7, // 1: eidon-chain.erc20.v1.QueryTokenPairsResponse.token_pairs:type_name -> eidon-chain.erc20.v1.TokenPair
+	8, // 2: eidon-chain.erc20.v1.QueryTokenPairsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	7, // 3: eidon-chain.erc20.v1.QueryTokenPairResponse.token_pair:type_name -> eidon-chain.erc20.v1.TokenPair
+	9, // 4: eidon-chain.erc20.v1.QueryParamsResponse.params:type_name -> eidon-chain.erc20.v1.Params
+	0, // 5: eidon-chain.erc20.v1.Query.TokenPairs:input_type -> eidon-chain.erc20.v1.QueryTokenPairsRequest
+	2, // 6: eidon-chain.erc20.v1.Query.TokenPair:input_type -> eidon-chain.erc20.v1.QueryTokenPairRequest
+	4, // 7: eidon-chain.erc20.v1.Query.Params:input_type -> eidon-chain.erc20.v1.QueryParamsRequest
+	1, // 8: eidon-chain.erc20.v1.Query.TokenPairs:output_type -> eidon-chain.erc20.v1.QueryTokenPairsResponse
+	3, // 9: eidon-chain.erc20.v1.Query.TokenPair:output_type -> eidon-chain.erc20.v1.QueryTokenPairResponse
+	5, // 10: eidon-chain.erc20.v1.Query.Params:output_type -> eidon-chain.erc20.v1.QueryParamsResponse
 	8, // [8:11] is the sub-list for method output_type
 	5, // [5:8] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -3043,15 +3043,15 @@ var file_evmos_erc20_v1_query_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_evmos_erc20_v1_query_proto_init() }
-func file_evmos_erc20_v1_query_proto_init() {
-	if File_evmos_erc20_v1_query_proto != nil {
+func init() { file_eidon-chain_erc20_v1_query_proto_init() }
+func file_eidon-chain_erc20_v1_query_proto_init() {
+	if File_eidon-chain_erc20_v1_query_proto != nil {
 		return
 	}
-	file_evmos_erc20_v1_erc20_proto_init()
-	file_evmos_erc20_v1_genesis_proto_init()
+	file_eidon-chain_erc20_v1_erc20_proto_init()
+	file_eidon-chain_erc20_v1_genesis_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_erc20_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTokenPairsRequest); i {
 			case 0:
 				return &v.state
@@ -3063,7 +3063,7 @@ func file_evmos_erc20_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTokenPairsResponse); i {
 			case 0:
 				return &v.state
@@ -3075,7 +3075,7 @@ func file_evmos_erc20_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTokenPairRequest); i {
 			case 0:
 				return &v.state
@@ -3087,7 +3087,7 @@ func file_evmos_erc20_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTokenPairResponse); i {
 			case 0:
 				return &v.state
@@ -3099,7 +3099,7 @@ func file_evmos_erc20_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsRequest); i {
 			case 0:
 				return &v.state
@@ -3111,7 +3111,7 @@ func file_evmos_erc20_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsResponse); i {
 			case 0:
 				return &v.state
@@ -3128,18 +3128,18 @@ func file_evmos_erc20_v1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_erc20_v1_query_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_erc20_v1_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_evmos_erc20_v1_query_proto_goTypes,
-		DependencyIndexes: file_evmos_erc20_v1_query_proto_depIdxs,
-		MessageInfos:      file_evmos_erc20_v1_query_proto_msgTypes,
+		GoTypes:           file_eidon-chain_erc20_v1_query_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_erc20_v1_query_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_erc20_v1_query_proto_msgTypes,
 	}.Build()
-	File_evmos_erc20_v1_query_proto = out.File
-	file_evmos_erc20_v1_query_proto_rawDesc = nil
-	file_evmos_erc20_v1_query_proto_goTypes = nil
-	file_evmos_erc20_v1_query_proto_depIdxs = nil
+	File_eidon-chain_erc20_v1_query_proto = out.File
+	file_eidon-chain_erc20_v1_query_proto_rawDesc = nil
+	file_eidon-chain_erc20_v1_query_proto_goTypes = nil
+	file_eidon-chain_erc20_v1_query_proto_depIdxs = nil
 }

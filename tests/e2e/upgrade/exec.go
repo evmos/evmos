@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -16,10 +16,10 @@ type E2ETxArgs struct {
 	From       string
 }
 
-// CreateModuleTxExec creates the execution command for an Evmos transaction.
+// CreateModuleTxExec creates the execution command for an Eidon-chain transaction.
 func (m *Manager) CreateModuleTxExec(txArgs E2ETxArgs) (string, error) {
 	cmd := []string{
-		"evmosd",
+		"eidond",
 		"tx",
 		txArgs.ModuleName,
 		txArgs.SubCommand,
@@ -29,7 +29,7 @@ func (m *Manager) CreateModuleTxExec(txArgs E2ETxArgs) (string, error) {
 		fmt.Sprintf("--chain-id=%s", txArgs.ChainID),
 		"--keyring-backend=test",
 		"--output=text",
-		"--fees=50000000000000aevmos",
+		"--fees=50000000000000aeidon-chain",
 		"--gas=auto",
 		fmt.Sprintf("--from=%s", txArgs.From),
 		"--yes",

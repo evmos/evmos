@@ -1,7 +1,7 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.vesting.v2;
+package eidon-chain.vesting.v2;
 
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
@@ -11,39 +11,39 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/vesting/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
   // CreateClawbackVestingAccount creats a vesting account that is subject to clawback.
   rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount) returns (MsgCreateClawbackVestingAccountResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/tx/create_clawback_vesting_account";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/tx/create_clawback_vesting_account";
   }
   // FundVestingAccount funds an existing ClawbackVestingAccount with tokens
   // according to the vesting and lockup schedules.
   rpc FundVestingAccount(MsgFundVestingAccount) returns (MsgFundVestingAccountResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/tx/fund_vesting_account";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/tx/fund_vesting_account";
   }
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/tx/clawback";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/tx/clawback";
   }
   // UpdateVestingFunder updates the funder address of an existing
   // ClawbackVestingAccount.
   rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/tx/update_vesting_funder";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/tx/update_vesting_funder";
   }
   // ConvertVestingAccount converts a ClawbackVestingAccount to an Eth account
   rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/tx/convert_vesting_account";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/tx/convert_vesting_account";
   }
 }
 
 // MsgCreateClawbackVestingAccount defines a message that enables creating a
 // ClawbackVestingAccount.
 message MsgCreateClawbackVestingAccount {
-  option (amino.name) = "evmos/MsgCreateClawbackVestingAccount";
+  option (amino.name) = "eidon-chain/MsgCreateClawbackVestingAccount";
   option (gogoproto.equal) = false;
   option (cosmos.msg.v1.signer) = "vesting_address";
   // funder_address specifies the account that will be able to fund the vesting account
@@ -61,7 +61,7 @@ message MsgCreateClawbackVestingAccountResponse {}
 // MsgFundVestingAccount defines a message that enables funding an existing clawback
 // vesting account.
 message MsgFundVestingAccount {
-  option (amino.name) = "evmos/MsgFundVestingAccount";
+  option (amino.name) = "eidon-chain/MsgFundVestingAccount";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address specifies the account that funds the vesting account
   string funder_address = 1;
@@ -91,7 +91,7 @@ message MsgFundVestingAccountResponse {}
 // MsgClawback defines a message that removes unvested tokens from a
 // ClawbackVestingAccount.
 message MsgClawback {
-  option (amino.name) = "evmos/MsgClawback";
+  option (amino.name) = "eidon-chain/MsgClawback";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address is the address which funded the account
   string funder_address = 1;
@@ -117,7 +117,7 @@ message MsgClawbackResponse {
 // MsgUpdateVestingFunder defines a message that updates the funder account of a
 // ClawbackVestingAccount.
 message MsgUpdateVestingFunder {
-  option (amino.name) = "evmos/MsgUpdateVestingFunder";
+  option (amino.name) = "eidon-chain/MsgUpdateVestingFunder";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address is the current funder address of the ClawbackVestingAccount
   string funder_address = 1;
@@ -133,7 +133,7 @@ message MsgUpdateVestingFunderResponse {}
 
 // MsgConvertVestingAccount defines a message that enables converting a vesting account to an eth account
 message MsgConvertVestingAccount {
-  option (amino.name) = "evmos/MsgConvertVestingAccount";
+  option (amino.name) = "eidon-chain/MsgConvertVestingAccount";
   option (cosmos.msg.v1.signer) = "vesting_address";
   // vesting_address is the address of the vesting account to convert
   string vesting_address = 1;

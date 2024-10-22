@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 //go:build rocksdb
 // +build rocksdb
@@ -27,7 +27,7 @@ const versionDB = "versiondb"
 // NOTE: this code is only included in a build with rocksdb.
 // Otherwise, the setupVersionDB code on 'app/db_placeholder.go' will be included
 // in the compiled binary
-func (app *Evmos) setupVersionDB(
+func (app *Eidon-chain) setupVersionDB(
 	homePath string,
 	keys map[string]*storetypes.KVStoreKey,
 	tkeys map[string]*storetypes.TransientStoreKey,

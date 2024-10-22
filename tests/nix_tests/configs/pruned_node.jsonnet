@@ -1,7 +1,7 @@
 local config = import 'default.jsonnet';
 
 config {
-  'evmos_9002-1'+: {
+  'eidon-chain_9002-1'+: {
     'app-config'+: {
       pruning: 'everything',
       'state-sync'+: {

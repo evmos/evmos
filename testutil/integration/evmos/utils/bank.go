@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package utils
 
@@ -10,9 +10,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cmnfactory "github.com/evmos/evmos/v20/testutil/integration/common/factory"
-	cmnnet "github.com/evmos/evmos/v20/testutil/integration/common/network"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	cmnfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/factory"
+	cmnnet "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/network"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
 )
 
 // FundAccountWithBaseDenom funds the given account with the given amount of the network's

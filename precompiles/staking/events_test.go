@@ -3,7 +3,7 @@ package staking_test
 import (
 	"math/big"
 
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,11 +11,11 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v20/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/precompiles/staking"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/staking"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {
@@ -111,7 +111,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 		postCheck   func(granter, grantee common.Address)
 	}{
 		{
-			"success - increased allowance for all 3 methods by 1 evmos",
+			"success - increased allowance for all 3 methods by 1 eidon-chain",
 			func(grantee common.Address) []interface{} {
 				return []interface{}{
 					grantee,
@@ -154,7 +154,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 			err := s.CreateAuthorization(ctx, granter.AccAddr, grantee.AccAddr, staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
-			// Approve first with 1 evmos
+			// Approve first with 1 eidon-chain
 			approveArgs := tc.malleate(grantee.Addr)
 			_, err = s.precompile.Approve(ctx, granter.Addr, stDB, &approvalMethod, approveArgs)
 			s.Require().NoError(err)
@@ -188,7 +188,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 		postCheck   func(granter, grantee common.Address)
 	}{
 		{
-			"success - decreased allowance for all 3 methods by 1 evmos",
+			"success - decreased allowance for all 3 methods by 1 eidon-chain",
 			func(grantee common.Address) []interface{} {
 				return []interface{}{
 					grantee,
@@ -231,7 +231,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 			err := s.CreateAuthorization(ctx, granter.AccAddr, grantee.AccAddr, staking.DelegateAuthz, nil)
 			s.Require().NoError(err)
 
-			// Approve first with 2 evmos
+			// Approve first with 2 eidon-chain
 			args := []interface{}{
 				grantee.Addr,
 				big.NewInt(2000000000000000000),

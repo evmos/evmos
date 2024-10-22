@@ -2,9 +2,9 @@ package backend
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v20/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v20/rpc/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	"github.com/Eidon-AI/eidon-chain/v20/rpc/backend/mocks"
+	rpc "github.com/Eidon-AI/eidon-chain/v20/rpc/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 )
 
 var _ feemarkettypes.QueryClient = &mocks.FeeMarketQueryClient{}

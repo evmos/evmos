@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package testutils
 
 import (
@@ -12,16 +12,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/evmos/evmos/v20/app"
-	ante "github.com/evmos/evmos/v20/app/ante"
-	evmante "github.com/evmos/evmos/v20/app/ante/evm"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	ante "github.com/Eidon-AI/eidon-chain/v20/app/ante"
+	evmante "github.com/Eidon-AI/eidon-chain/v20/app/ante/evm"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 )
 
 type AnteTestSuite struct {

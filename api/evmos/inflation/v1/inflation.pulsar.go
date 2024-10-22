@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_inflation_proto_init()
-	md_InflationDistribution = File_evmos_inflation_v1_inflation_proto.Messages().ByName("InflationDistribution")
+	file_eidon-chain_inflation_v1_inflation_proto_init()
+	md_InflationDistribution = File_eidon-chain_inflation_v1_inflation_proto.Messages().ByName("InflationDistribution")
 	fd_InflationDistribution_staking_rewards = md_InflationDistribution.Fields().ByName("staking_rewards")
 	fd_InflationDistribution_usage_incentives = md_InflationDistribution.Fields().ByName("usage_incentives")
 	fd_InflationDistribution_community_pool = md_InflationDistribution.Fields().ByName("community_pool")
@@ -38,7 +38,7 @@ func (x *InflationDistribution) ProtoReflect() protoreflect.Message {
 }
 
 func (x *InflationDistribution) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_inflation_proto_msgTypes[0]
+	mi := &file_eidon-chain_inflation_v1_inflation_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -127,17 +127,17 @@ func (x *fastReflection_InflationDistribution) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_InflationDistribution) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
 		return x.StakingRewards != ""
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
 		return x.UsageIncentives != ""
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
 		return x.CommunityPool != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -149,17 +149,17 @@ func (x *fastReflection_InflationDistribution) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_InflationDistribution) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
 		x.StakingRewards = ""
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
 		x.UsageIncentives = ""
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
 		x.CommunityPool = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -171,20 +171,20 @@ func (x *fastReflection_InflationDistribution) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_InflationDistribution) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
 		value := x.StakingRewards
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
 		value := x.UsageIncentives
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
 		value := x.CommunityPool
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -200,17 +200,17 @@ func (x *fastReflection_InflationDistribution) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_InflationDistribution) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
 		x.StakingRewards = value.Interface().(string)
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
 		x.UsageIncentives = value.Interface().(string)
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
 		x.CommunityPool = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -226,17 +226,17 @@ func (x *fastReflection_InflationDistribution) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_InflationDistribution) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
-		panic(fmt.Errorf("field staking_rewards of message evmos.inflation.v1.InflationDistribution is not mutable"))
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
-		panic(fmt.Errorf("field usage_incentives of message evmos.inflation.v1.InflationDistribution is not mutable"))
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
-		panic(fmt.Errorf("field community_pool of message evmos.inflation.v1.InflationDistribution is not mutable"))
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
+		panic(fmt.Errorf("field staking_rewards of message eidon-chain.inflation.v1.InflationDistribution is not mutable"))
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
+		panic(fmt.Errorf("field usage_incentives of message eidon-chain.inflation.v1.InflationDistribution is not mutable"))
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
+		panic(fmt.Errorf("field community_pool of message eidon-chain.inflation.v1.InflationDistribution is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -245,17 +245,17 @@ func (x *fastReflection_InflationDistribution) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_InflationDistribution) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.InflationDistribution.staking_rewards":
+	case "eidon-chain.inflation.v1.InflationDistribution.staking_rewards":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.InflationDistribution.usage_incentives":
+	case "eidon-chain.inflation.v1.InflationDistribution.usage_incentives":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.InflationDistribution.community_pool":
+	case "eidon-chain.inflation.v1.InflationDistribution.community_pool":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.InflationDistribution"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.InflationDistribution"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.InflationDistribution does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -265,7 +265,7 @@ func (x *fastReflection_InflationDistribution) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_InflationDistribution) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.InflationDistribution", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.InflationDistribution", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -572,8 +572,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_inflation_proto_init()
-	md_ExponentialCalculation = File_evmos_inflation_v1_inflation_proto.Messages().ByName("ExponentialCalculation")
+	file_eidon-chain_inflation_v1_inflation_proto_init()
+	md_ExponentialCalculation = File_eidon-chain_inflation_v1_inflation_proto.Messages().ByName("ExponentialCalculation")
 	fd_ExponentialCalculation_a = md_ExponentialCalculation.Fields().ByName("a")
 	fd_ExponentialCalculation_r = md_ExponentialCalculation.Fields().ByName("r")
 	fd_ExponentialCalculation_c = md_ExponentialCalculation.Fields().ByName("c")
@@ -590,7 +590,7 @@ func (x *ExponentialCalculation) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ExponentialCalculation) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_inflation_proto_msgTypes[1]
+	mi := &file_eidon-chain_inflation_v1_inflation_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,21 +691,21 @@ func (x *fastReflection_ExponentialCalculation) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ExponentialCalculation) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
 		return x.A != ""
-	case "evmos.inflation.v1.ExponentialCalculation.r":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
 		return x.R != ""
-	case "evmos.inflation.v1.ExponentialCalculation.c":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
 		return x.C != ""
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
 		return x.BondingTarget != ""
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
 		return x.MaxVariance != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -717,21 +717,21 @@ func (x *fastReflection_ExponentialCalculation) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ExponentialCalculation) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
 		x.A = ""
-	case "evmos.inflation.v1.ExponentialCalculation.r":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
 		x.R = ""
-	case "evmos.inflation.v1.ExponentialCalculation.c":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
 		x.C = ""
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
 		x.BondingTarget = ""
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
 		x.MaxVariance = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -743,26 +743,26 @@ func (x *fastReflection_ExponentialCalculation) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ExponentialCalculation) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
 		value := x.A
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.ExponentialCalculation.r":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
 		value := x.R
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.ExponentialCalculation.c":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
 		value := x.C
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
 		value := x.BondingTarget
 		return protoreflect.ValueOfString(value)
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
 		value := x.MaxVariance
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -778,21 +778,21 @@ func (x *fastReflection_ExponentialCalculation) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ExponentialCalculation) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
 		x.A = value.Interface().(string)
-	case "evmos.inflation.v1.ExponentialCalculation.r":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
 		x.R = value.Interface().(string)
-	case "evmos.inflation.v1.ExponentialCalculation.c":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
 		x.C = value.Interface().(string)
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
 		x.BondingTarget = value.Interface().(string)
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
 		x.MaxVariance = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -808,21 +808,21 @@ func (x *fastReflection_ExponentialCalculation) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ExponentialCalculation) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
-		panic(fmt.Errorf("field a of message evmos.inflation.v1.ExponentialCalculation is not mutable"))
-	case "evmos.inflation.v1.ExponentialCalculation.r":
-		panic(fmt.Errorf("field r of message evmos.inflation.v1.ExponentialCalculation is not mutable"))
-	case "evmos.inflation.v1.ExponentialCalculation.c":
-		panic(fmt.Errorf("field c of message evmos.inflation.v1.ExponentialCalculation is not mutable"))
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
-		panic(fmt.Errorf("field bonding_target of message evmos.inflation.v1.ExponentialCalculation is not mutable"))
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
-		panic(fmt.Errorf("field max_variance of message evmos.inflation.v1.ExponentialCalculation is not mutable"))
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
+		panic(fmt.Errorf("field a of message eidon-chain.inflation.v1.ExponentialCalculation is not mutable"))
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
+		panic(fmt.Errorf("field r of message eidon-chain.inflation.v1.ExponentialCalculation is not mutable"))
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
+		panic(fmt.Errorf("field c of message eidon-chain.inflation.v1.ExponentialCalculation is not mutable"))
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
+		panic(fmt.Errorf("field bonding_target of message eidon-chain.inflation.v1.ExponentialCalculation is not mutable"))
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
+		panic(fmt.Errorf("field max_variance of message eidon-chain.inflation.v1.ExponentialCalculation is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -831,21 +831,21 @@ func (x *fastReflection_ExponentialCalculation) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ExponentialCalculation) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.ExponentialCalculation.a":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.a":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.ExponentialCalculation.r":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.r":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.ExponentialCalculation.c":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.c":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.ExponentialCalculation.bonding_target":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.bonding_target":
 		return protoreflect.ValueOfString("")
-	case "evmos.inflation.v1.ExponentialCalculation.max_variance":
+	case "eidon-chain.inflation.v1.ExponentialCalculation.max_variance":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.ExponentialCalculation"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.ExponentialCalculation"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.ExponentialCalculation does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -855,7 +855,7 @@ func (x *fastReflection_ExponentialCalculation) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_ExponentialCalculation) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.ExponentialCalculation", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.ExponentialCalculation", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1238,14 +1238,14 @@ func (x *fastReflection_ExponentialCalculation) ProtoMethods() *protoiface.Metho
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/inflation/v1/inflation.proto
+// source: eidon-chain/inflation/v1/inflation.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -1257,7 +1257,7 @@ const (
 // InflationDistribution defines the distribution in which inflation is
 // allocated through minting on each epoch (staking, incentives, community). It
 // excludes the team vesting distribution, as this is minted once at genesis.
-// The initial InflationDistribution can be calculated from the Evmos Token
+// The initial InflationDistribution can be calculated from the Eidon-chain Token
 // Model like this:
 // mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 // 0.5333333         = 40%           / (1 - 25%)
@@ -1282,7 +1282,7 @@ type InflationDistribution struct {
 func (x *InflationDistribution) Reset() {
 	*x = InflationDistribution{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_inflation_proto_msgTypes[0]
+		mi := &file_eidon-chain_inflation_v1_inflation_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1296,7 +1296,7 @@ func (*InflationDistribution) ProtoMessage() {}
 
 // Deprecated: Use InflationDistribution.ProtoReflect.Descriptor instead.
 func (*InflationDistribution) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_inflation_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_inflation_v1_inflation_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *InflationDistribution) GetStakingRewards() string {
@@ -1346,7 +1346,7 @@ type ExponentialCalculation struct {
 func (x *ExponentialCalculation) Reset() {
 	*x = ExponentialCalculation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_inflation_proto_msgTypes[1]
+		mi := &file_eidon-chain_inflation_v1_inflation_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1360,7 +1360,7 @@ func (*ExponentialCalculation) ProtoMessage() {}
 
 // Deprecated: Use ExponentialCalculation.ProtoReflect.Descriptor instead.
 func (*ExponentialCalculation) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_inflation_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_inflation_v1_inflation_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ExponentialCalculation) GetA() string {
@@ -1398,9 +1398,9 @@ func (x *ExponentialCalculation) GetMaxVariance() string {
 	return ""
 }
 
-var File_evmos_inflation_v1_inflation_proto protoreflect.FileDescriptor
+var File_eidon-chain_inflation_v1_inflation_proto protoreflect.FileDescriptor
 
-var file_evmos_inflation_v1_inflation_proto_rawDesc = []byte{
+var file_eidon-chain_inflation_v1_inflation_proto_rawDesc = []byte{
 	0x0a, 0x22, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x69, 0x6e, 0x66, 0x6c, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x69, 0x6e, 0x66, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x12, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x69, 0x6e, 0x66, 0x6c,
@@ -1463,23 +1463,23 @@ var file_evmos_inflation_v1_inflation_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_inflation_v1_inflation_proto_rawDescOnce sync.Once
-	file_evmos_inflation_v1_inflation_proto_rawDescData = file_evmos_inflation_v1_inflation_proto_rawDesc
+	file_eidon-chain_inflation_v1_inflation_proto_rawDescOnce sync.Once
+	file_eidon-chain_inflation_v1_inflation_proto_rawDescData = file_eidon-chain_inflation_v1_inflation_proto_rawDesc
 )
 
-func file_evmos_inflation_v1_inflation_proto_rawDescGZIP() []byte {
-	file_evmos_inflation_v1_inflation_proto_rawDescOnce.Do(func() {
-		file_evmos_inflation_v1_inflation_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_inflation_v1_inflation_proto_rawDescData)
+func file_eidon-chain_inflation_v1_inflation_proto_rawDescGZIP() []byte {
+	file_eidon-chain_inflation_v1_inflation_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_inflation_v1_inflation_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_inflation_v1_inflation_proto_rawDescData)
 	})
-	return file_evmos_inflation_v1_inflation_proto_rawDescData
+	return file_eidon-chain_inflation_v1_inflation_proto_rawDescData
 }
 
-var file_evmos_inflation_v1_inflation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_inflation_v1_inflation_proto_goTypes = []interface{}{
-	(*InflationDistribution)(nil),  // 0: evmos.inflation.v1.InflationDistribution
-	(*ExponentialCalculation)(nil), // 1: evmos.inflation.v1.ExponentialCalculation
+var file_eidon-chain_inflation_v1_inflation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_eidon-chain_inflation_v1_inflation_proto_goTypes = []interface{}{
+	(*InflationDistribution)(nil),  // 0: eidon-chain.inflation.v1.InflationDistribution
+	(*ExponentialCalculation)(nil), // 1: eidon-chain.inflation.v1.ExponentialCalculation
 }
-var file_evmos_inflation_v1_inflation_proto_depIdxs = []int32{
+var file_eidon-chain_inflation_v1_inflation_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -1487,13 +1487,13 @@ var file_evmos_inflation_v1_inflation_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_evmos_inflation_v1_inflation_proto_init() }
-func file_evmos_inflation_v1_inflation_proto_init() {
-	if File_evmos_inflation_v1_inflation_proto != nil {
+func init() { file_eidon-chain_inflation_v1_inflation_proto_init() }
+func file_eidon-chain_inflation_v1_inflation_proto_init() {
+	if File_eidon-chain_inflation_v1_inflation_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_inflation_v1_inflation_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_inflation_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*InflationDistribution); i {
 			case 0:
 				return &v.state
@@ -1505,7 +1505,7 @@ func file_evmos_inflation_v1_inflation_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_inflation_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_inflation_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExponentialCalculation); i {
 			case 0:
 				return &v.state
@@ -1522,18 +1522,18 @@ func file_evmos_inflation_v1_inflation_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_inflation_v1_inflation_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_inflation_v1_inflation_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_evmos_inflation_v1_inflation_proto_goTypes,
-		DependencyIndexes: file_evmos_inflation_v1_inflation_proto_depIdxs,
-		MessageInfos:      file_evmos_inflation_v1_inflation_proto_msgTypes,
+		GoTypes:           file_eidon-chain_inflation_v1_inflation_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_inflation_v1_inflation_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_inflation_v1_inflation_proto_msgTypes,
 	}.Build()
-	File_evmos_inflation_v1_inflation_proto = out.File
-	file_evmos_inflation_v1_inflation_proto_rawDesc = nil
-	file_evmos_inflation_v1_inflation_proto_goTypes = nil
-	file_evmos_inflation_v1_inflation_proto_depIdxs = nil
+	File_eidon-chain_inflation_v1_inflation_proto = out.File
+	file_eidon-chain_inflation_v1_inflation_proto_rawDesc = nil
+	file_eidon-chain_inflation_v1_inflation_proto_goTypes = nil
+	file_eidon-chain_inflation_v1_inflation_proto_depIdxs = nil
 }

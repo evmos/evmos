@@ -17,13 +17,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/crypto/ethsecp256k1"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
 
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/encoding"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 const invalidAddress = "0x0000"
@@ -56,7 +56,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	err := app.InitializeAppConfiguration("evmos_9001-1")
+	err := app.InitializeAppConfiguration("eidon-chain_9001-1")
 	suite.Require().NoError(err)
 }
 
@@ -114,8 +114,8 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 		},
 	}
 	for _, cfg := range []types.EvmCoinInfo{
-		{Denom: evmostypes.BaseDenom, Decimals: types.SixDecimals},
-		{Denom: evmostypes.BaseDenom, Decimals: types.EighteenDecimals},
+		{Denom: eidon-chaintypes.BaseDenom, Decimals: types.SixDecimals},
+		{Denom: eidon-chaintypes.BaseDenom, Decimals: types.EighteenDecimals},
 	} {
 		for _, tc := range testCases {
 			configurator := types.NewEVMConfigurator()

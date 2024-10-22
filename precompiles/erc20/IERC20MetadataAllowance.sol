@@ -4,7 +4,7 @@ pragma solidity >=0.8.18;
 import "./IERC20Metadata.sol";
 
 /**
- * @author Evmos Team
+ * @author Eidon-chain Team
  * @title ERC20 Metadata Allowance Interface
  * @dev Interface for the optional metadata and allowance functions from the ERC20 standard.
  */

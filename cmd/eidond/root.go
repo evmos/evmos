@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package main
 
@@ -45,34 +45,34 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
 
 	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	evmosclient "github.com/evmos/evmos/v20/client"
-	"github.com/evmos/evmos/v20/client/block"
-	"github.com/evmos/evmos/v20/client/debug"
-	evmosserver "github.com/evmos/evmos/v20/server"
-	servercfg "github.com/evmos/evmos/v20/server/config"
-	srvflags "github.com/evmos/evmos/v20/server/flags"
+	eidon-chainclient "github.com/Eidon-AI/eidon-chain/v20/client"
+	"github.com/Eidon-AI/eidon-chain/v20/client/block"
+	"github.com/Eidon-AI/eidon-chain/v20/client/debug"
+	eidon-chainserver "github.com/Eidon-AI/eidon-chain/v20/server"
+	servercfg "github.com/Eidon-AI/eidon-chain/v20/server/config"
+	srvflags "github.com/Eidon-AI/eidon-chain/v20/server/flags"
 
-	"github.com/evmos/evmos/v20/app"
-	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	eidon-chainkr "github.com/Eidon-AI/eidon-chain/v20/crypto/keyring"
 )
 
-const EnvPrefix = "EVMOS"
+const EnvPrefix = "EIDON-CHAIN"
 
 type emptyAppOptions struct{}
 
 func (ao emptyAppOptions) Get(_ string) interface{} { return nil }
 
-// NewRootCmd creates a new root command for evmosd. It is called once in the
+// NewRootCmd creates a new root command for eidond. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// and the CLI options for the modules
 	// add keyring to autocli opts
-	tempApp := app.NewEvmos(
+	tempApp := app.NewEidon-chain(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil, true, nil,
@@ -95,13 +95,13 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.FlagBroadcastMode).
 		WithHomeDir(app.DefaultNodeHome).
-		WithKeyringOptions(evmoskr.Option()).
+		WithKeyringOptions(eidon-chainkr.Option()).
 		WithViper(EnvPrefix).
 		WithLedgerHasProtobuf(true)
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name,
-		Short: "Evmos Daemon",
+		Short: "Eidon-chain Daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -160,7 +160,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 
 	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
-		evmosclient.ValidateChainID(
+		eidon-chainclient.ValidateChainID(
 			InitCmd(tempApp.BasicModuleManager, app.DefaultNodeHome),
 		),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
@@ -191,9 +191,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		rootCmd.AddCommand(changeSetCmd)
 	}
 
-	evmosserver.AddCommands(
+	eidon-chainserver.AddCommands(
 		rootCmd,
-		evmosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
+		eidon-chainserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
 		a.appExport,
 		addModuleInitFlags,
 	)
@@ -203,7 +203,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		sdkserver.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		evmosclient.KeyCommands(app.DefaultNodeHome),
+		eidon-chainclient.KeyCommands(app.DefaultNodeHome),
 	)
 	rootCmd, err := srvflags.AddTxFlags(rootCmd)
 	if err != nil {
@@ -288,7 +288,7 @@ func initAppConfig() (string, interface{}) {
 	if err != nil {
 		// NOTE: We need to provide a default base denom for the tempApp created by the RootCmd
 		// FIXME: if we remove the min gas price default config, this will no longer be needed
-		baseDenom = evmostypes.BaseDenom
+		baseDenom = eidon-chaintypes.BaseDenom
 	}
 	customAppTemplate, customAppConfig := servercfg.AppConfig(baseDenom)
 
@@ -360,7 +360,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		chainID = conf.ChainID
 	}
 
-	evmosApp := app.NewEvmos(
+	eidon-chainApp := app.NewEidon-chain(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(sdkserver.FlagInvCheckPeriod)),
@@ -379,7 +379,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		baseapp.SetChainID(chainID),
 	)
 
-	return evmosApp
+	return eidon-chainApp
 }
 
 // appExport creates a new simapp (optionally at a given height)
@@ -394,23 +394,23 @@ func (a appCreator) appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var evmosApp *app.Evmos
+	var eidon-chainApp *app.Eidon-chain
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts)
+		eidon-chainApp = app.NewEidon-chain(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts)
 
-		if err := evmosApp.LoadHeight(height); err != nil {
+		if err := eidon-chainApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts)
+		eidon-chainApp = app.NewEidon-chain(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts)
 	}
 
-	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return eidon-chainApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 // initTendermintConfig helps to override default Tendermint Config values.
@@ -427,7 +427,7 @@ func initTendermintConfig() *cmtcfg.Config {
 }
 
 func tempDir(defaultHome string) string {
-	dir, err := os.MkdirTemp("", "evmos")
+	dir, err := os.MkdirTemp("", "eidon-chain")
 	if err != nil {
 		dir = defaultHome
 	}

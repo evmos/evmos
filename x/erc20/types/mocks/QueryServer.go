@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	types "github.com/evmos/evmos/v20/x/erc20/types"
+	types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 	mock "github.com/stretchr/testify/mock"
 )
 

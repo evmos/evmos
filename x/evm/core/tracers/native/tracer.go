@@ -40,7 +40,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/evmos/evmos/v20/x/evm/core/tracers"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/tracers"
 )
 
 // init registers itself this packages as a lookup for tracers.

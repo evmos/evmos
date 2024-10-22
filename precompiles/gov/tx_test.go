@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/precompiles/gov"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/gov"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestVote() {

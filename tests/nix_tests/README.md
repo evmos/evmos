@@ -2,7 +2,7 @@
 
 The RPC integration test suite uses nix for reproducible and configurable
 builds allowing to run integration tests using python web3 library against
-different Evmos and [Geth](https://github.com/ethereum/go-ethereum) clients with multiple configurations.
+different Eidon-chain and [Geth](https://github.com/ethereum/go-ethereum) clients with multiple configurations.
 
 ## Installation
 
@@ -42,7 +42,7 @@ cd tests/nix_tests
 pytest -s -vv
 ```
 
-If you're changing anything on the evmos rpc, rerun the first command.
+If you're changing anything on the eidon-chain rpc, rerun the first command.
 
 ## Caching
 
@@ -50,5 +50,5 @@ You can enable Binary Cache to speed up the tests:
 
 ```
 nix-env -iA cachix -f https://cachix.org/api/v1/install
-cachix use evmos
+cachix use eidon-chain
 ```

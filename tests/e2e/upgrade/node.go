@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -7,7 +7,7 @@ import "github.com/ory/dockertest/v3"
 
 const jrpcPort = "8545"
 
-// Node represents an Evmos node in the context of the upgrade tests. It contains
+// Node represents an Eidon-chain node in the context of the upgrade tests. It contains
 // fields to store the used repository, version as well as custom run options for
 // dockertest.
 type Node struct {

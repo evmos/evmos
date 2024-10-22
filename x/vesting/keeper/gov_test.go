@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	testutiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 

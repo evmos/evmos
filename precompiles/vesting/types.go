@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package vesting
 
 import (
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v20/precompiles/authorization"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -15,8 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	cosmosvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 // LockupPeriods is a struct used to parse the LockupPeriods parameter

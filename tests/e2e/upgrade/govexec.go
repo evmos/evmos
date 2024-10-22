@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -53,7 +53,7 @@ func getProposalCmd(legacy ProposalVersion, targetVersion string, upgradeHeight 
 	var cmd []string
 	if legacy == UpgradeProposalV50 {
 		cmd = []string{
-			"evmosd",
+			"eidond",
 			"tx",
 			"upgrade",
 			"software-upgrade",
@@ -76,7 +76,7 @@ func getProposalCmd(legacy ProposalVersion, targetVersion string, upgradeHeight 
 		}
 
 		cmd = []string{
-			"evmosd",
+			"eidond",
 			"tx",
 			"gov",
 			proposalType,
@@ -88,7 +88,7 @@ func getProposalCmd(legacy ProposalVersion, targetVersion string, upgradeHeight 
 
 	cmd = append(cmd,
 		"--title=\"TEST\"",
-		"--deposit=10000000aevmos",
+		"--deposit=10000000aeidon-chain",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
 		fmt.Sprintf("--chain-id=%s", chainID),
@@ -104,18 +104,18 @@ func getProposalCmd(legacy ProposalVersion, targetVersion string, upgradeHeight 
 // CreateDepositProposalExec creates a gov tx to deposit for the proposal with the given id
 func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, error) {
 	cmd := []string{
-		"evmosd",
+		"eidond",
 		"tx",
 		"gov",
 		"deposit",
 		fmt.Sprint(id),
-		"10000000aevmos",
+		"10000000aeidon-chain",
 		"--from=mykey",
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--yes",
 		"--keyring-backend=test",
 		"--output=text",
-		"--fees=500aevmos",
+		"--fees=500aeidon-chain",
 		"--gas=500000",
 	}
 
@@ -125,7 +125,7 @@ func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, err
 // CreateVoteProposalExec creates gov tx to vote 'yes' on the proposal with the given id
 func (m *Manager) CreateVoteProposalExec(chainID string, id int, flags ...string) (string, error) {
 	cmd := []string{
-		"evmosd",
+		"eidond",
 		"tx",
 		"gov",
 		"vote",

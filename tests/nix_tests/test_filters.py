@@ -5,7 +5,7 @@ from eth_abi import abi
 from hexbytes import HexBytes
 from web3 import Web3
 
-from .network import setup_custom_evmos, setup_evmos
+from .network import setup_custom_eidon-chain, setup_eidon-chain
 from .utils import (
     ADDRS,
     CONTRACTS,
@@ -17,40 +17,40 @@ from .utils import (
 
 
 @pytest.fixture(scope="module")
-def custom_evmos(tmp_path_factory):
+def custom_eidon-chain(tmp_path_factory):
     path = tmp_path_factory.mktemp("filters")
-    yield from setup_evmos(path, 26200)
+    yield from setup_eidon-chain(path, 26200)
 
 
 @pytest.fixture(scope="module")
-def evmos_indexer(tmp_path_factory):
+def eidon-chain_indexer(tmp_path_factory):
     path = tmp_path_factory.mktemp("indexer")
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         path, 26660, Path(__file__).parent / "configs/enable-indexer.jsonnet"
     )
 
 
 @pytest.fixture(
     scope="module",
-    params=["evmos", "geth", "evmos-ws", "evmos-rocksdb", "enable-indexer"],
+    params=["eidon-chain", "geth", "eidon-chain-ws", "eidon-chain-rocksdb", "enable-indexer"],
 )
-def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
+def cluster(request, custom_eidon-chain, eidon-chain_rocksdb, eidon-chain_indexer, geth):
     """
-    run on both evmos and geth
+    run on both eidon-chain and geth
     """
     provider = request.param
-    if provider == "evmos":
-        yield custom_evmos
+    if provider == "eidon-chain":
+        yield custom_eidon-chain
     elif provider == "geth":
         yield geth
-    elif provider == "evmos-ws":
-        evmos_ws = custom_evmos.copy()
-        evmos_ws.use_websocket()
-        yield evmos_ws
+    elif provider == "eidon-chain-ws":
+        eidon-chain_ws = custom_eidon-chain.copy()
+        eidon-chain_ws.use_websocket()
+        yield eidon-chain_ws
     elif provider == "enable-indexer":
-        yield evmos_indexer
-    elif provider == "evmos-rocksdb":
-        yield evmos_rocksdb
+        yield eidon-chain_indexer
+    elif provider == "eidon-chain-rocksdb":
+        yield eidon-chain_rocksdb
     else:
         raise NotImplementedError
 

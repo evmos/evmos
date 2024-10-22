@@ -17,10 +17,10 @@ RPC_PORT="854"
 IP_ADDR="0.0.0.0"
 
 KEY="dev0"
-CHAINID="evmos_9000-1"
+CHAINID="eidon-chain_9000-1"
 MONIKER="mymoniker"
 
-## default port prefixes for evmosd
+## default port prefixes for eidond
 NODE_P2P_PORT="2660"
 NODE_PORT="2663"
 NODE_RPC_PORT="2666"
@@ -54,29 +54,29 @@ done
 
 set -euxo pipefail
 
-DATA_DIR=$(mktemp -d -t evmos-datadir.XXXXX)
+DATA_DIR=$(mktemp -d -t eidon-chain-datadir.XXXXX)
 
 if [[ ! "$DATA_DIR" ]]; then
 	echo "Could not create $DATA_DIR"
 	exit 1
 fi
 
-# Compile evmos
-echo "compiling evmos"
+# Compile eidon-chain
+echo "compiling eidon-chain"
 make build
 
 # PID array declaration
 arr=()
 
 init_func() {
-	"$PWD"/build/evmosd keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
-	"$PWD"/build/evmosd init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
-	"$PWD"/build/evmosd add-genesis-account \
-		"$("$PWD"/build/evmosd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aevmos,1000000000000000000stake \
+	"$PWD"/build/eidond keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
+	"$PWD"/build/eidond init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
+	"$PWD"/build/eidond add-genesis-account \
+		"$("$PWD"/build/eidond keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aeidon-chain,1000000000000000000stake \
 		--keyring-backend test --home "$DATA_DIR$i"
-	"$PWD"/build/evmosd gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
-	"$PWD"/build/evmosd collect-gentxs --home "$DATA_DIR$i"
-	"$PWD"/build/evmosd validate-genesis --home "$DATA_DIR$i"
+	"$PWD"/build/eidond gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
+	"$PWD"/build/eidond collect-gentxs --home "$DATA_DIR$i"
+	"$PWD"/build/eidond validate-genesis --home "$DATA_DIR$i"
 
 	if [[ $MODE == "pending" ]]; then
 		ls "$DATA_DIR$i"
@@ -105,8 +105,8 @@ init_func() {
 }
 
 start_func() {
-	echo "starting evmos node $i in background ..."
-	"$PWD"/build/evmosd start --pruning=nothing --rpc.unsafe \
+	echo "starting eidon-chain node $i in background ..."
+	"$PWD"/build/eidond start --pruning=nothing --rpc.unsafe \
 		--p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
 		--json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
 		--keyring-backend test --home "$DATA_DIR$i" \
@@ -114,7 +114,7 @@ start_func() {
 	disown
 
 	EVMOS_PID=$!
-	echo "started evmos node, pid=$EVMOS_PID"
+	echo "started eidon-chain node, pid=$EVMOS_PID"
 	# add PID to array
 	arr+=("$EVMOS_PID")
 
@@ -150,7 +150,7 @@ if [[ -z $TEST || $TEST == "rpc" || $TEST == "pending" ]]; then
 
 	for i in $(seq 1 "$TEST_QTD"); do
 		HOST_RPC=http://$IP_ADDR:$RPC_PORT"$i"
-		echo "going to test evmos node $HOST_RPC ..."
+		echo "going to test eidon-chain node $HOST_RPC ..."
 		MODE=$MODE HOST=$HOST_RPC go test ./tests/... -timeout=$time_out -v -short
 
 		RPC_FAIL=$?
@@ -162,7 +162,7 @@ stop_func() {
 	EVMOS_PID=$i
 	echo "shutting down node, pid=$EVMOS_PID ..."
 
-	# Shutdown evmos node
+	# Shutdown eidon-chain node
 	kill -9 "$EVMOS_PID"
 	wait "$EVMOS_PID"
 

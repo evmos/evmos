@@ -8,7 +8,7 @@
 # The minimum gas prices a validator is willing to accept for processing a
 # transaction. A transaction's fees must meet the minimum of any denomination
 # specified in this config (e.g. 0.25token1,0.0001token2).
-minimum-gas-prices = "0aevmos"
+minimum-gas-prices = "0aeidon-chain"
 
 # The maximum gas a query coming over rest/grpc may consume.
 # If this is set to zero, the query can consume an unbounded amount of gas.
@@ -341,10 +341,10 @@ enable = false
 address = ":8080"
 
 # Network defines the name of the blockchain that will be returned by Rosetta.
-blockchain = "evmos"
+blockchain = "eidon-chain"
 
 # Network defines the name of the network that will be returned by Rosetta.
-network = "evmos"
+network = "eidon-chain"
 
 # TendermintRPC defines the endpoint to connect to CometBFT RPC,
 # specifying 'tcp://' before is not required, usually it's at port 26657
@@ -368,10 +368,10 @@ gas-to-suggest = 300000
 
 # DenomToSuggest defines the defult denom for fee suggestion.
 # Price must be in minimum-gas-prices.
-denom-to-suggest = "aevmos"
+denom-to-suggest = "aeidon-chain"
 
 # GasPrices defines the gas prices for fee suggestion
-gas-prices = "4000000.000000000000000000aevmos"
+gas-prices = "4000000.000000000000000000aeidon-chain"
 
 ###############################################################################
 ###                         VersionDB Configuration                         ###

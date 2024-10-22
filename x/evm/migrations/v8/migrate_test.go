@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package v8_test
 
@@ -11,10 +11,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v20/encoding"
-	v8 "github.com/evmos/evmos/v20/x/evm/migrations/v8"
-	v7types "github.com/evmos/evmos/v20/x/evm/migrations/v8/types"
-	"github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	v8 "github.com/Eidon-AI/eidon-chain/v20/x/evm/migrations/v8"
+	v7types "github.com/Eidon-AI/eidon-chain/v20/x/evm/migrations/v8/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 func TestMigrate(t *testing.T) {

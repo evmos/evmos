@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package main
 
@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -90,7 +90,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("evmos_9000-%v", cmtrand.Str(6))
+				chainID = fmt.Sprintf("eidon-chain_9000-%v", cmtrand.Str(6))
 			}
 
 			// Get bip39 mnemonic
@@ -176,7 +176,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd.Flags().BoolP(genutilcli.FlagOverwrite, "o", false, "overwrite the genesis.json file")
 	cmd.Flags().Bool(genutilcli.FlagRecover, false, "provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, evmostypes.BaseDenom, "defines the default denom to use in genesis file")
+	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, eidon-chaintypes.BaseDenom, "defines the default denom to use in genesis file")
 
 	return cmd
 }

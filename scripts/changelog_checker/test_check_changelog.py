@@ -34,7 +34,7 @@ class TestParseChangelog:
                     2218: {
                         "description": "Use correct version of proto dependencies to generate swagger."
                     },
-                    1687: {"description": "Bump Evmos version to v14."},
+                    1687: {"description": "Bump Eidon-chain version to v14."},
                 },
                 "API Breaking": {
                     2015: {
@@ -54,7 +54,7 @@ class TestParseChangelog:
                     2104: {
                         "description": "Refactor to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of SDK types."
                     },
-                    701: {"description": "Rename Go module to `evmos/evmos`."},
+                    701: {"description": "Rename Go module to `Eidon-AI/eidon-chain`."},
                 },
                 "Bug Fixes": {
                     1801: {"description": "Fixed the problem `gas_used` is 0."},
@@ -85,7 +85,7 @@ class TestParseChangelog:
         changelog = Changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_fail.md"))
         assert changelog.parse() is False
         assert changelog.problems == [
-            'PR link is not matching PR number 1948: "https://github.com/evmos/evmos/pull/1949"',
+            'PR link is not matching PR number 1948: "https://github.com/Eidon-AI/eidon-chain/pull/1949"',
             "There should be no backslash in front of the # in the PR link",
             '"ABI" should be used instead of "ABi"',
             '"outpost" should be used instead of "Outpost"',
@@ -103,7 +103,7 @@ class TestParseChangelog:
         changelog = Changelog(create_tmp_copy)
         assert changelog.parse(fix=True) is False
         assert changelog.problems == [
-            'PR link is not matching PR number 1948: "https://github.com/evmos/evmos/pull/1949"',
+            'PR link is not matching PR number 1948: "https://github.com/Eidon-AI/eidon-chain/pull/1949"',
             "There should be no backslash in front of the # in the PR link",
             '"ABI" should be used instead of "ABi"',
             '"outpost" should be used instead of "Outpost"',

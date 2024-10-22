@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 //go:build !test
 // +build !test
@@ -11,16 +11,16 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app/eips"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 var sealed = false
 
 // InitializeAppConfiguration allows to setup the global configuration
-// for the Evmos EVM.
+// for the Eidon-chain EVM.
 func InitializeAppConfiguration(chainID string) error {
 	if sealed {
 		return nil
@@ -50,7 +50,7 @@ func InitializeAppConfiguration(chainID string) error {
 	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
 	err = evmtypes.NewEVMConfigurator().
-		WithExtendedEips(evmosActivators).
+		WithExtendedEips(eidon-chainActivators).
 		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, uint8(coinInfo.Decimals)).
 		Configure()
@@ -62,12 +62,12 @@ func InitializeAppConfiguration(chainID string) error {
 	return nil
 }
 
-// EvmosActivators defines a map of opcode modifiers associated
+// Eidon-chainActivators defines a map of opcode modifiers associated
 // with a key defining the corresponding EIP.
-var evmosActivators = map[string]func(*vm.JumpTable){
-	"evmos_0": eips.Enable0000,
-	"evmos_1": eips.Enable0001,
-	"evmos_2": eips.Enable0002,
+var eidon-chainActivators = map[string]func(*vm.JumpTable){
+	"eidon-chain_0": eips.Enable0000,
+	"eidon-chain_1": eips.Enable0001,
+	"eidon-chain_2": eips.Enable0002,
 }
 
 // setBaseDenom registers the display denom and base denom and sets the

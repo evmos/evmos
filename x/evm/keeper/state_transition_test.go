@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package keeper_test
 
 import (
@@ -20,15 +20,15 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	"github.com/evmos/evmos/v20/x/evm/keeper"
-	"github.com/evmos/evmos/v20/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/keeper"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {

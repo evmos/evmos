@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package types
 
@@ -10,7 +10,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.

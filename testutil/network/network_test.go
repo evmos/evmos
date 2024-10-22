@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/evmos/evmos/v20/server/config"
-	"github.com/evmos/evmos/v20/testutil/network"
+	"github.com/Eidon-AI/eidon-chain/v20/server/config"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/network"
 
-	evmosnetwork "github.com/evmos/evmos/v20/testutil/network"
+	eidon-chainnetwork "github.com/Eidon-AI/eidon-chain/v20/testutil/network"
 )
 
 type IntegrationTestSuite struct {
@@ -27,7 +27,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	var err error
-	cfg := evmosnetwork.DefaultConfig()
+	cfg := eidon-chainnetwork.DefaultConfig()
 	cfg.JSONRPCAddress = config.DefaultJSONRPCAddress
 	cfg.NumValidators = 1
 

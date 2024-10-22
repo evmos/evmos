@@ -72,8 +72,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_genesis_proto_init()
-	md_GenesisState = File_evmos_erc20_v1_genesis_proto.Messages().ByName("GenesisState")
+	file_eidon-chain_erc20_v1_genesis_proto_init()
+	md_GenesisState = File_eidon-chain_erc20_v1_genesis_proto.Messages().ByName("GenesisState")
 	fd_GenesisState_params = md_GenesisState.Fields().ByName("params")
 	fd_GenesisState_token_pairs = md_GenesisState.Fields().ByName("token_pairs")
 }
@@ -87,7 +87,7 @@ func (x *GenesisState) ProtoReflect() protoreflect.Message {
 }
 
 func (x *GenesisState) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_genesis_proto_msgTypes[0]
+	mi := &file_eidon-chain_erc20_v1_genesis_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -170,15 +170,15 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		return x.Params != nil
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		return len(x.TokenPairs) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -190,15 +190,15 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		x.Params = nil
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		x.TokenPairs = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -210,10 +210,10 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		if len(x.TokenPairs) == 0 {
 			return protoreflect.ValueOfList(&_GenesisState_2_list{})
 		}
@@ -221,9 +221,9 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -239,17 +239,17 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		x.Params = value.Message().Interface().(*Params)
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		lv := value.List()
 		clv := lv.(*_GenesisState_2_list)
 		x.TokenPairs = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -265,12 +265,12 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		if x.TokenPairs == nil {
 			x.TokenPairs = []*TokenPair{}
 		}
@@ -278,9 +278,9 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -289,17 +289,17 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.GenesisState.params":
+	case "eidon-chain.erc20.v1.GenesisState.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.erc20.v1.GenesisState.token_pairs":
+	case "eidon-chain.erc20.v1.GenesisState.token_pairs":
 		list := []*TokenPair{}
 		return protoreflect.ValueOfList(&_GenesisState_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.GenesisState"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.GenesisState"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.GenesisState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -309,7 +309,7 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 func (x *fastReflection_GenesisState) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.GenesisState", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.GenesisState", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -687,8 +687,8 @@ var (
 )
 
 func init() {
-	file_evmos_erc20_v1_genesis_proto_init()
-	md_Params = File_evmos_erc20_v1_genesis_proto.Messages().ByName("Params")
+	file_eidon-chain_erc20_v1_genesis_proto_init()
+	md_Params = File_eidon-chain_erc20_v1_genesis_proto.Messages().ByName("Params")
 	fd_Params_enable_erc20 = md_Params.Fields().ByName("enable_erc20")
 	fd_Params_native_precompiles = md_Params.Fields().ByName("native_precompiles")
 	fd_Params_dynamic_precompiles = md_Params.Fields().ByName("dynamic_precompiles")
@@ -703,7 +703,7 @@ func (x *Params) ProtoReflect() protoreflect.Message {
 }
 
 func (x *Params) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_erc20_v1_genesis_proto_msgTypes[1]
+	mi := &file_eidon-chain_erc20_v1_genesis_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -792,17 +792,17 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.Params.enable_erc20":
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
 		return x.EnableErc20 != false
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		return len(x.NativePrecompiles) != 0
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		return len(x.DynamicPrecompiles) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -814,17 +814,17 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.Params.enable_erc20":
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
 		x.EnableErc20 = false
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		x.NativePrecompiles = nil
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		x.DynamicPrecompiles = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -836,16 +836,16 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.erc20.v1.Params.enable_erc20":
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
 		value := x.EnableErc20
 		return protoreflect.ValueOfBool(value)
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		if len(x.NativePrecompiles) == 0 {
 			return protoreflect.ValueOfList(&_Params_3_list{})
 		}
 		listValue := &_Params_3_list{list: &x.NativePrecompiles}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		if len(x.DynamicPrecompiles) == 0 {
 			return protoreflect.ValueOfList(&_Params_4_list{})
 		}
@@ -853,9 +853,9 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -871,21 +871,21 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.Params.enable_erc20":
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
 		x.EnableErc20 = value.Bool()
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		lv := value.List()
 		clv := lv.(*_Params_3_list)
 		x.NativePrecompiles = *clv.list
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		lv := value.List()
 		clv := lv.(*_Params_4_list)
 		x.DynamicPrecompiles = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -901,25 +901,25 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		if x.NativePrecompiles == nil {
 			x.NativePrecompiles = []string{}
 		}
 		value := &_Params_3_list{list: &x.NativePrecompiles}
 		return protoreflect.ValueOfList(value)
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		if x.DynamicPrecompiles == nil {
 			x.DynamicPrecompiles = []string{}
 		}
 		value := &_Params_4_list{list: &x.DynamicPrecompiles}
 		return protoreflect.ValueOfList(value)
-	case "evmos.erc20.v1.Params.enable_erc20":
-		panic(fmt.Errorf("field enable_erc20 of message evmos.erc20.v1.Params is not mutable"))
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
+		panic(fmt.Errorf("field enable_erc20 of message eidon-chain.erc20.v1.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -928,19 +928,19 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.erc20.v1.Params.enable_erc20":
+	case "eidon-chain.erc20.v1.Params.enable_erc20":
 		return protoreflect.ValueOfBool(false)
-	case "evmos.erc20.v1.Params.native_precompiles":
+	case "eidon-chain.erc20.v1.Params.native_precompiles":
 		list := []string{}
 		return protoreflect.ValueOfList(&_Params_3_list{list: &list})
-	case "evmos.erc20.v1.Params.dynamic_precompiles":
+	case "eidon-chain.erc20.v1.Params.dynamic_precompiles":
 		list := []string{}
 		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.erc20.v1.Params"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.erc20.v1.Params"))
 		}
-		panic(fmt.Errorf("message evmos.erc20.v1.Params does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.erc20.v1.Params does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -950,7 +950,7 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 func (x *fastReflection_Params) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.erc20.v1.Params", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.erc20.v1.Params", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1245,14 +1245,14 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/erc20/v1/genesis.proto
+// source: eidon-chain/erc20/v1/genesis.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -1276,7 +1276,7 @@ type GenesisState struct {
 func (x *GenesisState) Reset() {
 	*x = GenesisState{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_genesis_proto_msgTypes[0]
+		mi := &file_eidon-chain_erc20_v1_genesis_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1290,7 +1290,7 @@ func (*GenesisState) ProtoMessage() {}
 
 // Deprecated: Use GenesisState.ProtoReflect.Descriptor instead.
 func (*GenesisState) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_genesis_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_erc20_v1_genesis_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GenesisState) GetParams() *Params {
@@ -1326,7 +1326,7 @@ type Params struct {
 func (x *Params) Reset() {
 	*x = Params{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_erc20_v1_genesis_proto_msgTypes[1]
+		mi := &file_eidon-chain_erc20_v1_genesis_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1340,7 +1340,7 @@ func (*Params) ProtoMessage() {}
 
 // Deprecated: Use Params.ProtoReflect.Descriptor instead.
 func (*Params) Descriptor() ([]byte, []int) {
-	return file_evmos_erc20_v1_genesis_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_erc20_v1_genesis_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Params) GetEnableErc20() bool {
@@ -1364,9 +1364,9 @@ func (x *Params) GetDynamicPrecompiles() []string {
 	return nil
 }
 
-var File_evmos_erc20_v1_genesis_proto protoreflect.FileDescriptor
+var File_eidon-chain_erc20_v1_genesis_proto protoreflect.FileDescriptor
 
-var file_evmos_erc20_v1_genesis_proto_rawDesc = []byte{
+var file_eidon-chain_erc20_v1_genesis_proto_rawDesc = []byte{
 	0x0a, 0x1c, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31,
 	0x2f, 0x67, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e,
 	0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x1a, 0x11,
@@ -1407,26 +1407,26 @@ var file_evmos_erc20_v1_genesis_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_erc20_v1_genesis_proto_rawDescOnce sync.Once
-	file_evmos_erc20_v1_genesis_proto_rawDescData = file_evmos_erc20_v1_genesis_proto_rawDesc
+	file_eidon-chain_erc20_v1_genesis_proto_rawDescOnce sync.Once
+	file_eidon-chain_erc20_v1_genesis_proto_rawDescData = file_eidon-chain_erc20_v1_genesis_proto_rawDesc
 )
 
-func file_evmos_erc20_v1_genesis_proto_rawDescGZIP() []byte {
-	file_evmos_erc20_v1_genesis_proto_rawDescOnce.Do(func() {
-		file_evmos_erc20_v1_genesis_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_erc20_v1_genesis_proto_rawDescData)
+func file_eidon-chain_erc20_v1_genesis_proto_rawDescGZIP() []byte {
+	file_eidon-chain_erc20_v1_genesis_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_erc20_v1_genesis_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_erc20_v1_genesis_proto_rawDescData)
 	})
-	return file_evmos_erc20_v1_genesis_proto_rawDescData
+	return file_eidon-chain_erc20_v1_genesis_proto_rawDescData
 }
 
-var file_evmos_erc20_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_erc20_v1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil), // 0: evmos.erc20.v1.GenesisState
-	(*Params)(nil),       // 1: evmos.erc20.v1.Params
-	(*TokenPair)(nil),    // 2: evmos.erc20.v1.TokenPair
+var file_eidon-chain_erc20_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_eidon-chain_erc20_v1_genesis_proto_goTypes = []interface{}{
+	(*GenesisState)(nil), // 0: eidon-chain.erc20.v1.GenesisState
+	(*Params)(nil),       // 1: eidon-chain.erc20.v1.Params
+	(*TokenPair)(nil),    // 2: eidon-chain.erc20.v1.TokenPair
 }
-var file_evmos_erc20_v1_genesis_proto_depIdxs = []int32{
-	1, // 0: evmos.erc20.v1.GenesisState.params:type_name -> evmos.erc20.v1.Params
-	2, // 1: evmos.erc20.v1.GenesisState.token_pairs:type_name -> evmos.erc20.v1.TokenPair
+var file_eidon-chain_erc20_v1_genesis_proto_depIdxs = []int32{
+	1, // 0: eidon-chain.erc20.v1.GenesisState.params:type_name -> eidon-chain.erc20.v1.Params
+	2, // 1: eidon-chain.erc20.v1.GenesisState.token_pairs:type_name -> eidon-chain.erc20.v1.TokenPair
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -1434,14 +1434,14 @@ var file_evmos_erc20_v1_genesis_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_evmos_erc20_v1_genesis_proto_init() }
-func file_evmos_erc20_v1_genesis_proto_init() {
-	if File_evmos_erc20_v1_genesis_proto != nil {
+func init() { file_eidon-chain_erc20_v1_genesis_proto_init() }
+func file_eidon-chain_erc20_v1_genesis_proto_init() {
+	if File_eidon-chain_erc20_v1_genesis_proto != nil {
 		return
 	}
-	file_evmos_erc20_v1_erc20_proto_init()
+	file_eidon-chain_erc20_v1_erc20_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_erc20_v1_genesis_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_genesis_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GenesisState); i {
 			case 0:
 				return &v.state
@@ -1453,7 +1453,7 @@ func file_evmos_erc20_v1_genesis_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_erc20_v1_genesis_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_erc20_v1_genesis_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Params); i {
 			case 0:
 				return &v.state
@@ -1470,18 +1470,18 @@ func file_evmos_erc20_v1_genesis_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_erc20_v1_genesis_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_erc20_v1_genesis_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_evmos_erc20_v1_genesis_proto_goTypes,
-		DependencyIndexes: file_evmos_erc20_v1_genesis_proto_depIdxs,
-		MessageInfos:      file_evmos_erc20_v1_genesis_proto_msgTypes,
+		GoTypes:           file_eidon-chain_erc20_v1_genesis_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_erc20_v1_genesis_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_erc20_v1_genesis_proto_msgTypes,
 	}.Build()
-	File_evmos_erc20_v1_genesis_proto = out.File
-	file_evmos_erc20_v1_genesis_proto_rawDesc = nil
-	file_evmos_erc20_v1_genesis_proto_goTypes = nil
-	file_evmos_erc20_v1_genesis_proto_depIdxs = nil
+	File_eidon-chain_erc20_v1_genesis_proto = out.File
+	file_eidon-chain_erc20_v1_genesis_proto_rawDesc = nil
+	file_eidon-chain_erc20_v1_genesis_proto_goTypes = nil
+	file_eidon-chain_erc20_v1_genesis_proto_depIdxs = nil
 }

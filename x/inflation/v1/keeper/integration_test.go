@@ -12,9 +12,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	integrationutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
+	integrationutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	epochstypes "github.com/Eidon-AI/eidon-chain/v20/x/epochs/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 var (

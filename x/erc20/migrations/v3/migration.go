@@ -1,13 +1,13 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package v3
 
 import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3types "github.com/evmos/evmos/v20/x/erc20/migrations/v3/types"
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	v3types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/migrations/v3/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 )
 
 var isTrue = []byte{0x01}

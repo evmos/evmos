@@ -14,20 +14,20 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v20/contracts"
-	auth "github.com/evmos/evmos/v20/precompiles/authorization"
-	"github.com/evmos/evmos/v20/precompiles/erc20"
-	"github.com/evmos/evmos/v20/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	auth "github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/erc20"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/erc20/testdata"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -89,7 +89,7 @@ func TestIntegrationSuite(t *testing.T) {
 }
 
 var (
-	wevmosAddress      common.Address
+	weidon-chainAddress      common.Address
 	revertContractAddr common.Address
 	gasLimit           = uint64(5000000)
 	gasPrice           = big.NewInt(800_000_000)
@@ -247,7 +247,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
 		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(erc20types.WEVMOSContractTestnet)))
 
-		wevmosAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
+		weidon-chainAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
 		revertContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
@@ -1222,7 +1222,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// querying allowance and reducing allowance on a transferFrom transaction is not possible without
 				// changes to the Cosmos SDK.
 				//
-				// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+				// For reference see this comment: https://github.com/Eidon-AI/eidon-chain/pull/2088#discussion_r1407646217
 				It("should return the maxUint256 value when calling the EVM extension", func() {
 					grantee := is.keyring.GetAddr(0)
 					granter := is.keyring.GetKey(0)
@@ -1566,7 +1566,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					// querying allowance and reducing allowance on a transferFrom transaction is not possible without
 					// changes to the Cosmos SDK.
 					//
-					// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+					// For reference see this comment: https://github.com/Eidon-AI/eidon-chain/pull/2088#discussion_r1407646217
 					It("should return an error when calling the EVM extension", func() {
 						grantee := is.keyring.GetKey(0)
 						granter := is.keyring.GetKey(0)
@@ -1798,7 +1798,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					// querying allowance and reducing allowance on a transferFrom transaction is not possible without
 					// changes to the Cosmos SDK.
 					//
-					// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+					// For reference see this comment: https://github.com/Eidon-AI/eidon-chain/pull/2088#discussion_r1407646217
 					It("should return an error when calling the EVM extension", func() {
 						callType := contractCall
 						sender := is.keyring.GetKey(0)
@@ -2074,7 +2074,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			// querying allowance and reducing allowance on a transferFrom transaction is not possible without
 			// changes to the Cosmos SDK.
 			//
-			// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+			// For reference see this comment: https://github.com/Eidon-AI/eidon-chain/pull/2088#discussion_r1407646217
 			Context("increasing allowance", func() {
 				It("should return an error when calling the EVM extension", func() {
 					granter := is.keyring.GetKey(0)
@@ -2854,8 +2854,8 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 		})
 	})
 
-	When("using Evmos (not wEvmos) in smart contracts", func() {
-		It("should be using straight Evmos for sending funds in smart contracts", func() {
+	When("using Eidon-chain (not wEidon-chain) in smart contracts", func() {
+		It("should be using straight Eidon-chain for sending funds in smart contracts", func() {
 			Skip("will be addressed in follow-up PR")
 
 			Expect(true).To(BeFalse(), "not implemented")

@@ -4,7 +4,7 @@ import tempfile
 import pytest
 
 from .ibc_utils import assert_ready, get_balance, prepare_network
-from .network import CosmosChain, Evmos
+from .network import CosmosChain, Eidon-chain
 from .utils import (
     ADDRS,
     CONTRACTS,
@@ -19,7 +19,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["eidon-chain"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -29,9 +29,9 @@ def ibc(request, tmp_path_factory):
     and test_str_v2_token_factory.py files
     """
     name = "ibc-precompile"  # use the ibc-precompile.jsonnet config
-    evmos_build = request.param
+    eidon-chain_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, [evmos_build, "chainmain"])
+    network = prepare_network(path, name, [eidon-chain_build, "chainmain"])
     yield from network
 
 
@@ -64,13 +64,13 @@ def test_ibc_callbacks(
     """Test ibc precompile denom trace query"""
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
     chainmain: CosmosChain = ibc.chains["chainmain"]
 
-    w3 = evmos.w3
-    evmos_cli = evmos.cosmos_cli()
-    evmos_addr = ADDRS["signer2"]
-    bech32_evmos_addr = evmos_cli.address("signer2")
+    w3 = eidon-chain.w3
+    eidon-chain_cli = eidon-chain.cosmos_cli()
+    eidon-chain_addr = ADDRS["signer2"]
+    bech32_eidon-chain_addr = eidon-chain_cli.address("signer2")
     dst_addr = chainmain.cosmos_cli().address("signer2")
 
     # deploy erc20 contract
@@ -79,7 +79,7 @@ def test_ibc_callbacks(
 
     # Check token pairs before IBC transfer,
     # should only exist the WEVMOS pair
-    pairs = evmos_cli.get_token_pairs()
+    pairs = eidon-chain_cli.get_token_pairs()
     pairs_count_before = len(pairs)
 
     # register token pair
@@ -88,62 +88,62 @@ def test_ibc_callbacks(
         proposal["messages"][0]["erc20addresses"] = [contract.address]
         json.dump(proposal, fp)
         fp.flush()
-        rsp = evmos_cli.gov_proposal("signer2", fp.name)
+        rsp = eidon-chain_cli.gov_proposal("signer2", fp.name)
         assert rsp["code"] == 0, rsp["raw_log"]
         txhash = rsp["txhash"]
 
-        wait_for_new_blocks(evmos_cli, 2)
-        receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        wait_for_new_blocks(eidon-chain_cli, 2)
+        receipt = eidon-chain_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
         assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
-    res = evmos_cli.query_proposals()
+    res = eidon-chain_cli.query_proposals()
     props = res["proposals"]
     props_count = len(props)
     assert props_count >= 1
 
-    approve_proposal(evmos, props[props_count - 1]["id"])
+    approve_proposal(eidon-chain, props[props_count - 1]["id"])
 
-    pairs = evmos_cli.get_token_pairs()
+    pairs = eidon-chain_cli.get_token_pairs()
     assert len(pairs) == pairs_count_before + 1
 
     # check erc20 balance
     initial_amt = 100000000000000000000000000
-    erc20_balance = contract.functions.balanceOf(evmos_addr).call()
+    erc20_balance = contract.functions.balanceOf(eidon-chain_addr).call()
     assert erc20_balance == initial_amt
 
     # convert to IBC voucher
     ibc_voucher_denom = f"erc20/{contract.address}"
     if convert_amt > 0:
-        rsp = evmos_cli.convert_erc20(contract.address, convert_amt, "signer2")
+        rsp = eidon-chain_cli.convert_erc20(contract.address, convert_amt, "signer2")
         assert rsp["code"] == 0, rsp["raw_log"]
-        wait_for_new_blocks(evmos_cli, 2)
+        wait_for_new_blocks(eidon-chain_cli, 2)
 
         txhash = rsp["txhash"]
-        receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        receipt = eidon-chain_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
         assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
     # check erc20 balance & IBC voucher balance
-    erc20_balance = contract.functions.balanceOf(evmos_addr).call()
+    erc20_balance = contract.functions.balanceOf(eidon-chain_addr).call()
     assert erc20_balance == initial_amt - convert_amt
 
-    ibc_voucher_balance = get_balance(evmos, bech32_evmos_addr, ibc_voucher_denom)
+    ibc_voucher_balance = get_balance(eidon-chain, bech32_eidon-chain_addr, ibc_voucher_denom)
     assert ibc_voucher_balance == convert_amt
 
     # send erc20 via IBC
-    rsp = evmos_cli.ibc_transfer(
-        bech32_evmos_addr,
+    rsp = eidon-chain_cli.ibc_transfer(
+        bech32_eidon-chain_addr,
         dst_addr,
         f"{transfer_amt}{ibc_voucher_denom}",
         "channel-0",
         1,
         1,
-        fees=f"{int(1e17)}aevmos",
+        fees=f"{int(1e17)}aeidon-chain",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(evmos_cli, 2)
+    wait_for_new_blocks(eidon-chain_cli, 2)
 
     txhash = rsp["txhash"]
-    receipt = evmos_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    receipt = eidon-chain_cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
     assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
     res = chainmain.cosmos_cli().denom_traces()
@@ -167,7 +167,7 @@ def test_ibc_callbacks(
     # send back erc20 IBC voucher to origin
     rsp = chainmain.cosmos_cli().ibc_transfer(
         dst_addr,
-        bech32_evmos_addr,
+        bech32_eidon-chain_addr,
         f"{transfer_amt}{erc20_ibc_denom}",
         "channel-0",
         1,
@@ -177,8 +177,8 @@ def test_ibc_callbacks(
     assert rsp["code"] == 0, rsp["raw_log"]
 
     # wait for ack on destination chain
-    wait_for_ack(evmos_cli, "evmos")
-    wait_for_new_blocks(evmos_cli, 2)
+    wait_for_ack(eidon-chain_cli, "eidon-chain")
+    wait_for_new_blocks(eidon-chain_cli, 2)
 
     txhash = rsp["txhash"]
     receipt = chainmain.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
@@ -191,8 +191,8 @@ def test_ibc_callbacks(
     # check erc20 and IBC voucher balances
     # IBC coin balance should be zero
     # all balance should be in ERC20
-    erc20_balance = contract.functions.balanceOf(evmos_addr).call()
+    erc20_balance = contract.functions.balanceOf(eidon-chain_addr).call()
     assert erc20_balance == initial_amt
 
-    ibc_voucher_balance = get_balance(evmos, bech32_evmos_addr, ibc_voucher_denom)
+    ibc_voucher_balance = get_balance(eidon-chain, bech32_eidon-chain_addr, ibc_voucher_denom)
     assert ibc_voucher_balance == 0

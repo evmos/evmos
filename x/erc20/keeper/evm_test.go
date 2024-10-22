@@ -8,15 +8,15 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	testfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	testfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/evmos/v20/contracts"
-	"github.com/evmos/evmos/v20/x/erc20/keeper"
-	"github.com/evmos/evmos/v20/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v20/x/erc20/types/mocks"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/keeper"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	erc20mocks "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types/mocks"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {

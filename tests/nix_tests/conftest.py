@@ -1,18 +1,18 @@
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb, setup_geth
+from .network import setup_eidon-chain, setup_eidon-chain_rocksdb, setup_geth
 
 
 @pytest.fixture(scope="session")
-def evmos(tmp_path_factory):
-    path = tmp_path_factory.mktemp("evmos")
-    yield from setup_evmos(path, 26650)
+def eidon-chain(tmp_path_factory):
+    path = tmp_path_factory.mktemp("eidon-chain")
+    yield from setup_eidon-chain(path, 26650)
 
 
 @pytest.fixture(scope="session")
-def evmos_rocksdb(tmp_path_factory):
-    path = tmp_path_factory.mktemp("evmos-rocksdb")
-    yield from setup_evmos_rocksdb(path, 20650)
+def eidon-chain_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("eidon-chain-rocksdb")
+    yield from setup_eidon-chain_rocksdb(path, 20650)
 
 
 @pytest.fixture(scope="session")
@@ -21,54 +21,54 @@ def geth(tmp_path_factory):
     yield from setup_geth(path, 8545)
 
 
-@pytest.fixture(scope="session", params=["evmos", "evmos-ws"])
-def evmos_rpc_ws(request, evmos):
+@pytest.fixture(scope="session", params=["eidon-chain", "eidon-chain-ws"])
+def eidon-chain_rpc_ws(request, eidon-chain):
     """
-    run on both evmos and evmos websocket
+    run on both eidon-chain and eidon-chain websocket
     """
     provider = request.param
-    if provider == "evmos":
-        yield evmos
-    elif provider == "evmos-ws":
-        evmos_ws = evmos.copy()
-        evmos_ws.use_websocket()
-        yield evmos_ws
+    if provider == "eidon-chain":
+        yield eidon-chain
+    elif provider == "eidon-chain-ws":
+        eidon-chain_ws = eidon-chain.copy()
+        eidon-chain_ws.use_websocket()
+        yield eidon-chain_ws
     else:
         raise NotImplementedError
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-ws", "evmos-rocksdb", "geth"])
-def cluster(request, evmos, evmos_rocksdb, geth):
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-ws", "eidon-chain-rocksdb", "geth"])
+def cluster(request, eidon-chain, eidon-chain_rocksdb, geth):
     """
-    run on evmos, evmos websocket,
-    evmos built with rocksdb (memIAVL + versionDB)
+    run on eidon-chain, eidon-chain websocket,
+    eidon-chain built with rocksdb (memIAVL + versionDB)
     and geth
     """
     provider = request.param
-    if provider == "evmos":
-        yield evmos
-    elif provider == "evmos-ws":
-        evmos_ws = evmos.copy()
-        evmos_ws.use_websocket()
-        yield evmos_ws
+    if provider == "eidon-chain":
+        yield eidon-chain
+    elif provider == "eidon-chain-ws":
+        eidon-chain_ws = eidon-chain.copy()
+        eidon-chain_ws.use_websocket()
+        yield eidon-chain_ws
     elif provider == "geth":
         yield geth
-    elif provider == "evmos-rocksdb":
-        yield evmos_rocksdb
+    elif provider == "eidon-chain-rocksdb":
+        yield eidon-chain_rocksdb
     else:
         raise NotImplementedError
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, evmos, evmos_rocksdb):
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-rocksdb"])
+def eidon-chain_cluster(request, eidon-chain, eidon-chain_rocksdb):
     """
-    run on evmos default build &
-    evmos with rocksdb build and memIAVL + versionDB
+    run on eidon-chain default build &
+    eidon-chain with rocksdb build and memIAVL + versionDB
     """
     provider = request.param
-    if provider == "evmos":
-        yield evmos
-    elif provider == "evmos-rocksdb":
-        yield evmos_rocksdb
+    if provider == "eidon-chain":
+        yield eidon-chain
+    elif provider == "eidon-chain-rocksdb":
+        yield eidon-chain_rocksdb
     else:
         raise NotImplementedError

@@ -11,13 +11,13 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	teststypes "github.com/evmos/evmos/v20/types/tests"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	teststypes "github.com/Eidon-AI/eidon-chain/v20/types/tests"
 )
 
 func init() {
 	cfg := sdk.GetConfig()
-	cfg.SetBech32PrefixForAccount("evmos", "evmospub")
+	cfg.SetBech32PrefixForAccount("eidon-chain", "eidon-chainpub")
 }
 
 func TestGetTransferSenderRecipient(t *testing.T) {
@@ -39,7 +39,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			name: "invalid sender",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "cosmos1",
-				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Amount:   "123456",
 			},
 			expSender:    "",
@@ -50,7 +50,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			name: "invalid recipient",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-				Receiver: "evmos1",
+				Receiver: "eidon-chain1",
 				Amount:   "123456",
 			},
 			expSender:    "",
@@ -58,36 +58,36 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			expError:     true,
 		},
 		{
-			name: "valid - cosmos sender, evmos recipient",
+			name: "valid - cosmos sender, eidon-chain recipient",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expSender:    "eidon-chain1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expRecipient: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 			expError:     false,
 		},
 		{
-			name: "valid - evmos sender, cosmos recipient",
+			name: "valid - eidon-chain sender, cosmos recipient",
 			data: transfertypes.FungibleTokenPacketData{
-				Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Sender:   "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-			expRecipient: "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expSender:    "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expRecipient: "eidon-chain1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			expError:     false,
 		},
 		{
-			name: "valid - osmosis sender, evmos recipient",
+			name: "valid - osmosis sender, eidon-chain recipient",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
-				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expSender:    "eidon-chain1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expRecipient: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 			expError:     false,
 		},
 	}
@@ -129,7 +129,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 						Amount:   "",
 					},
 				),
@@ -143,7 +143,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 						Amount:   "test",
 					},
 				),
@@ -157,7 +157,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "eidon-chain1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 						Amount:   "10000",
 					},
 				),
@@ -205,9 +205,9 @@ func TestGetReceivedCoin(t *testing.T) {
 			"channel-0",
 			"transfer",
 			"channel-0",
-			"transfer/channel-0/aevmos",
+			"transfer/channel-0/aeidon-chain",
 			"10",
-			sdk.Coin{Denom: "aevmos", Amount: math.NewInt(10)},
+			sdk.Coin{Denom: "aeidon-chain", Amount: math.NewInt(10)},
 		},
 		{
 			"transfer 2x ibc wrapped coin to destination which is its source",
@@ -238,7 +238,7 @@ func TestGetReceivedCoin(t *testing.T) {
 }
 
 func TestGetSentCoin(t *testing.T) {
-	baseDenom := evmostypes.BaseDenom
+	baseDenom := eidon-chaintypes.BaseDenom
 	testCases := []struct {
 		name      string
 		rawDenom  string
@@ -246,16 +246,16 @@ func TestGetSentCoin(t *testing.T) {
 		expCoin   sdk.Coin
 	}{
 		{
-			"get unwrapped aevmos coin",
+			"get unwrapped aeidon-chain coin",
 			baseDenom,
 			"10",
 			sdk.Coin{Denom: baseDenom, Amount: math.NewInt(10)},
 		},
 		{
-			"get ibc wrapped aevmos coin",
-			"transfer/channel-0/aevmos",
+			"get ibc wrapped aeidon-chain coin",
+			"transfer/channel-0/aeidon-chain",
 			"10",
-			sdk.Coin{Denom: teststypes.AevmosIbcdenom, Amount: math.NewInt(10)},
+			sdk.Coin{Denom: teststypes.Aeidon-chainIbcdenom, Amount: math.NewInt(10)},
 		},
 		{
 			"get ibc wrapped uosmo coin",
@@ -300,21 +300,21 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 		},
 		{
 			name:      "fail: invalid prefix",
-			baseDenom: "nevmos",
+			baseDenom: "neidon-chain",
 			expDec:    0,
 			expFail:   true,
-			expErrMsg: "Should be either micro ('u[...]') or atto ('a[...]'); got: \"nevmos\"",
+			expErrMsg: "Should be either micro ('u[...]') or atto ('a[...]'); got: \"neidon-chain\"",
 		},
 		{
 			name:      "success: micro 'u' prefix",
-			baseDenom: "uevmos",
+			baseDenom: "ueidon-chain",
 			expDec:    6,
 			expFail:   false,
 			expErrMsg: "",
 		},
 		{
 			name:      "success: atto 'a' prefix",
-			baseDenom: "aevmos",
+			baseDenom: "aeidon-chain",
 			expDec:    18,
 			expFail:   false,
 			expErrMsg: "",

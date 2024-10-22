@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package keeper
 
@@ -14,20 +14,20 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	bankprecompile "github.com/evmos/evmos/v20/precompiles/bank"
-	"github.com/evmos/evmos/v20/precompiles/bech32"
-	distprecompile "github.com/evmos/evmos/v20/precompiles/distribution"
-	govprecompile "github.com/evmos/evmos/v20/precompiles/gov"
-	ics20precompile "github.com/evmos/evmos/v20/precompiles/ics20"
-	"github.com/evmos/evmos/v20/precompiles/p256"
-	stakingprecompile "github.com/evmos/evmos/v20/precompiles/staking"
-	vestingprecompile "github.com/evmos/evmos/v20/precompiles/vesting"
-	erc20Keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/evmos/evmos/v20/x/evm/types"
-	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
-	vestingkeeper "github.com/evmos/evmos/v20/x/vesting/keeper"
+	bankprecompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/bank"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/bech32"
+	distprecompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/distribution"
+	govprecompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/gov"
+	ics20precompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/ics20"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/p256"
+	stakingprecompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/staking"
+	vestingprecompile "github.com/Eidon-AI/eidon-chain/v20/precompiles/vesting"
+	erc20Keeper "github.com/Eidon-AI/eidon-chain/v20/x/erc20/keeper"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	transferkeeper "github.com/Eidon-AI/eidon-chain/v20/x/ibc/transfer/keeper"
+	stakingkeeper "github.com/Eidon-AI/eidon-chain/v20/x/staking/keeper"
+	vestingkeeper "github.com/Eidon-AI/eidon-chain/v20/x/vesting/keeper"
 )
 
 const bech32PrecompileBaseGas = 6_000

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package grpc
 
@@ -7,11 +7,11 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	commongrpc "github.com/evmos/evmos/v20/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
+	commongrpc "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
+	infltypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 // Handler is an interface that defines the methods that are used to query

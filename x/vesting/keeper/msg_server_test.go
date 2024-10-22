@@ -13,21 +13,21 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v20/contracts"
-	"github.com/evmos/evmos/v20/testutil"
-	evmosfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	"github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil"
+	eidon-chainfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 var (
 	vestAmount      = int64(1000)
-	baseDenom       = evmostypes.BaseDenom
+	baseDenom       = eidon-chaintypes.BaseDenom
 	balances        = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, vestAmount))
 	delegationCoins = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 1e18))
 	quarter         = sdk.NewCoins(sdk.NewInt64Coin(baseDenom, 250))
@@ -294,7 +294,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 		ctx     sdk.Context
 		nw      *network.UnitTestNetwork
 		handler grpc.Handler
-		factory evmosfactory.TxFactory
+		factory eidon-chainfactory.TxFactory
 	)
 	funderAddr, funderPriv := utiltx.NewAccAddressAndKey()
 	vestingAddr, _ := utiltx.NewAccAddressAndKey()
@@ -321,7 +321,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 				contractAddr, err := factory.DeployContract(
 					funderPriv,
 					evmtypes.EvmTxArgs{},
-					evmosfactory.ContractDeploymentData{
+					eidon-chainfactory.ContractDeploymentData{
 						Contract:        contracts.ERC20MinterBurnerDecimalsContract,
 						ConstructorArgs: []interface{}{"TestToken", "TTK", uint8(18)},
 					},
@@ -408,7 +408,7 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 			// reset
 			nw = network.NewUnitTestNetwork(network.WithPreFundedAccounts(funderAddr))
 			handler = grpc.NewIntegrationHandler(nw)
-			factory = evmosfactory.New(nw, handler)
+			factory = eidon-chainfactory.New(nw, handler)
 			ctx = nw.GetContext()
 
 			vestingAddr := tc.malleate(tc.funder)

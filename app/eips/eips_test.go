@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package eips_test
 
@@ -10,15 +10,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/app/eips/testdata"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/app/eips"
+	"github.com/Eidon-AI/eidon-chain/v20/app/eips/testdata"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	integrationutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
 
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/params"
 
@@ -37,10 +37,10 @@ import (
 
 func TestIPs(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "EvmosIPs Suite")
+	RunSpecs(t, "Eidon-chainIPs Suite")
 }
 
-var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
+var _ = Describe("Improvement proposal eidon-chain_0 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -55,7 +55,7 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 		gasUsedPre int64
 	)
 
-	// Multiplier used to modify the opcodes associated with evmos_0 IP.
+	// Multiplier used to modify the opcodes associated with eidon-chain_0 IP.
 	ipMultiplier := uint64(5)
 
 	// The factory counter is used because it will create a new instance of
@@ -111,7 +111,7 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 
 	It("should enable the new IP", func() {
 		eips.Multiplier = ipMultiplier
-		newIP := "evmos_0"
+		newIP := "eidon-chain_0"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
@@ -130,10 +130,10 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have IP evmos_0 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have IP eidon-chain_0 in evm params")
 	})
 
-	It("should change CREATE opcode constant gas after enabling evmos_0 IP", func() {
+	It("should change CREATE opcode constant gas after enabling eidon-chain_0 IP", func() {
 		gasCostPre := params.CreateGas
 
 		deploymentTxArgs, err := tf.GenerateDeployContractArgs(senderAddr2, evmtypes.EvmTxArgs{}, deploymentData)
@@ -154,7 +154,7 @@ var _ = Describe("Improvement proposal evmos_0 - ", Ordered, func() {
 	})
 })
 
-var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
+var _ = Describe("Improvement proposal eidon-chain_1 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -170,7 +170,7 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 		counterFactoryAddr common.Address
 	)
 
-	// Multiplier used to modify the opcodes associated with evmos_1.
+	// Multiplier used to modify the opcodes associated with eidon-chain_1.
 	eipMultiplier := uint64(5)
 	initialCounterValue := 1
 
@@ -259,7 +259,7 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 	})
 	It("should enable the new IP", func() {
 		eips.Multiplier = eipMultiplier
-		newIP := "evmos_1"
+		newIP := "eidon-chain_1"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
@@ -279,7 +279,7 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip evmos_1 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip eidon-chain_1 in evm params")
 	})
 	It("should change CALL opcode constant gas after enabling IP", func() {
 		// Constant gas cost used before enabling the new IP.
@@ -331,7 +331,7 @@ var _ = Describe("Improvement proposal evmos_1 - ", Ordered, func() {
 	})
 })
 
-var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
+var _ = Describe("Improvement proposal eidon-chain_2 - ", Ordered, func() {
 	var (
 		in network.Network
 		tf factory.TxFactory
@@ -344,7 +344,7 @@ var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 		senderAddr2 common.Address
 		gasUsedPre  int64
 	)
-	// Constant gas used to modify the opcodes associated with evmos_2.
+	// Constant gas used to modify the opcodes associated with eidon-chain_2.
 	constantGas := uint64(500)
 
 	counterContract, err := testdata.LoadCounterContract()
@@ -401,7 +401,7 @@ var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 
 	It("should enable the new IP", func() {
 		eips.SstoreConstantGas = constantGas
-		newIP := "evmos_2"
+		newIP := "eidon-chain_2"
 
 		qRes, err := gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
@@ -420,7 +420,7 @@ var _ = Describe("Improvement proposal evmos_2 - ", Ordered, func() {
 
 		qRes, err = gh.GetEvmParams()
 		Expect(err).To(BeNil(), "failed during query to evm params")
-		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip evmos_2 in evm params")
+		Expect(qRes.Params.ExtraEIPs).To(ContainElement(newIP), "expected to have ip eidon-chain_2 in evm params")
 	})
 
 	It("should change SSTORE opcode constant gas after enabling IP", func() {

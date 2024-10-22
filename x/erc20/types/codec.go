@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package types
 
@@ -27,11 +27,11 @@ var (
 
 const (
 	// Amino names
-	convertERC20Name = "evmos/MsgConvertERC20"
-	convertCoinName  = "evmos/MsgConvertCoin" // keep it for backwards compatibility when querying txs
-	updateParams     = "evmos/erc20/MsgUpdateParams"
-	registerERC20    = "evmos/erc20/MsgRegisterERC20"
-	toggleConversion = "evmos/erc20/MsgToggleConversion"
+	convertERC20Name = "eidon-chain/MsgConvertERC20"
+	convertCoinName  = "eidon-chain/MsgConvertCoin" // keep it for backwards compatibility when querying txs
+	updateParams     = "eidon-chain/erc20/MsgUpdateParams"
+	registerERC20    = "eidon-chain/erc20/MsgRegisterERC20"
+	toggleConversion = "eidon-chain/erc20/MsgToggleConversion"
 )
 
 // NOTE: This is required for the GetSignBytes function

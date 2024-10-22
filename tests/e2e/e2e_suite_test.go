@@ -10,15 +10,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/tests/e2e/upgrade"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
 	"github.com/stretchr/testify/suite"
 )
 
 const (
 	// defaultManagerNetwork defines the network used by the upgrade manager
-	defaultManagerNetwork = "evmos-local"
+	defaultManagerNetwork = "eidon-chain-local"
 
 	// blocksAfterUpgrade defines how many blocks must be produced after an upgrade is
 	// considered successful
@@ -60,7 +60,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	}
 }
 
-// runInitialNode builds a docker image capable of running an Evmos node with the given version.
+// runInitialNode builds a docker image capable of running an Eidon-chain node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
 func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	err := s.upgradeManager.BuildImage(
@@ -70,13 +70,13 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
-	s.Require().NoError(err, "can't build container with Evmos version: %s", version.ImageTag)
+	s.Require().NoError(err, "can't build container with Eidon-chain version: %s", version.ImageTag)
 
 	node := upgrade.NewNode(version.ImageName, version.ImageTag)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
 
 	err = s.upgradeManager.RunNode(node)
-	s.Require().NoError(err, "can't run node with Evmos version: %s", version)
+	s.Require().NoError(err, "can't run node with Eidon-chain version: %s", version)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -99,9 +99,9 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	s.Require().NoError(err, "can't get upgrade height")
 	s.upgradeManager.UpgradeHeight = upgradeHeight
 
-	// if Evmos is lower than v10.x.x no need to use the legacy proposal
+	// if Eidon-chain is lower than v10.x.x no need to use the legacy proposal
 	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
-	s.Require().NoError(err, "can't get current Evmos version")
+	s.Require().NoError(err, "can't get current Eidon-chain version")
 	proposalVersion := upgrade.CheckUpgradeProposalVersion(currentVersion)
 
 	// create the proposal
@@ -110,19 +110,19 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
 		proposalVersion,
-		"--fees=10000000000000000aevmos",
+		"--fees=10000000000000000aeidon-chain",
 		"--gas=500000",
 	)
 	s.Require().NoErrorf(
 		err,
-		"can't create the proposal to upgrade Evmos to %s at height %d with name %s",
+		"can't create the proposal to upgrade Eidon-chain to %s at height %d with name %s",
 		target, s.upgradeManager.UpgradeHeight, name,
 	)
 
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to submit proposal to upgrade Evmos to %s at height %d\nstdout: %s,\nstderr: %s",
+		"failed to submit proposal to upgrade Eidon-chain to %s at height %d\nstdout: %s,\nstderr: %s",
 		target, s.upgradeManager.UpgradeHeight, outBuf.String(), errBuf.String(),
 	)
 
@@ -142,7 +142,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 func (s *IntegrationTestSuite) voteForProposal(id int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id, "--fees=10000000000000000aevmos", "--gas=500000")
+	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id, "--fees=10000000000000000aeidon-chain", "--gas=500000")
 	s.Require().NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -176,7 +176,7 @@ func (s *IntegrationTestSuite) upgrade(targetVersion upgrade.VersionConfig) {
 	s.checkProposalPassed(ctx)
 
 	s.T().Log("exporting state to local...")
-	// export node .evmosd to local build/
+	// export node .eidond to local build/
 	err = s.upgradeManager.ExportState(buildDir)
 	s.Require().NoError(err, "can't export node container state to local")
 
@@ -199,7 +199,7 @@ func (s *IntegrationTestSuite) upgrade(targetVersion upgrade.VersionConfig) {
 
 	node := upgrade.NewNode(targetVersion.ImageName, targetVersion.ImageTag)
 	node.Mount(s.upgradeParams.MountPath)
-	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID), fmt.Sprintf("--home=%s.evmosd", rootDir)})
+	node.SetCmd([]string{"eidond", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID), fmt.Sprintf("--home=%s.eidond", rootDir)})
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 

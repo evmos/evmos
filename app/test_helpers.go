@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package app
 
@@ -26,17 +26,17 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 
-	"github.com/evmos/evmos/v20/cmd/config"
+	"github.com/Eidon-AI/eidon-chain/v20/cmd/config"
 )
 
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
-// Evmos testing.
+// Eidon-chain testing.
 var DefaultConsensusParams = &cmtproto.ConsensusParams{
 	Block: &cmtproto.BlockParams{
 		MaxBytes: 200000,
@@ -61,12 +61,12 @@ func init() {
 	config.SetBip44CoinType(cfg)
 }
 
-// Setup initializes a new Evmos. A Nop logger is set in Evmos.
+// Setup initializes a new Eidon-chain. A Nop logger is set in Eidon-chain.
 func Setup(
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
 	chainID string,
-) *Evmos {
+) *Eidon-chain {
 	privVal := mock.NewPV()
 	pubKey, _ := privVal.GetPubKey()
 
@@ -74,7 +74,7 @@ func Setup(
 	validator := cmttypes.NewValidator(pubKey, 1)
 	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
-	baseDenom := evmostypes.BaseDenom
+	baseDenom := eidon-chaintypes.BaseDenom
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
@@ -85,7 +85,7 @@ func Setup(
 	}
 
 	db := dbm.NewMemDB()
-	app := NewEvmos(
+	app := NewEidon-chain(
 		log.NewNopLogger(),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 5,
@@ -127,10 +127,10 @@ func Setup(
 	return app
 }
 
-func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
+func GenesisStateWithValSet(app *Eidon-chain, genesisState eidon-chaintypes.GenesisState,
 	valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) evmostypes.GenesisState {
+) eidon-chaintypes.GenesisState {
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -162,7 +162,7 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 	}
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = evmostypes.BaseDenom
+	stakingParams.BondDenom = eidon-chaintypes.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -196,7 +196,7 @@ func GenesisStateWithValSet(app *Evmos, genesisState evmostypes.GenesisState,
 func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		db := dbm.NewMemDB()
-		app := NewEvmos(
+		app := NewEidon-chain(
 			log.NewNopLogger(),
 			db, nil, true,
 			map[int64]bool{},

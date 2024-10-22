@@ -1,10 +1,10 @@
 {
   "name": "contracts",
   "version": "1.0.0",
-  "author": "Evmos team",
+  "author": "Eidon-chain team",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "get-contracts": "rm -rf ./contracts/evmos && mkdir -p ./contracts/evmos && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/evmos/",
+    "get-contracts": "rm -rf ./contracts/eidon-chain && mkdir -p ./contracts/eidon-chain && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/eidon-chain/",
     "typechain": "npm run get-contracts && npx hardhat typechain"
   },
   "devDependencies": {

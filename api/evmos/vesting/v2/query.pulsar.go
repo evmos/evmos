@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_query_proto_init()
-	md_QueryBalancesRequest = File_evmos_vesting_v2_query_proto.Messages().ByName("QueryBalancesRequest")
+	file_eidon-chain_vesting_v2_query_proto_init()
+	md_QueryBalancesRequest = File_eidon-chain_vesting_v2_query_proto.Messages().ByName("QueryBalancesRequest")
 	fd_QueryBalancesRequest_address = md_QueryBalancesRequest.Fields().ByName("address")
 }
 
@@ -36,7 +36,7 @@ func (x *QueryBalancesRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryBalancesRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_query_proto_msgTypes[0]
+	mi := &file_eidon-chain_vesting_v2_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -113,13 +113,13 @@ func (x *fastReflection_QueryBalancesRequest) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryBalancesRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
 		return x.Address != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -131,13 +131,13 @@ func (x *fastReflection_QueryBalancesRequest) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
 		x.Address = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -149,14 +149,14 @@ func (x *fastReflection_QueryBalancesRequest) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryBalancesRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
 		value := x.Address
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -172,13 +172,13 @@ func (x *fastReflection_QueryBalancesRequest) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
 		x.Address = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -194,13 +194,13 @@ func (x *fastReflection_QueryBalancesRequest) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
-		panic(fmt.Errorf("field address of message evmos.vesting.v2.QueryBalancesRequest is not mutable"))
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
+		panic(fmt.Errorf("field address of message eidon-chain.vesting.v2.QueryBalancesRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -209,13 +209,13 @@ func (x *fastReflection_QueryBalancesRequest) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryBalancesRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesRequest.address":
+	case "eidon-chain.vesting.v2.QueryBalancesRequest.address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesRequest"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -225,7 +225,7 @@ func (x *fastReflection_QueryBalancesRequest) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryBalancesRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.QueryBalancesRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.QueryBalancesRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -597,8 +597,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_query_proto_init()
-	md_QueryBalancesResponse = File_evmos_vesting_v2_query_proto.Messages().ByName("QueryBalancesResponse")
+	file_eidon-chain_vesting_v2_query_proto_init()
+	md_QueryBalancesResponse = File_eidon-chain_vesting_v2_query_proto.Messages().ByName("QueryBalancesResponse")
 	fd_QueryBalancesResponse_locked = md_QueryBalancesResponse.Fields().ByName("locked")
 	fd_QueryBalancesResponse_unvested = md_QueryBalancesResponse.Fields().ByName("unvested")
 	fd_QueryBalancesResponse_vested = md_QueryBalancesResponse.Fields().ByName("vested")
@@ -613,7 +613,7 @@ func (x *QueryBalancesResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryBalancesResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_query_proto_msgTypes[1]
+	mi := &file_eidon-chain_vesting_v2_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,17 +702,17 @@ func (x *fastReflection_QueryBalancesResponse) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryBalancesResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		return len(x.Locked) != 0
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		return len(x.Unvested) != 0
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		return len(x.Vested) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -724,17 +724,17 @@ func (x *fastReflection_QueryBalancesResponse) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		x.Locked = nil
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		x.Unvested = nil
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		x.Vested = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -746,19 +746,19 @@ func (x *fastReflection_QueryBalancesResponse) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		if len(x.Locked) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_1_list{})
 		}
 		listValue := &_QueryBalancesResponse_1_list{list: &x.Locked}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		if len(x.Unvested) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_2_list{})
 		}
 		listValue := &_QueryBalancesResponse_2_list{list: &x.Unvested}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		if len(x.Vested) == 0 {
 			return protoreflect.ValueOfList(&_QueryBalancesResponse_3_list{})
 		}
@@ -766,9 +766,9 @@ func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.Field
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -784,23 +784,23 @@ func (x *fastReflection_QueryBalancesResponse) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_1_list)
 		x.Locked = *clv.list
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_2_list)
 		x.Unvested = *clv.list
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		lv := value.List()
 		clv := lv.(*_QueryBalancesResponse_3_list)
 		x.Vested = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -816,19 +816,19 @@ func (x *fastReflection_QueryBalancesResponse) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		if x.Locked == nil {
 			x.Locked = []*v1beta1.Coin{}
 		}
 		value := &_QueryBalancesResponse_1_list{list: &x.Locked}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		if x.Unvested == nil {
 			x.Unvested = []*v1beta1.Coin{}
 		}
 		value := &_QueryBalancesResponse_2_list{list: &x.Unvested}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		if x.Vested == nil {
 			x.Vested = []*v1beta1.Coin{}
 		}
@@ -836,9 +836,9 @@ func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDesc
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -847,20 +847,20 @@ func (x *fastReflection_QueryBalancesResponse) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryBalancesResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.QueryBalancesResponse.locked":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.locked":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_1_list{list: &list})
-	case "evmos.vesting.v2.QueryBalancesResponse.unvested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.unvested":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_2_list{list: &list})
-	case "evmos.vesting.v2.QueryBalancesResponse.vested":
+	case "eidon-chain.vesting.v2.QueryBalancesResponse.vested":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_QueryBalancesResponse_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.QueryBalancesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.QueryBalancesResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.QueryBalancesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -870,7 +870,7 @@ func (x *fastReflection_QueryBalancesResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_QueryBalancesResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.QueryBalancesResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.QueryBalancesResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1206,14 +1206,14 @@ func (x *fastReflection_QueryBalancesResponse) ProtoMethods() *protoiface.Method
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/vesting/v2/query.proto
+// source: eidon-chain/vesting/v2/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -1235,7 +1235,7 @@ type QueryBalancesRequest struct {
 func (x *QueryBalancesRequest) Reset() {
 	*x = QueryBalancesRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_query_proto_msgTypes[0]
+		mi := &file_eidon-chain_vesting_v2_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1249,7 +1249,7 @@ func (*QueryBalancesRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryBalancesRequest.ProtoReflect.Descriptor instead.
 func (*QueryBalancesRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_query_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_vesting_v2_query_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *QueryBalancesRequest) GetAddress() string {
@@ -1277,7 +1277,7 @@ type QueryBalancesResponse struct {
 func (x *QueryBalancesResponse) Reset() {
 	*x = QueryBalancesResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_query_proto_msgTypes[1]
+		mi := &file_eidon-chain_vesting_v2_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1291,7 +1291,7 @@ func (*QueryBalancesResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryBalancesResponse.ProtoReflect.Descriptor instead.
 func (*QueryBalancesResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_query_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_vesting_v2_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryBalancesResponse) GetLocked() []*v1beta1.Coin {
@@ -1315,9 +1315,9 @@ func (x *QueryBalancesResponse) GetVested() []*v1beta1.Coin {
 	return nil
 }
 
-var File_evmos_vesting_v2_query_proto protoreflect.FileDescriptor
+var File_eidon-chain_vesting_v2_query_proto protoreflect.FileDescriptor
 
-var file_evmos_vesting_v2_query_proto_rawDesc = []byte{
+var file_eidon-chain_vesting_v2_query_proto_rawDesc = []byte{
 	0x0a, 0x1c, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x76, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2f,
 	0x76, 0x32, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x10,
 	0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x76, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2e, 0x76, 0x32,
@@ -1377,29 +1377,29 @@ var file_evmos_vesting_v2_query_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_vesting_v2_query_proto_rawDescOnce sync.Once
-	file_evmos_vesting_v2_query_proto_rawDescData = file_evmos_vesting_v2_query_proto_rawDesc
+	file_eidon-chain_vesting_v2_query_proto_rawDescOnce sync.Once
+	file_eidon-chain_vesting_v2_query_proto_rawDescData = file_eidon-chain_vesting_v2_query_proto_rawDesc
 )
 
-func file_evmos_vesting_v2_query_proto_rawDescGZIP() []byte {
-	file_evmos_vesting_v2_query_proto_rawDescOnce.Do(func() {
-		file_evmos_vesting_v2_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_vesting_v2_query_proto_rawDescData)
+func file_eidon-chain_vesting_v2_query_proto_rawDescGZIP() []byte {
+	file_eidon-chain_vesting_v2_query_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_vesting_v2_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_vesting_v2_query_proto_rawDescData)
 	})
-	return file_evmos_vesting_v2_query_proto_rawDescData
+	return file_eidon-chain_vesting_v2_query_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_vesting_v2_query_proto_goTypes = []interface{}{
-	(*QueryBalancesRequest)(nil),  // 0: evmos.vesting.v2.QueryBalancesRequest
-	(*QueryBalancesResponse)(nil), // 1: evmos.vesting.v2.QueryBalancesResponse
+var file_eidon-chain_vesting_v2_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_eidon-chain_vesting_v2_query_proto_goTypes = []interface{}{
+	(*QueryBalancesRequest)(nil),  // 0: eidon-chain.vesting.v2.QueryBalancesRequest
+	(*QueryBalancesResponse)(nil), // 1: eidon-chain.vesting.v2.QueryBalancesResponse
 	(*v1beta1.Coin)(nil),          // 2: cosmos.base.v1beta1.Coin
 }
-var file_evmos_vesting_v2_query_proto_depIdxs = []int32{
-	2, // 0: evmos.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
-	2, // 1: evmos.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin
-	2, // 2: evmos.vesting.v2.QueryBalancesResponse.vested:type_name -> cosmos.base.v1beta1.Coin
-	0, // 3: evmos.vesting.v2.Query.Balances:input_type -> evmos.vesting.v2.QueryBalancesRequest
-	1, // 4: evmos.vesting.v2.Query.Balances:output_type -> evmos.vesting.v2.QueryBalancesResponse
+var file_eidon-chain_vesting_v2_query_proto_depIdxs = []int32{
+	2, // 0: eidon-chain.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
+	2, // 1: eidon-chain.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin
+	2, // 2: eidon-chain.vesting.v2.QueryBalancesResponse.vested:type_name -> cosmos.base.v1beta1.Coin
+	0, // 3: eidon-chain.vesting.v2.Query.Balances:input_type -> eidon-chain.vesting.v2.QueryBalancesRequest
+	1, // 4: eidon-chain.vesting.v2.Query.Balances:output_type -> eidon-chain.vesting.v2.QueryBalancesResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -1407,13 +1407,13 @@ var file_evmos_vesting_v2_query_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_evmos_vesting_v2_query_proto_init() }
-func file_evmos_vesting_v2_query_proto_init() {
-	if File_evmos_vesting_v2_query_proto != nil {
+func init() { file_eidon-chain_vesting_v2_query_proto_init() }
+func file_eidon-chain_vesting_v2_query_proto_init() {
+	if File_eidon-chain_vesting_v2_query_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_vesting_v2_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryBalancesRequest); i {
 			case 0:
 				return &v.state
@@ -1425,7 +1425,7 @@ func file_evmos_vesting_v2_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryBalancesResponse); i {
 			case 0:
 				return &v.state
@@ -1442,18 +1442,18 @@ func file_evmos_vesting_v2_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_vesting_v2_query_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_vesting_v2_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_evmos_vesting_v2_query_proto_goTypes,
-		DependencyIndexes: file_evmos_vesting_v2_query_proto_depIdxs,
-		MessageInfos:      file_evmos_vesting_v2_query_proto_msgTypes,
+		GoTypes:           file_eidon-chain_vesting_v2_query_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_vesting_v2_query_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_vesting_v2_query_proto_msgTypes,
 	}.Build()
-	File_evmos_vesting_v2_query_proto = out.File
-	file_evmos_vesting_v2_query_proto_rawDesc = nil
-	file_evmos_vesting_v2_query_proto_goTypes = nil
-	file_evmos_vesting_v2_query_proto_depIdxs = nil
+	File_eidon-chain_vesting_v2_query_proto = out.File
+	file_eidon-chain_vesting_v2_query_proto_rawDesc = nil
+	file_eidon-chain_vesting_v2_query_proto_goTypes = nil
+	file_eidon-chain_vesting_v2_query_proto_depIdxs = nil
 }

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package keeper
 
@@ -7,8 +7,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utils "github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
+	utils "github.com/Eidon-AI/eidon-chain/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 // MintAndAllocateInflation performs inflation minting and allocation
@@ -132,7 +132,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
 	return math.LegacyNewDecFromInt(totalBondedTokens).QuoInt(stakeSupply), nil
 }
 
-// computeTeamAllocation computes the allocation associated with the Evmos team.
+// computeTeamAllocation computes the allocation associated with the Eidon-chain team.
 // The team allocation is defined as the total mint tokens in the wallets of the
 // foundation.
 func (k Keeper) computeTeamAllocation(ctx sdk.Context, mintDenom string) math.LegacyDec {

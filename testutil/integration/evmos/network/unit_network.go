@@ -1,13 +1,13 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package network
 
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/x/evm/statedb"
-	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/statedb"
+	inflationtypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
@@ -15,12 +15,12 @@ import (
 // makes the App public for easier testing.
 type UnitTestNetwork struct {
 	IntegrationNetwork
-	App *app.Evmos
+	App *app.Eidon-chain
 }
 
 var _ Network = (*UnitTestNetwork)(nil)
 
-// NewUnitTestNetwork configures and initializes a new Evmos Network instance with
+// NewUnitTestNetwork configures and initializes a new Eidon-chain Network instance with
 // the given configuration options. If no configuration options are provided
 // it uses the default configuration.
 //

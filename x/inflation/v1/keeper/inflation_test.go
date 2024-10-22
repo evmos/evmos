@@ -8,11 +8,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -119,24 +119,24 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 	}{
 		{
 			"no epochs per period",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction),
+			sdk.TokensFromConsensusPower(400_000_000, eidon-chaintypes.PowerReduction),
 			func() {
 				nw.App.InflationKeeper.SetEpochsPerPeriod(ctx, 0)
 			},
 		},
 		{
 			"high supply",
-			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction),
+			sdk.TokensFromConsensusPower(800_000_000, eidon-chaintypes.PowerReduction),
 			func() {},
 		},
 		{
 			"low supply",
-			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction),
+			sdk.TokensFromConsensusPower(400_000_000, eidon-chaintypes.PowerReduction),
 			func() {},
 		},
 		{
 			"zero circulating supply",
-			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction),
+			sdk.TokensFromConsensusPower(200_000_000, eidon-chaintypes.PowerReduction),
 			func() {},
 		},
 	}

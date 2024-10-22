@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package evmv1
 
@@ -12,7 +12,7 @@ import (
 )
 
 // supportedTxs holds the Ethereum transaction types
-// supported by Evmos.
+// supported by Eidon-chain.
 // Use a function to return a new pointer and avoid
 // possible reuse or racing conditions when using the same pointer
 var supportedTxs = map[string]func() TxDataV2{

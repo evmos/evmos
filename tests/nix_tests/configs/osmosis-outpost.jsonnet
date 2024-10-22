@@ -1,7 +1,7 @@
 local config = import 'default.jsonnet';
 
 config {
-  'evmos_9002-1'+: {
+  'eidon-chain_9002-1'+: {
     key_name: 'signer1',
     'app-config'+: {
       'index-events': super['index-events'] + ['message.action'],
@@ -17,7 +17,7 @@ config {
               "@type": "/ethermint.types.v1.EthAccount",
               "base_account": {
                 "account_number": "12",
-                "address": "evmos1tkm8d9krczydl06c357asj05gfn07rl6vw239z",
+                "address": "eidon-chain1tkm8d9krczydl06c357asj05gfn07rl6vw239z",
                 "pub_key": null,
                 "sequence": "0"
               },
@@ -244,7 +244,7 @@ config {
     },
     chains: [
       {
-        id: 'evmos_9002-1',
+        id: 'eidon-chain_9002-1',
         max_gas: 3000000,
         default_gas: 100000,
         gas_multiplier: 1.2,
@@ -256,7 +256,7 @@ config {
         },
         gas_price: {
           price: 40000000000,
-          denom: 'aevmos',
+          denom: 'aeidon-chain',
         },
         extension_options: [{
           type: 'ethermint_dynamic_fee',

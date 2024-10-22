@@ -91,7 +91,7 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
     which is empty if there are none.
     """
 
-    base_url: str = "https://github.com/evmos/evmos/releases/tag/"
+    base_url: str = "https://github.com/Eidon-AI/eidon-chain/releases/tag/"
     problems: List[str] = []
     # NOTE: the fixed link is the same for all problems
     fixed: str = f"({base_url}{version})"
@@ -102,7 +102,7 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
 
     link = link[1:-1]
     if not link.startswith(base_url):
-        problems.append(f'Release link should point to an Evmos release: "{link}"')
+        problems.append(f'Release link should point to an Eidon-chain release: "{link}"')
 
     if version not in link:
         problems.append(

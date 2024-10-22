@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -20,7 +20,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/ethereum/go-ethereum/common"
-	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	testnetwork "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
@@ -30,7 +30,7 @@ import (
 const safetyDelta = 2
 
 // Manager defines a docker pool instance, used to build, run, interact with and stop docker containers
-// running Evmos nodes.
+// running Eidon-chain nodes.
 type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network
@@ -99,7 +99,7 @@ func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args 
 		// rebuild the image every time in case there were changes
 		// and the image is cached
 		NoCache: true,
-		// name with tag, e.g. evmos:v9.0.0
+		// name with tag, e.g. eidon-chain:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,
 		ErrorStream:  os.Stdout,
@@ -151,7 +151,7 @@ func (m *Manager) RunNode(node *Node) error {
 			if c.State.ExitCode != 0 {
 				stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 				return fmt.Errorf(
-					"can't start evmos node, container exit code: %d\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
+					"can't start eidon-chain node, container exit code: %d\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
 					c.State.ExitCode,
 					stdErr,
 					stdOut,
@@ -207,7 +207,7 @@ func (m *Manager) WaitNBlocks(ctx context.Context, n int) error {
 	return err
 }
 
-// WaitForHeight queries the Evmos node every second until the node will reach the specified height.
+// WaitForHeight queries the Eidon-chain node every second until the node will reach the specified height.
 // After 5 minutes this function times out and returns an error
 func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error) {
 	var currentHeight int
@@ -237,14 +237,14 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error)
 	}
 }
 
-// GetNodeHeight calls the Evmos CLI in the current node container to get the current block height
+// GetNodeHeight calls the Eidon-chain CLI in the current node container to get the current block height
 func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
-	cmd := []string{"evmosd", "q", "block"}
+	cmd := []string{"eidond", "q", "block"}
 	splitIdx := 0 // split index for the lines in the output - in newer versions the output is in the second line
 	useV50 := false
 
 	// if the version is higher than v20.0.0, we need to use the json output flag
-	if !EvmosVersions([]string{m.CurrentVersion, "v20.0.0"}).Less(0, 1) {
+	if !Eidon-chainVersions([]string{m.CurrentVersion, "v20.0.0"}).Less(0, 1) {
 		cmd = append(cmd, "--output=json")
 		splitIdx = 1
 		useV50 = true
@@ -261,7 +261,7 @@ func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 	}
 
 	if errBuff.String() != "" {
-		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
+		return 0, fmt.Errorf("eidon-chain query error: %s", errBuff.String())
 	}
 
 	// NOTE: we're splitting the output because it has the first line saying "falling back to latest height"
@@ -309,7 +309,7 @@ type BlockHeaderPostV50 struct {
 	} `json:"header"`
 }
 
-// UnwrapBlockHeightPreV50 unwraps the block height from the output of the evmosd query block command
+// UnwrapBlockHeightPreV50 unwraps the block height from the output of the eidond query block command
 func UnwrapBlockHeightPreV50(input string) (int, error) {
 	var blockHeader BlockHeaderPreV50
 	err := json.Unmarshal([]byte(input), &blockHeader)
@@ -320,7 +320,7 @@ func UnwrapBlockHeightPreV50(input string) (int, error) {
 	return strconv.Atoi(blockHeader.Block.Header.Height)
 }
 
-// UnwrapBlockHeightPostV50 unwraps the block height from the output of the evmosd query block command
+// UnwrapBlockHeightPostV50 unwraps the block height from the output of the eidond query block command
 func UnwrapBlockHeightPostV50(input string) (int, error) {
 	var blockHeader BlockHeaderPostV50
 	err := json.Unmarshal([]byte(input), &blockHeader)
@@ -331,10 +331,10 @@ func UnwrapBlockHeightPostV50(input string) (int, error) {
 	return strconv.Atoi(blockHeader.Header.Height)
 }
 
-// GetNodeVersion calls the Evmos CLI in the current node container to get the
+// GetNodeVersion calls the Eidon-chain CLI in the current node container to get the
 // current node version
 func (m *Manager) GetNodeVersion(ctx context.Context) (string, error) {
-	exec, err := m.CreateExec([]string{"evmosd", "version"}, m.ContainerID())
+	exec, err := m.CreateExec([]string{"eidond", "version"}, m.ContainerID())
 	if err != nil {
 		return "", fmt.Errorf("create exec error: %w", err)
 	}
@@ -343,7 +343,7 @@ func (m *Manager) GetNodeVersion(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("run exec error: %w", err)
 	}
 	if errBuff.String() != "" {
-		return "", fmt.Errorf("evmos version error: %s", errBuff.String())
+		return "", fmt.Errorf("eidon-chain version error: %s", errBuff.String())
 	}
 	return outBuff.String(), nil
 }
@@ -377,7 +377,7 @@ func (m *Manager) GetUpgradeHeight(ctx context.Context, chainID string) (uint, e
 
 // getTimeoutCommit returns the timeout commit duration for the current node
 func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
-	exec, err := m.CreateExec([]string{"grep", `\s*timeout_commit =`, "/root/.evmosd/config/config.toml"}, m.ContainerID())
+	exec, err := m.CreateExec([]string{"grep", `\s*timeout_commit =`, "/root/.eidond/config/config.toml"}, m.ContainerID())
 	if err != nil {
 		return common.Big0, fmt.Errorf("create exec error: %w", err)
 	}
@@ -388,7 +388,7 @@ func (m *Manager) getTimeoutCommit(ctx context.Context) (*big.Int, error) {
 	}
 
 	if errBuff.String() != "" {
-		return common.Big0, fmt.Errorf("evmos version error: %s", errBuff.String())
+		return common.Big0, fmt.Errorf("eidon-chain version error: %s", errBuff.String())
 	}
 
 	re := regexp.MustCompile(`timeout_commit = "(?P<t>\d+)s"`)
@@ -422,7 +422,7 @@ func (m *Manager) getVotingPeriod(ctx context.Context, chainID string) (*big.Int
 	}
 
 	if errBuff.String() != "" {
-		return common.Big0, fmt.Errorf("evmos version error: %s", errBuff.String())
+		return common.Big0, fmt.Errorf("eidon-chain version error: %s", errBuff.String())
 	}
 
 	re := regexp.MustCompile(`"voting_period":"(?P<votingPeriod>\d+)s"`)

@@ -1,32 +1,32 @@
 import pytest
 
-from .network import setup_evmos, setup_evmos_rocksdb
+from .network import setup_eidon-chain, setup_eidon-chain_rocksdb
 from .utils import CONTRACTS, deploy_contract, w3_wait_for_new_blocks
 
 
 @pytest.fixture(scope="module")
-def custom_evmos(tmp_path_factory):
+def custom_eidon-chain(tmp_path_factory):
     path = tmp_path_factory.mktemp("storage-proof")
-    yield from setup_evmos(path, 26800)
+    yield from setup_eidon-chain(path, 26800)
 
 
 @pytest.fixture(scope="module")
-def custom_evmos_rocksdb(tmp_path_factory):
+def custom_eidon-chain_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("storage-proof-rocksdb")
-    yield from setup_evmos_rocksdb(path, 26810)
+    yield from setup_eidon-chain_rocksdb(path, 26810)
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb", "geth"])
-def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-rocksdb", "geth"])
+def cluster(request, custom_eidon-chain, custom_eidon-chain_rocksdb, geth):
     """
-    run on both evmos (default build and rocksdb)
+    run on both eidon-chain (default build and rocksdb)
     and geth
     """
     provider = request.param
-    if provider == "evmos":
-        yield custom_evmos
-    elif provider == "evmos-rocksdb":
-        yield custom_evmos_rocksdb
+    if provider == "eidon-chain":
+        yield custom_eidon-chain
+    elif provider == "eidon-chain-rocksdb":
+        yield custom_eidon-chain_rocksdb
     elif provider == "geth":
         yield geth
     else:

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package keeper_test
 
@@ -12,12 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v20/testutil"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/staking/keeper"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/staking/keeper"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,7 +25,7 @@ func TestMsgDelegate(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(eidon-chaintypes.BaseDenom, math.NewInt(1e18))
 		delegatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
@@ -142,7 +142,7 @@ func TestMsgCreateValidator(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(eidon-chaintypes.BaseDenom, math.NewInt(1e18))
 		validatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)

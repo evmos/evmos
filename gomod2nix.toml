@@ -47,7 +47,7 @@ schema = 3
   [mod."cosmossdk.io/store"]
     version = "v0.0.0-20240718141609-414cbd051fbe"
     hash = "sha256-BS6PxKsD2MQ1rUwoUGzcxkpw2n3oeQl+JIub3uY/kH8="
-    replaced = "github.com/evmos/cosmos-sdk/store"
+    replaced = "github.com/Eidon-AI/cosmos-sdk/store"
   [mod."cosmossdk.io/tools/confix"]
     version = "v0.1.2"
     hash = "sha256-1VhdIdBDG7jaSiRTNYtoQ3WGaGm+vQ1Qf671zSiWAek="
@@ -188,9 +188,9 @@ schema = 3
     version = "v1.0.0-beta.5"
     hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
   [mod."github.com/cosmos/cosmos-sdk"]
-    version = "v0.50.9-evmos"
+    version = "v0.50.9-eidon-chain"
     hash = "sha256-rGMTd3gRSfFftK10S/QJAKq6dtnN6Si81KTJ1D6w8XY="
-    replaced = "github.com/evmos/cosmos-sdk"
+    replaced = "github.com/Eidon-AI/cosmos-sdk"
   [mod."github.com/cosmos/go-bip39"]
     version = "v1.0.0"
     hash = "sha256-Qm2aC2vaS8tjtMUbHmlBSagOSqbduEEDwc51qvQaBmA="
@@ -291,9 +291,9 @@ schema = 3
     version = "v1.6.1"
     hash = "sha256-zOpoaepCfPLmU9iQji/Ait+SVEHI9eF3rwtW0h/8lho="
   [mod."github.com/ethereum/go-ethereum"]
-    version = "v1.10.26-evmos-rc4"
+    version = "v1.10.26-eidon-chain-rc4"
     hash = "sha256-6yEh1YOYIbnTmXfSaAkEfc0p9ufALhDGT8Jn1jB64zo="
-    replaced = "github.com/evmos/go-ethereum"
+    replaced = "github.com/Eidon-AI/go-ethereum"
   [mod."github.com/fatih/color"]
     version = "v1.16.0"
     hash = "sha256-Aq/SM28aPJVzvapllQ64R/DM4aZ5CHPewcm/AUJPyJQ="

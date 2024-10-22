@@ -40,18 +40,18 @@ def test_check_license_in_file_generated(cleanup):
 
 
 def test_check_if_in_exempt_files_not_included():
-    file = "/Users/malte/dev/go/evmos/evmos/app/app.go"
+    file = "/Users/malte/dev/go/Eidon-AI/eidon-chain/app/app.go"
     assert cl.check_if_in_exempt_files(file) is False
 
 
 def test_check_if_in_exempt_files_included():
-    file = "/Users/malte/dev/go/evmos/evmos/x/erc20/keeper/proposals.go"
+    file = "/Users/malte/dev/go/Eidon-AI/eidon-chain/x/erc20/keeper/proposals.go"
     assert cl.check_if_in_exempt_files(file) is True
 
-    file = "/Users/malte/dev/go/evmos/evmos/x/erc20/types/utils.go"
+    file = "/Users/malte/dev/go/Eidon-AI/eidon-chain/x/erc20/types/utils.go"
     assert cl.check_if_in_exempt_files(file) is True
 
-    file = "/Users/malte/dev/go/evmos/evmos/x/evm/genesis.go"
+    file = "/Users/malte/dev/go/Eidon-AI/eidon-chain/x/evm/genesis.go"
     assert cl.check_if_in_exempt_files(file) is False
 
 

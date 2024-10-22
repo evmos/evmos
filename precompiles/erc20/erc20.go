@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package erc20
 
@@ -7,18 +7,18 @@ import (
 	"embed"
 	"fmt"
 
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v20/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
+	auth "github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	transferkeeper "github.com/Eidon-AI/eidon-chain/v20/x/ibc/transfer/keeper"
 )
 
 const (
@@ -96,7 +96,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	// TODO: these values were obtained from Remix using the ERC20.sol from OpenZeppelin.
-	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Evmos testnet
+	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Eidon-chain testnet
 	// to ensure parity in the values.
 	switch method.Name {
 	// ERC-20 transactions

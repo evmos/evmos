@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
 package ethermint.feemarket.v1;
 
@@ -8,23 +8,23 @@ import "ethermint/feemarket/v1/feemarket.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/feemarket/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Params queries the parameters of x/feemarket module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/feemarket/v1/params";
+    option (google.api.http).get = "/eidon-chain/feemarket/v1/params";
   }
 
   // BaseFee queries the base fee of the parent block of the current block.
   rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
-    option (google.api.http).get = "/evmos/feemarket/v1/base_fee";
+    option (google.api.http).get = "/eidon-chain/feemarket/v1/base_fee";
   }
 
   // BlockGas queries the gas used at a given block height
   rpc BlockGas(QueryBlockGasRequest) returns (QueryBlockGasResponse) {
-    option (google.api.http).get = "/evmos/feemarket/v1/block_gas";
+    option (google.api.http).get = "/eidon-chain/feemarket/v1/block_gas";
   }
 }
 

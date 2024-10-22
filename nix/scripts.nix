@@ -1,6 +1,6 @@
 { pkgs
 , config
-, evmos ? (import ../. { inherit pkgs; })
+, eidon-chain ? (import ../. { inherit pkgs; })
 }: rec {
   start-geth = pkgs.writeShellScriptBin "start-geth" ''
     export PATH=${pkgs.test-env}/bin:${pkgs.go-ethereum}/bin:$PATH

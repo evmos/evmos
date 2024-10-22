@@ -34,8 +34,8 @@ ACCOUNTS = {
 }
 KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
-EVMOS_ADDRESS_PREFIX = "evmos"
-DEFAULT_DENOM = "aevmos"
+EVMOS_ADDRESS_PREFIX = "eidon-chain"
+DEFAULT_DENOM = "aeidon-chain"
 WEVMOS_ADDRESS = Web3.toChecksumAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
@@ -46,20 +46,20 @@ TEST_CONTRACTS = {
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
     "ICS20FromContract": "ICS20FromContract.sol",
-    "InterchainSender": "evmos/testutil/contracts/InterchainSender.sol",
-    "InterchainSenderCaller": "evmos/testutil/contracts/InterchainSenderCaller.sol",
-    "ICS20I": "evmos/ics20/ICS20I.sol",
-    "DistributionI": "evmos/distribution/DistributionI.sol",
-    "DistributionCaller": "evmos/testutil/contracts/DistributionCaller.sol",
-    "StakingI": "evmos/staking/StakingI.sol",
-    "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
-    "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
-    "IOsmosisOutpost": "evmos/outposts/osmosis/IOsmosisOutpost.sol",
-    "IERC20": "evmos/erc20/IERC20.sol",
+    "InterchainSender": "eidon-chain/testutil/contracts/InterchainSender.sol",
+    "InterchainSenderCaller": "eidon-chain/testutil/contracts/InterchainSenderCaller.sol",
+    "ICS20I": "eidon-chain/ics20/ICS20I.sol",
+    "DistributionI": "eidon-chain/distribution/DistributionI.sol",
+    "DistributionCaller": "eidon-chain/testutil/contracts/DistributionCaller.sol",
+    "StakingI": "eidon-chain/staking/StakingI.sol",
+    "StakingCaller": "eidon-chain/staking/testdata/StakingCaller.sol",
+    "IStrideOutpost": "eidon-chain/outposts/stride/IStrideOutpost.sol",
+    "IOsmosisOutpost": "eidon-chain/outposts/osmosis/IOsmosisOutpost.sol",
+    "IERC20": "eidon-chain/erc20/IERC20.sol",
 }
 
 OSMOSIS_POOLS = {
-    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
+    "Eidon-chain_Osmo": Path(__file__).parent / "osmosis/eidon-chainOsmosisPool.json",
 }
 
 # If need to update these binaries
@@ -73,13 +73,13 @@ WASM_BINARIES = {
 REGISTER_ERC20_PROP = {
     "messages": [
         {
-            "@type": "/evmos.erc20.v1.MsgRegisterERC20",
-            "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+            "@type": "/eidon-chain.erc20.v1.MsgRegisterERC20",
+            "authority": "eidon-chain10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
             "erc20addresses": ["ADDRESS_HERE"],
         }
     ],
     "metadata": "ipfs://CID",
-    "deposit": "1aevmos",
+    "deposit": "1aeidon-chain",
     "title": "register erc20",
     "summary": "register erc20",
     "expedited": False,
@@ -243,7 +243,7 @@ def approve_proposal(n, proposal_id, **kwargs):
     """
     cli = n.cosmos_cli()
 
-    # make the deposit (1 aevmos)
+    # make the deposit (1 aeidon-chain)
     rsp = cli.gov_deposit("signer2", proposal_id, 1)
     assert rsp["code"] == 0, rsp["raw_log"]
     wait_for_new_blocks(cli, 1)
@@ -489,8 +489,8 @@ local default = import '{tests_dir}/configs/{file_name}.jsonnet';
 
 default {{
   dotenv: '{root_dir}/scripts/.env',
-  'evmos_9002-1'+: {{
-    cmd: 'evmosd-rocksdb',
+  'eidon-chain_9002-1'+: {{
+    cmd: 'eidond-rocksdb',
     'app-config'+: {{
       'app-db-backend': 'rocksdb',
       memiavl: {{
@@ -534,7 +534,7 @@ def update_node_cmd(path, cmd, i):
     ini = configparser.RawConfigParser()
     ini.read(ini_path)
     for section in ini.sections():
-        if section == f"program:evmos_9002-1-node{i}":
+        if section == f"program:eidon-chain_9002-1-node{i}":
             ini[section].update(
                 {
                     "command": f"{cmd} start --home %(here)s/node{i}",
@@ -545,19 +545,19 @@ def update_node_cmd(path, cmd, i):
         ini.write(fp)
 
 
-def update_evmosd_and_setup_stride(modified_bin):
+def update_eidond_and_setup_stride(modified_bin):
     def inner(path, base_port, config):  # pylint: disable=unused-argument
-        update_evmos_bin(modified_bin)(path, base_port, config)
+        update_eidon-chain_bin(modified_bin)(path, base_port, config)
         setup_stride()(path, base_port, config)
 
     return inner
 
 
-def update_evmos_bin(
+def update_eidon-chain_bin(
     modified_bin, nodes=[0, 1]
 ):  # pylint: disable=dangerous-default-value
     """
-    updates the evmos binary with a patched binary.
+    updates the eidon-chain binary with a patched binary.
     Input parameters are the modified binary (modified_bin)
     and the nodes in which
     to apply the modified binary (nodes).
@@ -566,7 +566,7 @@ def update_evmos_bin(
     """
 
     def inner(path, base_port, config):  # pylint: disable=unused-argument
-        chain_id = "evmos_9002-1"
+        chain_id = "eidon-chain_9002-1"
         # by default, there're 2 nodes
         # need to update the bin in all these
         for i in nodes:
@@ -592,8 +592,8 @@ def erc20_balance(w3, erc20_contract_addr, addr):
     return contract.functions.balanceOf(addr).call()
 
 
-def debug_trace_tx(evmos, tx_hash: str):
-    url = f"http://127.0.0.1:{ports.evmrpc_port(evmos.base_port(0))}"
+def debug_trace_tx(eidon-chain, tx_hash: str):
+    url = f"http://127.0.0.1:{ports.evmrpc_port(eidon-chain.base_port(0))}"
     params = {
         "method": "debug_traceTransaction",
         "params": [tx_hash, {"tracer": "callTracer"}],

@@ -20,19 +20,19 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v20/contracts"
-	"github.com/evmos/evmos/v20/testutil"
-	"github.com/evmos/evmos/v20/testutil/integration/common/factory"
-	evmosfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
-	"github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/factory"
+	eidon-chainfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	testutils "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/utils"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	infltypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -47,7 +47,7 @@ type KeeperTestSuite struct {
 	network *network.UnitTestNetwork
 	handler grpc.Handler
 	keyring keyring.Keyring
-	factory evmosfactory.TxFactory
+	factory eidon-chainfactory.TxFactory
 }
 
 // Initialize general error variable for easier handling in loops throughout this test suite.
@@ -58,7 +58,7 @@ var (
 	gasLimit                 uint64 = 400_000
 	gasPrice                        = remainingAmtToPayFees.QuoRaw(int64(gasLimit))
 	dest                            = utiltx.GenerateAddress()
-	stakeDenom                      = evmostypes.BaseDenom
+	stakeDenom                      = eidon-chaintypes.BaseDenom
 	accountGasCoverage              = sdk.NewCoins(sdk.NewCoin(stakeDenom, remainingAmtToPayFees))
 	amt                             = testutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount
 	cliff                           = testutil.TestVestingSchedule.CliffMonths
@@ -78,7 +78,7 @@ var (
 // employee starts before mainnet launch (periodsCliff < lockupPeriod)
 //
 // Example:
-// 21/10 Employee joins Evmos and vesting starts
+// 21/10 Employee joins Eidon-chain and vesting starts
 // 22/03 Mainnet launch
 // 22/09 Cliff ends
 // 23/02 Lock ends
@@ -103,7 +103,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		)
 		gh := grpc.NewIntegrationHandler(nw)
-		tf := evmosfactory.New(nw, gh)
+		tf := eidon-chainfactory.New(nw, gh)
 
 		s.network = nw
 		s.factory = tf
@@ -1081,7 +1081,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			network.WithCustomGenesis(customGen),
 		)
 		gh := grpc.NewIntegrationHandler(nw)
-		tf := evmosfactory.New(nw, gh)
+		tf := eidon-chainfactory.New(nw, gh)
 
 		s.network = nw
 		s.factory = tf
@@ -1998,7 +1998,7 @@ var _ = Describe("Clawback Vesting Account - Smart contract", func() {
 			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		)
 		gh := grpc.NewIntegrationHandler(nw)
-		tf := evmosfactory.New(nw, gh)
+		tf := eidon-chainfactory.New(nw, gh)
 
 		s.network = nw
 		s.factory = tf
@@ -2010,7 +2010,7 @@ var _ = Describe("Clawback Vesting Account - Smart contract", func() {
 		contractAddr, err = s.factory.DeployContract(
 			s.keyring.GetPrivKey(0),
 			evmtypes.EvmTxArgs{},
-			evmosfactory.ContractDeploymentData{
+			eidon-chainfactory.ContractDeploymentData{
 				Contract:        contract,
 				ConstructorArgs: []interface{}{"Test", "TTT", uint8(18)},
 			},
@@ -2099,7 +2099,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 			network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		)
 		gh := grpc.NewIntegrationHandler(nw)
-		tf := evmosfactory.New(nw, gh)
+		tf := eidon-chainfactory.New(nw, gh)
 
 		s.network = nw
 		s.factory = tf

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 //
 // This config provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
@@ -15,11 +15,11 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
 )
 
 // testChainID represents the ChainID used for the purpose of testing.
-const testChainID string = "evmos_9002-1"
+const testChainID string = "eidon-chain_9002-1"
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.

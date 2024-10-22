@@ -38,17 +38,17 @@ func TestLoadUpgradeParams(t *testing.T) {
 			vars: envVars{
 				initialVersion: "v0.1.0",
 				targetVersion:  "v0.2.0",
-				chainID:        "evmos_9123-1",
+				chainID:        "eidon-chain_9123-1",
 				skipCleanup:    "true",
-				mountPath:      "/tmp/evmos",
+				mountPath:      "/tmp/eidon-chain",
 			},
 			want: Params{
-				MountPath: "/tmp/evmos",
+				MountPath: "/tmp/eidon-chain",
 				Versions: []VersionConfig{
 					{"v0.1.0", "v0.1.0", tharsisRepo},
 					{"v0.2.0", "v0.2.0", tharsisRepo},
 				},
-				ChainID:     "evmos_9123-1",
+				ChainID:     "eidon-chain_9123-1",
 				WorkDirRoot: wd,
 			},
 			expPass: true,

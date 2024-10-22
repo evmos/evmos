@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package contracts
 
@@ -84,7 +84,7 @@ func (c CallArgs) WithArgs(args ...interface{}) CallArgs {
 }
 
 // WithAmount populates the CallArgs struct's Amount field with the given amount.
-// This is the amount of Evmos that will be sent with the contract call.
+// This is the amount of Eidon-chain that will be sent with the contract call.
 func (c CallArgs) WithAmount(amount *big.Int) CallArgs {
 	c.Amount = amount
 	return c

@@ -1,9 +1,9 @@
 dotenv: .env
-evmos_9000-1:
-  cmd: evmosd
+eidon-chain_9000-1:
+  cmd: eidond
   start-flags: "--trace"
   app-config:
-    minimum-gas-prices: 0aevmos
+    minimum-gas-prices: 0aeidon-chain
     index-events:
       - ethereum_tx.ethereumTxHash
     json-rpc:
@@ -14,21 +14,21 @@ evmos_9000-1:
     api:
       enable: true    
   validators:
-    - coins: 10001000000000000000000aevmos
-      staked: 1000000000000000000aevmos
+    - coins: 10001000000000000000000aeidon-chain
+      staked: 1000000000000000000aeidon-chain
       mnemonic: ${VALIDATOR1_MNEMONIC}
-    - coins: 10001000000000000000000aevmos
-      staked: 1000000000000000000aevmos
+    - coins: 10001000000000000000000aeidon-chain
+      staked: 1000000000000000000aeidon-chain
       mnemonic: ${VALIDATOR2_MNEMONIC}
   accounts:
     - name: community
-      coins: 10000000000000000000000aevmos
+      coins: 10000000000000000000000aeidon-chain
       mnemonic: ${COMMUNITY_MNEMONIC}
     - name: signer1
-      coins: 20000000000000000000000aevmos
+      coins: 20000000000000000000000aeidon-chain
       mnemonic: ${SIGNER1_MNEMONIC}
     - name: signer2
-      coins: 30000000000000000000000aevmos
+      coins: 30000000000000000000000aeidon-chain
       mnemonic: ${SIGNER2_MNEMONIC}
 
   genesis:
@@ -39,24 +39,24 @@ evmos_9000-1:
     app_state:
       crisis:
         constant_fee:
-          denom: aevmos          
+          denom: aeidon-chain          
       staking:
         params:
-          bond_denom: aevmos      
+          bond_denom: aeidon-chain      
       inflation:
         params:
-          mint_denom: aevmos              
+          mint_denom: aeidon-chain              
       gov:
         voting_params:
           voting_period: "10s"
         deposit_params:
           max_deposit_period: "10s"
           min_deposit:
-            - denom: aevmos
+            - denom: aeidon-chain
               amount: "1"
         params:
           min_deposit:
-            - denom: aevmos
+            - denom: aeidon-chain
               amount: "1"        
       transfer:
         params:

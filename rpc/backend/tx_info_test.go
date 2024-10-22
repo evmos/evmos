@@ -12,11 +12,11 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/evmos/v20/indexer"
-	"github.com/evmos/evmos/v20/rpc/backend/mocks"
-	rpctypes "github.com/evmos/evmos/v20/rpc/types"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/indexer"
+	"github.com/Eidon-AI/eidon-chain/v20/rpc/backend/mocks"
+	rpctypes "github.com/Eidon-AI/eidon-chain/v20/rpc/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -467,7 +467,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 		registerMock func()
 		height       int64
 		index        uint
-		expTxResult  *evmostypes.TxResult
+		expTxResult  *eidon-chaintypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -479,7 +479,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 			},
 			0,
 			0,
-			&evmostypes.TxResult{},
+			&eidon-chaintypes.TxResult{},
 			false,
 		},
 	}
@@ -507,7 +507,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 		registerMock func()
 		txGetter     func(*rpctypes.ParsedTxs) *rpctypes.ParsedTx
 		query        string
-		expTxResult  *evmostypes.TxResult
+		expTxResult  *eidon-chaintypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -520,7 +520,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 				return &rpctypes.ParsedTx{}
 			},
 			"",
-			&evmostypes.TxResult{},
+			&eidon-chaintypes.TxResult{},
 			false,
 		},
 	}
@@ -617,7 +617,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 	testCases := []struct {
 		name                     string
 		fixRevertGasRefundHeight int64
-		txResult                 *evmostypes.TxResult
+		txResult                 *eidon-chaintypes.TxResult
 		price                    *big.Int
 		gas                      uint64
 		exp                      uint64
@@ -625,7 +625,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"success txResult",
 			1,
-			&evmostypes.TxResult{
+			&eidon-chaintypes.TxResult{
 				Height:  1,
 				Failed:  false,
 				GasUsed: 53026,
@@ -637,7 +637,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult before cap",
 			2,
-			&evmostypes.TxResult{
+			&eidon-chaintypes.TxResult{
 				Height:  1,
 				Failed:  true,
 				GasUsed: 53026,
@@ -649,7 +649,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult after cap",
 			2,
-			&evmostypes.TxResult{
+			&eidon-chaintypes.TxResult{
 				Height:  3,
 				Failed:  true,
 				GasUsed: 53026,

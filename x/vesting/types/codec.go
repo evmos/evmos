@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package types
 
@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	migrationtypes "github.com/evmos/evmos/v20/x/vesting/migrations/types"
+	migrationtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/migrations/types"
 )
 
 var (
@@ -26,11 +26,11 @@ var (
 
 const (
 	// Amino names
-	clawback                     = "evmos/MsgClawback"
-	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
-	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
-	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
-	fundVestingAccount           = "evmos/MsgFundVestingAccount"
+	clawback                     = "eidon-chain/MsgClawback"
+	createClawbackVestingAccount = "eidon-chain/MsgCreateClawbackVestingAccount"
+	updateVestingFunder          = "eidon-chain/MsgUpdateVestingFunder"
+	convertVestingAccount        = "eidon-chain/MsgConvertVestingAccount"
+	fundVestingAccount           = "eidon-chain/MsgFundVestingAccount"
 )
 
 // NOTE: This is required for the GetSignBytes function

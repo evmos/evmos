@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v20/x/epochs/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/epochs/types"
 )
 
 func TestEpochLifeCycle(t *testing.T) {

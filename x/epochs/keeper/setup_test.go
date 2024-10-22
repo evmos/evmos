@@ -3,11 +3,11 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
 
-	"github.com/evmos/evmos/v20/x/epochs/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/epochs/types"
 )
 
 const (

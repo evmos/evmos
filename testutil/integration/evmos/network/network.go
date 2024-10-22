@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package network
 
@@ -12,8 +12,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -27,12 +27,12 @@ import (
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	commonnetwork "github.com/evmos/evmos/v20/testutil/integration/common/network"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	commonnetwork "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/network"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
+	infltypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -61,7 +61,7 @@ type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
-	app        *app.Evmos
+	app        *app.Eidon-chain
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
@@ -125,8 +125,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
-	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
+	// Create a new Eidon-chainApp with the following params
+	eidon-chainApp := createEidon-chainApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
@@ -145,14 +145,14 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Get the corresponding slashing info and missed block info
 	// for the created validators
-	slashingParams, err := getValidatorsSlashingGen(validators, evmosApp.StakingKeeper)
+	slashingParams, err := getValidatorsSlashingGen(validators, eidon-chainApp.StakingKeeper)
 	if err != nil {
 		return err
 	}
 
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
-		evmosApp,
+		eidon-chainApp,
 		defaultGenesisParams{
 			genAccounts: genAccounts,
 			staking:     stakingParams,
@@ -164,7 +164,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules
-	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	genesisState, err = customizeGenesis(eidon-chainApp, n.cfg.customGenesisState, genesisState)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	now := time.Now().UTC()
-	if _, err := evmosApp.InitChain(
+	if _, err := eidon-chainApp.InitChain(
 		&abcitypes.RequestInitChain{
 			Time:            now,
 			ChainId:         n.cfg.chainID,
@@ -200,8 +200,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	header := cmtproto.Header{
 		ChainID:            n.cfg.chainID,
-		Height:             evmosApp.LastBlockHeight() + 1,
-		AppHash:            evmosApp.LastCommitID().Hash,
+		Height:             eidon-chainApp.LastBlockHeight() + 1,
+		AppHash:            eidon-chainApp.LastCommitID().Hash,
 		Time:               now,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),
@@ -212,15 +212,15 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	req := buildFinalizeBlockReq(header, valSet.Validators)
-	if _, err := evmosApp.FinalizeBlock(req); err != nil {
+	if _, err := eidon-chainApp.FinalizeBlock(req); err != nil {
 		return err
 	}
 
 	// TODO - this might not be the best way to initilize the context
-	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
+	n.ctx = eidon-chainApp.BaseApp.NewContextLegacy(false, header)
 
 	// Commit genesis changes
-	if _, err := evmosApp.Commit(); err != nil {
+	if _, err := eidon-chainApp.Commit(); err != nil {
 		return err
 	}
 
@@ -230,7 +230,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		blockMaxGas = uint64(consensusParams.Block.MaxGas) //nolint:gosec // G115
 	}
 
-	n.app = evmosApp
+	n.app = eidon-chainApp
 	n.ctx = n.ctx.WithConsensusParams(*consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(types.NewInfiniteGasMeterWithLimit(blockMaxGas))
 

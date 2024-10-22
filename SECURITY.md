@@ -7,7 +7,7 @@ for reporting vulnerabilities and how the disclosure process is managed.
 
 We require that all whitehat hackers and researchers:
 
-- Use the Evmos security email ([security@evmos.org](mailto:security@evmos.org)) to disclose all vulnerabilities,
+- Use the Eidon-chain security email ([security@eidon-chain.org](mailto:security@eidon-chain.org)) to disclose all vulnerabilities,
 and avoid posting vulnerability information in public places, including GitHub, Discord, Telegram, X (Twitter) or
 other non-private channels.
 - Make every effort to avoid privacy violations, degradation of user experience, disruption to production systems,
@@ -23,7 +23,7 @@ If you follow these guidelines when reporting an issue to us, we commit to:
 
 ## Disclosure Process
 
-Evmos uses the following disclosure process:
+Eidon-chain uses the following disclosure process:
 
 1. Once a security report is received via the security email, the team works to verify the issue and confirm its
 severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss) in its latest version (v4 at the time of writing).
@@ -42,7 +42,7 @@ severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss) in its late
        the Security Lead will revert to the reporter to request more info or close the report.
     3. The report is confirmed by the Security Lead to the reporter.
 
-2. The team determines the vulnerability’s potential impact on Evmos.
+2. The team determines the vulnerability’s potential impact on Eidon-chain.
 
     1. Vulnerabilities with `Informational` and `Low` categorization will result in creating a public issue.
     2. Vulnerabilities with `Medium` categorization will result
@@ -52,14 +52,14 @@ severity level using [CVSS](https://nvd.nist.gov/vuln-metrics/cvss) in its late
 Once the vulnerability severity is defined, the following steps apply:
 
 - For `High` and `Critical`:
-    1. Patches are prepared for supported releases of Evmos in a
+    1. Patches are prepared for supported releases of Eidon-chain in a
        [temporary private fork](https://docs.github.com/en/code-security/repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability)
        of the repository.
     2. Only relevant parties will be notified about an upcoming upgrade.
        These being validators, the core developer team, and users directly affected by the vulnerability.
     3. 24 hours following this notification, relevant releases with the patch will be made public.
-    4. The nodes and validators update their Evmos and Ethermint dependencies to use these releases.
-    5. A week (or less) after the security vulnerability has been patched on Evmos,
+    4. The nodes and validators update their Eidon-chain and Ethermint dependencies to use these releases.
+    5. A week (or less) after the security vulnerability has been patched on Eidon-chain,
        we will disclose that the mentioned release contained a security fix.
     6. After an additional 2 weeks, we will publish a public announcement of the vulnerability.
        We also publish a security Advisory on GitHub and publish a
@@ -78,13 +78,13 @@ Every effort will be made to handle the bug in as timely a manner as possible,
 however, it's important that we follow the process described above
 to ensure that disclosures are handled consistently
 and to keep Ethermint and its downstream dependent projects,
-including but not limited to Evmos,
+including but not limited to Eidon-chain,
 as secure as possible.
 
 ### Payment Process
 
-The payment process will be executed according to Evmos SAFU for `Critical` and `High` severity vulnerabilities.
-Payouts can only be executed in accordance and under supervision of the Evmos Operations team and only once the
+The payment process will be executed according to Eidon-chain SAFU for `Critical` and `High` severity vulnerabilities.
+Payouts can only be executed in accordance and under supervision of the Eidon-chain Operations team and only once the
 following requirements have been completed:
 
 - The whitehat hacker or organization successfully completes the KYC/KYB process (i.e KYC/KYB accepted).
@@ -97,7 +97,7 @@ the Service Provider [Provenance](http://provenancecompliance.com).
 
 The KYC/KYB process is performed independently by the Service Provider, which submits a report with the
 KYC/KYB result
-(Accepted or Rejected) to the Evmos Core Team. The Evmos Core team does not have access to any of the information
+(Accepted or Rejected) to the Eidon-chain Core Team. The Eidon-chain Core team does not have access to any of the information
 provided to the Service Provider.
 
 The following information is to be submitted to the independent Service Provider:
@@ -111,12 +111,12 @@ more than 3 months old from the current date.
 
 #### Supported Releases
 
-The team commits to releasing security patch releases for the latest release that Evmos is running.
+The team commits to releasing security patch releases for the latest release that Eidon-chain is running.
 
 If evmOS licensees are running older versions, we encourage them to upgrade at the earliest opportunity
 so that you can receive
 security patches directly from the repo, according to the terms set in the License Agreement. While project
-are welcomed to backport security patches to older versions for their own use, the Evmos team reserves
+are welcomed to backport security patches to older versions for their own use, the Eidon-chain team reserves
 the right to prioritize patches for
 latest versions being used by projects.
 
@@ -171,6 +171,6 @@ Attacks may come through the P2P network or the RPC layer:
 
 ### Contact
 
-The Evmos Security Team is constantly being monitored.
+The Eidon-chain Security Team is constantly being monitored.
 If you need to reach out to the team directly,
-please reach out via email: [security@evmos.org](mailto:security@evmos.org)
+please reach out via email: [security@eidon-chain.org](mailto:security@eidon-chain.org)

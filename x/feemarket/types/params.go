@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package types
 
 import (
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// DefaultBaseFee for the Evmos chain
+	// DefaultBaseFee for the Eidon-chain chain
 	DefaultBaseFee = math.LegacyNewDec(1_000_000_000)
 	// DefaultMinGasMultiplier is 0.5 or 50%
 	DefaultMinGasMultiplier = math.LegacyNewDecWithPrec(50, 2)

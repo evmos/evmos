@@ -3,8 +3,8 @@ package types_test
 import (
 	"testing"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/x/erc20/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -57,7 +57,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        evmostypes.BaseDenom,
+						Denom:        eidon-chaintypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -81,7 +81,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        evmostypes.BaseDenom,
+						Denom:        eidon-chaintypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -105,7 +105,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        evmostypes.BaseDenom,
+						Denom:        eidon-chaintypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -129,7 +129,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        evmostypes.BaseDenom,
+						Denom:        eidon-chaintypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -148,7 +148,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        evmostypes.BaseDenom,
+						Denom:        eidon-chaintypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -156,7 +156,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: false,
 		},
 		{
-			name: "invalid genesis - missing wevmos token pair",
+			name: "invalid genesis - missing weidon-chain token pair",
 			genState: &types.GenesisState{
 				Params: types.DefaultParams(),
 				TokenPairs: []types.TokenPair{

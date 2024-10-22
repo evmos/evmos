@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Evmos Chain - gRPC Gateway docs",
+    "title": "Eidon-chain Chain - gRPC Gateway docs",
     "description": "A REST interface for state queries and transactions",
     "version": "1.0.0"
   },
@@ -17,10 +17,10 @@
   },
   "apis": [
     {
-      "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
+      "url": "./tmp-swagger-gen/eidon-chain/epochs/v1/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/evmos/erc20/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/eidon-chain/erc20/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "ERC20Params"
@@ -28,7 +28,7 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/inflation/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/eidon-chain/inflation/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "InflationParams",
@@ -37,7 +37,7 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/vesting/v2/query.swagger.json"
+      "url": "./tmp-swagger-gen/eidon-chain/vesting/v2/query.swagger.json"
     },
     {
       "url": "./tmp-swagger-gen/ethermint/evm/v1/query.swagger.json",

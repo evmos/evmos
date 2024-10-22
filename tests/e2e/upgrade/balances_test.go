@@ -7,9 +7,9 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/encoding"
-	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	"github.com/Eidon-AI/eidon-chain/v20/tests/e2e/upgrade"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
 	"github.com/stretchr/testify/require"
 )
 

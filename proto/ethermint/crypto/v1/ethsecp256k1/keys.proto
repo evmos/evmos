@@ -1,11 +1,11 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
 package ethermint.crypto.v1.ethsecp256k1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v20/crypto/ethsecp256k1";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/crypto/ethsecp256k1";
 
 // PubKey defines a type alias for an ecdsa.PublicKey that implements
 // Tendermint's PubKey interface. It represents the 33-byte compressed public

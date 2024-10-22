@@ -7,12 +7,12 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v20/precompiles/erc20"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
-	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/erc20"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"
+	"github.com/Eidon-AI/eidon-chain/v20/x/evm/statedb"
 )
 
 var (

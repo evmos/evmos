@@ -20,7 +20,7 @@ struct DenomTrace {
     string baseDenom;
 }
 
-/// @author Evmos Team
+/// @author Eidon-chain Team
 /// @title ICS20 Transfer Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with IBC Transfer (ICS20)
 /// @custom:address 0x0000000000000000000000000000000000000802

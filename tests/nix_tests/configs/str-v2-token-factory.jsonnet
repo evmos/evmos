@@ -1,7 +1,7 @@
 local config = import 'default.jsonnet';
 
 config {
-  'evmos_9002-1'+: {
+  'eidon-chain_9002-1'+: {
     key_name: 'signer1',
     'app-config'+: {
       'index-events': super['index-events'] + ['message.action'],
@@ -129,7 +129,7 @@ config {
      },
      chains: [
        {
-         id: 'evmos_9002-1',
+         id: 'eidon-chain_9002-1',
          max_gas: 3000000,
          default_gas: 100000,
          gas_multiplier: 1.2,
@@ -141,7 +141,7 @@ config {
          },
          gas_price: {
            price: 80000000000,
-           denom: 'aevmos',
+           denom: 'aeidon-chain',
          },
          extension_options: [{
            type: 'ethermint_dynamic_fee',

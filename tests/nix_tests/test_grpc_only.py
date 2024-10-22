@@ -8,7 +8,7 @@ import pytest
 import requests
 from pystarport import ports
 
-from .network import Evmos, create_snapshots_dir, setup_custom_evmos
+from .network import Eidon-chain, create_snapshots_dir, setup_custom_eidon-chain
 from .utils import (
     CONTRACTS,
     decode_bech32,
@@ -21,9 +21,9 @@ from .utils import (
 
 
 @pytest.fixture(scope="module")
-def custom_evmos(tmp_path_factory):
+def custom_eidon-chain(tmp_path_factory):
     # reuse rollback-test config because it has an extra fullnode
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         tmp_path_factory.mktemp("grpc-only"),
         26400,
         Path(__file__).parent / "configs/rollback-test.jsonnet",
@@ -31,28 +31,28 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def custom_evmos_rocksdb(tmp_path_factory):
+def custom_eidon-chain_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("grpc-only-rocksdb")
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         path,
         26810,
         memiavl_config(path, "rollback-test"),
         post_init=create_snapshots_dir,
-        chain_binary="evmosd-rocksdb",
+        chain_binary="eidond-rocksdb",
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-rocksdb"])
+def eidon-chain_cluster(request, custom_eidon-chain, custom_eidon-chain_rocksdb):
     """
-    run on evmos and
-    evmos built with rocksdb (memIAVL + versionDB)
+    run on eidon-chain and
+    eidon-chain built with rocksdb (memIAVL + versionDB)
     """
     provider = request.param
-    if provider == "evmos":
-        yield custom_evmos
-    elif provider == "evmos-rocksdb":
-        yield custom_evmos_rocksdb
+    if provider == "eidon-chain":
+        yield custom_eidon-chain
+    elif provider == "eidon-chain-rocksdb":
+        yield custom_eidon-chain_rocksdb
     else:
         raise NotImplementedError
 
@@ -68,15 +68,15 @@ def grpc_eth_call(port: int, args: dict, chain_id=None, proposer_address=None):
         params["chain_id"] = str(chain_id)
     if proposer_address is not None:
         params["proposer_address"] = str(proposer_address)
-    return requests.get(f"http://localhost:{port}/evmos/evm/v1/eth_call", params).json()
+    return requests.get(f"http://localhost:{port}/eidon-chain/evm/v1/eth_call", params).json()
 
 
-def test_grpc_mode(evmos_cluster: Evmos):
+def test_grpc_mode(eidon-chain_cluster: Eidon-chain):
     """
     - restart a fullnode in grpc-only mode
     - test the grpc queries all works
     """
-    w3 = evmos_cluster.w3
+    w3 = eidon-chain_cluster.w3
     contract, _ = deploy_contract(w3, CONTRACTS["TestChainID"])
     assert 9002 == contract.caller.currentChainID()
 
@@ -84,7 +84,7 @@ def test_grpc_mode(evmos_cluster: Evmos):
         "to": contract.address,
         "data": contract.encodeABI(fn_name="currentChainID"),
     }
-    api_port = ports.api_port(evmos_cluster.base_port(1))
+    api_port = ports.api_port(eidon-chain_cluster.base_port(1))
     # in normal mode, grpc query works even if we don't pass chain_id explicitly
     success = False
     max_retry = 3
@@ -100,25 +100,25 @@ def test_grpc_mode(evmos_cluster: Evmos):
     assert success
     # wait 1 more block for both nodes to avoid node stopped before tnx get included
     for i in range(2):
-        wait_for_block(evmos_cluster.cosmos_cli(i), 1)
-    supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", "evmos_9002-1-node1")
+        wait_for_block(eidon-chain_cluster.cosmos_cli(i), 1)
+    supervisorctl(eidon-chain_cluster.base_dir / "../tasks.ini", "stop", "eidon-chain_9002-1-node1")
 
     # run grpc-only mode directly with existing chain state
-    with open(evmos_cluster.base_dir / "node1.log", "a", encoding="utf-8") as logfile:
+    with open(eidon-chain_cluster.base_dir / "node1.log", "a", encoding="utf-8") as logfile:
         proc = subprocess.Popen(  # pylint: disable=consider-using-with
             [
-                evmos_cluster.chain_binary,
+                eidon-chain_cluster.chain_binary,
                 "start",
                 "--grpc-only",
                 "--home",
-                evmos_cluster.base_dir / "node1",
+                eidon-chain_cluster.base_dir / "node1",
             ],
             stdout=logfile,
             stderr=subprocess.STDOUT,
         )
         try:
             # wait for grpc and rest api ports
-            grpc_port = ports.grpc_port(evmos_cluster.base_port(1))
+            grpc_port = ports.grpc_port(eidon-chain_cluster.base_port(1))
             wait_for_port(grpc_port)
             wait_for_port(api_port)
 
@@ -137,7 +137,7 @@ def test_grpc_mode(evmos_cluster: Evmos):
             assert "validator does not exist" in rsp["message"]
 
             # pass the first validator's consensus address to grpc query
-            addr = evmos_cluster.cosmos_cli(0).consensus_address()
+            addr = eidon-chain_cluster.cosmos_cli(0).consensus_address()
             cons_addr = decode_bech32(addr)
             proposer_addr = base64.b64encode(cons_addr).decode()
 
@@ -145,7 +145,7 @@ def test_grpc_mode(evmos_cluster: Evmos):
             rsp = grpc_eth_call(
                 api_port,
                 msg,
-                chain_id="evmos_9002",
+                chain_id="eidon-chain_9002",
                 proposer_address=proposer_addr,
             )
             assert rsp["code"] != 0, str(rsp)

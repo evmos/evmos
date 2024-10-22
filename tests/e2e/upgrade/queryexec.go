@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package upgrade
 
@@ -33,7 +33,7 @@ func (q QueryArgs) Validate() error {
 	return nil
 }
 
-// CreateModuleQueryExec creates a Evmos module query.
+// CreateModuleQueryExec creates a Eidon-chain module query.
 func (m *Manager) CreateModuleQueryExec(args QueryArgs) (string, error) {
 	// Check that valid args were provided
 	if err := args.Validate(); err != nil {
@@ -42,7 +42,7 @@ func (m *Manager) CreateModuleQueryExec(args QueryArgs) (string, error) {
 
 	// Build the query command
 	cmd := []string{
-		"evmosd",
+		"eidond",
 		"q",
 		args.Module,
 		args.SubCommand,

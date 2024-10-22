@@ -1,16 +1,16 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
 package ethermint.feemarket.v1;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/feemarket/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types";
 
 // Params defines the feemarket module parameters
 message Params {
-  option (amino.name) = "evmos/x/feemarket/Params";
+  option (amino.name) = "eidon-chain/x/feemarket/Params";
 
   // no_base_fee forces the EIP-1559 base fee to 0 (needed for 0 price calls)
   bool no_base_fee = 1;

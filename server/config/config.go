@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package config
 
 import (
@@ -23,7 +23,7 @@ import (
 	"github.com/crypto-org-chain/cronos/memiavl"
 	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 
-	_ "github.com/evmos/evmos/v20/server/config/migration" // Add this import to set up the proper app.toml migration logic for sdk v0.50
+	_ "github.com/Eidon-AI/eidon-chain/v20/server/config/migration" // Add this import to set up the proper app.toml migration logic for sdk v0.50
 )
 
 const (
@@ -110,16 +110,16 @@ const (
 	DefaultGasAdjustment = 1.2
 
 	// DefaultRosettaBlockchain defines the default blockchain name for the rosetta server
-	DefaultRosettaBlockchain = "evmos"
+	DefaultRosettaBlockchain = "eidon-chain"
 
 	// DefaultRosettaNetwork defines the default network name for the rosetta server
-	DefaultRosettaNetwork = "evmos"
+	DefaultRosettaNetwork = "eidon-chain"
 
 	// DefaultRosettaGasToSuggest defines the default gas to suggest for the rosetta server
 	DefaultRosettaGasToSuggest = 300_000
 
 	// DefaultRosettaDenomToSuggest defines the default denom for fee suggestion
-	DefaultRosettaDenomToSuggest = "aevmos"
+	DefaultRosettaDenomToSuggest = "aeidon-chain"
 
 	// ============================
 	//           MemIAVL
@@ -266,7 +266,7 @@ func AppConfig(denom string) (string, interface{}) {
 	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
 	//   own app.toml to override, or use this default value.
 	//
-	// In evmos, we set the min gas prices to 0.
+	// In eidon-chain, we set the min gas prices to 0.
 	if denom != "" {
 		customAppConfig.Config.MinGasPrices = "0" + denom
 	}

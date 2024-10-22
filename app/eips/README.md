@@ -1,4 +1,4 @@
-# Evmos Custom EIPs
+# Eidon-chain Custom EIPs
 
 This document explain how **evmOS** allows chain built on top of it to define custom EIPs to modify the behavior of EVM
 opcodes.
@@ -19,7 +19,7 @@ defined with the signature:
 func(jt *vm.JumpTable) {}
 ```
 
-where `vm` is the package `"github.com/evmos/evmos/v20/x/evm/core/vm"`.
+where `vm` is the package `"github.com/Eidon-AI/eidon-chain/v20/x/evm/core/vm"`.
 
 Custom EIPs are used to modify the behavior of opcodes, which are described by the `operation` structure:
 
@@ -70,7 +70,7 @@ In the same folder should also be defined tests and contracts used to verify the
 
 The activation of custom EIPs should be done inside the `config.go` file defined in the `./app/` folder. This file has
 the role of the single source for modify the EVM implementation which is defined in the
-[`x/evm/`](https://github.com/evmos/evmos/tree/main/x/evm) folder
+[`x/evm/`](https://github.com/Eidon-AI/eidon-chain/tree/main/x/evm) folder
 of **evmOS**.
 
 In this file, 3 main components should be defined:
@@ -101,10 +101,10 @@ In **evmOS**, custom activators should be defined in a structure with the same d
 
 ```go
 // Activate custom EIPs: 0000, 0001, 0002, etc
-evmosActivators = map[int]func(*vm.JumpTable){
-	"evmos_0": eips.Enable0000,
-	"evmos_1": eips.Enable0001,
-	"evmos_2": eips.Enable0002,
+eidon-chainActivators = map[int]func(*vm.JumpTable){
+	"eidon-chain_0": eips.Enable0000,
+	"eidon-chain_1": eips.Enable0001,
+	"eidon-chain_2": eips.Enable0002,
 }
 ```
 
@@ -122,12 +122,12 @@ To specify which activator enable in the chain, a new variable containing a slic
 should be defined. An example is reported below:
 
 ```go
-evmosEnabledEIPs = []int64{
-    "evmos_0",
+eidon-chainEnabledEIPs = []int64{
+    "eidon-chain_0",
 }
 ```
 
-In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `evmos_0`
+In this way, even though the custom activators defined $3$ new EIPs, we are going to activate only the number `eidon-chain_0`
 
 ### EVM Configurator
 

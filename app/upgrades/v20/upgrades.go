@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package v20
 
@@ -11,9 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	evmkeeper "github.com/Eidon-AI/eidon-chain/v20/x/evm/keeper"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v20
@@ -42,7 +42,7 @@ func CreateUpgradeHandler(
 // EthAccounts to standard Cosmos SDK accounts.
 func MigrateEthAccountsToBaseAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper, ek *evmkeeper.Keeper) {
 	ak.IterateAccounts(ctx, func(account sdk.AccountI) (stop bool) {
-		ethAcc, ok := account.(*evmostypes.EthAccount)
+		ethAcc, ok := account.(*eidon-chaintypes.EthAccount)
 		if !ok {
 			return false
 		}

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package app
 
@@ -9,7 +9,7 @@ import (
 )
 
 // Close will be called in graceful shutdown in start cmd
-func (app *Evmos) Close() error {
+func (app *Eidon-chain) Close() error {
 	errs := []error{app.BaseApp.Close()}
 
 	// flush the versiondb

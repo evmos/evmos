@@ -1,21 +1,21 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.vesting.v1;
+package eidon-chain.vesting.v1;
 
 import "amino/amino.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/vesting/migrations/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/vesting/migrations/types";
 
 // ClawbackVestingAccount implements the VestingAccount interface. It provides
 // an account that can hold contributions subject to "lockup" (like a
 // PeriodicVestingAccount), or vesting which is subject to clawback
 // of unvested tokens, or a combination (tokens vest, but are still locked).
 message ClawbackVestingAccount {
-  option (amino.name) = "evmos/x/vesting/v1/ClawbackVestingAccount";
+  option (amino.name) = "eidon-chain/x/vesting/v1/ClawbackVestingAccount";
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
 

@@ -6,7 +6,7 @@ import "../VestingI.sol" as vesting;
 import "../../testutil/contracts/ICounter.sol";
 
 /// @title VestingCaller
-/// @author Evmos Core Team
+/// @author Eidon-chain Core Team
 /// @dev This contract is used to test external contract calls to the vesting precompile.
 contract VestingCaller {
     /// counter is used to test the state persistence bug, when EVM and Cosmos state were both
@@ -61,7 +61,7 @@ contract VestingCaller {
     }
 
     /// @dev Defines a method to test funding a vesting account.
-    /// If specified, it sends 15 aevmos to the funder before and/or after
+    /// If specified, it sends 15 aeidon-chain to the funder before and/or after
     /// the precompile call
     /// @param funder The address of the account that will fund the vesting account.
     /// @param to The address of the account that will receive the vesting account.

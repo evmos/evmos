@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package network
 
@@ -8,7 +8,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/evmos/evmos/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -33,17 +33,17 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmostypes "github.com/evmos/evmos/v20/types"
-	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	epochstypes "github.com/Eidon-AI/eidon-chain/v20/x/epochs/types"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	feemarkettypes "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
+	infltypes "github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // genSetupFn is the type for the module genesis setup functions
-type genSetupFn func(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error)
+type genSetupFn func(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, customGenesis interface{}) (eidon-chaintypes.GenesisState, error)
 
 // defaultGenesisParams contains the params that are needed to
 // setup the default genesis for the testing setup
@@ -67,7 +67,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	banktypes.ModuleName:      setBankGenesisState,
 	authtypes.ModuleName:      setAuthGenesisState,
 	epochstypes.ModuleName:    genStateSetter[*epochstypes.GenesisState](epochstypes.ModuleName),
-	consensustypes.ModuleName: func(_ *app.Evmos, genesisState evmostypes.GenesisState, _ interface{}) (evmostypes.GenesisState, error) {
+	consensustypes.ModuleName: func(_ *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, _ interface{}) (eidon-chaintypes.GenesisState, error) {
 		// no-op. Consensus does not have a genesis state on the application
 		// but the params are used on it
 		// (e.g. block max gas, max bytes).
@@ -79,13 +79,13 @@ var genesisSetupFunctions = map[string]genSetupFn{
 
 // genStateSetter is a generic function to set module-specific genesis state
 func genStateSetter[T proto.Message](moduleName string) genSetupFn {
-	return func(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+	return func(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, customGenesis interface{}) (eidon-chaintypes.GenesisState, error) {
 		moduleGenesis, ok := customGenesis.(T)
 		if !ok {
 			return nil, fmt.Errorf("invalid type %T for %s module genesis state", customGenesis, moduleName)
 		}
 
-		genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
+		genesisState[moduleName] = eidon-chainApp.AppCodec().MustMarshalJSON(moduleGenesis)
 		return genesisState, nil
 	}
 }
@@ -152,9 +152,9 @@ func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes
 	return fundedAccountBalances
 }
 
-// createEvmosApp creates an evmos app
-func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
-	// Create evmos app
+// createEidon-chainApp creates an eidon-chain app
+func createEidon-chainApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Eidon-chain {
+	// Create eidon-chain app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
@@ -164,7 +164,7 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 	appOptions := simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
-	return app.NewEvmos(
+	return app.NewEidon-chain(
 		logger,
 		db,
 		nil,
@@ -304,7 +304,7 @@ type StakingCustomGenesisState struct {
 }
 
 // setDefaultStakingGenesisState sets the default staking genesis state
-func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams StakingCustomGenesisState) evmostypes.GenesisState {
+func setDefaultStakingGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, overwriteParams StakingCustomGenesisState) eidon-chaintypes.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -314,7 +314,7 @@ func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.
 		overwriteParams.validators,
 		overwriteParams.delegations,
 	)
-	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
+	genesisState[stakingtypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(stakingGenesis)
 	return genesisState
 }
 
@@ -324,7 +324,7 @@ type BankCustomGenesisState struct {
 }
 
 // setDefaultBankGenesisState sets the default bank genesis state
-func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams BankCustomGenesisState) evmostypes.GenesisState {
+func setDefaultBankGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, overwriteParams BankCustomGenesisState) eidon-chaintypes.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
@@ -332,7 +332,7 @@ func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gen
 		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	genesisState[banktypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
 }
 
@@ -344,24 +344,24 @@ type SlashingCustomGenesisState struct {
 }
 
 // setDefaultSlashingGenesisState sets the default slashing genesis state
-func setDefaultSlashingGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams SlashingCustomGenesisState) evmostypes.GenesisState {
+func setDefaultSlashingGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, overwriteParams SlashingCustomGenesisState) eidon-chaintypes.GenesisState {
 	slashingGen := slashingtypes.DefaultGenesisState()
 	slashingGen.SigningInfos = overwriteParams.signingInfo
 	slashingGen.MissedBlocks = overwriteParams.missedBlocks
 
-	genesisState[slashingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(slashingGen)
+	genesisState[slashingtypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(slashingGen)
 	return genesisState
 }
 
 // setBankGenesisState updates the bank genesis state with custom genesis state
-func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+func setBankGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, customGenesis interface{}) (eidon-chaintypes.GenesisState, error) {
 	customGen, ok := customGenesis.(*banktypes.GenesisState)
 	if !ok {
 		return nil, fmt.Errorf("invalid type %T for bank module genesis state", customGenesis)
 	}
 
 	bankGen := &banktypes.GenesisState{}
-	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
+	eidon-chainApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
 
 	if len(customGen.Balances) > 0 {
 		coins := sdktypes.NewCoins()
@@ -381,7 +381,7 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 
 	bankGen.Params = customGen.Params
 
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGen)
+	genesisState[banktypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(bankGen)
 	return genesisState, nil
 }
 
@@ -406,21 +406,21 @@ func addBondedModuleAccountToFundedBalances(
 }
 
 // setDefaultAuthGenesisState sets the default auth genesis state
-func setDefaultAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, genAccs []authtypes.GenesisAccount) evmostypes.GenesisState {
+func setDefaultAuthGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, genAccs []authtypes.GenesisAccount) eidon-chaintypes.GenesisState {
 	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
+	genesisState[authtypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(defaultAuthGen)
 	return genesisState
 }
 
 // setAuthGenesisState updates the bank genesis state with custom genesis state
-func setAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, customGenesis interface{}) (evmostypes.GenesisState, error) {
+func setAuthGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, customGenesis interface{}) (eidon-chaintypes.GenesisState, error) {
 	customGen, ok := customGenesis.(*authtypes.GenesisState)
 	if !ok {
 		return nil, fmt.Errorf("invalid type %T for auth module genesis state", customGenesis)
 	}
 
 	authGen := &authtypes.GenesisState{}
-	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[authtypes.ModuleName], authGen)
+	eidon-chainApp.AppCodec().MustUnmarshalJSON(genesisState[authtypes.ModuleName], authGen)
 
 	if len(customGen.Accounts) > 0 {
 		authGen.Accounts = append(authGen.Accounts, customGen.Accounts...)
@@ -428,7 +428,7 @@ func setAuthGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisSta
 
 	authGen.Params = customGen.Params
 
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGen)
+	genesisState[authtypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(authGen)
 	return genesisState, nil
 }
 
@@ -438,45 +438,45 @@ type GovCustomGenesisState struct {
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams GovCustomGenesisState) evmostypes.GenesisState {
+func setDefaultGovGenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState, overwriteParams GovCustomGenesisState) eidon-chaintypes.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
 	minDepositAmt := sdkmath.NewInt(1e18)
 	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	govGen.Params = updatedParams
-	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	genesisState[govtypes.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState
 }
 
-func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
+func setDefaultErc20GenesisState(eidon-chainApp *app.Eidon-chain, genesisState eidon-chaintypes.GenesisState) eidon-chaintypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	genesisState[erc20types.ModuleName] = eidon-chainApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
 }
 
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
-func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) evmostypes.GenesisState {
-	genesisState := evmosApp.DefaultGenesis()
+func newDefaultGenesisState(eidon-chainApp *app.Eidon-chain, params defaultGenesisParams) eidon-chaintypes.GenesisState {
+	genesisState := eidon-chainApp.DefaultGenesis()
 
-	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
-	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
-	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultGovGenesisState(evmosApp, genesisState, params.gov)
-	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
-	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
+	genesisState = setDefaultAuthGenesisState(eidon-chainApp, genesisState, params.genAccounts)
+	genesisState = setDefaultStakingGenesisState(eidon-chainApp, genesisState, params.staking)
+	genesisState = setDefaultBankGenesisState(eidon-chainApp, genesisState, params.bank)
+	genesisState = setDefaultGovGenesisState(eidon-chainApp, genesisState, params.gov)
+	genesisState = setDefaultSlashingGenesisState(eidon-chainApp, genesisState, params.slashing)
+	genesisState = setDefaultErc20GenesisState(eidon-chainApp, genesisState)
 
 	return genesisState
 }
 
 // customizeGenesis modifies genesis state if there're any custom genesis state
 // for specific modules
-func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesisState evmostypes.GenesisState) (evmostypes.GenesisState, error) {
+func customizeGenesis(eidon-chainApp *app.Eidon-chain, customGen CustomGenesisState, genesisState eidon-chaintypes.GenesisState) (eidon-chaintypes.GenesisState, error) {
 	var err error
 	for mod, modGenState := range customGen {
 		if fn, found := genesisSetupFunctions[mod]; found {
-			genesisState, err = fn(evmosApp, genesisState, modGenState)
+			genesisState, err = fn(eidon-chainApp, genesisState, modGenState)
 			if err != nil {
 				return genesisState, err
 			}

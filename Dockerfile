@@ -3,7 +3,7 @@ FROM golang:1.23.2-alpine3.20 AS build-env
 ARG DB_BACKEND=goleveldb
 ARG ROCKSDB_VERSION="9.5.2"
 
-WORKDIR /go/src/github.com/evmos/evmos
+WORKDIR /go/src/github.com/Eidon-AI/eidon-chain
 
 COPY go.mod go.sum ./
 
@@ -39,7 +39,7 @@ FROM alpine:3.20
 
 WORKDIR /root
 
-COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /usr/bin/evmosd
+COPY --from=build-env /go/src/github.com/Eidon-AI/eidon-chain/build/eidond /usr/bin/eidond
 COPY --from=build-env /go/bin/toml-cli /usr/bin/toml-cli
 
 # required for rocksdb build
@@ -55,13 +55,13 @@ RUN apk add --no-cache \
     vim \
     lz4 \
     rclone \
-    && addgroup -g 1000 evmos \
-    && adduser -S -h /home/evmos -D evmos -u 1000 -G evmos
+    && addgroup -g 1000 eidon-chain \
+    && adduser -S -h /home/eidon-chain -D eidon-chain -u 1000 -G eidon-chain
 
 USER 1000
-WORKDIR /home/evmos
+WORKDIR /home/eidon-chain
 
 EXPOSE 26656 26657 1317 9090 8545 8546
 HEALTHCHECK CMD curl --fail http://localhost:26657 || exit 1
 
-CMD ["evmosd"]
+CMD ["eidond"]

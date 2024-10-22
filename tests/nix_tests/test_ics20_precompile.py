@@ -11,7 +11,7 @@ from .ibc_utils import (
     prepare_network,
     setup_denom_trace,
 )
-from .network import Evmos
+from .network import Eidon-chain
 from .utils import (
     ACCOUNTS,
     ADDRS,
@@ -30,15 +30,15 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["eidon-chain"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
     """
     name = "ibc-precompile"
-    evmos_build = request.param
+    eidon-chain_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, [evmos_build, "chainmain"])
+    network = prepare_network(path, name, [eidon-chain_build, "chainmain"])
     yield from network
 
 
@@ -75,7 +75,7 @@ def test_denom_trace(ibc, name, args, err_contains, exp_res):
     """Test ibc precompile denom trace query"""
     assert_ready(ibc)
 
-    # setup: send some funds from chain-main to evmos
+    # setup: send some funds from chain-main to eidon-chain
     # to register the denom trace (if not registered already)
     setup_denom_trace(ibc)
 
@@ -84,7 +84,7 @@ def test_denom_trace(ibc, name, args, err_contains, exp_res):
     query_res = None
     try:
         # make the query call
-        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+        pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
         query_res = pc.functions.denomTrace(*args).call()
     except Exception as err:
         check_error(err, err_contains)
@@ -114,7 +114,7 @@ def test_denom_traces(ibc, name, args, err_contains, exp_res):
     """Test ibc precompile denom traces query"""
     assert_ready(ibc)
 
-    # setup: send some funds from chain-main to evmos
+    # setup: send some funds from chain-main to eidon-chain
     # to register the denom trace (if not registered already)
     setup_denom_trace(ibc)
 
@@ -123,7 +123,7 @@ def test_denom_traces(ibc, name, args, err_contains, exp_res):
     query_res = None
     try:
         # make the query call
-        pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+        pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
         query_res = pc.functions.denomTraces(*args).call()
     except Exception as err:
         check_error(err, err_contains)
@@ -151,7 +151,7 @@ def test_denom_hash(ibc, name, args, exp_res):
     """Test ibc precompile denom traces query"""
     assert_ready(ibc)
 
-    # setup: send some funds from chain-main to evmos
+    # setup: send some funds from chain-main to eidon-chain
     # to register the denom trace (if not registered already)
     setup_denom_trace(ibc)
 
@@ -160,7 +160,7 @@ def test_denom_hash(ibc, name, args, exp_res):
     query_res = None
 
     # make the query call
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
     query_res = pc.functions.denomHash(*args).call()
 
     # check the query response
@@ -174,7 +174,7 @@ def test_denom_hash(ibc, name, args, exp_res):
             "empty input args",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [],
             "improper number of arguments",
@@ -184,7 +184,7 @@ def test_denom_hash(ibc, name, args, exp_res):
             "authorization does not exist - returns empty array",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["community"],
@@ -197,14 +197,14 @@ def test_denom_hash(ibc, name, args, exp_res):
             "existing authorization with one denom",
             [
                 ADDRS["community"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["community"],
                 ADDRS["validator"],
             ],
             None,
-            [("transfer", "channel-0", [("aevmos", 1000000000000000000)], [], [])],
+            [("transfer", "channel-0", [("aeidon-chain", 1000000000000000000)], [], [])],
         ),
         (
             "existing authorization with a multiple coin denomination",
@@ -214,7 +214,7 @@ def test_denom_hash(ibc, name, args, exp_res):
                     [
                         "transfer",
                         "channel-0",
-                        [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+                        [["aeidon-chain", int(1e18)], ["uatom", int(1e18)]],
                         [],
                         [],
                     ]
@@ -229,7 +229,7 @@ def test_denom_hash(ibc, name, args, exp_res):
                 (
                     "transfer",
                     "channel-0",
-                    [("aevmos", 1000000000000000000), ("uatom", 1000000000000000000)],
+                    [("aeidon-chain", 1000000000000000000), ("uatom", 1000000000000000000)],
                     [],
                     [],
                 )
@@ -242,19 +242,19 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
     assert_ready(ibc)
 
     gas_limit = 200_000
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     # setup: create authorization to revoke
     # validator address creates authorization for the provided auth_args
     approve_tx = pc.functions.approve(*auth_args).build_transaction(
         {
             "from": ADDRS["validator"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["validator"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["validator"])
     assert tx_receipt.status == 1
 
     allowance_res = None
@@ -274,7 +274,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "channel does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-1", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-1", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             True,
             "channel not found",
@@ -284,7 +284,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "MaxInt256 allocation",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", MAX_UINT256]], [], []]],
             ],
             False,
             "",
@@ -294,7 +294,7 @@ def test_query_allowance(ibc, name, auth_args, args, err_contains, exp_res):
             "create authorization with specific spend limit",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             False,
             "",
@@ -307,23 +307,23 @@ def test_approve(ibc, name, args, exp_err, err_contains, exp_spend_limit):
     assert_ready(ibc)
 
     gas_limit = 200_000
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     # signer1 creates authorization for signer2
     approve_tx = pc.functions.approve(*args).build_transaction(
         {
             "from": ADDRS["signer1"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
 
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer1"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["signer1"])
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], tx_receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], tx_receipt.transactionHash.hex())
         assert err_contains in trace["error"]
         return
 
@@ -339,13 +339,13 @@ def test_approve(ibc, name, args, exp_err, err_contains, exp_spend_limit):
     assert auth_event.args.allocations[0] == (
         "transfer",
         "channel-0",
-        [("aevmos", exp_spend_limit)],
+        [("aeidon-chain", exp_spend_limit)],
         [],
         [],
     )
 
     # check the authorization was created
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = ibc.chains["eidon-chain"].cosmos_cli()
     granter = cli.address("signer1")
     grantee = cli.address("signer2")
     res = cli.authz_grants(granter, grantee)
@@ -392,22 +392,22 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
     assert_ready(ibc)
 
     gas_limit = 200_000
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     # setup: create authorization to revoke
     # signer1 creates authorization for validator address
     approve_tx = pc.functions.approve(
         ADDRS["validator"],
-        [["transfer", "channel-0", [["aevmos", MAX_UINT256]], [], []]],
+        [["transfer", "channel-0", [["aeidon-chain", MAX_UINT256]], [], []]],
     ).build_transaction(
         {
             "from": ADDRS["signer1"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer1"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["signer1"])
     assert tx_receipt.status == 1
 
     # signer1 revokes authorization
@@ -415,13 +415,13 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
         revoke_tx = pc.functions.revoke(*args).build_transaction(
             {
                 "from": ADDRS["signer1"],
-                "gasPrice": evmos_gas_price,
+                "gasPrice": eidon-chain_gas_price,
                 "gas": gas_limit,
             }
         )
 
         tx_receipt = send_transaction(
-            ibc.chains["evmos"].w3, revoke_tx, KEYS["signer1"]
+            ibc.chains["eidon-chain"].w3, revoke_tx, KEYS["signer1"]
         )
     except Exception as err:
         check_error(err, err_contains)
@@ -430,7 +430,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], tx_receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], tx_receipt.transactionHash.hex())
         assert err_contains in trace["error"]
         return
 
@@ -445,7 +445,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
     assert len(auth_event.args.allocations) == 0
 
     # check the authorization to the validator was revoked
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = ibc.chains["eidon-chain"].cosmos_cli()
     granter = cli.address("signer1")
     grantee = cli.address("validator")
     res = cli.authz_grants(granter, grantee)
@@ -459,7 +459,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "empty input args",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [],
             True,
@@ -470,13 +470,13 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "authorization does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer1"],
                 "transfer",
                 "channel-1",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
             ],
             True,
@@ -487,7 +487,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "allocation for specified denom does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -504,13 +504,13 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "the new spend limit overflows the maxUint256",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 MAX_UINT256 - 1,
             ],
             True,
@@ -521,18 +521,18 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             "increase allowance by 1 EVMOS",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
             ],
             False,
             "",
-            json.loads("""[{"denom": "aevmos", "amount": "2000000000000000000"}]"""),
+            json.loads("""[{"denom": "aeidon-chain", "amount": "2000000000000000000"}]"""),
         ),
         (
             "increase allowance by 1 Atom for allocation with a multiple coin denomination",
@@ -542,7 +542,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
                     [
                         "transfer",
                         "channel-0",
-                        [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+                        [["aeidon-chain", int(1e18)], ["uatom", int(1e18)]],
                         [],
                         [],
                     ]
@@ -558,7 +558,7 @@ def test_revoke(ibc, name, args, exp_err, err_contains):
             False,
             "",
             json.loads(
-                """[{"denom": "aevmos", "amount": "1000000000000000000"},"""
+                """[{"denom": "aeidon-chain", "amount": "1000000000000000000"},"""
                 """{"denom": "uatom", "amount": "2000000000000000000"}]"""
             ),
         ),
@@ -571,8 +571,8 @@ def test_increase_allowance(
     assert_ready(ibc)
 
     gas_limit = 200_000
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     # setup: create authorization to revoke
     # validator address creates authorization for signer2 address
@@ -580,11 +580,11 @@ def test_increase_allowance(
     approve_tx = pc.functions.approve(*auth_args).build_transaction(
         {
             "from": ADDRS["validator"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["validator"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["validator"])
     assert tx_receipt.status == 1
 
     try:
@@ -592,12 +592,12 @@ def test_increase_allowance(
         incr_allowance_tx = pc.functions.increaseAllowance(*args).build_transaction(
             {
                 "from": ADDRS["validator"],
-                "gasPrice": evmos_gas_price,
+                "gasPrice": eidon-chain_gas_price,
                 "gas": gas_limit,
             }
         )
         tx_receipt = send_transaction(
-            ibc.chains["evmos"].w3, incr_allowance_tx, KEYS["validator"]
+            ibc.chains["eidon-chain"].w3, incr_allowance_tx, KEYS["validator"]
         )
     except Exception as err:
         check_error(err, err_contains)
@@ -606,7 +606,7 @@ def test_increase_allowance(
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], tx_receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], tx_receipt.transactionHash.hex())
         assert err_contains in trace["error"]
         return
 
@@ -621,7 +621,7 @@ def test_increase_allowance(
     assert len(auth_event.args.allocations) == 1
 
     # check the authorization was created
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = ibc.chains["eidon-chain"].cosmos_cli()
     granter = cli.address("validator")
     grantee = cli.address("signer2")
     res = cli.authz_grants(granter, grantee)
@@ -643,7 +643,7 @@ def test_increase_allowance(
             "empty input args",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [],
             True,
@@ -654,13 +654,13 @@ def test_increase_allowance(
             "authorization does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer1"],
                 "transfer",
                 "channel-1",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
             ],
             True,
@@ -671,7 +671,7 @@ def test_increase_allowance(
             "allocation for specified denom does not exist",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
@@ -688,13 +688,13 @@ def test_increase_allowance(
             "the new spend limit is negative",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(2e18),
             ],
             True,
@@ -705,18 +705,18 @@ def test_increase_allowance(
             "decrease allowance by 0.5 EVMOS",
             [
                 ADDRS["signer2"],
-                [["transfer", "channel-0", [["aevmos", int(1e18)]], [], []]],
+                [["transfer", "channel-0", [["aeidon-chain", int(1e18)]], [], []]],
             ],
             [
                 ADDRS["signer2"],
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(5e17),
             ],
             False,
             "",
-            json.loads("""[{"denom": "aevmos", "amount": "500000000000000000"}]"""),
+            json.loads("""[{"denom": "aeidon-chain", "amount": "500000000000000000"}]"""),
         ),
         (
             "decrease allowance by 0.5 Atom for allocation with a multiple coin denomination",
@@ -726,7 +726,7 @@ def test_increase_allowance(
                     [
                         "transfer",
                         "channel-0",
-                        [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+                        [["aeidon-chain", int(1e18)], ["uatom", int(1e18)]],
                         [],
                         [],
                     ]
@@ -742,7 +742,7 @@ def test_increase_allowance(
             False,
             "",
             json.loads(
-                """[{"denom": "aevmos", "amount": "1000000000000000000"},"""
+                """[{"denom": "aeidon-chain", "amount": "1000000000000000000"},"""
                 """{"denom": "uatom", "amount": "500000000000000000"}]"""
             ),
         ),
@@ -755,8 +755,8 @@ def test_decrease_allowance(
     assert_ready(ibc)
 
     gas_limit = 200_000
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     # setup: create authorization to revoke
     # community address creates authorization for signer2 address
@@ -764,11 +764,11 @@ def test_decrease_allowance(
     approve_tx = pc.functions.approve(*auth_args).build_transaction(
         {
             "from": ADDRS["community"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["community"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["community"])
     assert tx_receipt.status == 1
 
     try:
@@ -776,12 +776,12 @@ def test_decrease_allowance(
         decr_allowance_tx = pc.functions.decreaseAllowance(*args).build_transaction(
             {
                 "from": ADDRS["community"],
-                "gasPrice": evmos_gas_price,
+                "gasPrice": eidon-chain_gas_price,
                 "gas": gas_limit,
             }
         )
         tx_receipt = send_transaction(
-            ibc.chains["evmos"].w3, decr_allowance_tx, KEYS["community"]
+            ibc.chains["eidon-chain"].w3, decr_allowance_tx, KEYS["community"]
         )
     except Exception as err:
         check_error(err, err_contains)
@@ -790,7 +790,7 @@ def test_decrease_allowance(
     if exp_err:
         assert tx_receipt.status == 0, f"Failed: {name}"
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], tx_receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], tx_receipt.transactionHash.hex())
         assert err_contains in trace["error"]
         return
 
@@ -805,7 +805,7 @@ def test_decrease_allowance(
     assert len(auth_event.args.allocations) == 1
 
     # check the authorization was created
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = ibc.chains["eidon-chain"].cosmos_cli()
     granter = cli.address("community")
     grantee = cli.address("signer2")
     res = cli.authz_grants(granter, grantee)
@@ -830,7 +830,7 @@ def test_decrease_allowance(
             [
                 "transfer",
                 "channel-1",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
                 "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",  # signer2 in chain-main
             ],
@@ -841,7 +841,7 @@ def test_decrease_allowance(
         ),
         (
             "non authorized denom",
-            [["aevmos", int(1e18)]],
+            [["aeidon-chain", int(1e18)]],
             [
                 "transfer",
                 "channel-0",
@@ -856,11 +856,11 @@ def test_decrease_allowance(
         ),
         (
             "allowance is less than transfer amount",
-            [["aevmos", int(1e18)]],
+            [["aeidon-chain", int(1e18)]],
             [
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(2e18),
                 "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
             ],
@@ -870,12 +870,12 @@ def test_decrease_allowance(
             None,
         ),
         (
-            "transfer 1 Evmos from chainA to chainB and spend the entire allowance",
-            [["aevmos", int(1e18)]],
+            "transfer 1 Eidon-chain from chainA to chainB and spend the entire allowance",
+            [["aeidon-chain", int(1e18)]],
             [
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
                 "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
             ],
@@ -885,27 +885,27 @@ def test_decrease_allowance(
             None,
         ),
         (
-            "transfer 1 Evmos from chainA to chainB and don't change the unlimited spending limit",
-            [["aevmos", MAX_UINT256]],
+            "transfer 1 Eidon-chain from chainA to chainB and don't change the unlimited spending limit",
+            [["aeidon-chain", MAX_UINT256]],
             [
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
                 "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
             ],
             False,
             None,
             int(1e18),
-            json.loads(f"""[{{"denom": "aevmos", "amount": "{MAX_UINT256}"}}]"""),
+            json.loads(f"""[{{"denom": "aeidon-chain", "amount": "{MAX_UINT256}"}}]"""),
         ),
         (
-            "transfer 1 Evmos from chainA to chainB and only change 1 spend limit",
-            [["aevmos", int(1e18)], ["uatom", int(1e18)]],
+            "transfer 1 Eidon-chain from chainA to chainB and only change 1 spend limit",
+            [["aeidon-chain", int(1e18)], ["uatom", int(1e18)]],
             [
                 "transfer",
                 "channel-0",
-                "aevmos",
+                "aeidon-chain",
                 int(1e18),
                 "cro1apdh4yc2lnpephevc6lmpvkyv6s5cjh652n6e4",
             ],
@@ -922,16 +922,16 @@ def test_ibc_transfer_with_authorization(
     """Test ibc transfer with authorization (using a smart contract)"""
     assert_ready(ibc)
 
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
     gas_limit = 200_000
-    src_denom = "aevmos"
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
-    src_address = ibc.chains["evmos"].cosmos_cli().address("signer2")
+    src_denom = "aeidon-chain"
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
+    src_address = ibc.chains["eidon-chain"].cosmos_cli().address("signer2")
     dst_address = ibc.chains["chainmain"].cosmos_cli().address("signer2")
 
     # test setup:
     # deploy contract that calls the ics-20 precompile
-    w3 = ibc.chains["evmos"].w3
+    w3 = ibc.chains["eidon-chain"].w3
     eth_contract, tx_receipt = deploy_contract(w3, CONTRACTS["ICS20FromContract"])
     assert tx_receipt.status == 1
 
@@ -946,11 +946,11 @@ def test_ibc_transfer_with_authorization(
         ).build_transaction(
             {
                 "from": ADDRS["signer2"],
-                "gasPrice": evmos_gas_price,
+                "gasPrice": eidon-chain_gas_price,
                 "gas": gas_limit,
             }
         )
-        receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+        receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["signer2"])
         assert receipt.status == 1, f"Failed: {name}"
 
         def check_allowance_set():
@@ -962,7 +962,7 @@ def test_ibc_transfer_with_authorization(
         wait_for_fn("allowance has changed", check_allowance_set)
 
     # get the balances previous to the transfer to validate them after the tx
-    src_amount_evmos_prev = get_balance(ibc.chains["evmos"], src_address, src_denom)
+    src_amount_eidon-chain_prev = get_balance(ibc.chains["eidon-chain"], src_address, src_denom)
     dst_balance_prev = get_balance(
         ibc.chains["chainmain"], dst_address, EVMOS_IBC_DENOM
     )
@@ -971,11 +971,11 @@ def test_ibc_transfer_with_authorization(
         transfer_tx = eth_contract.functions.transferFromEOA(*args).build_transaction(
             {
                 "from": ADDRS["signer2"],
-                "gasPrice": evmos_gas_price,
+                "gasPrice": eidon-chain_gas_price,
                 "gas": gas_limit,
             }
         )
-        receipt = send_transaction(ibc.chains["evmos"].w3, transfer_tx, KEYS["signer2"])
+        receipt = send_transaction(ibc.chains["eidon-chain"].w3, transfer_tx, KEYS["signer2"])
     except Exception as err:
         check_error(err, err_contains)
         return
@@ -983,16 +983,16 @@ def test_ibc_transfer_with_authorization(
     if exp_err:
         assert receipt.status == 0, f"Failed: {name}"
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], receipt.transactionHash.hex())
         # stringify the tx trace to look for the expected error message
         trace_str = json.dumps(trace, separators=(",", ":"))
         assert err_contains in trace_str
         return
 
     assert receipt.status == 1, debug_trace_tx(
-        ibc.chains["evmos"], receipt.transactionHash.hex()
+        ibc.chains["eidon-chain"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     # check ibc-transfer event was emitted
     transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
@@ -1003,12 +1003,12 @@ def test_ibc_transfer_with_authorization(
     # assert transfer_event.args.receiver == dst_addr
     assert transfer_event.args.sourcePort == "transfer"
     assert transfer_event.args.sourceChannel == "channel-0"
-    assert transfer_event.args.denom == "aevmos"
+    assert transfer_event.args.denom == "aeidon-chain"
     assert transfer_event.args.amount == transfer_amt
     assert transfer_event.args.memo == ""
 
     # check the authorization was updated
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = ibc.chains["eidon-chain"].cosmos_cli()
     granter = cli.address("signer2")
     grantee = eth_to_bech32(eth_contract.address)
     res = cli.authz_grants(granter, grantee)
@@ -1032,9 +1032,9 @@ def test_ibc_transfer_with_authorization(
     assert final_contract_balance == 0
 
     # signer2 (src) balance should be reduced by the fees paid
-    src_amount_evmos_final = get_balance(ibc.chains["evmos"], src_address, src_denom)
+    src_amount_eidon-chain_final = get_balance(ibc.chains["eidon-chain"], src_address, src_denom)
 
-    assert src_amount_evmos_final == src_amount_evmos_prev - fees - transfer_amt
+    assert src_amount_eidon-chain_final == src_amount_eidon-chain_prev - fees - transfer_amt
 
     # dst_address should have received the IBC coins
     dst_balance_final = 0
@@ -1059,16 +1059,16 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     """Test ibc transfer from EOA through a Smart Contract call"""
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
+    w3 = eidon-chain.w3
 
     amt = 1000000000000000000
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 200_000
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    src_adr = ibc.chains["evmos"].cosmos_cli().address("signer2")
+    src_adr = ibc.chains["eidon-chain"].cosmos_cli().address("signer2")
 
     # Deployment of contracts and initial checks
     eth_contract, tx_receipt = deploy_contract(w3, CONTRACTS["ICS20FromContract"])
@@ -1077,18 +1077,18 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     counter = eth_contract.functions.counter().call()
     assert counter == 0
 
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    pc = get_precompile_contract(ibc.chains["eidon-chain"].w3, "ICS20I")
     # Approve the contract to spend the src_denom
     approve_tx = pc.functions.approve(
         eth_contract.address, [["transfer", "channel-0", [[src_denom, amt]], [], []]]
     ).build_transaction(
         {
             "from": ADDRS["signer2"],
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(ibc.chains["evmos"].w3, approve_tx, KEYS["signer2"])
+    tx_receipt = send_transaction(ibc.chains["eidon-chain"].w3, approve_tx, KEYS["signer2"])
     assert tx_receipt.status == 1
 
     def check_allowance_set():
@@ -1099,7 +1099,7 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
 
     wait_for_fn("allowance has changed", check_allowance_set)
 
-    src_starting_balance = get_balance(ibc.chains["evmos"], src_adr, "aevmos")
+    src_starting_balance = get_balance(ibc.chains["eidon-chain"], src_adr, "aeidon-chain")
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
@@ -1107,11 +1107,11 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     send_tx = eth_contract.functions.transferFromEOA(
         "transfer", "channel-0", src_denom, amt, dst_addr
     ).build_transaction(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+        {"from": ADDRS["signer2"], "gasPrice": eidon-chain_gas_price, "gas": gas_limit}
     )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    receipt = send_transaction(ibc.chains["eidon-chain"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     final_dest_balance = dest_starting_balance
 
@@ -1125,8 +1125,8 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     wait_for_fn("destination balance change", check_dest_balance)
     assert final_dest_balance == dest_starting_balance + amt
 
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_adr, src_denom)
-    assert src_final_amount_evmos == src_starting_balance - amt - fees
+    src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_adr, src_denom)
+    assert src_final_amount_eidon-chain == src_starting_balance - amt - fees
 
     counter_after = eth_contract.functions.counter().call()
     assert counter_after == 0
@@ -1189,18 +1189,18 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     """
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
+    w3 = eidon-chain.w3
 
     channel = "channel-0"
     amt = 1000000000000000000
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 200_000
-    evmos_gas_price = w3.eth.gas_price
+    eidon-chain_gas_price = w3.eth.gas_price
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    # address that will escrow the aevmos tokens when transferring via IBC
-    escrow_bech32 = evmos.cosmos_cli().escrow_address(channel)
+    # address that will escrow the aeidon-chain tokens when transferring via IBC
+    escrow_bech32 = eidon-chain.cosmos_cli().escrow_address(channel)
 
     if other_addr is None:
         other_addr = src_addr
@@ -1210,22 +1210,22 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     # Deployment of contracts and initial checks
     initial_contract_balance = 100
     eth_contract = setup_interchain_sender_contract(
-        evmos, ACCOUNTS["signer2"], amt, initial_contract_balance
+        eidon-chain, ACCOUNTS["signer2"], amt, initial_contract_balance
     )
 
     # get starting balances to check after the tx
-    src_bech32 = evmos.cosmos_cli().address("signer2")
+    src_bech32 = eidon-chain.cosmos_cli().address("signer2")
     contract_bech32 = eth_to_bech32(eth_contract.address)
     other_addr_bech32 = eth_to_bech32(other_addr)
 
-    src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
+    src_starting_balance = get_balance(ibc.chains["eidon-chain"], src_bech32, "aeidon-chain")
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
     other_addr_initial_balance = get_balance(
-        ibc.chains["evmos"], other_addr_bech32, src_denom
+        ibc.chains["eidon-chain"], other_addr_bech32, src_denom
     )
-    escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_initial_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
     send_tx = eth_contract.functions.testTransferFundsWithTransferToOtherAcc(
@@ -1239,11 +1239,11 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
         transfer_before,
         transfer_after,
     ).build_transaction(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+        {"from": ADDRS["signer2"], "gasPrice": eidon-chain_gas_price, "gas": gas_limit}
     )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    receipt = send_transaction(ibc.chains["eidon-chain"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1, f"Failed {name}"
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     final_dest_balance = dest_starting_balance
 
@@ -1276,14 +1276,14 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
         exp_src_final_bal += exp_amt_tranferred_internally
     elif other_addr == decode_bech32(escrow_bech32):
         other_addr_final_balance = get_balance(
-            ibc.chains["evmos"], escrow_bech32, src_denom
+            ibc.chains["eidon-chain"], escrow_bech32, src_denom
         )
         # check the escrow account escrowed the coins successfully
         # and received the transferred tokens during the contract call
         exp_escrow_final_bal += exp_amt_tranferred_internally
     else:
         other_addr_final_balance = get_balance(
-            ibc.chains["evmos"], other_addr_bech32, src_denom
+            ibc.chains["eidon-chain"], other_addr_bech32, src_denom
         )
         assert (
             other_addr_final_balance
@@ -1291,12 +1291,12 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
         )
 
     # check final balance for source address (tx signer)
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_bech32, src_denom)
-    assert src_final_amount_evmos == exp_src_final_bal, f"Failed {name}"
+    src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_bech32, src_denom)
+    assert src_final_amount_eidon-chain == exp_src_final_bal, f"Failed {name}"
 
     # Check contracts final state (balance & counter)
     contract_final_balance = get_balance(
-        ibc.chains["evmos"], contract_bech32, src_denom
+        ibc.chains["eidon-chain"], contract_bech32, src_denom
     )
     assert (
         contract_final_balance
@@ -1307,7 +1307,7 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     assert counter_after == exp_counter_after, f"Failed {name}"
 
     # check escrow account balance is updated properly
-    escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_final_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
     assert escrow_final_balance == exp_escrow_final_bal
 
 
@@ -1380,33 +1380,33 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
     """
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
+    w3 = eidon-chain.w3
 
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 800_000
-    evmos_gas_price = w3.eth.gas_price
+    eidon-chain_gas_price = w3.eth.gas_price
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    escrow_bech32 = evmos.cosmos_cli().escrow_address("channel-0")
+    escrow_bech32 = eidon-chain.cosmos_cli().escrow_address("channel-0")
 
     # Deployment of contracts and initial checks
     initial_contract_balance = 100
     eth_contract = setup_interchain_sender_contract(
-        evmos, ACCOUNTS["signer2"], ibc_transfer_amt, initial_contract_balance
+        eidon-chain, ACCOUNTS["signer2"], ibc_transfer_amt, initial_contract_balance
     )
 
-    # send some funds (100 aevmos) to the contract to perform
+    # send some funds (100 aeidon-chain) to the contract to perform
     # internal transfer within the tx
     src_bech32 = eth_to_bech32(src_addr)
     contract_bech32 = eth_to_bech32(eth_contract.address)
 
     # get starting balances to check after the tx
-    src_starting_balance = get_balance(evmos, src_bech32, "aevmos")
+    src_starting_balance = get_balance(eidon-chain, src_bech32, "aeidon-chain")
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
-    escrow_initial_balance = get_balance(evmos, escrow_bech32, src_denom)
+    escrow_initial_balance = get_balance(eidon-chain, escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
     send_tx = eth_contract.functions.testMultiTransferWithInternalTransfer(
@@ -1420,17 +1420,17 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
         transfer_between,
         transfer_after,
     ).build_transaction(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+        {"from": ADDRS["signer2"], "gasPrice": eidon-chain_gas_price, "gas": gas_limit}
     )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    receipt = send_transaction(ibc.chains["eidon-chain"].w3, send_tx, KEYS["signer2"])
 
-    escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_final_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     if err_contains is not None:
         assert receipt.status == 0
         # check error msg
         # get the corresponding error message from the trace
-        trace = debug_trace_tx(ibc.chains["evmos"], receipt.transactionHash.hex())
+        trace = debug_trace_tx(ibc.chains["eidon-chain"], receipt.transactionHash.hex())
         # stringify the tx trace to look for the expected error message
         trace_str = json.dumps(trace, separators=(",", ":"))
         assert err_contains in trace_str
@@ -1438,18 +1438,18 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
         # check balances where reverted accordingly
         # Check contracts final state (balance & counter)
         contract_final_balance = get_balance(
-            ibc.chains["evmos"], contract_bech32, src_denom
+            ibc.chains["eidon-chain"], contract_bech32, src_denom
         )
         assert contract_final_balance == initial_contract_balance, f"Failed {name}"
         counter_after = eth_contract.functions.counter().call()
         assert counter_after == 0, f"Failed {name}"
 
         # check sender balance was decreased only by fees paid
-        src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_bech32, src_denom)
-        fees = receipt.gasUsed * evmos_gas_price
+        src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_bech32, src_denom)
+        fees = receipt.gasUsed * eidon-chain_gas_price
 
         exp_src_final_bal = src_starting_balance - fees
-        assert src_final_amount_evmos == exp_src_final_bal, f"Failed {name}"
+        assert src_final_amount_eidon-chain == exp_src_final_bal, f"Failed {name}"
 
         # check balance on destination chain
         # wait a couple of blocks to check on the other chain
@@ -1465,9 +1465,9 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
         return
 
     assert receipt.status == 1, debug_trace_tx(
-        ibc.chains["evmos"], receipt.transactionHash.hex()
+        ibc.chains["eidon-chain"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     final_dest_balance = dest_starting_balance
 
@@ -1494,15 +1494,15 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
             exp_counter_after += 1
 
     # check final balance for source address (tx signer)
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_bech32, src_denom)
+    src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_bech32, src_denom)
     exp_src_final_bal = (
         src_starting_balance - ibc_transfer_amt - fees + exp_amt_tranferred_internally
     )
-    assert src_final_amount_evmos == exp_src_final_bal, f"Failed {name}"
+    assert src_final_amount_eidon-chain == exp_src_final_bal, f"Failed {name}"
 
     # Check contracts final state (balance & counter)
     contract_final_balance = get_balance(
-        ibc.chains["evmos"], contract_bech32, src_denom
+        ibc.chains["eidon-chain"], contract_bech32, src_denom
     )
     assert (
         contract_final_balance
@@ -1520,22 +1520,22 @@ def test_multi_ibc_transfers_with_revert(ibc):
     """
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
+    w3 = eidon-chain.w3
 
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 800_000
     ibc_transfer_amt = int(1e18)
     src_addr = ADDRS["signer2"]
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    escrow_bech32 = ibc.chains["evmos"].cosmos_cli().escrow_address("channel-0")
+    escrow_bech32 = ibc.chains["eidon-chain"].cosmos_cli().escrow_address("channel-0")
 
     # Deployment of contracts and initial checks
     initial_contract_balance = 100
     interchain_sender_contract = setup_interchain_sender_contract(
-        evmos, ACCOUNTS["signer2"], ibc_transfer_amt * 2, initial_contract_balance
+        eidon-chain, ACCOUNTS["signer2"], ibc_transfer_amt * 2, initial_contract_balance
     )
 
     counter = interchain_sender_contract.functions.counter().call()
@@ -1555,11 +1555,11 @@ def test_multi_ibc_transfers_with_revert(ibc):
     )
 
     # get starting balances to check after the tx
-    src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
+    src_starting_balance = get_balance(ibc.chains["eidon-chain"], src_bech32, "aeidon-chain")
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
-    escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_initial_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
     send_tx = caller_contract.functions.transfersWithRevert(
@@ -1570,16 +1570,16 @@ def test_multi_ibc_transfers_with_revert(ibc):
         ibc_transfer_amt,
         dst_addr,
     ).build_transaction(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+        {"from": ADDRS["signer2"], "gasPrice": eidon-chain_gas_price, "gas": gas_limit}
     )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    receipt = send_transaction(ibc.chains["eidon-chain"].w3, send_tx, KEYS["signer2"])
 
-    escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_final_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     assert receipt.status == 1, debug_trace_tx(
-        ibc.chains["evmos"], receipt.transactionHash.hex()
+        ibc.chains["eidon-chain"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     final_dest_balance = dest_starting_balance
 
@@ -1604,15 +1604,15 @@ def test_multi_ibc_transfers_with_revert(ibc):
     exp_interchain_sender_counter_after = 3
 
     # check final balance for source address (tx signer)
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_bech32, src_denom)
+    src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_bech32, src_denom)
     exp_src_final_bal = (
         src_starting_balance - fees - ibc_transfer_amt + exp_amt_tranferred_internally
     )
-    assert src_final_amount_evmos == exp_src_final_bal
+    assert src_final_amount_eidon-chain == exp_src_final_bal
 
     # Check contracts final state (balance & counter)
     contract_final_balance = get_balance(
-        ibc.chains["evmos"], interchain_sender_contract_bech32, src_denom
+        ibc.chains["eidon-chain"], interchain_sender_contract_bech32, src_denom
     )
     assert (
         contract_final_balance
@@ -1634,22 +1634,22 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     """
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
+    eidon-chain: Eidon-chain = ibc.chains["eidon-chain"]
+    w3 = eidon-chain.w3
 
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 800_000
     ibc_transfer_amt = int(1e18)
     src_addr = ADDRS["signer2"]
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    eidon-chain_gas_price = ibc.chains["eidon-chain"].w3.eth.gas_price
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
-    escrow_bech32 = ibc.chains["evmos"].cosmos_cli().escrow_address("channel-0")
+    escrow_bech32 = ibc.chains["eidon-chain"].cosmos_cli().escrow_address("channel-0")
 
     # Deployment of contracts and initial checks
     initial_contract_balance = 100
     interchain_sender_contract = setup_interchain_sender_contract(
-        evmos, ACCOUNTS["signer2"], ibc_transfer_amt * 2, initial_contract_balance
+        eidon-chain, ACCOUNTS["signer2"], ibc_transfer_amt * 2, initial_contract_balance
     )
 
     counter = interchain_sender_contract.functions.counter().call()
@@ -1669,11 +1669,11 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     )
 
     # get starting balances to check after the tx
-    src_starting_balance = get_balance(ibc.chains["evmos"], src_bech32, "aevmos")
+    src_starting_balance = get_balance(ibc.chains["eidon-chain"], src_bech32, "aeidon-chain")
     dest_starting_balance = get_balance(
         ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
     )
-    escrow_initial_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_initial_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     # Calling the actual transfer function on the custom contract
     send_tx = caller_contract.functions.transfersWithNestedRevert(
@@ -1684,19 +1684,19 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
         ibc_transfer_amt,
         dst_addr,
     ).build_transaction(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price, "gas": gas_limit}
+        {"from": ADDRS["signer2"], "gasPrice": eidon-chain_gas_price, "gas": gas_limit}
     )
-    receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
+    receipt = send_transaction(ibc.chains["eidon-chain"].w3, send_tx, KEYS["signer2"])
 
-    escrow_final_balance = get_balance(ibc.chains["evmos"], escrow_bech32, src_denom)
+    escrow_final_balance = get_balance(ibc.chains["eidon-chain"], escrow_bech32, src_denom)
 
     # tx should be successfull, but all transfers should be reverted
     # only the contract's state should've changed (counter)
     exp_caller_contract_final_counter = 2
     assert receipt.status == 1, debug_trace_tx(
-        ibc.chains["evmos"], receipt.transactionHash.hex()
+        ibc.chains["eidon-chain"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
+    fees = receipt.gasUsed * eidon-chain_gas_price
 
     final_dest_balance = dest_starting_balance
 
@@ -1726,13 +1726,13 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     exp_interchain_sender_counter_after = 0
 
     # check final balance for source address (tx signer)
-    src_final_amount_evmos = get_balance(ibc.chains["evmos"], src_bech32, src_denom)
+    src_final_amount_eidon-chain = get_balance(ibc.chains["eidon-chain"], src_bech32, src_denom)
     exp_src_final_bal = src_starting_balance - fees
-    assert src_final_amount_evmos == exp_src_final_bal
+    assert src_final_amount_eidon-chain == exp_src_final_bal
 
     # Check contracts final state (balance & counter)
     contract_final_balance = get_balance(
-        ibc.chains["evmos"], interchain_sender_contract_bech32, src_denom
+        ibc.chains["eidon-chain"], interchain_sender_contract_bech32, src_denom
     )
     assert contract_final_balance == initial_contract_balance
 
@@ -1744,7 +1744,7 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
 
 
 def setup_interchain_sender_contract(
-    evmos, src_acc, transfer_amt, initial_contract_balance
+    eidon-chain, src_acc, transfer_amt, initial_contract_balance
 ):
     """
     Helper function to setup the InterchainSender contract
@@ -1754,17 +1754,17 @@ def setup_interchain_sender_contract(
     for internal transactions within its methods.
     It returns the deployed contract
     """
-    src_denom = "aevmos"
+    src_denom = "aeidon-chain"
     gas_limit = 200_000
-    evmos_gas_price = evmos.w3.eth.gas_price
+    eidon-chain_gas_price = eidon-chain.w3.eth.gas_price
     # Deployment of contracts and initial checks
-    eth_contract, tx_receipt = deploy_contract(evmos.w3, CONTRACTS["InterchainSender"])
+    eth_contract, tx_receipt = deploy_contract(eidon-chain.w3, CONTRACTS["InterchainSender"])
     assert tx_receipt.status == 1
 
     counter = eth_contract.functions.counter().call()
     assert counter == 0
 
-    pc = get_precompile_contract(evmos.w3, "ICS20I")
+    pc = get_precompile_contract(eidon-chain.w3, "ICS20I")
     # Approve the contract to spend the src_denom
     approve_tx = pc.functions.approve(
         eth_contract.address,
@@ -1772,11 +1772,11 @@ def setup_interchain_sender_contract(
     ).build_transaction(
         {
             "from": src_acc.address,
-            "gasPrice": evmos_gas_price,
+            "gasPrice": eidon-chain_gas_price,
             "gas": gas_limit,
         }
     )
-    tx_receipt = send_transaction(evmos.w3, approve_tx, src_acc.key)
+    tx_receipt = send_transaction(eidon-chain.w3, approve_tx, src_acc.key)
     assert tx_receipt.status == 1
 
     def check_allowance_set():
@@ -1787,24 +1787,24 @@ def setup_interchain_sender_contract(
 
     wait_for_fn("allowance has changed", check_allowance_set)
 
-    # send some funds (100 aevmos) to the contract to perform
+    # send some funds (100 aeidon-chain) to the contract to perform
     # internal transfer within the tx
     src_bech32 = eth_to_bech32(src_acc.address)
     contract_bech32 = eth_to_bech32(eth_contract.address)
-    fund_tx = evmos.cosmos_cli().transfer(
+    fund_tx = eidon-chain.cosmos_cli().transfer(
         src_bech32,
         contract_bech32,
-        f"{initial_contract_balance}aevmos",
-        gas_prices=f"{evmos_gas_price + 100000}aevmos",
+        f"{initial_contract_balance}aeidon-chain",
+        gas_prices=f"{eidon-chain_gas_price + 100000}aeidon-chain",
         generate_only=True,
     )
 
-    fund_tx = evmos.cosmos_cli().sign_tx_json(fund_tx, src_bech32, max_priority_price=0)
-    rsp = evmos.cosmos_cli().broadcast_tx_json(fund_tx, broadcast_mode="sync")
+    fund_tx = eidon-chain.cosmos_cli().sign_tx_json(fund_tx, src_bech32, max_priority_price=0)
+    rsp = eidon-chain.cosmos_cli().broadcast_tx_json(fund_tx, broadcast_mode="sync")
     assert rsp["code"] == 0, rsp["raw_log"]
     txhash = rsp["txhash"]
-    wait_for_new_blocks(evmos.cosmos_cli(), 2)
-    receipt = evmos.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    wait_for_new_blocks(eidon-chain.cosmos_cli(), 2)
+    receipt = eidon-chain.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
     assert receipt["tx_result"]["code"] == 0, rsp["raw_log"]
 
     return eth_contract

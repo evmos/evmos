@@ -3,7 +3,7 @@ pragma solidity >=0.8.17;
 
 import "../common/Types.sol";
 
-/// @author Evmos Team
+/// @author Eidon-chain Team
 /// @title Authorization Interface
 /// @dev The interface through which solidity contracts will interact with smart contract approvals.
 interface IICS20Authorization {

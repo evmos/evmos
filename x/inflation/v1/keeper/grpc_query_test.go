@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/inflation/v1/types"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/x/inflation/v1/types"
 )
 
 func TestPeriod(t *testing.T) { //nolint:dupl
@@ -222,7 +222,7 @@ func TestQueryCirculatingSupply(t *testing.T) {
 	// NOTE: the EOA delegate 1 token to every validator but it is already
 	// accounted for in the expCirculatingSupply.
 	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
-	bondedCoins := sdk.NewDecCoin(evmostypes.BaseDenom, bondedAmount)
+	bondedCoins := sdk.NewDecCoin(eidon-chaintypes.BaseDenom, bondedAmount)
 
 	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	require.NoError(t, err)

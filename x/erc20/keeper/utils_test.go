@@ -6,11 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/contracts"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/x/erc20/keeper/testdata"
-	"github.com/evmos/evmos/v20/x/erc20/types"
-	evm "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/contracts"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/keeper/testdata"
+	"github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	evm "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // MintFeeCollector mints some coins to the fee collector address.

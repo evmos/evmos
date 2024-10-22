@@ -1,5 +1,5 @@
 version: v1
-name: buf.build/evmos/evmos
+name: buf.build/Eidon-AI/eidon-chain
 deps:
   - buf.build/cosmos/cosmos-sdk
   - buf.build/cosmos/cosmos-proto

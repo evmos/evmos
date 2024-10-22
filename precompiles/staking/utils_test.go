@@ -7,10 +7,10 @@ import (
 	"slices"
 	"time"
 
-	cmnfactory "github.com/evmos/evmos/v20/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	cmnfactory "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/common/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -28,20 +28,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v20/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v20/precompiles/common"
-	"github.com/evmos/evmos/v20/precompiles/staking"
-	"github.com/evmos/evmos/v20/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v20/testutil"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
-	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/authorization"
+	cmn "github.com/Eidon-AI/eidon-chain/v20/precompiles/common"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/staking"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/testutil"
+	eidon-chainutil "github.com/Eidon-AI/eidon-chain/v20/testutil"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
+	stakingkeeper "github.com/Eidon-AI/eidon-chain/v20/x/staking/keeper"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 // stipend to pay EVM tx fees
 var (
-	bondDenom          = evmostypes.BaseDenom
+	bondDenom          = eidon-chaintypes.BaseDenom
 	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(bondDenom, math.NewInt(1e16)))
 	gas                = uint64(200_000)
 	gasPrices          = accountGasCoverage.QuoInt(math.NewIntFromUint64(gas)).AmountOf(bondDenom)
@@ -411,7 +411,7 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 // setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
 // using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
 func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Key) *vestingtypes.ClawbackVestingAccount {
-	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
+	vestingAmtTotal := eidon-chainutil.TestVestingSchedule.TotalVestingCoins
 	ctx := s.network.GetContext()
 
 	// send some funds to the vesting acccount to pay for fees
@@ -436,8 +436,8 @@ func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Ke
 		funder.AccAddr,
 		vestAcc.AccAddr,
 		vestingStart,
-		evmosutil.TestVestingSchedule.LockupPeriods,
-		evmosutil.TestVestingSchedule.VestingPeriods,
+		eidon-chainutil.TestVestingSchedule.LockupPeriods,
+		eidon-chainutil.TestVestingSchedule.VestingPeriods,
 	)
 	_, err = s.factory.ExecuteCosmosTx(funder.Priv, cmnfactory.CosmosTxArgs{Msgs: []sdk.Msg{fundMsg}})
 	Expect(err).To(BeNil())

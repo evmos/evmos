@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
-/// @author Evmos Team
+/// @author Eidon-chain Team
 /// @title Authorization Interface
 /// @dev The interface through which solidity contracts will interact with smart contract approvals.
 interface AuthorizationI {

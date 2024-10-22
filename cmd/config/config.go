@@ -1,17 +1,17 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package config
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/types"
 )
 
 const (
-	// Bech32Prefix defines the Bech32 prefix used for accounts on the Evmos blockchain
-	Bech32Prefix = "evmos"
+	// Bech32Prefix defines the Bech32 prefix used for accounts on the Eidon-chain blockchain
+	Bech32Prefix = "eidon-chain"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32PrefixAccAddr = Bech32Prefix

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package ibc
 
@@ -13,9 +13,9 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
+	transferkeeper "github.com/Eidon-AI/eidon-chain/v20/x/ibc/transfer/keeper"
 
-	"github.com/evmos/evmos/v20/utils"
+	"github.com/Eidon-AI/eidon-chain/v20/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
@@ -30,15 +30,15 @@ func GetTransferSenderRecipient(data transfertypes.FungibleTokenPacketData) (
 	err error,
 ) {
 	// validate the sender bech32 address from the counterparty chain
-	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
-	sender, err = utils.GetEvmosAddressFromBech32(data.Sender)
+	// and change the bech32 human readable prefix (HRP) of the sender to `eidon-chain`
+	sender, err = utils.GetEidon-chainAddressFromBech32(data.Sender)
 	if err != nil {
 		return nil, nil, "", "", errorsmod.Wrap(err, "invalid sender")
 	}
 
 	// validate the recipient bech32 address from the counterparty chain
-	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
-	recipient, err = utils.GetEvmosAddressFromBech32(data.Receiver)
+	// and change the bech32 human readable prefix (HRP) of the recipient to `eidon-chain`
+	recipient, err = utils.GetEidon-chainAddressFromBech32(data.Receiver)
 	if err != nil {
 		return nil, nil, "", "", errorsmod.Wrap(err, "invalid recipient")
 	}

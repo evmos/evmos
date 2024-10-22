@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Evmos Chain - gRPC Gateway docs",
+    "title": "Eidon-chain Chain - gRPC Gateway docs",
     "description": "A REST interface for state queries and transactions",
     "version": "1.0.0"
   },
@@ -16,7 +16,7 @@
     }
   },
   "paths": {
-    "/evmos/epochs/v1/current_epoch": {
+    "/eidon-chain/epochs/v1/current_epoch": {
       "get": {
         "summary": "CurrentEpoch provide current epoch of specified identifier",
         "operationId": "CurrentEpoch",
@@ -83,7 +83,7 @@
         ]
       }
     },
-    "/evmos/epochs/v1/epochs": {
+    "/eidon-chain/epochs/v1/epochs": {
       "get": {
         "summary": "EpochInfos provide running epochInfos",
         "operationId": "EpochInfos",
@@ -234,7 +234,7 @@
         ]
       }
     },
-    "/evmos/erc20/v1/params": {
+    "/eidon-chain/erc20/v1/params": {
       "get": {
         "summary": "Params retrieves the erc20 module params",
         "operationId": "ERC20Params",
@@ -311,7 +311,7 @@
         ]
       }
     },
-    "/evmos/erc20/v1/token_pairs": {
+    "/eidon-chain/erc20/v1/token_pairs": {
       "get": {
         "summary": "TokenPairs retrieves registered token pairs",
         "operationId": "TokenPairs",
@@ -453,7 +453,7 @@
         ]
       }
     },
-    "/evmos/erc20/v1/token_pairs/{token}": {
+    "/eidon-chain/erc20/v1/token_pairs/{token}": {
       "get": {
         "summary": "TokenPair retrieves a registered token pair",
         "operationId": "TokenPair",
@@ -545,7 +545,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/circulating_supply": {
+    "/eidon-chain/inflation/v1/circulating_supply": {
       "get": {
         "summary": "CirculatingSupply retrieves the total number of tokens that are in\ncirculation (i.e. excluding unvested tokens).",
         "operationId": "CirculatingSupply",
@@ -611,7 +611,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/epoch_mint_provision": {
+    "/eidon-chain/inflation/v1/epoch_mint_provision": {
       "get": {
         "summary": "EpochMintProvision retrieves current minting epoch provision value.",
         "operationId": "EpochMintProvision",
@@ -676,7 +676,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/inflation_rate": {
+    "/eidon-chain/inflation/v1/inflation_rate": {
       "get": {
         "summary": "InflationRate retrieves the inflation rate of the current period.",
         "operationId": "InflationRate",
@@ -733,7 +733,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/params": {
+    "/eidon-chain/inflation/v1/params": {
       "get": {
         "summary": "Params retrieves the total set of minting parameters.",
         "operationId": "InflationParams",
@@ -844,7 +844,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/period": {
+    "/eidon-chain/inflation/v1/period": {
       "get": {
         "summary": "Period retrieves current period.",
         "operationId": "Period",
@@ -902,7 +902,7 @@
         ]
       }
     },
-    "/evmos/inflation/v1/skipped_epochs": {
+    "/eidon-chain/inflation/v1/skipped_epochs": {
       "get": {
         "summary": "SkippedEpochs retrieves the total number of skipped epochs.",
         "operationId": "SkippedEpochs",
@@ -960,7 +960,7 @@
         ]
       }
     },
-    "/evmos/vesting/v2/balances/{address}": {
+    "/eidon-chain/vesting/v2/balances/{address}": {
       "get": {
         "summary": "Balances retrieves the unvested, vested and locked tokens for a vesting account",
         "operationId": "Balances",
@@ -1070,7 +1070,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/account/{address}": {
+    "/eidon-chain/evm/v1/account/{address}": {
       "get": {
         "summary": "Account queries an Ethereum account.",
         "operationId": "Account",
@@ -1148,7 +1148,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/balances/{address}": {
+    "/eidon-chain/evm/v1/balances/{address}": {
       "get": {
         "summary": "Balance queries the balance of a the EVM denomination for a single\naccount.",
         "operationId": "Balance",
@@ -1217,7 +1217,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/base_fee": {
+    "/eidon-chain/evm/v1/base_fee": {
       "get": {
         "summary": "BaseFee queries the base fee of the parent block of the current block,\nit's similar to feemarket module's method, but also checks london hardfork status.",
         "operationId": "BaseFee",
@@ -1277,7 +1277,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/codes/{address}": {
+    "/eidon-chain/evm/v1/codes/{address}": {
       "get": {
         "summary": "Code queries the balance of all coins for a single account.",
         "operationId": "Code",
@@ -1347,7 +1347,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/config": {
+    "/eidon-chain/evm/v1/config": {
       "get": {
         "summary": "Config queries the EVM configuration",
         "operationId": "Config",
@@ -1500,7 +1500,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/cosmos_account/{address}": {
+    "/eidon-chain/evm/v1/cosmos_account/{address}": {
       "get": {
         "summary": "CosmosAccount queries an Ethereum account's Cosmos Address.",
         "operationId": "CosmosAccount",
@@ -1579,7 +1579,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/estimate_gas": {
+    "/eidon-chain/evm/v1/estimate_gas": {
       "get": {
         "summary": "EstimateGas implements the `eth_estimateGas` rpc api",
         "operationId": "EstimateGas",
@@ -1683,7 +1683,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/eth_call": {
+    "/eidon-chain/evm/v1/eth_call": {
       "get": {
         "summary": "EthCall implements the `eth_call` rpc api",
         "operationId": "EthCall",
@@ -1844,7 +1844,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/min_gas_price": {
+    "/eidon-chain/evm/v1/min_gas_price": {
       "get": {
         "summary": "GlobalMinGasPrice queries the MinGasPrice\nit's similar to feemarket module's method,\nbut makes the conversion to 18 decimals\nwhen the evm denom is represented with a different precision.",
         "operationId": "GlobalMinGasPrice",
@@ -1904,7 +1904,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/params": {
+    "/eidon-chain/evm/v1/params": {
       "get": {
         "summary": "Params queries the parameters of x/evm module.",
         "operationId": "EvmParams",
@@ -2046,7 +2046,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/storage/{address}/{key}": {
+    "/eidon-chain/evm/v1/storage/{address}/{key}": {
       "get": {
         "summary": "Storage queries the balance of all coins for a single account.",
         "operationId": "Storage",
@@ -2122,7 +2122,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/trace_block": {
+    "/eidon-chain/evm/v1/trace_block": {
       "get": {
         "summary": "TraceBlock implements the `debug_traceBlockByNumber` and `debug_traceBlockByHash` rpc api",
         "operationId": "TraceBlock",
@@ -2460,7 +2460,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/trace_tx": {
+    "/eidon-chain/evm/v1/trace_tx": {
       "get": {
         "summary": "TraceTx implements the `debug_traceTransaction` rpc api",
         "operationId": "TraceTx",
@@ -2835,7 +2835,7 @@
         ]
       }
     },
-    "/evmos/evm/v1/validator_account/{cons_address}": {
+    "/eidon-chain/evm/v1/validator_account/{cons_address}": {
       "get": {
         "summary": "ValidatorAccount queries an Ethereum account's from a validator consensus\nAddress.",
         "operationId": "ValidatorAccount",
@@ -2914,7 +2914,7 @@
         ]
       }
     },
-    "/evmos/feemarket/v1/base_fee": {
+    "/eidon-chain/feemarket/v1/base_fee": {
       "get": {
         "summary": "BaseFee queries the base fee of the parent block of the current block.",
         "operationId": "FeeMarketBaseFee",
@@ -2971,7 +2971,7 @@
         ]
       }
     },
-    "/evmos/feemarket/v1/block_gas": {
+    "/eidon-chain/feemarket/v1/block_gas": {
       "get": {
         "summary": "BlockGas queries the gas used at a given block height",
         "operationId": "BlockGas",
@@ -3029,7 +3029,7 @@
         ]
       }
     },
-    "/evmos/feemarket/v1/params": {
+    "/eidon-chain/feemarket/v1/params": {
       "get": {
         "summary": "Params queries the parameters of x/feemarket module.",
         "operationId": "FeeMarketParams",
@@ -21986,7 +21986,7 @@
       },
       "description": "PageResponse is to be embedded in gRPC response messages where the\ncorresponding request message has used PageRequest.\n\n message SomeResponse {\n         repeated Bar results = 1;\n         PageResponse page = 2;\n }"
     },
-    "evmos.epochs.v1.EpochInfo": {
+    "eidon-chain.epochs.v1.EpochInfo": {
       "type": "object",
       "properties": {
         "identifier": {
@@ -22024,7 +22024,7 @@
       },
       "description": "EpochInfo defines the message interface containing the relevant informations about\nan epoch."
     },
-    "evmos.epochs.v1.QueryCurrentEpochResponse": {
+    "eidon-chain.epochs.v1.QueryCurrentEpochResponse": {
       "type": "object",
       "properties": {
         "current_epoch": {
@@ -22035,7 +22035,7 @@
       },
       "description": "QueryCurrentEpochResponse is the response type for the Query/EpochInfos RPC\nmethod."
     },
-    "evmos.epochs.v1.QueryEpochsInfoResponse": {
+    "eidon-chain.epochs.v1.QueryEpochsInfoResponse": {
       "type": "object",
       "properties": {
         "epochs": {
@@ -22147,7 +22147,7 @@
         }
       }
     },
-    "evmos.erc20.v1.Owner": {
+    "eidon-chain.erc20.v1.Owner": {
       "type": "string",
       "enum": [
         "OWNER_UNSPECIFIED",
@@ -22157,7 +22157,7 @@
       "default": "OWNER_UNSPECIFIED",
       "description": "Owner enumerates the ownership of a ERC20 contract.\n\n - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.\n - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.\n - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account."
     },
-    "evmos.erc20.v1.Params": {
+    "eidon-chain.erc20.v1.Params": {
       "type": "object",
       "properties": {
         "enable_erc20": {
@@ -22181,7 +22181,7 @@
       },
       "title": "Params defines the erc20 module params"
     },
-    "evmos.erc20.v1.QueryParamsResponse": {
+    "eidon-chain.erc20.v1.QueryParamsResponse": {
       "type": "object",
       "properties": {
         "params": {
@@ -22211,7 +22211,7 @@
       },
       "description": "QueryParamsResponse is the response type for the Query/Params RPC\nmethod."
     },
-    "evmos.erc20.v1.QueryTokenPairResponse": {
+    "eidon-chain.erc20.v1.QueryTokenPairResponse": {
       "type": "object",
       "properties": {
         "token_pair": {
@@ -22247,7 +22247,7 @@
       },
       "description": "QueryTokenPairResponse is the response type for the Query/TokenPair RPC\nmethod."
     },
-    "evmos.erc20.v1.QueryTokenPairsResponse": {
+    "eidon-chain.erc20.v1.QueryTokenPairsResponse": {
       "type": "object",
       "properties": {
         "token_pairs": {
@@ -22302,7 +22302,7 @@
       },
       "description": "QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC\nmethod."
     },
-    "evmos.erc20.v1.TokenPair": {
+    "eidon-chain.erc20.v1.TokenPair": {
       "type": "object",
       "properties": {
         "erc20_address": {
@@ -22343,7 +22343,7 @@
       },
       "description": "DecCoin defines a token with a denomination and a decimal amount.\n\nNOTE: The amount field is an Dec which implements the custom method\nsignatures required by gogoproto."
     },
-    "evmos.inflation.v1.ExponentialCalculation": {
+    "eidon-chain.inflation.v1.ExponentialCalculation": {
       "type": "object",
       "properties": {
         "a": {
@@ -22369,7 +22369,7 @@
       },
       "title": "ExponentialCalculation holds factors to calculate exponential inflation on\neach period. Calculation reference:\nperiodProvision = exponentialDecay       *  bondingIncentive\nf(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *\n(max_variance / bonding_target))"
     },
-    "evmos.inflation.v1.InflationDistribution": {
+    "eidon-chain.inflation.v1.InflationDistribution": {
       "type": "object",
       "properties": {
         "staking_rewards": {
@@ -22385,9 +22385,9 @@
           "title": "community_pool defines the proportion of the minted minted_denom that is to\nbe allocated to the community pool"
         }
       },
-      "title": "InflationDistribution defines the distribution in which inflation is\nallocated through minting on each epoch (staking, incentives, community). It\nexcludes the team vesting distribution, as this is minted once at genesis.\nThe initial InflationDistribution can be calculated from the Evmos Token\nModel like this:\nmintDistribution1 = distribution1 / (1 - teamVestingDistribution)\n0.5333333         = 40%           / (1 - 25%)"
+      "title": "InflationDistribution defines the distribution in which inflation is\nallocated through minting on each epoch (staking, incentives, community). It\nexcludes the team vesting distribution, as this is minted once at genesis.\nThe initial InflationDistribution can be calculated from the Eidon-chain Token\nModel like this:\nmintDistribution1 = distribution1 / (1 - teamVestingDistribution)\n0.5333333         = 40%           / (1 - 25%)"
     },
-    "evmos.inflation.v1.Params": {
+    "eidon-chain.inflation.v1.Params": {
       "type": "object",
       "properties": {
         "mint_denom": {
@@ -22445,7 +22445,7 @@
       },
       "description": "Params holds parameters for the inflation module."
     },
-    "evmos.inflation.v1.QueryCirculatingSupplyResponse": {
+    "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse": {
       "type": "object",
       "properties": {
         "circulating_supply": {
@@ -22464,7 +22464,7 @@
       },
       "description": "QueryCirculatingSupplyResponse is the response type for the\nQuery/CirculatingSupply RPC method."
     },
-    "evmos.inflation.v1.QueryEpochMintProvisionResponse": {
+    "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse": {
       "type": "object",
       "properties": {
         "epoch_mint_provision": {
@@ -22482,7 +22482,7 @@
       },
       "description": "QueryEpochMintProvisionResponse is the response type for the\nQuery/EpochMintProvision RPC method."
     },
-    "evmos.inflation.v1.QueryInflationRateResponse": {
+    "eidon-chain.inflation.v1.QueryInflationRateResponse": {
       "type": "object",
       "properties": {
         "inflation_rate": {
@@ -22492,7 +22492,7 @@
       },
       "description": "QueryInflationRateResponse is the response type for the Query/InflationRate\nRPC method."
     },
-    "evmos.inflation.v1.QueryParamsResponse": {
+    "eidon-chain.inflation.v1.QueryParamsResponse": {
       "type": "object",
       "properties": {
         "params": {
@@ -22556,7 +22556,7 @@
       },
       "description": "QueryParamsResponse is the response type for the Query/Params RPC method."
     },
-    "evmos.inflation.v1.QueryPeriodResponse": {
+    "eidon-chain.inflation.v1.QueryPeriodResponse": {
       "type": "object",
       "properties": {
         "period": {
@@ -22567,7 +22567,7 @@
       },
       "description": "QueryPeriodResponse is the response type for the Query/Period RPC method."
     },
-    "evmos.inflation.v1.QuerySkippedEpochsResponse": {
+    "eidon-chain.inflation.v1.QuerySkippedEpochsResponse": {
       "type": "object",
       "properties": {
         "skipped_epochs": {
@@ -22590,7 +22590,7 @@
       },
       "description": "Coin defines a token with a denomination and an amount.\n\nNOTE: The amount field is an Int which implements the custom method\nsignatures required by gogoproto."
     },
-    "evmos.vesting.v2.QueryBalancesResponse": {
+    "eidon-chain.vesting.v2.QueryBalancesResponse": {
       "type": "object",
       "properties": {
         "locked": {

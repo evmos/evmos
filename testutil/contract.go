@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package testutil
 
 import (
@@ -18,9 +18,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v20/app"
-	"github.com/evmos/evmos/v20/testutil/tx"
-	evm "github.com/evmos/evmos/v20/x/evm/types"
+	"github.com/Eidon-AI/eidon-chain/v20/app"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	evm "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.
@@ -41,7 +41,7 @@ type ContractCallArgs struct {
 	Contract ContractArgs
 	// Nonce is the nonce to use for the transaction.
 	Nonce *big.Int
-	// Amount is the aevmos amount to send in the transaction.
+	// Amount is the aeidon-chain amount to send in the transaction.
 	Amount *big.Int
 	// GasLimit to use for the transaction
 	GasLimit uint64
@@ -53,7 +53,7 @@ type ContractCallArgs struct {
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	evmosApp *app.Evmos,
+	eidon-chainApp *app.Eidon-chain,
 	priv cryptotypes.PrivKey,
 	queryClientEvm evm.QueryClient,
 	contract evm.CompiledContract,
@@ -61,7 +61,7 @@ func DeployContract(
 ) (common.Address, error) {
 	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+	nonce := eidon-chainApp.EvmKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {
@@ -74,7 +74,7 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
-	baseFeeRes, err := evmosApp.EvmKeeper.BaseFee(ctx, &evm.QueryBaseFeeRequest{})
+	baseFeeRes, err := eidon-chainApp.EvmKeeper.BaseFee(ctx, &evm.QueryBaseFeeRequest{})
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -94,12 +94,12 @@ func DeployContract(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := DeliverEthTx(eidon-chainApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, err
 	}
 
-	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, eidon-chainApp.AppCodec()); err != nil {
 		return common.Address{}, err
 	}
 
@@ -110,14 +110,14 @@ func DeployContract(
 // with the provided factoryAddress
 func DeployContractWithFactory(
 	ctx sdk.Context,
-	evmosApp *app.Evmos,
+	eidon-chainApp *app.Eidon-chain,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ExecTxResult, error) {
 	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
-	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+	factoryNonce := eidon-chainApp.EvmKeeper.GetNonce(ctx, factoryAddress)
+	nonce := eidon-chainApp.EvmKeeper.GetNonce(ctx, from)
 
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:  chainID,
@@ -128,12 +128,12 @@ func DeployContractWithFactory(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := DeliverEthTx(eidon-chainApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, abci.ExecTxResult{}, err
 	}
 
-	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, eidon-chainApp.AppCodec()); err != nil {
 		return common.Address{}, abci.ExecTxResult{}, err
 	}
 

@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
 package ethermint.evm.v1;
 
@@ -11,14 +11,14 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/evm/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/evm/types";
 
 // Msg defines the evm Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
   // EthereumTx defines a method submitting Ethereum transactions.
   rpc EthereumTx(MsgEthereumTx) returns (MsgEthereumTxResponse) {
-    option (google.api.http).post = "/evmos/evm/v1/ethereum_tx";
+    option (google.api.http).post = "/eidon-chain/evm/v1/ethereum_tx";
   };
   // UpdateParams defined a governance operation for updating the x/evm module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
@@ -182,7 +182,7 @@ message MsgEthereumTxResponse {
 
 // MsgUpdateParams defines a Msg for updating the x/evm module parameters.
 message MsgUpdateParams {
-  option (amino.name) = "evmos/x/evm/MsgUpdateParams";
+  option (amino.name) = "eidon-chain/x/evm/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.

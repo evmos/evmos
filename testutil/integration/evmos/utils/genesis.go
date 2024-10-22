@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package utils
 
@@ -7,12 +7,12 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v20/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v20/types"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	utiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
+	erc20types "github.com/Eidon-AI/eidon-chain/v20/x/erc20/types"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 // CreateGenesisWithTokenPairs creates a genesis that includes
@@ -45,19 +45,19 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	accGenesisState := authtypes.DefaultGenesisState()
 	for _, genesisAccount := range genesisAccounts {
 		// NOTE: This type requires to be packed into a *types.Any as seen on SDK tests,
-		// e.g. https://github.com/evmos/cosmos-sdk/blob/v0.47.5-evmos.2/x/auth/keeper/keeper_test.go#L193-L223
+		// e.g. https://github.com/Eidon-AI/cosmos-sdk/blob/v0.47.5-eidon-chain.2/x/auth/keeper/keeper_test.go#L193-L223
 		accGenesisState.Accounts = append(accGenesisState.Accounts, codectypes.UnsafePackAny(genesisAccount))
 	}
 
 	// get the common.Address to store the hex string addresses using EIP-55
-	wevmosAddr := common.HexToAddress(erc20types.WEVMOSContractTestnet).Hex()
+	weidon-chainAddr := common.HexToAddress(erc20types.WEVMOSContractTestnet).Hex()
 
 	// Add token pairs to genesis
 	tokenPairs := make([]erc20types.TokenPair, 0, len(denoms)+1)
-	// add token pair for fees token (wevmos)
+	// add token pair for fees token (weidon-chain)
 	tokenPairs = append(tokenPairs, erc20types.TokenPair{
-		Erc20Address:  wevmosAddr,
-		Denom:         evmostypes.BaseDenom,
+		Erc20Address:  weidon-chainAddr,
+		Denom:         eidon-chaintypes.BaseDenom,
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	})
@@ -80,7 +80,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 
 	// STR v2: update the NativePrecompiles and DynamicPrecompiles
 	// with the WEVMOS (default is mainnet) and 'xmpl' tokens in the erc20 params
-	erc20GenesisState.Params.NativePrecompiles = []string{wevmosAddr}
+	erc20GenesisState.Params.NativePrecompiles = []string{weidon-chainAddr}
 	erc20GenesisState.Params.DynamicPrecompiles = dynPrecAddr
 
 	// Add the smart contracts to the EVM genesis

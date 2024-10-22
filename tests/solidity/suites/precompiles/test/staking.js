@@ -3,7 +3,7 @@ const hre = require('hardhat')
 
 describe('Staking', function () {
   it('should stake EVMOS to a validator', async function () {
-    const valAddr = 'evmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pwlawghe'
+    const valAddr = 'eidon-chainvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pwlawghe'
     const stakeAmount = hre.ethers.parseEther('0.001')
 
     const staking = await hre.ethers.getContractAt(

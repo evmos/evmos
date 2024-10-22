@@ -1,20 +1,20 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 syntax = "proto3";
-package evmos.vesting.v2;
+package eidon-chain.vesting.v2;
 
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v20/x/vesting/types";
+option go_package = "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Balances retrieves the unvested, vested and locked tokens for a vesting account
   rpc Balances(QueryBalancesRequest) returns (QueryBalancesResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/balances/{address}";
+    option (google.api.http).get = "/eidon-chain/vesting/v2/balances/{address}";
   }
 }
 

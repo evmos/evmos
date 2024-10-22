@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v20/x/vesting/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -34,7 +34,7 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - valid address",
 			title:       "test",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "eidon-chain19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
 			expectPass:  true,
 		},
 		// Invalid - Missing params
@@ -42,14 +42,14 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - invalid missing title ",
 			title:       "",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "eidon-chain19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
 			expectPass:  false,
 		},
 		{
 			msg:         "Clawback proposal - invalid missing description ",
 			title:       "test",
 			description: "",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:     "eidon-chain19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
 			expectPass:  false,
 		},
 		// Invalid address
@@ -57,14 +57,14 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			msg:         "Clawback proposal - invalid address (no hex)",
 			title:       "test",
 			description: "test desc",
-			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6ggg",
+			address:     "eidon-chain19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6ggg",
 			expectPass:  false,
 		},
 		{
 			msg:                "Clawback proposal - invalid destination addr",
 			title:              "test",
 			description:        "test desc",
-			address:            "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			address:            "eidon-chain19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
 			destinationAddress: "125182ujaisch8hsgs",
 			expectPass:         false,
 		},

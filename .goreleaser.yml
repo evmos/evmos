@@ -4,9 +4,9 @@ before:
     - go mod download
 
 builds:
-  - id: "evmosd-darwin"
-    main: ./cmd/evmosd
-    binary: bin/evmosd
+  - id: "eidond-darwin"
+    main: ./cmd/eidond
+    binary: bin/eidond
     env:
       - CGO_ENABLED=1
       - CC=o64-clang
@@ -18,10 +18,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "evmosd-darwin-arm64"
-    main: ./cmd/evmosd
-    binary: bin/evmosd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=eidon-chain -X github.com/cosmos/cosmos-sdk/version.AppName=eidond -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "eidond-darwin-arm64"
+    main: ./cmd/eidond
+    binary: bin/eidond
     env:
       - CGO_ENABLED=1
       - CC=oa64-clang
@@ -33,10 +33,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "evmosd-linux"
-    main: ./cmd/evmosd
-    binary: bin/evmosd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=eidon-chain -X github.com/cosmos/cosmos-sdk/version.AppName=eidond -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "eidond-linux"
+    main: ./cmd/eidond
+    binary: bin/eidond
     env:
       - CGO_ENABLED=1
       - CC=gcc
@@ -48,10 +48,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "evmosd-linux-arm64"
-    main: ./cmd/evmosd
-    binary: bin/evmosd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=eidon-chain -X github.com/cosmos/cosmos-sdk/version.AppName=eidond -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "eidond-linux-arm64"
+    main: ./cmd/eidond
+    binary: bin/eidond
     env:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
@@ -63,10 +63,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "evmosd-windows"
-    main: ./cmd/evmosd
-    binary: bin/evmosd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=eidon-chain -X github.com/cosmos/cosmos-sdk/version.AppName=eidond -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "eidond-windows"
+    main: ./cmd/eidond
+    binary: bin/eidond
     env:
       - CGO_ENABLED=1
       - CC=x86_64-w64-mingw32-gcc
@@ -79,7 +79,7 @@ builds:
       - -tags=cgo
       - -buildmode=exe
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=eidon-chain -X github.com/cosmos/cosmos-sdk/version.AppName=eidond -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}"
@@ -87,11 +87,11 @@ archives:
       - goos: windows
         format: zip
     builds:
-      - evmosd-darwin
-      - evmosd-darwin-arm64
-      - evmosd-windows
-      - evmosd-linux
-      - evmosd-linux-arm64
+      - eidond-darwin
+      - eidond-darwin-arm64
+      - eidond-windows
+      - eidond-linux
+      - eidond-linux-arm64
 
 checksum:
   name_template: "checksums.txt"

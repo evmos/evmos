@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 package evm
 
 import (
@@ -17,9 +17,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
-	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
-	evmkeeper "github.com/evmos/evmos/v20/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	anteutils "github.com/Eidon-AI/eidon-chain/v20/app/ante/utils"
+	evmkeeper "github.com/Eidon-AI/eidon-chain/v20/x/evm/keeper"
+	evmtypes "github.com/Eidon-AI/eidon-chain/v20/x/evm/types"
 )
 
 var _ sdk.AnteDecorator = &EthSetupContextDecorator{}

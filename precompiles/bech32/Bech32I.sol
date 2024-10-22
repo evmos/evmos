@@ -7,7 +7,7 @@ address constant Bech32_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000
 /// @dev The Bech32I contract's instance.
 Bech32I constant BECH32_CONTRACT = Bech32I(Bech32_PRECOMPILE_ADDRESS);
 
-/// @author Evmos Team
+/// @author Eidon-chain Team
 /// @title Bech32 Precompiled Contract
 /// @dev The interface through which solidity contracts can convert addresses from
 /// hex to bech32 and vice versa.

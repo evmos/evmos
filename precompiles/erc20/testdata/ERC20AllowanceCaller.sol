@@ -4,7 +4,7 @@ pragma solidity >=0.8.17;
 import "../IERC20MetadataAllowance.sol" as erc20Allowance;
 
 /// @title ERC20AllowanceCaller
-/// @author Evmos Core Team
+/// @author Eidon-chain Core Team
 /// @dev This contract is used to test external contract calls to the ERC20 precompile.
 contract ERC20AllowanceCaller {
     erc20Allowance.IERC20MetadataAllowance public token;

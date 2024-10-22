@@ -6,7 +6,7 @@ from eth_utils import abi, big_endian_to_int
 from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
-from .network import create_snapshots_dir, setup_custom_evmos
+from .network import create_snapshots_dir, setup_custom_eidon-chain
 from .utils import (
     ADDRS,
     CONTRACTS,
@@ -20,9 +20,9 @@ from .utils import (
 @pytest.fixture(scope="module")
 def pruned(tmp_path_factory):
     """
-    setup evmos with 'pruning = everything'
+    setup eidon-chain with 'pruning = everything'
     """
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         tmp_path_factory.mktemp("pruned"),
         26900,
         Path(__file__).parent / "configs/pruned_node.jsonnet",
@@ -32,28 +32,28 @@ def pruned(tmp_path_factory):
 @pytest.fixture(scope="module")
 def pruned_rocksdb(tmp_path_factory):
     """
-    setup evmos with memIAVL + versionDB
+    setup eidon-chain with memIAVL + versionDB
     and 'pruning = everything'
     """
-    yield from setup_custom_evmos(
+    yield from setup_custom_eidon-chain(
         tmp_path_factory.mktemp("pruned-rocksdb"),
         26700,
         Path(__file__).parent / "configs/memiavl-pruned_node.jsonnet",
-        chain_binary="evmosd-rocksdb",
+        chain_binary="eidond-rocksdb",
         post_init=create_snapshots_dir,
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["eidon-chain", "eidon-chain-rocksdb"])
 def pruned_cluster(request, pruned, pruned_rocksdb):
     """
-    run on evmos and
-    evmos built with rocksdb (memIAVL + versionDB)
+    run on eidon-chain and
+    eidon-chain built with rocksdb (memIAVL + versionDB)
     """
     provider = request.param
-    if provider == "evmos":
+    if provider == "eidon-chain":
         yield pruned
-    elif provider == "evmos-rocksdb":
+    elif provider == "eidon-chain-rocksdb":
         yield pruned_rocksdb
     else:
         raise NotImplementedError

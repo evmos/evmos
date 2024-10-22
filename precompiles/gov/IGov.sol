@@ -53,7 +53,7 @@ struct TallyResultData {
     string noWithVeto;
 }
 
-/// @author The Evmos Core Team
+/// @author The Eidon-chain Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {

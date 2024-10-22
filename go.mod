@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v20
+module github.com/Eidon-AI/eidon-chain/v20
 
 go 1.22.2
 
@@ -276,12 +276,12 @@ replace (
 	// need this replace when importing cosmos/rosetta pkg
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	// need this replace to pick up the store changes (Copy func) in our cosmos-sdk fork
-	cosmossdk.io/store => github.com/evmos/cosmos-sdk/store v0.0.0-20240718141609-414cbd051fbe
+	cosmossdk.io/store => github.com/Eidon-AI/cosmos-sdk/store v0.0.0-20240718141609-414cbd051fbe
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.50.9-evmos
-	// use Evmos geth fork
-	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc4
+	github.com/cosmos/cosmos-sdk => github.com/Eidon-AI/cosmos-sdk v0.50.9-eidon-chain
+	// use Eidon-chain geth fork
+	github.com/ethereum/go-ethereum => github.com/Eidon-AI/go-ethereum v1.10.26-eidon-chain-rc4
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// replace broken goleveldb

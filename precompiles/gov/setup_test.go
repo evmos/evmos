@@ -14,12 +14,12 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/evmos/evmos/v20/precompiles/gov"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/gov"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/factory"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -69,15 +69,15 @@ func (s *PrecompileTestSuite) SetupTest() {
 	bankGen := banktypes.DefaultGenesisState()
 	bankGen.Balances = []banktypes.Balance{{
 		Address: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(eidon-chaintypes.BaseDenom, math.NewInt(100))),
 	}}
 	govGen := govv1.DefaultGenesisState()
 	govGen.Deposits = []*govv1.Deposit{{
 		ProposalId: 1,
 		Depositor:  keyring.GetAccAddr(0).String(),
-		Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		Amount:     sdk.NewCoins(sdk.NewCoin(eidon-chaintypes.BaseDenom, math.NewInt(100))),
 	}}
-	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100)))
+	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(eidon-chaintypes.BaseDenom, math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
 	customGen[banktypes.ModuleName] = bankGen

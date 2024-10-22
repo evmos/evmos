@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_evmos_epochs_v1_query_proto_init()
-	md_QueryEpochsInfoRequest = File_evmos_epochs_v1_query_proto.Messages().ByName("QueryEpochsInfoRequest")
+	file_eidon-chain_epochs_v1_query_proto_init()
+	md_QueryEpochsInfoRequest = File_eidon-chain_epochs_v1_query_proto.Messages().ByName("QueryEpochsInfoRequest")
 	fd_QueryEpochsInfoRequest_pagination = md_QueryEpochsInfoRequest.Fields().ByName("pagination")
 }
 
@@ -36,7 +36,7 @@ func (x *QueryEpochsInfoRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryEpochsInfoRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_epochs_v1_query_proto_msgTypes[0]
+	mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -113,13 +113,13 @@ func (x *fastReflection_QueryEpochsInfoRequest) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryEpochsInfoRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -131,13 +131,13 @@ func (x *fastReflection_QueryEpochsInfoRequest) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -149,14 +149,14 @@ func (x *fastReflection_QueryEpochsInfoRequest) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryEpochsInfoRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -172,13 +172,13 @@ func (x *fastReflection_QueryEpochsInfoRequest) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -194,16 +194,16 @@ func (x *fastReflection_QueryEpochsInfoRequest) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageRequest)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -212,14 +212,14 @@ func (x *fastReflection_QueryEpochsInfoRequest) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryEpochsInfoRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoRequest.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination":
 		m := new(v1beta1.PageRequest)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -229,7 +229,7 @@ func (x *fastReflection_QueryEpochsInfoRequest) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_QueryEpochsInfoRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.QueryEpochsInfoRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.epochs.v1.QueryEpochsInfoRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -509,8 +509,8 @@ var (
 )
 
 func init() {
-	file_evmos_epochs_v1_query_proto_init()
-	md_QueryEpochsInfoResponse = File_evmos_epochs_v1_query_proto.Messages().ByName("QueryEpochsInfoResponse")
+	file_eidon-chain_epochs_v1_query_proto_init()
+	md_QueryEpochsInfoResponse = File_eidon-chain_epochs_v1_query_proto.Messages().ByName("QueryEpochsInfoResponse")
 	fd_QueryEpochsInfoResponse_epochs = md_QueryEpochsInfoResponse.Fields().ByName("epochs")
 	fd_QueryEpochsInfoResponse_pagination = md_QueryEpochsInfoResponse.Fields().ByName("pagination")
 }
@@ -524,7 +524,7 @@ func (x *QueryEpochsInfoResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryEpochsInfoResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_epochs_v1_query_proto_msgTypes[1]
+	mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,15 +607,15 @@ func (x *fastReflection_QueryEpochsInfoResponse) Range(f func(protoreflect.Field
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryEpochsInfoResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		return len(x.Epochs) != 0
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -627,15 +627,15 @@ func (x *fastReflection_QueryEpochsInfoResponse) Has(fd protoreflect.FieldDescri
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		x.Epochs = nil
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -647,20 +647,20 @@ func (x *fastReflection_QueryEpochsInfoResponse) Clear(fd protoreflect.FieldDesc
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryEpochsInfoResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		if len(x.Epochs) == 0 {
 			return protoreflect.ValueOfList(&_QueryEpochsInfoResponse_1_list{})
 		}
 		listValue := &_QueryEpochsInfoResponse_1_list{list: &x.Epochs}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -676,17 +676,17 @@ func (x *fastReflection_QueryEpochsInfoResponse) Get(descriptor protoreflect.Fie
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		lv := value.List()
 		clv := lv.(*_QueryEpochsInfoResponse_1_list)
 		x.Epochs = *clv.list
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -702,22 +702,22 @@ func (x *fastReflection_QueryEpochsInfoResponse) Set(fd protoreflect.FieldDescri
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochsInfoResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		if x.Epochs == nil {
 			x.Epochs = []*EpochInfo{}
 		}
 		value := &_QueryEpochsInfoResponse_1_list{list: &x.Epochs}
 		return protoreflect.ValueOfList(value)
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageResponse)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -726,17 +726,17 @@ func (x *fastReflection_QueryEpochsInfoResponse) Mutable(fd protoreflect.FieldDe
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryEpochsInfoResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.epochs":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs":
 		list := []*EpochInfo{}
 		return protoreflect.ValueOfList(&_QueryEpochsInfoResponse_1_list{list: &list})
-	case "evmos.epochs.v1.QueryEpochsInfoResponse.pagination":
+	case "eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination":
 		m := new(v1beta1.PageResponse)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryEpochsInfoResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryEpochsInfoResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryEpochsInfoResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -746,7 +746,7 @@ func (x *fastReflection_QueryEpochsInfoResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_QueryEpochsInfoResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.QueryEpochsInfoResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.epochs.v1.QueryEpochsInfoResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1030,8 +1030,8 @@ var (
 )
 
 func init() {
-	file_evmos_epochs_v1_query_proto_init()
-	md_QueryCurrentEpochRequest = File_evmos_epochs_v1_query_proto.Messages().ByName("QueryCurrentEpochRequest")
+	file_eidon-chain_epochs_v1_query_proto_init()
+	md_QueryCurrentEpochRequest = File_eidon-chain_epochs_v1_query_proto.Messages().ByName("QueryCurrentEpochRequest")
 	fd_QueryCurrentEpochRequest_identifier = md_QueryCurrentEpochRequest.Fields().ByName("identifier")
 }
 
@@ -1044,7 +1044,7 @@ func (x *QueryCurrentEpochRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCurrentEpochRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_epochs_v1_query_proto_msgTypes[2]
+	mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,13 +1121,13 @@ func (x *fastReflection_QueryCurrentEpochRequest) Range(f func(protoreflect.Fiel
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryCurrentEpochRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
 		return x.Identifier != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1139,13 +1139,13 @@ func (x *fastReflection_QueryCurrentEpochRequest) Has(fd protoreflect.FieldDescr
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
 		x.Identifier = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1157,14 +1157,14 @@ func (x *fastReflection_QueryCurrentEpochRequest) Clear(fd protoreflect.FieldDes
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryCurrentEpochRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
 		value := x.Identifier
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1180,13 +1180,13 @@ func (x *fastReflection_QueryCurrentEpochRequest) Get(descriptor protoreflect.Fi
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
 		x.Identifier = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1202,13 +1202,13 @@ func (x *fastReflection_QueryCurrentEpochRequest) Set(fd protoreflect.FieldDescr
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
-		panic(fmt.Errorf("field identifier of message evmos.epochs.v1.QueryCurrentEpochRequest is not mutable"))
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
+		panic(fmt.Errorf("field identifier of message eidon-chain.epochs.v1.QueryCurrentEpochRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1217,13 +1217,13 @@ func (x *fastReflection_QueryCurrentEpochRequest) Mutable(fd protoreflect.FieldD
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryCurrentEpochRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochRequest.identifier":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochRequest.identifier":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochRequest"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1233,7 +1233,7 @@ func (x *fastReflection_QueryCurrentEpochRequest) NewField(fd protoreflect.Field
 func (x *fastReflection_QueryCurrentEpochRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.QueryCurrentEpochRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.epochs.v1.QueryCurrentEpochRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1450,8 +1450,8 @@ var (
 )
 
 func init() {
-	file_evmos_epochs_v1_query_proto_init()
-	md_QueryCurrentEpochResponse = File_evmos_epochs_v1_query_proto.Messages().ByName("QueryCurrentEpochResponse")
+	file_eidon-chain_epochs_v1_query_proto_init()
+	md_QueryCurrentEpochResponse = File_eidon-chain_epochs_v1_query_proto.Messages().ByName("QueryCurrentEpochResponse")
 	fd_QueryCurrentEpochResponse_current_epoch = md_QueryCurrentEpochResponse.Fields().ByName("current_epoch")
 }
 
@@ -1464,7 +1464,7 @@ func (x *QueryCurrentEpochResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCurrentEpochResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_epochs_v1_query_proto_msgTypes[3]
+	mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1541,13 +1541,13 @@ func (x *fastReflection_QueryCurrentEpochResponse) Range(f func(protoreflect.Fie
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryCurrentEpochResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
 		return x.CurrentEpoch != int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1559,13 +1559,13 @@ func (x *fastReflection_QueryCurrentEpochResponse) Has(fd protoreflect.FieldDesc
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
 		x.CurrentEpoch = int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1577,14 +1577,14 @@ func (x *fastReflection_QueryCurrentEpochResponse) Clear(fd protoreflect.FieldDe
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryCurrentEpochResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
 		value := x.CurrentEpoch
 		return protoreflect.ValueOfInt64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1600,13 +1600,13 @@ func (x *fastReflection_QueryCurrentEpochResponse) Get(descriptor protoreflect.F
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
 		x.CurrentEpoch = value.Int()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1622,13 +1622,13 @@ func (x *fastReflection_QueryCurrentEpochResponse) Set(fd protoreflect.FieldDesc
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCurrentEpochResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
-		panic(fmt.Errorf("field current_epoch of message evmos.epochs.v1.QueryCurrentEpochResponse is not mutable"))
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+		panic(fmt.Errorf("field current_epoch of message eidon-chain.epochs.v1.QueryCurrentEpochResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1637,13 +1637,13 @@ func (x *fastReflection_QueryCurrentEpochResponse) Mutable(fd protoreflect.Field
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryCurrentEpochResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.epochs.v1.QueryCurrentEpochResponse.current_epoch":
+	case "eidon-chain.epochs.v1.QueryCurrentEpochResponse.current_epoch":
 		return protoreflect.ValueOfInt64(int64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.epochs.v1.QueryCurrentEpochResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.epochs.v1.QueryCurrentEpochResponse"))
 		}
-		panic(fmt.Errorf("message evmos.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.epochs.v1.QueryCurrentEpochResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1653,7 +1653,7 @@ func (x *fastReflection_QueryCurrentEpochResponse) NewField(fd protoreflect.Fiel
 func (x *fastReflection_QueryCurrentEpochResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.epochs.v1.QueryCurrentEpochResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.epochs.v1.QueryCurrentEpochResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1848,14 +1848,14 @@ func (x *fastReflection_QueryCurrentEpochResponse) ProtoMethods() *protoiface.Me
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/epochs/v1/query.proto
+// source: eidon-chain/epochs/v1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -1878,7 +1878,7 @@ type QueryEpochsInfoRequest struct {
 func (x *QueryEpochsInfoRequest) Reset() {
 	*x = QueryEpochsInfoRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_epochs_v1_query_proto_msgTypes[0]
+		mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1892,7 +1892,7 @@ func (*QueryEpochsInfoRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryEpochsInfoRequest.ProtoReflect.Descriptor instead.
 func (*QueryEpochsInfoRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_epochs_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_epochs_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *QueryEpochsInfoRequest) GetPagination() *v1beta1.PageRequest {
@@ -1918,7 +1918,7 @@ type QueryEpochsInfoResponse struct {
 func (x *QueryEpochsInfoResponse) Reset() {
 	*x = QueryEpochsInfoResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_epochs_v1_query_proto_msgTypes[1]
+		mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1932,7 +1932,7 @@ func (*QueryEpochsInfoResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryEpochsInfoResponse.ProtoReflect.Descriptor instead.
 func (*QueryEpochsInfoResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_epochs_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_epochs_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryEpochsInfoResponse) GetEpochs() []*EpochInfo {
@@ -1963,7 +1963,7 @@ type QueryCurrentEpochRequest struct {
 func (x *QueryCurrentEpochRequest) Reset() {
 	*x = QueryCurrentEpochRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_epochs_v1_query_proto_msgTypes[2]
+		mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1977,7 +1977,7 @@ func (*QueryCurrentEpochRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryCurrentEpochRequest.ProtoReflect.Descriptor instead.
 func (*QueryCurrentEpochRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_epochs_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_eidon-chain_epochs_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryCurrentEpochRequest) GetIdentifier() string {
@@ -2001,7 +2001,7 @@ type QueryCurrentEpochResponse struct {
 func (x *QueryCurrentEpochResponse) Reset() {
 	*x = QueryCurrentEpochResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_epochs_v1_query_proto_msgTypes[3]
+		mi := &file_eidon-chain_epochs_v1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2015,7 +2015,7 @@ func (*QueryCurrentEpochResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryCurrentEpochResponse.ProtoReflect.Descriptor instead.
 func (*QueryCurrentEpochResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_epochs_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_eidon-chain_epochs_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryCurrentEpochResponse) GetCurrentEpoch() int64 {
@@ -2025,9 +2025,9 @@ func (x *QueryCurrentEpochResponse) GetCurrentEpoch() int64 {
 	return 0
 }
 
-var File_evmos_epochs_v1_query_proto protoreflect.FileDescriptor
+var File_eidon-chain_epochs_v1_query_proto protoreflect.FileDescriptor
 
-var file_evmos_epochs_v1_query_proto_rawDesc = []byte{
+var file_eidon-chain_epochs_v1_query_proto_rawDesc = []byte{
 	0x0a, 0x1b, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2f, 0x76,
 	0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0f, 0x65,
 	0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x73, 0x2e, 0x76, 0x31, 0x1a, 0x11,
@@ -2097,35 +2097,35 @@ var file_evmos_epochs_v1_query_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_epochs_v1_query_proto_rawDescOnce sync.Once
-	file_evmos_epochs_v1_query_proto_rawDescData = file_evmos_epochs_v1_query_proto_rawDesc
+	file_eidon-chain_epochs_v1_query_proto_rawDescOnce sync.Once
+	file_eidon-chain_epochs_v1_query_proto_rawDescData = file_eidon-chain_epochs_v1_query_proto_rawDesc
 )
 
-func file_evmos_epochs_v1_query_proto_rawDescGZIP() []byte {
-	file_evmos_epochs_v1_query_proto_rawDescOnce.Do(func() {
-		file_evmos_epochs_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_epochs_v1_query_proto_rawDescData)
+func file_eidon-chain_epochs_v1_query_proto_rawDescGZIP() []byte {
+	file_eidon-chain_epochs_v1_query_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_epochs_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_epochs_v1_query_proto_rawDescData)
 	})
-	return file_evmos_epochs_v1_query_proto_rawDescData
+	return file_eidon-chain_epochs_v1_query_proto_rawDescData
 }
 
-var file_evmos_epochs_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_epochs_v1_query_proto_goTypes = []interface{}{
-	(*QueryEpochsInfoRequest)(nil),    // 0: evmos.epochs.v1.QueryEpochsInfoRequest
-	(*QueryEpochsInfoResponse)(nil),   // 1: evmos.epochs.v1.QueryEpochsInfoResponse
-	(*QueryCurrentEpochRequest)(nil),  // 2: evmos.epochs.v1.QueryCurrentEpochRequest
-	(*QueryCurrentEpochResponse)(nil), // 3: evmos.epochs.v1.QueryCurrentEpochResponse
+var file_eidon-chain_epochs_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_eidon-chain_epochs_v1_query_proto_goTypes = []interface{}{
+	(*QueryEpochsInfoRequest)(nil),    // 0: eidon-chain.epochs.v1.QueryEpochsInfoRequest
+	(*QueryEpochsInfoResponse)(nil),   // 1: eidon-chain.epochs.v1.QueryEpochsInfoResponse
+	(*QueryCurrentEpochRequest)(nil),  // 2: eidon-chain.epochs.v1.QueryCurrentEpochRequest
+	(*QueryCurrentEpochResponse)(nil), // 3: eidon-chain.epochs.v1.QueryCurrentEpochResponse
 	(*v1beta1.PageRequest)(nil),       // 4: cosmos.base.query.v1beta1.PageRequest
-	(*EpochInfo)(nil),                 // 5: evmos.epochs.v1.EpochInfo
+	(*EpochInfo)(nil),                 // 5: eidon-chain.epochs.v1.EpochInfo
 	(*v1beta1.PageResponse)(nil),      // 6: cosmos.base.query.v1beta1.PageResponse
 }
-var file_evmos_epochs_v1_query_proto_depIdxs = []int32{
-	4, // 0: evmos.epochs.v1.QueryEpochsInfoRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	5, // 1: evmos.epochs.v1.QueryEpochsInfoResponse.epochs:type_name -> evmos.epochs.v1.EpochInfo
-	6, // 2: evmos.epochs.v1.QueryEpochsInfoResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	0, // 3: evmos.epochs.v1.Query.EpochInfos:input_type -> evmos.epochs.v1.QueryEpochsInfoRequest
-	2, // 4: evmos.epochs.v1.Query.CurrentEpoch:input_type -> evmos.epochs.v1.QueryCurrentEpochRequest
-	1, // 5: evmos.epochs.v1.Query.EpochInfos:output_type -> evmos.epochs.v1.QueryEpochsInfoResponse
-	3, // 6: evmos.epochs.v1.Query.CurrentEpoch:output_type -> evmos.epochs.v1.QueryCurrentEpochResponse
+var file_eidon-chain_epochs_v1_query_proto_depIdxs = []int32{
+	4, // 0: eidon-chain.epochs.v1.QueryEpochsInfoRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	5, // 1: eidon-chain.epochs.v1.QueryEpochsInfoResponse.epochs:type_name -> eidon-chain.epochs.v1.EpochInfo
+	6, // 2: eidon-chain.epochs.v1.QueryEpochsInfoResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	0, // 3: eidon-chain.epochs.v1.Query.EpochInfos:input_type -> eidon-chain.epochs.v1.QueryEpochsInfoRequest
+	2, // 4: eidon-chain.epochs.v1.Query.CurrentEpoch:input_type -> eidon-chain.epochs.v1.QueryCurrentEpochRequest
+	1, // 5: eidon-chain.epochs.v1.Query.EpochInfos:output_type -> eidon-chain.epochs.v1.QueryEpochsInfoResponse
+	3, // 6: eidon-chain.epochs.v1.Query.CurrentEpoch:output_type -> eidon-chain.epochs.v1.QueryCurrentEpochResponse
 	5, // [5:7] is the sub-list for method output_type
 	3, // [3:5] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -2133,14 +2133,14 @@ var file_evmos_epochs_v1_query_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_evmos_epochs_v1_query_proto_init() }
-func file_evmos_epochs_v1_query_proto_init() {
-	if File_evmos_epochs_v1_query_proto != nil {
+func init() { file_eidon-chain_epochs_v1_query_proto_init() }
+func file_eidon-chain_epochs_v1_query_proto_init() {
+	if File_eidon-chain_epochs_v1_query_proto != nil {
 		return
 	}
-	file_evmos_epochs_v1_genesis_proto_init()
+	file_eidon-chain_epochs_v1_genesis_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_epochs_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_epochs_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryEpochsInfoRequest); i {
 			case 0:
 				return &v.state
@@ -2152,7 +2152,7 @@ func file_evmos_epochs_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_epochs_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_epochs_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryEpochsInfoResponse); i {
 			case 0:
 				return &v.state
@@ -2164,7 +2164,7 @@ func file_evmos_epochs_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_epochs_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_epochs_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCurrentEpochRequest); i {
 			case 0:
 				return &v.state
@@ -2176,7 +2176,7 @@ func file_evmos_epochs_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_epochs_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_epochs_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCurrentEpochResponse); i {
 			case 0:
 				return &v.state
@@ -2193,18 +2193,18 @@ func file_evmos_epochs_v1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_epochs_v1_query_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_epochs_v1_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_evmos_epochs_v1_query_proto_goTypes,
-		DependencyIndexes: file_evmos_epochs_v1_query_proto_depIdxs,
-		MessageInfos:      file_evmos_epochs_v1_query_proto_msgTypes,
+		GoTypes:           file_eidon-chain_epochs_v1_query_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_epochs_v1_query_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_epochs_v1_query_proto_msgTypes,
 	}.Build()
-	File_evmos_epochs_v1_query_proto = out.File
-	file_evmos_epochs_v1_query_proto_rawDesc = nil
-	file_evmos_epochs_v1_query_proto_goTypes = nil
-	file_evmos_epochs_v1_query_proto_depIdxs = nil
+	File_eidon-chain_epochs_v1_query_proto = out.File
+	file_eidon-chain_epochs_v1_query_proto_rawDesc = nil
+	file_eidon-chain_epochs_v1_query_proto_goTypes = nil
+	file_eidon-chain_epochs_v1_query_proto_depIdxs = nil
 }

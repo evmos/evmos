@@ -27,8 +27,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgCreateClawbackVestingAccount = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgCreateClawbackVestingAccount")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgCreateClawbackVestingAccount = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgCreateClawbackVestingAccount")
 	fd_MsgCreateClawbackVestingAccount_funder_address = md_MsgCreateClawbackVestingAccount.Fields().ByName("funder_address")
 	fd_MsgCreateClawbackVestingAccount_vesting_address = md_MsgCreateClawbackVestingAccount.Fields().ByName("vesting_address")
 	fd_MsgCreateClawbackVestingAccount_enable_gov_clawback = md_MsgCreateClawbackVestingAccount.Fields().ByName("enable_gov_clawback")
@@ -43,7 +43,7 @@ func (x *MsgCreateClawbackVestingAccount) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgCreateClawbackVestingAccount) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[0]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,17 +132,17 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Range(f func(protorefle
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
 		return x.FunderAddress != ""
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
 		return x.VestingAddress != ""
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
 		return x.EnableGovClawback != false
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -154,17 +154,17 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Has(fd protoreflect.Fie
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
 		x.FunderAddress = ""
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
 		x.VestingAddress = ""
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
 		x.EnableGovClawback = false
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -176,20 +176,20 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Clear(fd protoreflect.F
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
 		value := x.FunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
 		value := x.VestingAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
 		value := x.EnableGovClawback
 		return protoreflect.ValueOfBool(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -205,17 +205,17 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Get(descriptor protoref
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
 		x.FunderAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
 		x.VestingAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
 		x.EnableGovClawback = value.Bool()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -231,17 +231,17 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Set(fd protoreflect.Fie
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
-		panic(fmt.Errorf("field funder_address of message evmos.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
-		panic(fmt.Errorf("field vesting_address of message evmos.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
-		panic(fmt.Errorf("field enable_gov_clawback of message evmos.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+		panic(fmt.Errorf("field funder_address of message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+		panic(fmt.Errorf("field vesting_address of message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+		panic(fmt.Errorf("field enable_gov_clawback of message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -250,17 +250,17 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) Mutable(fd protoreflect
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgCreateClawbackVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.vesting_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
+	case "eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount.enable_gov_clawback":
 		return protoreflect.ValueOfBool(false)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -270,7 +270,7 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) NewField(fd protoreflec
 func (x *fastReflection_MsgCreateClawbackVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgCreateClawbackVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -562,8 +562,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgCreateClawbackVestingAccountResponse = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgCreateClawbackVestingAccountResponse")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgCreateClawbackVestingAccountResponse = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgCreateClawbackVestingAccountResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgCreateClawbackVestingAccountResponse)(nil)
@@ -575,7 +575,7 @@ func (x *MsgCreateClawbackVestingAccountResponse) ProtoReflect() protoreflect.Me
 }
 
 func (x *MsgCreateClawbackVestingAccountResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[1]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,9 +648,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) Has(fd protoref
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -664,9 +664,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) Clear(fd protor
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -680,9 +680,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) Get(descriptor 
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -700,9 +700,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) Set(fd protoref
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -720,9 +720,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) Mutable(fd prot
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -733,9 +733,9 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) NewField(fd pro
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -745,7 +745,7 @@ func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) NewField(fd pro
 func (x *fastReflection_MsgCreateClawbackVestingAccountResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1025,8 +1025,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgFundVestingAccount = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgFundVestingAccount")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgFundVestingAccount = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgFundVestingAccount")
 	fd_MsgFundVestingAccount_funder_address = md_MsgFundVestingAccount.Fields().ByName("funder_address")
 	fd_MsgFundVestingAccount_vesting_address = md_MsgFundVestingAccount.Fields().ByName("vesting_address")
 	fd_MsgFundVestingAccount_start_time = md_MsgFundVestingAccount.Fields().ByName("start_time")
@@ -1043,7 +1043,7 @@ func (x *MsgFundVestingAccount) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgFundVestingAccount) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[2]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1144,21 +1144,21 @@ func (x *fastReflection_MsgFundVestingAccount) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgFundVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
 		return x.FunderAddress != ""
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
 		return x.VestingAddress != ""
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		return x.StartTime != nil
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		return len(x.LockupPeriods) != 0
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		return len(x.VestingPeriods) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1170,21 +1170,21 @@ func (x *fastReflection_MsgFundVestingAccount) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgFundVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
 		x.FunderAddress = ""
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
 		x.VestingAddress = ""
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		x.StartTime = nil
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		x.LockupPeriods = nil
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		x.VestingPeriods = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1196,22 +1196,22 @@ func (x *fastReflection_MsgFundVestingAccount) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgFundVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
 		value := x.FunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
 		value := x.VestingAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		value := x.StartTime
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		if len(x.LockupPeriods) == 0 {
 			return protoreflect.ValueOfList(&_MsgFundVestingAccount_4_list{})
 		}
 		listValue := &_MsgFundVestingAccount_4_list{list: &x.LockupPeriods}
 		return protoreflect.ValueOfList(listValue)
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		if len(x.VestingPeriods) == 0 {
 			return protoreflect.ValueOfList(&_MsgFundVestingAccount_5_list{})
 		}
@@ -1219,9 +1219,9 @@ func (x *fastReflection_MsgFundVestingAccount) Get(descriptor protoreflect.Field
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1237,25 +1237,25 @@ func (x *fastReflection_MsgFundVestingAccount) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgFundVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
 		x.FunderAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
 		x.VestingAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		x.StartTime = value.Message().Interface().(*timestamppb.Timestamp)
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		lv := value.List()
 		clv := lv.(*_MsgFundVestingAccount_4_list)
 		x.LockupPeriods = *clv.list
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		lv := value.List()
 		clv := lv.(*_MsgFundVestingAccount_5_list)
 		x.VestingPeriods = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1271,32 +1271,32 @@ func (x *fastReflection_MsgFundVestingAccount) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgFundVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		if x.StartTime == nil {
 			x.StartTime = new(timestamppb.Timestamp)
 		}
 		return protoreflect.ValueOfMessage(x.StartTime.ProtoReflect())
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		if x.LockupPeriods == nil {
 			x.LockupPeriods = []*v1beta1.Period{}
 		}
 		value := &_MsgFundVestingAccount_4_list{list: &x.LockupPeriods}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		if x.VestingPeriods == nil {
 			x.VestingPeriods = []*v1beta1.Period{}
 		}
 		value := &_MsgFundVestingAccount_5_list{list: &x.VestingPeriods}
 		return protoreflect.ValueOfList(value)
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
-		panic(fmt.Errorf("field funder_address of message evmos.vesting.v2.MsgFundVestingAccount is not mutable"))
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
-		panic(fmt.Errorf("field vesting_address of message evmos.vesting.v2.MsgFundVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
+		panic(fmt.Errorf("field funder_address of message eidon-chain.vesting.v2.MsgFundVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
+		panic(fmt.Errorf("field vesting_address of message eidon-chain.vesting.v2.MsgFundVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1305,24 +1305,24 @@ func (x *fastReflection_MsgFundVestingAccount) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgFundVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgFundVestingAccount.funder_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgFundVestingAccount.start_time":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.start_time":
 		m := new(timestamppb.Timestamp)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "evmos.vesting.v2.MsgFundVestingAccount.lockup_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods":
 		list := []*v1beta1.Period{}
 		return protoreflect.ValueOfList(&_MsgFundVestingAccount_4_list{list: &list})
-	case "evmos.vesting.v2.MsgFundVestingAccount.vesting_periods":
+	case "eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods":
 		list := []*v1beta1.Period{}
 		return protoreflect.ValueOfList(&_MsgFundVestingAccount_5_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1332,7 +1332,7 @@ func (x *fastReflection_MsgFundVestingAccount) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_MsgFundVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgFundVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgFundVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1757,8 +1757,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgFundVestingAccountResponse = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgFundVestingAccountResponse")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgFundVestingAccountResponse = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgFundVestingAccountResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgFundVestingAccountResponse)(nil)
@@ -1770,7 +1770,7 @@ func (x *MsgFundVestingAccountResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgFundVestingAccountResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[3]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1843,9 +1843,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) Has(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1859,9 +1859,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) Clear(fd protoreflect.Fie
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1875,9 +1875,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) Get(descriptor protorefle
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1895,9 +1895,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) Set(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1915,9 +1915,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) Mutable(fd protoreflect.F
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1928,9 +1928,9 @@ func (x *fastReflection_MsgFundVestingAccountResponse) NewField(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgFundVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgFundVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgFundVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1940,7 +1940,7 @@ func (x *fastReflection_MsgFundVestingAccountResponse) NewField(fd protoreflect.
 func (x *fastReflection_MsgFundVestingAccountResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgFundVestingAccountResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgFundVestingAccountResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2116,8 +2116,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgClawback = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgClawback")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgClawback = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgClawback")
 	fd_MsgClawback_funder_address = md_MsgClawback.Fields().ByName("funder_address")
 	fd_MsgClawback_account_address = md_MsgClawback.Fields().ByName("account_address")
 	fd_MsgClawback_dest_address = md_MsgClawback.Fields().ByName("dest_address")
@@ -2132,7 +2132,7 @@ func (x *MsgClawback) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgClawback) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[4]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2221,17 +2221,17 @@ func (x *fastReflection_MsgClawback) Range(f func(protoreflect.FieldDescriptor, 
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgClawback) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
 		return x.FunderAddress != ""
-	case "evmos.vesting.v2.MsgClawback.account_address":
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
 		return x.AccountAddress != ""
-	case "evmos.vesting.v2.MsgClawback.dest_address":
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
 		return x.DestAddress != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2243,17 +2243,17 @@ func (x *fastReflection_MsgClawback) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawback) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
 		x.FunderAddress = ""
-	case "evmos.vesting.v2.MsgClawback.account_address":
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
 		x.AccountAddress = ""
-	case "evmos.vesting.v2.MsgClawback.dest_address":
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
 		x.DestAddress = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2265,20 +2265,20 @@ func (x *fastReflection_MsgClawback) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgClawback) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
 		value := x.FunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgClawback.account_address":
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
 		value := x.AccountAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgClawback.dest_address":
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
 		value := x.DestAddress
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2294,17 +2294,17 @@ func (x *fastReflection_MsgClawback) Get(descriptor protoreflect.FieldDescriptor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawback) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
 		x.FunderAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgClawback.account_address":
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
 		x.AccountAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgClawback.dest_address":
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
 		x.DestAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2320,17 +2320,17 @@ func (x *fastReflection_MsgClawback) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawback) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
-		panic(fmt.Errorf("field funder_address of message evmos.vesting.v2.MsgClawback is not mutable"))
-	case "evmos.vesting.v2.MsgClawback.account_address":
-		panic(fmt.Errorf("field account_address of message evmos.vesting.v2.MsgClawback is not mutable"))
-	case "evmos.vesting.v2.MsgClawback.dest_address":
-		panic(fmt.Errorf("field dest_address of message evmos.vesting.v2.MsgClawback is not mutable"))
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
+		panic(fmt.Errorf("field funder_address of message eidon-chain.vesting.v2.MsgClawback is not mutable"))
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
+		panic(fmt.Errorf("field account_address of message eidon-chain.vesting.v2.MsgClawback is not mutable"))
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
+		panic(fmt.Errorf("field dest_address of message eidon-chain.vesting.v2.MsgClawback is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2339,17 +2339,17 @@ func (x *fastReflection_MsgClawback) Mutable(fd protoreflect.FieldDescriptor) pr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgClawback) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawback.funder_address":
+	case "eidon-chain.vesting.v2.MsgClawback.funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgClawback.account_address":
+	case "eidon-chain.vesting.v2.MsgClawback.account_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgClawback.dest_address":
+	case "eidon-chain.vesting.v2.MsgClawback.dest_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawback"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawback"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawback does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2359,7 +2359,7 @@ func (x *fastReflection_MsgClawback) NewField(fd protoreflect.FieldDescriptor) p
 func (x *fastReflection_MsgClawback) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgClawback", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgClawback", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2713,8 +2713,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgClawbackResponse = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgClawbackResponse")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgClawbackResponse = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgClawbackResponse")
 	fd_MsgClawbackResponse_coins = md_MsgClawbackResponse.Fields().ByName("coins")
 }
 
@@ -2727,7 +2727,7 @@ func (x *MsgClawbackResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgClawbackResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[5]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2804,13 +2804,13 @@ func (x *fastReflection_MsgClawbackResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgClawbackResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		return len(x.Coins) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2822,13 +2822,13 @@ func (x *fastReflection_MsgClawbackResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawbackResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		x.Coins = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2840,7 +2840,7 @@ func (x *fastReflection_MsgClawbackResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgClawbackResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		if len(x.Coins) == 0 {
 			return protoreflect.ValueOfList(&_MsgClawbackResponse_1_list{})
 		}
@@ -2848,9 +2848,9 @@ func (x *fastReflection_MsgClawbackResponse) Get(descriptor protoreflect.FieldDe
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2866,15 +2866,15 @@ func (x *fastReflection_MsgClawbackResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawbackResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		lv := value.List()
 		clv := lv.(*_MsgClawbackResponse_1_list)
 		x.Coins = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2890,7 +2890,7 @@ func (x *fastReflection_MsgClawbackResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgClawbackResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		if x.Coins == nil {
 			x.Coins = []*v1beta11.Coin{}
 		}
@@ -2898,9 +2898,9 @@ func (x *fastReflection_MsgClawbackResponse) Mutable(fd protoreflect.FieldDescri
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2909,14 +2909,14 @@ func (x *fastReflection_MsgClawbackResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgClawbackResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgClawbackResponse.coins":
+	case "eidon-chain.vesting.v2.MsgClawbackResponse.coins":
 		list := []*v1beta11.Coin{}
 		return protoreflect.ValueOfList(&_MsgClawbackResponse_1_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgClawbackResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgClawbackResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgClawbackResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2926,7 +2926,7 @@ func (x *fastReflection_MsgClawbackResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_MsgClawbackResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgClawbackResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgClawbackResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3158,8 +3158,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgUpdateVestingFunder = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgUpdateVestingFunder")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgUpdateVestingFunder = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgUpdateVestingFunder")
 	fd_MsgUpdateVestingFunder_funder_address = md_MsgUpdateVestingFunder.Fields().ByName("funder_address")
 	fd_MsgUpdateVestingFunder_new_funder_address = md_MsgUpdateVestingFunder.Fields().ByName("new_funder_address")
 	fd_MsgUpdateVestingFunder_vesting_address = md_MsgUpdateVestingFunder.Fields().ByName("vesting_address")
@@ -3174,7 +3174,7 @@ func (x *MsgUpdateVestingFunder) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateVestingFunder) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[6]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3263,17 +3263,17 @@ func (x *fastReflection_MsgUpdateVestingFunder) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateVestingFunder) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
 		return x.FunderAddress != ""
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
 		return x.NewFunderAddress != ""
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
 		return x.VestingAddress != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3285,17 +3285,17 @@ func (x *fastReflection_MsgUpdateVestingFunder) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateVestingFunder) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
 		x.FunderAddress = ""
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
 		x.NewFunderAddress = ""
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
 		x.VestingAddress = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3307,20 +3307,20 @@ func (x *fastReflection_MsgUpdateVestingFunder) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateVestingFunder) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
 		value := x.FunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
 		value := x.NewFunderAddress
 		return protoreflect.ValueOfString(value)
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
 		value := x.VestingAddress
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3336,17 +3336,17 @@ func (x *fastReflection_MsgUpdateVestingFunder) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateVestingFunder) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
 		x.FunderAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
 		x.NewFunderAddress = value.Interface().(string)
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
 		x.VestingAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3362,17 +3362,17 @@ func (x *fastReflection_MsgUpdateVestingFunder) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateVestingFunder) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
-		panic(fmt.Errorf("field funder_address of message evmos.vesting.v2.MsgUpdateVestingFunder is not mutable"))
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
-		panic(fmt.Errorf("field new_funder_address of message evmos.vesting.v2.MsgUpdateVestingFunder is not mutable"))
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
-		panic(fmt.Errorf("field vesting_address of message evmos.vesting.v2.MsgUpdateVestingFunder is not mutable"))
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
+		panic(fmt.Errorf("field funder_address of message eidon-chain.vesting.v2.MsgUpdateVestingFunder is not mutable"))
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+		panic(fmt.Errorf("field new_funder_address of message eidon-chain.vesting.v2.MsgUpdateVestingFunder is not mutable"))
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+		panic(fmt.Errorf("field vesting_address of message eidon-chain.vesting.v2.MsgUpdateVestingFunder is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3381,17 +3381,17 @@ func (x *fastReflection_MsgUpdateVestingFunder) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateVestingFunder) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.new_funder_address":
 		return protoreflect.ValueOfString("")
-	case "evmos.vesting.v2.MsgUpdateVestingFunder.vesting_address":
+	case "eidon-chain.vesting.v2.MsgUpdateVestingFunder.vesting_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunder"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunder"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunder does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3401,7 +3401,7 @@ func (x *fastReflection_MsgUpdateVestingFunder) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_MsgUpdateVestingFunder) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgUpdateVestingFunder", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgUpdateVestingFunder", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3703,8 +3703,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgUpdateVestingFunderResponse = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgUpdateVestingFunderResponse")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgUpdateVestingFunderResponse = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgUpdateVestingFunderResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgUpdateVestingFunderResponse)(nil)
@@ -3716,7 +3716,7 @@ func (x *MsgUpdateVestingFunderResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateVestingFunderResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[7]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3789,9 +3789,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) Has(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3805,9 +3805,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) Clear(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3821,9 +3821,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) Get(descriptor protorefl
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3841,9 +3841,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) Set(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3861,9 +3861,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) Mutable(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3874,9 +3874,9 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) NewField(fd protoreflect
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgUpdateVestingFunderResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3886,7 +3886,7 @@ func (x *fastReflection_MsgUpdateVestingFunderResponse) NewField(fd protoreflect
 func (x *fastReflection_MsgUpdateVestingFunderResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgUpdateVestingFunderResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4060,8 +4060,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgConvertVestingAccount = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgConvertVestingAccount")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgConvertVestingAccount = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgConvertVestingAccount")
 	fd_MsgConvertVestingAccount_vesting_address = md_MsgConvertVestingAccount.Fields().ByName("vesting_address")
 }
 
@@ -4074,7 +4074,7 @@ func (x *MsgConvertVestingAccount) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgConvertVestingAccount) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[8]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4151,13 +4151,13 @@ func (x *fastReflection_MsgConvertVestingAccount) Range(f func(protoreflect.Fiel
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgConvertVestingAccount) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
 		return x.VestingAddress != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4169,13 +4169,13 @@ func (x *fastReflection_MsgConvertVestingAccount) Has(fd protoreflect.FieldDescr
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertVestingAccount) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
 		x.VestingAddress = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4187,14 +4187,14 @@ func (x *fastReflection_MsgConvertVestingAccount) Clear(fd protoreflect.FieldDes
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgConvertVestingAccount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
 		value := x.VestingAddress
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4210,13 +4210,13 @@ func (x *fastReflection_MsgConvertVestingAccount) Get(descriptor protoreflect.Fi
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertVestingAccount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
 		x.VestingAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4232,13 +4232,13 @@ func (x *fastReflection_MsgConvertVestingAccount) Set(fd protoreflect.FieldDescr
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgConvertVestingAccount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
-		panic(fmt.Errorf("field vesting_address of message evmos.vesting.v2.MsgConvertVestingAccount is not mutable"))
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
+		panic(fmt.Errorf("field vesting_address of message eidon-chain.vesting.v2.MsgConvertVestingAccount is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4247,13 +4247,13 @@ func (x *fastReflection_MsgConvertVestingAccount) Mutable(fd protoreflect.FieldD
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgConvertVestingAccount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.vesting.v2.MsgConvertVestingAccount.vesting_address":
+	case "eidon-chain.vesting.v2.MsgConvertVestingAccount.vesting_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccount"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccount"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccount does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4263,7 +4263,7 @@ func (x *fastReflection_MsgConvertVestingAccount) NewField(fd protoreflect.Field
 func (x *fastReflection_MsgConvertVestingAccount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgConvertVestingAccount", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgConvertVestingAccount", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4479,8 +4479,8 @@ var (
 )
 
 func init() {
-	file_evmos_vesting_v2_tx_proto_init()
-	md_MsgConvertVestingAccountResponse = File_evmos_vesting_v2_tx_proto.Messages().ByName("MsgConvertVestingAccountResponse")
+	file_eidon-chain_vesting_v2_tx_proto_init()
+	md_MsgConvertVestingAccountResponse = File_eidon-chain_vesting_v2_tx_proto.Messages().ByName("MsgConvertVestingAccountResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgConvertVestingAccountResponse)(nil)
@@ -4492,7 +4492,7 @@ func (x *MsgConvertVestingAccountResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgConvertVestingAccountResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_vesting_v2_tx_proto_msgTypes[9]
+	mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4565,9 +4565,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) Has(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4581,9 +4581,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) Clear(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4597,9 +4597,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) Get(descriptor protore
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4617,9 +4617,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) Set(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4637,9 +4637,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) Mutable(fd protoreflec
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4650,9 +4650,9 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) NewField(fd protorefle
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.vesting.v2.MsgConvertVestingAccountResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse"))
 		}
-		panic(fmt.Errorf("message evmos.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.vesting.v2.MsgConvertVestingAccountResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4662,7 +4662,7 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) NewField(fd protorefle
 func (x *fastReflection_MsgConvertVestingAccountResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.vesting.v2.MsgConvertVestingAccountResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.vesting.v2.MsgConvertVestingAccountResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4830,14 +4830,14 @@ func (x *fastReflection_MsgConvertVestingAccountResponse) ProtoMethods() *protoi
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/vesting/v2/tx.proto
+// source: eidon-chain/vesting/v2/tx.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -4864,7 +4864,7 @@ type MsgCreateClawbackVestingAccount struct {
 func (x *MsgCreateClawbackVestingAccount) Reset() {
 	*x = MsgCreateClawbackVestingAccount{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[0]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4878,7 +4878,7 @@ func (*MsgCreateClawbackVestingAccount) ProtoMessage() {}
 
 // Deprecated: Use MsgCreateClawbackVestingAccount.ProtoReflect.Descriptor instead.
 func (*MsgCreateClawbackVestingAccount) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MsgCreateClawbackVestingAccount) GetFunderAddress() string {
@@ -4913,7 +4913,7 @@ type MsgCreateClawbackVestingAccountResponse struct {
 func (x *MsgCreateClawbackVestingAccountResponse) Reset() {
 	*x = MsgCreateClawbackVestingAccountResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[1]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4927,7 +4927,7 @@ func (*MsgCreateClawbackVestingAccountResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgCreateClawbackVestingAccountResponse.ProtoReflect.Descriptor instead.
 func (*MsgCreateClawbackVestingAccountResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{1}
 }
 
 // MsgFundVestingAccount defines a message that enables funding an existing clawback
@@ -4952,7 +4952,7 @@ type MsgFundVestingAccount struct {
 func (x *MsgFundVestingAccount) Reset() {
 	*x = MsgFundVestingAccount{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[2]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4966,7 +4966,7 @@ func (*MsgFundVestingAccount) ProtoMessage() {}
 
 // Deprecated: Use MsgFundVestingAccount.ProtoReflect.Descriptor instead.
 func (*MsgFundVestingAccount) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{2}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MsgFundVestingAccount) GetFunderAddress() string {
@@ -5015,7 +5015,7 @@ type MsgFundVestingAccountResponse struct {
 func (x *MsgFundVestingAccountResponse) Reset() {
 	*x = MsgFundVestingAccountResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[3]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5029,7 +5029,7 @@ func (*MsgFundVestingAccountResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgFundVestingAccountResponse.ProtoReflect.Descriptor instead.
 func (*MsgFundVestingAccountResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{3}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{3}
 }
 
 // MsgClawback defines a message that removes unvested tokens from a
@@ -5053,7 +5053,7 @@ type MsgClawback struct {
 func (x *MsgClawback) Reset() {
 	*x = MsgClawback{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[4]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5067,7 +5067,7 @@ func (*MsgClawback) ProtoMessage() {}
 
 // Deprecated: Use MsgClawback.ProtoReflect.Descriptor instead.
 func (*MsgClawback) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{4}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MsgClawback) GetFunderAddress() string {
@@ -5104,7 +5104,7 @@ type MsgClawbackResponse struct {
 func (x *MsgClawbackResponse) Reset() {
 	*x = MsgClawbackResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[5]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5118,7 +5118,7 @@ func (*MsgClawbackResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgClawbackResponse.ProtoReflect.Descriptor instead.
 func (*MsgClawbackResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{5}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MsgClawbackResponse) GetCoins() []*v1beta11.Coin {
@@ -5146,7 +5146,7 @@ type MsgUpdateVestingFunder struct {
 func (x *MsgUpdateVestingFunder) Reset() {
 	*x = MsgUpdateVestingFunder{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[6]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5160,7 +5160,7 @@ func (*MsgUpdateVestingFunder) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateVestingFunder.ProtoReflect.Descriptor instead.
 func (*MsgUpdateVestingFunder) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{6}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MsgUpdateVestingFunder) GetFunderAddress() string {
@@ -5195,7 +5195,7 @@ type MsgUpdateVestingFunderResponse struct {
 func (x *MsgUpdateVestingFunderResponse) Reset() {
 	*x = MsgUpdateVestingFunderResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[7]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5209,7 +5209,7 @@ func (*MsgUpdateVestingFunderResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateVestingFunderResponse.ProtoReflect.Descriptor instead.
 func (*MsgUpdateVestingFunderResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{7}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{7}
 }
 
 // MsgConvertVestingAccount defines a message that enables converting a vesting account to an eth account
@@ -5225,7 +5225,7 @@ type MsgConvertVestingAccount struct {
 func (x *MsgConvertVestingAccount) Reset() {
 	*x = MsgConvertVestingAccount{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[8]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5239,7 +5239,7 @@ func (*MsgConvertVestingAccount) ProtoMessage() {}
 
 // Deprecated: Use MsgConvertVestingAccount.ProtoReflect.Descriptor instead.
 func (*MsgConvertVestingAccount) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{8}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MsgConvertVestingAccount) GetVestingAddress() string {
@@ -5259,7 +5259,7 @@ type MsgConvertVestingAccountResponse struct {
 func (x *MsgConvertVestingAccountResponse) Reset() {
 	*x = MsgConvertVestingAccountResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_vesting_v2_tx_proto_msgTypes[9]
+		mi := &file_eidon-chain_vesting_v2_tx_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5273,12 +5273,12 @@ func (*MsgConvertVestingAccountResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgConvertVestingAccountResponse.ProtoReflect.Descriptor instead.
 func (*MsgConvertVestingAccountResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_vesting_v2_tx_proto_rawDescGZIP(), []int{9}
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP(), []int{9}
 }
 
-var File_evmos_vesting_v2_tx_proto protoreflect.FileDescriptor
+var File_eidon-chain_vesting_v2_tx_proto protoreflect.FileDescriptor
 
-var file_evmos_vesting_v2_tx_proto_rawDesc = []byte{
+var file_eidon-chain_vesting_v2_tx_proto_rawDesc = []byte{
 	0x0a, 0x19, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x76, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2f,
 	0x76, 0x32, 0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x10, 0x65, 0x76, 0x6d,
 	0x6f, 0x73, 0x2e, 0x76, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2e, 0x76, 0x32, 0x1a, 0x11, 0x61,
@@ -5458,48 +5458,48 @@ var file_evmos_vesting_v2_tx_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_vesting_v2_tx_proto_rawDescOnce sync.Once
-	file_evmos_vesting_v2_tx_proto_rawDescData = file_evmos_vesting_v2_tx_proto_rawDesc
+	file_eidon-chain_vesting_v2_tx_proto_rawDescOnce sync.Once
+	file_eidon-chain_vesting_v2_tx_proto_rawDescData = file_eidon-chain_vesting_v2_tx_proto_rawDesc
 )
 
-func file_evmos_vesting_v2_tx_proto_rawDescGZIP() []byte {
-	file_evmos_vesting_v2_tx_proto_rawDescOnce.Do(func() {
-		file_evmos_vesting_v2_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_vesting_v2_tx_proto_rawDescData)
+func file_eidon-chain_vesting_v2_tx_proto_rawDescGZIP() []byte {
+	file_eidon-chain_vesting_v2_tx_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_vesting_v2_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_vesting_v2_tx_proto_rawDescData)
 	})
-	return file_evmos_vesting_v2_tx_proto_rawDescData
+	return file_eidon-chain_vesting_v2_tx_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_evmos_vesting_v2_tx_proto_goTypes = []interface{}{
-	(*MsgCreateClawbackVestingAccount)(nil),         // 0: evmos.vesting.v2.MsgCreateClawbackVestingAccount
-	(*MsgCreateClawbackVestingAccountResponse)(nil), // 1: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse
-	(*MsgFundVestingAccount)(nil),                   // 2: evmos.vesting.v2.MsgFundVestingAccount
-	(*MsgFundVestingAccountResponse)(nil),           // 3: evmos.vesting.v2.MsgFundVestingAccountResponse
-	(*MsgClawback)(nil),                             // 4: evmos.vesting.v2.MsgClawback
-	(*MsgClawbackResponse)(nil),                     // 5: evmos.vesting.v2.MsgClawbackResponse
-	(*MsgUpdateVestingFunder)(nil),                  // 6: evmos.vesting.v2.MsgUpdateVestingFunder
-	(*MsgUpdateVestingFunderResponse)(nil),          // 7: evmos.vesting.v2.MsgUpdateVestingFunderResponse
-	(*MsgConvertVestingAccount)(nil),                // 8: evmos.vesting.v2.MsgConvertVestingAccount
-	(*MsgConvertVestingAccountResponse)(nil),        // 9: evmos.vesting.v2.MsgConvertVestingAccountResponse
+var file_eidon-chain_vesting_v2_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_eidon-chain_vesting_v2_tx_proto_goTypes = []interface{}{
+	(*MsgCreateClawbackVestingAccount)(nil),         // 0: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount
+	(*MsgCreateClawbackVestingAccountResponse)(nil), // 1: eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse
+	(*MsgFundVestingAccount)(nil),                   // 2: eidon-chain.vesting.v2.MsgFundVestingAccount
+	(*MsgFundVestingAccountResponse)(nil),           // 3: eidon-chain.vesting.v2.MsgFundVestingAccountResponse
+	(*MsgClawback)(nil),                             // 4: eidon-chain.vesting.v2.MsgClawback
+	(*MsgClawbackResponse)(nil),                     // 5: eidon-chain.vesting.v2.MsgClawbackResponse
+	(*MsgUpdateVestingFunder)(nil),                  // 6: eidon-chain.vesting.v2.MsgUpdateVestingFunder
+	(*MsgUpdateVestingFunderResponse)(nil),          // 7: eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse
+	(*MsgConvertVestingAccount)(nil),                // 8: eidon-chain.vesting.v2.MsgConvertVestingAccount
+	(*MsgConvertVestingAccountResponse)(nil),        // 9: eidon-chain.vesting.v2.MsgConvertVestingAccountResponse
 	(*timestamppb.Timestamp)(nil),                   // 10: google.protobuf.Timestamp
 	(*v1beta1.Period)(nil),                          // 11: cosmos.vesting.v1beta1.Period
 	(*v1beta11.Coin)(nil),                           // 12: cosmos.base.v1beta1.Coin
 }
-var file_evmos_vesting_v2_tx_proto_depIdxs = []int32{
-	10, // 0: evmos.vesting.v2.MsgFundVestingAccount.start_time:type_name -> google.protobuf.Timestamp
-	11, // 1: evmos.vesting.v2.MsgFundVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period
-	11, // 2: evmos.vesting.v2.MsgFundVestingAccount.vesting_periods:type_name -> cosmos.vesting.v1beta1.Period
-	12, // 3: evmos.vesting.v2.MsgClawbackResponse.coins:type_name -> cosmos.base.v1beta1.Coin
-	0,  // 4: evmos.vesting.v2.Msg.CreateClawbackVestingAccount:input_type -> evmos.vesting.v2.MsgCreateClawbackVestingAccount
-	2,  // 5: evmos.vesting.v2.Msg.FundVestingAccount:input_type -> evmos.vesting.v2.MsgFundVestingAccount
-	4,  // 6: evmos.vesting.v2.Msg.Clawback:input_type -> evmos.vesting.v2.MsgClawback
-	6,  // 7: evmos.vesting.v2.Msg.UpdateVestingFunder:input_type -> evmos.vesting.v2.MsgUpdateVestingFunder
-	8,  // 8: evmos.vesting.v2.Msg.ConvertVestingAccount:input_type -> evmos.vesting.v2.MsgConvertVestingAccount
-	1,  // 9: evmos.vesting.v2.Msg.CreateClawbackVestingAccount:output_type -> evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse
-	3,  // 10: evmos.vesting.v2.Msg.FundVestingAccount:output_type -> evmos.vesting.v2.MsgFundVestingAccountResponse
-	5,  // 11: evmos.vesting.v2.Msg.Clawback:output_type -> evmos.vesting.v2.MsgClawbackResponse
-	7,  // 12: evmos.vesting.v2.Msg.UpdateVestingFunder:output_type -> evmos.vesting.v2.MsgUpdateVestingFunderResponse
-	9,  // 13: evmos.vesting.v2.Msg.ConvertVestingAccount:output_type -> evmos.vesting.v2.MsgConvertVestingAccountResponse
+var file_eidon-chain_vesting_v2_tx_proto_depIdxs = []int32{
+	10, // 0: eidon-chain.vesting.v2.MsgFundVestingAccount.start_time:type_name -> google.protobuf.Timestamp
+	11, // 1: eidon-chain.vesting.v2.MsgFundVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period
+	11, // 2: eidon-chain.vesting.v2.MsgFundVestingAccount.vesting_periods:type_name -> cosmos.vesting.v1beta1.Period
+	12, // 3: eidon-chain.vesting.v2.MsgClawbackResponse.coins:type_name -> cosmos.base.v1beta1.Coin
+	0,  // 4: eidon-chain.vesting.v2.Msg.CreateClawbackVestingAccount:input_type -> eidon-chain.vesting.v2.MsgCreateClawbackVestingAccount
+	2,  // 5: eidon-chain.vesting.v2.Msg.FundVestingAccount:input_type -> eidon-chain.vesting.v2.MsgFundVestingAccount
+	4,  // 6: eidon-chain.vesting.v2.Msg.Clawback:input_type -> eidon-chain.vesting.v2.MsgClawback
+	6,  // 7: eidon-chain.vesting.v2.Msg.UpdateVestingFunder:input_type -> eidon-chain.vesting.v2.MsgUpdateVestingFunder
+	8,  // 8: eidon-chain.vesting.v2.Msg.ConvertVestingAccount:input_type -> eidon-chain.vesting.v2.MsgConvertVestingAccount
+	1,  // 9: eidon-chain.vesting.v2.Msg.CreateClawbackVestingAccount:output_type -> eidon-chain.vesting.v2.MsgCreateClawbackVestingAccountResponse
+	3,  // 10: eidon-chain.vesting.v2.Msg.FundVestingAccount:output_type -> eidon-chain.vesting.v2.MsgFundVestingAccountResponse
+	5,  // 11: eidon-chain.vesting.v2.Msg.Clawback:output_type -> eidon-chain.vesting.v2.MsgClawbackResponse
+	7,  // 12: eidon-chain.vesting.v2.Msg.UpdateVestingFunder:output_type -> eidon-chain.vesting.v2.MsgUpdateVestingFunderResponse
+	9,  // 13: eidon-chain.vesting.v2.Msg.ConvertVestingAccount:output_type -> eidon-chain.vesting.v2.MsgConvertVestingAccountResponse
 	9,  // [9:14] is the sub-list for method output_type
 	4,  // [4:9] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -5507,13 +5507,13 @@ var file_evmos_vesting_v2_tx_proto_depIdxs = []int32{
 	0,  // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_evmos_vesting_v2_tx_proto_init() }
-func file_evmos_vesting_v2_tx_proto_init() {
-	if File_evmos_vesting_v2_tx_proto != nil {
+func init() { file_eidon-chain_vesting_v2_tx_proto_init() }
+func file_eidon-chain_vesting_v2_tx_proto_init() {
+	if File_eidon-chain_vesting_v2_tx_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_vesting_v2_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgCreateClawbackVestingAccount); i {
 			case 0:
 				return &v.state
@@ -5525,7 +5525,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgCreateClawbackVestingAccountResponse); i {
 			case 0:
 				return &v.state
@@ -5537,7 +5537,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgFundVestingAccount); i {
 			case 0:
 				return &v.state
@@ -5549,7 +5549,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgFundVestingAccountResponse); i {
 			case 0:
 				return &v.state
@@ -5561,7 +5561,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgClawback); i {
 			case 0:
 				return &v.state
@@ -5573,7 +5573,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgClawbackResponse); i {
 			case 0:
 				return &v.state
@@ -5585,7 +5585,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateVestingFunder); i {
 			case 0:
 				return &v.state
@@ -5597,7 +5597,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateVestingFunderResponse); i {
 			case 0:
 				return &v.state
@@ -5609,7 +5609,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgConvertVestingAccount); i {
 			case 0:
 				return &v.state
@@ -5621,7 +5621,7 @@ func file_evmos_vesting_v2_tx_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_vesting_v2_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_vesting_v2_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgConvertVestingAccountResponse); i {
 			case 0:
 				return &v.state
@@ -5638,18 +5638,18 @@ func file_evmos_vesting_v2_tx_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_vesting_v2_tx_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_vesting_v2_tx_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_evmos_vesting_v2_tx_proto_goTypes,
-		DependencyIndexes: file_evmos_vesting_v2_tx_proto_depIdxs,
-		MessageInfos:      file_evmos_vesting_v2_tx_proto_msgTypes,
+		GoTypes:           file_eidon-chain_vesting_v2_tx_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_vesting_v2_tx_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_vesting_v2_tx_proto_msgTypes,
 	}.Build()
-	File_evmos_vesting_v2_tx_proto = out.File
-	file_evmos_vesting_v2_tx_proto_rawDesc = nil
-	file_evmos_vesting_v2_tx_proto_goTypes = nil
-	file_evmos_vesting_v2_tx_proto_depIdxs = nil
+	File_eidon-chain_vesting_v2_tx_proto = out.File
+	file_eidon-chain_vesting_v2_tx_proto_rawDesc = nil
+	file_eidon-chain_vesting_v2_tx_proto_goTypes = nil
+	file_eidon-chain_vesting_v2_tx_proto_depIdxs = nil
 }

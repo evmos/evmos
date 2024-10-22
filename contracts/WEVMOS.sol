@@ -20,7 +20,7 @@
 pragma solidity >=0.4.22 <0.6;
 
 contract WEVMOS9 {
-    string public name     = "Wrapped Evmos";
+    string public name     = "Wrapped Eidon-chain";
     string public symbol   = "WEVMOS";
     uint8  public decimals = 18;
 

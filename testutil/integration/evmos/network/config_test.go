@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package network_test
 
@@ -8,17 +8,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	grpchandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmostypes "github.com/evmos/evmos/v20/types"
+	grpchandler "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/grpc"
+	testkeyring "github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/keyring"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	eidon-chaintypes "github.com/Eidon-AI/eidon-chain/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestWithBalances(t *testing.T) {
-	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(evmostypes.BaseDenom, 1e18))
+	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(eidon-chaintypes.BaseDenom, 1e18))
 	key2Balance := sdk.NewCoins(
-		sdk.NewInt64Coin(evmostypes.BaseDenom, 2e18),
+		sdk.NewInt64Coin(eidon-chaintypes.BaseDenom, 2e18),
 		sdk.NewInt64Coin("other", 3e18),
 	)
 

@@ -6,7 +6,7 @@ To regenerate the mocks, run the following commands:
 - `BankKeeper` (from used version of Cosmos SDK):
 
 ```bash
-git clone https://github.com/evmos/cosmos-sdk.git
+git clone https://github.com/Eidon-AI/cosmos-sdk.git
 cd cosmos-sdk
 git checkout v0.47.5 # or the version currently used
 

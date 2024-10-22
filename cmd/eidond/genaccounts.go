@@ -1,5 +1,5 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 package main
 
@@ -22,10 +22,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
+	eidon-chainkr "github.com/Eidon-AI/eidon-chain/v20/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v20/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
+	vestingcli "github.com/Eidon-AI/eidon-chain/v20/x/vesting/client/cli"
+	vestingtypes "github.com/Eidon-AI/eidon-chain/v20/x/vesting/types"
 )
 
 const (
@@ -65,7 +65,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						clientCtx.HomeDir,
 						inBuf,
 						clientCtx.Codec,
-						evmoskr.Option(),
+						eidon-chainkr.Option(),
 					)
 					if err != nil {
 						return err
@@ -103,7 +103,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			clawback, _ := cmd.Flags().GetBool(vestingcli.FlagClawback)
 
-			// Create ClawbackvestingAccount or standard Evmos account
+			// Create ClawbackvestingAccount or standard Eidon-chain account
 			switch {
 			case clawback:
 				// ClawbackvestingAccount requires clawback, lockup, vesting, and funder

@@ -21,8 +21,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryPeriodRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryPeriodRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryPeriodRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryPeriodRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryPeriodRequest)(nil)
@@ -34,7 +34,7 @@ func (x *QueryPeriodRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPeriodRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[0]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,9 +107,9 @@ func (x *fastReflection_QueryPeriodRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -123,9 +123,9 @@ func (x *fastReflection_QueryPeriodRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -139,9 +139,9 @@ func (x *fastReflection_QueryPeriodRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -159,9 +159,9 @@ func (x *fastReflection_QueryPeriodRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -179,9 +179,9 @@ func (x *fastReflection_QueryPeriodRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -192,9 +192,9 @@ func (x *fastReflection_QueryPeriodRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -204,7 +204,7 @@ func (x *fastReflection_QueryPeriodRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryPeriodRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryPeriodRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryPeriodRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -378,8 +378,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryPeriodResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryPeriodResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryPeriodResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryPeriodResponse")
 	fd_QueryPeriodResponse_period = md_QueryPeriodResponse.Fields().ByName("period")
 }
 
@@ -392,7 +392,7 @@ func (x *QueryPeriodResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPeriodResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[1]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -469,13 +469,13 @@ func (x *fastReflection_QueryPeriodResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPeriodResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
 		return x.Period != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -487,13 +487,13 @@ func (x *fastReflection_QueryPeriodResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
 		x.Period = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -505,14 +505,14 @@ func (x *fastReflection_QueryPeriodResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPeriodResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
 		value := x.Period
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -528,13 +528,13 @@ func (x *fastReflection_QueryPeriodResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
 		x.Period = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -550,13 +550,13 @@ func (x *fastReflection_QueryPeriodResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPeriodResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
-		panic(fmt.Errorf("field period of message evmos.inflation.v1.QueryPeriodResponse is not mutable"))
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
+		panic(fmt.Errorf("field period of message eidon-chain.inflation.v1.QueryPeriodResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -565,13 +565,13 @@ func (x *fastReflection_QueryPeriodResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPeriodResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryPeriodResponse.period":
+	case "eidon-chain.inflation.v1.QueryPeriodResponse.period":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryPeriodResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryPeriodResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryPeriodResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -581,7 +581,7 @@ func (x *fastReflection_QueryPeriodResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryPeriodResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryPeriodResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryPeriodResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -781,8 +781,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryEpochMintProvisionRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryEpochMintProvisionRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryEpochMintProvisionRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryEpochMintProvisionRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryEpochMintProvisionRequest)(nil)
@@ -794,7 +794,7 @@ func (x *QueryEpochMintProvisionRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryEpochMintProvisionRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[2]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -867,9 +867,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Has(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -883,9 +883,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Clear(fd protoreflect.Fi
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -899,9 +899,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Get(descriptor protorefl
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -919,9 +919,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Set(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -939,9 +939,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) Mutable(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -952,9 +952,9 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) NewField(fd protoreflect
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -964,7 +964,7 @@ func (x *fastReflection_QueryEpochMintProvisionRequest) NewField(fd protoreflect
 func (x *fastReflection_QueryEpochMintProvisionRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryEpochMintProvisionRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryEpochMintProvisionRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1138,8 +1138,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryEpochMintProvisionResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryEpochMintProvisionResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryEpochMintProvisionResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryEpochMintProvisionResponse")
 	fd_QueryEpochMintProvisionResponse_epoch_mint_provision = md_QueryEpochMintProvisionResponse.Fields().ByName("epoch_mint_provision")
 }
 
@@ -1152,7 +1152,7 @@ func (x *QueryEpochMintProvisionResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryEpochMintProvisionResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[3]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1229,13 +1229,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Range(f func(protorefle
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		return x.EpochMintProvision != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1247,13 +1247,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Has(fd protoreflect.Fie
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		x.EpochMintProvision = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1265,14 +1265,14 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Clear(fd protoreflect.F
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		value := x.EpochMintProvision
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1288,13 +1288,13 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Get(descriptor protoref
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		x.EpochMintProvision = value.Message().Interface().(*v1beta1.DecCoin)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1310,16 +1310,16 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Set(fd protoreflect.Fie
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryEpochMintProvisionResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		if x.EpochMintProvision == nil {
 			x.EpochMintProvision = new(v1beta1.DecCoin)
 		}
 		return protoreflect.ValueOfMessage(x.EpochMintProvision.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1328,14 +1328,14 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) Mutable(fd protoreflect
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryEpochMintProvisionResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
+	case "eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision":
 		m := new(v1beta1.DecCoin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryEpochMintProvisionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryEpochMintProvisionResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1345,7 +1345,7 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) NewField(fd protoreflec
 func (x *fastReflection_QueryEpochMintProvisionResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryEpochMintProvisionResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryEpochMintProvisionResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1572,8 +1572,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QuerySkippedEpochsRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QuerySkippedEpochsRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QuerySkippedEpochsRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QuerySkippedEpochsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QuerySkippedEpochsRequest)(nil)
@@ -1585,7 +1585,7 @@ func (x *QuerySkippedEpochsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QuerySkippedEpochsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[4]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1658,9 +1658,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Has(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1674,9 +1674,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Clear(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1690,9 +1690,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Get(descriptor protoreflect.F
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1710,9 +1710,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Set(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1730,9 +1730,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) Mutable(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1743,9 +1743,9 @@ func (x *fastReflection_QuerySkippedEpochsRequest) NewField(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1755,7 +1755,7 @@ func (x *fastReflection_QuerySkippedEpochsRequest) NewField(fd protoreflect.Fiel
 func (x *fastReflection_QuerySkippedEpochsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QuerySkippedEpochsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QuerySkippedEpochsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1929,8 +1929,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QuerySkippedEpochsResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QuerySkippedEpochsResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QuerySkippedEpochsResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QuerySkippedEpochsResponse")
 	fd_QuerySkippedEpochsResponse_skipped_epochs = md_QuerySkippedEpochsResponse.Fields().ByName("skipped_epochs")
 }
 
@@ -1943,7 +1943,7 @@ func (x *QuerySkippedEpochsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QuerySkippedEpochsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[5]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2020,13 +2020,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Range(f func(protoreflect.Fi
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QuerySkippedEpochsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		return x.SkippedEpochs != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2038,13 +2038,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Has(fd protoreflect.FieldDes
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		x.SkippedEpochs = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2056,14 +2056,14 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Clear(fd protoreflect.FieldD
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QuerySkippedEpochsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		value := x.SkippedEpochs
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2079,13 +2079,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Get(descriptor protoreflect.
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		x.SkippedEpochs = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2101,13 +2101,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Set(fd protoreflect.FieldDes
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QuerySkippedEpochsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
-		panic(fmt.Errorf("field skipped_epochs of message evmos.inflation.v1.QuerySkippedEpochsResponse is not mutable"))
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+		panic(fmt.Errorf("field skipped_epochs of message eidon-chain.inflation.v1.QuerySkippedEpochsResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2116,13 +2116,13 @@ func (x *fastReflection_QuerySkippedEpochsResponse) Mutable(fd protoreflect.Fiel
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QuerySkippedEpochsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
+	case "eidon-chain.inflation.v1.QuerySkippedEpochsResponse.skipped_epochs":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QuerySkippedEpochsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QuerySkippedEpochsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QuerySkippedEpochsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2132,7 +2132,7 @@ func (x *fastReflection_QuerySkippedEpochsResponse) NewField(fd protoreflect.Fie
 func (x *fastReflection_QuerySkippedEpochsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QuerySkippedEpochsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QuerySkippedEpochsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2332,8 +2332,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryCirculatingSupplyRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryCirculatingSupplyRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryCirculatingSupplyRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryCirculatingSupplyRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryCirculatingSupplyRequest)(nil)
@@ -2345,7 +2345,7 @@ func (x *QueryCirculatingSupplyRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCirculatingSupplyRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[6]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2418,9 +2418,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Has(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2434,9 +2434,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Clear(fd protoreflect.Fie
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2450,9 +2450,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Get(descriptor protorefle
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2470,9 +2470,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Set(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2490,9 +2490,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) Mutable(fd protoreflect.F
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2503,9 +2503,9 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) NewField(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2515,7 +2515,7 @@ func (x *fastReflection_QueryCirculatingSupplyRequest) NewField(fd protoreflect.
 func (x *fastReflection_QueryCirculatingSupplyRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryCirculatingSupplyRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryCirculatingSupplyRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2689,8 +2689,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryCirculatingSupplyResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryCirculatingSupplyResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryCirculatingSupplyResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryCirculatingSupplyResponse")
 	fd_QueryCirculatingSupplyResponse_circulating_supply = md_QueryCirculatingSupplyResponse.Fields().ByName("circulating_supply")
 }
 
@@ -2703,7 +2703,7 @@ func (x *QueryCirculatingSupplyResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCirculatingSupplyResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[7]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2780,13 +2780,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Range(f func(protoreflec
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		return x.CirculatingSupply != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2798,13 +2798,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Has(fd protoreflect.Fiel
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		x.CirculatingSupply = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2816,14 +2816,14 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Clear(fd protoreflect.Fi
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		value := x.CirculatingSupply
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2839,13 +2839,13 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Get(descriptor protorefl
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		x.CirculatingSupply = value.Message().Interface().(*v1beta1.DecCoin)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2861,16 +2861,16 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Set(fd protoreflect.Fiel
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryCirculatingSupplyResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		if x.CirculatingSupply == nil {
 			x.CirculatingSupply = new(v1beta1.DecCoin)
 		}
 		return protoreflect.ValueOfMessage(x.CirculatingSupply.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2879,14 +2879,14 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) Mutable(fd protoreflect.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryCirculatingSupplyResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
+	case "eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply":
 		m := new(v1beta1.DecCoin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryCirculatingSupplyResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryCirculatingSupplyResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2896,7 +2896,7 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) NewField(fd protoreflect
 func (x *fastReflection_QueryCirculatingSupplyResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryCirculatingSupplyResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryCirculatingSupplyResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3123,8 +3123,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryInflationRateRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryInflationRateRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryInflationRateRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryInflationRateRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryInflationRateRequest)(nil)
@@ -3136,7 +3136,7 @@ func (x *QueryInflationRateRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryInflationRateRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[8]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3209,9 +3209,9 @@ func (x *fastReflection_QueryInflationRateRequest) Has(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3225,9 +3225,9 @@ func (x *fastReflection_QueryInflationRateRequest) Clear(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3241,9 +3241,9 @@ func (x *fastReflection_QueryInflationRateRequest) Get(descriptor protoreflect.F
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3261,9 +3261,9 @@ func (x *fastReflection_QueryInflationRateRequest) Set(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3281,9 +3281,9 @@ func (x *fastReflection_QueryInflationRateRequest) Mutable(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3294,9 +3294,9 @@ func (x *fastReflection_QueryInflationRateRequest) NewField(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3306,7 +3306,7 @@ func (x *fastReflection_QueryInflationRateRequest) NewField(fd protoreflect.Fiel
 func (x *fastReflection_QueryInflationRateRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryInflationRateRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryInflationRateRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3480,8 +3480,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryInflationRateResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryInflationRateResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryInflationRateResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryInflationRateResponse")
 	fd_QueryInflationRateResponse_inflation_rate = md_QueryInflationRateResponse.Fields().ByName("inflation_rate")
 }
 
@@ -3494,7 +3494,7 @@ func (x *QueryInflationRateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryInflationRateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[9]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3571,13 +3571,13 @@ func (x *fastReflection_QueryInflationRateResponse) Range(f func(protoreflect.Fi
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryInflationRateResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		return x.InflationRate != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3589,13 +3589,13 @@ func (x *fastReflection_QueryInflationRateResponse) Has(fd protoreflect.FieldDes
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		x.InflationRate = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3607,14 +3607,14 @@ func (x *fastReflection_QueryInflationRateResponse) Clear(fd protoreflect.FieldD
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryInflationRateResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		value := x.InflationRate
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3630,13 +3630,13 @@ func (x *fastReflection_QueryInflationRateResponse) Get(descriptor protoreflect.
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		x.InflationRate = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3652,13 +3652,13 @@ func (x *fastReflection_QueryInflationRateResponse) Set(fd protoreflect.FieldDes
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryInflationRateResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
-		panic(fmt.Errorf("field inflation_rate of message evmos.inflation.v1.QueryInflationRateResponse is not mutable"))
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
+		panic(fmt.Errorf("field inflation_rate of message eidon-chain.inflation.v1.QueryInflationRateResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3667,13 +3667,13 @@ func (x *fastReflection_QueryInflationRateResponse) Mutable(fd protoreflect.Fiel
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryInflationRateResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryInflationRateResponse.inflation_rate":
+	case "eidon-chain.inflation.v1.QueryInflationRateResponse.inflation_rate":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryInflationRateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryInflationRateResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryInflationRateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3683,7 +3683,7 @@ func (x *fastReflection_QueryInflationRateResponse) NewField(fd protoreflect.Fie
 func (x *fastReflection_QueryInflationRateResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryInflationRateResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryInflationRateResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3899,8 +3899,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryParamsRequest = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryParamsRequest")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryParamsRequest = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryParamsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryParamsRequest)(nil)
@@ -3912,7 +3912,7 @@ func (x *QueryParamsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[10]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3985,9 +3985,9 @@ func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4001,9 +4001,9 @@ func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4017,9 +4017,9 @@ func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4037,9 +4037,9 @@ func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4057,9 +4057,9 @@ func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4070,9 +4070,9 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4082,7 +4082,7 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryParamsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryParamsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4256,8 +4256,8 @@ var (
 )
 
 func init() {
-	file_evmos_inflation_v1_query_proto_init()
-	md_QueryParamsResponse = File_evmos_inflation_v1_query_proto.Messages().ByName("QueryParamsResponse")
+	file_eidon-chain_inflation_v1_query_proto_init()
+	md_QueryParamsResponse = File_eidon-chain_inflation_v1_query_proto.Messages().ByName("QueryParamsResponse")
 	fd_QueryParamsResponse_params = md_QueryParamsResponse.Fields().ByName("params")
 }
 
@@ -4270,7 +4270,7 @@ func (x *QueryParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_evmos_inflation_v1_query_proto_msgTypes[11]
+	mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4347,13 +4347,13 @@ func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4365,13 +4365,13 @@ func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4383,14 +4383,14 @@ func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4406,13 +4406,13 @@ func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4428,16 +4428,16 @@ func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4446,14 +4446,14 @@ func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "evmos.inflation.v1.QueryParamsResponse.params":
+	case "eidon-chain.inflation.v1.QueryParamsResponse.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: evmos.inflation.v1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: eidon-chain.inflation.v1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message evmos.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message eidon-chain.inflation.v1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4463,7 +4463,7 @@ func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in evmos.inflation.v1.QueryParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in eidon-chain.inflation.v1.QueryParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4685,14 +4685,14 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+// Copyright Tharsis Labs Ltd.(Eidon-chain)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/Eidon-AI/eidon-chain/blob/main/LICENSE)
 
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: evmos/inflation/v1/query.proto
+// source: eidon-chain/inflation/v1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -4711,7 +4711,7 @@ type QueryPeriodRequest struct {
 func (x *QueryPeriodRequest) Reset() {
 	*x = QueryPeriodRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[0]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4725,7 +4725,7 @@ func (*QueryPeriodRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryPeriodRequest.ProtoReflect.Descriptor instead.
 func (*QueryPeriodRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
 // QueryPeriodResponse is the response type for the Query/Period RPC method.
@@ -4741,7 +4741,7 @@ type QueryPeriodResponse struct {
 func (x *QueryPeriodResponse) Reset() {
 	*x = QueryPeriodResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[1]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4755,7 +4755,7 @@ func (*QueryPeriodResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryPeriodResponse.ProtoReflect.Descriptor instead.
 func (*QueryPeriodResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryPeriodResponse) GetPeriod() uint64 {
@@ -4776,7 +4776,7 @@ type QueryEpochMintProvisionRequest struct {
 func (x *QueryEpochMintProvisionRequest) Reset() {
 	*x = QueryEpochMintProvisionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[2]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4790,7 +4790,7 @@ func (*QueryEpochMintProvisionRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryEpochMintProvisionRequest.ProtoReflect.Descriptor instead.
 func (*QueryEpochMintProvisionRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 // QueryEpochMintProvisionResponse is the response type for the
@@ -4807,7 +4807,7 @@ type QueryEpochMintProvisionResponse struct {
 func (x *QueryEpochMintProvisionResponse) Reset() {
 	*x = QueryEpochMintProvisionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[3]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4821,7 +4821,7 @@ func (*QueryEpochMintProvisionResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryEpochMintProvisionResponse.ProtoReflect.Descriptor instead.
 func (*QueryEpochMintProvisionResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryEpochMintProvisionResponse) GetEpochMintProvision() *v1beta1.DecCoin {
@@ -4842,7 +4842,7 @@ type QuerySkippedEpochsRequest struct {
 func (x *QuerySkippedEpochsRequest) Reset() {
 	*x = QuerySkippedEpochsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[4]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4856,7 +4856,7 @@ func (*QuerySkippedEpochsRequest) ProtoMessage() {}
 
 // Deprecated: Use QuerySkippedEpochsRequest.ProtoReflect.Descriptor instead.
 func (*QuerySkippedEpochsRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{4}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 // QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs
@@ -4873,7 +4873,7 @@ type QuerySkippedEpochsResponse struct {
 func (x *QuerySkippedEpochsResponse) Reset() {
 	*x = QuerySkippedEpochsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[5]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4887,7 +4887,7 @@ func (*QuerySkippedEpochsResponse) ProtoMessage() {}
 
 // Deprecated: Use QuerySkippedEpochsResponse.ProtoReflect.Descriptor instead.
 func (*QuerySkippedEpochsResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{5}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *QuerySkippedEpochsResponse) GetSkippedEpochs() uint64 {
@@ -4908,7 +4908,7 @@ type QueryCirculatingSupplyRequest struct {
 func (x *QueryCirculatingSupplyRequest) Reset() {
 	*x = QueryCirculatingSupplyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[6]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4922,7 +4922,7 @@ func (*QueryCirculatingSupplyRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryCirculatingSupplyRequest.ProtoReflect.Descriptor instead.
 func (*QueryCirculatingSupplyRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{6}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{6}
 }
 
 // QueryCirculatingSupplyResponse is the response type for the
@@ -4939,7 +4939,7 @@ type QueryCirculatingSupplyResponse struct {
 func (x *QueryCirculatingSupplyResponse) Reset() {
 	*x = QueryCirculatingSupplyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[7]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4953,7 +4953,7 @@ func (*QueryCirculatingSupplyResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryCirculatingSupplyResponse.ProtoReflect.Descriptor instead.
 func (*QueryCirculatingSupplyResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{7}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *QueryCirculatingSupplyResponse) GetCirculatingSupply() *v1beta1.DecCoin {
@@ -4974,7 +4974,7 @@ type QueryInflationRateRequest struct {
 func (x *QueryInflationRateRequest) Reset() {
 	*x = QueryInflationRateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[8]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4988,7 +4988,7 @@ func (*QueryInflationRateRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryInflationRateRequest.ProtoReflect.Descriptor instead.
 func (*QueryInflationRateRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{8}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{8}
 }
 
 // QueryInflationRateResponse is the response type for the Query/InflationRate
@@ -5005,7 +5005,7 @@ type QueryInflationRateResponse struct {
 func (x *QueryInflationRateResponse) Reset() {
 	*x = QueryInflationRateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[9]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5019,7 +5019,7 @@ func (*QueryInflationRateResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryInflationRateResponse.ProtoReflect.Descriptor instead.
 func (*QueryInflationRateResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{9}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *QueryInflationRateResponse) GetInflationRate() string {
@@ -5039,7 +5039,7 @@ type QueryParamsRequest struct {
 func (x *QueryParamsRequest) Reset() {
 	*x = QueryParamsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[10]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5053,7 +5053,7 @@ func (*QueryParamsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsRequest.ProtoReflect.Descriptor instead.
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{10}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{10}
 }
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
@@ -5069,7 +5069,7 @@ type QueryParamsResponse struct {
 func (x *QueryParamsResponse) Reset() {
 	*x = QueryParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_evmos_inflation_v1_query_proto_msgTypes[11]
+		mi := &file_eidon-chain_inflation_v1_query_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5083,7 +5083,7 @@ func (*QueryParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsResponse.ProtoReflect.Descriptor instead.
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return file_evmos_inflation_v1_query_proto_rawDescGZIP(), []int{11}
+	return file_eidon-chain_inflation_v1_query_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QueryParamsResponse) GetParams() *Params {
@@ -5093,9 +5093,9 @@ func (x *QueryParamsResponse) GetParams() *Params {
 	return nil
 }
 
-var File_evmos_inflation_v1_query_proto protoreflect.FileDescriptor
+var File_eidon-chain_inflation_v1_query_proto protoreflect.FileDescriptor
 
-var file_evmos_inflation_v1_query_proto_rawDesc = []byte{
+var file_eidon-chain_inflation_v1_query_proto_rawDesc = []byte{
 	0x0a, 0x1e, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2f, 0x69, 0x6e, 0x66, 0x6c, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x12, 0x12, 0x65, 0x76, 0x6d, 0x6f, 0x73, 0x2e, 0x69, 0x6e, 0x66, 0x6c, 0x61, 0x74, 0x69, 0x6f,
@@ -5234,50 +5234,50 @@ var file_evmos_inflation_v1_query_proto_rawDesc = []byte{
 }
 
 var (
-	file_evmos_inflation_v1_query_proto_rawDescOnce sync.Once
-	file_evmos_inflation_v1_query_proto_rawDescData = file_evmos_inflation_v1_query_proto_rawDesc
+	file_eidon-chain_inflation_v1_query_proto_rawDescOnce sync.Once
+	file_eidon-chain_inflation_v1_query_proto_rawDescData = file_eidon-chain_inflation_v1_query_proto_rawDesc
 )
 
-func file_evmos_inflation_v1_query_proto_rawDescGZIP() []byte {
-	file_evmos_inflation_v1_query_proto_rawDescOnce.Do(func() {
-		file_evmos_inflation_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_evmos_inflation_v1_query_proto_rawDescData)
+func file_eidon-chain_inflation_v1_query_proto_rawDescGZIP() []byte {
+	file_eidon-chain_inflation_v1_query_proto_rawDescOnce.Do(func() {
+		file_eidon-chain_inflation_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_eidon-chain_inflation_v1_query_proto_rawDescData)
 	})
-	return file_evmos_inflation_v1_query_proto_rawDescData
+	return file_eidon-chain_inflation_v1_query_proto_rawDescData
 }
 
-var file_evmos_inflation_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_evmos_inflation_v1_query_proto_goTypes = []interface{}{
-	(*QueryPeriodRequest)(nil),              // 0: evmos.inflation.v1.QueryPeriodRequest
-	(*QueryPeriodResponse)(nil),             // 1: evmos.inflation.v1.QueryPeriodResponse
-	(*QueryEpochMintProvisionRequest)(nil),  // 2: evmos.inflation.v1.QueryEpochMintProvisionRequest
-	(*QueryEpochMintProvisionResponse)(nil), // 3: evmos.inflation.v1.QueryEpochMintProvisionResponse
-	(*QuerySkippedEpochsRequest)(nil),       // 4: evmos.inflation.v1.QuerySkippedEpochsRequest
-	(*QuerySkippedEpochsResponse)(nil),      // 5: evmos.inflation.v1.QuerySkippedEpochsResponse
-	(*QueryCirculatingSupplyRequest)(nil),   // 6: evmos.inflation.v1.QueryCirculatingSupplyRequest
-	(*QueryCirculatingSupplyResponse)(nil),  // 7: evmos.inflation.v1.QueryCirculatingSupplyResponse
-	(*QueryInflationRateRequest)(nil),       // 8: evmos.inflation.v1.QueryInflationRateRequest
-	(*QueryInflationRateResponse)(nil),      // 9: evmos.inflation.v1.QueryInflationRateResponse
-	(*QueryParamsRequest)(nil),              // 10: evmos.inflation.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),             // 11: evmos.inflation.v1.QueryParamsResponse
+var file_eidon-chain_inflation_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_eidon-chain_inflation_v1_query_proto_goTypes = []interface{}{
+	(*QueryPeriodRequest)(nil),              // 0: eidon-chain.inflation.v1.QueryPeriodRequest
+	(*QueryPeriodResponse)(nil),             // 1: eidon-chain.inflation.v1.QueryPeriodResponse
+	(*QueryEpochMintProvisionRequest)(nil),  // 2: eidon-chain.inflation.v1.QueryEpochMintProvisionRequest
+	(*QueryEpochMintProvisionResponse)(nil), // 3: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse
+	(*QuerySkippedEpochsRequest)(nil),       // 4: eidon-chain.inflation.v1.QuerySkippedEpochsRequest
+	(*QuerySkippedEpochsResponse)(nil),      // 5: eidon-chain.inflation.v1.QuerySkippedEpochsResponse
+	(*QueryCirculatingSupplyRequest)(nil),   // 6: eidon-chain.inflation.v1.QueryCirculatingSupplyRequest
+	(*QueryCirculatingSupplyResponse)(nil),  // 7: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse
+	(*QueryInflationRateRequest)(nil),       // 8: eidon-chain.inflation.v1.QueryInflationRateRequest
+	(*QueryInflationRateResponse)(nil),      // 9: eidon-chain.inflation.v1.QueryInflationRateResponse
+	(*QueryParamsRequest)(nil),              // 10: eidon-chain.inflation.v1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),             // 11: eidon-chain.inflation.v1.QueryParamsResponse
 	(*v1beta1.DecCoin)(nil),                 // 12: cosmos.base.v1beta1.DecCoin
-	(*Params)(nil),                          // 13: evmos.inflation.v1.Params
+	(*Params)(nil),                          // 13: eidon-chain.inflation.v1.Params
 }
-var file_evmos_inflation_v1_query_proto_depIdxs = []int32{
-	12, // 0: evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
-	12, // 1: evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin
-	13, // 2: evmos.inflation.v1.QueryParamsResponse.params:type_name -> evmos.inflation.v1.Params
-	0,  // 3: evmos.inflation.v1.Query.Period:input_type -> evmos.inflation.v1.QueryPeriodRequest
-	2,  // 4: evmos.inflation.v1.Query.EpochMintProvision:input_type -> evmos.inflation.v1.QueryEpochMintProvisionRequest
-	4,  // 5: evmos.inflation.v1.Query.SkippedEpochs:input_type -> evmos.inflation.v1.QuerySkippedEpochsRequest
-	6,  // 6: evmos.inflation.v1.Query.CirculatingSupply:input_type -> evmos.inflation.v1.QueryCirculatingSupplyRequest
-	8,  // 7: evmos.inflation.v1.Query.InflationRate:input_type -> evmos.inflation.v1.QueryInflationRateRequest
-	10, // 8: evmos.inflation.v1.Query.Params:input_type -> evmos.inflation.v1.QueryParamsRequest
-	1,  // 9: evmos.inflation.v1.Query.Period:output_type -> evmos.inflation.v1.QueryPeriodResponse
-	3,  // 10: evmos.inflation.v1.Query.EpochMintProvision:output_type -> evmos.inflation.v1.QueryEpochMintProvisionResponse
-	5,  // 11: evmos.inflation.v1.Query.SkippedEpochs:output_type -> evmos.inflation.v1.QuerySkippedEpochsResponse
-	7,  // 12: evmos.inflation.v1.Query.CirculatingSupply:output_type -> evmos.inflation.v1.QueryCirculatingSupplyResponse
-	9,  // 13: evmos.inflation.v1.Query.InflationRate:output_type -> evmos.inflation.v1.QueryInflationRateResponse
-	11, // 14: evmos.inflation.v1.Query.Params:output_type -> evmos.inflation.v1.QueryParamsResponse
+var file_eidon-chain_inflation_v1_query_proto_depIdxs = []int32{
+	12, // 0: eidon-chain.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
+	12, // 1: eidon-chain.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin
+	13, // 2: eidon-chain.inflation.v1.QueryParamsResponse.params:type_name -> eidon-chain.inflation.v1.Params
+	0,  // 3: eidon-chain.inflation.v1.Query.Period:input_type -> eidon-chain.inflation.v1.QueryPeriodRequest
+	2,  // 4: eidon-chain.inflation.v1.Query.EpochMintProvision:input_type -> eidon-chain.inflation.v1.QueryEpochMintProvisionRequest
+	4,  // 5: eidon-chain.inflation.v1.Query.SkippedEpochs:input_type -> eidon-chain.inflation.v1.QuerySkippedEpochsRequest
+	6,  // 6: eidon-chain.inflation.v1.Query.CirculatingSupply:input_type -> eidon-chain.inflation.v1.QueryCirculatingSupplyRequest
+	8,  // 7: eidon-chain.inflation.v1.Query.InflationRate:input_type -> eidon-chain.inflation.v1.QueryInflationRateRequest
+	10, // 8: eidon-chain.inflation.v1.Query.Params:input_type -> eidon-chain.inflation.v1.QueryParamsRequest
+	1,  // 9: eidon-chain.inflation.v1.Query.Period:output_type -> eidon-chain.inflation.v1.QueryPeriodResponse
+	3,  // 10: eidon-chain.inflation.v1.Query.EpochMintProvision:output_type -> eidon-chain.inflation.v1.QueryEpochMintProvisionResponse
+	5,  // 11: eidon-chain.inflation.v1.Query.SkippedEpochs:output_type -> eidon-chain.inflation.v1.QuerySkippedEpochsResponse
+	7,  // 12: eidon-chain.inflation.v1.Query.CirculatingSupply:output_type -> eidon-chain.inflation.v1.QueryCirculatingSupplyResponse
+	9,  // 13: eidon-chain.inflation.v1.Query.InflationRate:output_type -> eidon-chain.inflation.v1.QueryInflationRateResponse
+	11, // 14: eidon-chain.inflation.v1.Query.Params:output_type -> eidon-chain.inflation.v1.QueryParamsResponse
 	9,  // [9:15] is the sub-list for method output_type
 	3,  // [3:9] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
@@ -5285,14 +5285,14 @@ var file_evmos_inflation_v1_query_proto_depIdxs = []int32{
 	0,  // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_evmos_inflation_v1_query_proto_init() }
-func file_evmos_inflation_v1_query_proto_init() {
-	if File_evmos_inflation_v1_query_proto != nil {
+func init() { file_eidon-chain_inflation_v1_query_proto_init() }
+func file_eidon-chain_inflation_v1_query_proto_init() {
+	if File_eidon-chain_inflation_v1_query_proto != nil {
 		return
 	}
-	file_evmos_inflation_v1_genesis_proto_init()
+	file_eidon-chain_inflation_v1_genesis_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_evmos_inflation_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPeriodRequest); i {
 			case 0:
 				return &v.state
@@ -5304,7 +5304,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPeriodResponse); i {
 			case 0:
 				return &v.state
@@ -5316,7 +5316,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryEpochMintProvisionRequest); i {
 			case 0:
 				return &v.state
@@ -5328,7 +5328,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryEpochMintProvisionResponse); i {
 			case 0:
 				return &v.state
@@ -5340,7 +5340,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QuerySkippedEpochsRequest); i {
 			case 0:
 				return &v.state
@@ -5352,7 +5352,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QuerySkippedEpochsResponse); i {
 			case 0:
 				return &v.state
@@ -5364,7 +5364,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCirculatingSupplyRequest); i {
 			case 0:
 				return &v.state
@@ -5376,7 +5376,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCirculatingSupplyResponse); i {
 			case 0:
 				return &v.state
@@ -5388,7 +5388,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryInflationRateRequest); i {
 			case 0:
 				return &v.state
@@ -5400,7 +5400,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryInflationRateResponse); i {
 			case 0:
 				return &v.state
@@ -5412,7 +5412,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsRequest); i {
 			case 0:
 				return &v.state
@@ -5424,7 +5424,7 @@ func file_evmos_inflation_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_evmos_inflation_v1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_eidon-chain_inflation_v1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsResponse); i {
 			case 0:
 				return &v.state
@@ -5441,18 +5441,18 @@ func file_evmos_inflation_v1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_evmos_inflation_v1_query_proto_rawDesc,
+			RawDescriptor: file_eidon-chain_inflation_v1_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_evmos_inflation_v1_query_proto_goTypes,
-		DependencyIndexes: file_evmos_inflation_v1_query_proto_depIdxs,
-		MessageInfos:      file_evmos_inflation_v1_query_proto_msgTypes,
+		GoTypes:           file_eidon-chain_inflation_v1_query_proto_goTypes,
+		DependencyIndexes: file_eidon-chain_inflation_v1_query_proto_depIdxs,
+		MessageInfos:      file_eidon-chain_inflation_v1_query_proto_msgTypes,
 	}.Build()
-	File_evmos_inflation_v1_query_proto = out.File
-	file_evmos_inflation_v1_query_proto_rawDesc = nil
-	file_evmos_inflation_v1_query_proto_goTypes = nil
-	file_evmos_inflation_v1_query_proto_depIdxs = nil
+	File_eidon-chain_inflation_v1_query_proto = out.File
+	file_eidon-chain_inflation_v1_query_proto_rawDesc = nil
+	file_eidon-chain_inflation_v1_query_proto_goTypes = nil
+	file_eidon-chain_inflation_v1_query_proto_depIdxs = nil
 }

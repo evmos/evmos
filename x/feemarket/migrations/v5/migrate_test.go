@@ -6,10 +6,10 @@ import (
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
-	"github.com/evmos/evmos/v20/encoding"
-	v5 "github.com/evmos/evmos/v20/x/feemarket/migrations/v5"
-	typesV4 "github.com/evmos/evmos/v20/x/feemarket/migrations/v5/types"
-	"github.com/evmos/evmos/v20/x/feemarket/types"
+	"github.com/Eidon-AI/eidon-chain/v20/encoding"
+	v5 "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/migrations/v5"
+	typesV4 "github.com/Eidon-AI/eidon-chain/v20/x/feemarket/migrations/v5/types"
+	"github.com/Eidon-AI/eidon-chain/v20/x/feemarket/types"
 
 	"github.com/stretchr/testify/require"
 )

@@ -7,14 +7,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/precompiles/bank"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/Eidon-AI/eidon-chain/v20/precompiles/bank"
+	"github.com/Eidon-AI/eidon-chain/v20/testutil/integration/eidon-chain/network"
+	eidon-chainutiltx "github.com/Eidon-AI/eidon-chain/v20/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {
 	var ctx sdk.Context
-	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	// setup test in order to have s.precompile, s.eidonAddr and s.xmplAddr defined
 	s.SetupTest()
 	method := s.precompile.Methods[bank.BalancesMethod]
 
@@ -23,7 +23,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		malleate    func() []interface{}
 		expPass     bool
 		errContains string
-		expBalances func(evmosAddr, xmplAddr common.Address) []bank.Balance
+		expBalances func(eidon-chainAddr, xmplAddr common.Address) []bank.Balance
 	}{
 		{
 			"fail - invalid number of arguments",
@@ -51,7 +51,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 			"pass - empty balances for new account",
 			func() []interface{} {
 				return []interface{}{
-					evmosutiltx.GenerateAddress(),
+					eidon-chainutiltx.GenerateAddress(),
 				}
 			},
 			true,
@@ -67,10 +67,10 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+			func(eidon-chainAddr, xmplAddr common.Address) []bank.Balance {
 				return []bank.Balance{
 					{
-						ContractAddress: evmosAddr,
+						ContractAddress: eidon-chainAddr,
 						Amount:          network.PrefundedAccountInitialBalance.BigInt(),
 					},
 					{
@@ -90,9 +90,9 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+			func(eidon-chainAddr, xmplAddr common.Address) []bank.Balance {
 				return []bank.Balance{{
-					ContractAddress: evmosAddr,
+					ContractAddress: eidon-chainAddr,
 					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
 				}, {
 					ContractAddress: xmplAddr,
@@ -120,7 +120,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				var balances []bank.Balance
 				err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 				s.Require().NoError(err)
-				s.Require().Equal(tc.expBalances(s.evmosAddr, s.xmplAddr), balances)
+				s.Require().Equal(tc.expBalances(s.eidonAddr, s.xmplAddr), balances)
 			} else {
 				s.Require().Contains(err.Error(), tc.errContains)
 			}
@@ -130,29 +130,29 @@ func (s *PrecompileTestSuite) TestBalances() {
 
 func (s *PrecompileTestSuite) TestTotalSupply() {
 	var ctx sdk.Context
-	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	// setup test in order to have s.precompile, s.eidonAddr and s.xmplAddr defined
 	s.SetupTest()
 	method := s.precompile.Methods[bank.TotalSupplyMethod]
 
 	totSupplRes, err := s.grpcHandler.GetTotalSupply()
 	s.Require().NoError(err)
-	evmosTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
+	eidon-chainTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
 	xmplTotalSupply := totSupplRes.Supply.AmountOf(s.tokenDenom)
 
 	testcases := []struct {
 		name      string
 		malleate  func()
-		expSupply func(evmosAddr, xmplAddr common.Address) []bank.Balance
+		expSupply func(eidon-chainAddr, xmplAddr common.Address) []bank.Balance
 	}{
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
 				ctx = s.mintAndSendXMPLCoin(ctx, s.keyring.GetAccAddr(0), math.NewInt(1e18))
 			},
-			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+			func(eidon-chainAddr, xmplAddr common.Address) []bank.Balance {
 				return []bank.Balance{{
-					ContractAddress: evmosAddr,
-					Amount:          evmosTotalSupply.BigInt(),
+					ContractAddress: eidon-chainAddr,
+					Amount:          eidon-chainTotalSupply.BigInt(),
 				}, {
 					ContractAddress: xmplAddr,
 					Amount:          xmplTotalSupply.Add(math.NewInt(1e18)).BigInt(),
@@ -178,19 +178,19 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 			var balances []bank.Balance
 			err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 			s.Require().NoError(err)
-			s.Require().Equal(tc.expSupply(s.evmosAddr, s.xmplAddr), balances)
+			s.Require().Equal(tc.expSupply(s.eidonAddr, s.xmplAddr), balances)
 		})
 	}
 }
 
 func (s *PrecompileTestSuite) TestSupplyOf() {
-	// setup test in order to have s.precompile, s.evmosAddr and s.xmplAddr defined
+	// setup test in order to have s.precompile, s.eidonAddr and s.xmplAddr defined
 	s.SetupTest()
 	method := s.precompile.Methods[bank.SupplyOfMethod]
 
 	totSupplRes, err := s.grpcHandler.GetTotalSupply()
 	s.Require().NoError(err)
-	evmosTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
+	eidon-chainTotalSupply := totSupplRes.Supply.AmountOf(s.bondDenom)
 	xmplTotalSupply := totSupplRes.Supply.AmountOf(s.tokenDenom)
 
 	testcases := []struct {
@@ -226,7 +226,7 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			"pass - erc20 not registered return 0 supply",
 			func() []interface{} {
 				return []interface{}{
-					evmosutiltx.GenerateAddress(),
+					eidon-chainutiltx.GenerateAddress(),
 				}
 			},
 			false,
@@ -249,12 +249,12 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			"pass - EVMOS total supply",
 			func() []interface{} {
 				return []interface{}{
-					s.evmosAddr,
+					s.eidonAddr,
 				}
 			},
 			false,
 			"",
-			evmosTotalSupply.BigInt(),
+			eidon-chainTotalSupply.BigInt(),
 		},
 	}
 
