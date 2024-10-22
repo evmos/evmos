@@ -157,3 +157,43 @@ func updateOrAddCoin(coins sdk.Coins, coin sdk.Coin) sdk.Coins {
 	// add it here.
 	return coins.Add(coin)
 }
+
+// ParseMintArgs parses the arguments from the mint method and returns the
+// destination address (to) and amount.
+func ParseMintArgs(args []interface{}) (to common.Address, amount *big.Int, err error) {
+	if len(args) != 2 {
+		return common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+	}
+
+	to, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf("invalid to address: %v", args[0])
+	}
+
+	amount, ok = args[1].(*big.Int)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
+	}
+
+	return to, amount, nil
+}
+
+// ParseBurnArgs parses the arguments from the burn method and returns the
+// sender address (from) and amount.
+func ParseBurnArgs(args []interface{}) (from common.Address, amount *big.Int, err error) {
+	if len(args) != 2 {
+		return common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+	}
+
+	from, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf("invalid from address: %v", args[0])
+	}
+
+	amount, ok = args[1].(*big.Int)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
+	}
+
+	return from, amount, nil
+}
