@@ -11,8 +11,10 @@ from pystarport import ports
 from .network import Evmos, create_snapshots_dir, setup_custom_evmos
 from .utils import (
     CONTRACTS,
+    EVMOS_6DEC_CHAIN_ID,
     decode_bech32,
     deploy_contract,
+    evm6dec_config,
     memiavl_config,
     supervisorctl,
     wait_for_block,
@@ -31,6 +33,14 @@ def custom_evmos(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
+def custom_evmos_6dec(tmp_path_factory):
+    path = tmp_path_factory.mktemp("grpc-only-6dec")
+    yield from setup_custom_evmos(
+        path, 46810, evm6dec_config(path, "rollback-test"), chain_id=EVMOS_6DEC_CHAIN_ID
+    )
+
+
+@pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("grpc-only-rocksdb")
     yield from setup_custom_evmos(
@@ -42,8 +52,8 @@ def custom_evmos_rocksdb(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -51,6 +61,8 @@ def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-6dec":
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     else:
@@ -78,7 +90,8 @@ def test_grpc_mode(evmos_cluster: Evmos):
     """
     w3 = evmos_cluster.w3
     contract, _ = deploy_contract(w3, CONTRACTS["TestChainID"])
-    assert 9002 == contract.caller.currentChainID()
+    chain_id = contract.caller.currentChainID()
+    assert chain_id == 9002 or chain_id == 9000
 
     msg = {
         "to": contract.address,
@@ -93,7 +106,10 @@ def test_grpc_mode(evmos_cluster: Evmos):
         rsp = grpc_eth_call(api_port, msg)
         ret = rsp["ret"]
         valid = ret is not None
-        if valid and 9002 == int.from_bytes(base64.b64decode(ret.encode()), "big"):
+        if valid and (
+            9002 == int.from_bytes(base64.b64decode(ret.encode()), "big")
+            or 9000 == int.from_bytes(base64.b64decode(ret.encode()), "big")
+        ):
             success = True
             break
         time.sleep(sleep)
@@ -101,7 +117,12 @@ def test_grpc_mode(evmos_cluster: Evmos):
     # wait 1 more block for both nodes to avoid node stopped before tnx get included
     for i in range(2):
         wait_for_block(evmos_cluster.cosmos_cli(i), 1)
-    supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", "evmos_9002-1-node1")
+
+    supervisorctl(
+        evmos_cluster.base_dir / "../tasks.ini",
+        "stop",
+        f"{evmos_cluster.cosmos_cli().chain_id}-node1",
+    )
 
     # run grpc-only mode directly with existing chain state
     with open(evmos_cluster.base_dir / "node1.log", "a", encoding="utf-8") as logfile:
@@ -123,14 +144,15 @@ def test_grpc_mode(evmos_cluster: Evmos):
             wait_for_port(api_port)
 
             # in grpc-only mode, grpc query don't work if we don't pass chain_id
-            rsp = grpc_eth_call(api_port, msg, chain_id=9002)
+            chain_id = evmos_cluster.w3.eth.chain_id
+            rsp = grpc_eth_call(api_port, msg, chain_id=chain_id)
 
             # Even after waiting for the grpc port to be ready,
             # the call gives error that the grpc server is still down
             # for this case, we'll retry the call
             while f"{grpc_port}: connect: connection refused" in rsp["message"]:
                 time.sleep(sleep + 1)
-                rsp = grpc_eth_call(api_port, msg, chain_id=9002)
+                rsp = grpc_eth_call(api_port, msg, chain_id=chain_id)
 
             # it doesn't work without proposer address
             assert rsp["code"] != 0, str(rsp)
@@ -145,7 +167,7 @@ def test_grpc_mode(evmos_cluster: Evmos):
             rsp = grpc_eth_call(
                 api_port,
                 msg,
-                chain_id="evmos_9002",
+                chain_id=evmos_cluster.cosmos_cli().chain_id,
                 proposer_address=proposer_addr,
             )
             assert rsp["code"] != 0, str(rsp)

@@ -38,7 +38,7 @@ RATE_LIMIT_PROP = {
 }
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     prepare IBC network with an evmos chain
