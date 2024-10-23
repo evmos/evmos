@@ -3,7 +3,6 @@
 package erc20
 
 import (
-	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -95,7 +94,6 @@ func (p *Precompile) transfer(
 	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
 	ownerIsSpender := spender.Equals(owner)
 
-	fmt.Println("ownerIsSpender", ownerIsSpender, spender.String(), owner.String())
 	var prevAllowance *big.Int
 	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
@@ -103,13 +101,11 @@ func (p *Precompile) transfer(
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
-			fmt.Println("err 2", err)
 			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
 		}
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
-	fmt.Println("err", err)
 	if err != nil {
 		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
