@@ -20,8 +20,8 @@ func WaitToAccrueRewards(n network.Network, gh grpc.Handler, delegatorAddr strin
 		rewards = sdk.DecCoins{}
 	)
 
-	expAmt := expRewards.AmountOf(n.GetDenom())
-	for rewards.AmountOf(n.GetDenom()).LT(expAmt) {
+	expAmt := expRewards.AmountOf(n.GetBaseDenom())
+	for rewards.AmountOf(n.GetBaseDenom()).LT(expAmt) {
 		rewards, err = checkRewardsAfter(n, gh, delegatorAddr, lapse)
 		if err != nil {
 			return nil, errorsmod.Wrap(err, "error checking rewards")
@@ -56,8 +56,8 @@ func WaitToAccrueCommission(n network.Network, gh grpc.Handler, validatorAddr st
 		commission = sdk.DecCoins{}
 	)
 
-	expAmt := expCommission.AmountOf(n.GetDenom())
-	for commission.AmountOf(n.GetDenom()).LT(expAmt) {
+	expAmt := expCommission.AmountOf(n.GetBaseDenom())
+	for commission.AmountOf(n.GetBaseDenom()).LT(expAmt) {
 		commission, err = checkCommissionAfter(n, gh, validatorAddr, lapse)
 		if err != nil {
 			return nil, errorsmod.Wrap(err, "error checking commission")

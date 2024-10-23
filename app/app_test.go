@@ -65,7 +65,7 @@ func TestPrecompilesAreBlockedAddrs(t *testing.T) {
 					banktypes.NewMsgSend(
 						signer.AccAddr,
 						precompileAddr.Bytes(),
-						sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e10))),
+						sdk.NewCoins(sdk.NewCoin(network.GetBaseDenom(), math.NewInt(1e10))),
 					),
 				},
 			})

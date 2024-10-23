@@ -15,27 +15,30 @@ import (
 func TestCheckBalances(t *testing.T) {
 	testDenom := "atest"
 	keyring := testkeyring.New(1)
-	nw := network.New(
-		network.WithDenom(testDenom),
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
+	address := keyring.GetAccAddr(0).String()
 
 	testcases := []struct {
 		name        string
-		address     string
+		decimals    uint8
 		expAmount   math.Int
 		expPass     bool
 		errContains string
 	}{
 		{
-			name:      "pass",
-			address:   keyring.GetAccAddr(0).String(),
+			name:      "pass - eighteen decimals",
+			decimals:  18,
 			expAmount: network.PrefundedAccountInitialBalance,
 			expPass:   true,
 		},
 		{
+			name:      "pass - six decimals",
+			decimals:  6,
+			expAmount: network.PrefundedAccountInitialBalance.Quo(math.NewInt(1e12)),
+			expPass:   true,
+		},
+		{
 			name:        "fail - wrong amount",
-			address:     keyring.GetAccAddr(0).String(),
+			decimals:    18,
 			expAmount:   math.NewInt(1),
 			errContains: "expected balance",
 		},
@@ -44,11 +47,16 @@ func TestCheckBalances(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			balances := []banktypes.Balance{{
-				Address: tc.address,
+				Address: address,
 				Coins: sdk.NewCoins(
 					sdk.NewCoin(testDenom, tc.expAmount),
 				),
 			}}
+
+			nw := network.New(
+				network.WithBaseCoin(testDenom, tc.decimals),
+				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			)
 
 			err := utils.CheckBalances(nw.GetContext(), nw.GetBankClient(), balances)
 			if tc.expPass {

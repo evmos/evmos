@@ -71,7 +71,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 					newAddr,
 					sdktypes.NewCoins(
 						sdktypes.NewCoin(
-							unitNetwork.GetDenom(),
+							unitNetwork.GetBaseDenom(),
 							insufficientAmount,
 						),
 					),
@@ -100,7 +100,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 					newAddr,
 					sdktypes.NewCoins(
 						sdktypes.NewCoin(
-							unitNetwork.GetDenom(),
+							unitNetwork.GetBaseDenom(),
 							enoughAmount,
 						),
 					),
@@ -136,7 +136,7 @@ func (suite *EvmAnteTestSuite) TestCheckVesting() {
 					newAddr,
 					sdktypes.NewCoins(
 						sdktypes.NewCoin(
-							unitNetwork.GetDenom(),
+							unitNetwork.GetBaseDenom(),
 							enoughAmount,
 						),
 					),
@@ -195,7 +195,7 @@ func defaultVestingParams(network network.Network, funder, baseAddress sdktypes.
 		StartVestingTime: time.Now(),
 		Period: sdkvesting.Period{
 			Length: 1000,
-			Amount: sdktypes.NewCoins(sdktypes.NewInt64Coin(network.GetDenom(), 1000)),
+			Amount: sdktypes.NewCoins(sdktypes.NewInt64Coin(network.GetBaseDenom(), 1000)),
 		},
 		VestingAmount: math.NewInt(1e18),
 	}
@@ -206,7 +206,7 @@ func generateNewVestingAccount(
 	vestingParams customVestingParams,
 ) sdktypes.AccountI {
 	var (
-		balances       = sdktypes.NewCoins(sdktypes.NewInt64Coin(unitNetwork.GetDenom(), 1000))
+		balances       = sdktypes.NewCoins(sdktypes.NewInt64Coin(unitNetwork.GetBaseDenom(), 1000))
 		lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 		vestingPeriods = sdkvesting.Periods{
 			vestingParams.Period,
@@ -216,7 +216,7 @@ func generateNewVestingAccount(
 			vestingParams.Period,
 		}
 		vestingCoins = sdktypes.NewCoins(
-			sdktypes.NewCoin(unitNetwork.GetDenom(), vestingParams.VestingAmount),
+			sdktypes.NewCoin(unitNetwork.GetBaseDenom(), vestingParams.VestingAmount),
 		)
 	)
 
