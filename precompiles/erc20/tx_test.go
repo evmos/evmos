@@ -85,7 +85,6 @@ func (s *PrecompileTestSuite) TestTransfer() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
@@ -237,7 +236,6 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.network.GetContext()

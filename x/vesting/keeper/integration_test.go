@@ -2187,7 +2187,6 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 			},
 		}
 		for _, tc := range testcases {
-			tc := tc
 			It(tc.name, func() {
 				var (
 					lockupPeriods  sdkvesting.Periods

@@ -57,7 +57,7 @@ func TestUnpackBalancesResponse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc // Added for parallel testing, check https://pkg.go.dev/testing#hdr-Subtests_and_Sub_benchmarks
+		tc := tc //nolint:copyloopvar // Added for parallel testing, check https://pkg.go.dev/testing#hdr-Subtests_and_Sub_benchmarks
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
