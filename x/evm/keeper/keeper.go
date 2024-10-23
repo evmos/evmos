@@ -167,12 +167,7 @@ func (k Keeper) SetTxIndexTransient(ctx sdk.Context, index uint64) {
 // GetTxIndexTransient returns EVM transaction index on the current block.
 func (k Keeper) GetTxIndexTransient(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientTxIndex)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientTxIndex))
 }
 
 // ----------------------------------------------------------------------------
@@ -182,12 +177,7 @@ func (k Keeper) GetTxIndexTransient(ctx sdk.Context) uint64 {
 // GetLogSizeTransient returns EVM log index on the current block.
 func (k Keeper) GetLogSizeTransient(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientLogSize)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientLogSize))
 }
 
 // SetLogSizeTransient fetches the current EVM log index from the transient store, increases its
@@ -311,11 +301,7 @@ func (k Keeper) ResetTransientGasUsed(ctx sdk.Context) {
 // GetTransientGasUsed returns the gas used by current cosmos tx.
 func (k Keeper) GetTransientGasUsed(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientGasUsed)
-	if len(bz) == 0 {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientGasUsed))
 }
 
 // SetTransientGasUsed sets the gas used by current cosmos tx.
