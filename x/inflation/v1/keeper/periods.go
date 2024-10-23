@@ -11,12 +11,7 @@ import (
 // GetPeriod gets current period
 func (k Keeper) GetPeriod(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyPrefixPeriod)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixPeriod))
 }
 
 // SetPeriod stores the current period
