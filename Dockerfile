@@ -1,3 +1,4 @@
+# hadolint global ignore=DL3018
 FROM golang:1.23.2-alpine3.20 AS build-env
 
 ARG DB_BACKEND=goleveldb
