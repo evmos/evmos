@@ -157,7 +157,30 @@ func (p *Precompile) Mint(
 		return nil, err
 	}
 
-	return p.transfer(ctx, contract, stateDB, method, common.Address{}, to, amount)
+	// TODO: Check minter is the owner of the token
+	// minterAddr := contract.CallerAddress
+	// minter := sdk.AccAddress(minterAddr.Bytes())
+	// minterIsOwner := PERFORM CHECK
+	// if !minterIsOwner {
+	// return nil, ConvertErrToERC20Error(...)
+	// }
+
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
+	err = p.bankKeeper.MintCoins(ctx, "TOOD: MODULE NAME", coins)
+	if err != nil {
+		return nil, err
+	}
+
+	if p.tokenPair.Denom == utils.BaseDenom {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(to, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+	}
+
+	if err = p.EmitMintEvent(ctx, stateDB); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
 }
 
 // Burn executes a burn of the caller's tokens.

@@ -94,3 +94,9 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner
 
 	return nil
 }
+
+// EmitMintEvent creates a new mint event emitted on Mint
+func (p Precompile) EmitMintEvent(ctx sdk.Context, stateDB vm.StateDB) error { // TODO: Add necessary args
+	// TODO: Implement the function
+	return nil
+}
