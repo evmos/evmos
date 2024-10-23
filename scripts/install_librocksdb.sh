@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROCKSDB_VERSION=${1:-"9.5.2"}
+ROCKSDB_VERSION=${1:-"9.7.3"}
 
 # Check if RocksDB is already installed
 if [[ $(find /usr/lib -name "librocksdb.so.${ROCKSDB_VERSION}" -print -quit) ]]; then
