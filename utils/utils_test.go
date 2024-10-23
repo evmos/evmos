@@ -217,7 +217,7 @@ func TestAccAddressFromBech32(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+		tc := tc //nolint:copyloopvar // Needed to work correctly with concurrent tests
 
 		t.Run(tc.address, func(t *testing.T) {
 			t.Parallel()

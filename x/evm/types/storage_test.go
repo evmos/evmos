@@ -38,7 +38,6 @@ func TestStorageValidate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.storage.Validate()
 		if tc.expPass {
 			require.NoError(t, err, tc.name)
@@ -72,7 +71,6 @@ func TestStorageCopy(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		require.Equal(t, tc.storage, tc.storage.Copy(), tc.name)
 	}
 }

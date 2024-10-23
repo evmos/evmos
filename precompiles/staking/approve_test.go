@@ -714,7 +714,6 @@ func (s *PrecompileTestSuite) TestRevoke() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
 			ctx = s.network.GetContext()
