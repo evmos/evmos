@@ -5,6 +5,10 @@ package gov
 const (
 	// ErrDifferentOrigin is raised when the origin address is not the same as the voter address.
 	ErrDifferentOrigin = "tx origin address %s does not match the voter address %s"
+	// ErrInvalidInitialDeposit is raised when the initial deposit is not valid when submit proposal.
+	ErrInvalidInitialDeposit = "invalid initial deposit: %s"
+	// ErrInvalidProposer is raised when the proposer address is not valid.
+	ErrInvalidProposer = "invalid proposer address: %s"
 	// ErrInvalidVoter is raised when the voter address is not valid.
 	ErrInvalidVoter = "invalid voter address: %s"
 	// ErrInvalidProposalID invalid proposal id.
@@ -13,8 +17,16 @@ const (
 	ErrInvalidPageRequest = "invalid page request"
 	// ErrInvalidOption invalid option.
 	ErrInvalidOption = "invalid option %s "
+	// ErrInvalidMessages invalid messages.
+	ErrInvalidMessages = "invalid messages %s"
 	// ErrInvalidMetadata invalid metadata.
 	ErrInvalidMetadata = "invalid metadata %s "
+	// ErrInvalidTitle invalid title.
+	ErrInvalidTitle = "invalid title %s "
+	// ErrInvalidSummary invalid summary.
+	ErrInvalidSummary = "invalid summary %s "
+	// ErrInvalidExpedited invalid expedited.
+	ErrInvalidExpedited = "invalid expedited %s "
 	// ErrInvalidWeightedVoteOptions invalid weighted vote options.
 	ErrInvalidWeightedVoteOptions = "invalid weighted vote options %s "
 	// ErrInvalidWeightedVoteOption invalid weighted vote option.

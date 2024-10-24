@@ -102,6 +102,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	// gov transactions
+	case SubmitProposalMethod:
+		bz, err = p.SubmitProposal(ctx, evm.Origin, contract, stateDB, method, args)
 	case VoteMethod:
 		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
 	case VoteWeightedMethod:
@@ -141,11 +143,12 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 //
 // Available gov transactions are:
+//   - SubmitProposal
 //   - Vote
 //   - VoteWeighted
 func (Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
-	case VoteMethod, VoteWeightedMethod:
+	case SubmitProposalMethod, VoteMethod, VoteWeightedMethod:
 		return true
 	default:
 		return false
