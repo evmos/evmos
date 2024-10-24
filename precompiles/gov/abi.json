@@ -443,21 +443,9 @@
           "type": "string"
         },
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "denom",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Coin[]",
+          "internalType": "uint256",
           "name": "initialDeposit",
-          "type": "tuple[]"
+          "type": "uint256"
         },
         {
           "internalType": "address",

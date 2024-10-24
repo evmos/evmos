@@ -4,12 +4,15 @@
 package gov
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
+	"math/big"
+
+	"cosmossdk.io/math"
+
+	"github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
-	"math/big"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -213,7 +216,7 @@ func NewMsgSubmitProposal(args []interface{}) (*govv1.MsgSubmitProposal, common.
 
 	proposal, err := govv1.NewMsgSubmitProposal(
 		msgs,
-		sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, math.NewIntFromBigInt(initialDeposit))},
+		sdk.Coins{sdk.NewCoin(types.BaseDenom, math.NewIntFromBigInt(initialDeposit))},
 		sdk.AccAddress(proposerAddress.Bytes()).String(),
 		metadata,
 		title,
