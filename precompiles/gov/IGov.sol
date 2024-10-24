@@ -90,7 +90,7 @@ interface IGov {
     /// @return proposalId defines the unique id of the proposal
     function submitProposal(
         string memory messages,
-        Coin[] memory initialDeposit,
+        uint256 initialDeposit,
         address proposer,
         string memory metadata,
         string memory title,

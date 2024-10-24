@@ -4,17 +4,39 @@
 package gov
 
 import (
+	"cosmossdk.io/math"
+	"encoding/json"
 	"fmt"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
+	"math/big"
 
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	proposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v20/utils"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/utils"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 // EventVote defines the event data for the Vote transaction.
@@ -106,6 +128,103 @@ type TallyResultData struct {
 	Abstain    string
 	No         string
 	NoWithVeto string
+}
+
+// NewMsgSubmitProposal creates a new MsgSubmitProposalinstance.
+func NewMsgSubmitProposal(args []interface{}) (*govv1.MsgSubmitProposal, common.Address, error) {
+	if len(args) != 7 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+	}
+
+	messages, ok := args[0].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidMessages, args[0])
+	}
+
+	var rawMessages []json.RawMessage
+	err := json.Unmarshal([]byte(messages), &rawMessages)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+
+	authtypes.RegisterInterfaces(interfaceRegistry)
+	banktypes.RegisterInterfaces(interfaceRegistry)
+	consensustypes.RegisterInterfaces(interfaceRegistry)
+	stakingtypes.RegisterInterfaces(interfaceRegistry)
+	distrtypes.RegisterInterfaces(interfaceRegistry)
+	slashingtypes.RegisterInterfaces(interfaceRegistry)
+	govv1beta1.RegisterInterfaces(interfaceRegistry)
+	govv1.RegisterInterfaces(interfaceRegistry)
+	crisistypes.RegisterInterfaces(interfaceRegistry)
+	ibctransfertypes.RegisterInterfaces(interfaceRegistry)
+	upgradetypes.RegisterInterfaces(interfaceRegistry)
+	proposaltypes.RegisterInterfaces(interfaceRegistry)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
+
+	erc20types.RegisterInterfaces(interfaceRegistry)
+	evmtypes.RegisterInterfaces(interfaceRegistry)
+	feemarkettypes.RegisterInterfaces(interfaceRegistry)
+	inflationtypes.RegisterInterfaces(interfaceRegistry)
+
+	protoCodec := codec.NewProtoCodec(interfaceRegistry)
+
+	msgs := make([]sdk.Msg, len(rawMessages))
+	for i, message := range rawMessages {
+		var msg sdk.Msg
+		err := protoCodec.UnmarshalInterfaceJSON(message, &msg)
+		if err != nil {
+			return nil, common.Address{}, err
+		}
+
+		msgs[i] = msg
+	}
+
+	initialDeposit, ok := args[1].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidInitialDeposit, args[1])
+	}
+
+	proposerAddress, ok := args[2].(common.Address)
+	if !ok || proposerAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposer, args[2])
+	}
+
+	metadata, ok := args[3].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidMetadata, args[3])
+	}
+
+	title, ok := args[4].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidTitle, args[4])
+	}
+
+	summary, ok := args[5].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidSummary, args[5])
+	}
+
+	expedited, ok := args[6].(bool)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidExpedited, args[6])
+	}
+
+	proposal, err := govv1.NewMsgSubmitProposal(
+		msgs,
+		sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, math.NewIntFromBigInt(initialDeposit))},
+		sdk.AccAddress(proposerAddress.Bytes()).String(),
+		metadata,
+		title,
+		summary,
+		expedited,
+	)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return proposal, proposerAddress, nil
 }
 
 // NewMsgVote creates a new MsgVote instance.
