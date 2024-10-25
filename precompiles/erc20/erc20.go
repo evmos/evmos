@@ -14,6 +14,7 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
@@ -50,6 +51,7 @@ type Precompile struct {
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
+	accountKeeper 	erc20types.AccountKeeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -59,6 +61,7 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
+	accountKeeper 	erc20types.AccountKeeper,
 ) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
@@ -76,6 +79,7 @@ func NewPrecompile(
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
+		accountKeeper: accountKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
 	p.SetAddress(p.tokenPair.GetERC20Contract())
@@ -142,7 +146,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
 	bz, err = p.HandleMethod(ctx, contract, stateDB, method, args)
 	if err != nil {
 		return nil, err
@@ -218,3 +221,4 @@ func (p *Precompile) HandleMethod(
 
 	return bz, err
 }
+

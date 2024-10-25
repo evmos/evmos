@@ -21,6 +21,7 @@ import (
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
+	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 }

@@ -178,22 +178,16 @@ func ParseMintArgs(args []interface{}) (to common.Address, amount *big.Int, err 
 	return to, amount, nil
 }
 
-// ParseBurnArgs parses the arguments from the burn method and returns the
-// sender address (from) and amount.
-func ParseBurnArgs(args []interface{}) (from common.Address, amount *big.Int, err error) {
-	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 2; got: %d", len(args))
+func ParseBurnArgs(args []interface{}) (amount *big.Int, err error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
 	}
 
-	from, ok := args[0].(common.Address)
+	amount, ok := args[0].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid from address: %v", args[0])
+		return nil, fmt.Errorf("invalid amount: %v", args[0])
 	}
 
-	amount, ok = args[1].(*big.Int)
-	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
-	}
-
-	return from, amount, nil
+	return amount, nil
 }
+

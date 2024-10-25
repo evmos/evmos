@@ -261,6 +261,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 func (s *PrecompileTestSuite) TestMint() {
 	method := s.precompile.Methods[erc20.MintMethod]
 	sender := s.keyring.GetKey(0)
+	spender := s.keyring.GetKey(1)
 
 	testcases := []struct {
 		name        string
@@ -297,36 +298,22 @@ func (s *PrecompileTestSuite) TestMint() {
 			"invalid amount",
 		},
 		{
-			"fail - not enough allowance",
+			"pass",
 			func() []interface{} {
-				return []interface{}{toAddr, big.NewInt(1)}
+				coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
+				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, coins)
+				s.Require().NoError(err, "failed to mint coins")
+				err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, sdk.AccAddress(toAddr.Bytes()), coins)
+				s.Require().NoError(err, "failed to send coins from module to account")
+				return []interface{}{spender.Addr, big.NewInt(100)}
 			},
-			func() {},
-			true,
-			erc20.ErrInsufficientAllowance.Error(),
+			func() {
+				toAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), toAddr.Bytes(), tokenDenom)
+				s.Require().Equal(big.NewInt(100), toAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
+			},
+			false,
+			"",
 		},
-		// {
-		// 	"pass",
-		// 	func() []interface{} {
-		// 		expiration := time.Now().Add(time.Hour)
-		// 		err := s.network.App.AuthzKeeper.SaveGrant(
-		// 			s.network.GetContext(),
-		// 			sender.AccAddr,
-		// 			owner.AccAddr,
-		// 			&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: math.NewInt(300)}}},
-		// 			&expiration,
-		// 		)
-		// 		s.Require().NoError(err, "failed to save grant")
-
-		// 		return []interface{}{toAddr, big.NewInt(100)}
-		// 	},
-		// 	func() {
-		// 		toAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), toAddr.Bytes(), tokenDenom)
-		// 		s.Require().Equal(big.NewInt(100), toAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
-		// 	},
-		// 	false,
-		// 	"",
-		// },
 	}
 
 	for _, tc := range testcases {
@@ -358,7 +345,7 @@ func (s *PrecompileTestSuite) TestMint() {
 
 func (s *PrecompileTestSuite) TestBurn() {
 	method := s.precompile.Methods[erc20.BurnMethod]
-	fromAddr := utiltx.GenerateAddress()
+	from := s.keyring.GetKey(0)
 	testcases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -369,51 +356,24 @@ func (s *PrecompileTestSuite) TestBurn() {
 		{
 			"fail - negative amount",
 			func() []interface{} {
-				return []interface{}{fromAddr, big.NewInt(-1)}
+				return []interface{}{big.NewInt(-1)}
 			},
 			func() {},
 			true,
 			"-1xmpl: invalid coins",
 		},
 		{
-			"fail - invalid to address",
+			"pass",
 			func() []interface{} {
-				return []interface{}{"", big.NewInt(100)}
+				return []interface{}{big.NewInt(100)}
 			},
-			func() {},
-			true,
-			"invalid to address",
-		},
-		{
-			"fail - invalid amount",
-			func() []interface{} {
-				return []interface{}{fromAddr, ""}
+			func() {
+				fromBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), from.AccAddr, tokenDenom)
+				s.Require().Equal(big.NewInt(0), fromBalance.Amount.BigInt(), "expected fromAddr to have 0 XMPL")
 			},
-			func() {},
-			true,
-			"invalid amount",
+			false,
+			"",
 		},
-		{
-			"fail - not enough allowance",
-			func() []interface{} {
-				return []interface{}{fromAddr, big.NewInt(1)}
-			},
-			func() {},
-			true,
-			erc20.ErrInsufficientAllowance.Error(),
-		},
-		// {
-		// 	"pass",
-		// 	func() []interface{} {
-		// 		return []interface{}{fromAddr, big.NewInt(100)}
-		// 	},
-		// 	func() {
-		// 		fromAddrBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), fromAddr.Bytes(), tokenDenom)
-		// 		s.Require().Equal(big.NewInt(100), fromAddrBalance.Amount.BigInt(), "expected toAddr to have 100 XMPL")
-		// 	},
-		// 	false,
-		// 	"",
-		// },
 	}
 
 	for _, tc := range testcases {
@@ -421,20 +381,21 @@ func (s *PrecompileTestSuite) TestBurn() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
+			coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
 
 			var contract *vm.Contract
-			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), fromAddr, s.precompile, 0)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), from.Addr, s.precompile, 0)
 
 			// Mint some coins to the module account and then send to the from address
-			err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+			err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, coins)
 			s.Require().NoError(err, "failed to mint coins")
-			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, fromAddr.Bytes(), XMPLCoin)
+			err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, from.AccAddr, coins)
 			s.Require().NoError(err, "failed to send coins from module to account")
 
 			_, err = s.precompile.Burn(ctx, contract, stateDB, &method, tc.malleate())
 			if tc.expErr {
-				s.Require().Error(err, "expected transfer transaction to fail")
-				s.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")
+				s.Require().Error(err, "expected burn transaction to fail")
+				s.Require().Contains(err.Error(), tc.errContains, "expected burn transaction to fail with specific error")
 			} else {
 				s.Require().NoError(err, "expected transfer transaction succeeded")
 				tc.postCheck()
