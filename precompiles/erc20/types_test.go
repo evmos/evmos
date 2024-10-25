@@ -305,3 +305,106 @@ func (s *PrecompileTestSuite) TestParseBalanceOfArgs() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestParseMintArgs() {
+	minter := utiltx.GenerateAddress()
+	amount := big.NewInt(100)
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				minter,
+				amount,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid minter address",
+			args: []interface{}{
+				"invalid address",
+				amount,
+			},
+			errContains: "invalid minter address",
+		},
+		{
+			name: "fail - invalid amount",
+			args: []interface{}{
+				minter,
+				"invalid amount",
+			},
+			errContains: "invalid amount",
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			minter, amount, err := erc20.ParseMintArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the mint arguments")
+				s.Require().Equal(minter, tc.args[0], "expected different minter address")
+				s.Require().Equal(amount, tc.args[1], "expected different amount")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestParseBurnArgs() {
+	amount := big.NewInt(100)
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				amount,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid amount",
+			args: []interface{}{
+				"invalid amount",
+			},
+			errContains: "invalid amount",
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			amount, err := erc20.ParseBurnArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the burn arguments")
+				s.Require().Equal(amount, tc.args[0], "expected different amount")
+			} else {
+				s.Require().Error(err, "expected an error parsing the burn arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
