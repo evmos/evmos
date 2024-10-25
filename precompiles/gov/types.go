@@ -133,7 +133,7 @@ type TallyResultData struct {
 	NoWithVeto string
 }
 
-// NewMsgSubmitProposal creates a new MsgSubmitProposalinstance.
+// NewMsgSubmitProposal creates a new MsgSubmitProposal instance.
 func NewMsgSubmitProposal(args []interface{}) (*govv1.MsgSubmitProposal, common.Address, error) {
 	if len(args) != 7 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
