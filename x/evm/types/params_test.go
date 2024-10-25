@@ -48,7 +48,7 @@ func TestParamsValidate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+		tc := tc //nolint:copyloopvar // Needed to work correctly with concurrent tests
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
