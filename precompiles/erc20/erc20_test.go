@@ -149,7 +149,7 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 		{
 			name: erc20.BurnMethod,
 			malleate: func() []byte {
-				bz, err := s.precompile.ABI.Pack(erc20.BurnMethod, s.keyring.GetAddr(0), big.NewInt(1))
+				bz, err := s.precompile.ABI.Pack(erc20.BurnMethod, big.NewInt(1))
 				s.Require().NoError(err, "expected no error packing ABI")
 				return bz
 			},
