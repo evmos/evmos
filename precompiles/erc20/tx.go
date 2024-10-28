@@ -3,6 +3,7 @@
 package erc20
 
 import (
+	"errors"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -30,6 +31,8 @@ const (
 	MintMethod = "mint"
 	// BurnMethod defines the ABI method name for the ERC-20 burn transaction.
 	BurnMethod = "burn"
+	// TransferOwnershipMethod defines the ABI method name for the ERC-20 transferOwnership transaction.
+	TransferOwnershipMethod = "transferOwnership"
 )
 
 // SendMsgURL defines the authorization type for MsgSend
@@ -158,13 +161,18 @@ func (p *Precompile) Mint(
 		return nil, err
 	}
 
-	// TODO: Check minter is the owner of the token
-	minterAddr := contract.CallerAddress
-	_ = sdk.AccAddress(minterAddr.Bytes())
-	// minterIsOwner := minter.Equals(sdk.AccAddress(to.Bytes()))
-	minterIsOwner := true
+	if !p.tokenPair.IsNativeCoin() {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot mint a non-native coin"), "ERC20: cannot mint a non-native coin"))
+	}
 
-	if !minterIsOwner {
+	minterAddr := contract.CallerAddress
+	minter := sdk.AccAddress(minterAddr.Bytes())
+	contractOwnerAddr, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if !minter.Equals(contractOwnerAddr) {
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner"))
 	}
 
@@ -206,11 +214,18 @@ func (p *Precompile) Burn(
 		return nil, err
 	}
 
+	if !p.tokenPair.IsNativeCoin() {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot burn a non-native coin"), "ERC20: cannot burn a non-native coin"))
+	}
+
+	contractOwnerAddr, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	burnerAddr := contract.CallerAddress
 	burner := sdk.AccAddress(burnerAddr.Bytes())
-	// TODO: Replace with Ownable
-	// burnerIsOwner := burner.Equals(sdk.AccAddress(from.Bytes()))
-	burnerIsOwner := true
+	burnerIsOwner := burner.Equals(contractOwnerAddr)
 
 	if !burnerIsOwner {
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "burner is not the owner"))
@@ -235,6 +250,48 @@ func (p *Precompile) Burn(
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack()
+}
+
+// TransferOwnership executes a transfer of ownership of the token.
+func (p *Precompile) TransferOwnership(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	newOwner, err := ParseTransferOwnershipArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	sender := contract.CallerAddress
+	contractOwnerAccount := sdk.AccAddress(p.tokenPair.ContractOwnerAddress)
+
+	if !contractOwnerAccount.Equals(sdk.AccAddress(sender.Bytes())) {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: unauthorized"), "ERC20: unauthorized"))
+	}
+	
+	if !p.tokenPair.IsNativeCoin() {
+		// TODO: Update error message
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot transfer ownership of a non-native coin"), "ERC20: cannot transfer ownership of a non-native coin"))
+	}
+	
+	// TODO: Check invariant
+	if contractOwnerAccount.Equals(sdk.AccAddress(newOwner.Bytes())) || contractOwnerAccount.Equals(sdk.AccAddress(common.Address{}.Bytes())) {
+		// TODO: Add InvalidOwner error
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: invalid owner"), "ERC20: invalid owner"))	
+	}
+
+	if err := p.SetContractOwnerAddress(ctx, sdk.AccAddress(newOwner.Bytes())); err != nil {
+		return nil, err
+	}
+
+	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, sender, newOwner); err != nil {
 		return nil, err
 	}
 

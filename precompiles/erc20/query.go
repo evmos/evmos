@@ -39,6 +39,9 @@ const (
 	// BalanceOfMethod defines the ABI method name for the ERC-20 BalanceOf
 	// query.
 	BalanceOfMethod = "balanceOf"
+	// OwnerMethod defines the ABI method name for the ERC-20 Owner
+	// query.
+	OwnerMethod = "owner"
 )
 
 // Name returns the name of the token. If the token metadata is registered in the
@@ -204,6 +207,22 @@ func (p Precompile) Allowance(
 	}
 
 	return method.Outputs.Pack(allowance)
+}
+
+// Owner returns the address of the current owner of the token.
+func (p Precompile) Owner(
+	ctx sdk.Context,
+	_ *vm.Contract,
+	_ vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	err := ParseOwnerArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(p.tokenPair.ContractOwnerAddress)
 }
 
 // GetAuthzExpirationAndAllowance returns the authorization, its expiration as well as the amount of denom

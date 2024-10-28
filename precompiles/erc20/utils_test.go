@@ -239,6 +239,7 @@ func setupERC20PrecompileForTokenPair(
 	unitNetwork network.UnitTestNetwork, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
 	precompile, err := erc20.NewPrecompile(
+		unitNetwork.App.GetKey(erc20types.ModuleName),
 		tokenPair,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.AuthzKeeper,

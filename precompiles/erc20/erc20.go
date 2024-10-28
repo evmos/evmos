@@ -35,6 +35,10 @@ const (
 	GasTotalSupply       = 2_477
 	GasBalanceOf         = 2_851
 	GasAllowance         = 3_246
+	// TODO: Set gas for MintMethod, BurnMethod, and Ownable methods
+	GasMint              = 3_000_000
+	GasBurn              = 3_000_000
+	GasTransferOwnership = 3_000_000
 )
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -47,6 +51,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
+	storeKey      	storetypes.StoreKey
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
@@ -56,6 +61,7 @@ type Precompile struct {
 // NewPrecompile creates a new ERC-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	storeKey storetypes.StoreKey,
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -68,6 +74,7 @@ func NewPrecompile(
 	}
 
 	p := &Precompile{
+		storeKey: storeKey,
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
@@ -201,6 +208,8 @@ func (p *Precompile) HandleMethod(
 		bz, err = p.Mint(ctx, contract, stateDB, method, args)
 	case BurnMethod:
 		bz, err = p.Burn(ctx, contract, stateDB, method, args)
+	case TransferOwnershipMethod:
+		bz, err = p.TransferOwnership(ctx, contract, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
 		bz, err = p.Name(ctx, contract, stateDB, method, args)
@@ -212,6 +221,8 @@ func (p *Precompile) HandleMethod(
 		bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
 	case BalanceOfMethod:
 		bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
+	case OwnerMethod:
+		bz, err = p.Owner(ctx, contract, stateDB, method, args)
 	case auth.AllowanceMethod:
 		bz, err = p.Allowance(ctx, contract, stateDB, method, args)
 	default:

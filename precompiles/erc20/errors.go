@@ -39,6 +39,8 @@ var (
 	ErrDecreasedAllowanceBelowZero  = errors.New("ERC20: decreased allowance below zero")
 	ErrInsufficientAllowance        = errors.New("ERC20: insufficient allowance")
 	ErrTransferAmountExceedsBalance = errors.New("ERC20: transfer amount exceeds balance")
+	ErrOwnableInvalidOwner          = errors.New("ERC20: invalid new owner")
+	ErrOwnableUnauthorizedAccount   = errors.New("ERC20: unauthorized account")
 )
 
 // BuildExecRevertedErr returns a mocked error that should align with the
@@ -82,6 +84,10 @@ func ConvertErrToERC20Error(err error) error {
 		return ErrDecreasedAllowanceBelowZero
 	case strings.Contains(err.Error(), cmn.ErrIntegerOverflow):
 		return vm.ErrExecutionReverted
+	case strings.Contains(err.Error(), "ERC20: unauthorized"):
+		return ErrOwnableUnauthorizedAccount
+	case strings.Contains(err.Error(), "ERC20: invalid owner"):
+		return ErrOwnableInvalidOwner
 	case errors.Is(err, ibc.ErrNoIBCVoucherDenom) ||
 		errors.Is(err, ibc.ErrDenomTraceNotFound) ||
 		strings.Contains(err.Error(), "invalid base denomination") ||
