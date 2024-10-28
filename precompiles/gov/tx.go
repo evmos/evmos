@@ -22,7 +22,7 @@ const (
 	VoteWeightedMethod = "voteWeighted"
 )
 
-// Vote claims the rewards accumulated by a delegator from multiple or all validators.
+// Vote defines a method to add a vote on a specific proposal.
 func (p Precompile) Vote(
 	ctx sdk.Context,
 	origin common.Address,
@@ -37,7 +37,7 @@ func (p Precompile) Vote(
 	}
 
 	// If the contract is the voter, we don't need an origin check
-	// Otherwise check if the origin matches the delegator address
+	// Otherwise check if the origin matches the voter address
 	isContractVoter := contract.CallerAddress == voterHexAddr && contract.CallerAddress != origin
 	if !isContractVoter && origin != voterHexAddr {
 		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), voterHexAddr.String())
@@ -55,7 +55,7 @@ func (p Precompile) Vote(
 	return method.Outputs.Pack(true)
 }
 
-// VoteWeighted claims the rewards accumulated by a delegator from multiple or all validators.
+// VoteWeighted defines a method to add a vote on a specific proposal.
 func (p Precompile) VoteWeighted(
 	ctx sdk.Context,
 	origin common.Address,
@@ -70,7 +70,7 @@ func (p Precompile) VoteWeighted(
 	}
 
 	// If the contract is the voter, we don't need an origin check
-	// Otherwise check if the origin matches the delegator address
+	// Otherwise check if the origin matches the voter address
 	isContractVoter := contract.CallerAddress == voterHexAddr && contract.CallerAddress != origin
 	if !isContractVoter && origin != voterHexAddr {
 		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), voterHexAddr.String())
