@@ -14,7 +14,9 @@ var DefaultTokenPairs = []TokenPair{
 		Erc20Address:  WEVMOSContractMainnet,
 		Denom:         utils.BaseDenom,
 		Enabled:       true,
-		ContractOwner: OWNER_MODULE,
+		ContractOwner:      OWNER_MODULE,
+		// TODO: Remove this once the owner is set in the module
+		ContractOwnerAddress: "ethm1emq5xcncu3g52d3hx7rmsk6yf6jpnjrsp0wnka",
 	},
 }
 
