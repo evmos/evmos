@@ -132,3 +132,21 @@ func (k Keeper) ToggleConversion(
 	k.SetTokenPair(ctx, pair)
 	return pair, nil
 }
+
+// TransferOwnership transfers the ownership of the ERC20 token pair to the new owner.
+func (k Keeper) TransferOwnership(ctx sdk.Context, token, newOwner string) error {
+	id := k.GetTokenPairID(ctx, token)
+	if len(id) == 0 {
+		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered by id", token)
+	}
+
+	pair, found := k.GetTokenPair(ctx, id)
+	if !found {
+		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
+	}
+
+	pair.ContractOwnerAddress = newOwner
+	k.SetTokenPair(ctx, pair)
+
+	return nil
+}

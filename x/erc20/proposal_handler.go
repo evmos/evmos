@@ -29,6 +29,8 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.ToggleTokenConversionProposal:
 			return handleToggleConversionProposal(ctx, k, c)
+		case *types.TransferOwnershipProposal:
+			return handleTransferOwnershipProposal(ctx, k, c)
 
 		default:
 			return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
@@ -80,5 +82,21 @@ func handleToggleConversionProposal(
 		),
 	)
 
+	return nil
+}
+
+// handleTransferOwnershipProposal handles the transfer ownership proposal for a token pair
+func handleTransferOwnershipProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.TransferOwnershipProposal,
+) error {
+	// Process proposal
+	err := k.TransferOwnership(ctx, p.Token, p.NewOwner)
+	if err != nil {
+		return err
+	}
+
+	// Emit event
 	return nil
 }
