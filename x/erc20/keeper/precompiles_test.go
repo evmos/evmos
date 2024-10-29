@@ -10,7 +10,7 @@ func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
 	nonExistendTokenHexAddr := "0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963" //nolint:gosec
 	newTokenDenom := "test"
 	params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-	tokenPair := types.NewTokenPair(common.HexToAddress(newTokenHexAddr), newTokenDenom, types.OWNER_MODULE)
+	tokenPair := types.NewTokenPair(common.HexToAddress(newTokenHexAddr), newTokenDenom, types.OWNER_MODULE, "")
 	suite.app.Erc20Keeper.SetToken(suite.ctx, tokenPair)
 	tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 	suite.Require().True(len(tokenPairs) > 1)

@@ -74,7 +74,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.bondDenom = nw.GetDenom()
 	is.tokenDenom = "xmpl"
 
-	is.precompile = is.setupERC20Precompile(is.tokenDenom)
+	is.precompile = is.setupERC20Precompile(is.tokenDenom, is.keyring.GetAccAddr(0).String())
 }
 
 func TestIntegrationSuite(t *testing.T) {

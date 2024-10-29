@@ -167,7 +167,7 @@ func (p *Precompile) Mint(
 
 	minterAddr := contract.CallerAddress
 	minter := sdk.AccAddress(minterAddr.Bytes())
-	contractOwnerAddr, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	contractOwnerAddr, err := p.GetContractOwnerAddress(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (p *Precompile) Burn(
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot burn a non-native coin"), "ERC20: cannot burn a non-native coin"))
 	}
 
-	contractOwnerAddr, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	contractOwnerAddr, err := p.GetContractOwnerAddress(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +270,10 @@ func (p *Precompile) TransferOwnership(
 	}
 
 	sender := contract.CallerAddress
-	contractOwnerAccount := sdk.AccAddress(p.tokenPair.ContractOwnerAddress)
+	contractOwnerAccount, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	if !contractOwnerAccount.Equals(sdk.AccAddress(sender.Bytes())) {
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: unauthorized"), "ERC20: unauthorized"))

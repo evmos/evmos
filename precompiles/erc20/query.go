@@ -222,7 +222,12 @@ func (p Precompile) Owner(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(p.tokenPair.ContractOwnerAddress)
+	contractOwnerAddr, err := p.GetContractOwnerAddress(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(common.Address(contractOwnerAddr.Bytes()))
 }
 
 // GetAuthzExpirationAndAllowance returns the authorization, its expiration as well as the amount of denom

@@ -208,8 +208,8 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
-func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+func (s *PrecompileTestSuite) setupERC20Precompile(denom string, contractOwnerAddr string) *erc20.Precompile {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE, contractOwnerAddr)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
 	precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
@@ -223,8 +223,8 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // to the available and active precompiles.
 //
 // TODO: refactor
-func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+func (is *IntegrationTestSuite) setupERC20Precompile(denom string, contractOwnerAddr string) *erc20.Precompile {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE, contractOwnerAddr)
 	is.network.App.Erc20Keeper.SetToken(is.network.GetContext(), tokenPair)
 
 	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)

@@ -22,6 +22,7 @@ type PrecompileTestSuite struct {
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
 	tokenDenom  string
+	contractOwnerAddr string
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -58,5 +59,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	//
 	// NOTE: This has to be done AFTER assigning the suite fields.
 	s.tokenDenom = "xmpl"
-	s.precompile = s.setupERC20Precompile(s.tokenDenom)
+	s.contractOwnerAddr = s.keyring.GetAccAddr(0).String()
+	s.precompile = s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
 }

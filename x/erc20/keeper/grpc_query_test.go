@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
 				}
 				pairs := types.DefaultTokenPairs
-				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
+				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE, "")
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 				pairs = append(pairs, pair)
 
@@ -58,8 +58,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				req = &types.QueryTokenPairsRequest{}
 				pairs := types.DefaultTokenPairs
 
-				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
-				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE)
+				pair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE, "")
+				pair2 := types.NewTokenPair(utiltx.GenerateAddress(), "coin2", types.OWNER_MODULE, "")
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair2)
 				pairs = append(pairs, pair, pair2)
@@ -124,7 +124,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			"token pair found",
 			func() {
 				addr := utiltx.GenerateAddress()
-				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE)
+				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE, "")
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
@@ -140,7 +140,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			"token pair not found - with erc20 existent",
 			func() {
 				addr := utiltx.GenerateAddress()
-				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE)
+				pair := types.NewTokenPair(addr, "coin", types.OWNER_MODULE, "")
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
 

@@ -154,7 +154,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20() {
 			suite.Require().NoError(err)
 
 			coinName := types.CreateDenom(contractAddr.String())
-			pair = types.NewTokenPair(contractAddr, coinName, types.OWNER_EXTERNAL)
+			pair = types.NewTokenPair(contractAddr, coinName, types.OWNER_EXTERNAL, "")
 
 			tc.malleate()
 
@@ -201,7 +201,7 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 				contractAddr, err := suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Require().NoError(err)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, types.OWNER_MODULE, "")
 			},
 			false,
 			false,
@@ -212,7 +212,7 @@ func (suite KeeperTestSuite) TestToggleConverision() { //nolint:govet // we can 
 				contractAddr, err := suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Require().NoError(err)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, types.OWNER_MODULE, "")
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
 			false,

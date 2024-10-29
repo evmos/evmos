@@ -40,7 +40,7 @@ func (suite *TokenPairTestSuite) TestTokenPairNew() {
 	}
 
 	for i, tc := range testCases {
-		tp := types.NewTokenPair(tc.erc20Address, tc.denom, tc.owner)
+		tp := types.NewTokenPair(tc.erc20Address, tc.denom, tc.owner, "")
 		err := tp.Validate()
 
 		if tc.expectPass {
@@ -77,7 +77,7 @@ func (suite *TokenPairTestSuite) TestTokenPair() {
 func (suite *TokenPairTestSuite) TestGetID() {
 	addr := utiltx.GenerateAddress()
 	denom := "test"
-	pair := types.NewTokenPair(addr, denom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(addr, denom, types.OWNER_MODULE, "")
 	id := pair.GetID()
 	expID := tmhash.Sum([]byte(addr.String() + "|" + denom))
 	suite.Require().Equal(expID, id)
@@ -86,7 +86,7 @@ func (suite *TokenPairTestSuite) TestGetID() {
 func (suite *TokenPairTestSuite) TestGetERC20Contract() {
 	expAddr := utiltx.GenerateAddress()
 	denom := "test"
-	pair := types.NewTokenPair(expAddr, denom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(expAddr, denom, types.OWNER_MODULE, "")
 	addr := pair.GetERC20Contract()
 	suite.Require().Equal(expAddr, addr)
 }

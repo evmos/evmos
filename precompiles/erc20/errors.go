@@ -76,6 +76,8 @@ func ConvertErrToERC20Error(err error) error {
 	switch {
 	case strings.Contains(err.Error(), "spendable balance"):
 		return ErrTransferAmountExceedsBalance
+	case strings.Contains(err.Error(), "minter is not the owner") || strings.Contains(err.Error(), "burner is not the owner"):
+		return vm.ErrExecutionReverted
 	case strings.Contains(err.Error(), "requested amount is more than spend limit"):
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
@@ -84,7 +86,7 @@ func ConvertErrToERC20Error(err error) error {
 		return ErrDecreasedAllowanceBelowZero
 	case strings.Contains(err.Error(), cmn.ErrIntegerOverflow):
 		return vm.ErrExecutionReverted
-	case strings.Contains(err.Error(), "ERC20: unauthorized"):
+	case strings.Contains(err.Error(), "ERC20: unauthorized") || strings.Contains(err.Error(), "authorization not found"):
 		return ErrOwnableUnauthorizedAccount
 	case strings.Contains(err.Error(), "ERC20: invalid owner"):
 		return ErrOwnableInvalidOwner

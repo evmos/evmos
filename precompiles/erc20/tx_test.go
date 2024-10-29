@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
@@ -273,6 +274,7 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - negative amount",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
 				return []interface{}{toAddr, big.NewInt(-1)}
 			},
 			func() {},
@@ -282,6 +284,7 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - invalid to address",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
 				return []interface{}{"", big.NewInt(100)}
 			},
 			func() {},
@@ -291,6 +294,7 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - invalid amount",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
 				return []interface{}{toAddr, ""}
 			},
 			func() {},
@@ -298,8 +302,18 @@ func (s *PrecompileTestSuite) TestMint() {
 			"invalid amount",
 		},
 		{
+			"fail - minter is not the owner",
+			func() []interface{} {
+				return []interface{}{spender.Addr, big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"execution reverted",
+		},
+		{
 			"pass",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
 				coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
 				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, coins)
 				s.Require().NoError(err, "failed to mint coins")
@@ -356,6 +370,7 @@ func (s *PrecompileTestSuite) TestBurn() {
 		{
 			"fail - negative amount",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), from.AccAddr)
 				return []interface{}{big.NewInt(-1)}
 			},
 			func() {},
@@ -363,8 +378,18 @@ func (s *PrecompileTestSuite) TestBurn() {
 			"-1xmpl: invalid coins",
 		},
 		{
+			"fail - burner is not the owner",
+			func() []interface{} {
+				return []interface{}{big.NewInt(100)}
+			},
+			func() {},
+			true,
+			"execution reverted",
+		},
+		{
 			"pass",
 			func() []interface{} {
+				s.precompile.SetContractOwnerAddress(s.network.GetContext(), from.AccAddr)
 				return []interface{}{big.NewInt(100)}
 			},
 			func() {
@@ -382,6 +407,7 @@ func (s *PrecompileTestSuite) TestBurn() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
 			coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
+			
 
 			var contract *vm.Contract
 			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), from.Addr, s.precompile, 0)
@@ -399,6 +425,71 @@ func (s *PrecompileTestSuite) TestBurn() {
 			} else {
 				s.Require().NoError(err, "expected transfer transaction succeeded")
 				tc.postCheck()
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestTransferOwnership() {
+	method := s.precompile.Methods[erc20.TransferOwnershipMethod]
+	from := s.keyring.GetKey(0)
+	newOwner := common.Address(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name string
+		malleate func() []interface{}
+		postCheck func(precompile *erc20.Precompile)
+		expErr bool
+		errContains string
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			malleate: func() []interface{} {
+				return []interface{}{}
+			},
+			expErr: true,
+			errContains: "invalid number of arguments; expected 1; got: 0",
+		},
+		{
+			name: "fail - invalid address",
+			malleate: func() []interface{} {
+				return []interface{}{"invalid"}
+			},
+			expErr: true,
+			errContains: "invalid new owner address",
+		},
+		{
+			name: "pass",
+			malleate: func() []interface{} {
+				return []interface{}{newOwner}
+			},
+			postCheck: func(precompile *erc20.Precompile) {
+				owner, err := precompile.GetContractOwnerAddress(s.network.GetContext())
+				s.Require().NoError(err)
+				s.Require().Equal(sdk.AccAddress(newOwner.Bytes()), owner)
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+			stateDB := s.network.GetStateDB()
+			
+			precompile := s.setupERC20Precompile(s.tokenDenom, from.AccAddr.String())
+			
+			var contract *vm.Contract
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), from.Addr, s.precompile, 0)
+
+			_, err := precompile.TransferOwnership(ctx, contract, stateDB, &method, tc.malleate())
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			} else {
+				s.Require().NoError(err)
+				tc.postCheck(precompile)
 			}
 		})
 	}

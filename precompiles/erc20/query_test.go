@@ -112,6 +112,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	testcases := []struct {
 		name        string
 		denom       string
+		contractOwnerAddr string
 		malleate    func(sdk.Context, *app.Evmos)
 		expPass     bool
 		errContains string
@@ -193,7 +194,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
-			precompile := s.setupERC20Precompile(tc.denom)
+			precompile := s.setupERC20Precompile(tc.denom, tc.contractOwnerAddr)
 
 			s.Run("name", func() {
 				bz, err := precompile.Name(
@@ -230,6 +231,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	testcases := []struct {
 		name        string
 		denom       string
+		contractOwnerAddr string
 		malleate    func(sdk.Context, *app.Evmos)
 		expPass     bool
 		errContains string
@@ -342,7 +344,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
-			precompile := s.setupERC20Precompile(tc.denom)
+			precompile := s.setupERC20Precompile(tc.denom, tc.contractOwnerAddr)
 
 			bz, err := precompile.Decimals(
 				s.network.GetContext(),
@@ -395,7 +397,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 				tc.malleate(s.network.GetContext(), s.network.App, tc.expTotal)
 			}
 
-			precompile := s.setupERC20Precompile(validMetadataDenom)
+			precompile := s.setupERC20Precompile(validMetadataDenom, s.contractOwnerAddr)
 
 			bz, err := precompile.TotalSupply(
 				s.network.GetContext(),
@@ -476,7 +478,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				balanceOfArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expBalance)
 			}
 
-			precompile := s.setupERC20Precompile(s.tokenDenom)
+			precompile := s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
 
 			bz, err := precompile.BalanceOf(
 				s.network.GetContext(),
@@ -578,7 +580,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				allowanceArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expAllow)
 			}
 
-			precompile := s.setupERC20Precompile(s.tokenDenom)
+			precompile := s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
 
 			bz, err := precompile.Allowance(
 				s.network.GetContext(),
@@ -590,6 +592,66 @@ func (s *PrecompileTestSuite) TestAllowance() {
 
 			// NOTE: all output and error checking happens in here
 			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expAllow)
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestOwner() {
+	method := s.precompile.Methods[erc20.OwnerMethod]
+
+	testcases := []struct {
+		name        string
+		malleate    func(sdk.Context, *app.Evmos, common.Address) []interface{}
+		expPass     bool
+		errContains string
+		expOwner   common.Address
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ common.Address) []interface{} {
+				return []interface{}{1}
+			},
+			errContains: "invalid number of arguments; expected 0; got: 1",
+		},
+		{
+			name: "pass - owner is the contract owner address",
+			malleate: func(ctx sdk.Context, _ *app.Evmos, owner common.Address) []interface{} {
+				if err := s.precompile.SetContractOwnerAddress(ctx, sdk.AccAddress(owner.Bytes())); err != nil {
+					s.Require().NoError(err)
+				}
+
+				return []interface{}{}
+			},
+			expPass:  true,
+			expOwner: common.Address(s.keyring.GetAccAddr(0).Bytes()),
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			ctx := s.network.GetContext()
+
+			var ownerArgs []interface{}
+			if tc.malleate != nil {
+				ownerArgs = tc.malleate(ctx, s.network.App, tc.expOwner)
+			}
+
+			precompile := s.setupERC20Precompile(s.tokenDenom, sdk.AccAddress(tc.expOwner.Bytes()).String())
+
+			bz, err := precompile.Owner(
+				ctx,
+				nil,
+				nil,
+				&method,
+				ownerArgs,
+			)
+
+			// NOTE: all output and error checking happens in here
+			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expOwner)
 		})
 	}
 }
