@@ -43,8 +43,8 @@ const (
 	WithdrawRequiredGas uint64 = 9207
 )
 
-// LoadABI loads the staking ABI from the embedded abi.json file
-// for the staking precompile.
+// LoadABI loads the IWERC20 ABI from the embedded abi.json file
+// for the werc20 precompile.
 func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, abiPath)
 }
@@ -64,7 +64,7 @@ func NewPrecompile(
 
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
-		return nil, fmt.Errorf("erc20Precompile is nil")
+		return nil, fmt.Errorf("ERC20 precompile is nil")
 	}
 
 	// use the IWERC20 ABI
@@ -76,7 +76,7 @@ func NewPrecompile(
 	}, nil
 }
 
-// Address defines the address of the ERC20 precompile contract.
+// Address returns the address of the WERC20 precompile contract.
 func (p Precompile) Address() common.Address {
 	return p.Precompile.Address()
 }
@@ -115,18 +115,17 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		return nil, err
 	}
 
-	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
-	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
+	// This handles any out of gas errors that may occur during the execution of
+	// a precompile tx or query. It avoids panics and returns the out of gas error so
+	// the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch {
 	case method.Type == abi.Fallback,
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
-		// WERC20 transactions
 		bz, err = p.Deposit(ctx, contract)
 	case method.Name == WithdrawMethod:
-		// Withdraw Method
 		bz, err = p.Withdraw()
 	default:
 		// ERC20 transactions and queries
@@ -146,7 +145,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given method name corresponds to a transaction or query.
+// IsTransaction returns true if the given method name correspond to a
+// transaction. Returns false otherwise.
 func (p Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
 	case DepositMethod, WithdrawMethod:

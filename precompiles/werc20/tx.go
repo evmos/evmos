@@ -21,18 +21,25 @@ const (
 )
 
 // Deposit handles the payable deposit function. It retrieves the deposited amount
-// and sends it back to the sender using the bank keeper.
+// and sends it back to the sender using the bank keeper. The send back of
+// deposited funds is necessary to make the handling of this method in the
+// contract a no-op.
 func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract) ([]byte, error) {
 	// Get the deposited amount from the contract value
 	depositedAmount := contract.Value()
 
 	// Get the sender's address
+	// TODO: what if we have a user calling a contract that calls into this one?
 	sender := common.BytesToAddress(contract.Caller().Bytes())
 	senderAccAddress := sdk.AccAddress(sender.Bytes())
 	precompileAccAddr := sdk.AccAddress(p.Address().Bytes())
 
 	// Send the coins back to the sender
-	err := p.bankKeeper.SendCoins(ctx, precompileAccAddr, senderAccAddress, sdk.NewCoins(sdk.NewCoin(types.GetEVMCoinDenom(), math.NewIntFromBigInt(depositedAmount))))
+	err := p.bankKeeper.SendCoins(
+		ctx, precompileAccAddr,
+		senderAccAddress,
+		sdk.NewCoins(sdk.NewCoin(types.GetEVMCoinDenom(), math.NewIntFromBigInt(depositedAmount))),
+	)
 	if err != nil {
 		return nil, err
 	}
