@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	v3 "github.com/evmos/evmos/v19/x/erc20/migrations/v3"
 	v4 "github.com/evmos/evmos/v19/x/erc20/migrations/v4"
+	v5 "github.com/evmos/evmos/v19/x/erc20/migrations/v5"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
@@ -33,4 +34,8 @@ func (m Migrator) Migrate2to3(ctx sdk.Context) error {
 
 func (m Migrator) Migrate3to4(ctx sdk.Context) error {
 	return v4.MigrateStore(ctx, m.keeper.storeKey)
+}
+
+func (m Migrator) Migrate4to5(ctx sdk.Context) error {
+	return v5.MigrateStore(ctx, m.keeper.storeKey)
 }

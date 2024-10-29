@@ -1,0 +1,71 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
+package v5types
+
+import (
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	evmostypes "github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v19/utils"
+)
+
+// NewTokenPairSTRv2 creates a new TokenPair instance in the context of the
+// Single Token Representation v2.
+//
+// It derives the ERC-20 address from the hex suffix of the IBC denomination
+// (e.g. ibc/DF63978F803A2E27CA5CC9B7631654CCF0BBC788B3B7F0A10200508E37C70992).
+func NewTokenPairSTRv2(denom string) (V5TokenPair, error) {
+	address, err := utils.GetIBCDenomAddress(denom)
+	if err != nil {
+		return V5TokenPair{}, err
+	}
+	return V5TokenPair{
+		Erc20Address:  address.String(),
+		Denom:         denom,
+		Enabled:       true,
+		ContractOwner: OWNER_MODULE,
+	}, nil
+}
+
+// NewTokenPair returns an instance of TokenPair
+func NewTokenPair(erc20Address common.Address, denom string, contractOwner Owner, contractOwnerAddr string) V5TokenPair {
+	return V5TokenPair{
+		Erc20Address:  erc20Address.String(),
+		Denom:         denom,
+		Enabled:       true,
+		ContractOwner: contractOwner,
+	}
+}
+
+// GetID returns the SHA256 hash of the ERC20 address and denomination
+func (tp V5TokenPair) GetID() []byte {
+	id := tp.Erc20Address + "|" + tp.Denom
+	return tmhash.Sum([]byte(id))
+}
+
+// GetErc20Contract casts the hex string address of the ERC20 to common.Address
+func (tp V5TokenPair) GetERC20Contract() common.Address {
+	return common.HexToAddress(tp.Erc20Address)
+}
+
+// Validate performs a stateless validation of a TokenPair
+func (tp V5TokenPair) Validate() error {
+	if err := sdk.ValidateDenom(tp.Denom); err != nil {
+		return err
+	}
+
+	return evmostypes.ValidateAddress(tp.Erc20Address)
+}
+
+// IsNativeCoin returns true if the owner of the ERC20 contract is the
+// erc20 module account
+func (tp V5TokenPair) IsNativeCoin() bool {
+	return tp.ContractOwner == OWNER_MODULE
+}
+
+// IsNativeERC20 returns true if the owner of the ERC20 contract is an EOA.
+func (tp V5TokenPair) IsNativeERC20() bool {
+	return tp.ContractOwner == OWNER_EXTERNAL
+}

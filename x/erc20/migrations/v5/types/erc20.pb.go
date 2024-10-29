@@ -401,12 +401,12 @@ func (m *ToggleTokenConversionProposal) GetToken() string {
 }
 
 func init() {
-	proto.RegisterEnum("evmos.erc20.v1.Owner", Owner_name, Owner_value)
-	proto.RegisterType((*V5TokenPair)(nil), "evmos.erc20.v1.TokenPair")
-	proto.RegisterType((*RegisterCoinProposal)(nil), "evmos.erc20.v1.RegisterCoinProposal")
-	proto.RegisterType((*ProposalMetadata)(nil), "evmos.erc20.v1.ProposalMetadata")
-	proto.RegisterType((*RegisterERC20Proposal)(nil), "evmos.erc20.v1.RegisterERC20Proposal")
-	proto.RegisterType((*ToggleTokenConversionProposal)(nil), "evmos.erc20.v1.ToggleTokenConversionProposal")
+	proto.RegisterEnum("evmos.erc20.v5.Owner", Owner_name, Owner_value)
+	proto.RegisterType((*V5TokenPair)(nil), "evmos.erc20.v5.TokenPair")
+	proto.RegisterType((*RegisterCoinProposal)(nil), "evmos.erc20.v5.RegisterCoinProposal")
+	proto.RegisterType((*ProposalMetadata)(nil), "evmos.erc20.v5.ProposalMetadata")
+	proto.RegisterType((*RegisterERC20Proposal)(nil), "evmos.erc20.v5.RegisterERC20Proposal")
+	proto.RegisterType((*ToggleTokenConversionProposal)(nil), "evmos.erc20.v5.ToggleTokenConversionProposal")
 }
 
 func init() { proto.RegisterFile("evmos/erc20/v1/erc20.proto", fileDescriptor_668d5dc537f45142) }

@@ -8,7 +8,6 @@ import (
 
 // MigrateStore migrates the x/erc20 module state from the consensus version 4 to
 // version 5. Specifically, it takes the token pairs and stores them in the new format.
-// TODO: Add migration for the contract owner address
 func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey) error {
 	store := ctx.KVStore(storeKey)
 
@@ -23,9 +22,12 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey) error {
 			return err
 		}
 
-		if tokenPair.IsNativeCoin() {
-		
+		tokenPair.ContractOwnerAddress = ""
+		marshaledPair, err := tokenPair.Marshal()
+		if err != nil {
+			return err
 		}
+		store.Set(tokenPair.GetID(), marshaledPair)
 	}
 
 	return nil
