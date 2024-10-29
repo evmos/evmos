@@ -104,7 +104,7 @@ func (suite *TokenPairTestSuite) TestIsNativeCoin() {
 		},
 		{
 			"external ERC20 owner",
-				types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL, ""},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL, ""},
 			false,
 		},
 		{

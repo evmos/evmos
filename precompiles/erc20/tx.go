@@ -278,16 +278,16 @@ func (p *Precompile) TransferOwnership(
 	if !contractOwnerAccount.Equals(sdk.AccAddress(sender.Bytes())) {
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: unauthorized"), "ERC20: unauthorized"))
 	}
-	
+
 	if !p.tokenPair.IsNativeCoin() {
 		// TODO: Update error message
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot transfer ownership of a non-native coin"), "ERC20: cannot transfer ownership of a non-native coin"))
 	}
-	
+
 	// TODO: Check invariant
 	if contractOwnerAccount.Equals(sdk.AccAddress(newOwner.Bytes())) || contractOwnerAccount.Equals(sdk.AccAddress(common.Address{}.Bytes())) {
 		// TODO: Add InvalidOwner error
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: invalid owner"), "ERC20: invalid owner"))	
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: invalid owner"), "ERC20: invalid owner"))
 	}
 
 	if err := p.SetContractOwnerAddress(ctx, sdk.AccAddress(newOwner.Bytes())); err != nil {

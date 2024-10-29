@@ -418,8 +418,8 @@ func (s *PrecompileTestSuite) TestParseOwnerArgs() {
 		errContains string
 	}{
 		{
-			name: "pass - correct arguments",
-			args: []interface{}{},
+			name:    "pass - correct arguments",
+			args:    []interface{}{},
 			expPass: true,
 		},
 		{

@@ -51,11 +51,11 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
-	storeKey      	storetypes.StoreKey
+	storeKey       storetypes.StoreKey
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
-	accountKeeper 	erc20types.AccountKeeper
+	accountKeeper  erc20types.AccountKeeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -66,7 +66,7 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
-	accountKeeper 	erc20types.AccountKeeper,
+	accountKeeper erc20types.AccountKeeper,
 ) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
@@ -85,7 +85,7 @@ func NewPrecompile(
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
-		accountKeeper: accountKeeper,
+		accountKeeper:  accountKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
 	p.SetAddress(p.tokenPair.GetERC20Contract())
@@ -231,4 +231,3 @@ func (p *Precompile) HandleMethod(
 
 	return bz, err
 }
-

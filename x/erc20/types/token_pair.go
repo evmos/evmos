@@ -32,10 +32,10 @@ func NewTokenPairSTRv2(denom string) (TokenPair, error) {
 // NewTokenPair returns an instance of TokenPair
 func NewTokenPair(erc20Address common.Address, denom string, contractOwner Owner, contractOwnerAddr string) TokenPair {
 	return TokenPair{
-		Erc20Address:  erc20Address.String(),
-		Denom:         denom,
-		Enabled:       true,
-		ContractOwner: contractOwner,
+		Erc20Address:         erc20Address.String(),
+		Denom:                denom,
+		Enabled:              true,
+		ContractOwner:        contractOwner,
 		ContractOwnerAddress: contractOwnerAddr,
 	}
 }

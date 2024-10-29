@@ -18,7 +18,7 @@ func (p *Precompile) SetContractOwnerAddress(ctx sdk.Context, newOwner sdk.AccAd
 	if err != nil {
 		return err
 	}
-	
+
 	store.Set(p.tokenPair.GetID(), marshaledPair)
 
 	return nil

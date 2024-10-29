@@ -11,10 +11,10 @@ import (
 
 var DefaultTokenPairs = []TokenPair{
 	{
-		Erc20Address:  WEVMOSContractMainnet,
-		Denom:         utils.BaseDenom,
-		Enabled:       true,
-		ContractOwner:      OWNER_MODULE,
+		Erc20Address:         WEVMOSContractMainnet,
+		Denom:                utils.BaseDenom,
+		Enabled:              true,
+		ContractOwner:        OWNER_MODULE,
 		ContractOwnerAddress: "",
 	},
 }

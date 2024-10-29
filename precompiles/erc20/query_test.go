@@ -110,14 +110,14 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	symbolMethod := s.precompile.Methods[erc20.SymbolMethod]
 
 	testcases := []struct {
-		name        string
-		denom       string
+		name              string
+		denom             string
 		contractOwnerAddr string
-		malleate    func(sdk.Context, *app.Evmos)
-		expPass     bool
-		errContains string
-		expName     string
-		expSymbol   string
+		malleate          func(sdk.Context, *app.Evmos)
+		expPass           bool
+		errContains       string
+		expName           string
+		expSymbol         string
 	}{
 		{
 			name:        "fail - empty denom",
@@ -229,13 +229,13 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	DecimalsMethod := s.precompile.Methods[erc20.DecimalsMethod]
 
 	testcases := []struct {
-		name        string
-		denom       string
+		name              string
+		denom             string
 		contractOwnerAddr string
-		malleate    func(sdk.Context, *app.Evmos)
-		expPass     bool
-		errContains string
-		expDecimals uint8
+		malleate          func(sdk.Context, *app.Evmos)
+		expPass           bool
+		errContains       string
+		expDecimals       uint8
 	}{
 		{
 			name:        "fail - empty denom",
@@ -604,7 +604,7 @@ func (s *PrecompileTestSuite) TestOwner() {
 		malleate    func(sdk.Context, *app.Evmos, common.Address) []interface{}
 		expPass     bool
 		errContains string
-		expOwner   common.Address
+		expOwner    common.Address
 	}{
 		{
 			name: "fail - invalid number of arguments",

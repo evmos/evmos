@@ -8,15 +8,15 @@ import (
 func (s *PrecompileTestSuite) TestSetContractOwnerAddress() {
 
 	testcases := []struct {
-		name string
-		malleate func(ctx sdk.Context, precompile *erc20.Precompile)
-		expPass bool
+		name        string
+		malleate    func(ctx sdk.Context, precompile *erc20.Precompile)
+		expPass     bool
 		errContains string
 	}{
 		{
-			name: "success",
+			name:     "success",
 			malleate: nil,
-			expPass: true,
+			expPass:  true,
 		},
 	}
 
@@ -42,17 +42,17 @@ func (s *PrecompileTestSuite) TestSetContractOwnerAddress() {
 
 func (s *PrecompileTestSuite) TestGetContractOwnerAddress() {
 	testcases := []struct {
-		name string
-		malleate func(ctx sdk.Context, precompile *erc20.Precompile) *erc20.Precompile
-		expOwner sdk.AccAddress
-		expPass bool
+		name        string
+		malleate    func(ctx sdk.Context, precompile *erc20.Precompile) *erc20.Precompile
+		expOwner    sdk.AccAddress
+		expPass     bool
 		errContains string
 	}{
 		{
-			name: "success",
+			name:     "success",
 			malleate: nil,
 			expOwner: s.keyring.GetAccAddr(1),
-			expPass: true,
+			expPass:  true,
 		},
 	}
 
@@ -74,5 +74,5 @@ func (s *PrecompileTestSuite) TestGetContractOwnerAddress() {
 				s.Require().Contains(err.Error(), tc.errContains)
 			}
 		})
-	}	
+	}
 }

@@ -274,7 +274,9 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - negative amount",
 			func() []interface{} {
-				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
+				if err := s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr); err != nil {
+					s.Require().NoError(err)
+				}
 				return []interface{}{toAddr, big.NewInt(-1)}
 			},
 			func() {},
@@ -284,7 +286,9 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - invalid to address",
 			func() []interface{} {
-				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
+				if err := s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr); err != nil {
+					s.Require().NoError(err)
+				}
 				return []interface{}{"", big.NewInt(100)}
 			},
 			func() {},
@@ -294,7 +298,9 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"fail - invalid amount",
 			func() []interface{} {
-				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
+				if err := s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr); err != nil {
+					s.Require().NoError(err)
+				}
 				return []interface{}{toAddr, ""}
 			},
 			func() {},
@@ -313,7 +319,9 @@ func (s *PrecompileTestSuite) TestMint() {
 		{
 			"pass",
 			func() []interface{} {
-				s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr)
+				if err := s.precompile.SetContractOwnerAddress(s.network.GetContext(), sender.AccAddr); err != nil {
+					s.Require().NoError(err)
+				}
 				coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
 				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, coins)
 				s.Require().NoError(err, "failed to mint coins")
@@ -407,7 +415,6 @@ func (s *PrecompileTestSuite) TestBurn() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
 			coins := sdk.Coins{{Denom: tokenDenom, Amount: math.NewInt(100)}}
-			
 
 			var contract *vm.Contract
 			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), from.Addr, s.precompile, 0)
@@ -436,10 +443,10 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 	newOwner := common.Address(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
-		name string
-		malleate func() []interface{}
-		postCheck func(precompile *erc20.Precompile)
-		expErr bool
+		name        string
+		malleate    func() []interface{}
+		postCheck   func(precompile *erc20.Precompile)
+		expErr      bool
 		errContains string
 	}{
 		{
@@ -447,7 +454,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 			malleate: func() []interface{} {
 				return []interface{}{}
 			},
-			expErr: true,
+			expErr:      true,
 			errContains: "invalid number of arguments; expected 1; got: 0",
 		},
 		{
@@ -455,7 +462,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 			malleate: func() []interface{} {
 				return []interface{}{"invalid"}
 			},
-			expErr: true,
+			expErr:      true,
 			errContains: "invalid new owner address",
 		},
 		{
@@ -477,9 +484,9 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
-			
+
 			precompile := s.setupERC20Precompile(s.tokenDenom, from.AccAddr.String())
-			
+
 			var contract *vm.Contract
 			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), from.Addr, s.precompile, 0)
 

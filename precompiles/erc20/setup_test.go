@@ -21,12 +21,12 @@ type PrecompileTestSuite struct {
 	bondDenom string
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
-	tokenDenom  string
+	tokenDenom        string
 	contractOwnerAddr string
-	network     *network.UnitTestNetwork
-	factory     factory.TxFactory
-	grpcHandler grpc.Handler
-	keyring     testkeyring.Keyring
+	network           *network.UnitTestNetwork
+	factory           factory.TxFactory
+	grpcHandler       grpc.Handler
+	keyring           testkeyring.Keyring
 
 	precompile *erc20precompile.Precompile
 }
