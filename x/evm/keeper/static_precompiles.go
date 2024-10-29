@@ -97,6 +97,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
+	// TODO: find a way to use also testnet
 	tokenPair := erc20types.NewTokenPair(common.HexToAddress(erc20types.WEVMOSContractMainnet), types.GetEVMCoinDenom(), erc20types.OWNER_MODULE)
 	wevmosPrecompile, err := werc20.NewPrecompile(
 		tokenPair,
