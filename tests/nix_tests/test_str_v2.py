@@ -4,7 +4,12 @@ import tempfile
 import pytest
 from web3 import Web3
 
-from .ibc_utils import ATOM_IBC_DENOM, assert_ready, get_balance, prepare_network
+from .ibc_utils import (
+    ATOM_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    prepare_network,
+)
 from .network import CosmosChain, Evmos
 from .utils import (
     ADDRS,
@@ -51,7 +56,7 @@ UPDATE_PARAMS_PROP = {
 }
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec" "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """Prepare the network"""
     name = "str-v2"
