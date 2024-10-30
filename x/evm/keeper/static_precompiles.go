@@ -37,6 +37,7 @@ const bech32PrecompileBaseGas = 6_000
 // AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(
+	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -98,7 +99,12 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// TODO: find a way to use also testnet
-	tokenPair := erc20types.NewTokenPair(common.HexToAddress(erc20types.WEVMOSContractMainnet), types.GetEVMCoinDenom(), erc20types.OWNER_MODULE)
+	wevmosHex := erc20types.GetWEVMOSContractHex(chainID)
+	tokenPair := erc20types.NewTokenPair(
+		common.HexToAddress(wevmosHex),
+		types.GetEVMCoinDenom(),
+		erc20types.OWNER_MODULE,
+	)
 	wevmosPrecompile, err := werc20.NewPrecompile(
 		tokenPair,
 		bankKeeper,
