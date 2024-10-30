@@ -22,6 +22,10 @@ service Msg {
   // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+  rpc TransferOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse);
+
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
@@ -71,3 +75,22 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
+
+// MsgTransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+message MsgTransferOwnership {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // title of the proposal
+  string title = 2;
+  // description of the proposal
+  string description = 3;
+  // token identifier can be either the hex contract address of the ERC20 or the
+  // Cosmos base denomination
+  string token = 4;
+  // new_owner is the hex address of the new owner
+  string new_owner = 5;
+}
+
+// MsgTransferOwnershipResponse returns no fields
+message MsgTransferOwnershipResponse {}

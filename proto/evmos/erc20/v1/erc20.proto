@@ -82,16 +82,3 @@ message ToggleTokenConversionProposal {
   // Cosmos base denomination
   string token = 3;
 }
-
-// MsgTransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
-message TransferOwnershipProposal {
-  // title of the proposal
-  string title = 1;
-  // description of the proposal
-  string description = 2;
-  // token identifier can be either the hex contract address of the ERC20 or the
-  // Cosmos base denomination
-  string token = 3;
-  // new_owner is the hex address of the new owner
-  string new_owner = 4;
-}
