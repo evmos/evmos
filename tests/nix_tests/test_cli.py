@@ -18,7 +18,11 @@ def test_block_cmd(evmos_cluster):
     wait_for_block(node1, last_block)
 
     # stop node1
-    supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", f"{evmos_cluster.cosmos_cli().chain_id}-node1")
+    supervisorctl(
+        evmos_cluster.base_dir / "../tasks.ini",
+        "stop",
+        f"{evmos_cluster.cosmos_cli().chain_id}-node1",
+    )
 
     # use 'block' CLI cmd in node1
     test_cases = [
@@ -59,7 +63,9 @@ def test_block_cmd(evmos_cluster):
 
     # start node1 again
     supervisorctl(
-        evmos_cluster.base_dir / "../tasks.ini", "start", f"{evmos_cluster.cosmos_cli().chain_id}-node1"
+        evmos_cluster.base_dir / "../tasks.ini",
+        "start",
+        f"{evmos_cluster.cosmos_cli().chain_id}-node1",
     )
     # check if chain continues alright
     wait_for_block(node1, last_block + 3)
