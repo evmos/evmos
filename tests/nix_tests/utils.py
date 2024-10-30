@@ -766,3 +766,11 @@ def amount_of_dec_coin(balances, denom):
             amt = balance.split(denom)[0]
             return round(float(amt))
     return 0
+
+
+def get_scaling_factor(cli):
+    decimals = cli.evm_decimals()
+    scaling_factor = 1
+    if decimals == 6:
+        scaling_factor = SCALE_FACTOR_6DEC
+    return scaling_factor

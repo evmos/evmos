@@ -1,4 +1,4 @@
-from .utils import SCALE_FACTOR_6DEC, get_current_height, supervisorctl, wait_for_block
+from .utils import SCALE_FACTOR_6DEC, get_current_height, get_scaling_factor, supervisorctl, wait_for_block
 
 
 def test_block_cmd(evmos_cluster):
@@ -74,10 +74,7 @@ def test_tx_flags(evmos_cluster):
     current_height = get_current_height(node)
     wait_for_block(node, current_height + 1)
     fee_denom = node.evm_denom()
-    decimals = node.evm_decimals()
-    scale_factor = 1
-    if decimals == 6:
-        scale_factor = SCALE_FACTOR_6DEC
+    scale_factor = get_scaling_factor(node)
 
     test_cases = [
         {
