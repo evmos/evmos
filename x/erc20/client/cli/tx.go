@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -22,6 +23,10 @@ import (
 	evmostypes "github.com/evmos/evmos/v19/types"
 
 	"github.com/evmos/evmos/v19/x/erc20/types"
+)
+
+const (
+	FlagAddress = "address"
 )
 
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands
@@ -36,6 +41,9 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewConvertERC20Cmd(),
+	)
+	txCmd.AddCommand(
+		NewTransferOwnershipCmd(),
 	)
 	return txCmd
 }
@@ -211,65 +219,46 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	return cmd
 }
 
-func NewTransferOwnershipProposalCmd() *cobra.Command {
+func NewTransferOwnershipCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "transfer-ownership TOKEN NEW_OWNER",
 		Args:    cobra.ExactArgs(2),
 		Short:   "Submit a transfer ownership proposal",
 		Long:    "Submit a proposal to transfer the ownership of a token pair to a new owner.",
-		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal transfer-ownership DENOM_OR_CONTRACT NEW_OWNER --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx erc20 transfer-ownership DENOM_OR_CONTRACT NEW_OWNER", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			title, err := cmd.Flags().GetString(cli.FlagTitle)
-			if err != nil {
-				return err
-			}
-
-			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
-			if err != nil {
-				return err
-			}
-
-			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
-			if err != nil {
-				return err
-			}
-
-			deposit, err := sdk.ParseCoinsNormalized(depositStr)
+			proposal, err := cli.ReadGovPropFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
 
 			token, newOwner := args[0], args[1]
-			from := clientCtx.GetFromAddress()
 
-			content := types.NewTransferOwnershipProposal(title, description, token, newOwner)
+			authority := sdk.AccAddress(address.Module("gov"))
 
-			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
-			if err != nil {
-				return err
+			msg := &types.MsgTransferOwnership{
+				Authority: authority.String(),
+				Token:     token,
+				NewOwner:  newOwner,
+			}
+
+			if err := proposal.SetMsgs([]sdk.Msg{
+				msg,
+			}); err != nil {
+				return fmt.Errorf("failed to set governance proposal: %w", err)
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
-	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
-	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
-	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
-		panic(err)
-	}
+	// flags.AddTxFlagsToCmd(cmd)
+	cli.AddGovPropFlagsToCmd(cmd)
 
 	return cmd
 }

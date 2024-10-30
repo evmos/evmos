@@ -276,3 +276,28 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+// TransferOwnership implements the MsgServer interface for the ERC20 module.
+func (k Keeper) TransferOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
+	// Validate authority
+	if k.authority.String() != msg.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, msg.Authority)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Validate token pair
+	id := k.GetTokenPairID(ctx, msg.Token)
+	if len(id) == 0 {
+		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered by id", msg.Token)
+	}
+
+	pair, found := k.GetTokenPair(ctx, id)
+	if !found {
+		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", msg.Token)
+	}
+
+	pair.ContractOwnerAddress = msg.NewOwner
+	k.SetTokenPair(ctx, pair)
+
+	return &types.MsgTransferOwnershipResponse{}, nil
+}

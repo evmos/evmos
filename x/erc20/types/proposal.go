@@ -134,26 +134,3 @@ func (*RegisterCoinProposal) ProposalType() string {
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 	return errors.New("deprecated")
 }
-
-// NewTransferOwnershipProposal returns new instance of TransferOwnershipProposal
-func NewTransferOwnershipProposal(title, description, token, newOwner string) v1beta1.Content {
-	return &TransferOwnershipProposal{
-		Title:       title,
-		Description: description,
-		Token:       token,
-		NewOwner:        newOwner,
-	}
-}
-
-// ProposalRoute returns router key for this proposal
-func (*TransferOwnershipProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal
-func (*TransferOwnershipProposal) ProposalType() string {
-	return ProposalTypeTransferOwnership
-}
-
-// ValidateBasic performs a stateless check of the proposal fields.
-func (top *TransferOwnershipProposal) ValidateBasic() error {
-	return errors.New("not implemented")
-}

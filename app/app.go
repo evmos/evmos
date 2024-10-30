@@ -108,7 +108,7 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 
-	"github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v7"
 	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/keeper"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v7/types"
 
@@ -211,7 +211,7 @@ var (
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
-				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler, 
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
