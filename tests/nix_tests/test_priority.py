@@ -15,12 +15,14 @@ def custom_evmos(tmp_path_factory):
     # txs are included in the same block
     yield from setup_evmos(path, 26800, long_timeout_commit=True)
 
+
 @pytest.fixture(scope="module")
 def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority-6dec")
     # run with long timeout commit to ensure all
     # txs are included in the same block
     yield from setup_evmos_6dec(path, 46810, long_timeout_commit=True)
+
 
 @pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
@@ -40,7 +42,7 @@ def evmos_cluster(request, custom_evmos, custom_evmos_6dec, custom_evmos_rocksdb
     if provider == "evmos":
         yield custom_evmos
     elif provider == "evmos-6dec":
-        yield custom_evmos_6dec        
+        yield custom_evmos_6dec
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     else:

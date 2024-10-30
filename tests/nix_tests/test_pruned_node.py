@@ -68,7 +68,7 @@ def pruned_cluster(request, pruned, pruned_6dec, pruned_rocksdb):
     if provider == "evmos":
         yield pruned
     elif provider == "evmos-6dec":
-        yield pruned_6dec        
+        yield pruned_6dec
     elif provider == "evmos-rocksdb":
         yield pruned_rocksdb
     else:
