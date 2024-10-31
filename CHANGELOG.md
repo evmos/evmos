@@ -39,36 +39,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.5.1`.
-- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
-- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
-- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
 - (evm) [#2633](https://github.com/evmos/evmos/pull/2633) Remove `EthAccount` type and use `BaseAccount` instead.
-- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
 - (app) [#2860](https://github.com/evmos/evmos/pull/2860) Refactor to use `sdk.BaseDenom` and EVM denom and added app configurator.
-- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
-- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
 - (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
-- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
 
 ### Improvements
 
-- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922) Add 'VoteWeighted' transaction to gov precompile.
-- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
-- (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
-- (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
-- (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
-- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
-- (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
-- (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
-- (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
 - (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
 - (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.
 - (evm) [#2873](https://github.com/evmos/evmos/pull/2873) Remove `BeginBlock` and replace `ChainID` with global config.
-- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
 - (evm) [#2897](https://github.com/evmos/evmos/pull/2897) Adjust extra decimals in `AddBalance` and `SubBalance` methods on `stateObject` in state DB.
 - (evm) [#2898](https://github.com/evmos/evmos/pull/2898) Refactor to use `ChainConfig` from `evm/types`.
 - (evm) [#2906](https://github.com/evmos/evmos/pull/2906) Add fees scaling when building transaction on `MsgEthereumTx`.
@@ -80,11 +62,37 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
 - (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
-- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
 
 ### Bug Fixes
 
 - (cli) [#2921](https://github.com/evmos/evmos/pull/2921) Use default denomination when using rootCmd.
+
+## [v20.0.0](https://github.com/evmos/evmos/releases/tag/v20.0.0) - 2024-10-21
+
+### State Machine Breaking
+
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump Cosmos-SDK version to `v0.50.9` and IBC-Go version to `v8.5.1`.
+- (app) [#2706](https://github.com/evmos/evmos/pull/2706) Bump IBC-Go to v7.7.0 and Cosmos-SDK to v0.47.13.
+- (ante) [#2719](https://github.com/evmos/evmos/pull/2719) Remove automatic withdrawal of staking rewards in case of insufficient funds.
+- (app) [#2802](https://github.com/evmos/evmos/pull/2802) Bump IBC-Go to v7.8.0.
+- (precompiles) [#2858](https://github.com/evmos/evmos/pull/2858) Add gov precompile (only vote).
+- (vesting) [#2880](https://github.com/evmos/evmos/pull/2880) Fix free delegated amount on `addGrant`.
+- (erc20) [#2913](https://github.com/evmos/evmos/pull/2913) Add again changes lost on merge conflict related to EIP-55 ([#2696](https://github.com/evmos/evmos/pull/2696)).
+
+### Improvements
+
+- (app) [#2838](https://github.com/evmos/evmos/pull/2838) Bump repository version to `v20`.
+- (precompiles) [#2922](https://github.com/evmos/evmos/pull/2922) Add 'VoteWeighted' transaction to gov precompile.
+- (rpc) [#2856](https://github.com/evmos/evmos/pull/2856) Improve performance of `eth_headerByHash`.
+- (evm) [#2837](https://github.com/evmos/evmos/pull/2837) Update `Interpreter` interface and public functions to support custom Opcodes.
+- (inflation) [#2813](https://github.com/evmos/evmos/pull/2813) Fix communityPool is nil.
+- (evm) [#2683](https://github.com/evmos/evmos/pull/2683) Remove duplicate definitions of precompile addresses.
+- (evm) [#2709](https://github.com/evmos/evmos/pull/2709) Minor improvements in precompiles related code.
+- (cli) [#2733](https://github.com/evmos/evmos/pull/2733) Use `pruning.Cmd` instead of the deprecated `pruning.PruningCmd`.
+- (ante) [#2741](https://github.com/evmos/evmos/pull/2741) Remove unnecessary fee ante handler and use Cosmos one instead.
+- (api) [#2884](https://github.com/evmos/evmos/pull/2884) Refactor to use a function to return `TxDataV2` in custom `GetSingers`.
+- (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
+- (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
 
 ## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
